@@ -24,11 +24,9 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package org.markdownwriterfx;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import javafx.application.Platform;
@@ -55,155 +53,172 @@ import org.markdownwriterfx.preview.MarkdownPreviewPane;
  *
  * @author Karl Tauber
  */
-class FileEditor
-{
-	private final MainWindow mainWindow;
-	private final Tab tab = new Tab();
-	private MarkdownEditorPane markdownEditorPane;
-	private MarkdownPreviewPane markdownPreviewPane;
+class FileEditor {
 
-	FileEditor(MainWindow mainWindow, Path path) {
-		this.mainWindow = mainWindow;
-		this.path.set(path);
+  private final MainWindow mainWindow;
+  private final Tab tab = new Tab();
+  private MarkdownEditorPane markdownEditorPane;
+  private MarkdownPreviewPane markdownPreviewPane;
 
-		// avoid that this is GCed
-		tab.setUserData(this);
+  FileEditor( MainWindow mainWindow, Path path ) {
+    this.mainWindow = mainWindow;
+    this.path.set( path );
 
-		this.path.addListener((observable, oldPath, newPath) -> updateTab());
-		this.modified.addListener((observable, oldPath, newPath) -> updateTab());
-		updateTab();
+    // avoid that this is GCed
+    tab.setUserData( this );
 
-		tab.setOnSelectionChanged(e -> {
-			if(tab.isSelected())
-				Platform.runLater(() -> activated());
-		});
-	}
+    this.path.addListener( (observable, oldPath, newPath) -> updateTab() );
+    this.modified.addListener( (observable, oldPath, newPath) -> updateTab() );
+    updateTab();
 
-	Tab getTab() {
-		return tab;
-	}
+    tab.setOnSelectionChanged( e -> {
+      if( tab.isSelected() ) {
+        Platform.runLater( () -> activated() );
+      }
+    } );
+  }
 
-	MarkdownEditorPane getEditor() {
-		return markdownEditorPane;
-	}
+  Tab getTab() {
+    return tab;
+  }
 
-	// 'path' property
-	private final ObjectProperty<Path> path = new SimpleObjectProperty<>();
-	Path getPath() { return path.get(); }
-	void setPath(Path path) { this.path.set(path); }
-	ObjectProperty<Path> pathProperty() { return path; }
+  MarkdownEditorPane getEditor() {
+    return markdownEditorPane;
+  }
 
-	// 'modified' property
-	private final ReadOnlyBooleanWrapper modified = new ReadOnlyBooleanWrapper();
-	boolean isModified() { return modified.get(); }
-	ReadOnlyBooleanProperty modifiedProperty() { return modified.getReadOnlyProperty(); }
+  // 'path' property
+  private final ObjectProperty<Path> path = new SimpleObjectProperty<>();
 
-	// 'canUndo' property
-	private final BooleanProperty canUndo = new SimpleBooleanProperty();
-	BooleanProperty canUndoProperty() { return canUndo; }
+  Path getPath() {
+    return path.get();
+  }
 
-	// 'canRedo' property
-	private final BooleanProperty canRedo = new SimpleBooleanProperty();
-	BooleanProperty canRedoProperty() { return canRedo; }
+  void setPath( Path path ) {
+    this.path.set( path );
+  }
 
-	private void updateTab() {
-		Path path = this.path.get();
-		tab.setText((path != null) ? path.getFileName().toString() : Messages.get("FileEditor.untitled"));
-		tab.setTooltip((path != null) ? new Tooltip(path.toString()) : null);
-		tab.setGraphic(isModified() ? new Text("*") : null);
-	}
+  ObjectProperty<Path> pathProperty() {
+    return path;
+  }
 
-	private void activated() {
-		if( tab.getTabPane() == null || !tab.isSelected())
-			return; // tab is already closed or no longer active
+  // 'modified' property
+  private final ReadOnlyBooleanWrapper modified = new ReadOnlyBooleanWrapper();
 
-		if (tab.getContent() != null) {
-			markdownEditorPane.requestFocus();
-			return;
-		}
+  boolean isModified() {
+    return modified.get();
+  }
 
-		// load file and create UI when the tab becomes visible the first time
+  ReadOnlyBooleanProperty modifiedProperty() {
+    return modified.getReadOnlyProperty();
+  }
 
-		markdownEditorPane = new MarkdownEditorPane();
-		markdownPreviewPane = new MarkdownPreviewPane();
+  // 'canUndo' property
+  private final BooleanProperty canUndo = new SimpleBooleanProperty();
 
-		markdownEditorPane.pathProperty().bind(path);
+  BooleanProperty canUndoProperty() {
+    return canUndo;
+  }
 
-		load();
+  // 'canRedo' property
+  private final BooleanProperty canRedo = new SimpleBooleanProperty();
 
-		// clear undo history after first load
-		markdownEditorPane.getUndoManager().forgetHistory();
+  BooleanProperty canRedoProperty() {
+    return canRedo;
+  }
 
-		// bind preview to editor
-		markdownPreviewPane.pathProperty().bind(pathProperty());
-		markdownPreviewPane.markdownASTProperty().bind(markdownEditorPane.markdownASTProperty());
-		markdownPreviewPane.scrollYProperty().bind(markdownEditorPane.scrollYProperty());
+  private void updateTab() {
+    Path filePath = this.path.get();
+    tab.setText( (filePath != null) ? filePath.getFileName().toString() : Messages.get( "FileEditor.untitled" ) );
+    tab.setTooltip( (filePath != null) ? new Tooltip( filePath.toString() ) : null );
+    tab.setGraphic( isModified() ? new Text( "*" ) : null );
+  }
 
-		// bind the editor undo manager to the properties
-		UndoManager undoManager = markdownEditorPane.getUndoManager();
-		modified.bind(Bindings.not(undoManager.atMarkedPositionProperty()));
-		canUndo.bind(undoManager.undoAvailableProperty());
-		canRedo.bind(undoManager.redoAvailableProperty());
+  private void activated() {
+    if( tab.getTabPane() == null || !tab.isSelected() ) {
+      return; // tab is already closed or no longer active
+    }
 
-		SplitPane splitPane = new SplitPane(markdownEditorPane.getNode(), markdownPreviewPane.getNode());
-		tab.setContent(splitPane);
+    if( tab.getContent() != null ) {
+      markdownEditorPane.requestFocus();
+      return;
+    }
 
-		markdownEditorPane.requestFocus();
-	}
+    // load file and create UI when the tab becomes visible the first time
+    markdownEditorPane = new MarkdownEditorPane();
+    markdownPreviewPane = new MarkdownPreviewPane();
 
-	void load() {
-		Path path = this.path.get();
-		if (path == null)
-			return;
+    markdownEditorPane.pathProperty().bind( path );
 
-		try {
-			byte[] bytes = Files.readAllBytes(path);
+    load();
 
-			String markdown = null;
-			if (Options.getEncoding() != null) {
-				try {
-					markdown = new String(bytes, Options.getEncoding());
-				} catch (UnsupportedEncodingException ex) {
-					// fallback
-					markdown = new String(bytes);
-				}
-			} else
-				markdown = new String(bytes);
+    // clear undo history after first load
+    markdownEditorPane.getUndoManager().forgetHistory();
 
-			markdownEditorPane.setMarkdown(markdown);
-			markdownEditorPane.getUndoManager().mark();
-		} catch (IOException ex) {
-			Alert alert = mainWindow.createAlert(AlertType.ERROR,
-				Messages.get("FileEditor.loadFailed.title"),
-				Messages.get("FileEditor.loadFailed.message"), path, ex.getMessage());
-			alert.showAndWait();
-		}
-	}
+    // bind preview to editor
+    markdownPreviewPane.pathProperty().bind( pathProperty() );
+    markdownPreviewPane.markdownASTProperty().bind( markdownEditorPane.markdownASTProperty() );
+    markdownPreviewPane.scrollYProperty().bind( markdownEditorPane.scrollYProperty() );
 
-	boolean save() {
-		String markdown = markdownEditorPane.getMarkdown();
+    // bind the editor undo manager to the properties
+    UndoManager undoManager = markdownEditorPane.getUndoManager();
+    modified.bind( Bindings.not( undoManager.atMarkedPositionProperty() ) );
+    canUndo.bind( undoManager.undoAvailableProperty() );
+    canRedo.bind( undoManager.redoAvailableProperty() );
 
-		byte[] bytes;
-		if (Options.getEncoding() != null) {
-			try {
-				bytes = markdown.getBytes(Options.getEncoding());
-			} catch (UnsupportedEncodingException ex) {
-				// fallback
-				bytes = markdown.getBytes();
-			}
-		} else
-			bytes = markdown.getBytes();
+    SplitPane splitPane = new SplitPane( markdownEditorPane.getNode(), markdownPreviewPane.getNode() );
+    tab.setContent( splitPane );
 
-		try {
-			Files.write(path.get(), bytes);
-			markdownEditorPane.getUndoManager().mark();
-			return true;
-		} catch (IOException ex) {
-			Alert alert = mainWindow.createAlert(AlertType.ERROR,
-				Messages.get("FileEditor.saveFailed.title"),
-				Messages.get("FileEditor.saveFailed.message"), path.get(), ex.getMessage());
-			alert.showAndWait();
-			return false;
-		}
-	}
+    markdownEditorPane.requestFocus();
+  }
+
+  void load() {
+    Path filePath = this.path.get();
+
+    if( filePath != null ) {
+      try {
+        byte[] bytes = Files.readAllBytes( filePath );
+
+        String markdown;
+
+        try {
+          markdown = new String( bytes, Options.getEncoding() );
+        } catch( Exception ex ) {
+          // Unsupported encodings and null pointers will fallback here.
+          markdown = new String( bytes );
+        }
+
+        markdownEditorPane.setMarkdown( markdown );
+        markdownEditorPane.getUndoManager().mark();
+      } catch( IOException ex ) {
+        Alert alert = mainWindow.createAlert( AlertType.ERROR,
+          Messages.get( "FileEditor.loadFailed.title" ),
+          Messages.get( "FileEditor.loadFailed.message" ), filePath, ex.getMessage() );
+        alert.showAndWait();
+      }
+    }
+  }
+
+  boolean save() {
+    String markdown = markdownEditorPane.getMarkdown();
+
+    byte[] bytes;
+
+    try {
+      bytes = markdown.getBytes( Options.getEncoding() );
+    } catch( Exception ex ) {
+      bytes = markdown.getBytes();
+    }
+
+    try {
+      Files.write( path.get(), bytes );
+      markdownEditorPane.getUndoManager().mark();
+      return true;
+    } catch( IOException ex ) {
+      Alert alert = mainWindow.createAlert( AlertType.ERROR,
+        Messages.get( "FileEditor.saveFailed.title" ),
+        Messages.get( "FileEditor.saveFailed.message" ), path.get(), ex.getMessage() );
+      alert.showAndWait();
+      return false;
+    }
+  }
 }

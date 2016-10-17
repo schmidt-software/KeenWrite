@@ -24,7 +24,6 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package org.markdownwriterfx.options;
 
 import java.util.prefs.Preferences;
@@ -34,7 +33,9 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-import org.markdownwriterfx.util.Utils;
+import static org.markdownwriterfx.util.Utils.putPrefs;
+import static org.markdownwriterfx.util.Utils.putPrefsBoolean;
+import static org.markdownwriterfx.util.Utils.putPrefsInt;
 import org.pegdown.Extensions;
 
 /**
@@ -42,47 +43,75 @@ import org.pegdown.Extensions;
  *
  * @author Karl Tauber
  */
-public class Options
-{
-	private static Preferences options;
+public class Options {
+  private static final StringProperty LINE_SEPARATOR = new SimpleStringProperty();
+  private static final StringProperty ENCODING = new SimpleStringProperty();
+  private static final IntegerProperty MARKDOWN_EXTENSIONS = new SimpleIntegerProperty();
+  private static final BooleanProperty SHOW_WHITESPACE = new SimpleBooleanProperty();
 
-	public static void load(Preferences options) {
-		Options.options = options;
+  private static Preferences options;
 
-		setLineSeparator(options.get("lineSeparator", null));
-		setEncoding(options.get("encoding", null));
-		setMarkdownExtensions(options.getInt("markdownExtensions", Extensions.ALL));
-		setShowWhitespace(options.getBoolean("showWhitespace", false));
-	}
+  public static void load( Preferences options ) {
+    Options.options = options;
 
-	public static void save() {
-		Utils.putPrefs(options, "lineSeparator", getLineSeparator(), null);
-		Utils.putPrefs(options, "encoding", getEncoding(), null);
-		Utils.putPrefsInt(options, "markdownExtensions", getMarkdownExtensions(), Extensions.ALL);
-		Utils.putPrefsBoolean(options, "showWhitespace", isShowWhitespace(), false);
-	}
+    setLineSeparator( options.get( "lineSeparator", null ) );
+    setEncoding( options.get( "encoding", null ) );
+    setMarkdownExtensions( options.getInt( "markdownExtensions", Extensions.ALL ) );
+    setShowWhitespace( options.getBoolean( "showWhitespace", false ) );
+  }
 
-	// 'lineSeparator' property
-	private static final StringProperty lineSeparator = new SimpleStringProperty();
-	public static String getLineSeparator() { return lineSeparator.get(); }
-	public static void setLineSeparator(String lineSeparator) { Options.lineSeparator.set(lineSeparator); }
-	public static StringProperty lineSeparatorProperty() { return lineSeparator; }
+  public static void save() {
+    putPrefs( options, "lineSeparator", getLineSeparator(), null );
+    putPrefs( options, "encoding", getEncoding(), null );
+    putPrefsInt( options, "markdownExtensions", getMarkdownExtensions(), Extensions.ALL );
+    putPrefsBoolean( options, "showWhitespace", isShowWhitespace(), false );
+  }
 
-	// 'encoding' property
-	private static final StringProperty encoding = new SimpleStringProperty();
-	public static String getEncoding() { return encoding.get(); }
-	public static void setEncoding(String encoding) { Options.encoding.set(encoding); }
-	public static StringProperty encodingProperty() { return encoding; }
+  public static String getLineSeparator() {
+    return LINE_SEPARATOR.get();
+  }
 
-	// 'markdownExtensions' property
-	private static final IntegerProperty markdownExtensions = new SimpleIntegerProperty();
-	public static int getMarkdownExtensions() { return markdownExtensions.get(); }
-	public static void setMarkdownExtensions(int markdownExtensions) { Options.markdownExtensions.set(markdownExtensions); }
-	public static IntegerProperty markdownExtensionsProperty() { return markdownExtensions; }
+  public static void setLineSeparator( String lineSeparator ) {
+    LINE_SEPARATOR.set( lineSeparator );
+  }
 
-	// 'showWhitespace' property
-	private static final BooleanProperty showWhitespace = new SimpleBooleanProperty();
-	public static boolean isShowWhitespace() { return showWhitespace.get(); }
-	public static void setShowWhitespace(boolean showWhitespace) { Options.showWhitespace.set(showWhitespace); }
-	public static BooleanProperty showWhitespaceProperty() { return showWhitespace; }
+  public static StringProperty lineSeparatorProperty() {
+    return LINE_SEPARATOR;
+  }
+
+  public static String getEncoding() {
+    return ENCODING.get();
+  }
+
+  public static void setEncoding( String encoding ) {
+    ENCODING.set( encoding );
+  }
+
+  public static StringProperty encodingProperty() {
+    return ENCODING;
+  }
+
+  public static int getMarkdownExtensions() {
+    return MARKDOWN_EXTENSIONS.get();
+  }
+
+  public static void setMarkdownExtensions( int markdownExtensions ) {
+    MARKDOWN_EXTENSIONS.set( markdownExtensions );
+  }
+
+  public static IntegerProperty markdownExtensionsProperty() {
+    return MARKDOWN_EXTENSIONS;
+  }
+
+  public static boolean isShowWhitespace() {
+    return SHOW_WHITESPACE.get();
+  }
+
+  public static void setShowWhitespace( boolean showWhitespace ) {
+    SHOW_WHITESPACE.set( showWhitespace );
+  }
+
+  public static BooleanProperty showWhitespaceProperty() {
+    return SHOW_WHITESPACE;
+  }
 }
