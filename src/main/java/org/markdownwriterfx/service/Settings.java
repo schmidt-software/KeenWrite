@@ -58,4 +58,14 @@ public interface Settings extends Service {
    */
   public List<Object> getSettingList( String property, List<String> defaults );
 
+
+  /**
+   * Convert the generic list of property objects into strings.
+   *
+   * @param property The property value to coerce.
+   * @param defaults The defaults values to use should the property be unset.
+   *
+   * @return The list of properties coerced from objects to strings.
+   */
+  public List<String> getStringSettingList( String property, List<String> defaults );
 }

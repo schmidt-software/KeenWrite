@@ -31,9 +31,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 import java.util.prefs.Preferences;
-import java.util.stream.Collectors;
 import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.property.ReadOnlyBooleanWrapper;
 import javafx.beans.property.ReadOnlyObjectProperty;
@@ -360,27 +358,15 @@ class FileEditorTabPane extends AbstractPane {
   }
 
   private List<String> getMarkdownExtensions() {
-    return getStringPropertyList( "application.extensions.markdown", DEFAULT_EXTENSIONS_MARKDOWN );
+    return getStringSettingList( "application.extensions.markdown", DEFAULT_EXTENSIONS_MARKDOWN );
   }
 
   private List<String> getAllExtensions() {
-    return getStringPropertyList( "application.extensions.all", DEFAULT_EXTENSIONS_ALL );
+    return getStringSettingList( "application.extensions.all", DEFAULT_EXTENSIONS_ALL );
   }
-
-  /**
-   * Convert the generic list of property objects into strings.
-   *
-   * @param property The property value to coerce.
-   * @param defaults The defaults values to use should the property be unset.
-   *
-   * @return The list of properties coerced from objects to strings.
-   */
-  private List<String> getStringPropertyList( String property, List<String> defaults ) {
-    final List<Object> properties = getSettings().getSettingList( property, defaults );
-
-    return properties.stream()
-      .map( object -> Objects.toString( object, null ) )
-      .collect( Collectors.toList() );
+  
+  private List<String> getStringSettingList(String key, List<String> values ) {
+    return getSettings().getStringSettingList( key, values );
   }
 
   private void saveLastDirectory( File file ) {

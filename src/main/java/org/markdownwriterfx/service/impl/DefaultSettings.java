@@ -30,8 +30,9 @@ package org.markdownwriterfx.service.impl;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.markdownwriterfx.service.Settings;
@@ -42,10 +43,10 @@ import org.markdownwriterfx.service.Settings;
  */
 public class DefaultSettings implements Settings {
 
-  private PropertiesConfiguration configuration;
+  private PropertiesConfiguration properties;
 
   public DefaultSettings() throws ConfigurationException, URISyntaxException, IOException {
-    setConfiguration( createPropertiesConfiguration() );
+    setProperties( createProperties() );
   }
 
   /**
@@ -58,39 +59,53 @@ public class DefaultSettings implements Settings {
    */
   @Override
   public String getSetting( String property, String defaultValue ) {
-    return getPropertiesConfiguration().getString( property, defaultValue );
+    return getSettings().getString( property, defaultValue );
   }
 
   @Override
   public List<Object> getSettingList( String property, List<String> defaults ) {
-    return getPropertiesConfiguration().getList( property, defaults );
+    return getSettings().getList( property, defaults );
   }
-  
-  // TODO: Coerce list
-//  public List<String> 
 
-  private PropertiesConfiguration createPropertiesConfiguration()
+  /**
+   * Convert the generic list of property objects into strings.
+   *
+   * @param property The property value to coerce.
+   * @param defaults The defaults values to use should the property be unset.
+   *
+   * @return The list of properties coerced from objects to strings.
+   */
+  @Override
+  public List<String> getStringSettingList( String property, List<String> defaults ) {
+    final List<Object> settings = getSettingList( property, defaults );
+
+    return settings.stream()
+      .map( object -> Objects.toString( object, null ) )
+      .collect( Collectors.toList() );
+  }
+
+  private PropertiesConfiguration createProperties()
     throws ConfigurationException {
-    final URL url = getConfigurationSource();
+    final URL url = getPropertySource();
 
     return url == null
       ? new PropertiesConfiguration()
       : new PropertiesConfiguration( url );
   }
 
-  private URL getConfigurationSource() {
-    return getClass().getResource( getConfigurationName() );
+  private URL getPropertySource() {
+    return getClass().getResource( getPropertiesFilename() );
   }
 
-  private String getConfigurationName() {
-    return "settings.properties";
+  private String getPropertiesFilename() {
+    return "/org/markdownwriterfx/settings.properties";
   }
 
-  private void setConfiguration( PropertiesConfiguration configuration ) {
-    this.configuration = configuration;
+  private void setProperties( PropertiesConfiguration configuration ) {
+    this.properties = configuration;
   }
 
-  private PropertiesConfiguration getPropertiesConfiguration() {
-    return this.configuration;
+  private PropertiesConfiguration getSettings() {
+    return this.properties;
   }
 }

@@ -24,9 +24,9 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package org.markdownwriterfx.util;
 
+import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Menu;
@@ -35,68 +35,80 @@ import javafx.scene.control.Separator;
 import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.ToolBar;
 import javafx.scene.control.Tooltip;
-import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
+import javafx.scene.input.KeyCombination;
 
 /**
  * Action utilities
  *
  * @author Karl Tauber
  */
-public class ActionUtils
-{
-	public static Menu createMenu(String text, Action... actions) {
-		return new Menu(text, null, createMenuItems(actions));
-	}
+public class ActionUtils {
 
-	public static MenuItem[] createMenuItems(Action... actions) {
-		MenuItem[] menuItems = new MenuItem[actions.length];
-		for (int i = 0; i < actions.length; i++) {
-			menuItems[i] = (actions[i] != null)
-					? createMenuItem(actions[i])
-					: new SeparatorMenuItem();
-		}
-		return menuItems;
-	}
+  public static Menu createMenu( final String text, final Action... actions ) {
+    return new Menu( text, null, createMenuItems( actions ) );
+  }
 
-	public static MenuItem createMenuItem(Action action) {
-		MenuItem menuItem = new MenuItem(action.text);
-		if (action.accelerator != null)
-			menuItem.setAccelerator(action.accelerator);
-		if (action.icon != null)
-			menuItem.setGraphic(FontAwesomeIconFactory.get().createIcon(action.icon));
-		menuItem.setOnAction(action.action);
-		if (action.disable != null)
-			menuItem.disableProperty().bind(action.disable);
-		return menuItem;
-	}
+  public static MenuItem[] createMenuItems( Action... actions ) {
+    MenuItem[] menuItems = new MenuItem[ actions.length ];
+    for( int i = 0; i < actions.length; i++ ) {
+      menuItems[ i ] = (actions[ i ] != null)
+        ? createMenuItem( actions[ i ] )
+        : new SeparatorMenuItem();
+    }
+    return menuItems;
+  }
 
-	public static ToolBar createToolBar(Action... actions) {
-		return new ToolBar(createToolBarButtons(actions));
-	}
+  public static MenuItem createMenuItem( Action action ) {
+    MenuItem menuItem = new MenuItem( action.text );
+    if( action.accelerator != null ) {
+      menuItem.setAccelerator( action.accelerator );
+    }
 
-	public static Node[] createToolBarButtons(Action... actions) {
-		Node[] buttons = new Node[actions.length];
-		for (int i = 0; i < actions.length; i++) {
-			buttons[i] = (actions[i] != null)
-					? createToolBarButton(actions[i])
-					: new Separator();
-		}
-		return buttons;
-	}
+    if( action.icon != null ) {
+      menuItem.setGraphic( FontAwesomeIconFactory.get().createIcon( action.icon ) );
+    }
 
-	public static Button createToolBarButton(Action action) {
-		Button button = new Button();
-		button.setGraphic(FontAwesomeIconFactory.get().createIcon(action.icon, "1.2em"));
-		String tooltip = action.text;
-		if (tooltip.endsWith("..."))
-			tooltip = tooltip.substring(0, tooltip.length() - 3);
-		if (action.accelerator != null)
-			tooltip += " (" + action.accelerator.getDisplayText() + ')';
-		button.setTooltip(new Tooltip(tooltip));
-		button.setFocusTraversable(false);
-		button.setOnAction(action.action);
-		if (action.disable != null)
-			button.disableProperty().bind(action.disable);
-		return button;
-	}
+    menuItem.setOnAction( action.action );
+
+    if( action.disable != null ) {
+      menuItem.disableProperty().bind( action.disable );
+    }
+
+    menuItem.setMnemonicParsing( true );
+
+    return menuItem;
+  }
+
+  public static ToolBar createToolBar( Action... actions ) {
+    return new ToolBar( createToolBarButtons( actions ) );
+  }
+
+  public static Node[] createToolBarButtons( Action... actions ) {
+    Node[] buttons = new Node[ actions.length ];
+    for( int i = 0; i < actions.length; i++ ) {
+      buttons[ i ] = (actions[ i ] != null)
+        ? createToolBarButton( actions[ i ] )
+        : new Separator();
+    }
+    return buttons;
+  }
+
+  public static Button createToolBarButton( Action action ) {
+    Button button = new Button();
+    button.setGraphic( FontAwesomeIconFactory.get().createIcon( action.icon, "1.2em" ) );
+    String tooltip = action.text;
+    if( tooltip.endsWith( "..." ) ) {
+      tooltip = tooltip.substring( 0, tooltip.length() - 3 );
+    }
+    if( action.accelerator != null ) {
+      tooltip += " (" + action.accelerator.getDisplayText() + ')';
+    }
+    button.setTooltip( new Tooltip( tooltip ) );
+    button.setFocusTraversable( false );
+    button.setOnAction( action.action );
+    if( action.disable != null ) {
+      button.disableProperty().bind( action.disable );
+    }
+    return button;
+  }
 }

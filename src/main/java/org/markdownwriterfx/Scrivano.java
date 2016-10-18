@@ -39,7 +39,7 @@ import org.markdownwriterfx.util.StageState;
  *
  * @author Karl Tauber
  */
-public final class MarkdownWriterFXApp extends Application {
+public final class Scrivano extends Application {
 
   private static Application app;
 
@@ -82,7 +82,7 @@ public final class MarkdownWriterFXApp extends Application {
   }
 
   private String getApplicationTitle() {
-    return getSettings().getSetting( "application.title", "Markdown Writer FX" );
+    return getSettings().getSetting( "application.title", "Scrivano" );
   }
 
   private void initWindow() {
