@@ -43,7 +43,6 @@ import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.REPEAT;
 import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.STRIKETHROUGH;
 import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.UNDO;
 import java.text.MessageFormat;
-import java.util.List;
 import java.util.function.Function;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
@@ -78,15 +77,13 @@ import org.markdownwriterfx.util.ActionUtils;
  *
  * @author Karl Tauber
  */
-class MainWindow implements ApplicationProperty {
+class MainWindow {
 
   private final Scene scene;
   private final FileEditorTabPane fileEditorTabPane;
   private MenuBar menuBar;
-  private final ApplicationProperty application;
 
-  MainWindow( ApplicationProperty application ) {
-    this.application = application;
+  MainWindow() {
     this.fileEditorTabPane = new FileEditorTabPane( this );
 
     BorderPane borderPane = new BorderPane();
@@ -113,29 +110,6 @@ class MainWindow implements ApplicationProperty {
       } );
     } );
 
-  }
-
-  /**
-   * Delegates resolving the property to the application.
-   *
-   * @param property The property to obtain.
-   * @param defaultValue The default value should no value be set.
-   *
-   * @return The value associated with the given property, or the defaultValue
-   * if the property hasn't been set.
-   */
-  @Override
-  public String getProperty( String property, String defaultValue ) {
-    return getApplicationProperty().getProperty( property, defaultValue );
-  }
-  
-  @Override
-  public List<Object> getPropertyList(String property, List<String> defaults ) {
-    return getApplicationProperty().getPropertyList( property, defaults );
-  }
-  
-  private ApplicationProperty getApplicationProperty() {
-    return this.application;
   }
 
   Scene getScene() {

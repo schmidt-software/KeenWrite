@@ -24,9 +24,9 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package org.markdownwriterfx.options;
 
+import java.util.prefs.Preferences;
 import javafx.event.ActionEvent;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
@@ -34,94 +34,105 @@ import javafx.scene.control.DialogPane;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.stage.Window;
-import org.markdownwriterfx.MarkdownWriterFXApp;
 import org.markdownwriterfx.Messages;
+import org.markdownwriterfx.Services;
+import org.markdownwriterfx.service.Options;
 
 /**
  * Options dialog
  *
  * @author Karl Tauber
  */
-public class OptionsDialog
-	extends Dialog<Void>
-{
-	public OptionsDialog(Window owner) {
-		setTitle(Messages.get("OptionsDialog.title"));
-		initOwner(owner);
+public class OptionsDialog extends Dialog<Void> {
 
-		initComponents();
+  private final Options options = Services.load( Options.class );
 
-		tabPane.getStyleClass().add(TabPane.STYLE_CLASS_FLOATING);
+  public OptionsDialog( Window owner ) {
+    setTitle( Messages.get( "OptionsDialog.title" ) );
+    initOwner( owner );
 
-		DialogPane dialogPane = getDialogPane();
-		dialogPane.setContent(tabPane);
-		dialogPane.getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+    initComponents();
 
-		// save options on OK clicked
-		dialogPane.lookupButton(ButtonType.OK).addEventHandler(ActionEvent.ACTION, e -> {
-			save();
-			e.consume();
-		});
+    tabPane.getStyleClass().add( TabPane.STYLE_CLASS_FLOATING );
 
-		// load options
-		load();
+    DialogPane dialogPane = getDialogPane();
+    dialogPane.setContent( tabPane );
+    dialogPane.getButtonTypes().addAll( ButtonType.OK, ButtonType.CANCEL );
 
-		// select last tab
-		int tabIndex = MarkdownWriterFXApp.getState().getInt("lastOptionsTab", -1);
-		if (tabIndex > 0)
-			tabPane.getSelectionModel().select(tabIndex);
+    // save options on OK clicked
+    dialogPane.lookupButton( ButtonType.OK ).addEventHandler( ActionEvent.ACTION, e -> {
+      save();
+      e.consume();
+    } );
 
-		// remember last selected tab
-		setOnHidden(e -> {
-			MarkdownWriterFXApp.getState().putInt("lastOptionsTab", tabPane.getSelectionModel().getSelectedIndex());
-		});
-	}
+    // load options
+    load();
 
-	private void load() {
-		generalOptionsPane.load();
-		markdownOptionsPane.load();
-	}
+    // select last tab
+    int tabIndex = getState().getInt( "lastOptionsTab", -1 );
+    if( tabIndex > 0 ) {
+      tabPane.getSelectionModel().select( tabIndex );
+    }
 
-	private void save() {
-		generalOptionsPane.save();
-		markdownOptionsPane.save();
-		Options.save();
-	}
+    // remember last selected tab
+    setOnHidden( e -> {
+      getState().putInt( "lastOptionsTab", tabPane.getSelectionModel().getSelectedIndex() );
+    } );
+  }
 
-	private void initComponents() {
-		// JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
-		tabPane = new TabPane();
-		generalTab = new Tab();
-		generalOptionsPane = new GeneralOptionsPane();
-		markdownTab = new Tab();
-		markdownOptionsPane = new MarkdownOptionsPane();
+  private Options getOptions() {
+    return options;
+  }
+  
+  private Preferences getState() {
+    return getOptions().getState();
+  }
 
-		//======== tabPane ========
-		{
-			tabPane.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
+  private void load() {
+    generalOptionsPane.load();
+    markdownOptionsPane.load();
+  }
 
-			//======== generalTab ========
-			{
-				generalTab.setText(Messages.get("OptionsDialog.generalTab.text"));
-				generalTab.setContent(generalOptionsPane);
-			}
+  private void save() {
+    generalOptionsPane.save();
+    markdownOptionsPane.save();
+    Services.load( Options.class ).save();
+  }
 
-			//======== markdownTab ========
-			{
-				markdownTab.setText(Messages.get("OptionsDialog.markdownTab.text"));
-				markdownTab.setContent(markdownOptionsPane);
-			}
+  private void initComponents() {
+    // JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
+    tabPane = new TabPane();
+    generalTab = new Tab();
+    generalOptionsPane = new GeneralOptionsPane();
+    markdownTab = new Tab();
+    markdownOptionsPane = new MarkdownOptionsPane();
 
-			tabPane.getTabs().addAll(generalTab, markdownTab);
-		}
-		// JFormDesigner - End of component initialization  //GEN-END:initComponents
-	}
+    //======== tabPane ========
+    {
+      tabPane.setTabClosingPolicy( TabPane.TabClosingPolicy.UNAVAILABLE );
 
-	// JFormDesigner - Variables declaration - DO NOT MODIFY  //GEN-BEGIN:variables
-	private TabPane tabPane;
-	private Tab generalTab;
-	private GeneralOptionsPane generalOptionsPane;
-	private Tab markdownTab;
-	private MarkdownOptionsPane markdownOptionsPane;
+      //======== generalTab ========
+      {
+        generalTab.setText( Messages.get( "OptionsDialog.generalTab.text" ) );
+        generalTab.setContent( generalOptionsPane );
+      }
+
+      //======== markdownTab ========
+      {
+        markdownTab.setText( Messages.get( "OptionsDialog.markdownTab.text" ) );
+        markdownTab.setContent( markdownOptionsPane );
+      }
+
+      tabPane.getTabs().addAll( generalTab, markdownTab );
+    }
+    // JFormDesigner - End of component initialization  //GEN-END:initComponents
+  }
+
+  // JFormDesigner - Variables declaration - DO NOT MODIFY  //GEN-BEGIN:variables
+  private TabPane tabPane;
+  private Tab generalTab;
+  private GeneralOptionsPane generalOptionsPane;
+  private Tab markdownTab;
+  private MarkdownOptionsPane markdownOptionsPane;
 	// JFormDesigner - End of variables declaration  //GEN-END:variables
 }

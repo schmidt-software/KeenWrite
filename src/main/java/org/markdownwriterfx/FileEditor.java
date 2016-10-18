@@ -45,8 +45,8 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.text.Text;
 import org.fxmisc.undo.UndoManager;
 import org.markdownwriterfx.editor.MarkdownEditorPane;
-import org.markdownwriterfx.options.Options;
 import org.markdownwriterfx.preview.MarkdownPreviewPane;
+import org.markdownwriterfx.service.Options;
 
 /**
  * Editor for a single file.
@@ -54,6 +54,8 @@ import org.markdownwriterfx.preview.MarkdownPreviewPane;
  * @author Karl Tauber
  */
 class FileEditor {
+  
+  private final Options options = Services.load( Options.class );
 
   private final MainWindow mainWindow;
   private final Tab tab = new Tab();
@@ -181,7 +183,7 @@ class FileEditor {
         String markdown;
 
         try {
-          markdown = new String( bytes, Options.getEncoding() );
+          markdown = new String( bytes, getOptions().getEncoding() );
         } catch( Exception ex ) {
           // Unsupported encodings and null pointers will fallback here.
           markdown = new String( bytes );
@@ -204,7 +206,7 @@ class FileEditor {
     byte[] bytes;
 
     try {
-      bytes = markdown.getBytes( Options.getEncoding() );
+      bytes = markdown.getBytes(getOptions().getEncoding() );
     } catch( Exception ex ) {
       bytes = markdown.getBytes();
     }
@@ -220,5 +222,9 @@ class FileEditor {
       alert.showAndWait();
       return false;
     }
+  }
+  
+  private Options getOptions() {
+    return this.options;
   }
 }

@@ -29,6 +29,7 @@ package org.markdownwriterfx;
 import java.io.File;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.prefs.Preferences;
@@ -50,8 +51,8 @@ import javafx.scene.control.TabPane;
 import javafx.scene.control.TabPane.TabClosingPolicy;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
-import static org.markdownwriterfx.options.DefaultConfiguration.DEFAULT_EXTENSIONS_ALL;
-import static org.markdownwriterfx.options.DefaultConfiguration.DEFAULT_EXTENSIONS_MARKDOWN;
+import org.markdownwriterfx.service.Settings;
+import org.markdownwriterfx.ui.AbstractPane;
 import org.markdownwriterfx.util.Utils;
 
 /**
@@ -59,7 +60,14 @@ import org.markdownwriterfx.util.Utils;
  *
  * @author Karl Tauber
  */
-class FileEditorTabPane implements ApplicationProperty {
+class FileEditorTabPane extends AbstractPane {
+  private final static List<String> DEFAULT_EXTENSIONS_MARKDOWN = Arrays.asList(
+    "*.md", "*.markdown", "*.txt" );
+
+  private final static List<String> DEFAULT_EXTENSIONS_ALL = Arrays.asList(
+    "*.*" );
+
+  private final Settings settings = Services.load( Settings.class );
 
   private MainWindow mainWindow;
   private final TabPane tabPane;
@@ -338,7 +346,7 @@ class FileEditorTabPane implements ApplicationProperty {
       new ExtensionFilter( Messages.get( "FileEditorTabPane.chooser.markdownFilesFilter" ), getMarkdownExtensions() ),
       new ExtensionFilter( Messages.get( "FileEditorTabPane.chooser.allFilesFilter" ), getAllExtensions() ) );
 
-    String lastDirectory = MarkdownWriterFXApp.getState().get( "lastDirectory", null );
+    String lastDirectory = getState().get( "lastDirectory", null );
     File file = new File( (lastDirectory != null) ? lastDirectory : "." );
     if( !file.isDirectory() ) {
       file = new File( "." );
@@ -346,13 +354,17 @@ class FileEditorTabPane implements ApplicationProperty {
     fileChooser.setInitialDirectory( file );
     return fileChooser;
   }
+  
+  private Settings getSettings() {
+    return this.settings;
+  }
 
   private List<String> getMarkdownExtensions() {
-    return coercePropertyList( "application.extensions.markdown", DEFAULT_EXTENSIONS_MARKDOWN );
+    return getStringPropertyList( "application.extensions.markdown", DEFAULT_EXTENSIONS_MARKDOWN );
   }
 
   private List<String> getAllExtensions() {
-    return coercePropertyList( "application.extensions.all", DEFAULT_EXTENSIONS_ALL );
+    return getStringPropertyList( "application.extensions.all", DEFAULT_EXTENSIONS_ALL );
   }
 
   /**
@@ -363,30 +375,20 @@ class FileEditorTabPane implements ApplicationProperty {
    *
    * @return The list of properties coerced from objects to strings.
    */
-  private List<String> coercePropertyList( String property, List<String> defaults ) {
-    final List<Object> properties = getPropertyList( property, defaults );
+  private List<String> getStringPropertyList( String property, List<String> defaults ) {
+    final List<Object> properties = getSettings().getSettingList( property, defaults );
 
     return properties.stream()
       .map( object -> Objects.toString( object, null ) )
       .collect( Collectors.toList() );
   }
 
-  @Override
-  public String getProperty( String property, String defaultValue ) {
-    return getMainWindow().getProperty( property, defaultValue );
-  }
-
-  @Override
-  public List<Object> getPropertyList( String property, List<String> defaults ) {
-    return getMainWindow().getPropertyList( property, defaults );
-  }
-
   private void saveLastDirectory( File file ) {
-    MarkdownWriterFXApp.getState().put( "lastDirectory", file.getParent() );
+    getState().put( "lastDirectory", file.getParent() );
   }
 
   private void restoreState() {
-    Preferences state = MarkdownWriterFXApp.getState();
+    Preferences state = getState();
     String[] fileNames = Utils.getPrefsStrings( state, "file" );
     String activeFileName = state.get( "activeFile", null );
 
@@ -419,7 +421,7 @@ class FileEditorTabPane implements ApplicationProperty {
       }
     }
 
-    Preferences state = MarkdownWriterFXApp.getState();
+    Preferences state = getState();
     Utils.putPrefsStrings( state, "file", fileNames.toArray( new String[ fileNames.size() ] ) );
     if( activeEditor != null && activeEditor.getPath() != null ) {
       state.put( "activeFile", activeEditor.getPath().toString() );

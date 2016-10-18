@@ -26,21 +26,12 @@
  */
 package org.markdownwriterfx;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.nio.file.Path;
-import static java.nio.file.Paths.get;
-import java.util.List;
-import java.util.prefs.Preferences;
-import static java.util.prefs.Preferences.userRoot;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
-import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.PropertiesConfiguration;
-import org.markdownwriterfx.options.Options;
+import org.markdownwriterfx.service.Options;
+import org.markdownwriterfx.service.Settings;
 import org.markdownwriterfx.util.StageState;
 
 /**
@@ -48,13 +39,14 @@ import org.markdownwriterfx.util.StageState;
  *
  * @author Karl Tauber
  */
-public final class MarkdownWriterFXApp extends Application implements ApplicationProperty {
+public final class MarkdownWriterFXApp extends Application {
 
   private static Application app;
 
   private MainWindow mainWindow;
   private StageState stageState;
-  private PropertiesConfiguration configuration;
+  private final Settings settings = Services.load( Settings.class );
+  private final Options options = Services.load( Options.class );
 
   public static void main( String[] args ) {
     launch( args );
@@ -70,8 +62,6 @@ public final class MarkdownWriterFXApp extends Application implements Applicatio
   @Override
   public void start( Stage stage ) throws Exception {
     initApplication();
-    initConfiguration();
-    initOptions();
     initWindow();
     initState( stage );
     initStage( stage );
@@ -79,60 +69,28 @@ public final class MarkdownWriterFXApp extends Application implements Applicatio
     stage.show();
   }
 
-  public PropertiesConfiguration getConfiguration() {
-    return this.configuration;
-  }
-
-  private String getApplicationTitle() {
-    return getProperty( "application.title", "Markdown Writer FX" );
-  }
-
-  @Override
-  public String getProperty( String property, String defaultValue ) {
-    return getConfiguration().getString( property, defaultValue );
-  }
-  
-  @Override
-  public List<Object> getPropertyList(String property, List<String> defaults ) {
-    return getConfiguration().getList( property );
-  }
-
   private void initApplication() {
     app = this;
   }
 
-  protected void initConfiguration()
-    throws ConfigurationException, URISyntaxException, IOException {
-    setConfiguration( createPropertiesConfiguration() );
+  private Settings getSettings() {
+    return this.settings;
+  }
+  
+  private Options getOptions() {
+    return this.options;
   }
 
-  private PropertiesConfiguration createPropertiesConfiguration()
-    throws ConfigurationException {
-    final URL url = getConfigurationSource();
-
-    return url == null
-      ? new PropertiesConfiguration()
-      : new PropertiesConfiguration( url );
-  }
-
-  private URL getConfigurationSource() {
-    return getClass().getResource( getConfigurationName() );
-  }
-
-  private String getConfigurationName() {
-    return "settings.properties";
-  }
-
-  protected void initOptions() {
-    Options.load( getOptions() );
+  private String getApplicationTitle() {
+    return getSettings().getSetting( "application.title", "Markdown Writer FX" );
   }
 
   private void initWindow() {
-    setWindow( new MainWindow( this ) );
+    setWindow( new MainWindow() );
   }
 
   private void initState( Stage stage ) {
-    stageState = new StageState( stage, getState() );
+    stageState = new StageState( stage, getOptions().getState() );
   }
 
   private void initStage( Stage stage ) {
@@ -170,57 +128,7 @@ public final class MarkdownWriterFXApp extends Application implements Applicatio
     return app;
   }
 
-  protected void setConfiguration( PropertiesConfiguration configuration ) {
-    this.configuration = configuration;
-  }
-
   public static void showDocument( String uri ) {
     getApplication().getHostServices().showDocument( uri );
   }
-
-  static private Preferences getRootPreferences() {
-    return userRoot().node( "markdownwriterfx" );
-  }
-
-  private static Preferences getOptions() {
-    return getRootPreferences().node( "options" );
-  }
-
-  public static Preferences getState() {
-    return getRootPreferences().node( "state" );
-  }
-
-  /**
-   * Unused.
-   *
-   * @return
-   *
-   * @throws URISyntaxException
-   */
-  private Path getConfigurationPath() throws URISyntaxException {
-    final Path appDir = getApplicationDirectory();
-    return get( appDir.toString(), getConfigurationName() );
-  }
-
-  /**
-   * Unused.
-   *
-   * @return
-   *
-   * @throws URISyntaxException
-   */
-  private Path getApplicationDirectory() throws URISyntaxException {
-    final Path appPath = get( getApplicationPath() );
-    return appPath.getParent();
-  }
-
-  /**
-   * Unused. Returns the path to the application's start-up directory.
-   *
-   * @return A Path where the main class is running.
-   */
-  private String getApplicationPath() throws URISyntaxException {
-    return getClass().getProtectionDomain().getCodeSource().getLocation().toURI().getPath();
-  }
-
 }

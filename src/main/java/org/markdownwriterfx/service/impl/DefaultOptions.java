@@ -24,15 +24,17 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.markdownwriterfx.options;
+package org.markdownwriterfx.service.impl;
 
 import java.util.prefs.Preferences;
+import static java.util.prefs.Preferences.userRoot;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import org.markdownwriterfx.service.Options;
 import static org.markdownwriterfx.util.Utils.putPrefs;
 import static org.markdownwriterfx.util.Utils.putPrefsBoolean;
 import static org.markdownwriterfx.util.Utils.putPrefsInt;
@@ -43,75 +45,107 @@ import org.pegdown.Extensions;
  *
  * @author Karl Tauber
  */
-public class Options {
-  private static final StringProperty LINE_SEPARATOR = new SimpleStringProperty();
-  private static final StringProperty ENCODING = new SimpleStringProperty();
-  private static final IntegerProperty MARKDOWN_EXTENSIONS = new SimpleIntegerProperty();
-  private static final BooleanProperty SHOW_WHITESPACE = new SimpleBooleanProperty();
+public class DefaultOptions implements Options {
+  private final StringProperty LINE_SEPARATOR = new SimpleStringProperty();
+  private final StringProperty ENCODING = new SimpleStringProperty();
+  private final IntegerProperty MARKDOWN_EXTENSIONS = new SimpleIntegerProperty();
+  private final BooleanProperty SHOW_WHITESPACE = new SimpleBooleanProperty();
 
-  private static Preferences options;
+  private Preferences preferences;
+  
+  public DefaultOptions() {
+    setPreferences( getRootPreferences().node( "options" ) );
+  }
+  
+  private void setPreferences( Preferences preferences ) {
+    this.preferences = preferences;
+  }
 
-  public static void load( Preferences options ) {
-    Options.options = options;
+  private Preferences getRootPreferences() {
+    return userRoot().node( "markdownwriterfx" );
+  }
 
+  public Preferences getState() {
+    return getRootPreferences().node( "state" );
+  }
+
+  public Preferences getPreferences() {
+    return this.preferences;
+  }
+
+  @Override
+  public void load( Preferences options ) {
     setLineSeparator( options.get( "lineSeparator", null ) );
     setEncoding( options.get( "encoding", null ) );
     setMarkdownExtensions( options.getInt( "markdownExtensions", Extensions.ALL ) );
     setShowWhitespace( options.getBoolean( "showWhitespace", false ) );
   }
 
-  public static void save() {
-    putPrefs( options, "lineSeparator", getLineSeparator(), null );
-    putPrefs( options, "encoding", getEncoding(), null );
-    putPrefsInt( options, "markdownExtensions", getMarkdownExtensions(), Extensions.ALL );
-    putPrefsBoolean( options, "showWhitespace", isShowWhitespace(), false );
+  @Override
+  public void save() {
+    putPrefs( preferences, "lineSeparator", getLineSeparator(), null );
+    putPrefs( preferences, "encoding", getEncoding(), null );
+    putPrefsInt( preferences, "markdownExtensions", getMarkdownExtensions(), Extensions.ALL );
+    putPrefsBoolean( preferences, "showWhitespace", isShowWhitespace(), false );
   }
 
-  public static String getLineSeparator() {
+  @Override
+  public String getLineSeparator() {
     return LINE_SEPARATOR.get();
   }
 
-  public static void setLineSeparator( String lineSeparator ) {
+  @Override
+  public void setLineSeparator( String lineSeparator ) {
     LINE_SEPARATOR.set( lineSeparator );
   }
 
-  public static StringProperty lineSeparatorProperty() {
+  @Override
+  public StringProperty lineSeparatorProperty() {
     return LINE_SEPARATOR;
   }
 
-  public static String getEncoding() {
+  @Override
+  public String getEncoding() {
     return ENCODING.get();
   }
 
-  public static void setEncoding( String encoding ) {
+  @Override
+  public void setEncoding( String encoding ) {
     ENCODING.set( encoding );
   }
 
-  public static StringProperty encodingProperty() {
+  @Override
+  public StringProperty encodingProperty() {
     return ENCODING;
   }
 
-  public static int getMarkdownExtensions() {
+  @Override
+  public int getMarkdownExtensions() {
     return MARKDOWN_EXTENSIONS.get();
   }
 
-  public static void setMarkdownExtensions( int markdownExtensions ) {
+  @Override
+  public void setMarkdownExtensions( int markdownExtensions ) {
     MARKDOWN_EXTENSIONS.set( markdownExtensions );
   }
 
-  public static IntegerProperty markdownExtensionsProperty() {
+  @Override
+  public IntegerProperty markdownExtensionsProperty() {
     return MARKDOWN_EXTENSIONS;
   }
 
-  public static boolean isShowWhitespace() {
+  @Override
+  public boolean isShowWhitespace() {
     return SHOW_WHITESPACE.get();
   }
 
-  public static void setShowWhitespace( boolean showWhitespace ) {
+  @Override
+  public void setShowWhitespace( boolean showWhitespace ) {
     SHOW_WHITESPACE.set( showWhitespace );
   }
 
-  public static BooleanProperty showWhitespaceProperty() {
+  @Override
+  public BooleanProperty showWhitespaceProperty() {
     return SHOW_WHITESPACE;
   }
 }
