@@ -2,4 +2,6 @@
 /build/
 /.gradle/
 /gradle/
-/.nb-gradle/
+/.nb-gradle
+/private
+.nb-gradle-properties

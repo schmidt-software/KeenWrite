@@ -18,16 +18,16 @@ dependencies {
 sourceCompatibility = 1.8
 
 jar {
-	baseName = 'markdown-writer-fx'
+	baseName = 'scrivendor'
 	manifest {
-		attributes 'Main-Class': 'org.markdownwriterfx.MarkdownWriterFXApp',
+		attributes 'Main-Class': 'com.scrivendor.Main',
 					'Class-Path': configurations.compile.collect { 'lib/' + it.getName() }.join(' ')
 	}
 }
 
 distributions {
 	main {
-		baseName = 'markdown-writer-fx'
+		baseName = 'scrivendor'
 		contents {
 			from { ['LICENSE', 'README.md'] }
 			into( 'images' ) {
