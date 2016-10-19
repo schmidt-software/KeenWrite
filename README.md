@@ -1,11 +1,11 @@
 ![Markdown Writer FX](images/logo.png)
 
-Markdown Writer FX
-==================
+Scrivendor
+==========
 
 An open source [Markdown] editor written in JavaFX 8.
 
-![Markdown Writer FX Screenshot](images/screenshot.png)
+![Screenshot](images/screenshot.png)
 
 For Markdown processing it uses [pegdown], which is nearly 100% compatible with the original [Markdown] specification and also supports parts of [Markdown Extra], [MultiMarkdown] and [Github-flavoured-Markdown].
 
@@ -40,16 +40,14 @@ Java 8u40 or later is required.
 Installation
 ------------
 
-Download
-[markdown-writer-fx-0.2.zip](https://github.com/JFormDesigner/markdown-writer-fx/releases/download/0.2/markdown-writer-fx-0.2.zip)
-and extract it to any folder.
+[Download](https://github.com/DaveJarvis/scrivendor/releases/download/0.2/scrivendor.zip) the archive and extract it to any folder.
 
-Double-click `markdown-writer-fx.jar` to start *Markdown Writer FX*.
+Double-click `scrivendor.jar` to start the application.
 
 If this does not work, try following command in a terminal window:
 
 ```
-java -jar markdown-writer-fx.jar
+java -jar scrivendor.jar
 ```
 
 Changes
@@ -68,7 +66,7 @@ Credits
 License
 -------
 
-*Markdown Writer FX* is open source licensed under the [BSD 2-Clause License](LICENSE)
+This software is licensed under the [BSD 2-Clause License](LICENSE)
 
    [Markdown]: http://daringfireball.net/projects/markdown/
    [pegdown]: https://github.com/sirthias/pegdown
@@ -82,3 +80,4 @@ License
    [Flowless]: https://github.com/TomasMikula/Flowless
    [UndoFX]: https://github.com/TomasMikula/UndoFX
    [FontAwesomeFX]: https://bitbucket.org/Jerady/fontawesomefx
+
