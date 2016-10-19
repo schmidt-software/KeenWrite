@@ -40,7 +40,8 @@ import com.scrivendor.service.Settings;
 import com.scrivendor.util.StageState;
 
 /**
- * Based on the Markdown Writer FX application.
+ * Main application entry point. The application allows users to edit 
+ * Markdown files and see a real-time preview of the edits.
  *
  * @author Karl Tauber and White Magic Software, Ltd.
  */
