@@ -1,11 +1,12 @@
 TODO
 ====
 
+  * pipeline services
+    - YAML integration
+    - R integration
   * auto-complete
   * search and replace
-  * improved syntax highlighting (HTML, ...)
-  * more options
+  * improved syntax highlighting
   * directory tree view
-  * spell checker
-  * support [Kirby CMS](http://getkirby.com/) content files and tags
+  * spell check
 

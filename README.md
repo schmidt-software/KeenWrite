@@ -3,7 +3,7 @@
 Scrivendor
 ==========
 
-An open source [Markdown] editor written in JavaFX 8.
+An open source [Markdown] editor for authors that separates content from presentation.
 
 ![Screenshot](images/screenshot.png)
 
@@ -13,17 +13,15 @@ Features
 --------
 
   * Syntax highlighting in editor
-  * Keyboard shortcuts to insert Markdown (Bold, Italic, Code, Links, Images, Header, Lists, ...)
-  * Auto-indent lists
-  * HTML preview
+  * Keyboard shortcuts (bold, italic, hyperlinks, images, headers, lists)
+  * Real-time HTML preview
   * HTML source preview
-  * Markdown AST view
-  * Multi-platform: Windows, Mac, Linux, ...
+  * Operating system independent (Windows, Mac, Linux)
 
 Requirements
 ------------
 
-Java 8u40 or later is required.
+Java version 8u40 or later is required.
 
 Installation
 ------------
@@ -38,18 +36,10 @@ If this does not work, try following command in a terminal window:
 java -jar scrivendor.jar
 ```
 
-Changes
--------
-
-See [Change Log](CHANGES.md)
-
 Credits
 -------
 
-  * Tomas Mikula for [RichTextFX], [ReactFX], [WellBehavedFX], [Flowless] and [UndoFX]
-  * Mikael Grev for [MigLayout] and Tom Eugelink for MigPane
-  * sirthias for [pegdown] Markdown parser
-  * Jens Deters for [FontAwesomeFX]
+See [credits](CREDITS.md).
 
 License
 -------
