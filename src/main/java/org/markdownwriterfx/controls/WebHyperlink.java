@@ -30,7 +30,7 @@ package org.markdownwriterfx.controls;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.scene.control.Hyperlink;
-import org.markdownwriterfx.Scrivano;
+import org.markdownwriterfx.Scrivendor;
 
 /**
  * Hyperlink that opens a URL in the default web browser.
@@ -46,7 +46,7 @@ public class WebHyperlink
 
 	@Override
 	public void fire() {
-		Scrivano.showDocument(getUri());
+		Scrivendor.showDocument(getUri());
 	}
 
 	// 'uri' property

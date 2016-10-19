@@ -35,11 +35,11 @@ import org.markdownwriterfx.service.Settings;
 import org.markdownwriterfx.util.StageState;
 
 /**
- * Markdown Writer FX application.
+ * Based on the Markdown Writer FX application.
  *
- * @author Karl Tauber
+ * @author Karl Tauber and White Magic Software, Ltd.
  */
-public final class Scrivano extends Application {
+public final class Scrivendor extends Application {
 
   private static Application app;
 
@@ -82,7 +82,7 @@ public final class Scrivano extends Application {
   }
 
   private String getApplicationTitle() {
-    return getSettings().getSetting( "application.title", "Scrivano" );
+    return Messages.get( "Application.title" );
   }
 
   private void initWindow() {
