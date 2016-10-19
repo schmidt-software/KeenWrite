@@ -1,4 +1,4 @@
-![Markdown Writer FX](images/logo.png)
+![Logo](images/logo64.png)
 
 Scrivendor
 ==========
@@ -19,18 +19,6 @@ Features
   * HTML source preview
   * Markdown AST view
   * Multi-platform: Windows, Mac, Linux, ...
-
-TODO
-----
-
-  * auto-complete
-  * search and replace
-  * improved syntax highlighting (HTML, ...)
-  * more options
-  * directory tree view
-  * spell checker
-  * support [Kirby CMS](http://getkirby.com/) content files and tags
-  * TBD
 
 Requirements
 ------------

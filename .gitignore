@@ -5,3 +5,5 @@
 /.nb-gradle
 /private
 .nb-gradle-properties
+src/main/resources/com/scrivendor/build.sh
+
