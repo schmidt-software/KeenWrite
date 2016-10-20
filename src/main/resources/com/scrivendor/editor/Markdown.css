@@ -26,13 +26,12 @@
  */
 
 .markdown-editor {
-	-fx-font-size: 14px;
+  -fx-font-size: 14px;
 }
-
 
 /*---- headers ----*/
 
-.markdown-editor .h1 { -fx-font-size: 2em; }
+.markdown-editor .h1 { -fx-font-size: 2.25em; }
 .markdown-editor .h2 { -fx-font-size: 1.75em; }
 .markdown-editor .h3 { -fx-font-size: 1.5em; }
 .markdown-editor .h4 { -fx-font-size: 1.25em; }
@@ -45,48 +44,48 @@
 .markdown-editor .h4,
 .markdown-editor .h5,
 .markdown-editor .h6 {
-	-fx-font-weight: bold;
-	-fx-fill: derive(crimson, -20%);
+  -fx-font-weight: bold;
+  -fx-fill: derive(crimson, -20%);
 }
 
 
 /*---- inlines ----*/
 
 .markdown-editor .strong {
-	-fx-font-weight: bold;
+  -fx-font-weight: bold;
 }
 
 .markdown-editor .em {
-	-fx-font-style: italic;
+  -fx-font-style: italic;
 }
 
 .markdown-editor .del {
-	-fx-strikethrough: true;
+  -fx-strikethrough: true;
 }
 
 .markdown-editor .a {
-	-fx-fill: #4183C4 !important;
+  -fx-fill: #4183C4 !important;
 }
 
 .markdown-editor .img {
-	-fx-fill: #4183C4 !important;
+  -fx-fill: #4183C4 !important;
 }
 
 .markdown-editor .code {
-	-fx-font-family: monospace;
-	-fx-fill: #090 !important;
+  -fx-font-family: monospace;
+  -fx-fill: #090 !important;
 }
 
 
 /*---- blocks ----*/
 
 .markdown-editor .pre {
-	-fx-font-family: monospace;
-	-fx-fill: #060 !important;
+  -fx-font-family: monospace;
+  -fx-fill: #060 !important;
 }
 
 .markdown-editor .blockquote {
-	-fx-fill: #777;
+  -fx-fill: #777;
 }
 
 
@@ -99,26 +98,26 @@
 }
 
 .markdown-editor .li {
-	-fx-fill: #444;
+  -fx-fill: #444;
 }
 
 .markdown-editor .dl {
 }
 
 .markdown-editor .dt {
-	-fx-font-weight: bold;
-	-fx-font-style: italic;
+  -fx-font-weight: bold;
+  -fx-font-style: italic;
 }
 
 .markdown-editor .dd {
-	-fx-fill: #444;
+  -fx-fill: #444;
 }
 
 
 /*---- table ----*/
 
 .markdown-editor .table {
-	-fx-font-family: monospace;
+  -fx-font-family: monospace;
 }
 
 .markdown-editor .thead {
@@ -131,7 +130,7 @@
 }
 
 .markdown-editor .th {
-	-fx-font-weight: bold;
+  -fx-font-weight: bold;
 }
 
 .markdown-editor .tr {
@@ -144,9 +143,9 @@
 /*---- misc ----*/
 
 .markdown-editor .html {
-	-fx-font-family: monospace;
-	-fx-fill: derive(crimson, -50%);
+  -fx-font-family: monospace;
+  -fx-fill: derive(crimson, -50%);
 }
 .markdown-editor .monospace {
-	-fx-font-family: monospace;
+  -fx-font-family: monospace;
 }

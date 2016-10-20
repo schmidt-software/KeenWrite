@@ -26,6 +26,9 @@
  */
 package com.scrivendor;
 
+import com.scrivendor.editor.MarkdownEditorPane;
+import com.scrivendor.preview.MarkdownPreviewPane;
+import com.scrivendor.service.Options;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -44,9 +47,6 @@ import javafx.scene.control.Tab;
 import javafx.scene.control.Tooltip;
 import javafx.scene.text.Text;
 import org.fxmisc.undo.UndoManager;
-import com.scrivendor.editor.MarkdownEditorPane;
-import com.scrivendor.preview.MarkdownPreviewPane;
-import com.scrivendor.service.Options;
 
 /**
  * Editor for a single file.
@@ -54,7 +54,7 @@ import com.scrivendor.service.Options;
  * @author Karl Tauber
  */
 class FileEditor {
-  
+
   private final Options options = Services.load( Options.class );
 
   private final MainWindow mainWindow;
@@ -167,7 +167,9 @@ class FileEditor {
     canUndo.bind( undoManager.undoAvailableProperty() );
     canRedo.bind( undoManager.redoAvailableProperty() );
 
-    SplitPane splitPane = new SplitPane( markdownEditorPane.getNode(), markdownPreviewPane.getNode() );
+    SplitPane splitPane = new SplitPane(
+      markdownEditorPane.getNode(),
+      markdownPreviewPane.getNode() );
     tab.setContent( splitPane );
 
     markdownEditorPane.requestFocus();
@@ -206,7 +208,7 @@ class FileEditor {
     byte[] bytes;
 
     try {
-      bytes = markdown.getBytes(getOptions().getEncoding() );
+      bytes = markdown.getBytes( getOptions().getEncoding() );
     } catch( Exception ex ) {
       bytes = markdown.getBytes();
     }
@@ -223,7 +225,7 @@ class FileEditor {
       return false;
     }
   }
-  
+
   private Options getOptions() {
     return this.options;
   }

@@ -26,6 +26,9 @@
  */
 package com.scrivendor;
 
+import com.scrivendor.service.Settings;
+import com.scrivendor.ui.AbstractPane;
+import com.scrivendor.util.Utils;
 import java.io.File;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -49,9 +52,6 @@ import javafx.scene.control.TabPane;
 import javafx.scene.control.TabPane.TabClosingPolicy;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
-import com.scrivendor.service.Settings;
-import com.scrivendor.ui.AbstractPane;
-import com.scrivendor.util.Utils;
 
 /**
  * Tab pane for file editors.

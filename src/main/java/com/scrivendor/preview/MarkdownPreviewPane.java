@@ -24,116 +24,184 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package com.scrivendor.preview;
 
 import java.nio.file.Path;
+import java.util.Collections;
 import javafx.application.Platform;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.geometry.Side;
 import javafx.scene.Node;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TabPane;
-import javafx.scene.control.TabPane.TabClosingPolicy;
-import com.scrivendor.Messages;
+import javafx.scene.control.ScrollPane;
+import static javafx.scene.control.ScrollPane.ScrollBarPolicy.ALWAYS;
+import javafx.scene.web.WebEngine;
+import javafx.scene.web.WebView;
+import org.pegdown.LinkRenderer;
+import org.pegdown.ToHtmlSerializer;
+import org.pegdown.VerbatimSerializer;
 import org.pegdown.ast.RootNode;
+import org.pegdown.plugins.PegDownPlugins;
 
 /**
  * Markdown preview pane.
  *
- * Uses pegdown AST.
- *
  * @author Karl Tauber
  */
-public class MarkdownPreviewPane
-{
-	private final TabPane tabPane = new TabPane();
-	private final WebViewPreview webViewPreview = new WebViewPreview();
-	private final HtmlSourcePreview htmlSourcePreview = new HtmlSourcePreview();
-	private final ASTPreview astPreview = new ASTPreview();
+public class MarkdownPreviewPane extends ScrollPane {
 
-	interface Preview {
-		void update(RootNode astRoot, Path path);
-		void scrollY(double value);
-	}
+  private final ObjectProperty<RootNode> markdownAST = new SimpleObjectProperty<>();
+  private final ObjectProperty<Path> path = new SimpleObjectProperty<>();
+  private final DoubleProperty scrollY = new SimpleDoubleProperty();
 
-	public MarkdownPreviewPane() {
-		tabPane.setSide(Side.BOTTOM);
-		tabPane.setTabClosingPolicy(TabClosingPolicy.UNAVAILABLE);
+  private final WebView webView = new WebView();
+  private int lastScrollX;
+  private int lastScrollY;
 
-		Tab webViewTab = new Tab(Messages.get("MarkdownPreviewPane.webViewTab"), webViewPreview.getNode());
-		webViewTab.setUserData(webViewPreview);
-		tabPane.getTabs().add(webViewTab);
+  private boolean delayScroll;
 
-		Tab htmlSourceTab = new Tab(Messages.get("MarkdownPreviewPane.htmlSourceTab"), htmlSourcePreview.getNode());
-		htmlSourceTab.setUserData(htmlSourcePreview);
-		tabPane.getTabs().add(htmlSourceTab);
+  public MarkdownPreviewPane() {
+    setVbarPolicy( ALWAYS );
 
-		Tab astTab = new Tab(Messages.get("MarkdownPreviewPane.astTab"), astPreview.getNode());
-		astTab.setUserData(astPreview);
-		tabPane.getTabs().add(astTab);
+    markdownASTProperty().addListener( (observable, oldValue, newValue) -> {
+      update();
+    } );
 
-		tabPane.getSelectionModel().selectedItemProperty().addListener((observable, oldTab, newTab) -> {
-			update();
-			scrollY();
-		});
+    pathProperty().addListener( (observable, oldValue, newValue) -> {
+      update();
+    } );
 
-		path.addListener((observable, oldValue, newValue) -> {
-			update();
-		});
+    scrollYProperty().addListener( (observable, oldValue, newValue) -> {
+      scrollY();
+    } );
+  }
 
-		markdownAST.addListener((observable, oldValue, newValue) -> {
-			update();
-		});
+  private String toHtml() {
+    final RootNode root = getMarkdownAST();
 
-		scrollY.addListener((observable, oldValue, newValue) -> {
-			scrollY();
-		});
-	}
+    return root == null
+      ? ""
+      : new ToHtmlSerializer( new LinkRenderer(),
+        Collections.<String, VerbatimSerializer>emptyMap(),
+        PegDownPlugins.NONE.getHtmlSerializerPlugins() ).toHtml( root );
+  }
 
-	public Node getNode() {
-		return tabPane;
-	}
+  public void update() {
+    if( !getEngine().getLoadWorker().isRunning() ) {
+      setScrollXY();
+    }
 
-	private Preview getActivePreview() {
-		return (Preview) tabPane.getSelectionModel().getSelectedItem().getUserData();
-	}
+    getEngine().loadContent(
+      "<!DOCTYPE html>"
+      + "<html>"
+      + "<head>"
+      + "<link rel='stylesheet' href='" + getClass().getResource( "markdownpad-github.css" ) + "'>"
+      + getBase()
+      + "</head>"
+      + "<body" + getScrollScript() + ">"
+      + toHtml()
+      + "</body>"
+      + "</html>" );
+  }
 
-	private void update() {
-		getActivePreview().update(getMarkdownAST(), getPath());
-	}
+  /**
+   * Obtain the window.scrollX and window.scrollY from web engine, but only no
+   * worker is running (in this case the result would be zero).
+   */
+  private void setScrollXY() {
+    lastScrollX = getNumber( execute( "window.scrollX" ) );
+    lastScrollY = getNumber( execute( "window.scrollY" ) );
+  }
 
-	private boolean scrollYrunLaterPending;
-	private void scrollY() {
-		// avoid too many (and useless) runLater() invocations
-		if (scrollYrunLaterPending)
-			return;
-		scrollYrunLaterPending = true;
+  private int getNumber( final Object number ) {
+    return (number instanceof Number) ? ((Number)number).intValue() : 0;
+  }
 
-		Platform.runLater(() -> {
-			scrollYrunLaterPending = false;
-			getActivePreview().scrollY(getScrollY());
-		});
-	}
+  private String getBase() {
+    final Path path = getPath();
 
-	// 'path' property
-	private final ObjectProperty<Path> path = new SimpleObjectProperty<>();
-	public Path getPath() { return path.get(); }
-	public void setPath(Path path) { this.path.set(path); }
-	public ObjectProperty<Path> pathProperty() { return path; }
+    return path == null
+      ? ""
+      : ("<base href='" + path.getParent().toUri().toString() + "'>");
+  }
 
-	// 'markdownAST' property
-	private final ObjectProperty<RootNode> markdownAST = new SimpleObjectProperty<RootNode>();
-	public RootNode getMarkdownAST() { return markdownAST.get(); }
-	public void setMarkdownAST(RootNode astRoot) { markdownAST.set(astRoot); }
-	public ObjectProperty<RootNode> markdownASTProperty() { return markdownAST; }
+  private String getScrollScript() {
+    return (lastScrollX > 0 || lastScrollY > 0)
+      ? (" onload='window.scrollTo(" + lastScrollX + "," + lastScrollY + ");'")
+      : "";
+  }
 
-	// 'scrollY' property
-	private final DoubleProperty scrollY = new SimpleDoubleProperty();
-	public double getScrollY() { return scrollY.get(); }
-	public void setScrollY(double value) { scrollY.set(value); }
-	public DoubleProperty scrollYProperty() { return scrollY; }
+  /**
+   * Helps avoid many superfluous runLater() calls.
+   */
+  private void scrollY() {
+    if( !delayScroll ) {
+      delayScroll = true;
+
+      Platform.runLater( () -> {
+        delayScroll = false;
+        scrollY( getScrollY() );
+      } );
+    }
+  }
+
+  private void scrollY( double value ) {
+    execute(
+      "window.scrollTo(0, (document.body.scrollHeight - window.innerHeight) * "
+      + value
+      + ");" );
+  }
+
+  public Path getPath() {
+    return pathProperty().get();
+  }
+
+  public void setPath( Path path ) {
+    pathProperty().set( path );
+  }
+
+  public ObjectProperty<Path> pathProperty() {
+    return this.path;
+  }
+
+  public RootNode getMarkdownAST() {
+    return markdownASTProperty().get();
+  }
+
+  public void setMarkdownAST( RootNode astRoot ) {
+    markdownASTProperty().set( astRoot );
+  }
+
+  public ObjectProperty<RootNode> markdownASTProperty() {
+    return this.markdownAST;
+  }
+
+  public double getScrollY() {
+    return scrollYProperty().get();
+  }
+
+  public void setScrollY( double value ) {
+    scrollYProperty().set( value );
+  }
+
+  public DoubleProperty scrollYProperty() {
+    return this.scrollY;
+  }
+
+  public Node getNode() {
+    return getWebView();
+  }
+
+  private Object execute( String script ) {
+    return getEngine().executeScript( script );
+  }
+
+  private WebEngine getEngine() {
+    return getWebView().getEngine();
+  }
+
+  private WebView getWebView() {
+    return this.webView;
+  }
 }

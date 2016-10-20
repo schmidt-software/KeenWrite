@@ -24,7 +24,6 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package com.scrivendor.dialogs;
 
 import java.nio.file.Path;
@@ -49,104 +48,104 @@ import org.tbee.javafx.scene.layout.fxml.MigPane;
  *
  * @author Karl Tauber
  */
-public class ImageDialog
-	extends Dialog<String>
-{
-	private final StringProperty image = new SimpleStringProperty();
+public class ImageDialog extends Dialog<String> {
 
-	public ImageDialog(Window owner, Path basePath) {
-		setTitle(Messages.get("ImageDialog.title"));
-		initOwner(owner);
-		setResizable(true);
+  private final StringProperty image = new SimpleStringProperty();
 
-		initComponents();
+  public ImageDialog( Window owner, Path basePath ) {
+    setTitle( Messages.get( "ImageDialog.title" ) );
+    initOwner( owner );
+    setResizable( true );
 
-		linkBrowseFileButton.setBasePath(basePath);
-		linkBrowseFileButton.addExtensionFilter(new ExtensionFilter(Messages.get("ImageDialog.chooser.imagesFilter"), "*.png", "*.gif", "*.jpg"));
-		linkBrowseFileButton.urlProperty().bindBidirectional(urlField.escapedTextProperty());
+    initComponents();
 
-		DialogPane dialogPane = getDialogPane();
-		dialogPane.setContent(pane);
-		dialogPane.getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+    linkBrowseFileButton.setBasePath( basePath );
+    linkBrowseFileButton.addExtensionFilter( new ExtensionFilter( Messages.get( "ImageDialog.chooser.imagesFilter" ), "*.png", "*.gif", "*.jpg" ) );
+    linkBrowseFileButton.urlProperty().bindBidirectional( urlField.escapedTextProperty() );
 
-		dialogPane.lookupButton(ButtonType.OK).disableProperty().bind(
-				urlField.escapedTextProperty().isEmpty()
-					.or(textField.escapedTextProperty().isEmpty()));
+    DialogPane dialogPane = getDialogPane();
+    dialogPane.setContent( pane );
+    dialogPane.getButtonTypes().addAll( ButtonType.OK, ButtonType.CANCEL );
 
-		image.bind(Bindings.when(titleField.escapedTextProperty().isNotEmpty())
-				.then(Bindings.format("![%s](%s \"%s\")", textField.escapedTextProperty(), urlField.escapedTextProperty(), titleField.escapedTextProperty()))
-				.otherwise(Bindings.format("![%s](%s)", textField.escapedTextProperty(), urlField.escapedTextProperty())));
-		previewField.textProperty().bind(image);
+    dialogPane.lookupButton( ButtonType.OK ).disableProperty().bind(
+      urlField.escapedTextProperty().isEmpty()
+      .or( textField.escapedTextProperty().isEmpty() ) );
 
-		setResultConverter(dialogButton -> {
-			ButtonData data = (dialogButton != null) ? dialogButton.getButtonData() : null;
-			return (data == ButtonData.OK_DONE) ? image.get() : null;
-		});
+    image.bind( Bindings.when( titleField.escapedTextProperty().isNotEmpty() )
+      .then( Bindings.format( "![%s](%s \"%s\")", textField.escapedTextProperty(), urlField.escapedTextProperty(), titleField.escapedTextProperty() ) )
+      .otherwise( Bindings.format( "![%s](%s)", textField.escapedTextProperty(), urlField.escapedTextProperty() ) ) );
+    previewField.textProperty().bind( image );
 
-		Platform.runLater(() -> {
-			urlField.requestFocus();
+    setResultConverter( dialogButton -> {
+      ButtonData data = (dialogButton != null) ? dialogButton.getButtonData() : null;
+      return (data == ButtonData.OK_DONE) ? image.get() : null;
+    } );
 
-			if (urlField.getText().startsWith("http://"))
-				urlField.selectRange("http://".length(), urlField.getLength());
-		});
-	}
+    Platform.runLater( () -> {
+      urlField.requestFocus();
 
-	private void initComponents() {
-		// JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
-		pane = new MigPane();
-		Label urlLabel = new Label();
-		urlField = new EscapeTextField();
-		linkBrowseFileButton = new BrowseFileButton();
-		Label textLabel = new Label();
-		textField = new EscapeTextField();
-		Label titleLabel = new Label();
-		titleField = new EscapeTextField();
-		Label previewLabel = new Label();
-		previewField = new Label();
+      if( urlField.getText().startsWith( "http://" ) ) {
+        urlField.selectRange( "http://".length(), urlField.getLength() );
+      }
+    } );
+  }
 
-		//======== pane ========
-		{
-			pane.setCols("[shrink 0,fill][300,grow,fill][fill]");
-			pane.setRows("[][][][]");
+  private void initComponents() {
+    // JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
+    pane = new MigPane();
+    Label urlLabel = new Label();
+    urlField = new EscapeTextField();
+    linkBrowseFileButton = new BrowseFileButton();
+    Label textLabel = new Label();
+    textField = new EscapeTextField();
+    Label titleLabel = new Label();
+    titleField = new EscapeTextField();
+    Label previewLabel = new Label();
+    previewField = new Label();
 
-			//---- urlLabel ----
-			urlLabel.setText(Messages.get("ImageDialog.urlLabel.text"));
-			pane.add(urlLabel, "cell 0 0");
+    //======== pane ========
+    {
+      pane.setCols( "[shrink 0,fill][300,grow,fill][fill]" );
+      pane.setRows( "[][][][]" );
 
-			//---- urlField ----
-			urlField.setEscapeCharacters("()");
-			urlField.setText("http://yourlink.com");
-			urlField.setPromptText("http://yourlink.com");
-			pane.add(urlField, "cell 1 0");
-			pane.add(linkBrowseFileButton, "cell 2 0");
+      //---- urlLabel ----
+      urlLabel.setText( Messages.get( "ImageDialog.urlLabel.text" ) );
+      pane.add( urlLabel, "cell 0 0" );
 
-			//---- textLabel ----
-			textLabel.setText(Messages.get("ImageDialog.textLabel.text"));
-			pane.add(textLabel, "cell 0 1");
+      //---- urlField ----
+      urlField.setEscapeCharacters( "()" );
+      urlField.setText( "http://yourlink.com" );
+      urlField.setPromptText( "http://yourlink.com" );
+      pane.add( urlField, "cell 1 0" );
+      pane.add( linkBrowseFileButton, "cell 2 0" );
 
-			//---- textField ----
-			textField.setEscapeCharacters("[]");
-			pane.add(textField, "cell 1 1 2 1");
+      //---- textLabel ----
+      textLabel.setText( Messages.get( "ImageDialog.textLabel.text" ) );
+      pane.add( textLabel, "cell 0 1" );
 
-			//---- titleLabel ----
-			titleLabel.setText(Messages.get("ImageDialog.titleLabel.text"));
-			pane.add(titleLabel, "cell 0 2");
-			pane.add(titleField, "cell 1 2 2 1");
+      //---- textField ----
+      textField.setEscapeCharacters( "[]" );
+      pane.add( textField, "cell 1 1 2 1" );
 
-			//---- previewLabel ----
-			previewLabel.setText(Messages.get("ImageDialog.previewLabel.text"));
-			pane.add(previewLabel, "cell 0 3");
-			pane.add(previewField, "cell 1 3 2 1");
-		}
-		// JFormDesigner - End of component initialization  //GEN-END:initComponents
-	}
+      //---- titleLabel ----
+      titleLabel.setText( Messages.get( "ImageDialog.titleLabel.text" ) );
+      pane.add( titleLabel, "cell 0 2" );
+      pane.add( titleField, "cell 1 2 2 1" );
 
-	// JFormDesigner - Variables declaration - DO NOT MODIFY  //GEN-BEGIN:variables
-	private MigPane pane;
-	private EscapeTextField urlField;
-	private BrowseFileButton linkBrowseFileButton;
-	private EscapeTextField textField;
-	private EscapeTextField titleField;
-	private Label previewField;
+      //---- previewLabel ----
+      previewLabel.setText( Messages.get( "ImageDialog.previewLabel.text" ) );
+      pane.add( previewLabel, "cell 0 3" );
+      pane.add( previewField, "cell 1 3 2 1" );
+    }
+    // JFormDesigner - End of component initialization  //GEN-END:initComponents
+  }
+
+  // JFormDesigner - Variables declaration - DO NOT MODIFY  //GEN-BEGIN:variables
+  private MigPane pane;
+  private EscapeTextField urlField;
+  private BrowseFileButton linkBrowseFileButton;
+  private EscapeTextField textField;
+  private EscapeTextField titleField;
+  private Label previewField;
 	// JFormDesigner - End of variables declaration  //GEN-END:variables
 }

@@ -32,8 +32,8 @@ import java.util.ResourceBundle;
 import java.util.Stack;
 
 /**
- * Recursively resolves message properties. Property values can refer
- * to other properties using a <code>${var}</code> syntax.
+ * Recursively resolves message properties. Property values can refer to other
+ * properties using a <code>${var}</code> syntax.
  *
  * @author Karl Tauber, Dave Jarvis
  */
@@ -54,12 +54,14 @@ public class Messages {
    * @return The value of the key with all references recursively dereferenced.
    */
   private static String resolve( ResourceBundle props, String s ) {
+    final int len = s.length();
+    final Stack<StringBuilder> stack = new Stack<>();
+
     StringBuilder sb = new StringBuilder( 256 );
-    Stack<StringBuilder> stack = new Stack<>();
-    int len = s.length();
+    boolean open = false;
 
     for( int i = 0; i < len; i++ ) {
-      char c = s.charAt( i );
+      final char c = s.charAt( i );
 
       switch( c ) {
         case '$': {
@@ -67,20 +69,21 @@ public class Messages {
             stack.push( sb );
             sb = new StringBuilder( 256 );
             i++;
+            open = true;
           }
+
           break;
         }
 
         case '}': {
-          if( stack.isEmpty() ) {
-            throw new IllegalArgumentException( "unexpected '}'" );
+          if( open ) {
+            open = false;
+            final String name = sb.toString();
+
+            sb = stack.pop();
+            sb.append( props.getString( name ) );
+            break;
           }
-
-          String name = sb.toString();
-
-          sb = stack.pop();
-          sb.append( props.getString( name ) );
-          break;
         }
 
         default: {
@@ -90,7 +93,7 @@ public class Messages {
       }
     }
 
-    if( !stack.isEmpty() ) {
+    if( open ) {
       throw new IllegalArgumentException( "missing '}'" );
     }
 

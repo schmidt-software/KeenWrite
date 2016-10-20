@@ -31,12 +31,11 @@ package com.scrivendor;
  * @author White Magic Software, Ltd.
  */
 public class Constants {
-  
+
   /**
    * Prevent instantiation.
    */
   private Constants() {
-    
   }
 
   public static final String BUNDLE_NAME = "com.scrivendor.messages";

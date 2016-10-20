@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2015 Karl Tauber <karl at jformdesigner dot com>
+ * Copyright 2016 White Magic Software, Inc.
+ *
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -24,53 +25,13 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
-package com.scrivendor.preview;
-
-import java.nio.file.Path;
-import javafx.scene.Node;
-import javafx.scene.control.ScrollBar;
-import javafx.scene.control.TextArea;
-import com.scrivendor.util.Utils;
-import org.pegdown.ast.RootNode;
+package com.scrivendor.service;
 
 /**
- * HTML source preview.
  *
- * @author Karl Tauber
+ * @author White Magic Software, Ltd.
  */
-class HtmlSourcePreview
-	implements MarkdownPreviewPane.Preview
-{
-	private final TextArea textArea = new TextArea();
-	private ScrollBar vScrollBar;
+public interface Pipeline extends Service {
 
-	HtmlSourcePreview() {
-		textArea.setEditable(false);
-		textArea.setWrapText(true);
-	}
-
-	Node getNode() {
-		return textArea;
-	}
-
-	@Override
-	public void update(RootNode astRoot, Path path) {
-		double scrollTop = textArea.getScrollTop();
-
-		textArea.setText(WebViewPreview.toHtml(astRoot));
-
-		textArea.setScrollTop(scrollTop);
-	}
-
-	@Override
-	public void scrollY(double value) {
-		if (vScrollBar == null)
-			vScrollBar = Utils.findVScrollBar(textArea);
-		if (vScrollBar == null)
-			return;
-
-		double maxValue = vScrollBar.maxProperty().get();
-		vScrollBar.setValue(maxValue * value);
-	}
+  public String process( String content );
 }
