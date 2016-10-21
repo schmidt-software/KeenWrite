@@ -108,7 +108,18 @@ public class Messages {
    * @return The value for the key.
    */
   public static String get( String key ) {
-    return resolve( RESOURCE_BUNDLE, RESOURCE_BUNDLE.getString( key ) );
+    String result;
+
+    try {
+      result = resolve( RESOURCE_BUNDLE, RESOURCE_BUNDLE.getString( key ) );
+    } catch( Exception e ) {
+      
+      // Instead of crashing, launch the application and show the resource
+      // name.
+      result = key;
+    }
+
+    return result;
   }
 
   /**

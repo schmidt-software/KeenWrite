@@ -88,7 +88,7 @@ public final class Main extends Application {
   }
 
   private String getApplicationTitle() {
-    return Messages.get( "Application.title" );
+    return Messages.get( "Main.title" );
   }
 
   private void initWindow() {

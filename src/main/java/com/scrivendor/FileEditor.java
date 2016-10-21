@@ -176,7 +176,7 @@ class FileEditor {
   }
 
   void load() {
-    Path filePath = this.path.get();
+    final Path filePath = this.path.get();
 
     if( filePath != null ) {
       try {
@@ -186,7 +186,7 @@ class FileEditor {
 
         try {
           markdown = new String( bytes, getOptions().getEncoding() );
-        } catch( Exception ex ) {
+        } catch( Exception e ) {
           // Unsupported encodings and null pointers will fallback here.
           markdown = new String( bytes );
         }
@@ -203,7 +203,7 @@ class FileEditor {
   }
 
   boolean save() {
-    String markdown = markdownEditorPane.getMarkdown();
+    final String markdown = markdownEditorPane.getMarkdown();
 
     byte[] bytes;
 

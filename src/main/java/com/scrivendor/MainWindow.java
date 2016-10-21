@@ -27,6 +27,7 @@
 package com.scrivendor;
 
 import static com.scrivendor.Constants.LOGO_32;
+import com.scrivendor.editor.MarkdownEditorPane;
 import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.BOLD;
 import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.CODE;
 import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.FILE_ALT;
@@ -68,7 +69,6 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Window;
 import javafx.stage.WindowEvent;
-import com.scrivendor.editor.MarkdownEditorPane;
 import com.scrivendor.options.OptionsDialog;
 import com.scrivendor.util.Action;
 import com.scrivendor.util.ActionUtils;
@@ -121,88 +121,83 @@ class MainWindow {
     BooleanBinding activeFileEditorIsNull = fileEditorTabPane.activeFileEditorProperty().isNull();
 
     // File actions
-    Action fileNewAction = new Action( Messages.get( "MainWindow.fileNewAction" ), "Shortcut+N", FILE_ALT, e -> fileNew() );
-    Action fileOpenAction = new Action( Messages.get( "MainWindow.fileOpenAction" ), "Shortcut+O", FOLDER_OPEN_ALT, e -> fileOpen() );
-    Action fileCloseAction = new Action( Messages.get( "MainWindow.fileCloseAction" ), "Shortcut+W", null, e -> fileClose(), activeFileEditorIsNull );
-    Action fileCloseAllAction = new Action( Messages.get( "MainWindow.fileCloseAllAction" ), null, null, e -> fileCloseAll(), activeFileEditorIsNull );
-    Action fileSaveAction = new Action( Messages.get( "MainWindow.fileSaveAction" ), "Shortcut+S", FLOPPY_ALT, e -> fileSave(),
+    Action fileNewAction = new Action( Messages.get( "Main.menu.file.new" ), "Shortcut+N", FILE_ALT, e -> fileNew() );
+    Action fileOpenAction = new Action( Messages.get( "Main.menu.file.open" ), "Shortcut+O", FOLDER_OPEN_ALT, e -> fileOpen() );
+    Action fileCloseAction = new Action( Messages.get( "Main.menu.file.close" ), "Shortcut+W", null, e -> fileClose(), activeFileEditorIsNull );
+    Action fileCloseAllAction = new Action( Messages.get( "Main.menu.file.close_all" ), null, null, e -> fileCloseAll(), activeFileEditorIsNull );
+    Action fileSaveAction = new Action( Messages.get( "Main.menu.file.save" ), "Shortcut+S", FLOPPY_ALT, e -> fileSave(),
       createActiveBooleanProperty( FileEditor::modifiedProperty ).not() );
-    Action fileSaveAllAction = new Action( Messages.get( "MainWindow.fileSaveAllAction" ), "Shortcut+Shift+S", null, e -> fileSaveAll(),
+    Action fileSaveAllAction = new Action( Messages.get( "Main.menu.file.save_all" ), "Shortcut+Shift+S", null, e -> fileSaveAll(),
       Bindings.not( fileEditorTabPane.anyFileEditorModifiedProperty() ) );
-    Action fileExitAction = new Action( Messages.get( "MainWindow.fileExitAction" ), null, null, e -> fileExit() );
+    Action fileExitAction = new Action( Messages.get( "Main.menu.file.exit" ), null, null, e -> fileExit() );
 
     // Edit actions
-    Action editUndoAction = new Action( Messages.get( "MainWindow.editUndoAction" ), "Shortcut+Z", UNDO,
+    Action editUndoAction = new Action( Messages.get( "Main.menu.edit.undo" ), "Shortcut+Z", UNDO,
       e -> getActiveEditor().undo(),
       createActiveBooleanProperty( FileEditor::canUndoProperty ).not() );
-    Action editRedoAction = new Action( Messages.get( "MainWindow.editRedoAction" ), "Shortcut+Y", REPEAT,
+    Action editRedoAction = new Action( Messages.get( "Main.menu.edit.redo" ), "Shortcut+Y", REPEAT,
       e -> getActiveEditor().redo(),
       createActiveBooleanProperty( FileEditor::canRedoProperty ).not() );
 
     // Insert actions
-    Action insertBoldAction = new Action( Messages.get( "MainWindow.insertBoldAction" ), "Shortcut+B", BOLD,
+    Action insertBoldAction = new Action( Messages.get( "Main.menu.insert.bold" ), "Shortcut+B", BOLD,
       e -> getActiveEditor().surroundSelection( "**", "**" ),
       activeFileEditorIsNull );
-    Action insertItalicAction = new Action( Messages.get( "MainWindow.insertItalicAction" ), "Shortcut+I", ITALIC,
+    Action insertItalicAction = new Action( Messages.get( "Main.menu.insert.italic" ), "Shortcut+I", ITALIC,
       e -> getActiveEditor().surroundSelection( "*", "*" ),
       activeFileEditorIsNull );
-    Action insertStrikethroughAction = new Action( Messages.get( "MainWindow.insertStrikethroughAction" ), "Shortcut+T", STRIKETHROUGH,
+    Action insertStrikethroughAction = new Action( Messages.get( "Main.menu.insert.strikethrough" ), "Shortcut+T", STRIKETHROUGH,
       e -> getActiveEditor().surroundSelection( "~~", "~~" ),
       activeFileEditorIsNull );
-    Action insertBlockquoteAction = new Action( Messages.get( "MainWindow.insertBlockquoteAction" ), "Ctrl+Q", QUOTE_LEFT, // not Shortcut+Q because of conflict on Mac
+    Action insertBlockquoteAction = new Action( Messages.get( "Main.menu.insert.blockquote" ), "Ctrl+Q", QUOTE_LEFT, // not Shortcut+Q because of conflict on Mac
       e -> getActiveEditor().surroundSelection( "\n\n> ", "" ),
       activeFileEditorIsNull );
-    Action insertCodeAction = new Action( Messages.get( "MainWindow.insertCodeAction" ), "Shortcut+K", CODE,
+    Action insertCodeAction = new Action( Messages.get( "Main.menu.insert.code" ), "Shortcut+K", CODE,
       e -> getActiveEditor().surroundSelection( "`", "`" ),
       activeFileEditorIsNull );
-    Action insertFencedCodeBlockAction = new Action( Messages.get( "MainWindow.insertFencedCodeBlockAction" ), "Shortcut+Shift+K", FILE_CODE_ALT,
-      e -> getActiveEditor().surroundSelection( "\n\n```\n", "\n```\n\n", Messages.get( "MainWindow.insertFencedCodeBlockText" ) ),
+    Action insertFencedCodeBlockAction = new Action( Messages.get( "Main.menu.insert.fenced_code_block" ), "Shortcut+Shift+K", FILE_CODE_ALT,
+      e -> getActiveEditor().surroundSelection( "\n\n```\n", "\n```\n\n", Messages.get( "Main.menu.insert.fenced_code_block.prompt" ) ),
       activeFileEditorIsNull );
 
-    Action insertLinkAction = new Action( Messages.get( "MainWindow.insertLinkAction" ), "Shortcut+L", LINK,
+    Action insertLinkAction = new Action( Messages.get( "Main.menu.insert.link" ), "Shortcut+L", LINK,
       e -> getActiveEditor().insertLink(),
       activeFileEditorIsNull );
-    Action insertImageAction = new Action( Messages.get( "MainWindow.insertImageAction" ), "Shortcut+G", PICTURE_ALT,
+    Action insertImageAction = new Action( Messages.get( "Main.menu.insert.image" ), "Shortcut+G", PICTURE_ALT,
       e -> getActiveEditor().insertImage(),
       activeFileEditorIsNull );
 
-    Action insertHeader1Action = new Action( Messages.get( "MainWindow.insertHeader1Action" ), "Shortcut+1", HEADER,
-      e -> getActiveEditor().surroundSelection( "\n\n# ", "", Messages.get( "MainWindow.insertHeader1Text" ) ),
-      activeFileEditorIsNull );
-    Action insertHeader2Action = new Action( Messages.get( "MainWindow.insertHeader2Action" ), "Shortcut+2", HEADER,
-      e -> getActiveEditor().surroundSelection( "\n\n## ", "", Messages.get( "MainWindow.insertHeader2Text" ) ),
-      activeFileEditorIsNull );
-    Action insertHeader3Action = new Action( Messages.get( "MainWindow.insertHeader3Action" ), "Shortcut+3", HEADER,
-      e -> getActiveEditor().surroundSelection( "\n\n### ", "", Messages.get( "MainWindow.insertHeader3Text" ) ),
-      activeFileEditorIsNull );
-    Action insertHeader4Action = new Action( Messages.get( "MainWindow.insertHeader4Action" ), "Shortcut+4", HEADER,
-      e -> getActiveEditor().surroundSelection( "\n\n#### ", "", Messages.get( "MainWindow.insertHeader4Text" ) ),
-      activeFileEditorIsNull );
-    Action insertHeader5Action = new Action( Messages.get( "MainWindow.insertHeader5Action" ), "Shortcut+5", HEADER,
-      e -> getActiveEditor().surroundSelection( "\n\n##### ", "", Messages.get( "MainWindow.insertHeader5Text" ) ),
-      activeFileEditorIsNull );
-    Action insertHeader6Action = new Action( Messages.get( "MainWindow.insertHeader6Action" ), "Shortcut+6", HEADER,
-      e -> getActiveEditor().surroundSelection( "\n\n###### ", "", Messages.get( "MainWindow.insertHeader6Text" ) ),
-      activeFileEditorIsNull );
+    final Action[] headers = new Action[ 6 ];
 
-    Action insertUnorderedListAction = new Action( Messages.get( "MainWindow.insertUnorderedListAction" ), "Shortcut+U", LIST_UL,
+    for( int i = 1; i <= 6; i++ ) {
+      final String hashes = new String( new char[ i ] ).replace( "\0", "#" );
+      final String markup = String.format( "\n\n%s ", hashes );
+      final String text = Messages.get( "Main.menu.insert.header_" + i );
+      final String accelerator = "Shortcut+" + i;
+      final String prompt = Messages.get( "Main.menu.insert.header_" + i + ".prompt" );
+
+      headers[ i-1 ] = new Action( text, accelerator, HEADER,
+        e -> getActiveEditor().surroundSelection( markup, "", prompt ),
+        activeFileEditorIsNull );
+    }
+
+    Action insertUnorderedListAction = new Action( Messages.get( "Main.menu.insert.unordered_list" ), "Shortcut+U", LIST_UL,
       e -> getActiveEditor().surroundSelection( "\n\n* ", "" ),
       activeFileEditorIsNull );
-    Action insertOrderedListAction = new Action( Messages.get( "MainWindow.insertOrderedListAction" ), "Shortcut+Shift+O", LIST_OL,
+    Action insertOrderedListAction = new Action( Messages.get( "Main.menu.insert.ordered_list" ), "Shortcut+Shift+O", LIST_OL,
       e -> getActiveEditor().surroundSelection( "\n\n1. ", "" ),
       activeFileEditorIsNull );
-    Action insertHorizontalRuleAction = new Action( Messages.get( "MainWindow.insertHorizontalRuleAction" ), "Shortcut+H", null,
+    Action insertHorizontalRuleAction = new Action( Messages.get( "Main.menu.insert.horizontal_rule" ), "Shortcut+H", null,
       e -> getActiveEditor().surroundSelection( "\n\n---\n\n", "" ),
       activeFileEditorIsNull );
 
     // Tools actions
-    Action toolsOptionsAction = new Action( Messages.get( "MainWindow.toolsOptionsAction" ), "Shortcut+,", null, e -> toolsOptions() );
+    Action toolsOptionsAction = new Action( Messages.get( "Main.menu.tools.options" ), "Shortcut+,", null, e -> toolsOptions() );
 
     // Help actions
-    Action helpAboutAction = new Action( Messages.get( "MainWindow.helpAboutAction" ), null, null, e -> helpAbout() );
+    Action helpAboutAction = new Action( Messages.get( "Main.menu.help.about" ), null, null, e -> helpAbout() );
 
     //---- MenuBar ----
-    Menu fileMenu = ActionUtils.createMenu( Messages.get( "MainWindow.fileMenu" ),
+    Menu fileMenu = ActionUtils.createMenu( Messages.get( "Main.menu.file" ),
       fileNewAction,
       fileOpenAction,
       null,
@@ -214,11 +209,11 @@ class MainWindow {
       null,
       fileExitAction );
 
-    Menu editMenu = ActionUtils.createMenu( Messages.get( "MainWindow.editMenu" ),
+    Menu editMenu = ActionUtils.createMenu( Messages.get( "Main.menu.edit" ),
       editUndoAction,
       editRedoAction );
 
-    Menu insertMenu = ActionUtils.createMenu( Messages.get( "MainWindow.insertMenu" ),
+    Menu insertMenu = ActionUtils.createMenu( Messages.get( "Main.menu.insert" ),
       insertBoldAction,
       insertItalicAction,
       insertStrikethroughAction,
@@ -229,21 +224,21 @@ class MainWindow {
       insertLinkAction,
       insertImageAction,
       null,
-      insertHeader1Action,
-      insertHeader2Action,
-      insertHeader3Action,
-      insertHeader4Action,
-      insertHeader5Action,
-      insertHeader6Action,
+      headers[ 0 ],
+      headers[ 1 ],
+      headers[ 2 ],
+      headers[ 3 ],
+      headers[ 4 ],
+      headers[ 5 ],
       null,
       insertUnorderedListAction,
       insertOrderedListAction,
       insertHorizontalRuleAction );
 
-    Menu toolsMenu = ActionUtils.createMenu( Messages.get( "MainWindow.toolsMenu" ),
+    Menu toolsMenu = ActionUtils.createMenu( Messages.get( "Main.menu.tools" ),
       toolsOptionsAction );
 
-    Menu helpMenu = ActionUtils.createMenu( Messages.get( "MainWindow.helpMenu" ),
+    Menu helpMenu = ActionUtils.createMenu( Messages.get( "Main.menu.help" ),
       helpAboutAction );
 
     menuBar = new MenuBar( fileMenu, editMenu, insertMenu, toolsMenu, helpMenu );
@@ -266,7 +261,7 @@ class MainWindow {
       insertLinkAction,
       insertImageAction,
       null,
-      insertHeader1Action,
+      headers[ 0 ],
       null,
       insertUnorderedListAction,
       insertOrderedListAction );
@@ -348,9 +343,9 @@ class MainWindow {
   //---- Help actions -------------------------------------------------------
   private void helpAbout() {
     Alert alert = new Alert( AlertType.INFORMATION );
-    alert.setTitle( Messages.get( "MainWindow.about.title" ) );
-    alert.setHeaderText( Messages.get( "MainWindow.about.headerText" ) );
-    alert.setContentText( Messages.get( "MainWindow.about.contentText" ) );
+    alert.setTitle( Messages.get( "Dialog.about.title" ) );
+    alert.setHeaderText( Messages.get( "Dialog.about.header" ) );
+    alert.setContentText( Messages.get( "Dialog.about.content" ) );
     alert.setGraphic( new ImageView( new Image( LOGO_32 ) ) );
     alert.initOwner( getScene().getWindow() );
 
