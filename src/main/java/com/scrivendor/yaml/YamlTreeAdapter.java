@@ -30,7 +30,6 @@ package com.scrivendor.yaml;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Iterator;
 import java.util.Map.Entry;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
@@ -43,40 +42,61 @@ import javafx.scene.control.TreeView;
  */
 public class YamlTreeAdapter {
 
-  public YamlTreeAdapter() {
-  }
-  
-  public static TreeView<String> adapt( final InputStream in ) throws IOException {
-    return adapt(YamlParser.parse(in));
+  protected YamlTreeAdapter() {
   }
 
   /**
-   * Iterate over a given root node (at any level of the tree) and process each
-   * leaf node.
+   * Converts a YAML document to a TreeView based on the document keys. Only the
+   * first document in the stream is adapted. This does not close the stream.
    *
-   * @param root A node to process.
+   * @param in Contains a YAML document.
+   * @param name Name of the root TreeItem.
    *
-   * @return
+   * @return A TreeView populated with all the keys in the YAML document.
+   *
+   * @throws IOException Could not read from the stream.
    */
-  private static TreeView<String> adapt( final JsonNode root ) {
-    return new TreeView( process( root ) );
+  public static TreeView<String> adapt(
+    final InputStream in, final String name ) throws IOException {
+    final YamlTreeAdapter adapter = new YamlTreeAdapter();
+    final JsonNode rootNode = YamlParser.parse( in );
+    final TreeItem<String> rootItem = new TreeItem<>( name );
+
+    adapter.adapt( rootNode, rootItem );
+    return new TreeView<>( rootItem );
   }
 
-  private static TreeItem<String> process( final JsonNode nodeRoot ) {
-    final Iterator<Entry<String, JsonNode>> fields = nodeRoot.fields();
-    final TreeItem<String> itemRoot = new TreeItem<>();
+  /**
+   * Iterate over a given root node (at any level of the tree) and adapt each
+   * leaf node.
+   *
+   * @param rootNode A JSON node (YAML node) to adapt.
+   * @param rootItem The tree item to use as the root when processing the node.
+   */
+  protected void adapt(
+    final JsonNode rootNode,
+    final TreeItem<String> rootItem ) {
+    rootNode.fields().forEachRemaining(
+      (Entry<String, JsonNode> leaf) -> adapt( leaf, rootItem )
+    );
+  }
 
-    while( fields.hasNext() ) {
-      final Entry<String, JsonNode> field = fields.next();
-      final JsonNode leaf = field.getValue();
+  /**
+   * Recursively adapt each rootNode to a corresponding rootItem.
+   *
+   * @param rootNode The node to adapt.
+   * @param rootItem The item to adapt using the node's key.
+   */
+  protected void adapt(
+    final Entry<String, JsonNode> rootNode,
+    final TreeItem<String> rootItem ) {
+    final JsonNode leafNode = rootNode.getValue();
+    final TreeItem<String> leafItem = new TreeItem<>( rootNode.getKey() );
 
-      if( leaf.isObject() ) {
-        itemRoot.getChildren().add( process( leaf ) );
-      } else {
-        itemRoot.setValue( field.getKey() );
-      }
+    rootItem.getChildren().add( leafItem );
+
+    if( leafNode.isObject() ) {
+      adapt( leafNode, leafItem );
     }
-    
-    return itemRoot;
   }
 }

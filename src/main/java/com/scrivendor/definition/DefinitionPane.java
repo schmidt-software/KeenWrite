@@ -45,7 +45,7 @@ public class DefinitionPane extends AbstractPane {
 
   public DefinitionPane() {
     try {
-      setTreeView( adapt( asStream( "/com/scrivendor/variables.yaml" ) ) );
+      setTreeView( adapt( asStream( "/com/scrivendor/variables.yaml" ), "definitions" ) );
     } catch( IOException e ) {
       throw new RuntimeException( e );
     }
