@@ -62,6 +62,7 @@ public class YamlTreeAdapter {
     final JsonNode rootNode = YamlParser.parse( in );
     final TreeItem<String> rootItem = new TreeItem<>( name );
 
+    rootItem.setExpanded( true );
     adapter.adapt( rootNode, rootItem );
     return new TreeView<>( rootItem );
   }
@@ -91,7 +92,12 @@ public class YamlTreeAdapter {
     final Entry<String, JsonNode> rootNode,
     final TreeItem<String> rootItem ) {
     final JsonNode leafNode = rootNode.getValue();
-    final TreeItem<String> leafItem = new TreeItem<>( rootNode.getKey() );
+    final String key = rootNode.getKey();
+    final TreeItem<String> leafItem = new TreeItem<>( key );
+
+    if( leafNode.isValueNode() ) {
+      leafItem.getChildren().add( new TreeItem<>( rootNode.getValue().asText() ) );
+    }
 
     rootItem.getChildren().add( leafItem );
 

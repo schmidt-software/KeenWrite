@@ -26,18 +26,15 @@
  */
 package com.scrivendor.service.impl;
 
+import com.scrivendor.service.Options;
+import static com.scrivendor.util.Utils.putPrefs;
+import static com.scrivendor.util.Utils.putPrefsInt;
 import java.util.prefs.Preferences;
 import static java.util.prefs.Preferences.userRoot;
-import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-import com.scrivendor.service.Options;
-import static com.scrivendor.util.Utils.putPrefs;
-import static com.scrivendor.util.Utils.putPrefsBoolean;
-import static com.scrivendor.util.Utils.putPrefsInt;
 import org.pegdown.Extensions;
 
 /**
@@ -49,7 +46,6 @@ public class DefaultOptions implements Options {
   private final StringProperty LINE_SEPARATOR = new SimpleStringProperty();
   private final StringProperty ENCODING = new SimpleStringProperty();
   private final IntegerProperty MARKDOWN_EXTENSIONS = new SimpleIntegerProperty();
-  private final BooleanProperty SHOW_WHITESPACE = new SimpleBooleanProperty();
 
   private Preferences preferences;
   
@@ -79,7 +75,6 @@ public class DefaultOptions implements Options {
     setLineSeparator( options.get( "lineSeparator", null ) );
     setEncoding( options.get( "encoding", null ) );
     setMarkdownExtensions( options.getInt( "markdownExtensions", Extensions.ALL ) );
-    setShowWhitespace( options.getBoolean( "showWhitespace", false ) );
   }
 
   @Override
@@ -87,7 +82,6 @@ public class DefaultOptions implements Options {
     putPrefs( preferences, "lineSeparator", getLineSeparator(), null );
     putPrefs( preferences, "encoding", getEncoding(), null );
     putPrefsInt( preferences, "markdownExtensions", getMarkdownExtensions(), Extensions.ALL );
-    putPrefsBoolean( preferences, "showWhitespace", isShowWhitespace(), false );
   }
 
   @Override
@@ -133,20 +127,5 @@ public class DefaultOptions implements Options {
   @Override
   public IntegerProperty markdownExtensionsProperty() {
     return MARKDOWN_EXTENSIONS;
-  }
-
-  @Override
-  public boolean isShowWhitespace() {
-    return SHOW_WHITESPACE.get();
-  }
-
-  @Override
-  public void setShowWhitespace( boolean showWhitespace ) {
-    SHOW_WHITESPACE.set( showWhitespace );
-  }
-
-  @Override
-  public BooleanProperty showWhitespaceProperty() {
-    return SHOW_WHITESPACE;
   }
 }

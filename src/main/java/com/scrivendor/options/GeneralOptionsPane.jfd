@@ -59,12 +59,6 @@ new FormModel {
 			}, new FormLayoutConstraints( class net.miginfocom.layout.CC ) {
 				"value": "cell 1 1"
 			} )
-			add( new FormComponent( "javafx.scene.control.CheckBox" ) {
-				name: "showWhitespaceCheckBox"
-				"text": new FormMessage( null, "GeneralOptionsPane.showWhitespaceCheckBox.text" )
-			}, new FormLayoutConstraints( class net.miginfocom.layout.CC ) {
-				"value": "cell 0 2 3 1,growx 0,alignx left"
-			} )
 		}, new FormLayoutConstraints( null ) {
 			"location": new javafx.geometry.Point2D( 0.0, 0.0 )
 			"size": new javafx.geometry.Dimension2D( 400.0, 300.0 )

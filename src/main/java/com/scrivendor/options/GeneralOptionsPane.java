@@ -26,19 +26,18 @@
  */
 package com.scrivendor.options;
 
+import com.scrivendor.Messages;
 import com.scrivendor.ui.AbstractPane;
+import com.scrivendor.util.Item;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.SortedMap;
-import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
-import com.scrivendor.Messages;
-import com.scrivendor.util.Item;
 
 /**
- * General options pane
+ * General options pane.
  *
  * @author Karl Tauber
  */
@@ -75,14 +74,12 @@ public class GeneralOptionsPane extends AbstractPane {
     lineSeparatorField.setValue( new Item<>( getOptions().getLineSeparator(), getOptions().getLineSeparator() ) );
     encodingField.setValue( new Item<>( getOptions().getEncoding(), getOptions().getEncoding() ) );
 
-    showWhitespaceCheckBox.setSelected( getOptions().isShowWhitespace() );
   }
 
   void save() {
     getOptions().setLineSeparator( lineSeparatorField.getValue().value );
     getOptions().setEncoding( encodingField.getValue().value );
 
-    getOptions().setShowWhitespace( showWhitespaceCheckBox.isSelected() );
   }
 
   private void initComponents() {
@@ -92,7 +89,6 @@ public class GeneralOptionsPane extends AbstractPane {
     Label lineSeparatorLabel2 = new Label();
     Label encodingLabel = new Label();
     encodingField = new ComboBox<>();
-    showWhitespaceCheckBox = new CheckBox();
 
     //======== this ========
     setCols( "[fill][fill][fill]" );
@@ -116,10 +112,6 @@ public class GeneralOptionsPane extends AbstractPane {
     //---- encodingField ----
     encodingField.setVisibleRowCount( 20 );
     add( encodingField, "cell 1 1" );
-
-    //---- showWhitespaceCheckBox ----
-    showWhitespaceCheckBox.setText( Messages.get( "GeneralOptionsPane.showWhitespaceCheckBox.text" ) );
-    add( showWhitespaceCheckBox, "cell 0 2 3 1,growx 0,alignx left" );
 		// JFormDesigner - End of component initialization  //GEN-END:initComponents
 
     // TODO set this in JFormDesigner as soon as it supports labelFor
@@ -130,6 +122,5 @@ public class GeneralOptionsPane extends AbstractPane {
   // JFormDesigner - Variables declaration - DO NOT MODIFY  //GEN-BEGIN:variables
   private ComboBox<Item<String>> lineSeparatorField;
   private ComboBox<Item<String>> encodingField;
-  private CheckBox showWhitespaceCheckBox;
 	// JFormDesigner - End of variables declaration  //GEN-END:variables
 }

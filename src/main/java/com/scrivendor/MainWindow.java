@@ -48,7 +48,6 @@ import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.QUOTE_LEFT;
 import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.REPEAT;
 import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.STRIKETHROUGH;
 import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.UNDO;
-import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.function.Function;
 import javafx.beans.binding.Bindings;
@@ -63,6 +62,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
+import javafx.scene.control.SplitPane;
 import javafx.scene.control.ToolBar;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -81,28 +81,32 @@ import javafx.stage.WindowEvent;
  * @author Karl Tauber
  */
 public class MainWindow {
-
+  
   private final Scene scene;
   private final FileEditorPane fileEditorPane;
   private final DefinitionPane definitionPane;
   
   private MenuBar menuBar;
-
+  
   public MainWindow() {
-    this.fileEditorPane = new FileEditorPane( this );
     this.definitionPane = new DefinitionPane();
-
+    this.fileEditorPane = new FileEditorPane( this );
+    
+    SplitPane splitPane = new SplitPane(
+      definitionPane.getNode(),
+      fileEditorPane.getNode() );
+    splitPane.setDividerPositions( .05f, .95f);
+    
     BorderPane borderPane = new BorderPane();
     borderPane.setPrefSize( 1024, 800 );
     borderPane.setTop( createMenuBar() );
-    borderPane.setCenter( fileEditorPane.getNode() );
-    borderPane.setLeft( definitionPane.getNode() );
-
+    borderPane.setCenter( splitPane );
+    
     this.scene = new Scene( borderPane );
     this.scene.getStylesheets().add( Constants.STYLESHEET_PREVIEW );
     this.scene.windowProperty().addListener( (observable, oldWindow, newWindow) -> {
       newWindow.setOnCloseRequest( e -> {
-        if( !this.fileEditorPane.closeAllEditors() ) {
+        if( !getFileEditorPane().closeAllEditors() ) {
           e.consume();
         }
       } );
@@ -111,20 +115,22 @@ public class MainWindow {
       newWindow.focusedProperty().addListener( (obs, oldFocused, newFocused) -> {
         if( !newFocused ) {
           // send an ESC key event to the menubar
-          this.menuBar.fireEvent( new KeyEvent( KEY_PRESSED, CHAR_UNDEFINED, "", ESCAPE,
-            false, false, false, false ) );
+          this.menuBar.fireEvent(
+            new KeyEvent(
+              KEY_PRESSED, CHAR_UNDEFINED, "", ESCAPE,
+              false, false, false, false ) );
         }
       } );
     } );
-
+    
   }
-
+  
   public Scene getScene() {
     return scene;
   }
-
+  
   private Node createMenuBar() {
-    BooleanBinding activeFileEditorIsNull = fileEditorPane.activeFileEditorProperty().isNull();
+    BooleanBinding activeFileEditorIsNull = getFileEditorPane().activeFileEditorProperty().isNull();
 
     // File actions
     Action fileNewAction = new Action( Messages.get( "Main.menu.file.new" ), "Shortcut+N", FILE_ALT, e -> fileNew() );
@@ -134,7 +140,7 @@ public class MainWindow {
     Action fileSaveAction = new Action( Messages.get( "Main.menu.file.save" ), "Shortcut+S", FLOPPY_ALT, e -> fileSave(),
       createActiveBooleanProperty( FileEditor::modifiedProperty ).not() );
     Action fileSaveAllAction = new Action( Messages.get( "Main.menu.file.save_all" ), "Shortcut+Shift+S", null, e -> fileSaveAll(),
-      Bindings.not( fileEditorPane.anyFileEditorModifiedProperty() ) );
+      Bindings.not( getFileEditorPane().anyFileEditorModifiedProperty() ) );
     Action fileExitAction = new Action( Messages.get( "Main.menu.file.exit" ), null, null, e -> fileExit() );
 
     // Edit actions
@@ -164,28 +170,28 @@ public class MainWindow {
     Action insertFencedCodeBlockAction = new Action( Messages.get( "Main.menu.insert.fenced_code_block" ), "Shortcut+Shift+K", FILE_CODE_ALT,
       e -> getActiveEditor().surroundSelection( "\n\n```\n", "\n```\n\n", Messages.get( "Main.menu.insert.fenced_code_block.prompt" ) ),
       activeFileEditorIsNull );
-
+    
     Action insertLinkAction = new Action( Messages.get( "Main.menu.insert.link" ), "Shortcut+L", LINK,
       e -> getActiveEditor().insertLink(),
       activeFileEditorIsNull );
     Action insertImageAction = new Action( Messages.get( "Main.menu.insert.image" ), "Shortcut+G", PICTURE_ALT,
       e -> getActiveEditor().insertImage(),
       activeFileEditorIsNull );
-
+    
     final Action[] headers = new Action[ 6 ];
-
+    
     for( int i = 1; i <= 6; i++ ) {
       final String hashes = new String( new char[ i ] ).replace( "\0", "#" );
       final String markup = String.format( "\n\n%s ", hashes );
       final String text = Messages.get( "Main.menu.insert.header_" + i );
       final String accelerator = "Shortcut+" + i;
       final String prompt = Messages.get( "Main.menu.insert.header_" + i + ".prompt" );
-
+      
       headers[ i - 1 ] = new Action( text, accelerator, HEADER,
         e -> getActiveEditor().surroundSelection( markup, "", prompt ),
         activeFileEditorIsNull );
     }
-
+    
     Action insertUnorderedListAction = new Action( Messages.get( "Main.menu.insert.unordered_list" ), "Shortcut+U", LIST_UL,
       e -> getActiveEditor().surroundSelection( "\n\n* ", "" ),
       activeFileEditorIsNull );
@@ -214,11 +220,11 @@ public class MainWindow {
       fileSaveAllAction,
       null,
       fileExitAction );
-
+    
     Menu editMenu = ActionUtils.createMenu( Messages.get( "Main.menu.edit" ),
       editUndoAction,
       editRedoAction );
-
+    
     Menu insertMenu = ActionUtils.createMenu( Messages.get( "Main.menu.insert" ),
       insertBoldAction,
       insertItalicAction,
@@ -240,13 +246,13 @@ public class MainWindow {
       insertUnorderedListAction,
       insertOrderedListAction,
       insertHorizontalRuleAction );
-
+    
     Menu toolsMenu = ActionUtils.createMenu( Messages.get( "Main.menu.tools" ),
       toolsOptionsAction );
-
+    
     Menu helpMenu = ActionUtils.createMenu( Messages.get( "Main.menu.help" ),
       helpAboutAction );
-
+    
     menuBar = new MenuBar( fileMenu, editMenu, insertMenu, toolsMenu, helpMenu );
 
     //---- ToolBar ----
@@ -271,12 +277,20 @@ public class MainWindow {
       null,
       insertUnorderedListAction,
       insertOrderedListAction );
-
+    
     return new VBox( menuBar, toolBar );
   }
-
+  
+  private FileEditorPane getFileEditorPane() {
+    return this.fileEditorPane;
+  }
+  
   private MarkdownEditorPane getActiveEditor() {
-    return fileEditorPane.getActiveFileEditor().getEditor();
+    return getActiveFileEditor().getEditor();
+  }
+  
+  private FileEditor getActiveFileEditor() {
+    return getFileEditorPane().getActiveFileEditor();
   }
 
   /**
@@ -284,12 +298,14 @@ public class MainWindow {
    * active editor.
    */
   private BooleanProperty createActiveBooleanProperty( Function<FileEditor, ObservableBooleanValue> func ) {
-    BooleanProperty b = new SimpleBooleanProperty();
-    FileEditor fileEditor = fileEditorPane.getActiveFileEditor();
+    final BooleanProperty b = new SimpleBooleanProperty();
+    final FileEditor fileEditor = getActiveFileEditor();
+    
     if( fileEditor != null ) {
       b.bind( func.apply( fileEditor ) );
     }
-    fileEditorPane.activeFileEditorProperty().addListener( (observable, oldFileEditor, newFileEditor) -> {
+    
+    getFileEditorPane().activeFileEditorProperty().addListener( (observable, oldFileEditor, newFileEditor) -> {
       b.unbind();
       if( newFileEditor != null ) {
         b.bind( func.apply( newFileEditor ) );
@@ -297,12 +313,14 @@ public class MainWindow {
         b.set( false );
       }
     } );
+    
     return b;
   }
-
-  Alert createAlert( AlertType alertType, String title,
-    String contentTextFormat, Object... contentTextArgs ) {
-    Alert alert = new Alert( alertType );
+  
+  Alert createAlert(
+    final AlertType alertType, final String title,
+    final String contentTextFormat, final Object... contentTextArgs ) {
+    final Alert alert = new Alert( alertType );
     alert.setTitle( title );
     alert.setHeaderText( null );
     alert.setContentText( MessageFormat.format( contentTextFormat, contentTextArgs ) );
@@ -312,37 +330,38 @@ public class MainWindow {
 
   //---- File actions -------------------------------------------------------
   private void fileNew() {
-    fileEditorPane.newEditor();
+    getFileEditorPane().newEditor();
   }
-
+  
   private void fileOpen() {
-    fileEditorPane.openEditor();
+    getFileEditorPane().openEditor();
   }
-
+  
   private void fileClose() {
-    fileEditorPane.closeEditor( fileEditorPane.getActiveFileEditor(), true );
+    getFileEditorPane().closeEditor( getActiveFileEditor(), true );
   }
-
+  
   private void fileCloseAll() {
-    fileEditorPane.closeAllEditors();
+    getFileEditorPane().closeAllEditors();
   }
-
+  
   private void fileSave() {
-    fileEditorPane.saveEditor( fileEditorPane.getActiveFileEditor() );
+    getFileEditorPane().saveEditor( getActiveFileEditor() );
   }
-
+  
   private void fileSaveAll() {
-    fileEditorPane.saveAllEditors();
+    getFileEditorPane().saveAllEditors();
   }
-
+  
   private void fileExit() {
-    Window window = scene.getWindow();
-    Event.fireEvent( window, new WindowEvent( window, WindowEvent.WINDOW_CLOSE_REQUEST ) );
+    final Window window = scene.getWindow();
+    Event.fireEvent( window,
+      new WindowEvent( window, WindowEvent.WINDOW_CLOSE_REQUEST ) );
   }
 
   //---- Tools actions ------------------------------------------------------
   private void toolsOptions() {
-    OptionsDialog dialog = new OptionsDialog( getScene().getWindow() );
+    final OptionsDialog dialog = new OptionsDialog( getScene().getWindow() );
     dialog.showAndWait();
   }
 
@@ -354,7 +373,7 @@ public class MainWindow {
     alert.setContentText( Messages.get( "Dialog.about.content" ) );
     alert.setGraphic( new ImageView( new Image( LOGO_32 ) ) );
     alert.initOwner( getScene().getWindow() );
-
+    
     alert.showAndWait();
   }
 }

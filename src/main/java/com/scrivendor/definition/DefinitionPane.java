@@ -27,6 +27,7 @@
  */
 package com.scrivendor.definition;
 
+import com.scrivendor.Messages;
 import com.scrivendor.ui.AbstractPane;
 import static com.scrivendor.yaml.YamlTreeAdapter.adapt;
 import java.io.IOException;
@@ -45,7 +46,12 @@ public class DefinitionPane extends AbstractPane {
 
   public DefinitionPane() {
     try {
-      setTreeView( adapt( asStream( "/com/scrivendor/variables.yaml" ), "definitions" ) );
+      setTreeView(
+        adapt(
+          asStream( "/com/scrivendor/variables.yaml" ),
+          Messages.get( "Pane.defintion.node.root.title" )
+        )
+      );
     } catch( IOException e ) {
       throw new RuntimeException( e );
     }

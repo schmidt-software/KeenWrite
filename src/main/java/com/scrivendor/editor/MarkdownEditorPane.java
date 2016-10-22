@@ -51,7 +51,6 @@ import static javafx.scene.input.KeyCode.D;
 import static javafx.scene.input.KeyCode.ENTER;
 import static javafx.scene.input.KeyCombination.SHORTCUT_DOWN;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.layout.VBox;
 import org.fxmisc.flowless.VirtualizedScrollPane;
 import org.fxmisc.richtext.StyleClassedTextArea;
 import org.fxmisc.undo.UndoManager;
@@ -75,16 +74,21 @@ public class MarkdownEditorPane extends AbstractPane {
   private static final Pattern AUTO_INDENT_PATTERN = Pattern.compile(
     "(\\s*[*+-]\\s+|\\s*[0-9]+\\.\\s+|\\s+)(.*)" );
 
-  private final VirtualizedScrollPane<StyleClassedTextArea> scrollPane;
-  private final StyleClassedTextArea textArea;
-  private final ParagraphOverlayGraphicFactory overlayGraphicFactory;
-  private WhitespaceOverlayFactory whitespaceOverlayFactory;
   private PegDownProcessor pegDownProcessor;
-  private final InvalidationListener optionsListener;
-  private String lineSeparator = getLineSeparatorOrDefault();
+  private StyleClassedTextArea editor;
+  private VirtualizedScrollPane<StyleClassedTextArea> scrollPane;
+  private String lineSeparator = getLineSeparator();
 
   public MarkdownEditorPane() {
-    textArea = new StyleClassedTextArea( false );
+    initEditor();
+    initScrollPane();
+    initScrollEventListener();
+    initOptionEventListener();
+  }
+
+  private void initEditor() {
+    final StyleClassedTextArea textArea = getEditor();
+
     textArea.setWrapText( true );
     textArea.getStyleClass().add( "markdown-editor" );
     textArea.getStylesheets().add( STYLESHEET_EDITOR );
@@ -95,46 +99,67 @@ public class MarkdownEditorPane extends AbstractPane {
 
     Nodes.addInputMap( textArea, sequence(
       consume( keyPressed( ENTER ), this::enterPressed ),
-      consume( keyPressed( D, SHORTCUT_DOWN ), this::deleteLine )
-    ) );
+      consume( keyPressed( D, SHORTCUT_DOWN ), this::deleteLine ) )
+    );
+  }
 
-    // add listener to update 'scrollY' property
+  private void initScrollPane() {
+    this.scrollPane = new VirtualizedScrollPane<>( getEditor() );
+  }
+
+  /**
+   * Add a listener to update the scrollY property.
+   */
+  private void initScrollEventListener() {
+    final StyleClassedTextArea textArea = getEditor();
+
     ChangeListener<Double> scrollYListener = (observable, oldValue, newValue) -> {
       double value = textArea.estimatedScrollYProperty().getValue();
       double maxValue = textArea.totalHeightEstimateProperty().getOrElse( 0. ) - textArea.getHeight();
       scrollY.set( (maxValue > 0) ? Math.min( Math.max( value / maxValue, 0 ), 1 ) : 0 );
     };
+
     textArea.estimatedScrollYProperty().addListener( scrollYListener );
     textArea.totalHeightEstimateProperty().addListener( scrollYListener );
-    
-    VBox container = new VBox();
-    container.getChildren().add( textArea );
+  }
 
-    // create scroll pane
-    scrollPane =  new VirtualizedScrollPane<>( textArea );
+  /**
+   * Listen to option changes.
+   */
+  private void initOptionEventListener() {
+    StyleClassedTextArea textArea = getEditor();
 
-    overlayGraphicFactory = new ParagraphOverlayGraphicFactory( textArea );
-    textArea.setParagraphGraphicFactory( overlayGraphicFactory );
-    updateShowWhitespace();
-
-    // listen to option changes
-    optionsListener = e -> {
+    InvalidationListener listener = e -> {
       if( textArea.getScene() == null ) {
-        return; // editor closed but not yet GCed
+        // Editor closed but not yet garbage collected.
+        return;
       }
 
+      // Re-process markdown if markdown extensions option changes.
       if( e == getOptions().markdownExtensionsProperty() ) {
-        // re-process markdown if markdown extensions option changes
         pegDownProcessor = null;
         textChanged( textArea.getText() );
-      } else if( e == getOptions().showWhitespaceProperty() ) {
-        updateShowWhitespace();
       }
     };
 
-    WeakInvalidationListener weakOptionsListener = new WeakInvalidationListener( optionsListener );
+    WeakInvalidationListener weakOptionsListener = new WeakInvalidationListener( listener );
     getOptions().markdownExtensionsProperty().addListener( weakOptionsListener );
-    getOptions().showWhitespaceProperty().addListener( weakOptionsListener );
+  }
+
+  protected StyleClassedTextArea createTextArea() {
+    return new StyleClassedTextArea( false );
+  }
+
+  private void setEditor( StyleClassedTextArea textArea ) {
+    this.editor = textArea;
+  }
+
+  private synchronized StyleClassedTextArea getEditor() {
+    if( this.editor == null ) {
+      setEditor( createTextArea() );
+    }
+
+    return this.editor;
   }
 
   public Node getNode() {
@@ -142,16 +167,16 @@ public class MarkdownEditorPane extends AbstractPane {
   }
 
   public UndoManager getUndoManager() {
-    return textArea.getUndoManager();
+    return editor.getUndoManager();
   }
 
   @Override
   public void requestFocus() {
-    Platform.runLater( () -> textArea.requestFocus() );
+    Platform.runLater( () -> editor.requestFocus() );
   }
 
-  private String getLineSeparatorOrDefault() {
-    String separator = getOptions().getLineSeparator();
+  private String getLineSeparator() {
+    final String separator = getOptions().getLineSeparator();
     return (separator != null) ? separator : System.getProperty( "line.separator", "\n" );
   }
 
@@ -163,12 +188,12 @@ public class MarkdownEditorPane extends AbstractPane {
         return (i > 0 && str.charAt( i - 1 ) == '\r') ? "\r\n" : "\n";
       }
     }
-    return getLineSeparatorOrDefault();
+    return getLineSeparator();
   }
 
   // 'markdown' property
   public String getMarkdown() {
-    String markdown = textArea.getText();
+    String markdown = editor.getText();
     if( !lineSeparator.equals( "\n" ) ) {
       markdown = markdown.replace( "\n", lineSeparator );
     }
@@ -177,12 +202,12 @@ public class MarkdownEditorPane extends AbstractPane {
 
   public void setMarkdown( String markdown ) {
     lineSeparator = determineLineSeparator( markdown );
-    textArea.replaceText( markdown );
-    textArea.selectRange( 0, 0 );
+    editor.replaceText( markdown );
+    editor.selectRange( 0, 0 );
   }
 
   public ObservableValue<String> markdownProperty() {
-    return textArea.textProperty();
+    return editor.textProperty();
   }
 
   // 'markdownAST' property
@@ -232,13 +257,22 @@ public class MarkdownEditorPane extends AbstractPane {
     applyHighlighting( astRoot );
     markdownAST.set( astRoot );
   }
-  
+
+  /**
+   * TODO: Change to interface so that other processors can be pipelined.
+   *
+   * @return
+   */
   private synchronized PegDownProcessor getPegDownProcessor() {
     if( this.pegDownProcessor == null ) {
-      this.pegDownProcessor = new PegDownProcessor( getOptions().getMarkdownExtensions() );
+      this.pegDownProcessor = createPegDownProcessor();
     }
-    
+
     return this.pegDownProcessor;
+  }
+
+  protected PegDownProcessor createPegDownProcessor() {
+    return new PegDownProcessor( getOptions().getMarkdownExtensions() );
   }
 
   private RootNode parseMarkdown( String text ) {
@@ -246,11 +280,11 @@ public class MarkdownEditorPane extends AbstractPane {
   }
 
   private void applyHighlighting( RootNode astRoot ) {
-    MarkdownSyntaxHighlighter.highlight( textArea, astRoot );
+    MarkdownSyntaxHighlighter.highlight( editor, astRoot );
   }
 
   private void enterPressed( KeyEvent e ) {
-    String currentLine = textArea.getText( textArea.getCurrentParagraph() );
+    String currentLine = editor.getText( editor.getCurrentParagraph() );
 
     String newText = "\n";
     Matcher matcher = AUTO_INDENT_PATTERN.matcher( currentLine );
@@ -261,41 +295,25 @@ public class MarkdownEditorPane extends AbstractPane {
       } else {
         // current line contains only whitespace characters and list markers
         // --> empty current line
-        int caretPosition = textArea.getCaretPosition();
-        textArea.selectRange( caretPosition - currentLine.length(), caretPosition );
+        int caretPosition = editor.getCaretPosition();
+        editor.selectRange( caretPosition - currentLine.length(), caretPosition );
       }
     }
-    textArea.replaceSelection( newText );
+    editor.replaceSelection( newText );
   }
 
   private void deleteLine( KeyEvent e ) {
-    int start = textArea.getCaretPosition() - textArea.getCaretColumn();
-    int end = start + textArea.getParagraph( textArea.getCurrentParagraph() ).length() + 1;
-    textArea.deleteText( start, end );
-  }
-
-  private void showWhitespace( KeyEvent e ) {
-    getOptions().setShowWhitespace( !getOptions().isShowWhitespace() );
-    getOptions().save();
-  }
-
-  private void updateShowWhitespace() {
-    boolean showWhitespace = getOptions().isShowWhitespace();
-    if( showWhitespace && whitespaceOverlayFactory == null ) {
-      whitespaceOverlayFactory = new WhitespaceOverlayFactory();
-      overlayGraphicFactory.addOverlayFactory( whitespaceOverlayFactory );
-    } else if( !showWhitespace && whitespaceOverlayFactory != null ) {
-      overlayGraphicFactory.removeOverlayFactory( whitespaceOverlayFactory );
-      whitespaceOverlayFactory = null;
-    }
+    int start = editor.getCaretPosition() - editor.getCaretColumn();
+    int end = start + editor.getParagraph( editor.getCurrentParagraph() ).length() + 1;
+    editor.deleteText( start, end );
   }
 
   public void undo() {
-    textArea.getUndoManager().undo();
+    editor.getUndoManager().undo();
   }
 
   public void redo() {
-    textArea.getUndoManager().redo();
+    editor.getUndoManager().redo();
   }
 
   public void surroundSelection( String leading, String trailing ) {
@@ -303,14 +321,14 @@ public class MarkdownEditorPane extends AbstractPane {
   }
 
   public void surroundSelection( String leading, String trailing, String hint ) {
-    // Note: not using textArea.insertText() to insert leading and trailing
+    // Note: not using editor.insertText() to insert leading and trailing
     //       because this would add two changes to undo history
 
-    IndexRange selection = textArea.getSelection();
+    IndexRange selection = editor.getSelection();
     int start = selection.getStart();
     int end = selection.getEnd();
 
-    String selectedText = textArea.getSelectedText();
+    String selectedText = editor.getSelectedText();
 
     // remove leading and trailing whitespaces from selected text
     String trimmedSelectedText = selectedText.trim();
@@ -325,7 +343,7 @@ public class MarkdownEditorPane extends AbstractPane {
     }
 
     // remove trailing whitespaces from trailing text if selection ends at text end
-    if( end == textArea.getLength() ) {
+    if( end == editor.getLength() ) {
       trailing = Utils.rtrim( trailing );
     }
 
@@ -333,7 +351,7 @@ public class MarkdownEditorPane extends AbstractPane {
     // if there are line separators before the selected text
     if( leading.startsWith( "\n" ) ) {
       for( int i = start - 1; i >= 0 && leading.startsWith( "\n" ); i-- ) {
-        if( !"\n".equals( textArea.getText( i, i + 1 ) ) ) {
+        if( !"\n".equals( editor.getText( i, i + 1 ) ) ) {
           break;
         }
         leading = leading.substring( 1 );
@@ -345,8 +363,8 @@ public class MarkdownEditorPane extends AbstractPane {
     boolean trailingIsEmpty = trailing.isEmpty();
     String str = trailingIsEmpty ? leading : trailing;
     if( str.endsWith( "\n" ) ) {
-      for( int i = end; i < textArea.getLength() && str.endsWith( "\n" ); i++ ) {
-        if( !"\n".equals( textArea.getText( i, i + 1 ) ) ) {
+      for( int i = end; i < editor.getLength() && str.endsWith( "\n" ); i++ ) {
+        if( !"\n".equals( editor.getText( i, i + 1 ) ) ) {
           break;
         }
         str = str.substring( 0, str.length() - 1 );
@@ -368,24 +386,24 @@ public class MarkdownEditorPane extends AbstractPane {
     }
 
     // prevent undo merging with previous text entered by user
-    textArea.getUndoManager().preventMerge();
+    editor.getUndoManager().preventMerge();
 
     // replace text and update selection
-    textArea.replaceText( start, end, leading + trimmedSelectedText + trailing );
-    textArea.selectRange( selStart, selEnd );
+    editor.replaceText( start, end, leading + trimmedSelectedText + trailing );
+    editor.selectRange( selStart, selEnd );
   }
 
   public void insertLink() {
     LinkDialog dialog = new LinkDialog( getNode().getScene().getWindow(), getParentPath() );
     dialog.showAndWait().ifPresent( result -> {
-      textArea.replaceSelection( result );
+      editor.replaceSelection( result );
     } );
   }
 
   public void insertImage() {
     ImageDialog dialog = new ImageDialog( getNode().getScene().getWindow(), getParentPath() );
     dialog.showAndWait().ifPresent( result -> {
-      textArea.replaceSelection( result );
+      editor.replaceSelection( result );
     } );
   }
 }

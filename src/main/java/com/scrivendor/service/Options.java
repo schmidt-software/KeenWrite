@@ -28,7 +28,6 @@
 package com.scrivendor.service;
 
 import java.util.prefs.Preferences;
-import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.StringProperty;
 
@@ -62,10 +61,4 @@ public interface Options {
   public void setMarkdownExtensions( int markdownExtensions );
 
   public IntegerProperty markdownExtensionsProperty();
-
-  public boolean isShowWhitespace();
-
-  public void setShowWhitespace( boolean showWhitespace );
-
-  public BooleanProperty showWhitespaceProperty();
 }
