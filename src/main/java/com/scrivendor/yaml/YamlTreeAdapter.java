@@ -25,27 +25,58 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.scrivendor.ui;
+package com.scrivendor.yaml;
 
-import java.util.prefs.Preferences;
-import com.scrivendor.Services;
-import com.scrivendor.service.Options;
-import org.tbee.javafx.scene.layout.fxml.MigPane;
+import com.fasterxml.jackson.databind.JsonNode;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Iterator;
+import java.util.Map.Entry;
+import javafx.scene.control.TreeItem;
+import javafx.scene.control.TreeView;
 
 /**
- * Provides options to all subclasses.
+ * Transforms a JsonNode hierarchy into a tree that can be displayed in a user
+ * interface.
  *
  * @author White Magic Software, Ltd.
  */
-public abstract class AbstractPane extends MigPane {
+public class YamlTreeAdapter {
 
-  private final Options options = Services.load( Options.class );
-
-  protected Options getOptions() {
-    return this.options;
+  public YamlTreeAdapter() {
   }
   
-  protected Preferences getState() {
-    return getOptions().getState();
+  public static TreeView<String> adapt( final InputStream in ) throws IOException {
+    return adapt(YamlParser.parse(in));
+  }
+
+  /**
+   * Iterate over a given root node (at any level of the tree) and process each
+   * leaf node.
+   *
+   * @param root A node to process.
+   *
+   * @return
+   */
+  private static TreeView<String> adapt( final JsonNode root ) {
+    return new TreeView( process( root ) );
+  }
+
+  private static TreeItem<String> process( final JsonNode nodeRoot ) {
+    final Iterator<Entry<String, JsonNode>> fields = nodeRoot.fields();
+    final TreeItem<String> itemRoot = new TreeItem<>();
+
+    while( fields.hasNext() ) {
+      final Entry<String, JsonNode> field = fields.next();
+      final JsonNode leaf = field.getValue();
+
+      if( leaf.isObject() ) {
+        itemRoot.getChildren().add( process( leaf ) );
+      } else {
+        itemRoot.setValue( field.getKey() );
+      }
+    }
+    
+    return itemRoot;
   }
 }

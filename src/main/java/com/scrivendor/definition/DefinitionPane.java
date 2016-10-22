@@ -25,27 +25,45 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.scrivendor.ui;
+package com.scrivendor.definition;
 
-import java.util.prefs.Preferences;
-import com.scrivendor.Services;
-import com.scrivendor.service.Options;
-import org.tbee.javafx.scene.layout.fxml.MigPane;
+import com.scrivendor.ui.AbstractPane;
+import static com.scrivendor.yaml.YamlTreeAdapter.adapt;
+import java.io.IOException;
+import java.io.InputStream;
+import javafx.scene.Node;
+import javafx.scene.control.TreeView;
 
 /**
- * Provides options to all subclasses.
+ * Provides a list of variables that can be referenced in the editor.
  *
  * @author White Magic Software, Ltd.
  */
-public abstract class AbstractPane extends MigPane {
+public class DefinitionPane extends AbstractPane {
 
-  private final Options options = Services.load( Options.class );
+  private TreeView<String> treeView;
 
-  protected Options getOptions() {
-    return this.options;
+  public DefinitionPane() {
+    try {
+      setTreeView( adapt( asStream( "/com/scrivendor/variables.yaml" ) ) );
+    } catch( IOException e ) {
+      throw new RuntimeException( e );
+    }
   }
-  
-  protected Preferences getState() {
-    return getOptions().getState();
+
+  private InputStream asStream( String resource ) {
+    return getClass().getResourceAsStream( resource );
+  }
+
+  public Node getNode() {
+    return getTreeView();
+  }
+
+  public TreeView<String> getTreeView() {
+    return treeView;
+  }
+
+  public final void setTreeView( TreeView<String> treeView ) {
+    this.treeView = treeView;
   }
 }

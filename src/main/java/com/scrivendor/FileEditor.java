@@ -62,7 +62,12 @@ class FileEditor {
   private MarkdownEditorPane markdownEditorPane;
   private MarkdownPreviewPane markdownPreviewPane;
 
-  FileEditor( MainWindow mainWindow, Path path ) {
+  private final ObjectProperty<Path> path = new SimpleObjectProperty<>();
+  private final ReadOnlyBooleanWrapper modified = new ReadOnlyBooleanWrapper();
+  private final BooleanProperty canUndo = new SimpleBooleanProperty();
+  private final BooleanProperty canRedo = new SimpleBooleanProperty();
+
+  FileEditor( final MainWindow mainWindow, final Path path ) {
     this.mainWindow = mainWindow;
     this.path.set( path );
 
@@ -88,8 +93,6 @@ class FileEditor {
     return markdownEditorPane;
   }
 
-  // 'path' property
-  private final ObjectProperty<Path> path = new SimpleObjectProperty<>();
 
   Path getPath() {
     return path.get();
@@ -103,9 +106,6 @@ class FileEditor {
     return path;
   }
 
-  // 'modified' property
-  private final ReadOnlyBooleanWrapper modified = new ReadOnlyBooleanWrapper();
-
   boolean isModified() {
     return modified.get();
   }
@@ -114,15 +114,11 @@ class FileEditor {
     return modified.getReadOnlyProperty();
   }
 
-  // 'canUndo' property
-  private final BooleanProperty canUndo = new SimpleBooleanProperty();
 
   BooleanProperty canUndoProperty() {
     return canUndo;
   }
 
-  // 'canRedo' property
-  private final BooleanProperty canRedo = new SimpleBooleanProperty();
 
   BooleanProperty canRedoProperty() {
     return canRedo;

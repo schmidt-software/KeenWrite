@@ -27,7 +27,11 @@
 package com.scrivendor;
 
 import static com.scrivendor.Constants.LOGO_32;
+import com.scrivendor.definition.DefinitionPane;
 import com.scrivendor.editor.MarkdownEditorPane;
+import com.scrivendor.options.OptionsDialog;
+import com.scrivendor.util.Action;
+import com.scrivendor.util.ActionUtils;
 import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.BOLD;
 import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.CODE;
 import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.FILE_ALT;
@@ -44,6 +48,7 @@ import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.QUOTE_LEFT;
 import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.REPEAT;
 import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.STRIKETHROUGH;
 import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.UNDO;
+import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.function.Function;
 import javafx.beans.binding.Bindings;
@@ -69,34 +74,35 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Window;
 import javafx.stage.WindowEvent;
-import com.scrivendor.options.OptionsDialog;
-import com.scrivendor.util.Action;
-import com.scrivendor.util.ActionUtils;
 
 /**
  * Main window containing a tab pane in the center for file editors.
  *
  * @author Karl Tauber
  */
-class MainWindow {
+public class MainWindow {
 
   private final Scene scene;
-  private final FileEditorTabPane fileEditorTabPane;
+  private final FileEditorPane fileEditorPane;
+  private final DefinitionPane definitionPane;
+  
   private MenuBar menuBar;
 
-  MainWindow() {
-    this.fileEditorTabPane = new FileEditorTabPane( this );
+  public MainWindow() {
+    this.fileEditorPane = new FileEditorPane( this );
+    this.definitionPane = new DefinitionPane();
 
     BorderPane borderPane = new BorderPane();
-    borderPane.setPrefSize( 800, 800 );
-    borderPane.setTop( createMenuBarAndToolBar() );
-    borderPane.setCenter( fileEditorTabPane.getNode() );
+    borderPane.setPrefSize( 1024, 800 );
+    borderPane.setTop( createMenuBar() );
+    borderPane.setCenter( fileEditorPane.getNode() );
+    borderPane.setLeft( definitionPane.getNode() );
 
     this.scene = new Scene( borderPane );
     this.scene.getStylesheets().add( Constants.STYLESHEET_PREVIEW );
     this.scene.windowProperty().addListener( (observable, oldWindow, newWindow) -> {
       newWindow.setOnCloseRequest( e -> {
-        if( !this.fileEditorTabPane.closeAllEditors() ) {
+        if( !this.fileEditorPane.closeAllEditors() ) {
           e.consume();
         }
       } );
@@ -113,12 +119,12 @@ class MainWindow {
 
   }
 
-  Scene getScene() {
+  public Scene getScene() {
     return scene;
   }
 
-  private Node createMenuBarAndToolBar() {
-    BooleanBinding activeFileEditorIsNull = fileEditorTabPane.activeFileEditorProperty().isNull();
+  private Node createMenuBar() {
+    BooleanBinding activeFileEditorIsNull = fileEditorPane.activeFileEditorProperty().isNull();
 
     // File actions
     Action fileNewAction = new Action( Messages.get( "Main.menu.file.new" ), "Shortcut+N", FILE_ALT, e -> fileNew() );
@@ -128,7 +134,7 @@ class MainWindow {
     Action fileSaveAction = new Action( Messages.get( "Main.menu.file.save" ), "Shortcut+S", FLOPPY_ALT, e -> fileSave(),
       createActiveBooleanProperty( FileEditor::modifiedProperty ).not() );
     Action fileSaveAllAction = new Action( Messages.get( "Main.menu.file.save_all" ), "Shortcut+Shift+S", null, e -> fileSaveAll(),
-      Bindings.not( fileEditorTabPane.anyFileEditorModifiedProperty() ) );
+      Bindings.not( fileEditorPane.anyFileEditorModifiedProperty() ) );
     Action fileExitAction = new Action( Messages.get( "Main.menu.file.exit" ), null, null, e -> fileExit() );
 
     // Edit actions
@@ -175,7 +181,7 @@ class MainWindow {
       final String accelerator = "Shortcut+" + i;
       final String prompt = Messages.get( "Main.menu.insert.header_" + i + ".prompt" );
 
-      headers[ i-1 ] = new Action( text, accelerator, HEADER,
+      headers[ i - 1 ] = new Action( text, accelerator, HEADER,
         e -> getActiveEditor().surroundSelection( markup, "", prompt ),
         activeFileEditorIsNull );
     }
@@ -270,7 +276,7 @@ class MainWindow {
   }
 
   private MarkdownEditorPane getActiveEditor() {
-    return fileEditorTabPane.getActiveFileEditor().getEditor();
+    return fileEditorPane.getActiveFileEditor().getEditor();
   }
 
   /**
@@ -279,11 +285,11 @@ class MainWindow {
    */
   private BooleanProperty createActiveBooleanProperty( Function<FileEditor, ObservableBooleanValue> func ) {
     BooleanProperty b = new SimpleBooleanProperty();
-    FileEditor fileEditor = fileEditorTabPane.getActiveFileEditor();
+    FileEditor fileEditor = fileEditorPane.getActiveFileEditor();
     if( fileEditor != null ) {
       b.bind( func.apply( fileEditor ) );
     }
-    fileEditorTabPane.activeFileEditorProperty().addListener( (observable, oldFileEditor, newFileEditor) -> {
+    fileEditorPane.activeFileEditorProperty().addListener( (observable, oldFileEditor, newFileEditor) -> {
       b.unbind();
       if( newFileEditor != null ) {
         b.bind( func.apply( newFileEditor ) );
@@ -306,27 +312,27 @@ class MainWindow {
 
   //---- File actions -------------------------------------------------------
   private void fileNew() {
-    fileEditorTabPane.newEditor();
+    fileEditorPane.newEditor();
   }
 
   private void fileOpen() {
-    fileEditorTabPane.openEditor();
+    fileEditorPane.openEditor();
   }
 
   private void fileClose() {
-    fileEditorTabPane.closeEditor( fileEditorTabPane.getActiveFileEditor(), true );
+    fileEditorPane.closeEditor( fileEditorPane.getActiveFileEditor(), true );
   }
 
   private void fileCloseAll() {
-    fileEditorTabPane.closeAllEditors();
+    fileEditorPane.closeAllEditors();
   }
 
   private void fileSave() {
-    fileEditorTabPane.saveEditor( fileEditorTabPane.getActiveFileEditor() );
+    fileEditorPane.saveEditor( fileEditorPane.getActiveFileEditor() );
   }
 
   private void fileSaveAll() {
-    fileEditorTabPane.saveAllEditors();
+    fileEditorPane.saveAllEditors();
   }
 
   private void fileExit() {

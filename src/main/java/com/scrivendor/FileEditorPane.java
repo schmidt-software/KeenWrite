@@ -58,12 +58,16 @@ import javafx.stage.FileChooser.ExtensionFilter;
  *
  * @author Karl Tauber
  */
-class FileEditorTabPane extends AbstractPane {
+public class FileEditorPane extends AbstractPane {
+
   private final static List<String> DEFAULT_EXTENSIONS_MARKDOWN = Arrays.asList(
     "*.md", "*.markdown", "*.txt" );
 
   private final static List<String> DEFAULT_EXTENSIONS_ALL = Arrays.asList(
     "*.*" );
+
+  private final static List<String> DEFAULT_EXTENSIONS_DEFINITION = Arrays.asList(
+    "*.yml", "*.yaml", "*.properties", "*.props" );
 
   private final Settings settings = Services.load( Settings.class );
 
@@ -72,7 +76,7 @@ class FileEditorTabPane extends AbstractPane {
   private final ReadOnlyObjectWrapper<FileEditor> activeFileEditor = new ReadOnlyObjectWrapper<>();
   private final ReadOnlyBooleanWrapper anyFileEditorModified = new ReadOnlyBooleanWrapper();
 
-  FileEditorTabPane( MainWindow mainWindow ) {
+  FileEditorPane( MainWindow mainWindow ) {
     setMainWindow( mainWindow );
 
     tabPane = new TabPane();
@@ -130,7 +134,6 @@ class FileEditorTabPane extends AbstractPane {
     return tabPane;
   }
 
-  // 'activeFileEditor' property
   FileEditor getActiveFileEditor() {
     return activeFileEditor.get();
   }
@@ -139,7 +142,6 @@ class FileEditorTabPane extends AbstractPane {
     return activeFileEditor.getReadOnlyProperty();
   }
 
-  // 'anyFileEditorModified' property
   ReadOnlyBooleanProperty anyFileEditorModifiedProperty() {
     return anyFileEditorModified.getReadOnlyProperty();
   }
@@ -163,8 +165,9 @@ class FileEditorTabPane extends AbstractPane {
   }
 
   FileEditor[] openEditor() {
-    FileChooser fileChooser = createFileChooser( Messages.get( "FileEditorTabPane.openChooser.title" ) );
+    FileChooser fileChooser = createFileChooser( Messages.get( "Dialog.file.choose.open.title" ) );
     List<File> selectedFiles = fileChooser.showOpenMultipleDialog( getMainWindow().getScene().getWindow() );
+
     if( selectedFiles == null ) {
       return null;
     }
@@ -212,7 +215,7 @@ class FileEditorTabPane extends AbstractPane {
     if( fileEditor.getPath() == null ) {
       tabPane.getSelectionModel().select( fileEditor.getTab() );
 
-      FileChooser fileChooser = createFileChooser( Messages.get( "FileEditorTabPane.saveChooser.title" ) );
+      FileChooser fileChooser = createFileChooser( Messages.get( "Dialog.file.choose.save.title" ) );
       File file = fileChooser.showSaveDialog( getMainWindow().getScene().getWindow() );
       if( file == null ) {
         return false;
@@ -244,8 +247,8 @@ class FileEditorTabPane extends AbstractPane {
     }
 
     Alert alert = getMainWindow().createAlert( AlertType.CONFIRMATION,
-      Messages.get( "FileEditorTabPane.closeAlert.title" ),
-      Messages.get( "FileEditorTabPane.closeAlert.message" ), fileEditor.getTab().getText() );
+      Messages.get( "Alert.file.close.title" ),
+      Messages.get( "Alert.file.close.text" ), fileEditor.getTab().getText() );
     alert.getButtonTypes().setAll( ButtonType.YES, ButtonType.NO, ButtonType.CANCEL );
 
     ButtonType result = alert.showAndWait().get();
@@ -328,44 +331,54 @@ class FileEditorTabPane extends AbstractPane {
   }
 
   private FileEditor findEditor( Path path ) {
-    for( Tab tab : tabPane.getTabs() ) {
+    for( final Tab tab : tabPane.getTabs() ) {
       FileEditor fileEditor = (FileEditor)tab.getUserData();
+
       if( path.equals( fileEditor.getPath() ) ) {
         return fileEditor;
       }
     }
+
     return null;
   }
 
   private FileChooser createFileChooser( String title ) {
-    FileChooser fileChooser = new FileChooser();
+    final FileChooser fileChooser = new FileChooser();
+
     fileChooser.setTitle( title );
     fileChooser.getExtensionFilters().addAll(
-      new ExtensionFilter( Messages.get( "FileEditorTabPane.chooser.markdownFilesFilter" ), getMarkdownExtensions() ),
-      new ExtensionFilter( Messages.get( "FileEditorTabPane.chooser.allFilesFilter" ), getAllExtensions() ) );
+      new ExtensionFilter( Messages.get( "Dialog.file.choose.filter.title.markdown" ), getMarkdownExtensions() ),
+      new ExtensionFilter( Messages.get( "Dialog.file.choose.filter.title.definition" ), getDefinitionExtensions() ),
+      new ExtensionFilter( Messages.get( "Dialog.file.choose.filter.title.all" ), getAllExtensions() ) );
 
-    String lastDirectory = getState().get( "lastDirectory", null );
+    final String lastDirectory = getState().get( "lastDirectory", null );
     File file = new File( (lastDirectory != null) ? lastDirectory : "." );
+
     if( !file.isDirectory() ) {
       file = new File( "." );
     }
+
     fileChooser.setInitialDirectory( file );
     return fileChooser;
   }
-  
+
   private Settings getSettings() {
     return this.settings;
   }
 
   private List<String> getMarkdownExtensions() {
-    return getStringSettingList( "application.extensions.markdown", DEFAULT_EXTENSIONS_MARKDOWN );
+    return getStringSettingList( "Dialog.file.choose.filter.ext.markdown", DEFAULT_EXTENSIONS_MARKDOWN );
+  }
+
+  private List<String> getDefinitionExtensions() {
+    return getStringSettingList( "Dialog.file.choose.filter.ext.definition", DEFAULT_EXTENSIONS_DEFINITION );
   }
 
   private List<String> getAllExtensions() {
-    return getStringSettingList( "application.extensions.all", DEFAULT_EXTENSIONS_ALL );
+    return getStringSettingList( "Dialog.file.choose.filter.ext.all", DEFAULT_EXTENSIONS_ALL );
   }
-  
-  private List<String> getStringSettingList(String key, List<String> values ) {
+
+  private List<String> getStringSettingList( String key, List<String> values ) {
     return getSettings().getStringSettingList( key, values );
   }
 
