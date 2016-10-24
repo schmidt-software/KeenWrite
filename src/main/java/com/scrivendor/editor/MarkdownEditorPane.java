@@ -49,21 +49,16 @@ import javafx.beans.value.ObservableValue;
 import javafx.event.Event;
 import javafx.scene.Node;
 import javafx.scene.control.IndexRange;
-import static javafx.scene.input.KeyCode.AT;
-import static javafx.scene.input.KeyCode.D;
 import static javafx.scene.input.KeyCode.ENTER;
-import static javafx.scene.input.KeyCode.X;
-import static javafx.scene.input.KeyCode.Y;
-import static javafx.scene.input.KeyCombination.SHORTCUT_DOWN;
 import javafx.scene.input.KeyEvent;
+import javafx.stage.PopupWindow;
 import org.fxmisc.flowless.VirtualizedScrollPane;
 import org.fxmisc.richtext.StyleClassedTextArea;
+import org.fxmisc.richtext.model.NavigationActions;
 import org.fxmisc.undo.UndoManager;
 import org.fxmisc.wellbehaved.event.EventPattern;
 import static org.fxmisc.wellbehaved.event.EventPattern.keyPressed;
-import org.fxmisc.wellbehaved.event.InputMap;
 import static org.fxmisc.wellbehaved.event.InputMap.consume;
-import static org.fxmisc.wellbehaved.event.InputMap.sequence;
 import org.fxmisc.wellbehaved.event.Nodes;
 import org.pegdown.PegDownProcessor;
 import org.pegdown.ast.RootNode;
@@ -92,7 +87,6 @@ public class MarkdownEditorPane extends AbstractPane {
 
   public MarkdownEditorPane() {
     initEditor();
-    initScrollPane();
     initScrollEventListener();
     initOptionEventListener();
   }
@@ -104,22 +98,32 @@ public class MarkdownEditorPane extends AbstractPane {
     textArea.getStyleClass().add( "markdown-editor" );
     textArea.getStylesheets().add( STYLESHEET_EDITOR );
 
+    addEventListener( keyPressed( ENTER ), this::enterPressed );
+//    addEventListener( keyPressed( X, SHORTCUT_DOWN ), this::cutLine );
+
     textArea.textProperty().addListener( (observable, oldText, newText) -> {
       textChanged( newText );
     } );
-
-    addEventListener( keyPressed( ENTER ), this::enterPressed );
-    addEventListener( keyPressed( X, SHORTCUT_DOWN ), this::cutLine );
-    addEventListener( keyPressed( Y, SHORTCUT_DOWN ), this::deleteLine );
   }
 
+  /**
+   * This method adds listeners to editor events.
+   *
+   * @see
+   * https://docs.oracle.com/javase/8/javafx/api/javafx/scene/input/KeyEvent.html
+   *
+   * @param <T> The type of event.
+   * @param <U>
+   * @param event The event of interest.
+   * @param consumer The method to call when the event happens.
+   */
   public <T extends Event, U extends T> void addEventListener(
     EventPattern<? super T, ? extends U> event, Consumer<? super U> consumer ) {
-    Nodes.addInputMap( getEditor(), sequence( consume( event, consumer ) ) );
+    Nodes.addInputMap( getEditor(), consume( event, consumer ) );
   }
 
-  private void initScrollPane() {
-    this.scrollPane = new VirtualizedScrollPane<>( getEditor() );
+  public void setPopupWindow( PopupWindow window ) {
+    getEditor().setPopupWindow( window );
   }
 
   /**
@@ -161,10 +165,6 @@ public class MarkdownEditorPane extends AbstractPane {
     getOptions().markdownExtensionsProperty().addListener( weakOptionsListener );
   }
 
-  protected StyleClassedTextArea createTextArea() {
-    return new StyleClassedTextArea( false );
-  }
-
   private void setEditor( StyleClassedTextArea textArea ) {
     this.editor = textArea;
   }
@@ -177,8 +177,20 @@ public class MarkdownEditorPane extends AbstractPane {
     return this.editor;
   }
 
+  protected StyleClassedTextArea createTextArea() {
+    return new StyleClassedTextArea( false );
+  }
+
   public Node getNode() {
+    if( this.scrollPane == null ) {
+      this.scrollPane = createScrollPane();
+    }
+
     return scrollPane;
+  }
+
+  protected VirtualizedScrollPane<StyleClassedTextArea> createScrollPane() {
+    return new VirtualizedScrollPane<>( getEditor() );
   }
 
   public UndoManager getUndoManager() {
@@ -288,11 +300,9 @@ public class MarkdownEditorPane extends AbstractPane {
     MarkdownSyntaxHighlighter.highlight( editor, astRoot );
   }
 
-  private void atPressed( KeyEvent e ) {
-
-  }
-
   private void enterPressed( KeyEvent e ) {
+    System.out.println( "Enter pressed" );
+
     final String currentLine = getEditor().getText( getEditor().getCurrentParagraph() );
     final Matcher matcher = AUTO_INDENT_PATTERN.matcher( currentLine );
 
@@ -322,10 +332,29 @@ public class MarkdownEditorPane extends AbstractPane {
     deleteLine( e );
   }
 
+  /**
+   * Deletes from
+   *
+   * @param e
+   */
   private void deleteLine( KeyEvent e ) {
-    int start = getEditor().getCaretPosition() - getEditor().getCaretColumn();
-    int end = start + getEditor().getParagraph( getEditor().getCurrentParagraph() ).length() + 1;
-    getEditor().deleteText( start, end );
+    final StyleClassedTextArea textArea = getEditor();
+
+    // Move the caret to the start of the line.
+//    textArea.lineStart( NavigationActions.SelectionPolicy.CLEAR );
+    final int start = textArea.getCaretPosition() - textArea.getCaretColumn();
+
+    System.out.println( "start = " + start );
+
+    // Move the caret to the end of the line.
+    textArea.lineEnd( NavigationActions.SelectionPolicy.CLEAR );
+
+//    final int end = start + textArea.getParagraph( textArea.getCurrentParagraph() ).length() + 1;
+    final int end = textArea.getCaretPosition();
+
+    System.out.println( "end = " + end );
+
+    textArea.deleteText( start, end );
   }
 
   public void undo() {

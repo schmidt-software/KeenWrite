@@ -27,6 +27,8 @@
 package com.scrivendor;
 
 import com.scrivendor.service.Settings;
+import com.scrivendor.service.events.AlertMessage;
+import com.scrivendor.service.events.AlertService;
 import com.scrivendor.ui.AbstractPane;
 import com.scrivendor.util.Utils;
 import java.io.File;
@@ -34,6 +36,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.prefs.Preferences;
 import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.property.ReadOnlyBooleanWrapper;
@@ -45,13 +48,13 @@ import javafx.collections.ObservableList;
 import javafx.event.Event;
 import javafx.scene.Node;
 import javafx.scene.control.Alert;
-import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TabPane.TabClosingPolicy;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
+import org.fxmisc.wellbehaved.event.EventPattern;
 
 /**
  * Tab pane for file editors.
@@ -70,6 +73,7 @@ public class FileEditorPane extends AbstractPane {
     "*.yml", "*.yaml", "*.properties", "*.props" );
 
   private final Settings settings = Services.load( Settings.class );
+  private final AlertService alertService = Services.load( AlertService.class );
 
   private MainWindow mainWindow;
   private final TabPane tabPane;
@@ -122,6 +126,11 @@ public class FileEditorPane extends AbstractPane {
     restoreState();
   }
 
+  public <T extends Event, U extends T> void addEventListener(
+    EventPattern<? super T, ? extends U> event, Consumer<? super U> consumer ) {
+    getActiveFileEditor().addEventListener( event, consumer );
+  }
+
   private MainWindow getMainWindow() {
     return this.mainWindow;
   }
@@ -147,7 +156,7 @@ public class FileEditorPane extends AbstractPane {
   }
 
   private FileEditor createFileEditor( Path path ) {
-    FileEditor fileEditor = new FileEditor( getMainWindow(), path );
+    FileEditor fileEditor = new FileEditor( path );
     fileEditor.getTab().setOnCloseRequest( e -> {
       if( !canCloseEditor( fileEditor ) ) {
         e.consume();
@@ -241,22 +250,29 @@ public class FileEditorPane extends AbstractPane {
     return success;
   }
 
-  boolean canCloseEditor( FileEditor fileEditor ) {
+  boolean canCloseEditor( final FileEditor fileEditor ) {
     if( !fileEditor.isModified() ) {
       return true;
     }
 
-    Alert alert = getMainWindow().createAlert( AlertType.CONFIRMATION,
+    final AlertMessage message = getAlertService().createAlertMessage(
       Messages.get( "Alert.file.close.title" ),
-      Messages.get( "Alert.file.close.text" ), fileEditor.getTab().getText() );
-    alert.getButtonTypes().setAll( ButtonType.YES, ButtonType.NO, ButtonType.CANCEL );
+      Messages.get( "Alert.file.close.text" ),
+      fileEditor.getTab().getText()
+    );
 
-    ButtonType result = alert.showAndWait().get();
+    final Alert alert = getAlertService().createAlertConfirmation( message );
+    final ButtonType result = alert.showAndWait().get();
+
     if( result != ButtonType.YES ) {
       return (result == ButtonType.NO);
     }
 
     return saveEditor( fileEditor );
+  }
+
+  private AlertService getAlertService() {
+    return this.alertService;
   }
 
   boolean closeEditor( FileEditor fileEditor, boolean save ) {

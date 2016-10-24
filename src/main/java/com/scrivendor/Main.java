@@ -37,6 +37,7 @@ import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import com.scrivendor.service.Options;
 import com.scrivendor.service.Settings;
+import com.scrivendor.service.events.AlertService;
 import com.scrivendor.util.StageState;
 
 /**
@@ -71,6 +72,7 @@ public final class Main extends Application {
     initWindow();
     initState( stage );
     initStage( stage );
+    initAlertService();
 
     stage.show();
   }
@@ -108,6 +110,11 @@ public final class Main extends Application {
       new Image( LOGO_512 ) );
     stage.setTitle( getApplicationTitle() );
     stage.setScene( getScene() );
+  }
+  
+  private void initAlertService() {
+    final AlertService service = Services.load( AlertService.class );
+    service.setWindow( getScene().getWindow() );
   }
 
   private Scene getScene() {
