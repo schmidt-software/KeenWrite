@@ -56,7 +56,6 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ObservableBooleanValue;
 import javafx.event.Event;
-import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
@@ -67,6 +66,7 @@ import javafx.scene.control.SplitPane;
 import javafx.scene.control.ToolBar;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.InputEvent;
 import static javafx.scene.input.KeyCode.DIGIT2;
 import static javafx.scene.input.KeyCode.ESCAPE;
 import static javafx.scene.input.KeyCombination.SHIFT_DOWN;
@@ -81,6 +81,9 @@ import org.fxmisc.richtext.StyledTextArea;
 import org.fxmisc.wellbehaved.event.EventPattern;
 import static org.fxmisc.wellbehaved.event.EventPattern.keyPressed;
 import static org.fxmisc.wellbehaved.event.EventPattern.keyTyped;
+import org.fxmisc.wellbehaved.event.InputMap;
+import static org.fxmisc.wellbehaved.event.InputMap.consume;
+import static org.fxmisc.wellbehaved.event.InputMap.sequence;
 
 /**
  * Main window containing a tab pane in the center for file editors.
@@ -165,23 +168,66 @@ public class MainWindow {
   }
 
   /**
+   * Delegates to the file editor pane, and, ultimately, to its text area.
+   *
+   * @param map The map of methods to events.
+   */
+  private void addFallbackEventListener( final InputMap<InputEvent> map ) {
+    getFileEditorPane().addFallbackEventListener( map );
+  }
+
+  private void removeEventListener( final InputMap<InputEvent> map ) {
+    getFileEditorPane().removeEventListener( map );
+  }
+
+  /**
    * The @ symbol is a short-cut to inserting a YAML variable reference.
    *
    * @param e
    */
   private void atPressed( KeyEvent e ) {
-    addEventListener( keyTyped(), this::variableKeyPressed );
-    addEventListener( keyPressed(), this::variableKeyPressed );
+    startVariableMode();
   }
 
   /**
-   * Receives key types and presses until the user completes the variable
-   * selection.
-   * 
-   * @param e The key that was pressed or typed.
+   * Receives typed keys until the user completes the variable selection.
+   *
+   * @param e The key that was typed.
+   */
+  private void variableKeyTyped( KeyEvent e ) {
+    System.out.println( "KEY: " + e.toString() );
+
+    if( e.getCode() == ESCAPE ) {
+      System.out.println( "STOP" );
+      stopVariableMode();
+    }
+
+    e.consume();
+  }
+
+  /**
+   * Receives key presses until the user completes the variable selection.
+   * This allows the arrow keys to be used for selecting variables.
+   *
+   * @param e The key that was pressed.
    */
   private void variableKeyPressed( KeyEvent e ) {
-    System.out.println( "KEY: " + e.toString() );
+    e.consume();
+  }
+
+  private InputMap<InputEvent> getKeyboardMap() {
+    return sequence(
+      consume( keyTyped(), this::variableKeyTyped ),
+      consume( keyPressed(), this::variableKeyPressed )
+    );
+  }
+
+  private void startVariableMode() {
+    addFallbackEventListener( getKeyboardMap() );
+  }
+
+  private void stopVariableMode() {
+    removeEventListener( getKeyboardMap() );
   }
 
   /**

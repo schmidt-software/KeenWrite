@@ -49,9 +49,11 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.Tab;
 import javafx.scene.control.Tooltip;
+import javafx.scene.input.InputEvent;
 import javafx.scene.text.Text;
 import org.fxmisc.undo.UndoManager;
 import org.fxmisc.wellbehaved.event.EventPattern;
+import org.fxmisc.wellbehaved.event.InputMap;
 
 /**
  * Editor for a single file.
@@ -178,6 +180,14 @@ class FileEditor {
     final EventPattern<? super T, ? extends U> event,
     final Consumer<? super U> consumer ) {
     getEditorPane().addEventListener( event, consumer );
+  }
+
+  public void addFallbackEventListener( final InputMap<InputEvent> map ) {
+    getEditorPane().addEventListener( map );
+  }
+
+  public void removeEventListener( final InputMap<InputEvent> map ) {
+    getEditorPane().removeEventListener( map );
   }
 
   void load() {

@@ -52,12 +52,14 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TabPane.TabClosingPolicy;
+import javafx.scene.input.InputEvent;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import org.fxmisc.richtext.StyleClassedTextArea;
 import org.fxmisc.richtext.StyledTextArea;
 import org.fxmisc.richtext.model.TextEditingArea;
 import org.fxmisc.wellbehaved.event.EventPattern;
+import org.fxmisc.wellbehaved.event.InputMap;
 
 /**
  * Tab pane for file editors.
@@ -133,6 +135,20 @@ public class FileEditorPane extends AbstractPane {
     final EventPattern<? super T, ? extends U> event,
     final Consumer<? super U> consumer ) {
     getActiveFileEditor().addEventListener( event, consumer );
+  }
+
+  /**
+   * Delegates to the active file editor pane, and, ultimately, to its text
+   * area.
+   *
+   * @param map The map of methods to events.
+   */
+  public void addFallbackEventListener( final InputMap<InputEvent> map ) {
+    getActiveFileEditor().addFallbackEventListener( map );
+  }
+  
+  public void removeEventListener( final InputMap<InputEvent> map ) {
+    getActiveFileEditor().removeEventListener( map );
   }
 
   private MainWindow getMainWindow() {

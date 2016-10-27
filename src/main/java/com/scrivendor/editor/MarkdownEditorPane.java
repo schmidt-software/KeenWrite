@@ -49,6 +49,7 @@ import javafx.beans.value.ObservableValue;
 import javafx.event.Event;
 import javafx.scene.Node;
 import javafx.scene.control.IndexRange;
+import javafx.scene.input.InputEvent;
 import static javafx.scene.input.KeyCode.ENTER;
 import javafx.scene.input.KeyEvent;
 import org.fxmisc.flowless.VirtualizedScrollPane;
@@ -57,6 +58,7 @@ import org.fxmisc.richtext.model.NavigationActions;
 import org.fxmisc.undo.UndoManager;
 import org.fxmisc.wellbehaved.event.EventPattern;
 import static org.fxmisc.wellbehaved.event.EventPattern.keyPressed;
+import org.fxmisc.wellbehaved.event.InputMap;
 import static org.fxmisc.wellbehaved.event.InputMap.consume;
 import org.fxmisc.wellbehaved.event.Nodes;
 import org.pegdown.PegDownProcessor;
@@ -74,6 +76,11 @@ public class MarkdownEditorPane extends AbstractPane {
 
   private static final Pattern AUTO_INDENT_PATTERN = Pattern.compile(
     "(\\s*[*+-]\\s+|\\s*[0-9]+\\.\\s+|\\s+)(.*)" );
+
+  /**
+   * Set when entering variable edit mode; retrieved upon exiting.
+   */
+  private InputMap<InputEvent> nodeMap;
 
   private PegDownProcessor pegDownProcessor;
   private StyleClassedTextArea editor;
@@ -97,7 +104,7 @@ public class MarkdownEditorPane extends AbstractPane {
     textArea.getStyleClass().add( "markdown-editor" );
     textArea.getStylesheets().add( STYLESHEET_EDITOR );
 
-    addEventListener( keyPressed( ENTER ), this::enterPressed );
+    MarkdownEditorPane.this.addEventListener( keyPressed( ENTER ), this::enterPressed );
 //    addEventListener( keyPressed( X, SHORTCUT_DOWN ), this::cutLine );
 
     textArea.textProperty().addListener( (observable, oldText, newText) -> {
@@ -121,7 +128,43 @@ public class MarkdownEditorPane extends AbstractPane {
     final Consumer<? super U> consumer ) {
     Nodes.addInputMap( getEditor(), consume( event, consumer ) );
   }
+
+  /**
+   * This method adds listeners to editor events that can be removed without
+   * affecting the original listeners (i.e., the original lister is restored on
+   * a call to removeEventListener).
+   *
+   * @param map The map of methods to events.
+   */
+  public void addEventListener( final InputMap<InputEvent> map ) {
+    this.nodeMap = (InputMap<InputEvent>)getInputMap();
+    Nodes.addInputMap( getEditor(), map );
+  }
+
+  /**
+   * Returns the value for "org.fxmisc.wellbehaved.event.inputmap".
+   * 
+   * @return An input map of input events.
+   */
+  private Object getInputMap() {
+    return getEditor().getProperties().get( getInputMapKey() );
+  }
   
+  private String getInputMapKey() {
+    return "org.fxmisc.wellbehaved.event.inputmap";
+  }
+
+  /**
+   * This method removes listeners to editor events and restores the default
+   * handler.
+   *
+   * @param map The map of methods to events.
+   */
+  public void removeEventListener( final InputMap<InputEvent> map ) {
+    Nodes.removeInputMap( getEditor(), map );
+    Nodes.addInputMap( getEditor(), this.nodeMap );
+  }
+
   /**
    * Add a listener to update the scrollY property.
    */
@@ -179,8 +222,8 @@ public class MarkdownEditorPane extends AbstractPane {
 
   /**
    * Returns the scroll pane that contains the text area.
-   * 
-   * @return 
+   *
+   * @return
    */
   public Node getNode() {
     if( this.scrollPane == null ) {
