@@ -175,7 +175,8 @@ class FileEditor {
   }
 
   public <T extends Event, U extends T> void addEventListener(
-    EventPattern<? super T, ? extends U> event, Consumer<? super U> consumer ) {
+    final EventPattern<? super T, ? extends U> event,
+    final Consumer<? super U> consumer ) {
     getEditorPane().addEventListener( event, consumer );
   }
 

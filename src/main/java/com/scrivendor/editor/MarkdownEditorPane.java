@@ -51,7 +51,6 @@ import javafx.scene.Node;
 import javafx.scene.control.IndexRange;
 import static javafx.scene.input.KeyCode.ENTER;
 import javafx.scene.input.KeyEvent;
-import javafx.stage.PopupWindow;
 import org.fxmisc.flowless.VirtualizedScrollPane;
 import org.fxmisc.richtext.StyleClassedTextArea;
 import org.fxmisc.richtext.model.NavigationActions;
@@ -118,14 +117,11 @@ public class MarkdownEditorPane extends AbstractPane {
    * @param consumer The method to call when the event happens.
    */
   public <T extends Event, U extends T> void addEventListener(
-    EventPattern<? super T, ? extends U> event, Consumer<? super U> consumer ) {
+    final EventPattern<? super T, ? extends U> event,
+    final Consumer<? super U> consumer ) {
     Nodes.addInputMap( getEditor(), consume( event, consumer ) );
   }
-
-  public void setPopupWindow( PopupWindow window ) {
-    getEditor().setPopupWindow( window );
-  }
-
+  
   /**
    * Add a listener to update the scrollY property.
    */
@@ -169,7 +165,7 @@ public class MarkdownEditorPane extends AbstractPane {
     this.editor = textArea;
   }
 
-  private synchronized StyleClassedTextArea getEditor() {
+  public synchronized StyleClassedTextArea getEditor() {
     if( this.editor == null ) {
       setEditor( createTextArea() );
     }
@@ -181,6 +177,11 @@ public class MarkdownEditorPane extends AbstractPane {
     return new StyleClassedTextArea( false );
   }
 
+  /**
+   * Returns the scroll pane that contains the text area.
+   * 
+   * @return 
+   */
   public Node getNode() {
     if( this.scrollPane == null ) {
       this.scrollPane = createScrollPane();
@@ -301,8 +302,6 @@ public class MarkdownEditorPane extends AbstractPane {
   }
 
   private void enterPressed( KeyEvent e ) {
-    System.out.println( "Enter pressed" );
-
     final String currentLine = getEditor().getText( getEditor().getCurrentParagraph() );
     final Matcher matcher = AUTO_INDENT_PATTERN.matcher( currentLine );
 
@@ -315,7 +314,7 @@ public class MarkdownEditorPane extends AbstractPane {
       } else {
         // current line contains only whitespace characters and list markers
         // --> empty current line
-        int caretPosition = getEditor().getCaretPosition();
+        final int caretPosition = getEditor().getCaretPosition();
         getEditor().selectRange( caretPosition - currentLine.length(), caretPosition );
       }
     }
@@ -324,17 +323,6 @@ public class MarkdownEditorPane extends AbstractPane {
   }
 
   /**
-   * TODO: Copy the line into the paste buffer before deleting.
-   *
-   * @param e
-   */
-  private void cutLine( KeyEvent e ) {
-    deleteLine( e );
-  }
-
-  /**
-   * Deletes from
-   *
    * @param e
    */
   private void deleteLine( KeyEvent e ) {

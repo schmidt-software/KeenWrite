@@ -54,6 +54,9 @@ import javafx.scene.control.TabPane;
 import javafx.scene.control.TabPane.TabClosingPolicy;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
+import org.fxmisc.richtext.StyleClassedTextArea;
+import org.fxmisc.richtext.StyledTextArea;
+import org.fxmisc.richtext.model.TextEditingArea;
 import org.fxmisc.wellbehaved.event.EventPattern;
 
 /**
@@ -127,7 +130,8 @@ public class FileEditorPane extends AbstractPane {
   }
 
   public <T extends Event, U extends T> void addEventListener(
-    EventPattern<? super T, ? extends U> event, Consumer<? super U> consumer ) {
+    final EventPattern<? super T, ? extends U> event,
+    final Consumer<? super U> consumer ) {
     getActiveFileEditor().addEventListener( event, consumer );
   }
 
@@ -141,6 +145,15 @@ public class FileEditorPane extends AbstractPane {
 
   Node getNode() {
     return tabPane;
+  }
+
+  /**
+   * Allows clients to manipulate the editor content directly.
+   *
+   * @return The text area for the active file editor.
+   */
+  public StyledTextArea getEditor() {
+    return getActiveFileEditor().getEditorPane().getEditor();
   }
 
   FileEditor getActiveFileEditor() {

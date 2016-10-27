@@ -48,6 +48,7 @@ import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.QUOTE_LEFT;
 import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.REPEAT;
 import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.STRIKETHROUGH;
 import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.UNDO;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
@@ -55,14 +56,13 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ObservableBooleanValue;
 import javafx.event.Event;
+import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
-import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
-import javafx.scene.control.MenuItem;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.ToolBar;
 import javafx.scene.image.Image;
@@ -77,12 +77,15 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Window;
 import javafx.stage.WindowEvent;
+import org.fxmisc.richtext.StyledTextArea;
+import org.fxmisc.wellbehaved.event.EventPattern;
 import static org.fxmisc.wellbehaved.event.EventPattern.keyPressed;
+import static org.fxmisc.wellbehaved.event.EventPattern.keyTyped;
 
 /**
  * Main window containing a tab pane in the center for file editors.
  *
- * @author Karl Tauber
+ * @author Karl Tauber and White Magic Software, Ltd.
  */
 public class MainWindow {
 
@@ -92,9 +95,22 @@ public class MainWindow {
 
   private MenuBar menuBar;
 
+  /**
+   * Set to true when the user has typed an @.
+   */
+  private boolean autocomplete;
+
   public MainWindow() {
     initLayout();
-    initKeyboardEventListener();
+    initKeyboardEventListeners();
+  }
+
+  public MenuBar getMenuBar() {
+    return menuBar;
+  }
+
+  public void setMenuBar( MenuBar menuBar ) {
+    this.menuBar = menuBar;
   }
 
   private void initLayout() {
@@ -130,38 +146,64 @@ public class MainWindow {
             }
           } );
       } );
-
   }
 
   /**
-   * Trap the AT key.
+   * Trap the AT key for inserting YAML variables.
    */
-  private void initKeyboardEventListener() {
-    getFileEditorPane().addEventListener(
-      keyPressed( DIGIT2, SHIFT_DOWN ),
-      this::atPressed
-    );
+  private void initKeyboardEventListeners() {
+    addEventListener( keyPressed( DIGIT2, SHIFT_DOWN ), this::atPressed );
   }
 
+  /**
+   * Delegates to the file editor pane, and, ultimately, to its text area.
+   */
+  private <T extends Event, U extends T> void addEventListener(
+    final EventPattern<? super T, ? extends U> event,
+    final Consumer<? super U> consumer ) {
+    getFileEditorPane().addEventListener( event, consumer );
+  }
+
+  /**
+   * The @ symbol is a short-cut to inserting a YAML variable reference.
+   *
+   * @param e
+   */
   private void atPressed( KeyEvent e ) {
-    final ContextMenu contextMenu = new ContextMenu();
-    System.out.println( "2. AT PRESSED" );
+    addEventListener( keyTyped(), this::variableKeyPressed );
+    addEventListener( keyPressed(), this::variableKeyPressed );
+  }
 
-    final MenuItem item1 = new MenuItem( "About" );
+  /**
+   * Receives key types and presses until the user completes the variable
+   * selection.
+   * 
+   * @param e The key that was pressed or typed.
+   */
+  private void variableKeyPressed( KeyEvent e ) {
+    System.out.println( "KEY: " + e.toString() );
+  }
 
-    System.out.println( "3. AT PRESSED" );
-    final MenuItem item2 = new MenuItem( "Preferences" );
+  /**
+   * Inserts the string at the current caret position.
+   *
+   * @param s
+   */
+  private void insertText( String s ) {
+    final StyledTextArea t = getEditor();
+    t.insertText( t.getCaretPosition(), s );
+  }
 
-    System.out.println( "4. AT PRESSED" );
-    contextMenu.getItems().addAll( item1, item2 );
+  public boolean isAutocomplete() {
+    return autocomplete;
+  }
 
-    System.out.println( "5. AT PRESSED" );
-    // TODO:
-//    getEditorPane().setPopupWindow( contextMenu );
-    contextMenu.show( getWindow() );
+  public void setAutocomplete( boolean autocomplete ) {
+    this.autocomplete = autocomplete;
+  }
 
-    // If the user doesn't select from the context menu, insert an AT symbol.
-//    textArea.insertText( textArea.getCaretPosition(), '@' );
+  private StyledTextArea getEditor() {
+    return getFileEditorPane().getEditor();
   }
 
   private Window getWindow() {
@@ -332,7 +374,8 @@ public class MainWindow {
    * Creates a boolean property that is bound to another boolean value of the
    * active editor.
    */
-  private BooleanProperty createActiveBooleanProperty( Function<FileEditor, ObservableBooleanValue> func ) {
+  private BooleanProperty createActiveBooleanProperty(
+    final Function<FileEditor, ObservableBooleanValue> func ) {
     final BooleanProperty b = new SimpleBooleanProperty();
     final FileEditor fileEditor = getActiveFileEditor();
 
@@ -340,14 +383,16 @@ public class MainWindow {
       b.bind( func.apply( fileEditor ) );
     }
 
-    getFileEditorPane().activeFileEditorProperty().addListener( (observable, oldFileEditor, newFileEditor) -> {
-      b.unbind();
-      if( newFileEditor != null ) {
-        b.bind( func.apply( newFileEditor ) );
-      } else {
-        b.set( false );
-      }
-    } );
+    getFileEditorPane().activeFileEditorProperty().addListener(
+      (observable, oldFileEditor, newFileEditor) -> {
+        b.unbind();
+
+        if( newFileEditor != null ) {
+          b.bind( func.apply( newFileEditor ) );
+        } else {
+          b.set( false );
+        }
+      } );
 
     return b;
   }
@@ -378,15 +423,14 @@ public class MainWindow {
   }
 
   private void fileExit() {
-    final Window window = scene.getWindow();
+    final Window window = getWindow();
     Event.fireEvent( window,
       new WindowEvent( window, WindowEvent.WINDOW_CLOSE_REQUEST ) );
   }
 
   //---- Tools actions ------------------------------------------------------
   private void toolsOptions() {
-    final OptionsDialog dialog = new OptionsDialog( getScene().getWindow() );
-    dialog.showAndWait();
+    new OptionsDialog( getWindow() ).showAndWait();
   }
 
   //---- Help actions -------------------------------------------------------
@@ -396,7 +440,7 @@ public class MainWindow {
     alert.setHeaderText( Messages.get( "Dialog.about.header" ) );
     alert.setContentText( Messages.get( "Dialog.about.content" ) );
     alert.setGraphic( new ImageView( new Image( LOGO_32 ) ) );
-    alert.initOwner( getScene().getWindow() );
+    alert.initOwner( getWindow() );
 
     alert.showAndWait();
   }

@@ -27,12 +27,14 @@
  */
 package com.scrivendor.definition;
 
-import com.scrivendor.Messages;
+import static com.scrivendor.Messages.get;
 import com.scrivendor.ui.AbstractPane;
 import static com.scrivendor.yaml.YamlTreeAdapter.adapt;
 import java.io.IOException;
 import java.io.InputStream;
 import javafx.scene.Node;
+import javafx.scene.control.MultipleSelectionModel;
+import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TreeView;
 
 /**
@@ -48,13 +50,20 @@ public class DefinitionPane extends AbstractPane {
     try {
       setTreeView(
         adapt(
+          // TODO: Allow user loading of variables file.
           asStream( "/com/scrivendor/variables.yaml" ),
-          Messages.get( "Pane.defintion.node.root.title" )
+          get( "Pane.defintion.node.root.title" )
         )
       );
+
+      initTreeView();
     } catch( IOException e ) {
       throw new RuntimeException( e );
     }
+  }
+
+  private void initTreeView() {
+    getSelectionModel().setSelectionMode( SelectionMode.MULTIPLE );
   }
 
   private InputStream asStream( String resource ) {
@@ -65,11 +74,35 @@ public class DefinitionPane extends AbstractPane {
     return getTreeView();
   }
 
-  public TreeView<String> getTreeView() {
-    return treeView;
+  public final TreeView<String> getTreeView() {
+    return this.treeView;
   }
 
-  public final void setTreeView( TreeView<String> treeView ) {
-    this.treeView = treeView;
+  /**
+   * Given a string, this will attempt to match the first letters in the
+   * tree. In so doing, the tree will collapse 
+   * 
+   * @param s
+   * @return 
+   */
+  public String select( final String s ) {
+    getSelectionModel().clearSelection();
+    
+    return s;
+  }
+  
+  private MultipleSelectionModel getSelectionModel() {
+    return getTreeView().getSelectionModel();
+  }
+
+  /**
+   * Sets the tree view (called by the constructor).
+   *
+   * @param treeView
+   */
+  private void setTreeView( TreeView<String> treeView ) {
+    if( treeView != null ) {
+      this.treeView = treeView;
+    }
   }
 }

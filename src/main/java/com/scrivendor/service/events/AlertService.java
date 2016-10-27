@@ -31,17 +31,18 @@ import javafx.scene.control.Alert;
 import javafx.stage.Window;
 
 /**
+ * Provides the application with a uniform way to create alert dialogs.
  *
  * @author White Magic Software, Ltd.
  */
 public interface AlertService {
-  
+
   /**
    * Called to set the window used as the parent for the alert dialogs.
-   * 
-   * @param window 
+   *
+   * @param window
    */
-  public void setWindow( Window window);
+  public void setWindow( Window window );
 
   /**
    * Constructs a default alert message text for a modal alert dialog.

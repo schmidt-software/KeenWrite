@@ -41,8 +41,8 @@ import com.scrivendor.service.events.AlertService;
 import com.scrivendor.util.StageState;
 
 /**
- * Main application entry point. The application allows users to edit 
- * Markdown files and see a real-time preview of the edits.
+ * Main application entry point. The application allows users to edit Markdown
+ * files and see a real-time preview of the edits.
  *
  * @author Karl Tauber and White Magic Software, Ltd.
  */
@@ -50,8 +50,7 @@ public final class Main extends Application {
 
   private static Application app;
 
-  private MainWindow mainWindow;
-  private StageState stageState;
+  private final MainWindow mainWindow = new MainWindow();
   private final Settings settings = Services.load( Settings.class );
   private final Options options = Services.load( Options.class );
 
@@ -67,13 +66,12 @@ public final class Main extends Application {
    * @throws Exception Could not read configuration file.
    */
   @Override
-  public void start( Stage stage ) throws Exception {
+  public void start( final Stage stage ) throws Exception {
     initApplication();
-    initWindow();
     initState( stage );
     initStage( stage );
     initAlertService();
-
+    
     stage.show();
   }
 
@@ -84,7 +82,7 @@ public final class Main extends Application {
   private Settings getSettings() {
     return this.settings;
   }
-  
+
   private Options getOptions() {
     return this.options;
   }
@@ -93,12 +91,8 @@ public final class Main extends Application {
     return Messages.get( "Main.title" );
   }
 
-  private void initWindow() {
-    setWindow( new MainWindow() );
-  }
-
-  private void initState( Stage stage ) {
-    stageState = new StageState( stage, getOptions().getState() );
+  private StageState initState( Stage stage ) {
+    return new StageState( stage, getOptions().getState() );
   }
 
   private void initStage( Stage stage ) {
@@ -111,7 +105,7 @@ public final class Main extends Application {
     stage.setTitle( getApplicationTitle() );
     stage.setScene( getScene() );
   }
-  
+
   private void initAlertService() {
     final AlertService service = Services.load( AlertService.class );
     service.setWindow( getScene().getWindow() );
@@ -121,20 +115,8 @@ public final class Main extends Application {
     return getMainWindow().getScene();
   }
 
-  protected MainWindow getMainWindow() {
+  private MainWindow getMainWindow() {
     return this.mainWindow;
-  }
-
-  private void setWindow( MainWindow mainWindow ) {
-    this.mainWindow = mainWindow;
-  }
-
-  private StageState getStageState() {
-    return this.stageState;
-  }
-
-  private void setStageState( StageState stageState ) {
-    this.stageState = stageState;
   }
 
   private static Application getApplication() {
