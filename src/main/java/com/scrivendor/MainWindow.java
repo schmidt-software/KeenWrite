@@ -67,6 +67,8 @@ import javafx.scene.control.ToolBar;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.InputEvent;
+import javafx.scene.input.KeyCode;
+import static javafx.scene.input.KeyCode.BACK_SPACE;
 import static javafx.scene.input.KeyCode.DIGIT2;
 import static javafx.scene.input.KeyCode.ESCAPE;
 import static javafx.scene.input.KeyCombination.SHIFT_DOWN;
@@ -99,22 +101,13 @@ public class MainWindow {
   private MenuBar menuBar;
 
   /**
-   * Set to true when the user has typed an @.
+   * Used to capture keyboard events once the user presses @.
    */
   private InputMap<InputEvent> keyboardMap;
-
 
   public MainWindow() {
     initLayout();
     initKeyboardEventListeners();
-  }
-
-  public MenuBar getMenuBar() {
-    return menuBar;
-  }
-
-  public void setMenuBar( MenuBar menuBar ) {
-    this.menuBar = menuBar;
   }
 
   private void initLayout() {
@@ -158,36 +151,36 @@ public class MainWindow {
   private void initKeyboardEventListeners() {
     addEventListener( keyPressed( DIGIT2, SHIFT_DOWN ), this::atPressed );
   }
-
+  
   /**
-   * Delegates to the file editor pane, and, ultimately, to its text area.
+   * Position of the variable in the text when in variable mode.
    */
-  private <T extends Event, U extends T> void addEventListener(
-    final EventPattern<? super T, ? extends U> event,
-    final Consumer<? super U> consumer ) {
-    getFileEditorPane().addEventListener( event, consumer );
-  }
-
-  /**
-   * Delegates to the file editor pane, and, ultimately, to its text area.
-   *
-   * @param map The map of methods to events.
-   */
-  private void addEventListener( final InputMap<InputEvent> map ) {
-    getFileEditorPane().addEventListener( map );
-  }
-
-  private void removeEventListener( final InputMap<InputEvent> map ) {
-    getFileEditorPane().removeEventListener( map );
-  }
+  private int position = 0;
 
   /**
    * The @ symbol is a short-cut to inserting a YAML variable reference.
    *
-   * @param e
+   * @param e Superfluous information about the key that was pressed.
    */
   private void atPressed( KeyEvent e ) {
     startVariableMode();
+    
+    final StyledTextArea textArea = getEditor();
+    textArea.deselect();
+    final int paragraph = textArea.getCurrentParagraph();
+    
+    // Store the current position because only the text that comes afterwards
+    // is a suitable variable reference.
+    position = textArea.getCaretColumn();
+  }
+
+  /**
+   * The Esc key is used to exit (escape from) variable mode.
+   *
+   * @param e Superfluous information about the key that was pressed.
+   */
+  private void escPressed( KeyEvent e ) {
+    e.consume();
   }
 
   /**
@@ -206,19 +199,69 @@ public class MainWindow {
    * @param e The key that was pressed.
    */
   private void variableKeyPressed( KeyEvent e ) {
-    System.out.println( "KEY: " + e.toString() );
+    final KeyCode keyCode = e.getCode();
+    boolean parse = false;
 
-    if( e.getCode() == ESCAPE ) {
-      System.out.println( "STOP" );
-      stopVariableMode();
+    switch( keyCode ) {
+      case ESCAPE:
+        stopVariableMode();
+        break;
+
+      case BACK_SPACE:
+        deletePreviousChar();
+        break;
+
+      default:
+        if( keyCode.isLetterKey() || keyCode.isDigitKey() ) {
+          insertText( e.getText() );
+          parse = true;
+        }
+
+        break;
     }
-    else {
-      insertText( e.getText() );
+
+    if( parse ) {
+      parse();
     }
 
     e.consume();
   }
   
+  private void deletePreviousChar() {
+    getEditor().deletePreviousChar();
+  }
+
+  private void parse() {
+    final StyledTextArea textArea = getEditor();
+    final int paragraph = textArea.getCurrentParagraph();
+    final int caret = textArea.getCaretColumn();
+    
+    final String text = textArea.getText( paragraph );
+    final String word = text.substring( position, caret ).trim();
+
+    System.out.println( "word = " + word );
+  }
+
+  /**
+   * Used to lazily initialize the keyboard map.
+   *
+   * @return Mappings for keyTyped and keyPressed.
+   */
+  protected InputMap<InputEvent> createKeyboardMap() {
+    return sequence(
+      consume( keyTyped(), this::variableKeyTyped ),
+      consume( keyPressed(), this::variableKeyPressed )
+    );
+  }
+
+  private InputMap<InputEvent> getKeyboardMap() {
+    if( this.keyboardMap == null ) {
+      this.keyboardMap = createKeyboardMap();
+    }
+
+    return this.keyboardMap;
+  }
+
   private void startVariableMode() {
     addEventListener( getKeyboardMap() );
   }
@@ -512,19 +555,34 @@ public class MainWindow {
     return this.definitionPane;
   }
 
-  private InputMap<InputEvent> getKeyboardMap() {
-    if( this.keyboardMap == null ) {
-      this.keyboardMap = createKeyboardMap();
-    }
-
-    return this.keyboardMap;
+  /**
+   * Delegates to the file editor pane, and, ultimately, to its text area.
+   */
+  private <T extends Event, U extends T> void addEventListener(
+    final EventPattern<? super T, ? extends U> event,
+    final Consumer<? super U> consumer ) {
+    getFileEditorPane().addEventListener( event, consumer );
   }
 
-  protected InputMap<InputEvent> createKeyboardMap() {
-    return sequence(
-      consume( keyTyped(), this::variableKeyTyped ),
-      consume( keyPressed(), this::variableKeyPressed )
-    );
+  /**
+   * Delegates to the file editor pane, and, ultimately, to its text area.
+   *
+   * @param map The map of methods to events.
+   */
+  private void addEventListener( final InputMap<InputEvent> map ) {
+    getFileEditorPane().addEventListener( map );
+  }
+
+  private void removeEventListener( final InputMap<InputEvent> map ) {
+    getFileEditorPane().removeEventListener( map );
+  }
+
+  public MenuBar getMenuBar() {
+    return menuBar;
+  }
+
+  public void setMenuBar( MenuBar menuBar ) {
+    this.menuBar = menuBar;
   }
 
 }
