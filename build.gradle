@@ -7,6 +7,12 @@ repositories {
 	jcenter()
 }
 
+/*
+compileJava {
+    options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
+}
+*/
+
 dependencies {
 	compile group: 'org.fxmisc.richtext', name: 'richtextfx', version: '0.7-M2'
 	compile group: 'com.miglayout', name: 'miglayout-javafx', version: '5.0'

@@ -143,8 +143,8 @@ public class FileEditorPane extends AbstractPane {
    *
    * @param map The map of methods to events.
    */
-  public void addFallbackEventListener( final InputMap<InputEvent> map ) {
-    getActiveFileEditor().addFallbackEventListener( map );
+  public void addEventListener( final InputMap<InputEvent> map ) {
+    getActiveFileEditor().addEventListener( map );
   }
   
   public void removeEventListener( final InputMap<InputEvent> map ) {

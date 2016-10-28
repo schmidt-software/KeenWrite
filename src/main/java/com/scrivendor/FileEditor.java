@@ -182,7 +182,7 @@ class FileEditor {
     getEditorPane().addEventListener( event, consumer );
   }
 
-  public void addFallbackEventListener( final InputMap<InputEvent> map ) {
+  public void addEventListener( final InputMap<InputEvent> map ) {
     getEditorPane().addEventListener( map );
   }
 

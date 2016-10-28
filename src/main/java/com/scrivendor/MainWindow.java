@@ -101,7 +101,8 @@ public class MainWindow {
   /**
    * Set to true when the user has typed an @.
    */
-  private boolean autocomplete;
+  private InputMap<InputEvent> keyboardMap;
+
 
   public MainWindow() {
     initLayout();
@@ -172,8 +173,8 @@ public class MainWindow {
    *
    * @param map The map of methods to events.
    */
-  private void addFallbackEventListener( final InputMap<InputEvent> map ) {
-    getFileEditorPane().addFallbackEventListener( map );
+  private void addEventListener( final InputMap<InputEvent> map ) {
+    getFileEditorPane().addEventListener( map );
   }
 
   private void removeEventListener( final InputMap<InputEvent> map ) {
@@ -190,40 +191,36 @@ public class MainWindow {
   }
 
   /**
-   * Receives typed keys until the user completes the variable selection.
+   * Ignore typed keys.
    *
    * @param e The key that was typed.
    */
   private void variableKeyTyped( KeyEvent e ) {
+    e.consume();
+  }
+
+  /**
+   * Receives key presses until the user completes the variable selection. This
+   * allows the arrow keys to be used for selecting variables.
+   *
+   * @param e The key that was pressed.
+   */
+  private void variableKeyPressed( KeyEvent e ) {
     System.out.println( "KEY: " + e.toString() );
 
     if( e.getCode() == ESCAPE ) {
       System.out.println( "STOP" );
       stopVariableMode();
     }
+    else {
+      insertText( e.getText() );
+    }
 
     e.consume();
   }
-
-  /**
-   * Receives key presses until the user completes the variable selection.
-   * This allows the arrow keys to be used for selecting variables.
-   *
-   * @param e The key that was pressed.
-   */
-  private void variableKeyPressed( KeyEvent e ) {
-    e.consume();
-  }
-
-  private InputMap<InputEvent> getKeyboardMap() {
-    return sequence(
-      consume( keyTyped(), this::variableKeyTyped ),
-      consume( keyPressed(), this::variableKeyPressed )
-    );
-  }
-
+  
   private void startVariableMode() {
-    addFallbackEventListener( getKeyboardMap() );
+    addEventListener( getKeyboardMap() );
   }
 
   private void stopVariableMode() {
@@ -233,19 +230,11 @@ public class MainWindow {
   /**
    * Inserts the string at the current caret position.
    *
-   * @param s
+   * @param s The text to insert.
    */
   private void insertText( String s ) {
     final StyledTextArea t = getEditor();
     t.insertText( t.getCaretPosition(), s );
-  }
-
-  public boolean isAutocomplete() {
-    return autocomplete;
-  }
-
-  public void setAutocomplete( boolean autocomplete ) {
-    this.autocomplete = autocomplete;
   }
 
   private StyledTextArea getEditor() {
@@ -522,4 +511,20 @@ public class MainWindow {
 
     return this.definitionPane;
   }
+
+  private InputMap<InputEvent> getKeyboardMap() {
+    if( this.keyboardMap == null ) {
+      this.keyboardMap = createKeyboardMap();
+    }
+
+    return this.keyboardMap;
+  }
+
+  protected InputMap<InputEvent> createKeyboardMap() {
+    return sequence(
+      consume( keyTyped(), this::variableKeyTyped ),
+      consume( keyPressed(), this::variableKeyPressed )
+    );
+  }
+
 }

@@ -115,11 +115,8 @@ public class MarkdownEditorPane extends AbstractPane {
   /**
    * This method adds listeners to editor events.
    *
-   * @see
-   * https://docs.oracle.com/javase/8/javafx/api/javafx/scene/input/KeyEvent.html
-   *
-   * @param <T> The type of event.
-   * @param <U>
+   * @param <T> The event type.
+   * @param <U> The consumer type for the given event type.
    * @param event The event of interest.
    * @param consumer The method to call when the event happens.
    */
@@ -136,6 +133,7 @@ public class MarkdownEditorPane extends AbstractPane {
    *
    * @param map The map of methods to events.
    */
+  @SuppressWarnings( "unchecked" )
   public void addEventListener( final InputMap<InputEvent> map ) {
     this.nodeMap = (InputMap<InputEvent>)getInputMap();
     Nodes.addInputMap( getEditor(), map );
@@ -143,13 +141,13 @@ public class MarkdownEditorPane extends AbstractPane {
 
   /**
    * Returns the value for "org.fxmisc.wellbehaved.event.inputmap".
-   * 
+   *
    * @return An input map of input events.
    */
   private Object getInputMap() {
     return getEditor().getProperties().get( getInputMapKey() );
   }
-  
+
   private String getInputMapKey() {
     return "org.fxmisc.wellbehaved.event.inputmap";
   }
