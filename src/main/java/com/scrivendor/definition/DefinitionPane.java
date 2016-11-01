@@ -32,9 +32,12 @@ import com.scrivendor.ui.AbstractPane;
 import static com.scrivendor.yaml.YamlTreeAdapter.adapt;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
+import java.util.StringTokenizer;
 import javafx.scene.Node;
 import javafx.scene.control.MultipleSelectionModel;
 import javafx.scene.control.SelectionMode;
+import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 
 /**
@@ -44,8 +47,13 @@ import javafx.scene.control.TreeView;
  */
 public class DefinitionPane extends AbstractPane {
 
+  private final static String SEPARATOR = ".";
+
   private TreeView<String> treeView;
 
+  /**
+   * Reads YAML variables into a tree view.
+   */
   public DefinitionPane() {
     try {
       setTreeView(
@@ -60,6 +68,99 @@ public class DefinitionPane extends AbstractPane {
     } catch( IOException e ) {
       throw new RuntimeException( e );
     }
+  }
+
+  /**
+   * Finds a node that matches a prefix and suffix specified by the given
+   * variable. The prefix must match a valid node value. The suffix refers to
+   * the start of a string that matches zero or more children of the node
+   * specified by the prefix.
+   *
+   * @param path The word typed by the user, which contains dot-separated node
+   * names that represent a path within the YAML tree plus a partial variable
+   * name match (for a node).
+   *
+   * @return The node value that starts with the suffix portion of the given
+   * path.
+   */
+  public String findNode( final String path ) {
+    TreeItem<String> cItem = getTreeView().getRoot();
+    TreeItem<String> pItem = cItem;
+
+    final StringTokenizer st = new StringTokenizer( path, getSeparator() );
+
+    while( st.hasMoreTokens() ) {
+      final String word = st.nextToken();
+
+      // Search along a single branch while the tokenized path matches nodes.
+      cItem = findLeaf( cItem, word );
+
+      if( cItem == null ) {
+        break;
+      }
+
+      pItem = cItem;
+    }
+
+    String value = (pItem == null ? "" : pItem.getValue());
+
+    System.out.println( "Current = " + value );
+
+    return value;
+  }
+
+  /**
+   * Finds an exact match
+   *
+   * @param trunk The root item containing a list of nodes to search.
+   * @param word The value of the item to find.
+   *
+   * @return The item that matches the given word, or null if not found.
+   */
+  private TreeItem<String> findLeaf(
+    final TreeItem<String> trunk,
+    final String word ) {
+    final List<TreeItem<String>> branches = trunk.getChildren();
+    TreeItem<String> result = null;
+
+    for( final TreeItem<String> leaf : branches ) {
+      if( areEqual( leaf.getValue(), word ) ) {
+        result = leaf;
+        break;
+      }
+    }
+
+    return result;
+  }
+
+  /**
+   * Starting at the given parent node, this will return a dot-separated path of
+   * all the parent node values concatenated together.
+   *
+   * @param ti The leaf parent tree item.
+   *
+   * @return The dot-separated path for this node.
+  private String toPath( final TreeItem<String> ti ) {
+    // Recurse to the root node, then append the nodes in dot-formation.
+    // Iteration would be possible as well, but that requires string
+    // insertion, which would end up creating a copy of the string each
+    // loop. Plus, it's one line of code.
+    return ti == null || ti.getParent() == null
+      ? ""
+      : toPath( ti.getParent() ) + getSeparator() + ti.getValue();
+  }
+   */
+
+  /**
+   * Compares two strings taking into consideration options for case.
+   *
+   * @param s1 A non-null string.
+   * @param s2
+   *
+   * @return
+   */
+  private boolean areEqual( final String s1, final String s2 ) {
+    return s1.equalsIgnoreCase( s2 );
   }
 
   private void initTreeView() {
@@ -79,18 +180,19 @@ public class DefinitionPane extends AbstractPane {
   }
 
   /**
-   * Given a string, this will attempt to match the first letters in the
-   * tree. In so doing, the tree will collapse 
-   * 
+   * Given a string, this will attempt to match the first letters in the tree.
+   * In so doing, the tree will collapse
+   *
    * @param s
-   * @return 
+   *
+   * @return
    */
   public String select( final String s ) {
     getSelectionModel().clearSelection();
-    
+
     return s;
   }
-  
+
   private MultipleSelectionModel getSelectionModel() {
     return getTreeView().getSelectionModel();
   }
@@ -104,5 +206,9 @@ public class DefinitionPane extends AbstractPane {
     if( treeView != null ) {
       this.treeView = treeView;
     }
+  }
+
+  private String getSeparator() {
+    return SEPARATOR;
   }
 }

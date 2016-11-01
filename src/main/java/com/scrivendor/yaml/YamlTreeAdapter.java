@@ -44,7 +44,7 @@ public class YamlTreeAdapter {
 
   protected YamlTreeAdapter() {
   }
-
+  
   /**
    * Converts a YAML document to a TreeView based on the document keys. Only the
    * first document in the stream is adapted. This does not close the stream.

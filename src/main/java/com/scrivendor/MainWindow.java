@@ -71,6 +71,9 @@ import javafx.scene.input.KeyCode;
 import static javafx.scene.input.KeyCode.BACK_SPACE;
 import static javafx.scene.input.KeyCode.DIGIT2;
 import static javafx.scene.input.KeyCode.ESCAPE;
+import static javafx.scene.input.KeyCode.MINUS;
+import static javafx.scene.input.KeyCode.PERIOD;
+import static javafx.scene.input.KeyCode.UNDERSCORE;
 import static javafx.scene.input.KeyCombination.SHIFT_DOWN;
 import javafx.scene.input.KeyEvent;
 import static javafx.scene.input.KeyEvent.CHAR_UNDEFINED;
@@ -104,6 +107,11 @@ public class MainWindow {
    * Used to capture keyboard events once the user presses @.
    */
   private InputMap<InputEvent> keyboardMap;
+
+  /**
+   * Position of the variable in the text when in variable mode.
+   */
+  private int vModePosition = 0;
 
   public MainWindow() {
     initLayout();
@@ -151,11 +159,6 @@ public class MainWindow {
   private void initKeyboardEventListeners() {
     addEventListener( keyPressed( DIGIT2, SHIFT_DOWN ), this::atPressed );
   }
-  
-  /**
-   * Position of the variable in the text when in variable mode.
-   */
-  private int position = 0;
 
   /**
    * The @ symbol is a short-cut to inserting a YAML variable reference.
@@ -163,15 +166,10 @@ public class MainWindow {
    * @param e Superfluous information about the key that was pressed.
    */
   private void atPressed( KeyEvent e ) {
-    startVariableMode();
-    
-    final StyledTextArea textArea = getEditor();
-    textArea.deselect();
-    final int paragraph = textArea.getCurrentParagraph();
-    
-    // Store the current position because only the text that comes afterwards
-    // is a suitable variable reference.
-    position = textArea.getCaretColumn();
+    startVMode();
+
+    getEditor().deselect();
+    setVModePosition();
   }
 
   /**
@@ -188,7 +186,7 @@ public class MainWindow {
    *
    * @param e The key that was typed.
    */
-  private void variableKeyTyped( KeyEvent e ) {
+  private void vModeKeyTyped( KeyEvent e ) {
     e.consume();
   }
 
@@ -198,21 +196,25 @@ public class MainWindow {
    *
    * @param e The key that was pressed.
    */
-  private void variableKeyPressed( KeyEvent e ) {
+  private void vModeKeyPressed( KeyEvent e ) {
     final KeyCode keyCode = e.getCode();
     boolean parse = false;
 
     switch( keyCode ) {
-      case ESCAPE:
-        stopVariableMode();
-        break;
-
       case BACK_SPACE:
         deletePreviousChar();
+
+        // Break out of variable mode by back spacing to the original position.
+        if( getCaretColumn() > getVModePosition() ) {
+          break;
+        }
+
+      case ESCAPE:
+        stopVMode();
         break;
 
       default:
-        if( keyCode.isLetterKey() || keyCode.isDigitKey() ) {
+        if( isVariableNameKey( e ) ) {
           insertText( e.getText() );
           parse = true;
         }
@@ -226,20 +228,57 @@ public class MainWindow {
 
     e.consume();
   }
-  
+
+  /**
+   * Returns true iff the key code the user typed can be used as part of a YAML
+   * variable name.
+   *
+   * @param keyCode
+   *
+   * @return
+   */
+  private boolean isVariableNameKey( KeyEvent event ) {
+    final KeyCode keyCode = event.getCode();
+
+    return keyCode.isLetterKey()
+      || keyCode.isDigitKey()
+      || keyCode == PERIOD
+      || (event.isShiftDown() && keyCode == MINUS);
+  }
+
   private void deletePreviousChar() {
     getEditor().deletePreviousChar();
   }
 
-  private void parse() {
+  /**
+   * Returns the full text for the paragraph that contains the caret.
+   *
+   * @return
+   */
+  private String getCurrentParagraph() {
     final StyledTextArea textArea = getEditor();
     final int paragraph = textArea.getCurrentParagraph();
-    final int caret = textArea.getCaretColumn();
-    
-    final String text = textArea.getText( paragraph );
-    final String word = text.substring( position, caret ).trim();
+    return textArea.getText( paragraph );
+  }
 
-    System.out.println( "word = " + word );
+  /**
+   * Returns the caret's offset into the current paragraph.
+   *
+   * @return
+   */
+  private int getCaretColumn() {
+    return getEditor().getCaretColumn();
+  }
+
+  /**
+   * Determines the variable selected by the user.
+   */
+  private void parse() {
+    final String p = getCurrentParagraph();
+    final String w = p.substring( getVModePosition(), getCaretColumn() ).trim();
+
+    String variable = getDefinitionPane().findNode( w );
+    System.out.println( "variable = " + variable );
   }
 
   /**
@@ -249,8 +288,8 @@ public class MainWindow {
    */
   protected InputMap<InputEvent> createKeyboardMap() {
     return sequence(
-      consume( keyTyped(), this::variableKeyTyped ),
-      consume( keyPressed(), this::variableKeyPressed )
+      consume( keyTyped(), this::vModeKeyTyped ),
+      consume( keyPressed(), this::vModeKeyPressed )
     );
   }
 
@@ -262,11 +301,11 @@ public class MainWindow {
     return this.keyboardMap;
   }
 
-  private void startVariableMode() {
+  private void startVMode() {
     addEventListener( getKeyboardMap() );
   }
 
-  private void stopVariableMode() {
+  private void stopVMode() {
     removeEventListener( getKeyboardMap() );
   }
 
@@ -585,4 +624,23 @@ public class MainWindow {
     this.menuBar = menuBar;
   }
 
+  /**
+   * Returns the position of the caret when variable mode editing was requested.
+   *
+   * @return The variable mode caret position.
+   */
+  private int getVModePosition() {
+    return vModePosition;
+  }
+
+  /**
+   * Sets the position of the caret when variable mode editing was requested.
+   * Stores the current position because only the text that comes afterwards is
+   * a suitable variable reference.
+   *
+   * @return The variable mode caret position.
+   */
+  private void setVModePosition() {
+    this.vModePosition = getEditor().getCaretColumn();
+  }
 }
