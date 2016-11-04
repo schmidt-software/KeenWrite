@@ -31,14 +31,13 @@ import static com.scrivendor.Constants.LOGO_16;
 import static com.scrivendor.Constants.LOGO_256;
 import static com.scrivendor.Constants.LOGO_32;
 import static com.scrivendor.Constants.LOGO_512;
+import com.scrivendor.service.Options;
+import com.scrivendor.service.events.AlertService;
+import com.scrivendor.util.StageState;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
-import com.scrivendor.service.Options;
-import com.scrivendor.service.Settings;
-import com.scrivendor.service.events.AlertService;
-import com.scrivendor.util.StageState;
 
 /**
  * Main application entry point. The application allows users to edit Markdown
@@ -51,7 +50,6 @@ public final class Main extends Application {
   private static Application app;
 
   private final MainWindow mainWindow = new MainWindow();
-  private final Settings settings = Services.load( Settings.class );
   private final Options options = Services.load( Options.class );
 
   public static void main( String[] args ) {
@@ -77,10 +75,6 @@ public final class Main extends Application {
 
   private void initApplication() {
     app = this;
-  }
-
-  private Settings getSettings() {
-    return this.settings;
   }
 
   private Options getOptions() {

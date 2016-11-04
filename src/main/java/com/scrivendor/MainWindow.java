@@ -60,10 +60,12 @@ import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.IndexRange;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.ToolBar;
+import javafx.scene.control.TreeItem;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.InputEvent;
@@ -73,7 +75,6 @@ import static javafx.scene.input.KeyCode.DIGIT2;
 import static javafx.scene.input.KeyCode.ESCAPE;
 import static javafx.scene.input.KeyCode.MINUS;
 import static javafx.scene.input.KeyCode.PERIOD;
-import static javafx.scene.input.KeyCode.UNDERSCORE;
 import static javafx.scene.input.KeyCombination.SHIFT_DOWN;
 import javafx.scene.input.KeyEvent;
 import static javafx.scene.input.KeyEvent.CHAR_UNDEFINED;
@@ -202,7 +203,7 @@ public class MainWindow {
 
     switch( keyCode ) {
       case BACK_SPACE:
-        deletePreviousChar();
+        keyBackspace();
 
         // Break out of variable mode by back spacing to the original position.
         if( getCaretColumn() > getVModePosition() ) {
@@ -211,6 +212,11 @@ public class MainWindow {
 
       case ESCAPE:
         stopVMode();
+        break;
+
+      case ENTER:
+      case END:
+        acceptSelection();
         break;
 
       default:
@@ -246,8 +252,26 @@ public class MainWindow {
       || (event.isShiftDown() && keyCode == MINUS);
   }
 
-  private void deletePreviousChar() {
-    getEditor().deletePreviousChar();
+  /**
+   * Called when the user presses the Backspace key.
+   */
+  private void keyBackspace() {
+    final StyledTextArea textArea = getEditor();
+    textArea.replaceSelection( "" );
+    textArea.deletePreviousChar();
+  }
+
+  /**
+   * Called when the user presses either End or Enter key.
+   */
+  private void acceptSelection() {
+    final StyledTextArea textArea = getEditor();
+    final IndexRange range = textArea.getSelection();
+
+    if( range != null ) {
+      textArea.deselect();
+      textArea.moveTo( range.getEnd() );
+    }
   }
 
   /**
@@ -276,9 +300,39 @@ public class MainWindow {
   private void parse() {
     final String p = getCurrentParagraph();
     final String w = p.substring( getVModePosition(), getCaretColumn() ).trim();
+    final DefinitionPane pane = getDefinitionPane();
+    final TreeItem<String> node = pane.findNode( w );
+    final String lastWord = pane.findLastWord( w );
 
-    String variable = getDefinitionPane().findNode( w );
-    System.out.println( "variable = " + variable );
+    TreeItem<String> lastNode = node;
+
+    for( final TreeItem<String> leaf : node.getChildren() ) {
+      if( pane.matches( leaf.getValue(), lastWord ) ) {
+        lastNode = leaf;
+        break;
+      }
+    }
+
+    pane.collapse();
+    pane.expand( node );
+
+    String typeAhead = "";
+
+    if( !lastNode.isLeaf() ) {
+      lastNode.setExpanded( true );
+
+      final String nodeValue = lastNode.getValue();
+      final int index = nodeValue.indexOf( lastWord );
+
+      if( index == 0 && !nodeValue.equals( lastWord ) ) {
+        typeAhead = nodeValue.substring( lastWord.length() );
+      }
+    }
+
+    insertText( typeAhead );
+
+    System.out.println( "lastNode = " + lastNode.getValue() );
+    System.out.println( "lastWord = " + lastWord );
   }
 
   /**
@@ -314,9 +368,18 @@ public class MainWindow {
    *
    * @param s The text to insert.
    */
-  private void insertText( String s ) {
+  private void insertText( final String s ) {
     final StyledTextArea t = getEditor();
-    t.insertText( t.getCaretPosition(), s );
+
+    final int length = s.length();
+    final int posBegan = t.getCaretPosition();
+    final int posEnded = posBegan + length;
+
+    t.replaceSelection( s );
+
+    if( posEnded - posBegan > 1 ) {
+      t.selectRange( posEnded, posBegan );
+    }
   }
 
   private StyledTextArea getEditor() {

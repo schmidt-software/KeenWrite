@@ -2,16 +2,17 @@ version = '0.3'
 
 apply plugin: 'java'
 apply plugin: 'java-library-distribution'
+apply plugin: 'application'
+
+mainClassName = 'com.scrivendor.Main'
 
 repositories {
 	jcenter()
 }
 
-/*
 compileJava {
     options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
 }
-*/
 
 dependencies {
 	compile group: 'org.fxmisc.richtext', name: 'richtextfx', version: '0.7-M2'

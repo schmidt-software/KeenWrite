@@ -34,6 +34,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.StringTokenizer;
+import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.control.MultipleSelectionModel;
 import javafx.scene.control.SelectionMode;
@@ -83,34 +84,67 @@ public class DefinitionPane extends AbstractPane {
    * @return The node value that starts with the suffix portion of the given
    * path.
    */
-  public String findNode( final String path ) {
-    TreeItem<String> cItem = getTreeView().getRoot();
+  public TreeItem<String> findNode( final String path ) {
+    TreeItem<String> cItem = getTreeRoot();
     TreeItem<String> pItem = cItem;
 
     final StringTokenizer st = new StringTokenizer( path, getSeparator() );
 
+    // Search along a single branch while the tokenized path matches nodes.
     while( st.hasMoreTokens() ) {
-      final String word = st.nextToken();
-
-      // Search along a single branch while the tokenized path matches nodes.
-      cItem = findLeaf( cItem, word );
-
-      if( cItem == null ) {
+      if( (cItem = findLeaf( cItem, st.nextToken() )) == null ) {
         break;
       }
 
       pItem = cItem;
     }
 
-    String value = (pItem == null ? "" : pItem.getValue());
-
-    System.out.println( "Current = " + value );
-
-    return value;
+    return pItem.isLeaf() ? pItem.getParent() : pItem;
   }
 
   /**
-   * Finds an exact match
+   * Returns the last word after the separator.
+   *
+   * @param path The path to a node, which can include a partial node match.
+   *
+   * @return All characters after the last dot.
+   */
+  public String findLastWord( final String path ) {
+    final int index = path.lastIndexOf( getSeparator() );
+    return index > 0 ? path.substring( index + 1 ) : path;
+  }
+
+  /**
+   * Expands the node to the root, recursively.
+   *
+   * @param node The node to expand.
+   */
+  public void expand( TreeItem<String> node ) {
+    if( node != null ) {
+      expand( node.getParent() );
+
+      if( !node.isLeaf() ) {
+        node.setExpanded( true );
+      }
+    }
+  }
+
+  /**
+   * Collapses the tree, recursively.
+   */
+  public void collapse() {
+    collapse( getTreeRoot().getChildren() );
+  }
+
+  private void collapse( ObservableList<TreeItem<String>> nodes ) {
+    for( final TreeItem<String> node : nodes ) {
+      node.setExpanded( false );
+      collapse( node.getChildren() );
+    }
+  }
+
+  /**
+   * Finds a tree item with a value that exactly matches the given word.
    *
    * @param trunk The root item containing a list of nodes to search.
    * @param word The value of the item to find.
@@ -134,24 +168,6 @@ public class DefinitionPane extends AbstractPane {
   }
 
   /**
-   * Starting at the given parent node, this will return a dot-separated path of
-   * all the parent node values concatenated together.
-   *
-   * @param ti The leaf parent tree item.
-   *
-   * @return The dot-separated path for this node.
-  private String toPath( final TreeItem<String> ti ) {
-    // Recurse to the root node, then append the nodes in dot-formation.
-    // Iteration would be possible as well, but that requires string
-    // insertion, which would end up creating a copy of the string each
-    // loop. Plus, it's one line of code.
-    return ti == null || ti.getParent() == null
-      ? ""
-      : toPath( ti.getParent() ) + getSeparator() + ti.getValue();
-  }
-   */
-
-  /**
    * Compares two strings taking into consideration options for case.
    *
    * @param s1 A non-null string.
@@ -163,6 +179,19 @@ public class DefinitionPane extends AbstractPane {
     return s1.equalsIgnoreCase( s2 );
   }
 
+  /**
+   * Answers whether the given strings match each other. What match means will
+   * depend on user preferences.
+   *
+   * @param s1 The string to compare against s2.
+   * @param s2 The string to compare against s1.
+   *
+   * @return true if s1 and s2 are a match according to some criteria.
+   */
+  public boolean matches( final String s1, final String s2 ) {
+    return s1.toLowerCase().contains( s2.toLowerCase() );
+  }
+
   private void initTreeView() {
     getSelectionModel().setSelectionMode( SelectionMode.MULTIPLE );
   }
@@ -171,12 +200,31 @@ public class DefinitionPane extends AbstractPane {
     return getClass().getResourceAsStream( resource );
   }
 
+  /**
+   * Returns the root node to the tree view.
+   *
+   * @return getTreeView()
+   */
   public Node getNode() {
     return getTreeView();
   }
 
-  public final TreeView<String> getTreeView() {
+  /**
+   * Returns the tree view that contains the YAML definition hierarchy.
+   *
+   * @return A non-null instance.
+   */
+  private TreeView<String> getTreeView() {
     return this.treeView;
+  }
+
+  /**
+   * Returns the root of the tree.
+   *
+   * @return The first node added to the YAML definition tree.
+   */
+  private TreeItem<String> getTreeRoot() {
+    return getTreeView().getRoot();
   }
 
   /**
