@@ -34,7 +34,6 @@ import static com.scrivendor.yaml.YamlTreeAdapter.adapt;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
-import java.util.StringTokenizer;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.control.MultipleSelectionModel;
@@ -77,36 +76,25 @@ public class DefinitionPane extends AbstractPane {
    *
    * @param trunk The root item containing a list of nodes to search.
    * @param word The value of the item to find.
+   * @param predicate Helps determine whether the node value matches the word.
    *
    * @return The item that matches the given word, or null if not found.
    */
   private TreeItem<String> findNode(
     final TreeItem<String> trunk,
     final String word,
-    final Predicate p ) {
+    final Predicate predicate ) {
     final List<TreeItem<String>> branches = trunk.getChildren();
     TreeItem<String> result = null;
 
     for( final TreeItem<String> leaf : branches ) {
-      if( p.pass( leaf.getValue(), word ) ) {
+      if( predicate.pass( leaf.getValue(), word ) ) {
         result = leaf;
         break;
       }
     }
 
     return result;
-  }
-
-  /**
-   * Calls findNode with the EqualPredicate.
-   *
-   * @see findNode( TreeItem, String, Predicate )
-   * @return The result from findNode.
-   */
-  private TreeItem<String> findExactNode(
-    final TreeItem<String> trunk,
-    final String word ) {
-    return findNode( trunk, word, new EqualPredicate() );
   }
 
   /**
@@ -125,7 +113,14 @@ public class DefinitionPane extends AbstractPane {
    * Finds a node that matches a prefix and suffix specified by the given path
    * variable. The prefix must match a valid node value. The suffix refers to
    * the start of a string that matches zero or more children of the node
-   * specified by the prefix.
+   * specified by the prefix. The algorithm has the following cases:
+   *
+   * <ol>
+   * <li>Path is empty, return first child.</li>
+   * <li>Path contains a complete match, return corresponding node.</li>
+   * <li>Path contains a partial match, return nearest node.</li>
+   * <li>Path contains a complete and partial match, return nearest node.</li>
+   * </ol>
    *
    * @param path The word typed by the user, which contains dot-separated node
    * names that represent a path within the YAML tree plus a partial variable
@@ -134,49 +129,47 @@ public class DefinitionPane extends AbstractPane {
    * @return The node value that starts with the suffix portion of the given
    * path, never null.
    */
-  public TreeItem<String> findNearestNode( final String path ) {
+  public TreeItem<String> findNearestNode( String path ) {
     TreeItem<String> cItem = getTreeRoot();
     TreeItem<String> pItem = cItem;
 
-    final StringTokenizer st = new StringTokenizer( path, getSeparator() );
+    int index = path.indexOf( getSeparator() );
 
-    // Search along a single branch while the tokenized path matches nodes.
-    while( st.hasMoreTokens() ) {
-      if( (cItem = findExactNode( cItem, st.nextToken() )) == null ) {
+    // Find an exact node.
+    while( index >= 0 ) {
+      final String node = path.substring( 0, index );
+      path = path.substring( index + 1 );
+
+      if( (cItem = findPartialNode( cItem, node )) == null ) {
         break;
       }
 
+      index = path.indexOf( getSeparator(), index );
       pItem = cItem;
     }
 
-    // Attempt to find the node with a name that most closely matches the
-    // unused token.
-    if( st.hasMoreTokens() ) {
-      cItem = findPartialNode( pItem, st.nextToken() );
+    // Find a partial node for the remaining text.
+    cItem = findPartialNode( pItem, path );
 
-      // Return a partial match if one was found.
-      if( cItem != null ) {
-        pItem = cItem;
-      }
+    if( cItem == null ) {
+      cItem = pItem;
     }
 
-    return pItem.getParent() == null
-      ? getFirst( pItem.getChildren(), pItem )
-      : pItem;
+    return cItem == getTreeRoot() ? getFirst( cItem.getChildren() ) : cItem;
   }
 
   /**
-   * Returns the word after the last separator.
+   * Returns the path for a node, with nodes made distinct using the separator
+   * character. This is the antithesis of the findExactNode method.
    *
-   * @param path The path to a node, which can include a partial node match.
+   * @param t The tree item to path into a string.
    *
-   * @return All characters after the last dot, possibly an empty string, never
-   * null.
+   * @return A non-null string, possibly empty.
    */
-//  public String computeLastWord( final String path ) {
-//    final int index = path.lastIndexOf( getSeparator() );
-//    return index > 0 ? path.substring( index + 1 ) : path;
-//  }
+  public String toPath( TreeItem<String> t ) {
+    return t.getParent() == null ? "" : toPath( t.getParent() ) + getSeparator() + t.getValue();
+  }
+
   /**
    * Expands the node to the root, recursively.
    *

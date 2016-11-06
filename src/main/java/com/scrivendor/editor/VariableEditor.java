@@ -57,6 +57,7 @@ import static org.fxmisc.wellbehaved.event.InputMap.sequence;
  * @author White Magic Software, Ltd.
  */
 public class VariableEditor {
+
   /**
    * Used to capture keyboard events once the user presses @.
    */
@@ -160,32 +161,29 @@ public class VariableEditor {
     t.replaceSelection( text );
 
     if( posEnded - posBegan > 0 ) {
-      t.selectRange( posEnded, posBegan );
+      t.selectRange( posBegan, posEnded );
     }
 
     System.out.println( "Inserted: '" + text + "'" );
     System.out.println( "Selected: '" + t.getSelectedText() + "'" );
   }
-
+  
   /**
    * Updates the text with the path selected (or typed) by the user.
    */
   private void advancePath() {
+    final String word = getCurrentWord();
+    final TreeItem<String> node = findNearestNode( word );
+    String text = node.getValue();
+
     System.out.println( "----------" );
     System.out.println( "advancePath" );
 
-    final String path = getPath();
-    final TreeItem<String> node = findNearestNode( path );
-//    final DefinitionPane pane = getDefinitionPane();
-//    final String word = pane.computeLastWord( path );
-
-    expand( node );
-
-    String typeAhead = node.getValue();
-
     if( !node.isLeaf() ) {
-      node.setExpanded( true );
+      System.out.println( "word = '" + word + "'" );
+      System.out.println( "node = '" + node.getValue() + "'" );
 
+//      final TreeItem<String> child = getFirst( node.getChildren() );
       // TODO: Magically decide how much of the path overlaps the node.
 //      final String nodeValue = node.getValue();
 //      final int index = nodeValue.indexOf( word );
@@ -195,7 +193,7 @@ public class VariableEditor {
 //      }
     }
 
-    updateEditorText( typeAhead );
+    updateEditorText( text );
   }
 
   /**
@@ -227,8 +225,12 @@ public class VariableEditor {
    * @param direction true - next; false - previous
    */
   private void cycleSelection( final boolean direction ) {
-    final String path = getPath();
+    final String path = getCurrentWord();
     final TreeItem<String> node = findNearestNode( path );
+
+    System.out.println( "---------------" );
+    System.out.println( "cycle selection" );
+    System.out.println( "path = '" + path + "'" );
 
     // Find the sibling for the current selection and replace the current
     // selection with the sibling's value
@@ -241,6 +243,8 @@ public class VariableEditor {
     if( cycled == null ) {
       cycled = direction ? getFirstSibling( node ) : getLastSibling( node );
     }
+
+    System.out.println( "cycled value = '" + cycled.getValue() + "'" );
 
     expand( cycled );
     updateEditorText( cycled.getValue() );
@@ -298,17 +302,21 @@ public class VariableEditor {
    *
    * @return A non-null string, possibly empty.
    */
-  private String getPath() {
+  private String getCurrentWord() {
     final String p = getCurrentParagraph();
     final String s = p.substring( getInitialCaretColumn() );
 
-    int index = 0;
+    int i = 0;
 
-    while( index < s.length() && !Character.isWhitespace( s.charAt( index ) ) ) {
-      index++;
+    while( i < s.length() && !Character.isWhitespace( s.charAt( i ) ) ) {
+      i++;
     }
 
-    return p.substring( getInitialCaretColumn(), index );
+    final String word = p.substring( getInitialCaretColumn(), i );
+
+    System.out.println( "Current word: '" + word + "'" );
+
+    return word;
   }
 
   /**
