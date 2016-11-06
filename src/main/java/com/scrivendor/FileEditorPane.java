@@ -55,9 +55,7 @@ import javafx.scene.control.TabPane.TabClosingPolicy;
 import javafx.scene.input.InputEvent;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
-import org.fxmisc.richtext.StyleClassedTextArea;
 import org.fxmisc.richtext.StyledTextArea;
-import org.fxmisc.richtext.model.TextEditingArea;
 import org.fxmisc.wellbehaved.event.EventPattern;
 import org.fxmisc.wellbehaved.event.InputMap;
 
@@ -94,7 +92,7 @@ public class FileEditorPane extends AbstractPane {
 
     // update activeFileEditor property
     tabPane.getSelectionModel().selectedItemProperty().addListener( (observable, oldTab, newTab) -> {
-      activeFileEditor.set( (newTab != null) ? (FileEditor)newTab.getUserData() : null );
+      this.activeFileEditor.set( (newTab != null) ? (FileEditor)newTab.getUserData() : null );
     } );
 
     // update anyFileEditorModified property
@@ -106,7 +104,7 @@ public class FileEditorPane extends AbstractPane {
           break;
         }
       }
-      anyFileEditorModified.set( modified );
+      this.anyFileEditorModified.set( modified );
     };
 
     tabPane.getTabs().addListener( (ListChangeListener<Tab>)c -> {
@@ -160,7 +158,7 @@ public class FileEditorPane extends AbstractPane {
   }
 
   Node getNode() {
-    return tabPane;
+    return this.tabPane;
   }
 
   /**
@@ -173,15 +171,15 @@ public class FileEditorPane extends AbstractPane {
   }
 
   FileEditor getActiveFileEditor() {
-    return activeFileEditor.get();
+    return this.activeFileEditor.get();
   }
 
   ReadOnlyObjectProperty<FileEditor> activeFileEditorProperty() {
-    return activeFileEditor.getReadOnlyProperty();
+    return this.activeFileEditor.getReadOnlyProperty();
   }
 
   ReadOnlyBooleanProperty anyFileEditorModifiedProperty() {
-    return anyFileEditorModified.getReadOnlyProperty();
+    return this.anyFileEditorModified.getReadOnlyProperty();
   }
 
   private FileEditor createFileEditor( Path path ) {

@@ -28,6 +28,7 @@
 package com.scrivendor.definition;
 
 import static com.scrivendor.Messages.get;
+import static com.scrivendor.definition.Lists.getFirst;
 import com.scrivendor.ui.AbstractPane;
 import static com.scrivendor.yaml.YamlTreeAdapter.adapt;
 import java.io.IOException;
@@ -72,7 +73,56 @@ public class DefinitionPane extends AbstractPane {
   }
 
   /**
-   * Finds a node that matches a prefix and suffix specified by the given
+   * Finds a tree item with a value that exactly matches the given word.
+   *
+   * @param trunk The root item containing a list of nodes to search.
+   * @param word The value of the item to find.
+   *
+   * @return The item that matches the given word, or null if not found.
+   */
+  private TreeItem<String> findNode(
+    final TreeItem<String> trunk,
+    final String word,
+    final Predicate p ) {
+    final List<TreeItem<String>> branches = trunk.getChildren();
+    TreeItem<String> result = null;
+
+    for( final TreeItem<String> leaf : branches ) {
+      if( p.pass( leaf.getValue(), word ) ) {
+        result = leaf;
+        break;
+      }
+    }
+
+    return result;
+  }
+
+  /**
+   * Calls findNode with the EqualPredicate.
+   *
+   * @see findNode( TreeItem, String, Predicate )
+   * @return The result from findNode.
+   */
+  private TreeItem<String> findExactNode(
+    final TreeItem<String> trunk,
+    final String word ) {
+    return findNode( trunk, word, new EqualPredicate() );
+  }
+
+  /**
+   * Calls findNode with the ContainsPredicate.
+   *
+   * @see findNode( TreeItem, String, Predicate )
+   * @return The result from findNode.
+   */
+  private TreeItem<String> findPartialNode(
+    final TreeItem<String> trunk,
+    final String word ) {
+    return findNode( trunk, word, new ContainsPredicate() );
+  }
+
+  /**
+   * Finds a node that matches a prefix and suffix specified by the given path
    * variable. The prefix must match a valid node value. The suffix refers to
    * the start of a string that matches zero or more children of the node
    * specified by the prefix.
@@ -82,9 +132,9 @@ public class DefinitionPane extends AbstractPane {
    * name match (for a node).
    *
    * @return The node value that starts with the suffix portion of the given
-   * path.
+   * path, never null.
    */
-  public TreeItem<String> findNode( final String path ) {
+  public TreeItem<String> findNearestNode( final String path ) {
     TreeItem<String> cItem = getTreeRoot();
     TreeItem<String> pItem = cItem;
 
@@ -92,34 +142,48 @@ public class DefinitionPane extends AbstractPane {
 
     // Search along a single branch while the tokenized path matches nodes.
     while( st.hasMoreTokens() ) {
-      if( (cItem = findLeaf( cItem, st.nextToken() )) == null ) {
+      if( (cItem = findExactNode( cItem, st.nextToken() )) == null ) {
         break;
       }
 
       pItem = cItem;
     }
 
-    return pItem.isLeaf() ? pItem.getParent() : pItem;
+    // Attempt to find the node with a name that most closely matches the
+    // unused token.
+    if( st.hasMoreTokens() ) {
+      cItem = findPartialNode( pItem, st.nextToken() );
+
+      // Return a partial match if one was found.
+      if( cItem != null ) {
+        pItem = cItem;
+      }
+    }
+
+    return pItem.getParent() == null
+      ? getFirst( pItem.getChildren(), pItem )
+      : pItem;
   }
 
   /**
-   * Returns the last word after the separator.
+   * Returns the word after the last separator.
    *
    * @param path The path to a node, which can include a partial node match.
    *
-   * @return All characters after the last dot.
+   * @return All characters after the last dot, possibly an empty string, never
+   * null.
    */
-  public String findLastWord( final String path ) {
-    final int index = path.lastIndexOf( getSeparator() );
-    return index > 0 ? path.substring( index + 1 ) : path;
-  }
-
+//  public String computeLastWord( final String path ) {
+//    final int index = path.lastIndexOf( getSeparator() );
+//    return index > 0 ? path.substring( index + 1 ) : path;
+//  }
   /**
    * Expands the node to the root, recursively.
    *
+   * @param <T> The type of tree item to expand (usually String).
    * @param node The node to expand.
    */
-  public void expand( TreeItem<String> node ) {
+  public <T> void expand( TreeItem<T> node ) {
     if( node != null ) {
       expand( node.getParent() );
 
@@ -136,60 +200,17 @@ public class DefinitionPane extends AbstractPane {
     collapse( getTreeRoot().getChildren() );
   }
 
-  private void collapse( ObservableList<TreeItem<String>> nodes ) {
-    for( final TreeItem<String> node : nodes ) {
+  /**
+   * Collapses the tree, recursively.
+   *
+   * @param <T> The type of tree item to expand (usually String).
+   * @param node The nodes to collapse.
+   */
+  private <T> void collapse( ObservableList<TreeItem<T>> nodes ) {
+    for( final TreeItem<T> node : nodes ) {
       node.setExpanded( false );
       collapse( node.getChildren() );
     }
-  }
-
-  /**
-   * Finds a tree item with a value that exactly matches the given word.
-   *
-   * @param trunk The root item containing a list of nodes to search.
-   * @param word The value of the item to find.
-   *
-   * @return The item that matches the given word, or null if not found.
-   */
-  private TreeItem<String> findLeaf(
-    final TreeItem<String> trunk,
-    final String word ) {
-    final List<TreeItem<String>> branches = trunk.getChildren();
-    TreeItem<String> result = null;
-
-    for( final TreeItem<String> leaf : branches ) {
-      if( areEqual( leaf.getValue(), word ) ) {
-        result = leaf;
-        break;
-      }
-    }
-
-    return result;
-  }
-
-  /**
-   * Compares two strings taking into consideration options for case.
-   *
-   * @param s1 A non-null string.
-   * @param s2
-   *
-   * @return
-   */
-  private boolean areEqual( final String s1, final String s2 ) {
-    return s1.equalsIgnoreCase( s2 );
-  }
-
-  /**
-   * Answers whether the given strings match each other. What match means will
-   * depend on user preferences.
-   *
-   * @param s1 The string to compare against s2.
-   * @param s2 The string to compare against s1.
-   *
-   * @return true if s1 and s2 are a match according to some criteria.
-   */
-  public boolean matches( final String s1, final String s2 ) {
-    return s1.toLowerCase().contains( s2.toLowerCase() );
   }
 
   private void initTreeView() {
@@ -227,6 +248,10 @@ public class DefinitionPane extends AbstractPane {
     return getTreeView().getRoot();
   }
 
+  public <T> boolean isRoot( final TreeItem<T> item ) {
+    return getTreeRoot().equals( item );
+  }
+
   /**
    * Given a string, this will attempt to match the first letters in the tree.
    * In so doing, the tree will collapse
@@ -256,7 +281,7 @@ public class DefinitionPane extends AbstractPane {
     }
   }
 
-  private String getSeparator() {
+  public String getSeparator() {
     return SEPARATOR;
   }
 }

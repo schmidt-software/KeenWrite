@@ -29,6 +29,7 @@ package com.scrivendor;
 import static com.scrivendor.Constants.LOGO_32;
 import com.scrivendor.definition.DefinitionPane;
 import com.scrivendor.editor.MarkdownEditorPane;
+import com.scrivendor.editor.VariableEditor;
 import com.scrivendor.options.OptionsDialog;
 import com.scrivendor.util.Action;
 import com.scrivendor.util.ActionUtils;
@@ -48,7 +49,6 @@ import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.QUOTE_LEFT;
 import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.REPEAT;
 import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.STRIKETHROUGH;
 import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.UNDO;
-import java.util.function.Consumer;
 import java.util.function.Function;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
@@ -60,22 +60,13 @@ import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
-import javafx.scene.control.IndexRange;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.ToolBar;
-import javafx.scene.control.TreeItem;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.InputEvent;
-import javafx.scene.input.KeyCode;
-import static javafx.scene.input.KeyCode.BACK_SPACE;
-import static javafx.scene.input.KeyCode.DIGIT2;
 import static javafx.scene.input.KeyCode.ESCAPE;
-import static javafx.scene.input.KeyCode.MINUS;
-import static javafx.scene.input.KeyCode.PERIOD;
-import static javafx.scene.input.KeyCombination.SHIFT_DOWN;
 import javafx.scene.input.KeyEvent;
 import static javafx.scene.input.KeyEvent.CHAR_UNDEFINED;
 import static javafx.scene.input.KeyEvent.KEY_PRESSED;
@@ -83,13 +74,6 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Window;
 import javafx.stage.WindowEvent;
-import org.fxmisc.richtext.StyledTextArea;
-import org.fxmisc.wellbehaved.event.EventPattern;
-import static org.fxmisc.wellbehaved.event.EventPattern.keyPressed;
-import static org.fxmisc.wellbehaved.event.EventPattern.keyTyped;
-import org.fxmisc.wellbehaved.event.InputMap;
-import static org.fxmisc.wellbehaved.event.InputMap.consume;
-import static org.fxmisc.wellbehaved.event.InputMap.sequence;
 
 /**
  * Main window containing a tab pane in the center for file editors.
@@ -100,23 +84,15 @@ public class MainWindow {
 
   private Scene scene;
   private FileEditorPane fileEditorPane;
+  
   private DefinitionPane definitionPane;
+  private VariableEditor variableEditor;
 
   private MenuBar menuBar;
 
-  /**
-   * Used to capture keyboard events once the user presses @.
-   */
-  private InputMap<InputEvent> keyboardMap;
-
-  /**
-   * Position of the variable in the text when in variable mode.
-   */
-  private int vModePosition = 0;
-
   public MainWindow() {
     initLayout();
-    initKeyboardEventListeners();
+    initVariableEditor();
   }
 
   private void initLayout() {
@@ -154,236 +130,11 @@ public class MainWindow {
       } );
   }
 
-  /**
-   * Trap the AT key for inserting YAML variables.
-   */
-  private void initKeyboardEventListeners() {
-    addEventListener( keyPressed( DIGIT2, SHIFT_DOWN ), this::atPressed );
-  }
-
-  /**
-   * The @ symbol is a short-cut to inserting a YAML variable reference.
-   *
-   * @param e Superfluous information about the key that was pressed.
-   */
-  private void atPressed( KeyEvent e ) {
-    startVMode();
-
-    getEditor().deselect();
-    setVModePosition();
-  }
-
-  /**
-   * The Esc key is used to exit (escape from) variable mode.
-   *
-   * @param e Superfluous information about the key that was pressed.
-   */
-  private void escPressed( KeyEvent e ) {
-    e.consume();
-  }
-
-  /**
-   * Ignore typed keys.
-   *
-   * @param e The key that was typed.
-   */
-  private void vModeKeyTyped( KeyEvent e ) {
-    e.consume();
-  }
-
-  /**
-   * Receives key presses until the user completes the variable selection. This
-   * allows the arrow keys to be used for selecting variables.
-   *
-   * @param e The key that was pressed.
-   */
-  private void vModeKeyPressed( KeyEvent e ) {
-    final KeyCode keyCode = e.getCode();
-    boolean parse = false;
-
-    switch( keyCode ) {
-      case BACK_SPACE:
-        keyBackspace();
-
-        // Break out of variable mode by back spacing to the original position.
-        if( getCaretColumn() > getVModePosition() ) {
-          break;
-        }
-
-      case ESCAPE:
-        stopVMode();
-        break;
-
-      case ENTER:
-      case END:
-        acceptSelection();
-        break;
-
-      default:
-        if( isVariableNameKey( e ) ) {
-          insertText( e.getText() );
-          parse = true;
-        }
-
-        break;
-    }
-
-    if( parse ) {
-      parse();
-    }
-
-    e.consume();
-  }
-
-  /**
-   * Returns true iff the key code the user typed can be used as part of a YAML
-   * variable name.
-   *
-   * @param keyCode
-   *
-   * @return
-   */
-  private boolean isVariableNameKey( KeyEvent event ) {
-    final KeyCode keyCode = event.getCode();
-
-    return keyCode.isLetterKey()
-      || keyCode.isDigitKey()
-      || keyCode == PERIOD
-      || (event.isShiftDown() && keyCode == MINUS);
-  }
-
-  /**
-   * Called when the user presses the Backspace key.
-   */
-  private void keyBackspace() {
-    final StyledTextArea textArea = getEditor();
-    textArea.replaceSelection( "" );
-    textArea.deletePreviousChar();
-  }
-
-  /**
-   * Called when the user presses either End or Enter key.
-   */
-  private void acceptSelection() {
-    final StyledTextArea textArea = getEditor();
-    final IndexRange range = textArea.getSelection();
-
-    if( range != null ) {
-      textArea.deselect();
-      textArea.moveTo( range.getEnd() );
-    }
-  }
-
-  /**
-   * Returns the full text for the paragraph that contains the caret.
-   *
-   * @return
-   */
-  private String getCurrentParagraph() {
-    final StyledTextArea textArea = getEditor();
-    final int paragraph = textArea.getCurrentParagraph();
-    return textArea.getText( paragraph );
-  }
-
-  /**
-   * Returns the caret's offset into the current paragraph.
-   *
-   * @return
-   */
-  private int getCaretColumn() {
-    return getEditor().getCaretColumn();
-  }
-
-  /**
-   * Determines the variable selected by the user.
-   */
-  private void parse() {
-    final String p = getCurrentParagraph();
-    final String w = p.substring( getVModePosition(), getCaretColumn() ).trim();
-    final DefinitionPane pane = getDefinitionPane();
-    final TreeItem<String> node = pane.findNode( w );
-    final String lastWord = pane.findLastWord( w );
-
-    TreeItem<String> lastNode = node;
-
-    for( final TreeItem<String> leaf : node.getChildren() ) {
-      if( pane.matches( leaf.getValue(), lastWord ) ) {
-        lastNode = leaf;
-        break;
-      }
-    }
-
-    pane.collapse();
-    pane.expand( node );
-
-    String typeAhead = "";
-
-    if( !lastNode.isLeaf() ) {
-      lastNode.setExpanded( true );
-
-      final String nodeValue = lastNode.getValue();
-      final int index = nodeValue.indexOf( lastWord );
-
-      if( index == 0 && !nodeValue.equals( lastWord ) ) {
-        typeAhead = nodeValue.substring( lastWord.length() );
-      }
-    }
-
-    insertText( typeAhead );
-
-    System.out.println( "lastNode = " + lastNode.getValue() );
-    System.out.println( "lastWord = " + lastWord );
-  }
-
-  /**
-   * Used to lazily initialize the keyboard map.
-   *
-   * @return Mappings for keyTyped and keyPressed.
-   */
-  protected InputMap<InputEvent> createKeyboardMap() {
-    return sequence(
-      consume( keyTyped(), this::vModeKeyTyped ),
-      consume( keyPressed(), this::vModeKeyPressed )
+  private void initVariableEditor() {
+    setVariableEditor( new VariableEditor(
+      getFileEditorPane(),
+      getDefinitionPane() )
     );
-  }
-
-  private InputMap<InputEvent> getKeyboardMap() {
-    if( this.keyboardMap == null ) {
-      this.keyboardMap = createKeyboardMap();
-    }
-
-    return this.keyboardMap;
-  }
-
-  private void startVMode() {
-    addEventListener( getKeyboardMap() );
-  }
-
-  private void stopVMode() {
-    removeEventListener( getKeyboardMap() );
-  }
-
-  /**
-   * Inserts the string at the current caret position.
-   *
-   * @param s The text to insert.
-   */
-  private void insertText( final String s ) {
-    final StyledTextArea t = getEditor();
-
-    final int length = s.length();
-    final int posBegan = t.getCaretPosition();
-    final int posEnded = posBegan + length;
-
-    t.replaceSelection( s );
-
-    if( posEnded - posBegan > 1 ) {
-      t.selectRange( posEnded, posBegan );
-    }
-  }
-
-  private StyledTextArea getEditor() {
-    return getFileEditorPane().getEditor();
   }
 
   private Window getWindow() {
@@ -657,28 +408,6 @@ public class MainWindow {
     return this.definitionPane;
   }
 
-  /**
-   * Delegates to the file editor pane, and, ultimately, to its text area.
-   */
-  private <T extends Event, U extends T> void addEventListener(
-    final EventPattern<? super T, ? extends U> event,
-    final Consumer<? super U> consumer ) {
-    getFileEditorPane().addEventListener( event, consumer );
-  }
-
-  /**
-   * Delegates to the file editor pane, and, ultimately, to its text area.
-   *
-   * @param map The map of methods to events.
-   */
-  private void addEventListener( final InputMap<InputEvent> map ) {
-    getFileEditorPane().addEventListener( map );
-  }
-
-  private void removeEventListener( final InputMap<InputEvent> map ) {
-    getFileEditorPane().removeEventListener( map );
-  }
-
   public MenuBar getMenuBar() {
     return menuBar;
   }
@@ -687,23 +416,11 @@ public class MainWindow {
     this.menuBar = menuBar;
   }
 
-  /**
-   * Returns the position of the caret when variable mode editing was requested.
-   *
-   * @return The variable mode caret position.
-   */
-  private int getVModePosition() {
-    return vModePosition;
+  public VariableEditor getVariableEditor() {
+    return this.variableEditor;
   }
 
-  /**
-   * Sets the position of the caret when variable mode editing was requested.
-   * Stores the current position because only the text that comes afterwards is
-   * a suitable variable reference.
-   *
-   * @return The variable mode caret position.
-   */
-  private void setVModePosition() {
-    this.vModePosition = getEditor().getCaretColumn();
+  public void setVariableEditor( VariableEditor variableEditor ) {
+    this.variableEditor = variableEditor;
   }
 }
