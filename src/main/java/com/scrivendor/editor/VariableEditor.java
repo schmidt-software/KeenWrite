@@ -33,6 +33,8 @@ import com.scrivendor.definition.DefinitionPane;
 import static com.scrivendor.definition.Lists.getFirst;
 import static com.scrivendor.definition.Lists.getLast;
 import com.scrivendor.service.Settings;
+import static java.lang.Math.min;
+import java.util.StringTokenizer;
 import java.util.function.Consumer;
 import javafx.collections.ObservableList;
 import javafx.event.Event;
@@ -59,6 +61,8 @@ import static org.fxmisc.wellbehaved.event.InputMap.sequence;
  * @author White Magic Software, Ltd.
  */
 public class VariableEditor {
+
+  private static final int NO_DIFFERENCE = -1;
 
   private final Settings settings = Services.load( Settings.class );
 
@@ -92,7 +96,6 @@ public class VariableEditor {
   private void atPressed( KeyEvent e ) {
     startEventCapture();
     setInitialCaretPosition();
-    advancePath();
   }
 
   /**
@@ -109,7 +112,8 @@ public class VariableEditor {
         deleteSelection();
 
         // Break out of variable mode by back spacing to the original position.
-        if( getCurrentCaretColumn() > getInitialCaretPosition() ) {
+        if( getCurrentCaretPosition() > getInitialCaretPosition() ) {
+          autocomplete();
           break;
         }
 
@@ -117,11 +121,12 @@ public class VariableEditor {
         stopEventCapture();
         break;
 
+      /*
       case RIGHT:
       case END:
         advancePath();
         break;
-
+       */
       case ENTER:
         acceptPath();
         break;
@@ -136,8 +141,7 @@ public class VariableEditor {
 
       default:
         if( isVariableNameKey( e ) ) {
-          updateEditorText( e.getText() );
-          advancePath();
+          typed( e.getText() );
         }
 
         break;
@@ -149,52 +153,52 @@ public class VariableEditor {
   /**
    * Updates the text with the path selected (or typed) by the user.
    */
-  private void advancePath() {
-    System.out.println( "----------" );
-    System.out.println( "advancePath" );
+  private void autocomplete() {
+    System.out.println( "------------" );
+    System.out.println( "autocomplete" );
 
-    final String word = getCurrentWord();
-    System.out.println( "current word = '" + word + "'" );
+    final String path = getCurrentPath();
+    System.out.println( "word = '" + path + "'" );
 
-    final TreeItem<String> node = findNode( word );
-    final String text = node.getValue();
+    final TreeItem<String> node = findNode( path );
 
     if( !node.isLeaf() ) {
+      final String word = getLastPathWord();
+      final String label = node.getValue();
+      final int delta = difference( label, word );
+
+      String remainder = label;
+
+      if( delta != NO_DIFFERENCE ) {
+        remainder = label.substring( delta );
+      }
+
+      System.out.println( "label  = '" + label + "'" );
+      System.out.println( "remain = '" + remainder + "'" );
+
+      final StyledTextArea t = getEditor();
+      final int posBegan = getCurrentCaretPosition();
+      final int posEnded = posBegan + remainder.length();
+
+      t.replaceSelection( remainder );
+
+      if( posEnded - posBegan > 0 ) {
+        t.selectRange( posEnded, posBegan );
+      }
+
       expand( node );
-
-      System.out.println( "node = '" + node.getValue() + "'" );
-
-//      final TreeItem<String> child = getFirst( node.getChildren() );
-      // TODO: Magically decide how much of the path overlaps the node.
-//      final String nodeValue = node.getValue();
-//      final int index = nodeValue.indexOf( word );
-//
-//      if( index == 0 && !nodeValue.equals( word ) ) {
-//        typeAhead = nodeValue.substring( word.length() );
-//      }
     }
-
-    updateEditorText( text );
   }
 
   /**
-   * Inserts the string at the current caret position, replacing any selected
-   * text.
+   * Inserts text that the user typed at the current caret position, then
+   * performs an autocomplete for the variable name.
    *
    * @param text The text to insert, never null.
    */
-  private void updateEditorText( final String text ) {
-    final StyledTextArea t = getEditor();
-
-    final int length = text.length();
-    final int posBegan = getInitialCaretPosition();
-    final int posEnded = posBegan + length;
-
-    t.replaceSelection( text );
-
-    if( posEnded - posBegan > 0 ) {
-      t.selectRange( posEnded, posBegan );
-    }
+  private void typed( final String text ) {
+    getEditor().replaceSelection( text );
+    autocomplete();
   }
 
   /**
@@ -226,7 +230,7 @@ public class VariableEditor {
    * @param direction true - next; false - previous
    */
   private void cycleSelection( final boolean direction ) {
-    final String word = getCurrentWord();
+    final String word = getCurrentPath();
     final TreeItem<String> node = findNode( word );
 
     System.out.println( "---------------" );
@@ -248,7 +252,7 @@ public class VariableEditor {
     System.out.println( "cycled value = '" + cycled.getValue() + "'" );
 
     expand( cycled );
-    updateEditorText( cycled.getValue() );
+    typed( cycled.getValue() );
   }
 
   /**
@@ -260,6 +264,36 @@ public class VariableEditor {
 
   private void cyclePathPrev() {
     cycleSelection( false );
+  }
+
+  /**
+   * Returns the index where the two strings diverge.
+   *
+   * @param s1 The string that could be a substring of s2, null allowed.
+   * @param s2 The string that could be a substring of s1, null allowed.
+   *
+   * @return NO_DIFFERENCE if the strings are the same, otherwise the index
+   * where they differ.
+   */
+  @SuppressWarnings( "StringEquality" )
+  public int difference( final CharSequence s1, final CharSequence s2 ) {
+    if( s1 == s2 ) {
+      return NO_DIFFERENCE;
+    }
+
+    if( s1 == null || s2 == null ) {
+      return 0;
+    }
+
+    int i = 0;
+    final int limit = min( s1.length(), s2.length() );
+
+    while( i < limit && s1.charAt( i ) == s2.charAt( i ) ) {
+      i++;
+    }
+
+    // If one string was shorter than the other, that's where they differ.
+    return i;
   }
 
   private <T> ObservableList<TreeItem<T>> getSiblings(
@@ -276,13 +310,8 @@ public class VariableEditor {
     return getLast( getSiblings( item ), item );
   }
 
-  /**
-   * Returns the caret's offset into the current paragraph.
-   *
-   * @return
-   */
-  private int getCurrentCaretColumn() {
-    return getEditor().getCaretColumn();
+  private int getCurrentCaretPosition() {
+    return getEditor().getCaretPosition();
   }
 
   /**
@@ -292,7 +321,7 @@ public class VariableEditor {
    *
    * @return A non-null string, possibly empty.
    */
-  private String getCurrentWord() {
+  private String getCurrentPath() {
     final String s = globText();
 
     int i = 0;
@@ -302,6 +331,27 @@ public class VariableEditor {
     }
 
     return s.substring( 0, i );
+  }
+
+  /**
+   * Returns the last word from the path.
+   *
+   * @return The last token.
+   */
+  private String getLastPathWord() {
+    final String path = getCurrentPath();
+    final StringTokenizer st = new StringTokenizer( path, getSeparator() );
+    String result = path;
+
+    while( st.hasMoreTokens() ) {
+      result = st.nextToken();
+    }
+
+    return result;
+  }
+
+  private String getSeparator() {
+    return getDefinitionPane().getSeparator();
   }
 
   /**

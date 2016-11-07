@@ -159,8 +159,6 @@ public class DefinitionPane extends AbstractPane {
       pItem = cItem;
     }
 
-    System.out.println( "remainder: " + path.length() );
-
     // Find the node that starts with whatever the user typed.
     cItem = findStartsNode( pItem, path );
 
@@ -183,7 +181,7 @@ public class DefinitionPane extends AbstractPane {
    *
    * @param item The item to make null safe.
    *
-   * @return
+   * @return A non-null TreeItem, possibly the root item (to avoid null).
    */
   private TreeItem<String> sanitize( final TreeItem<String> item ) {
     final TreeItem<String> result = item == getTreeRoot()
