@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 White Magic Software, Inc.
+ * Copyright 2016 White Magic Software, Ltd.
  *
  * All rights reserved.
  *
@@ -98,12 +98,24 @@ public class DefinitionPane extends AbstractPane {
   }
 
   /**
+   * Calls findNode with the EqualsPredicate.
+   *
+   * @see findNode( TreeItem, String, Predicate )
+   * @return The result from findNode.
+   */
+  private TreeItem<String> findStartsNode(
+    final TreeItem<String> trunk,
+    final String word ) {
+    return findNode( trunk, word, new StartsPredicate() );
+  }
+
+  /**
    * Calls findNode with the ContainsPredicate.
    *
    * @see findNode( TreeItem, String, Predicate )
    * @return The result from findNode.
    */
-  private TreeItem<String> findPartialNode(
+  private TreeItem<String> findSubstringNode(
     final TreeItem<String> trunk,
     final String word ) {
     return findNode( trunk, word, new ContainsPredicate() );
@@ -129,18 +141,17 @@ public class DefinitionPane extends AbstractPane {
    * @return The node value that starts with the suffix portion of the given
    * path, never null.
    */
-  public TreeItem<String> findNearestNode( String path ) {
+  public TreeItem<String> findNode( String path ) {
     TreeItem<String> cItem = getTreeRoot();
     TreeItem<String> pItem = cItem;
 
     int index = path.indexOf( getSeparator() );
 
-    // Find an exact node.
     while( index >= 0 ) {
       final String node = path.substring( 0, index );
       path = path.substring( index + 1 );
 
-      if( (cItem = findPartialNode( cItem, node )) == null ) {
+      if( (cItem = findStartsNode( cItem, node )) == null ) {
         break;
       }
 
@@ -148,14 +159,38 @@ public class DefinitionPane extends AbstractPane {
       pItem = cItem;
     }
 
-    // Find a partial node for the remaining text.
-    cItem = findPartialNode( pItem, path );
+    System.out.println( "remainder: " + path.length() );
 
+    // Find the node that starts with whatever the user typed.
+    cItem = findStartsNode( pItem, path );
+
+    // If there was no matching node, then find a substring match.
+    if( cItem == null ) {
+      cItem = findSubstringNode( pItem, path );
+    }
+
+    // If neither starts with nor substring matched a node, revert to the last
+    // known valid node.
     if( cItem == null ) {
       cItem = pItem;
     }
 
-    return cItem == getTreeRoot() ? getFirst( cItem.getChildren() ) : cItem;
+    return sanitize( cItem );
+  }
+
+  /**
+   * Returns the tree root if either item or its first child are null.
+   *
+   * @param item The item to make null safe.
+   *
+   * @return
+   */
+  private TreeItem<String> sanitize( final TreeItem<String> item ) {
+    final TreeItem<String> result = item == getTreeRoot()
+      ? getFirst( item.getChildren() )
+      : item;
+
+    return result == null ? item : result;
   }
 
   /**
@@ -167,7 +202,9 @@ public class DefinitionPane extends AbstractPane {
    * @return A non-null string, possibly empty.
    */
   public String toPath( TreeItem<String> t ) {
-    return t.getParent() == null ? "" : toPath( t.getParent() ) + getSeparator() + t.getValue();
+    return t.getParent() == null
+      ? ""
+      : toPath( t.getParent() ) + getSeparator() + t.getValue();
   }
 
   /**
@@ -176,7 +213,7 @@ public class DefinitionPane extends AbstractPane {
    * @param <T> The type of tree item to expand (usually String).
    * @param node The node to expand.
    */
-  public <T> void expand( TreeItem<T> node ) {
+  public <T> void expand( final TreeItem<T> node ) {
     if( node != null ) {
       expand( node.getParent() );
 
@@ -184,6 +221,19 @@ public class DefinitionPane extends AbstractPane {
         node.setExpanded( true );
       }
     }
+  }
+
+  public void select( final TreeItem<String> item ) {
+    clearSelection();
+    selectItem( getTreeView().getRow( item ) );
+  }
+
+  private void clearSelection() {
+    getSelectionModel().clearSelection();
+  }
+
+  private void selectItem( final int row ) {
+    getSelectionModel().select( row );
   }
 
   /**
@@ -223,6 +273,10 @@ public class DefinitionPane extends AbstractPane {
     return getTreeView();
   }
 
+  private MultipleSelectionModel getSelectionModel() {
+    return getTreeView().getSelectionModel();
+  }
+
   /**
    * Returns the tree view that contains the YAML definition hierarchy.
    *
@@ -243,24 +297,6 @@ public class DefinitionPane extends AbstractPane {
 
   public <T> boolean isRoot( final TreeItem<T> item ) {
     return getTreeRoot().equals( item );
-  }
-
-  /**
-   * Given a string, this will attempt to match the first letters in the tree.
-   * In so doing, the tree will collapse
-   *
-   * @param s
-   *
-   * @return
-   */
-  public String select( final String s ) {
-    getSelectionModel().clearSelection();
-
-    return s;
-  }
-
-  private MultipleSelectionModel getSelectionModel() {
-    return getTreeView().getSelectionModel();
   }
 
   /**

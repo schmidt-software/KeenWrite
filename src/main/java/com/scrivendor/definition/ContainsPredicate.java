@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 White Magic Software, Inc.
+ * Copyright 2016 White Magic Software, Ltd.
  *
  * All rights reserved.
  *

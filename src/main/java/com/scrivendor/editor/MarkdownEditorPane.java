@@ -1,5 +1,6 @@
 /*
- * Copyright 2015 Karl Tauber <karl at jformdesigner dot com>
+ * Copyright 2016 Karl Tauber and White Magic Software, Ltd.
+ *
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -54,7 +55,6 @@ import static javafx.scene.input.KeyCode.ENTER;
 import javafx.scene.input.KeyEvent;
 import org.fxmisc.flowless.VirtualizedScrollPane;
 import org.fxmisc.richtext.StyleClassedTextArea;
-import org.fxmisc.richtext.model.NavigationActions;
 import org.fxmisc.undo.UndoManager;
 import org.fxmisc.wellbehaved.event.EventPattern;
 import static org.fxmisc.wellbehaved.event.EventPattern.keyPressed;
@@ -70,7 +70,7 @@ import org.pegdown.ast.RootNode;
  * Uses pegdown (https://github.com/sirthias/pegdown) for styling the markdown
  * content within a text area.
  *
- * @author Karl Tauber,
+ * @author Karl Tauber, White Magic Software, Ltd.
  */
 public class MarkdownEditorPane extends AbstractPane {
 
@@ -105,6 +105,8 @@ public class MarkdownEditorPane extends AbstractPane {
     textArea.getStylesheets().add( STYLESHEET_EDITOR );
 
     MarkdownEditorPane.this.addEventListener( keyPressed( ENTER ), this::enterPressed );
+    
+    // TODO: Wait for implementation that allows cutting lines, not paragraphs.
 //    addEventListener( keyPressed( X, SHORTCUT_DOWN ), this::cutLine );
 
     textArea.textProperty().addListener( (observable, oldText, newText) -> {
@@ -148,6 +150,11 @@ public class MarkdownEditorPane extends AbstractPane {
     return getEditor().getProperties().get( getInputMapKey() );
   }
 
+  /**
+   * Returns the hashmap key entry for the input map.
+   *
+   * @return "org.fxmisc.wellbehaved.event.inputmap"
+   */
   private String getInputMapKey() {
     return "org.fxmisc.wellbehaved.event.inputmap";
   }
@@ -246,7 +253,9 @@ public class MarkdownEditorPane extends AbstractPane {
 
   private String getLineSeparator() {
     final String separator = getOptions().getLineSeparator();
-    return (separator != null) ? separator : System.getProperty( "line.separator", "\n" );
+    return (separator != null)
+      ? separator
+      : System.getProperty( "line.separator", "\n" );
   }
 
   private String determineLineSeparator( String str ) {
@@ -363,29 +372,6 @@ public class MarkdownEditorPane extends AbstractPane {
     getEditor().replaceSelection( newText );
   }
 
-  /**
-   * @param e
-   */
-  private void deleteLine( KeyEvent e ) {
-    final StyleClassedTextArea textArea = getEditor();
-
-    // Move the caret to the start of the line.
-//    textArea.lineStart( NavigationActions.SelectionPolicy.CLEAR );
-    final int start = textArea.getCaretPosition() - textArea.getCaretColumn();
-
-    System.out.println( "start = " + start );
-
-    // Move the caret to the end of the line.
-    textArea.lineEnd( NavigationActions.SelectionPolicy.CLEAR );
-
-//    final int end = start + textArea.getParagraph( textArea.getCurrentParagraph() ).length() + 1;
-    final int end = textArea.getCaretPosition();
-
-    System.out.println( "end = " + end );
-
-    textArea.deleteText( start, end );
-  }
-
   public void undo() {
     getEditor().getUndoManager().undo();
   }
@@ -400,8 +386,7 @@ public class MarkdownEditorPane extends AbstractPane {
 
   public void surroundSelection( String leading, String trailing, String hint ) {
     // Note: not using getEditor().insertText() to insert leading and trailing
-    //       because this would add two changes to undo history
-
+    // because this would add two changes to undo history
     IndexRange selection = getEditor().getSelection();
     int start = selection.getStart();
     int end = selection.getEnd();

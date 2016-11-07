@@ -49,7 +49,7 @@ import org.pegdown.plugins.PegDownPlugins;
  *
  * @author Karl Tauber
  */
-public class MarkdownPreviewPane extends ScrollPane {
+public final class MarkdownPreviewPane extends ScrollPane {
 
   private final ObjectProperty<RootNode> markdownAST = new SimpleObjectProperty<>();
   private final ObjectProperty<Path> path = new SimpleObjectProperty<>();
@@ -119,11 +119,11 @@ public class MarkdownPreviewPane extends ScrollPane {
   }
 
   private String getBase() {
-    final Path path = getPath();
+    final Path pathProperty = getPath();
 
-    return path == null
+    return pathProperty == null
       ? ""
-      : ("<base href='" + path.getParent().toUri().toString() + "'>");
+      : ("<base href='" + pathProperty.getParent().toUri().toString() + "'>");
   }
 
   private String getScrollScript() {

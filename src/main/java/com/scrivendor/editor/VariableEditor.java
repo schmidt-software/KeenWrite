@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 White Magic Software, Inc.
+ * Copyright 2016 White Magic Software, Ltd.
  *
  * All rights reserved.
  *
@@ -28,9 +28,11 @@
 package com.scrivendor.editor;
 
 import com.scrivendor.FileEditorPane;
+import com.scrivendor.Services;
 import com.scrivendor.definition.DefinitionPane;
 import static com.scrivendor.definition.Lists.getFirst;
 import static com.scrivendor.definition.Lists.getLast;
+import com.scrivendor.service.Settings;
 import java.util.function.Consumer;
 import javafx.collections.ObservableList;
 import javafx.event.Event;
@@ -58,6 +60,8 @@ import static org.fxmisc.wellbehaved.event.InputMap.sequence;
  */
 public class VariableEditor {
 
+  private final Settings settings = Services.load( Settings.class );
+
   /**
    * Used to capture keyboard events once the user presses @.
    */
@@ -69,7 +73,7 @@ public class VariableEditor {
   /**
    * Position of the variable in the text when in variable mode.
    */
-  private int initialCaretColumn = 0;
+  private int initialCaretPosition = 0;
 
   public VariableEditor(
     final FileEditorPane editorPane,
@@ -87,7 +91,7 @@ public class VariableEditor {
    */
   private void atPressed( KeyEvent e ) {
     startEventCapture();
-    setInitialCaretColumn();
+    setInitialCaretPosition();
     advancePath();
   }
 
@@ -105,7 +109,7 @@ public class VariableEditor {
         deleteSelection();
 
         // Break out of variable mode by back spacing to the original position.
-        if( getCurrentCaretColumn() > getInitialCaretColumn() ) {
+        if( getCurrentCaretColumn() > getInitialCaretPosition() ) {
           break;
         }
 
@@ -113,7 +117,6 @@ public class VariableEditor {
         stopEventCapture();
         break;
 
-      case PERIOD:
       case RIGHT:
       case END:
         advancePath();
@@ -134,6 +137,7 @@ public class VariableEditor {
       default:
         if( isVariableNameKey( e ) ) {
           updateEditorText( e.getText() );
+          advancePath();
         }
 
         break;
@@ -143,44 +147,21 @@ public class VariableEditor {
   }
 
   /**
-   * Inserts the string at the current caret position, replacing any selected
-   * text.
-   *
-   * @param text The text to insert, never null.
-   */
-  private void updateEditorText( final String text ) {
-    final StyledTextArea t = getEditor();
-
-    System.out.println( "----------" );
-    System.out.println( "updateText" );
-
-    final int length = text.length();
-    final int posBegan = t.getCaretPosition();
-    final int posEnded = posBegan + length;
-
-    t.replaceSelection( text );
-
-    if( posEnded - posBegan > 0 ) {
-      t.selectRange( posBegan, posEnded );
-    }
-
-    System.out.println( "Inserted: '" + text + "'" );
-    System.out.println( "Selected: '" + t.getSelectedText() + "'" );
-  }
-  
-  /**
    * Updates the text with the path selected (or typed) by the user.
    */
   private void advancePath() {
-    final String word = getCurrentWord();
-    final TreeItem<String> node = findNearestNode( word );
-    String text = node.getValue();
-
     System.out.println( "----------" );
     System.out.println( "advancePath" );
 
+    final String word = getCurrentWord();
+    System.out.println( "current word = '" + word + "'" );
+
+    final TreeItem<String> node = findNode( word );
+    final String text = node.getValue();
+
     if( !node.isLeaf() ) {
-      System.out.println( "word = '" + word + "'" );
+      expand( node );
+
       System.out.println( "node = '" + node.getValue() + "'" );
 
 //      final TreeItem<String> child = getFirst( node.getChildren() );
@@ -194,6 +175,26 @@ public class VariableEditor {
     }
 
     updateEditorText( text );
+  }
+
+  /**
+   * Inserts the string at the current caret position, replacing any selected
+   * text.
+   *
+   * @param text The text to insert, never null.
+   */
+  private void updateEditorText( final String text ) {
+    final StyledTextArea t = getEditor();
+
+    final int length = text.length();
+    final int posBegan = getInitialCaretPosition();
+    final int posEnded = posBegan + length;
+
+    t.replaceSelection( text );
+
+    if( posEnded - posBegan > 0 ) {
+      t.selectRange( posEnded, posBegan );
+    }
   }
 
   /**
@@ -225,12 +226,12 @@ public class VariableEditor {
    * @param direction true - next; false - previous
    */
   private void cycleSelection( final boolean direction ) {
-    final String path = getCurrentWord();
-    final TreeItem<String> node = findNearestNode( path );
+    final String word = getCurrentWord();
+    final TreeItem<String> node = findNode( word );
 
     System.out.println( "---------------" );
     System.out.println( "cycle selection" );
-    System.out.println( "path = '" + path + "'" );
+    System.out.println( "path = '" + word + "'" );
 
     // Find the sibling for the current selection and replace the current
     // selection with the sibling's value
@@ -276,17 +277,6 @@ public class VariableEditor {
   }
 
   /**
-   * Returns the full text for the paragraph that contains the caret.
-   *
-   * @return
-   */
-  private String getCurrentParagraph() {
-    final StyledTextArea textArea = getEditor();
-    final int paragraph = textArea.getCurrentParagraph();
-    return textArea.getText( paragraph );
-  }
-
-  /**
    * Returns the caret's offset into the current paragraph.
    *
    * @return
@@ -303,8 +293,7 @@ public class VariableEditor {
    * @return A non-null string, possibly empty.
    */
   private String getCurrentWord() {
-    final String p = getCurrentParagraph();
-    final String s = p.substring( getInitialCaretColumn() );
+    final String s = globText();
 
     int i = 0;
 
@@ -312,11 +301,21 @@ public class VariableEditor {
       i++;
     }
 
-    final String word = p.substring( getInitialCaretColumn(), i );
+    return s.substring( 0, i );
+  }
 
-    System.out.println( "Current word: '" + word + "'" );
+  /**
+   * Returns a swath of text from the initial caret position until .
+   *
+   * @return
+   */
+  private String globText() {
+    final StyledTextArea textArea = getEditor();
+    final int textBegan = getInitialCaretPosition();
+    final int remaining = textArea.getLength() - textBegan;
+    final int textEnded = Math.min( remaining, getMaxVarLength() );
 
-    return word;
+    return textArea.getText( textBegan, textEnded );
   }
 
   /**
@@ -327,8 +326,8 @@ public class VariableEditor {
    * @return The node for the path, or the root node if the path could not be
    * found, but never null.
    */
-  private TreeItem<String> findNearestNode( final String path ) {
-    return getDefinitionPane().findNearestNode( path );
+  private TreeItem<String> findNode( final String path ) {
+    return getDefinitionPane().findNode( path );
   }
 
   /**
@@ -360,10 +359,11 @@ public class VariableEditor {
     return this.keyboardMap;
   }
 
-  private <T> void expand( final TreeItem<T> node ) {
+  private void expand( final TreeItem<String> node ) {
     final DefinitionPane pane = getDefinitionPane();
     pane.collapse();
     pane.expand( node );
+    pane.select( node );
   }
 
   /**
@@ -381,13 +381,14 @@ public class VariableEditor {
    *
    * @return true The key is a value that can be inserted into the text.
    */
-  private boolean isVariableNameKey( KeyEvent keyEvent ) {
-    final KeyCode keyCode = keyEvent.getCode();
+  private boolean isVariableNameKey( final KeyEvent keyEvent ) {
+    final KeyCode kc = keyEvent.getCode();
 
-    return keyCode.isLetterKey()
-      || keyCode.isDigitKey()
-      || keyCode == PERIOD
-      || (keyEvent.isShiftDown() && keyCode == MINUS);
+    return (kc.isLetterKey()
+      || kc.isDigitKey()
+      || kc == PERIOD
+      || (keyEvent.isShiftDown() && kc == MINUS))
+      && !keyEvent.isControlDown();
   }
 
   /**
@@ -431,8 +432,8 @@ public class VariableEditor {
    *
    * @return The variable mode caret position.
    */
-  private int getInitialCaretColumn() {
-    return this.initialCaretColumn;
+  private int getInitialCaretPosition() {
+    return this.initialCaretPosition;
   }
 
   /**
@@ -442,8 +443,8 @@ public class VariableEditor {
    *
    * @return The variable mode caret position.
    */
-  private void setInitialCaretColumn() {
-    this.initialCaretColumn = getEditor().getCaretColumn();
+  private void setInitialCaretPosition() {
+    this.initialCaretPosition = getEditor().getCaretPosition();
   }
 
   private StyledTextArea getEditor() {
@@ -468,5 +469,18 @@ public class VariableEditor {
 
   private IndexRange getSelectionRange() {
     return getEditor().getSelection();
+  }
+
+  /**
+   * Don't look ahead too far when trying to find the end of a node.
+   *
+   * @return 512 by default.
+   */
+  private int getMaxVarLength() {
+    return getSettings().getSetting( "editor.variable.maxLength", 512 );
+  }
+
+  private Settings getSettings() {
+    return this.settings;
   }
 }

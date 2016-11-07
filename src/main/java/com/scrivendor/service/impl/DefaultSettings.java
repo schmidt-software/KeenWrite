@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 White Magic Software, Inc.
+ * Copyright 2016 White Magic Software, Ltd.
  *
  * All rights reserved.
  *
@@ -28,6 +28,7 @@
 package com.scrivendor.service.impl;
 
 import static com.scrivendor.Constants.SETTINGS_NAME;
+import com.scrivendor.service.Settings;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -36,9 +37,9 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
-import com.scrivendor.service.Settings;
 
 /**
+ * Responsible for loading settings that help avoid hard-coded assumptions.
  *
  * @author White Magic Software, Ltd.
  */
@@ -46,7 +47,8 @@ public class DefaultSettings implements Settings {
 
   private PropertiesConfiguration properties;
 
-  public DefaultSettings() throws ConfigurationException, URISyntaxException, IOException {
+  public DefaultSettings()
+    throws ConfigurationException, URISyntaxException, IOException {
     setProperties( createProperties() );
   }
 
@@ -63,6 +65,19 @@ public class DefaultSettings implements Settings {
     return getSettings().getString( property, defaultValue );
   }
 
+  /**
+   * Returns the value of a string property.
+   *
+   * @param property The property key.
+   * @param defaultValue The value to return if no property key has been set.
+   *
+   * @return The property key value, or defaultValue when no key found.
+   */
+  @Override
+  public int getSetting( String property, int defaultValue ) {
+    return getSettings().getInt( property, defaultValue );
+  }
+
   @Override
   public List<Object> getSettingList( String property, List<String> defaults ) {
     return getSettings().getList( property, defaults );
@@ -77,7 +92,8 @@ public class DefaultSettings implements Settings {
    * @return The list of properties coerced from objects to strings.
    */
   @Override
-  public List<String> getStringSettingList( String property, List<String> defaults ) {
+  public List<String> getStringSettingList( 
+    final String property, final List<String> defaults ) {
     final List<Object> settings = getSettingList( property, defaults );
 
     return settings.stream()
@@ -102,7 +118,7 @@ public class DefaultSettings implements Settings {
     return SETTINGS_NAME;
   }
 
-  private void setProperties( PropertiesConfiguration configuration ) {
+  private void setProperties( final PropertiesConfiguration configuration ) {
     this.properties = configuration;
   }
 

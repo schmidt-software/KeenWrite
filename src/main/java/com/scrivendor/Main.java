@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2015 Karl Tauber <karl at jformdesigner dot com>
+ * Copyright 2016 Karl Tauber and White Magic Software, Ltd.
+ *
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 White Magic Software, Inc.
+ * Copyright 2016 White Magic Software, Ltd.
  *
  * All rights reserved.
  *
@@ -46,6 +46,17 @@ public interface Settings extends Service {
    * @return The property value for the given property key.
    */
   public String getSetting( String property, String defaultValue );
+  
+  /**
+   * Returns a setting property or its default value.
+   *
+   * @param property The property key name to obtain its value.
+   * @param defaultValue The default value to return iff the property cannot
+   * be found.
+   *
+   * @return The property value for the given property key.
+   */
+  public int getSetting( String property, int defaultValue );
 
   /**
    * Returns a setting property or its default value.

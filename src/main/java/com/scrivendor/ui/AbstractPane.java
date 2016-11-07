@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 White Magic Software, Inc.
+ * Copyright 2016 White Magic Software, Ltd.
  *
  * All rights reserved.
  *
@@ -27,9 +27,9 @@
  */
 package com.scrivendor.ui;
 
-import java.util.prefs.Preferences;
 import com.scrivendor.Services;
 import com.scrivendor.service.Options;
+import java.util.prefs.Preferences;
 import org.tbee.javafx.scene.layout.fxml.MigPane;
 
 /**

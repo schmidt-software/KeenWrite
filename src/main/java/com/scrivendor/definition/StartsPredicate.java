@@ -25,15 +25,25 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.scrivendor.service;
+package com.scrivendor.definition;
 
 /**
+ * Determines if one string starts with another.
  *
  * @author White Magic Software, Ltd.
  */
-public interface Configuration extends Service {
+public class StartsPredicate implements Predicate {
 
-  public Settings getSettings();
-
-  public Options getOptions();
+  /**
+   * Compares two strings taking into consideration options for case.
+   *
+   * @param s1 A non-null string, possibly empty.
+   * @param s2 A non-null string, possibly empty.
+   *
+   * @return true The strings are equal.
+   */
+  @Override
+  public boolean pass( final String s1, final String s2 ) {
+    return s1.toLowerCase().startsWith( s2.toLowerCase() );
+  }
 }
