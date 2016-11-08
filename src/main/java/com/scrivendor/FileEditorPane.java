@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2015 Karl Tauber <karl at jformdesigner dot com>
+ * Copyright 2016 Karl Tauber and White Magic Software, Ltd.
+ *
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,6 +30,8 @@ package com.scrivendor;
 import com.scrivendor.service.Settings;
 import com.scrivendor.service.events.AlertMessage;
 import com.scrivendor.service.events.AlertService;
+import static com.scrivendor.service.events.AlertService.NO;
+import static com.scrivendor.service.events.AlertService.YES;
 import com.scrivendor.ui.AbstractPane;
 import com.scrivendor.util.Utils;
 import java.io.File;
@@ -144,7 +147,7 @@ public class FileEditorPane extends AbstractPane {
   public void addEventListener( final InputMap<InputEvent> map ) {
     getActiveFileEditor().addEventListener( map );
   }
-  
+
   public void removeEventListener( final InputMap<InputEvent> map ) {
     getActiveFileEditor().removeEventListener( map );
   }
@@ -289,13 +292,9 @@ public class FileEditorPane extends AbstractPane {
     );
 
     final Alert alert = getAlertService().createAlertConfirmation( message );
-    final ButtonType result = alert.showAndWait().get();
+    final ButtonType response = alert.showAndWait().get();
 
-    if( result != ButtonType.YES ) {
-      return (result == ButtonType.NO);
-    }
-
-    return saveEditor( fileEditor );
+    return response == YES ? saveEditor( fileEditor ) : response == NO;
   }
 
   private AlertService getAlertService() {

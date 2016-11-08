@@ -155,7 +155,7 @@ public class DefinitionPane extends AbstractPane {
         break;
       }
 
-      index = path.indexOf( getSeparator(), index );
+      index = path.indexOf( getSeparator() );
       pItem = cItem;
     }
 

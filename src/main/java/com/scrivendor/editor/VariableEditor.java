@@ -34,7 +34,6 @@ import static com.scrivendor.definition.Lists.getFirst;
 import static com.scrivendor.definition.Lists.getLast;
 import com.scrivendor.service.Settings;
 import static java.lang.Math.min;
-import java.util.StringTokenizer;
 import java.util.function.Consumer;
 import javafx.collections.ObservableList;
 import javafx.event.Event;
@@ -121,21 +120,25 @@ public class VariableEditor {
         stopEventCapture();
         break;
 
+      case ENTER:
+        acceptPath();
+        stopEventCapture();
+        break;
+
       /*
       case RIGHT:
       case END:
-        advancePath();
+        autocomplete();
         break;
        */
-      case ENTER:
-        acceptPath();
-        break;
 
       case UP:
         cyclePathPrev();
         break;
 
+      case PERIOD:
       case DOWN:
+      case RIGHT:
         cyclePathNext();
         break;
 
@@ -143,8 +146,6 @@ public class VariableEditor {
         if( isVariableNameKey( e ) ) {
           typed( e.getText() );
         }
-
-        break;
     }
 
     e.consume();
@@ -161,8 +162,9 @@ public class VariableEditor {
     System.out.println( "word = '" + path + "'" );
 
     final TreeItem<String> node = findNode( path );
+    final boolean isLeaf = node.isLeaf();
 
-    if( !node.isLeaf() ) {
+    if( !isLeaf ) {
       final String word = getLastPathWord();
       final String label = node.getValue();
       final int delta = difference( label, word );
@@ -173,7 +175,9 @@ public class VariableEditor {
         remainder = label.substring( delta );
       }
 
+      System.out.println( "word   = '" + word + "'" );
       System.out.println( "label  = '" + label + "'" );
+      System.out.println( "delta  = '" + delta + "'" );
       System.out.println( "remain = '" + remainder + "'" );
 
       final StyledTextArea t = getEditor();
@@ -339,15 +343,16 @@ public class VariableEditor {
    * @return The last token.
    */
   private String getLastPathWord() {
-    final String path = getCurrentPath();
-    final StringTokenizer st = new StringTokenizer( path, getSeparator() );
-    String result = path;
+    String path = getCurrentPath();
 
-    while( st.hasMoreTokens() ) {
-      result = st.nextToken();
+    int i = path.indexOf( getSeparator() );
+
+    while( i > 0 ) {
+      path = path.substring( i + 1 );
+      i = path.indexOf( getSeparator() );
     }
 
-    return result;
+    return path;
   }
 
   private String getSeparator() {
@@ -436,7 +441,6 @@ public class VariableEditor {
 
     return (kc.isLetterKey()
       || kc.isDigitKey()
-      || kc == PERIOD
       || (keyEvent.isShiftDown() && kc == MINUS))
       && !keyEvent.isControlDown();
   }

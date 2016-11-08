@@ -33,7 +33,6 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import static javafx.scene.control.Alert.AlertType.CONFIRMATION;
 import static javafx.scene.control.Alert.AlertType.ERROR;
-import javafx.scene.control.ButtonType;
 import javafx.stage.Window;
 
 /**
@@ -60,12 +59,14 @@ public final class DefaultAlertService implements AlertService {
     return new DefaultAlertMessage( title, message, args );
   }
 
+
   private Alert createAlertDialog(
     final AlertType alertType,
     final AlertMessage message ) {
 
     final Alert alert = new Alert( alertType );
 
+    alert.setDialogPane( new ButtonOrderPane() );
     alert.setTitle( message.getTitle() );
     alert.setHeaderText( null );
     alert.setContentText( message.getContent() );
@@ -78,10 +79,7 @@ public final class DefaultAlertService implements AlertService {
   public Alert createAlertConfirmation( final AlertMessage message ) {
     final Alert alert = createAlertDialog( CONFIRMATION, message );
 
-    alert.getButtonTypes().setAll(
-      ButtonType.YES,
-      ButtonType.NO,
-      ButtonType.CANCEL );
+    alert.getButtonTypes().setAll( YES, NO, CANCEL );
 
     return alert;
   }

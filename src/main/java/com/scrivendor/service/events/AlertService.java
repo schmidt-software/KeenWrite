@@ -28,6 +28,7 @@
 package com.scrivendor.service.events;
 
 import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import javafx.stage.Window;
 
 /**
@@ -36,6 +37,9 @@ import javafx.stage.Window;
  * @author White Magic Software, Ltd.
  */
 public interface AlertService {
+  public static final ButtonType YES = ButtonType.YES;
+  public static final ButtonType NO = ButtonType.NO;
+  public static final ButtonType CANCEL = ButtonType.CANCEL;
 
   /**
    * Called to set the window used as the parent for the alert dialogs.
