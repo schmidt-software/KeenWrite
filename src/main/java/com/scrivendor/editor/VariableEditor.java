@@ -137,6 +137,9 @@ public class VariableEditor {
         break;
 
       case PERIOD:
+        autocomplete();
+        break;
+        
       case DOWN:
       case RIGHT:
         cyclePathNext();

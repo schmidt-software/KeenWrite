@@ -59,7 +59,6 @@ public final class DefaultAlertService implements AlertService {
     return new DefaultAlertMessage( title, message, args );
   }
 
-
   private Alert createAlertDialog(
     final AlertType alertType,
     final AlertMessage message ) {
