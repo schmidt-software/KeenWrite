@@ -186,7 +186,7 @@ public class FileEditorPane extends AbstractPane {
   }
 
   private FileEditor createFileEditor( Path path ) {
-    FileEditor fileEditor = new FileEditor( path );
+    final FileEditor fileEditor = new FileEditor( path );
     fileEditor.getTab().setOnCloseRequest( e -> {
       if( !canCloseEditor( fileEditor ) ) {
         e.consume();
@@ -196,7 +196,7 @@ public class FileEditorPane extends AbstractPane {
   }
 
   FileEditor newEditor() {
-    FileEditor fileEditor = createFileEditor( null );
+    final FileEditor fileEditor = createFileEditor( null );
     Tab tab = fileEditor.getTab();
     tabPane.getTabs().add( tab );
     tabPane.getSelectionModel().select( tab );
@@ -204,8 +204,10 @@ public class FileEditorPane extends AbstractPane {
   }
 
   FileEditor[] openEditor() {
-    FileChooser fileChooser = createFileChooser( Messages.get( "Dialog.file.choose.open.title" ) );
-    List<File> selectedFiles = fileChooser.showOpenMultipleDialog( getMainWindow().getScene().getWindow() );
+    final FileChooser fileChooser
+      = createFileChooser( Messages.get( "Dialog.file.choose.open.title" ) );
+    final List<File> selectedFiles
+      = fileChooser.showOpenMultipleDialog( getMainWindow().getScene().getWindow() );
 
     if( selectedFiles == null ) {
       return null;
@@ -306,7 +308,7 @@ public class FileEditorPane extends AbstractPane {
       return true;
     }
 
-    Tab tab = fileEditor.getTab();
+    final Tab tab = fileEditor.getTab();
 
     if( save ) {
       Event event = new Event( tab, tab, Tab.TAB_CLOSE_REQUEST_EVENT );
@@ -351,8 +353,8 @@ public class FileEditorPane extends AbstractPane {
       }
     }
 
-    // close all tabs
-    for( FileEditor fileEditor : allEditors ) {
+    // Close all tabs.
+    for( final FileEditor fileEditor : allEditors ) {
       if( !closeEditor( fileEditor, false ) ) {
         return false;
       }
@@ -364,17 +366,20 @@ public class FileEditorPane extends AbstractPane {
   }
 
   private FileEditor[] getAllEditors() {
-    ObservableList<Tab> tabs = tabPane.getTabs();
-    FileEditor[] allEditors = new FileEditor[ tabs.size() ];
-    for( int i = 0; i < tabs.size(); i++ ) {
+    final ObservableList<Tab> tabs = tabPane.getTabs();
+    final FileEditor[] allEditors = new FileEditor[ tabs.size() ];
+    final int length = tabs.size();
+
+    for( int i = 0; i < length; i++ ) {
       allEditors[ i ] = (FileEditor)tabs.get( i ).getUserData();
     }
+
     return allEditors;
   }
 
   private FileEditor findEditor( Path path ) {
     for( final Tab tab : tabPane.getTabs() ) {
-      FileEditor fileEditor = (FileEditor)tab.getUserData();
+      final FileEditor fileEditor = (FileEditor)tab.getUserData();
 
       if( path.equals( fileEditor.getPath() ) ) {
         return fileEditor;
@@ -429,14 +434,17 @@ public class FileEditorPane extends AbstractPane {
   }
 
   private void restoreState() {
-    Preferences state = getState();
-    String[] fileNames = Utils.getPrefsStrings( state, "file" );
-    String activeFileName = state.get( "activeFile", null );
-
     int activeIndex = 0;
-    ArrayList<File> files = new ArrayList<>( fileNames.length );
-    for( String fileName : fileNames ) {
-      File file = new File( fileName );
+
+    final Preferences state = getState();
+    final String[] fileNames = Utils.getPrefsStrings( state, "file" );
+    final String activeFileName = state.get( "activeFile", null );
+
+    final ArrayList<File> files = new ArrayList<>( fileNames.length );
+
+    for( final String fileName : fileNames ) {
+      final File file = new File( fileName );
+
       if( file.exists() ) {
         files.add( file );
 
@@ -454,16 +462,18 @@ public class FileEditorPane extends AbstractPane {
     openEditors( files, activeIndex );
   }
 
-  private void saveState( FileEditor[] allEditors, FileEditor activeEditor ) {
-    ArrayList<String> fileNames = new ArrayList<>( allEditors.length );
-    for( FileEditor fileEditor : allEditors ) {
+  private void saveState( final FileEditor[] allEditors, final FileEditor activeEditor ) {
+    final ArrayList<String> fileNames = new ArrayList<>( allEditors.length );
+
+    for( final FileEditor fileEditor : allEditors ) {
       if( fileEditor.getPath() != null ) {
         fileNames.add( fileEditor.getPath().toString() );
       }
     }
 
-    Preferences state = getState();
+    final Preferences state = getState();
     Utils.putPrefsStrings( state, "file", fileNames.toArray( new String[ fileNames.size() ] ) );
+
     if( activeEditor != null && activeEditor.getPath() != null ) {
       state.put( "activeFile", activeEditor.getPath().toString() );
     } else {

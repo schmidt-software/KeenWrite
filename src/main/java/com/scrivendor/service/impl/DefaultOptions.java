@@ -79,9 +79,11 @@ public class DefaultOptions implements Options {
 
   @Override
   public void save() {
-    putPrefs( preferences, "lineSeparator", getLineSeparator(), null );
-    putPrefs( preferences, "encoding", getEncoding(), null );
-    putPrefsInt( preferences, "markdownExtensions", getMarkdownExtensions(), Extensions.ALL );
+    final Preferences prefs = getPreferences();
+    
+    putPrefs( prefs, "lineSeparator", getLineSeparator(), null );
+    putPrefs( prefs, "encoding", getEncoding(), null );
+    putPrefsInt( prefs, "markdownExtensions", getMarkdownExtensions(), Extensions.ALL );
   }
 
   @Override

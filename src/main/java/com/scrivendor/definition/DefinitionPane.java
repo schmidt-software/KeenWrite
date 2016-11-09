@@ -48,7 +48,7 @@ import javafx.scene.control.TreeView;
  */
 public class DefinitionPane extends AbstractPane {
 
-  private final static String SEPARATOR = ".";
+  public final static String SEPARATOR = ".";
 
   private TreeView<String> treeView;
 
@@ -145,7 +145,7 @@ public class DefinitionPane extends AbstractPane {
     TreeItem<String> cItem = getTreeRoot();
     TreeItem<String> pItem = cItem;
 
-    int index = path.indexOf( getSeparator() );
+    int index = path.indexOf( SEPARATOR );
 
     while( index >= 0 ) {
       final String node = path.substring( 0, index );
@@ -155,7 +155,7 @@ public class DefinitionPane extends AbstractPane {
         break;
       }
 
-      index = path.indexOf( getSeparator() );
+      index = path.indexOf( SEPARATOR );
       pItem = cItem;
     }
 
@@ -202,7 +202,7 @@ public class DefinitionPane extends AbstractPane {
   public String toPath( TreeItem<String> t ) {
     return t.getParent() == null
       ? ""
-      : toPath( t.getParent() ) + getSeparator() + t.getValue();
+      : toPath( t.getParent() ) + SEPARATOR + t.getValue();
   }
 
   /**
@@ -306,9 +306,5 @@ public class DefinitionPane extends AbstractPane {
     if( treeView != null ) {
       this.treeView = treeView;
     }
-  }
-
-  public String getSeparator() {
-    return SEPARATOR;
   }
 }

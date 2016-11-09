@@ -30,6 +30,7 @@ package com.scrivendor.editor;
 import com.scrivendor.FileEditorPane;
 import com.scrivendor.Services;
 import com.scrivendor.definition.DefinitionPane;
+import static com.scrivendor.definition.DefinitionPane.SEPARATOR;
 import static com.scrivendor.definition.Lists.getFirst;
 import static com.scrivendor.definition.Lists.getLast;
 import com.scrivendor.service.Settings;
@@ -43,7 +44,6 @@ import javafx.scene.input.InputEvent;
 import javafx.scene.input.KeyCode;
 import static javafx.scene.input.KeyCode.DIGIT2;
 import static javafx.scene.input.KeyCode.MINUS;
-import static javafx.scene.input.KeyCode.PERIOD;
 import static javafx.scene.input.KeyCombination.SHIFT_DOWN;
 import javafx.scene.input.KeyEvent;
 import org.fxmisc.richtext.StyledTextArea;
@@ -120,28 +120,22 @@ public class VariableEditor {
         stopEventCapture();
         break;
 
+      case PERIOD:
+      case RIGHT:
+      case END:
+        conditionalAutocomplete();
+        break;
+
       case ENTER:
         acceptPath();
         stopEventCapture();
         break;
 
-      /*
-      case RIGHT:
-      case END:
-        autocomplete();
-        break;
-       */
-
       case UP:
         cyclePathPrev();
         break;
 
-      case PERIOD:
-        autocomplete();
-        break;
-        
       case DOWN:
-      case RIGHT:
         cyclePathNext();
         break;
 
@@ -165,9 +159,8 @@ public class VariableEditor {
     System.out.println( "word = '" + path + "'" );
 
     final TreeItem<String> node = findNode( path );
-    final boolean isLeaf = node.isLeaf();
 
-    if( !isLeaf ) {
+    if( !node.isLeaf() ) {
       final String word = getLastPathWord();
       final String label = node.getValue();
       final int delta = difference( label, word );
@@ -194,7 +187,19 @@ public class VariableEditor {
       }
 
       expand( node );
+    } else {
+      System.out.println( "LEAF: " + node );
     }
+  }
+
+  /**
+   * Performs an autocomplete depending on whether the user has finished typing
+   * in a word. If there is a selected range, then this will complete the most
+   * recent word and jump to the next child.
+   */
+  private void conditionalAutocomplete() {
+    acceptPath();
+    typed( SEPARATOR );
   }
 
   /**
@@ -213,10 +218,10 @@ public class VariableEditor {
    */
   private void acceptPath() {
     final IndexRange range = getSelectionRange();
-    final StyledTextArea textArea = getEditor();
 
     if( range != null ) {
       final int rangeEnd = range.getEnd();
+      final StyledTextArea textArea = getEditor();
       textArea.deselect();
       textArea.moveTo( rangeEnd );
     }
@@ -237,16 +242,13 @@ public class VariableEditor {
    * @param direction true - next; false - previous
    */
   private void cycleSelection( final boolean direction ) {
-    final String word = getCurrentPath();
-    final TreeItem<String> node = findNode( word );
-
-    System.out.println( "---------------" );
-    System.out.println( "cycle selection" );
-    System.out.println( "path = '" + word + "'" );
+    final String path = getCurrentPath();
+    final String word = getLastPathWord();
+    final TreeItem<String> node = findNode( path );
 
     // Find the sibling for the current selection and replace the current
     // selection with the sibling's value
-    TreeItem<String> cycled = direction
+    TreeItem< String> cycled = direction
       ? node.nextSibling()
       : node.previousSibling();
 
@@ -256,10 +258,29 @@ public class VariableEditor {
       cycled = direction ? getFirstSibling( node ) : getLastSibling( node );
     }
 
-    System.out.println( "cycled value = '" + cycled.getValue() + "'" );
+    String cycledWord = cycled.getValue();
+
+    final int index = path.indexOf( word );
+    final String cycledPath = path.substring( 0, index ) + cycledWord;
 
     expand( cycled );
-    typed( cycled.getValue() );
+    replacePath( path, cycledPath );
+  }
+
+  /**
+   * Replaces the entirety of the existing path (from the initial caret
+   * position) with the given path.
+   *
+   * @param oldPath The path to replace.
+   * @param newPath The replacement path.
+   */
+  private void replacePath( final String oldPath, final String newPath ) {
+    final StyledTextArea textArea = getEditor();
+    final int posBegan = getInitialCaretPosition();
+    final int posEnded = posBegan + oldPath.length();
+
+    textArea.deselect();
+    textArea.replaceText( posBegan, posEnded, newPath );
   }
 
   /**
@@ -348,18 +369,14 @@ public class VariableEditor {
   private String getLastPathWord() {
     String path = getCurrentPath();
 
-    int i = path.indexOf( getSeparator() );
+    int i = path.indexOf( SEPARATOR );
 
     while( i > 0 ) {
       path = path.substring( i + 1 );
-      i = path.indexOf( getSeparator() );
+      i = path.indexOf( SEPARATOR );
     }
 
     return path;
-  }
-
-  private String getSeparator() {
-    return getDefinitionPane().getSeparator();
   }
 
   /**

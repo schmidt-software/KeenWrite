@@ -26,13 +26,13 @@
  */
 package com.scrivendor.options;
 
+import com.scrivendor.Messages;
+import com.scrivendor.controls.FlagCheckBox;
+import com.scrivendor.controls.WebHyperlink;
 import com.scrivendor.ui.AbstractPane;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.scene.control.Label;
-import com.scrivendor.Messages;
-import com.scrivendor.controls.FlagCheckBox;
-import com.scrivendor.controls.WebHyperlink;
 import org.pegdown.Extensions;
 
 /**
@@ -40,7 +40,7 @@ import org.pegdown.Extensions;
  *
  * @author Karl Tauber
  */
-class MarkdownOptionsPane  extends AbstractPane {
+class MarkdownOptionsPane extends AbstractPane {
 
   private final IntegerProperty extensions = new SimpleIntegerProperty();
 
@@ -275,5 +275,5 @@ class MarkdownOptionsPane  extends AbstractPane {
   private FlagCheckBox relaxedHrRulesExtCheckBox;
   private FlagCheckBox taskListItemsExtCheckBox;
   private FlagCheckBox extAnchorLinksExtCheckBox;
-	// JFormDesigner - End of variables declaration  //GEN-END:variables
+  // JFormDesigner - End of variables declaration  //GEN-END:variables
 }

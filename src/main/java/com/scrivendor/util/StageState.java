@@ -24,7 +24,6 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package com.scrivendor.util;
 
 import java.util.prefs.Preferences;
@@ -38,90 +37,97 @@ import javafx.stage.WindowEvent;
  *
  * @author Karl Tauber
  */
-public class StageState
-{
-	private final Stage stage;
-	private final Preferences state;
+public class StageState {
 
-	private Rectangle normalBounds;
-	private boolean runLaterPending;
+  public static final String K_PANE_SPLIT_DEFINITION = "pane.split.definition";
+  public static final String K_PANE_SPLIT_EDITOR = "pane.split.editor";
 
-	public StageState(Stage stage, Preferences state) {
-		this.stage = stage;
-		this.state = state;
+  private final Stage stage;
+  private final Preferences state;
 
-		restore();
+  private Rectangle normalBounds;
+  private boolean runLaterPending;
 
-		stage.addEventHandler(WindowEvent.WINDOW_HIDING, e -> save());
+  public StageState( Stage stage, Preferences state ) {
+    this.stage = stage;
+    this.state = state;
 
-		stage.xProperty().addListener((ob, o, n) -> boundsChanged());
-		stage.yProperty().addListener((ob, o, n) -> boundsChanged());
-		stage.widthProperty().addListener((ob, o, n) -> boundsChanged());
-		stage.heightProperty().addListener((ob, o, n) -> boundsChanged());
-	}
+    restore();
 
-	private void save() {
-		Rectangle bounds = isNormalState() ? getStageBounds() : normalBounds;
-		if (bounds != null) {
-			state.putDouble("windowX", bounds.getX());
-			state.putDouble("windowY", bounds.getY());
-			state.putDouble("windowWidth", bounds.getWidth());
-			state.putDouble("windowHeight", bounds.getHeight());
-		}
-		state.putBoolean("windowMaximized", stage.isMaximized());
-		state.putBoolean("windowFullScreen", stage.isFullScreen());
-	}
+    stage.addEventHandler( WindowEvent.WINDOW_HIDING, e -> save() );
 
-	private void restore() {
-		double x = state.getDouble("windowX", Double.NaN);
-		double y = state.getDouble("windowY", Double.NaN);
-		double w = state.getDouble("windowWidth", Double.NaN);
-		double h = state.getDouble("windowHeight", Double.NaN);
-		boolean maximized = state.getBoolean("windowMaximized", false);
-		boolean fullScreen = state.getBoolean("windowFullScreen", false);
+    stage.xProperty().addListener( (ob, o, n) -> boundsChanged() );
+    stage.yProperty().addListener( (ob, o, n) -> boundsChanged() );
+    stage.widthProperty().addListener( (ob, o, n) -> boundsChanged() );
+    stage.heightProperty().addListener( (ob, o, n) -> boundsChanged() );
+  }
 
-		if (!Double.isNaN(x) && !Double.isNaN(y)) {
-			stage.setX(x);
-			stage.setY(y);
-		} // else: default behavior is center on screen
+  private void save() {
+    Rectangle bounds = isNormalState() ? getStageBounds() : normalBounds;
+    if( bounds != null ) {
+      state.putDouble( "windowX", bounds.getX() );
+      state.putDouble( "windowY", bounds.getY() );
+      state.putDouble( "windowWidth", bounds.getWidth() );
+      state.putDouble( "windowHeight", bounds.getHeight() );
+    }
+    state.putBoolean( "windowMaximized", stage.isMaximized() );
+    state.putBoolean( "windowFullScreen", stage.isFullScreen() );
+  }
 
-		if (!Double.isNaN(w) && !Double.isNaN(h)) {
-			stage.setWidth(w);
-			stage.setHeight(h);
-		} // else: default behavior is use scene size
+  private void restore() {
+    double x = state.getDouble( "windowX", Double.NaN );
+    double y = state.getDouble( "windowY", Double.NaN );
+    double w = state.getDouble( "windowWidth", Double.NaN );
+    double h = state.getDouble( "windowHeight", Double.NaN );
+    boolean maximized = state.getBoolean( "windowMaximized", false );
+    boolean fullScreen = state.getBoolean( "windowFullScreen", false );
 
-		if (fullScreen != stage.isFullScreen())
-			stage.setFullScreen(fullScreen);
-		if (maximized != stage.isMaximized())
-			stage.setMaximized(maximized);
-	}
+    if( !Double.isNaN( x ) && !Double.isNaN( y ) ) {
+      stage.setX( x );
+      stage.setY( y );
+    } // else: default behavior is center on screen
 
-	/**
-	 * Remembers the window bounds when the window
-	 * is not iconified, maximized or in fullScreen.
-	 */
-	private void boundsChanged() {
-		// avoid too many (and useless) runLater() invocations
-		if (runLaterPending)
-			return;
-		runLaterPending = true;
+    if( !Double.isNaN( w ) && !Double.isNaN( h ) ) {
+      stage.setWidth( w );
+      stage.setHeight( h );
+    } // else: default behavior is use scene size
 
-		// must use runLater() to ensure that change of all properties
-		// (x, y, width, height, iconified, maximized and fullScreen)
-		// has finished
-		Platform.runLater(() -> {
-			runLaterPending = false;
+    if( fullScreen != stage.isFullScreen() ) {
+      stage.setFullScreen( fullScreen );
+    }
+    if( maximized != stage.isMaximized() ) {
+      stage.setMaximized( maximized );
+    }
+  }
 
-			if (isNormalState())
-				normalBounds = getStageBounds();
-		});
-	}
+  /**
+   * Remembers the window bounds when the window is not iconified, maximized or
+   * in fullScreen.
+   */
+  private void boundsChanged() {
+    // avoid too many (and useless) runLater() invocations
+    if( runLaterPending ) {
+      return;
+    }
+    runLaterPending = true;
 
-	private boolean isNormalState() {
-		return !stage.isIconified() && !stage.isMaximized() && !stage.isFullScreen();
-	}
+    // must use runLater() to ensure that change of all properties
+    // (x, y, width, height, iconified, maximized and fullScreen)
+    // has finished
+    Platform.runLater( () -> {
+      runLaterPending = false;
 
-	private Rectangle getStageBounds() {
-		return new Rectangle(stage.getX(), stage.getY(), stage.getWidth(), stage.getHeight());
-	}
+      if( isNormalState() ) {
+        normalBounds = getStageBounds();
+      }
+    } );
+  }
+
+  private boolean isNormalState() {
+    return !stage.isIconified() && !stage.isMaximized() && !stage.isFullScreen();
+  }
+
+  private Rectangle getStageBounds() {
+    return new Rectangle( stage.getX(), stage.getY(), stage.getWidth(), stage.getHeight() );
+  }
 }

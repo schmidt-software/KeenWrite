@@ -24,7 +24,6 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package com.scrivendor.controls;
 
 import javafx.beans.property.IntegerProperty;
@@ -36,31 +35,49 @@ import javafx.scene.control.CheckBox;
  *
  * @author Karl Tauber
  */
-public class FlagCheckBox
-	extends CheckBox
-{
-	public FlagCheckBox() {
-		setOnAction(e -> {
-			if (isSelected())
-				setFlags(getFlags() | getFlag());
-			else
-				setFlags(getFlags() & ~getFlag());
-		});
+public class FlagCheckBox extends CheckBox {
 
-		flags.addListener((obs, oldFlags, newFlags) -> {
-			setSelected((newFlags.intValue() & getFlag()) != 0);
-		});
-	}
+  public FlagCheckBox() {
+    setOnAction( e -> {
+      if( isSelected() ) {
+        setFlags( getFlags() | getFlag() );
+      } else {
+        setFlags( getFlags() & ~getFlag() );
+      }
+    } );
 
-	// 'flag' property
-	private final IntegerProperty flag = new SimpleIntegerProperty();
-	public int getFlag() { return flag.get(); }
-	public void setFlag(int flag) { this.flag.set(flag); }
-	public IntegerProperty flagProperty() { return flag; }
+    flags.addListener( (obs, oldFlags, newFlags) -> {
+      setSelected( (newFlags.intValue() & getFlag()) != 0 );
+    } );
+  }
 
-	// 'flags' property
-	private final IntegerProperty flags = new SimpleIntegerProperty();
-	public int getFlags() { return flags.get(); }
-	public void setFlags(int flags) { this.flags.set(flags); }
-	public IntegerProperty flagsProperty() { return flags; }
+  // 'flag' property
+  private final IntegerProperty flag = new SimpleIntegerProperty();
+
+  public int getFlag() {
+    return flag.get();
+  }
+
+  public void setFlag( int flag ) {
+    this.flag.set( flag );
+  }
+
+  public IntegerProperty flagProperty() {
+    return flag;
+  }
+
+  // 'flags' property
+  private final IntegerProperty flags = new SimpleIntegerProperty();
+
+  public int getFlags() {
+    return flags.get();
+  }
+
+  public void setFlags( int flags ) {
+    this.flags.set( flags );
+  }
+
+  public IntegerProperty flagsProperty() {
+    return flags;
+  }
 }

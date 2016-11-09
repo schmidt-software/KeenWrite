@@ -31,8 +31,11 @@ import com.scrivendor.definition.DefinitionPane;
 import com.scrivendor.editor.MarkdownEditorPane;
 import com.scrivendor.editor.VariableEditor;
 import com.scrivendor.options.OptionsDialog;
+import com.scrivendor.service.Options;
 import com.scrivendor.util.Action;
 import com.scrivendor.util.ActionUtils;
+import static com.scrivendor.util.StageState.K_PANE_SPLIT_DEFINITION;
+import static com.scrivendor.util.StageState.K_PANE_SPLIT_EDITOR;
 import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.BOLD;
 import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.CODE;
 import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.FILE_ALT;
@@ -50,6 +53,7 @@ import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.REPEAT;
 import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.STRIKETHROUGH;
 import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.UNDO;
 import java.util.function.Function;
+import java.util.prefs.Preferences;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.BooleanProperty;
@@ -82,9 +86,11 @@ import javafx.stage.WindowEvent;
  */
 public class MainWindow {
 
+  private final Options options = Services.load( Options.class );
+
   private Scene scene;
   private FileEditorPane fileEditorPane;
-  
+
   private DefinitionPane definitionPane;
   private VariableEditor variableEditor;
 
@@ -99,8 +105,12 @@ public class MainWindow {
     final SplitPane splitPane = new SplitPane(
       getDefinitionPane().getNode(),
       getFileEditorPane().getNode() );
-    splitPane.setDividerPositions( .05f, .95f );
-
+    splitPane.setDividerPositions(
+      getFloat( K_PANE_SPLIT_DEFINITION, .05f ),
+      getFloat( K_PANE_SPLIT_EDITOR, .95f ) );
+    
+    // See: http://broadlyapplicable.blogspot.ca/2015/03/javafx-capture-restore-splitpane.html
+    
     BorderPane borderPane = new BorderPane();
     borderPane.setPrefSize( 1024, 800 );
     borderPane.setTop( createMenuBar() );
@@ -422,5 +432,17 @@ public class MainWindow {
 
   public void setVariableEditor( VariableEditor variableEditor ) {
     this.variableEditor = variableEditor;
+  }
+
+  private float getFloat( String key, float defaultValue ) {
+    return getPreferences().getFloat( key, defaultValue );
+  }
+
+  private Preferences getPreferences() {
+    return getOptions().getState();
+  }
+
+  private Options getOptions() {
+    return this.options;
   }
 }
