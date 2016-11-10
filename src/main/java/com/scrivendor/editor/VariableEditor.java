@@ -117,9 +117,9 @@ public class VariableEditor {
         break;
 
       case ENTER:
+        // Fall through.
         stopEventCapture();
 
-      // Fall through.
       case PERIOD:
       case RIGHT:
       case END:
@@ -173,7 +173,8 @@ public class VariableEditor {
   }
 
   /**
-   * Only variable name keys can pass through the filter.
+   * Only variable name keys can pass through the filter. This is called when
+   * the user presses a key.
    *
    * @param e The key that was pressed.
    */
