@@ -42,6 +42,7 @@ import javafx.scene.control.IndexRange;
 import javafx.scene.control.TreeItem;
 import javafx.scene.input.InputEvent;
 import javafx.scene.input.KeyCode;
+import static javafx.scene.input.KeyCode.AT;
 import static javafx.scene.input.KeyCode.DIGIT2;
 import static javafx.scene.input.KeyCode.MINUS;
 import static javafx.scene.input.KeyCombination.SHIFT_DOWN;
@@ -459,6 +460,7 @@ public class VariableEditor {
    */
   private void initKeyboardEventListeners() {
     addEventListener( keyPressed( DIGIT2, SHIFT_DOWN ), this::atPressed );
+    addEventListener( keyPressed( AT ), this::atPressed );
   }
 
   /**
