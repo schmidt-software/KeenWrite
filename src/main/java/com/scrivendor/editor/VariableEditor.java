@@ -95,6 +95,7 @@ public class VariableEditor {
   private void atPressed( KeyEvent e ) {
     startEventCapture();
     setInitialCaretPosition();
+    autocomplete();
   }
 
   /**
@@ -108,27 +109,21 @@ public class VariableEditor {
 
     switch( keyCode ) {
       case BACK_SPACE:
-        deleteSelection();
-
-        // Break out of variable mode by back spacing to the original position.
-        if( getCurrentCaretPosition() > getInitialCaretPosition() ) {
-          autocomplete();
-          break;
-        }
+        backspace();
+        break;
 
       case ESCAPE:
         stopEventCapture();
         break;
 
+      case ENTER:
+        stopEventCapture();
+
+      // Fall through.
       case PERIOD:
       case RIGHT:
       case END:
         conditionalAutocomplete();
-        break;
-
-      case ENTER:
-        acceptPath();
-        stopEventCapture();
         break;
 
       case UP:
@@ -140,9 +135,7 @@ public class VariableEditor {
         break;
 
       default:
-        if( isVariableNameKey( e ) ) {
-          typed( e.getText() );
-        }
+        filterKey( e );
     }
 
     e.consume();
@@ -152,13 +145,7 @@ public class VariableEditor {
    * Updates the text with the path selected (or typed) by the user.
    */
   private void autocomplete() {
-    System.out.println( "------------" );
-    System.out.println( "autocomplete" );
-
-    final String path = getCurrentPath();
-    System.out.println( "word = '" + path + "'" );
-
-    final TreeItem<String> node = findNode( path );
+    final TreeItem<String> node = getCurrentNode();
 
     if( !node.isLeaf() ) {
       final String word = getLastPathWord();
@@ -171,11 +158,6 @@ public class VariableEditor {
         remainder = label.substring( delta );
       }
 
-      System.out.println( "word   = '" + word + "'" );
-      System.out.println( "label  = '" + label + "'" );
-      System.out.println( "delta  = '" + delta + "'" );
-      System.out.println( "remain = '" + remainder + "'" );
-
       final StyledTextArea t = getEditor();
       final int posBegan = getCurrentCaretPosition();
       final int posEnded = posBegan + remainder.length();
@@ -187,8 +169,28 @@ public class VariableEditor {
       }
 
       expand( node );
+    }
+  }
+
+  /**
+   * Only variable name keys can pass through the filter.
+   *
+   * @param e The key that was pressed.
+   */
+  private void filterKey( final KeyEvent e ) {
+    if( isVariableNameKey( e ) ) {
+      typed( e.getText() );
+    }
+  }
+
+  private void backspace() {
+    deleteSelection();
+
+    // Break out of variable mode by back spacing to the original position.
+    if( getCurrentCaretPosition() > getInitialCaretPosition() ) {
+      autocomplete();
     } else {
-      System.out.println( "LEAF: " + node );
+      stopEventCapture();
     }
   }
 
@@ -199,7 +201,27 @@ public class VariableEditor {
    */
   private void conditionalAutocomplete() {
     acceptPath();
-    typed( SEPARATOR );
+
+    final TreeItem<String> node = getCurrentNode();
+
+    if( !isTerminal( node ) ) {
+      typed( SEPARATOR );
+    }
+  }
+
+  /**
+   * Returns true if the node has children that can be selected (i.e., any
+   * non-leaves).
+   *
+   * @param <T> The type that the TreeItem contains.
+   * @param node The node to test for terminality.
+   *
+   * @return true The node has one branch and its a leaf.
+   */
+  private <T> boolean isTerminal( final TreeItem<T> node ) {
+    final ObservableList<TreeItem<T>> branches = node.getChildren();
+
+    return branches.size() == 1 && branches.get( 0 ).isLeaf();
   }
 
   /**
@@ -228,46 +250,6 @@ public class VariableEditor {
   }
 
   /**
-   * Called when the user presses the Backspace key.
-   */
-  private void deleteSelection() {
-    final StyledTextArea textArea = getEditor();
-    textArea.replaceSelection( "" );
-    textArea.deletePreviousChar();
-  }
-
-  /**
-   * Cycles the selected text through the nodes.
-   *
-   * @param direction true - next; false - previous
-   */
-  private void cycleSelection( final boolean direction ) {
-    final String path = getCurrentPath();
-    final String word = getLastPathWord();
-    final TreeItem<String> node = findNode( path );
-
-    // Find the sibling for the current selection and replace the current
-    // selection with the sibling's value
-    TreeItem< String> cycled = direction
-      ? node.nextSibling()
-      : node.previousSibling();
-
-    // When cycling at the end (or beginning) of the list, jump to the first
-    // (or last) sibling depending on the cycle direction.
-    if( cycled == null ) {
-      cycled = direction ? getFirstSibling( node ) : getLastSibling( node );
-    }
-
-    String cycledWord = cycled.getValue();
-
-    final int index = path.indexOf( word );
-    final String cycledPath = path.substring( 0, index ) + cycledWord;
-
-    expand( cycled );
-    replacePath( path, cycledPath );
-  }
-
-  /**
    * Replaces the entirety of the existing path (from the initial caret
    * position) with the given path.
    *
@@ -284,44 +266,76 @@ public class VariableEditor {
   }
 
   /**
+   * Called when the user presses the Backspace key.
+   */
+  private void deleteSelection() {
+    final StyledTextArea textArea = getEditor();
+    textArea.replaceSelection( "" );
+    textArea.deletePreviousChar();
+  }
+
+  /**
+   * Cycles the selected text through the nodes.
+   *
+   * @param direction true - next; false - previous
+   */
+  private void cycleSelection( final boolean direction ) {
+    final TreeItem<String> node = getCurrentNode();
+
+    // Find the sibling for the current selection and replace the current
+    // selection with the sibling's value
+    TreeItem< String> cycled = direction
+      ? node.nextSibling()
+      : node.previousSibling();
+
+    // When cycling at the end (or beginning) of the list, jump to the first
+    // (or last) sibling depending on the cycle direction.
+    if( cycled == null ) {
+      cycled = direction ? getFirstSibling( node ) : getLastSibling( node );
+    }
+
+    final String path = getCurrentPath();
+    final String cycledWord = cycled.getValue();
+    final String word = getLastPathWord();
+    final int index = path.indexOf( word );
+    final String cycledPath = path.substring( 0, index ) + cycledWord;
+
+    expand( cycled );
+    replacePath( path, cycledPath );
+  }
+
+  /**
    * Cycles to the next sibling of the currently selected tree node.
    */
   private void cyclePathNext() {
     cycleSelection( true );
   }
 
+  /**
+   * Cycles to the previous sibling of the currently selected tree node.
+   */
   private void cyclePathPrev() {
     cycleSelection( false );
   }
 
   /**
-   * Returns the index where the two strings diverge.
+   * Returns all the characters from the initial caret column to the the first
+   * whitespace character. This will return a path that contains zero or more
+   * separators.
    *
-   * @param s1 The string that could be a substring of s2, null allowed.
-   * @param s2 The string that could be a substring of s1, null allowed.
-   *
-   * @return NO_DIFFERENCE if the strings are the same, otherwise the index
-   * where they differ.
+   * @return A non-null string, possibly empty.
    */
-  @SuppressWarnings( "StringEquality" )
-  public int difference( final CharSequence s1, final CharSequence s2 ) {
-    if( s1 == s2 ) {
-      return NO_DIFFERENCE;
-    }
-
-    if( s1 == null || s2 == null ) {
-      return 0;
-    }
+  private String getCurrentPath() {
+    final String s = extractTextChunk();
+    final int length = s.length();
 
     int i = 0;
-    final int limit = min( s1.length(), s2.length() );
 
-    while( i < limit && s1.charAt( i ) == s2.charAt( i ) ) {
+    while( i < length && !Character.isWhitespace( s.charAt( i ) ) ) {
       i++;
     }
 
-    // If one string was shorter than the other, that's where they differ.
-    return i;
+    return s.substring( 0, i );
   }
 
   private <T> ObservableList<TreeItem<T>> getSiblings(
@@ -343,25 +357,6 @@ public class VariableEditor {
   }
 
   /**
-   * Returns all the characters from the initial caret column to the the first
-   * whitespace character. This will return a path that contains zero or more
-   * separators.
-   *
-   * @return A non-null string, possibly empty.
-   */
-  private String getCurrentPath() {
-    final String s = globText();
-
-    int i = 0;
-
-    while( i < s.length() && !Character.isWhitespace( s.charAt( i ) ) ) {
-      i++;
-    }
-
-    return s.substring( 0, i );
-  }
-
-  /**
    * Returns the last word from the path.
    *
    * @return The last token.
@@ -380,17 +375,29 @@ public class VariableEditor {
   }
 
   /**
-   * Returns a swath of text from the initial caret position until .
+   * Returns text from the initial caret position until some arbitrarily long
+   * number of characters. The number of characters extracted will be
+   * getMaxVarLength, or fewer, depending on how many characters remain to be
+   * extracted. The result from this method is trimmed to the first whitespace
+   * character.
    *
-   * @return
+   * @return A chunk of text that includes all the words representing a path,
+   * and then some.
    */
-  private String globText() {
+  private String extractTextChunk() {
     final StyledTextArea textArea = getEditor();
     final int textBegan = getInitialCaretPosition();
     final int remaining = textArea.getLength() - textBegan;
     final int textEnded = Math.min( remaining, getMaxVarLength() );
 
     return textArea.getText( textBegan, textEnded );
+  }
+
+  /**
+   * Returns the node for the current path.
+   */
+  private TreeItem<String> getCurrentNode() {
+    return findNode( getCurrentPath() );
   }
 
   /**
@@ -434,6 +441,11 @@ public class VariableEditor {
     return this.keyboardMap;
   }
 
+  /**
+   * Collapses the tree then expands and selects the given node.
+   *
+   * @param node The node to expand.
+   */
   private void expand( final TreeItem<String> node ) {
     final DefinitionPane pane = getDefinitionPane();
     pane.collapse();
@@ -477,6 +489,36 @@ public class VariableEditor {
    */
   private void stopEventCapture() {
     removeEventListener( getKeyboardMap() );
+  }
+
+  /**
+   * Returns the index where the two strings diverge.
+   *
+   * @param s1 The string that could be a substring of s2, null allowed.
+   * @param s2 The string that could be a substring of s1, null allowed.
+   *
+   * @return NO_DIFFERENCE if the strings are the same, otherwise the index
+   * where they differ.
+   */
+  @SuppressWarnings( "StringEquality" )
+  private int difference( final CharSequence s1, final CharSequence s2 ) {
+    if( s1 == s2 ) {
+      return NO_DIFFERENCE;
+    }
+
+    if( s1 == null || s2 == null ) {
+      return 0;
+    }
+
+    int i = 0;
+    final int limit = min( s1.length(), s2.length() );
+
+    while( i < limit && s1.charAt( i ) == s2.charAt( i ) ) {
+      i++;
+    }
+
+    // If one string was shorter than the other, that's where they differ.
+    return i;
   }
 
   /**
