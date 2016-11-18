@@ -28,10 +28,25 @@
 package com.scrivendor.service;
 
 /**
+ * Responsible for creating a chain of document processors for a given file
+ * type. For example, an Rmd document creates an R document processor followed
+ * by a markdown document processor to create a final web page document; whereas
+ * an XML document creates an XSLT document processor with an option for
+ * chaining another processor.
  *
  * @author White Magic Software, Ltd.
  */
-public interface Pipeline extends Service {
+public interface DocumentProcessorFactory extends Service {
 
-  public String process( String content );
+  /**
+   * Creates a document processor for a given file type. An XML document might
+   * be associated with an XSLT processor, for example, letting the client code
+   * chain a markdown processor afterwards.
+   *
+   * @param filetype The type of file to process (i.e., its extension).
+   * @return A processor capable of transforming a document from the given filet
+   * type to a destination file type (as hinted by the given file name
+   * extension).
+   */
+  public DocumentProcessor createDocumentProcessor(String filetype);
 }

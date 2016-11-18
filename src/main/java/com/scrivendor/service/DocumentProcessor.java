@@ -28,10 +28,29 @@
 package com.scrivendor.service;
 
 /**
+ * Responsible for processing documents from one known format to another.
  *
  * @author White Magic Software, Ltd.
  */
-public interface Pipeline extends Service {
+public interface DocumentProcessor extends Service {
 
-  public String process( String content );
+  /**
+   * Adds a document processor to call after this processor finishes processing
+   * the document given to the process method.
+   *
+   * @param next The processor that should transform the document after this
+   * instance has finished processing.
+   */
+  public void chain(DocumentProcessor next);
+
+  /**
+   * Processes the given content providing a transformation from one document
+   * format into another. For example, this could convert from XML to structured
+   * text (e.g., markdown) using an XSLT processor, followed by a markdown to
+   * HTML processor (such as Common Mark).
+   *
+   * @param document The document to process.
+   * @return The post-processed document.
+   */
+  public String process(String document);
 }

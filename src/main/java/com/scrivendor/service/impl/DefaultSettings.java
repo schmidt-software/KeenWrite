@@ -32,6 +32,7 @@ import com.scrivendor.service.Settings;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -49,7 +50,7 @@ public class DefaultSettings implements Settings {
 
   public DefaultSettings()
     throws ConfigurationException, URISyntaxException, IOException {
-    setProperties( createProperties() );
+    setProperties(createProperties());
   }
 
   /**
@@ -61,8 +62,8 @@ public class DefaultSettings implements Settings {
    * @return The property key value, or defaultValue when no key found.
    */
   @Override
-  public String getSetting( String property, String defaultValue ) {
-    return getSettings().getString( property, defaultValue );
+  public String getSetting(final String property, final String defaultValue) {
+    return getSettings().getString(property, defaultValue);
   }
 
   /**
@@ -74,13 +75,17 @@ public class DefaultSettings implements Settings {
    * @return The property key value, or defaultValue when no key found.
    */
   @Override
-  public int getSetting( String property, int defaultValue ) {
-    return getSettings().getInt( property, defaultValue );
+  public int getSetting(final String property, final int defaultValue) {
+    return getSettings().getInt(property, defaultValue);
   }
 
   @Override
-  public List<Object> getSettingList( String property, List<String> defaults ) {
-    return getSettings().getList( property, defaults );
+  public List<Object> getSettingList(final String property, List<String> defaults) {
+    if (defaults == null) {
+      defaults = new ArrayList<>();
+    }
+    
+    return getSettings().getList(property, defaults);
   }
 
   /**
@@ -92,13 +97,13 @@ public class DefaultSettings implements Settings {
    * @return The list of properties coerced from objects to strings.
    */
   @Override
-  public List<String> getStringSettingList( 
-    final String property, final List<String> defaults ) {
-    final List<Object> settings = getSettingList( property, defaults );
+  public List<String> getStringSettingList(
+    final String property, final List<String> defaults) {
+    final List<Object> settings = getSettingList(property, defaults);
 
     return settings.stream()
-      .map( object -> Objects.toString( object, null ) )
-      .collect( Collectors.toList() );
+      .map(object -> Objects.toString(object, null))
+      .collect(Collectors.toList());
   }
 
   private PropertiesConfiguration createProperties()
@@ -107,18 +112,18 @@ public class DefaultSettings implements Settings {
 
     return url == null
       ? new PropertiesConfiguration()
-      : new PropertiesConfiguration( url );
+      : new PropertiesConfiguration(url);
   }
 
   private URL getPropertySource() {
-    return getClass().getResource( getSettingsFilename() );
+    return getClass().getResource(getSettingsFilename());
   }
 
   private String getSettingsFilename() {
     return SETTINGS_NAME;
   }
 
-  private void setProperties( final PropertiesConfiguration configuration ) {
+  private void setProperties(final PropertiesConfiguration configuration) {
     this.properties = configuration;
   }
 

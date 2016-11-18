@@ -27,31 +27,27 @@
 package com.scrivendor.preview;
 
 import java.nio.file.Path;
-import java.util.Collections;
 import javafx.application.Platform;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.scene.Node;
 import javafx.scene.control.ScrollPane;
 import static javafx.scene.control.ScrollPane.ScrollBarPolicy.ALWAYS;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
-import org.pegdown.LinkRenderer;
-import org.pegdown.ToHtmlSerializer;
-import org.pegdown.VerbatimSerializer;
-import org.pegdown.ast.RootNode;
-import org.pegdown.plugins.PegDownPlugins;
+import org.commonmark.renderer.html.HtmlWriter;
 
 /**
  * Markdown preview pane.
  *
- * @author Karl Tauber
+ * @author Karl Tauber and White Magic Software, Ltd.
  */
-public final class MarkdownPreviewPane extends ScrollPane {
+public final class MarkdownPreviewPane extends ScrollPane implements ChangeListener {
 
-  private final ObjectProperty<RootNode> markdownAST = new SimpleObjectProperty<>();
   private final ObjectProperty<Path> path = new SimpleObjectProperty<>();
   private final DoubleProperty scrollY = new SimpleDoubleProperty();
 
@@ -60,35 +56,31 @@ public final class MarkdownPreviewPane extends ScrollPane {
   private int lastScrollY;
 
   private boolean delayScroll;
+  private String html;
 
   public MarkdownPreviewPane() {
-    setVbarPolicy( ALWAYS );
+    setVbarPolicy(ALWAYS);
 
-    markdownASTProperty().addListener( (observable, oldValue, newValue) -> {
+    pathProperty().addListener((observable, oldValue, newValue) -> {
       update();
-    } );
+    });
 
-    pathProperty().addListener( (observable, oldValue, newValue) -> {
-      update();
-    } );
-
-    scrollYProperty().addListener( (observable, oldValue, newValue) -> {
+    scrollYProperty().addListener((observable, oldValue, newValue) -> {
       scrollY();
-    } );
+    });
   }
 
-  private String toHtml() {
-    final RootNode root = getMarkdownAST();
-
-    return root == null
-      ? ""
-      : new ToHtmlSerializer( new LinkRenderer(),
-        Collections.<String, VerbatimSerializer>emptyMap(),
-        PegDownPlugins.NONE.getHtmlSerializerPlugins() ).toHtml( root );
+  @Override
+  public void changed(ObservableValue observable, Object oldValue, Object newValue) {
+    final StringBuilder sb = new StringBuilder();
+    final HtmlWriter writer = new HtmlWriter(sb);
+    writer.text(newValue == null ? "" : newValue.toString());
+    setHtml(sb.toString());
+    update();
   }
 
-  public void update() {
-    if( !getEngine().getLoadWorker().isRunning() ) {
+  private void update() {
+    if (!getEngine().getLoadWorker().isRunning()) {
       setScrollXY();
     }
 
@@ -96,13 +88,13 @@ public final class MarkdownPreviewPane extends ScrollPane {
       "<!DOCTYPE html>"
       + "<html>"
       + "<head>"
-      + "<link rel='stylesheet' href='" + getClass().getResource( "markdownpad-github.css" ) + "'>"
+      + "<link rel='stylesheet' href='" + getClass().getResource("markdownpad-github.css") + "'>"
       + getBase()
       + "</head>"
       + "<body" + getScrollScript() + ">"
-      + toHtml()
+      + getHtml()
       + "</body>"
-      + "</html>" );
+      + "</html>");
   }
 
   /**
@@ -110,12 +102,12 @@ public final class MarkdownPreviewPane extends ScrollPane {
    * worker is running (in this case the result would be zero).
    */
   private void setScrollXY() {
-    lastScrollX = getNumber( execute( "window.scrollX" ) );
-    lastScrollY = getNumber( execute( "window.scrollY" ) );
+    lastScrollX = getNumber(execute("window.scrollX"));
+    lastScrollY = getNumber(execute("window.scrollY"));
   }
 
-  private int getNumber( final Object number ) {
-    return (number instanceof Number) ? ((Number)number).intValue() : 0;
+  private int getNumber(final Object number) {
+    return (number instanceof Number) ? ((Number) number).intValue() : 0;
   }
 
   private String getBase() {
@@ -136,53 +128,41 @@ public final class MarkdownPreviewPane extends ScrollPane {
    * Helps avoid many superfluous runLater() calls.
    */
   private void scrollY() {
-    if( !delayScroll ) {
+    if (!delayScroll) {
       delayScroll = true;
 
-      Platform.runLater( () -> {
+      Platform.runLater(() -> {
         delayScroll = false;
-        scrollY( getScrollY() );
-      } );
+        scrollY(getScrollY());
+      });
     }
   }
 
-  private void scrollY( double value ) {
+  private void scrollY(final double value) {
     execute(
       "window.scrollTo(0, (document.body.scrollHeight - window.innerHeight) * "
       + value
-      + ");" );
+      + ");");
   }
 
   public Path getPath() {
     return pathProperty().get();
   }
 
-  public void setPath( Path path ) {
-    pathProperty().set( path );
+  public void setPath(final Path path) {
+    pathProperty().set(path);
   }
 
   public ObjectProperty<Path> pathProperty() {
     return this.path;
   }
 
-  public RootNode getMarkdownAST() {
-    return markdownASTProperty().get();
-  }
-
-  public void setMarkdownAST( RootNode astRoot ) {
-    markdownASTProperty().set( astRoot );
-  }
-
-  public ObjectProperty<RootNode> markdownASTProperty() {
-    return this.markdownAST;
-  }
-
   public double getScrollY() {
     return scrollYProperty().get();
   }
 
-  public void setScrollY( double value ) {
-    scrollYProperty().set( value );
+  public void setScrollY(final double value) {
+    scrollYProperty().set(value);
   }
 
   public DoubleProperty scrollYProperty() {
@@ -193,8 +173,8 @@ public final class MarkdownPreviewPane extends ScrollPane {
     return getWebView();
   }
 
-  private Object execute( String script ) {
-    return getEngine().executeScript( script );
+  private Object execute(final String script) {
+    return getEngine().executeScript(script);
   }
 
   private WebEngine getEngine() {
@@ -203,5 +183,13 @@ public final class MarkdownPreviewPane extends ScrollPane {
 
   private WebView getWebView() {
     return this.webView;
+  }
+
+  private String getHtml() {
+    return this.html == null ? "" : this.html;
+  }
+
+  private void setHtml(final String html) {
+    this.html = html;
   }
 }

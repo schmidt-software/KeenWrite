@@ -398,9 +398,9 @@ class MarkdownSyntaxHighlighter
   }
 
   private void visitChildren( SuperNode node ) {
-    for( Node child : node.getChildren() ) {
+    node.getChildren().stream().forEach((child) -> {
       child.accept( this );
-    }
+    });
   }
 
   private void setStyleClass( Node node, StyleClass styleClass ) {

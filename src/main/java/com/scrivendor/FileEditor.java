@@ -151,7 +151,6 @@ class FileEditor {
     final MarkdownPreviewPane previewPane = getPreviewPane();
 
     editorPane.pathProperty().bind( path );
-
     load();
 
     // Clear undo history after first load.
@@ -159,7 +158,6 @@ class FileEditor {
 
     // bind preview to editor
     previewPane.pathProperty().bind( pathProperty() );
-    previewPane.markdownASTProperty().bind( editorPane.markdownASTProperty() );
     previewPane.scrollYProperty().bind( editorPane.scrollYProperty() );
 
     // bind the editor undo manager to the properties
@@ -172,7 +170,10 @@ class FileEditor {
       editorPane.getNode(),
       previewPane.getNode() );
     tab.setContent( splitPane );
-
+    
+    // Allow the Markdown Preview Pane to receive change events within the
+    // editor.
+    editorPane.addChangeListener(previewPane);
     editorPane.requestFocus();
   }
 
@@ -195,7 +196,7 @@ class FileEditor {
 
     if( filePath != null ) {
       try {
-        byte[] bytes = Files.readAllBytes( filePath );
+        final byte[] bytes = Files.readAllBytes( filePath );
 
         String markdown;
 

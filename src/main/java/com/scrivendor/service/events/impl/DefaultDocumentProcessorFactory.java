@@ -25,13 +25,24 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.scrivendor.service;
+package com.scrivendor.service.events.impl;
+
+import com.scrivendor.service.*;
 
 /**
+ * Responsible for creating document processor (chains) for file types
+ * (extensions).
  *
  * @author White Magic Software, Ltd.
  */
-public interface Pipeline extends Service {
+public class DefaultDocumentProcessorFactory implements Service {
 
-  public String process( String content );
+  public DocumentProcessor createDocumentProcessor(String filetype){
+    if(filetype == null ) {
+      filetype = "md";
+    }
+    
+    return null;
+    
+  }
 }
