@@ -42,8 +42,7 @@ import org.pegdown.ast.*;
  *
  * @author Karl Tauber, White Magic Software, Ltd.
  */
-class MarkdownSyntaxHighlighter
-  implements Visitor {
+class MarkdownSyntaxHighlighter implements Visitor {
 
   private enum StyleClass {
     // headers
@@ -398,9 +397,9 @@ class MarkdownSyntaxHighlighter
   }
 
   private void visitChildren( SuperNode node ) {
-    node.getChildren().stream().forEach((child) -> {
+    node.getChildren().stream().forEach( (child) -> {
       child.accept( this );
-    });
+    } );
   }
 
   private void setStyleClass( Node node, StyleClass styleClass ) {

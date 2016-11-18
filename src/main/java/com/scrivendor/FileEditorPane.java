@@ -207,7 +207,7 @@ public class FileEditorPane extends AbstractPane {
     return openEditors(selectedFiles, 0);
   }
 
-  FileEditor[] openEditors(List<File> files, int activeIndex) {
+  private FileEditor[] openEditors(List<File> files, int activeIndex) {
     // close single unmodified "Untitled" tab
     if (tabPane.getTabs().size() == 1) {
       FileEditor fileEditor = (FileEditor) tabPane.getTabs().get(0).getUserData();

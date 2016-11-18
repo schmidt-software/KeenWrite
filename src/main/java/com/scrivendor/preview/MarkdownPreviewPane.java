@@ -34,19 +34,20 @@ import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.scene.Node;
 import javafx.scene.control.ScrollPane;
 import static javafx.scene.control.ScrollPane.ScrollBarPolicy.ALWAYS;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
-import org.commonmark.renderer.html.HtmlWriter;
+import org.commonmark.node.Node;
+import org.commonmark.parser.Parser;
+import org.commonmark.renderer.html.HtmlRenderer;
 
 /**
  * Markdown preview pane.
  *
  * @author Karl Tauber and White Magic Software, Ltd.
  */
-public final class MarkdownPreviewPane extends ScrollPane implements ChangeListener {
+public final class MarkdownPreviewPane extends ScrollPane implements ChangeListener<String> {
 
   private final ObjectProperty<Path> path = new SimpleObjectProperty<>();
   private final DoubleProperty scrollY = new SimpleDoubleProperty();
@@ -59,28 +60,33 @@ public final class MarkdownPreviewPane extends ScrollPane implements ChangeListe
   private String html;
 
   public MarkdownPreviewPane() {
-    setVbarPolicy(ALWAYS);
+    setVbarPolicy( ALWAYS );
 
-    pathProperty().addListener((observable, oldValue, newValue) -> {
+    pathProperty().addListener( (observable, oldValue, newValue) -> {
       update();
-    });
+    } );
 
-    scrollYProperty().addListener((observable, oldValue, newValue) -> {
+    scrollYProperty().addListener( (observable, oldValue, newValue) -> {
       scrollY();
-    });
+    } );
   }
 
   @Override
-  public void changed(ObservableValue observable, Object oldValue, Object newValue) {
-    final StringBuilder sb = new StringBuilder();
-    final HtmlWriter writer = new HtmlWriter(sb);
-    writer.text(newValue == null ? "" : newValue.toString());
-    setHtml(sb.toString());
+  public void changed(
+    final ObservableValue<? extends String> observable,
+    final String oldValue,
+    final String newValue ) {
+    final String markdown = newValue == null ? "" : newValue;
+    final HtmlRenderer renderer = HtmlRenderer.builder().build();
+    final Parser parser = Parser.builder().build();
+    final Node document = parser.parse( markdown );
+
+    setHtml( renderer.render( document ) );
     update();
   }
 
   private void update() {
-    if (!getEngine().getLoadWorker().isRunning()) {
+    if( !getEngine().getLoadWorker().isRunning() ) {
       setScrollXY();
     }
 
@@ -88,13 +94,13 @@ public final class MarkdownPreviewPane extends ScrollPane implements ChangeListe
       "<!DOCTYPE html>"
       + "<html>"
       + "<head>"
-      + "<link rel='stylesheet' href='" + getClass().getResource("markdownpad-github.css") + "'>"
+      + "<link rel='stylesheet' href='" + getClass().getResource( "markdownpad-github.css" ) + "'>"
       + getBase()
       + "</head>"
       + "<body" + getScrollScript() + ">"
       + getHtml()
       + "</body>"
-      + "</html>");
+      + "</html>" );
   }
 
   /**
@@ -102,12 +108,12 @@ public final class MarkdownPreviewPane extends ScrollPane implements ChangeListe
    * worker is running (in this case the result would be zero).
    */
   private void setScrollXY() {
-    lastScrollX = getNumber(execute("window.scrollX"));
-    lastScrollY = getNumber(execute("window.scrollY"));
+    lastScrollX = getNumber( execute( "window.scrollX" ) );
+    lastScrollY = getNumber( execute( "window.scrollY" ) );
   }
 
-  private int getNumber(final Object number) {
-    return (number instanceof Number) ? ((Number) number).intValue() : 0;
+  private int getNumber( final Object number ) {
+    return (number instanceof Number) ? ((Number)number).intValue() : 0;
   }
 
   private String getBase() {
@@ -128,29 +134,29 @@ public final class MarkdownPreviewPane extends ScrollPane implements ChangeListe
    * Helps avoid many superfluous runLater() calls.
    */
   private void scrollY() {
-    if (!delayScroll) {
+    if( !delayScroll ) {
       delayScroll = true;
 
-      Platform.runLater(() -> {
+      Platform.runLater( () -> {
         delayScroll = false;
-        scrollY(getScrollY());
-      });
+        scrollY( getScrollY() );
+      } );
     }
   }
 
-  private void scrollY(final double value) {
+  private void scrollY( final double value ) {
     execute(
       "window.scrollTo(0, (document.body.scrollHeight - window.innerHeight) * "
       + value
-      + ");");
+      + ");" );
   }
 
   public Path getPath() {
     return pathProperty().get();
   }
 
-  public void setPath(final Path path) {
-    pathProperty().set(path);
+  public void setPath( final Path path ) {
+    pathProperty().set( path );
   }
 
   public ObjectProperty<Path> pathProperty() {
@@ -161,27 +167,23 @@ public final class MarkdownPreviewPane extends ScrollPane implements ChangeListe
     return scrollYProperty().get();
   }
 
-  public void setScrollY(final double value) {
-    scrollYProperty().set(value);
+  public void setScrollY( final double value ) {
+    scrollYProperty().set( value );
   }
 
   public DoubleProperty scrollYProperty() {
     return this.scrollY;
   }
 
-  public Node getNode() {
-    return getWebView();
-  }
-
-  private Object execute(final String script) {
-    return getEngine().executeScript(script);
+  private Object execute( final String script ) {
+    return getEngine().executeScript( script );
   }
 
   private WebEngine getEngine() {
     return getWebView().getEngine();
   }
 
-  private WebView getWebView() {
+  public WebView getWebView() {
     return this.webView;
   }
 
@@ -189,7 +191,7 @@ public final class MarkdownPreviewPane extends ScrollPane implements ChangeListe
     return this.html == null ? "" : this.html;
   }
 
-  private void setHtml(final String html) {
+  private void setHtml( final String html ) {
     this.html = html;
   }
 }

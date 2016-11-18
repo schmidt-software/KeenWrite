@@ -128,7 +128,7 @@ class FileEditor {
   }
 
   private void updateTab() {
-    Path filePath = this.path.get();
+    final Path filePath = this.path.get();
     tab.setText( (filePath != null) ? filePath.getFileName().toString() : Messages.get( "FileEditor.untitled" ) );
     tab.setTooltip( (filePath != null) ? new Tooltip( filePath.toString() ) : null );
     tab.setGraphic( isModified() ? new Text( "*" ) : null );
@@ -141,6 +141,7 @@ class FileEditor {
     }
 
     final MarkdownEditorPane editorPane = getEditorPane();
+    editorPane.pathProperty().bind( path );
 
     if( tab.getContent() != null ) {
       editorPane.requestFocus();
@@ -150,8 +151,9 @@ class FileEditor {
     // Load file and create UI when the tab becomes visible the first time
     final MarkdownPreviewPane previewPane = getPreviewPane();
 
-    editorPane.pathProperty().bind( path );
-    load();
+    // Allow the Markdown Preview Pane to receive change events within the
+    // editor.
+    editorPane.addChangeListener( previewPane );
 
     // Clear undo history after first load.
     editorPane.getUndoManager().forgetHistory();
@@ -167,13 +169,16 @@ class FileEditor {
     canRedo.bind( undoManager.redoAvailableProperty() );
 
     SplitPane splitPane = new SplitPane(
-      editorPane.getNode(),
-      previewPane.getNode() );
+      editorPane.getScrollPane(),
+      previewPane.getWebView() );
     tab.setContent( splitPane );
+
+    // Load the text and update the preview.
+    load();
     
-    // Allow the Markdown Preview Pane to receive change events within the
-    // editor.
-    editorPane.addChangeListener(previewPane);
+    editorPane.scrollToTop();
+
+    // Let the user edit.
     editorPane.requestFocus();
   }
 
@@ -247,6 +252,7 @@ class FileEditor {
         path.get(),
         ex.getMessage()
       );
+
       final Alert alert = service.createAlertError( message );
 
       alert.showAndWait();
