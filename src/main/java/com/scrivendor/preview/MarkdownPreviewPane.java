@@ -27,6 +27,8 @@
 package com.scrivendor.preview;
 
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 import javafx.application.Platform;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ObjectProperty;
@@ -38,7 +40,8 @@ import javafx.scene.control.ScrollPane;
 import static javafx.scene.control.ScrollPane.ScrollBarPolicy.ALWAYS;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
-import org.commonmark.node.Node;
+import org.commonmark.Extension;
+import org.commonmark.ext.gfm.tables.TablesExtension;
 import org.commonmark.parser.Parser;
 import org.commonmark.renderer.html.HtmlRenderer;
 
@@ -59,6 +62,8 @@ public final class MarkdownPreviewPane extends ScrollPane implements ChangeListe
   private boolean delayScroll;
   private String html;
 
+  private List<Extension> extensions;
+
   public MarkdownPreviewPane() {
     setVbarPolicy( ALWAYS );
 
@@ -72,17 +77,40 @@ public final class MarkdownPreviewPane extends ScrollPane implements ChangeListe
   }
 
   @Override
-  public void changed(
-    final ObservableValue<? extends String> observable,
-    final String oldValue,
-    final String newValue ) {
-    final String markdown = newValue == null ? "" : newValue;
-    final HtmlRenderer renderer = HtmlRenderer.builder().build();
-    final Parser parser = Parser.builder().build();
-    final Node document = parser.parse( markdown );
+  public void changed( final ObservableValue<? extends String> observable,
+    final String oValue, final String nValue ) {
+    final String markdown = nValue == null ? "" : nValue;
 
-    setHtml( renderer.render( document ) );
+    setHtml( toHtml( markdown ) );
     update();
+  }
+
+  /**
+   * Converts a string of markdown into HTML.
+   *
+   * @param markdown The markdown text to convert to HTML, must not be null.
+   *
+   * @return
+   */
+  private String toHtml( final String markdown ) {
+    return createRenderer().render( createParser().parse( markdown ) );
+  }
+
+  private List<Extension> getExtensions() {
+    if( this.extensions == null ) {
+      this.extensions = new ArrayList<>();
+      extensions.add( TablesExtension.create() );
+    }
+
+    return this.extensions;
+  }
+
+  private Parser createParser() {
+    return Parser.builder().extensions( getExtensions() ).build();
+  }
+
+  private HtmlRenderer createRenderer() {
+    return HtmlRenderer.builder().extensions( getExtensions() ).build();
   }
 
   private void update() {
