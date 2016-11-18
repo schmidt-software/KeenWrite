@@ -44,7 +44,6 @@ import javafx.beans.property.ReadOnlyBooleanWrapper;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.event.Event;
-import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.Tab;
@@ -91,10 +90,6 @@ class FileEditor {
     } );
   }
 
-  private Node getNode() {
-    return getTab().getContent();
-  }
-
   Tab getTab() {
     return this.tab;
   }
@@ -128,14 +123,17 @@ class FileEditor {
   }
 
   private void updateTab() {
+    final Tab activeTab = getTab();
     final Path filePath = this.path.get();
-    tab.setText( (filePath != null) ? filePath.getFileName().toString() : Messages.get( "FileEditor.untitled" ) );
-    tab.setTooltip( (filePath != null) ? new Tooltip( filePath.toString() ) : null );
-    tab.setGraphic( isModified() ? new Text( "*" ) : null );
+    activeTab.setText( (filePath != null) ? filePath.getFileName().toString() : Messages.get( "FileEditor.untitled" ) );
+    activeTab.setTooltip( (filePath != null) ? new Tooltip( filePath.toString() ) : null );
+    activeTab.setGraphic( isModified() ? new Text( "*" ) : null );
   }
 
   private void activated() {
-    if( tab.getTabPane() == null || !tab.isSelected() ) {
+    final Tab activeTab = getTab();
+    
+    if( activeTab.getTabPane() == null || !activeTab.isSelected() ) {
       // Tab is closed or no longer active
       return;
     }
@@ -143,43 +141,54 @@ class FileEditor {
     final MarkdownEditorPane editorPane = getEditorPane();
     editorPane.pathProperty().bind( path );
 
-    if( tab.getContent() != null ) {
+    if( activeTab.getContent() != null ) {
       editorPane.requestFocus();
       return;
     }
 
-    // Load file and create UI when the tab becomes visible the first time
+    // Load file and create UI when the tab becomes visible the first time.
     final MarkdownPreviewPane previewPane = getPreviewPane();
 
-    // Allow the Markdown Preview Pane to receive change events within the
-    // editor.
+    // The Markdown Preview Pane must receive the load event.
     editorPane.addChangeListener( previewPane );
 
-    // Clear undo history after first load.
-    editorPane.getUndoManager().forgetHistory();
-
-    // bind preview to editor
+    // Bind preview to editor.
     previewPane.pathProperty().bind( pathProperty() );
     previewPane.scrollYProperty().bind( editorPane.scrollYProperty() );
 
-    // bind the editor undo manager to the properties
-    UndoManager undoManager = editorPane.getUndoManager();
-    modified.bind( Bindings.not( undoManager.atMarkedPositionProperty() ) );
-    canUndo.bind( undoManager.undoAvailableProperty() );
-    canRedo.bind( undoManager.redoAvailableProperty() );
+    // Load the text and update the preview before the undo manager.
+    load();
 
+    // Track undo requests (only after loading).
+    initUndoManager();
+
+    // Separate the edit and preview panels.
     SplitPane splitPane = new SplitPane(
       editorPane.getScrollPane(),
       previewPane.getWebView() );
-    tab.setContent( splitPane );
+    activeTab.setContent( splitPane );
 
-    // Load the text and update the preview.
-    load();
-    
+    // Set the caret position to 0.
     editorPane.scrollToTop();
 
     // Let the user edit.
     editorPane.requestFocus();
+  }
+  
+  private void initUndoManager() {
+    final UndoManager undoManager = getUndoManager();
+
+    // Clear undo history after first load.
+    undoManager.forgetHistory();
+
+    // Bind the editor undo manager to the properties.
+    modified.bind( Bindings.not( undoManager.atMarkedPositionProperty() ) );
+    canUndo.bind( undoManager.undoAvailableProperty() );
+    canRedo.bind( undoManager.redoAvailableProperty() );
+  }
+  
+  private UndoManager getUndoManager() {
+    return getEditorPane().getUndoManager();
   }
 
   public <T extends Event, U extends T> void addEventListener(

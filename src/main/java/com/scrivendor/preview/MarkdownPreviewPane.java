@@ -60,7 +60,7 @@ public final class MarkdownPreviewPane extends ScrollPane implements ChangeListe
   private int lastScrollY;
 
   private boolean delayScroll;
-  private String html;
+  private String html = "";
 
   private List<Extension> extensions;
 
@@ -90,7 +90,7 @@ public final class MarkdownPreviewPane extends ScrollPane implements ChangeListe
    *
    * @param markdown The markdown text to convert to HTML, must not be null.
    *
-   * @return
+   * @return The markdown rendered as an HTML document.
    */
   private String toHtml( final String markdown ) {
     return createRenderer().render( createParser().parse( markdown ) );
@@ -216,10 +216,10 @@ public final class MarkdownPreviewPane extends ScrollPane implements ChangeListe
   }
 
   private String getHtml() {
-    return this.html == null ? "" : this.html;
+    return this.html;
   }
 
   private void setHtml( final String html ) {
-    this.html = html;
+    this.html = html == null ? "" : html;
   }
 }
