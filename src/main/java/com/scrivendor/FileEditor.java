@@ -90,41 +90,9 @@ class FileEditor {
     } );
   }
 
-  Tab getTab() {
-    return this.tab;
-  }
-
-  Path getPath() {
-    return this.path.get();
-  }
-
-  void setPath( Path path ) {
-    this.path.set( path );
-  }
-
-  ObjectProperty<Path> pathProperty() {
-    return this.path;
-  }
-
-  boolean isModified() {
-    return this.modified.get();
-  }
-
-  ReadOnlyBooleanProperty modifiedProperty() {
-    return this.modified.getReadOnlyProperty();
-  }
-
-  BooleanProperty canUndoProperty() {
-    return this.canUndo;
-  }
-
-  BooleanProperty canRedoProperty() {
-    return this.canRedo;
-  }
-
   private void updateTab() {
     final Tab activeTab = getTab();
-    final Path filePath = this.path.get();
+    final Path filePath = getPath();
     activeTab.setText( (filePath != null) ? filePath.getFileName().toString() : Messages.get( "FileEditor.untitled" ) );
     activeTab.setTooltip( (filePath != null) ? new Tooltip( filePath.toString() ) : null );
     activeTab.setGraphic( isModified() ? new Text( "*" ) : null );
@@ -132,14 +100,14 @@ class FileEditor {
 
   private void activated() {
     final Tab activeTab = getTab();
-    
+
     if( activeTab.getTabPane() == null || !activeTab.isSelected() ) {
       // Tab is closed or no longer active
       return;
     }
 
     final MarkdownEditorPane editorPane = getEditorPane();
-    editorPane.pathProperty().bind( path );
+    editorPane.pathProperty().bind( this.path );
 
     if( activeTab.getContent() != null ) {
       editorPane.requestFocus();
@@ -174,7 +142,7 @@ class FileEditor {
     // Let the user edit.
     editorPane.requestFocus();
   }
-  
+
   private void initUndoManager() {
     final UndoManager undoManager = getUndoManager();
 
@@ -186,27 +154,9 @@ class FileEditor {
     canUndo.bind( undoManager.undoAvailableProperty() );
     canRedo.bind( undoManager.redoAvailableProperty() );
   }
-  
-  private UndoManager getUndoManager() {
-    return getEditorPane().getUndoManager();
-  }
-
-  public <T extends Event, U extends T> void addEventListener(
-    final EventPattern<? super T, ? extends U> event,
-    final Consumer<? super U> consumer ) {
-    getEditorPane().addEventListener( event, consumer );
-  }
-
-  public void addEventListener( final InputMap<InputEvent> map ) {
-    getEditorPane().addEventListener( map );
-  }
-
-  public void removeEventListener( final InputMap<InputEvent> map ) {
-    getEditorPane().removeEventListener( map );
-  }
 
   void load() {
-    final Path filePath = this.path.get();
+    final Path filePath = getPath();
 
     if( filePath != null ) {
       try {
@@ -250,7 +200,7 @@ class FileEditor {
     }
 
     try {
-      Files.write( path.get(), bytes );
+      Files.write( getPath(), bytes );
       getEditorPane().getUndoManager().mark();
       return true;
     } catch( IOException ex ) {
@@ -258,7 +208,7 @@ class FileEditor {
       final AlertMessage message = service.createAlertMessage(
         Messages.get( "FileEditor.saveFailed.title" ),
         Messages.get( "FileEditor.saveFailed.message" ),
-        path.get(),
+        getPath(),
         ex.getMessage()
       );
 
@@ -267,6 +217,56 @@ class FileEditor {
       alert.showAndWait();
       return false;
     }
+  }
+
+  Tab getTab() {
+    return this.tab;
+  }
+
+  Path getPath() {
+    return this.path.get();
+  }
+
+  void setPath( Path path ) {
+    this.path.set( path );
+  }
+
+  ObjectProperty<Path> pathProperty() {
+    return this.path;
+  }
+
+  boolean isModified() {
+    return this.modified.get();
+  }
+
+  ReadOnlyBooleanProperty modifiedProperty() {
+    return this.modified.getReadOnlyProperty();
+  }
+
+  BooleanProperty canUndoProperty() {
+    return this.canUndo;
+  }
+
+  BooleanProperty canRedoProperty() {
+    return this.canRedo;
+  }
+
+  private UndoManager getUndoManager() {
+    return getEditorPane().getUndoManager();
+  }
+
+  public <T extends Event, U extends T> void addEventListener(
+    final EventPattern<? super T, ? extends U> event,
+    final Consumer<? super U> consumer ) {
+    getEditorPane().addEventListener( event, consumer );
+  }
+
+  public void addEventListener( final InputMap<InputEvent> map ) {
+    getEditorPane().addEventListener( map );
+  }
+
+  public void removeEventListener( final InputMap<InputEvent> map ) {
+    getEditorPane().removeEventListener( map );
   }
 
   protected MarkdownPreviewPane getPreviewPane() {

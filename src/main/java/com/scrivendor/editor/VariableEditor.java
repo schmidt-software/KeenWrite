@@ -44,6 +44,7 @@ import javafx.scene.input.InputEvent;
 import javafx.scene.input.KeyCode;
 import static javafx.scene.input.KeyCode.AT;
 import static javafx.scene.input.KeyCode.DIGIT2;
+import static javafx.scene.input.KeyCode.ENTER;
 import static javafx.scene.input.KeyCode.MINUS;
 import static javafx.scene.input.KeyCombination.SHIFT_DOWN;
 import javafx.scene.input.KeyEvent;
@@ -118,13 +119,13 @@ public class VariableEditor {
         break;
 
       case ENTER:
-        // Fall through.
-        stopEventCapture();
-
       case PERIOD:
       case RIGHT:
       case END:
-        conditionalAutocomplete();
+        // Stop at a leaf node, ENTER means accept.
+        if( conditionalAutocomplete() && keyCode == ENTER ) {
+          stopEventCapture();
+        }
         break;
 
       case UP:
@@ -200,15 +201,20 @@ public class VariableEditor {
    * Performs an autocomplete depending on whether the user has finished typing
    * in a word. If there is a selected range, then this will complete the most
    * recent word and jump to the next child.
+   *
+   * @return true The auto-completed node was a terminal node.
    */
-  private void conditionalAutocomplete() {
+  private boolean conditionalAutocomplete() {
     acceptPath();
 
     final TreeItem<String> node = getCurrentNode();
+    final boolean terminal = isTerminal( node );
 
-    if( !isTerminal( node ) ) {
+    if( !terminal ) {
       typed( SEPARATOR );
     }
+
+    return terminal;
   }
 
   /**
