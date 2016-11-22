@@ -1,6 +1,13 @@
 Change Log
 ==========
 
+## 0.4
+
+- Changed name to Scrivenvar
+- Added hot-keys for variable mode and autocomplete
+- Replaced pegdown with commonmark-java
+- Started document processors to provide XSLT and variable dereferencing
+
 ## 0.3
 
 - Changed name to Scrivendor
@@ -8,10 +15,10 @@ Change Log
 - Started to implement service-oriented architecture
 
 ## 0.2
-- RichTextFX (and dependencies) updated to versoin 0.6.10 (fixes bugs and memory leaks).
-- pegdown Markdown parser updated to version 1.6.
-- Added five new pegdown 1.6 extension flags to Markdown Options tab.
-- Minor improvements.
+- RichTextFX (and dependencies) updated to version 0.6.10 (fixes bugs)
+- pegdown Markdown parser updated to version 1.6
+- Added five new pegdown 1.6 extension flags to Markdown Options tab
+- Minor improvements
 
 ## 0.1
 

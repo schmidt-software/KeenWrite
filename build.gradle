@@ -1,10 +1,10 @@
-version = '0.3'
+version = '0.4'
 
 apply plugin: 'java'
 apply plugin: 'java-library-distribution'
 apply plugin: 'application'
 
-mainClassName = 'com.scrivendor.Main'
+mainClassName = 'com.scrivenvar.Main'
 
 repositories {
 	jcenter()
@@ -32,9 +32,9 @@ dependencies {
 sourceCompatibility = 1.8
 
 jar {
-	baseName = 'scrivendor'
+	baseName = 'scrivenvar'
 	manifest {
-		attributes 'Main-Class': 'com.scrivendor.Main',
+		attributes 'Main-Class': mainClassName,
 					'Class-Path': configurations.compile.collect { 'lib/' + it.getName() }.join(' ')
 	}
 }
