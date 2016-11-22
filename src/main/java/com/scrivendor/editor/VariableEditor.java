@@ -34,7 +34,10 @@ import static com.scrivendor.definition.DefinitionPane.SEPARATOR;
 import static com.scrivendor.definition.Lists.getFirst;
 import static com.scrivendor.definition.Lists.getLast;
 import com.scrivendor.service.Settings;
+import static java.lang.Character.isSpaceChar;
+import static java.lang.Character.isWhitespace;
 import static java.lang.Math.min;
+import java.util.Stack;
 import java.util.function.Consumer;
 import javafx.collections.ObservableList;
 import javafx.event.Event;
@@ -46,6 +49,8 @@ import static javafx.scene.input.KeyCode.AT;
 import static javafx.scene.input.KeyCode.DIGIT2;
 import static javafx.scene.input.KeyCode.ENTER;
 import static javafx.scene.input.KeyCode.MINUS;
+import static javafx.scene.input.KeyCode.SPACE;
+import static javafx.scene.input.KeyCombination.CONTROL_DOWN;
 import static javafx.scene.input.KeyCombination.SHIFT_DOWN;
 import javafx.scene.input.KeyEvent;
 import org.fxmisc.richtext.StyledTextArea;
@@ -90,14 +95,32 @@ public class VariableEditor {
   }
 
   /**
+   * Traps keys for performing various short-cut tasks, such as @-mode variable
+   * insertion and control+space for variable autocomplete.
+   *
+   * @ key is pressed, a new keyboard map is inserted in place of the current
+   * map -- this class goes into "variable edit mode" (a.k.a. vMode).
+   *
+   * @see createKeyboardMap()
+   */
+  private void initKeyboardEventListeners() {
+    addEventListener( keyPressed( SPACE, CONTROL_DOWN ), this::autocomplete );
+
+    // @ key in Linux?
+    addEventListener( keyPressed( DIGIT2, SHIFT_DOWN ), this::vMode );
+    // @ key in Windows.
+    addEventListener( keyPressed( AT ), this::vMode );
+  }
+
+  /**
    * The @ symbol is a short-cut to inserting a YAML variable reference.
    *
    * @param e Superfluous information about the key that was pressed.
    */
-  private void atPressed( KeyEvent e ) {
-    startEventCapture();
+  private void vMode( KeyEvent e ) {
     setInitialCaretPosition();
-    autocomplete();
+    vModeStart();
+    vModeAutocomplete();
   }
 
   /**
@@ -111,11 +134,11 @@ public class VariableEditor {
 
     switch( keyCode ) {
       case BACK_SPACE:
-        backspace();
+        vModeBackspace();
         break;
 
       case ESCAPE:
-        stopEventCapture();
+        vModeStop();
         break;
 
       case ENTER:
@@ -123,8 +146,8 @@ public class VariableEditor {
       case RIGHT:
       case END:
         // Stop at a leaf node, ENTER means accept.
-        if( conditionalAutocomplete() && keyCode == ENTER ) {
-          stopEventCapture();
+        if( vModeConditionalComplete() && keyCode == ENTER ) {
+          vModeStop();
         }
         break;
 
@@ -137,37 +160,46 @@ public class VariableEditor {
         break;
 
       default:
-        filterKey( e );
+        vModeFilterKeyPressed( e );
+        break;
     }
 
     e.consume();
   }
 
+  private void vModeBackspace() {
+    deleteSelection();
+
+    // Break out of variable mode by back spacing to the original position.
+    if( getCurrentCaretPosition() > getInitialCaretPosition() ) {
+      vModeAutocomplete();
+    } else {
+      vModeStop();
+    }
+  }
+
   /**
    * Updates the text with the path selected (or typed) by the user.
    */
-  private void autocomplete() {
+  private void vModeAutocomplete() {
     final TreeItem<String> node = getCurrentNode();
 
     if( !node.isLeaf() ) {
       final String word = getLastPathWord();
       final String label = node.getValue();
       final int delta = difference( label, word );
+      final String remainder = delta == NO_DIFFERENCE
+        ? label
+        : label.substring( delta );
 
-      String remainder = label;
-
-      if( delta != NO_DIFFERENCE ) {
-        remainder = label.substring( delta );
-      }
-
-      final StyledTextArea t = getEditor();
+      final StyledTextArea textArea = getEditor();
       final int posBegan = getCurrentCaretPosition();
       final int posEnded = posBegan + remainder.length();
 
-      t.replaceSelection( remainder );
+      textArea.replaceSelection( remainder );
 
       if( posEnded - posBegan > 0 ) {
-        t.selectRange( posEnded, posBegan );
+        textArea.selectRange( posEnded, posBegan );
       }
 
       expand( node );
@@ -180,20 +212,9 @@ public class VariableEditor {
    *
    * @param e The key that was pressed.
    */
-  private void filterKey( final KeyEvent e ) {
+  private void vModeFilterKeyPressed( final KeyEvent e ) {
     if( isVariableNameKey( e ) ) {
       typed( e.getText() );
-    }
-  }
-
-  private void backspace() {
-    deleteSelection();
-
-    // Break out of variable mode by back spacing to the original position.
-    if( getCurrentCaretPosition() > getInitialCaretPosition() ) {
-      autocomplete();
-    } else {
-      stopEventCapture();
     }
   }
 
@@ -204,7 +225,7 @@ public class VariableEditor {
    *
    * @return true The auto-completed node was a terminal node.
    */
-  private boolean conditionalAutocomplete() {
+  private boolean vModeConditionalComplete() {
     acceptPath();
 
     final TreeItem<String> node = getCurrentNode();
@@ -215,6 +236,181 @@ public class VariableEditor {
     }
 
     return terminal;
+  }
+
+  /**
+   * Pressing control+space will find a node that matches the current word and
+   * substitute the YAML variable reference. This is called when the user is not
+   * editing in vMode.
+   *
+   * @param e Ignored -- it can only be Ctrl+Space.
+   */
+  private void autocomplete( KeyEvent e ) {
+    final int caretPos = getCurrentCaretColumn();
+    final String paragraph = getCaretParagraph();
+
+    final int[] boundaries = getWordBoundaries( paragraph, caretPos );
+    final String word = paragraph.substring( boundaries[ 0 ], boundaries[ 1 ] );
+
+    final TreeItem<String> leaf = findLeaf( word );
+
+    if( leaf != null ) {
+      replaceText( boundaries[ 0 ], boundaries[ 1 ], toPath( leaf ) );
+      expand( leaf );
+    }
+  }
+
+  /**
+   * Updates the text at the given position within the current paragraph.
+   *
+   * @param posBegan The starting index of the paragraph text to replace.
+   * @param posEnded The ending index of the paragraph text to replace.
+   * @param text Overwrite the paragraph substring with this text.
+   */
+  private void replaceText(
+    final int posBegan, final int posEnded, final String text ) {
+    final StyledTextArea textArea = getEditor();
+    final int p = textArea.getCurrentParagraph();
+    textArea.replaceText( p, posBegan, p, posEnded, text );
+  }
+
+  /**
+   * Returns the path for a node, with nodes made distinct using the separator
+   * character. This is the antithesis of the findExactNode method.
+   *
+   * @param node The tree item to path into a string, must not be null.
+   *
+   * @return A non-null string, possibly empty.
+   */
+  public String toPath( TreeItem<String> node ) {
+    final Stack<TreeItem<String>> stack = new Stack<>();
+
+    while( node.getParent() != null ) {
+      stack.push( node );
+      node = node.getParent();
+    }
+
+    final StringBuilder sb = new StringBuilder( getMaxVarLength() );
+
+    while( !stack.isEmpty() ) {
+      node = stack.pop();
+
+      if( !node.isLeaf() ) {
+        sb.append( node.getValue() );
+
+        if( !stack.peek().isLeaf() ) {
+          sb.append( SEPARATOR );
+        }
+      }
+    }
+
+    return sb.toString();
+  }
+
+  /**
+   * Returns current word boundary indexes into the current paragraph, including
+   * punctuation.
+   *
+   * @param paragraph The paragraph
+   *
+   * @return The starting and ending index of the word closest to the caret.
+   */
+  private int[] getWordBoundaries( String paragraph, final int offset ) {
+    // Remove dashes, but retain hyphens. Retain same number of characters
+    // to preserve relative indexes.
+    paragraph = paragraph.replace( "---", "   " ).replace( "--", "  " );
+
+    final int posBegan = getWordBegan( paragraph, offset );
+    final int posEnded = getWordEnded( paragraph, offset );
+
+    return new int[]{ posBegan, posEnded };
+  }
+
+  /**
+   * Given an arbitrary offset into a string, this returns the word at that
+   * index. The inputs and outputs include:
+   *
+   * <ul>
+   * <li>surrounded by space: <code>hello | world!</code> ("");</li>
+   * <li>end of word: <code>hello| world!</code> ("hello");</li>
+   * <li>start of a word: <code>hello |world!</code> ("world!");</li>
+   * <li>within a word: <code>hello wo|rld!</code> ("world!");</li>
+   * <li>end of a paragraph: <code>hello world!|</code> ("world!");</li>
+   * <li>start of a paragraph: <code>|hello world!</code> ("hello!"); or</li>
+   * <li>after punctuation: <code>hello world!|</code> ("world!").</li>
+   * </ul>
+   *
+   * @param s The string to scan for a word.
+   * @param offset The offset within s to begin searching for the nearest word
+   * boundary, must not be out of bounds of s.
+   *
+   * @return The word in s at the offset.
+   *
+   * @see getWordBegan( String, int )
+   * @see getWordEnded( String, int )
+   */
+  private String getWordAt( final String s, final int offset ) {
+    final int posBegan = getWordBegan( s, offset );
+    final int posEnded = getWordEnded( s, offset );
+
+    return s.substring( posBegan, posEnded );
+  }
+
+  /**
+   * Returns the index into s where a word begins.
+   *
+   * @param s Never null.
+   * @param offset Index into s to begin searching backwards for a word
+   * boundary.
+   *
+   * @return The index where a word begins.
+   */
+  private int getWordBegan( final String s, int offset ) {
+    while( offset > 0 && isBoundary( s.charAt( offset - 1 ) ) ) {
+      offset--;
+    }
+
+    return offset;
+  }
+
+  /**
+   * Returns the index into s where a word ends.
+   *
+   * @param s Never null.
+   * @param offset Index into s to begin searching forwards for a word boundary.
+   *
+   * @return The index where a word ends.
+   */
+  private int getWordEnded( final String s, int offset ) {
+    final int length = s.length();
+
+    while( offset < length && isBoundary( s.charAt( offset ) ) ) {
+      offset++;
+    }
+
+    return offset;
+  }
+
+  /**
+   * Returns true if the given character can be reasonably expected to be part
+   * of a word, including punctuation marks.
+   *
+   * @param c The character to compare.
+   *
+   * @return false The character is a space character.
+   */
+  private boolean isBoundary( final char c ) {
+    return !isSpaceChar( c );
+  }
+
+  /**
+   * Returns the text for the paragraph that contains the caret.
+   *
+   * @return A non-null string, possibly empty.
+   */
+  private String getCaretParagraph() {
+    final StyledTextArea textArea = getEditor();
+    return textArea.getText( textArea.getCurrentParagraph() );
   }
 
   /**
@@ -240,7 +436,7 @@ public class VariableEditor {
    */
   private void typed( final String text ) {
     getEditor().replaceSelection( text );
-    autocomplete();
+    vModeAutocomplete();
   }
 
   /**
@@ -339,7 +535,7 @@ public class VariableEditor {
 
     int i = 0;
 
-    while( i < length && !Character.isWhitespace( s.charAt( i ) ) ) {
+    while( i < length && !isWhitespace( s.charAt( i ) ) ) {
       i++;
     }
 
@@ -360,8 +556,22 @@ public class VariableEditor {
     return getLast( getSiblings( item ), item );
   }
 
+  /**
+   * Returns the caret position as an offset into the text.
+   *
+   * @return A value from 0 to the length of the text (minus one).
+   */
   private int getCurrentCaretPosition() {
     return getEditor().getCaretPosition();
+  }
+
+  /**
+   * Returns the caret position within the current paragraph.
+   *
+   * @return A value from 0 to the length of the current paragraph.
+   */
+  private int getCurrentCaretColumn() {
+    return getEditor().getCaretColumn();
   }
 
   /**
@@ -396,7 +606,7 @@ public class VariableEditor {
     final StyledTextArea textArea = getEditor();
     final int textBegan = getInitialCaretPosition();
     final int remaining = textArea.getLength() - textBegan;
-    final int textEnded = Math.min( remaining, getMaxVarLength() );
+    final int textEnded = min( remaining, getMaxVarLength() );
 
     return textArea.getText( textBegan, textEnded );
   }
@@ -418,6 +628,17 @@ public class VariableEditor {
    */
   private TreeItem<String> findNode( final String path ) {
     return getDefinitionPane().findNode( path );
+  }
+
+  /**
+   * Finds the first leaf having a value that starts with the given text.
+   *
+   * @param text The text to find in the definition tree.
+   *
+   * @return The leaf that starts with the given text, or null if not found.
+   */
+  private TreeItem<String> findLeaf( final String text ) {
+    return getDefinitionPane().findLeaf( text );
   }
 
   /**
@@ -462,14 +683,6 @@ public class VariableEditor {
   }
 
   /**
-   * Trap the AT key for inserting YAML variables.
-   */
-  private void initKeyboardEventListeners() {
-    addEventListener( keyPressed( DIGIT2, SHIFT_DOWN ), this::atPressed );
-    addEventListener( keyPressed( AT ), this::atPressed );
-  }
-
-  /**
    * Returns true iff the key code the user typed can be used as part of a YAML
    * variable name.
    *
@@ -489,14 +702,14 @@ public class VariableEditor {
   /**
    * Starts to capture user input events.
    */
-  private void startEventCapture() {
+  private void vModeStart() {
     addEventListener( getKeyboardMap() );
   }
 
   /**
    * Restores capturing of user input events to the previous event listener.
    */
-  private void stopEventCapture() {
+  private void vModeStop() {
     removeEventListener( getKeyboardMap() );
   }
 

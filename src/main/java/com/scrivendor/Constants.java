@@ -41,7 +41,7 @@ public class Constants {
   public static final String BUNDLE_NAME = "com.scrivendor.messages";
   public static final String SETTINGS_NAME = "/com/scrivendor/settings.properties";
 
-  public static final String STYLESHEET_PREVIEW = "com/scrivendor/HTML.css";
+  public static final String STYLESHEET_PREVIEW = "com/scrivendor/scene.css";
   public static final String STYLESHEET_EDITOR = "com/scrivendor/editor/Markdown.css";
 
   public static final String LOGO_32 = "com/scrivendor/logo32.png";

@@ -1,6 +1,6 @@
 # Introduction
 
-This document describes how to write documentation (technical or otherwise) using a one master copy and produce a variety of output formats, such as: HTML pages, PDFs, and EPUBs. What's more, the document provides an overview of how to use variables and--for the unintimidated--leverage the power of R, a programming language.
+This document describes how to write documentation (technical or otherwise) using a master copy for generating a variety of output formats, such as: HTML pages, PDFs, and EPUBs. What's more, the document provides an overview of how to use variables and--for the unintimidated--leverage the power of R, a programming language.
 
 # Software Requirements
 

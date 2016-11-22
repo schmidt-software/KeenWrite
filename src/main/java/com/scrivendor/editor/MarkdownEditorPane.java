@@ -208,16 +208,16 @@ public class MarkdownEditorPane extends AbstractPane {
     
     return (separator != null)
       ? separator
-      : System.getProperty( "line.separator", "\n" );
+      : System.lineSeparator();
   }
   
-  private String determineLineSeparator( final String str ) {
-    final int strLength = str.length();
+  private String determineLineSeparator( final String s ) {
+    final int length = s.length();
     
-    for( int i = 0; i < strLength; i++ ) {
-      char ch = str.charAt( i );
+    for( int i = 0; i < length; i++ ) {
+      char ch = s.charAt( i );
       if( ch == '\n' ) {
-        return (i > 0 && str.charAt( i - 1 ) == '\r') ? "\r\n" : "\n";
+        return (i > 0 && s.charAt( i - 1 ) == '\r') ? "\r\n" : "\n";
       }
     }
     
@@ -227,15 +227,15 @@ public class MarkdownEditorPane extends AbstractPane {
   public String getMarkdown() {
     String markdown = getEditor().getText();
     
-    if( !lineSeparator.equals( "\n" ) ) {
-      markdown = markdown.replace( "\n", lineSeparator );
+    if( !this.lineSeparator.equals( "\n" ) ) {
+      markdown = markdown.replace( "\n", this.lineSeparator );
     }
     
     return markdown;
   }
   
   public void setMarkdown( final String markdown ) {
-    lineSeparator = determineLineSeparator( markdown );
+    this.lineSeparator = determineLineSeparator( markdown );
     getEditor().replaceText( markdown );
     getEditor().deselect();
   }
@@ -245,15 +245,15 @@ public class MarkdownEditorPane extends AbstractPane {
   }
   
   public double getScrollY() {
-    return scrollY.get();
+    return this.scrollY.get();
   }
   
   public ReadOnlyDoubleProperty scrollYProperty() {
-    return scrollY.getReadOnlyProperty();
+    return this.scrollY.getReadOnlyProperty();
   }
   
   public Path getPath() {
-    return path.get();
+    return this.path.get();
   }
   
   public void setPath( final Path path ) {
@@ -270,7 +270,8 @@ public class MarkdownEditorPane extends AbstractPane {
   }
   
   private void enterPressed( final KeyEvent e ) {
-    final String currentLine = getEditor().getText( getEditor().getCurrentParagraph() );
+    final StyleClassedTextArea textArea = getEditor();
+    final String currentLine = textArea.getText( textArea.getCurrentParagraph() );
     final Matcher matcher = AUTO_INDENT_PATTERN.matcher( currentLine );
     
     String newText = "\n";
@@ -282,20 +283,20 @@ public class MarkdownEditorPane extends AbstractPane {
       } else {
         // current line contains only whitespace characters and list markers
         // --> empty current line
-        final int caretPosition = getEditor().getCaretPosition();
-        getEditor().selectRange( caretPosition - currentLine.length(), caretPosition );
+        final int caretPosition = textArea.getCaretPosition();
+        textArea.selectRange( caretPosition - currentLine.length(), caretPosition );
       }
     }
     
-    getEditor().replaceSelection( newText );
+    textArea.replaceSelection( newText );
   }
   
   public void undo() {
-    getEditor().getUndoManager().undo();
+    getUndoManager().undo();
   }
   
   public void redo() {
-    getEditor().getUndoManager().redo();
+    getUndoManager().redo();
   }
   
   public void surroundSelection( final String leading, final String trailing ) {
@@ -307,7 +308,7 @@ public class MarkdownEditorPane extends AbstractPane {
 
     // Note: not using textArea.insertText() to insert leading and trailing
     // because this would add two changes to undo history
-    IndexRange selection = textArea.getSelection();
+    final IndexRange selection = textArea.getSelection();
     int start = selection.getStart();
     int end = selection.getEnd();
     
@@ -347,12 +348,16 @@ public class MarkdownEditorPane extends AbstractPane {
     String str = trailingIsEmpty ? leading : trailing;
     
     if( str.endsWith( "\n" ) ) {
-      for( int i = end; i < textArea.getLength() && str.endsWith( "\n" ); i++ ) {
+      final int length = textArea.getLength();
+      
+      for( int i = end; i < length && str.endsWith( "\n" ); i++ ) {
         if( !"\n".equals( textArea.getText( i, i + 1 ) ) ) {
           break;
         }
+        
         str = str.substring( 0, str.length() - 1 );
       }
+      
       if( trailingIsEmpty ) {
         leading = str;
       } else {
@@ -370,7 +375,7 @@ public class MarkdownEditorPane extends AbstractPane {
     }
 
     // prevent undo merging with previous text entered by user
-    textArea.getUndoManager().preventMerge();
+    getUndoManager().preventMerge();
 
     // replace text and update selection
     textArea.replaceText( start, end, leading + trimmedSelectedText + trailing );
@@ -378,14 +383,14 @@ public class MarkdownEditorPane extends AbstractPane {
   }
   
   public void insertLink() {
-    LinkDialog dialog = new LinkDialog( getWindow(), getParentPath() );
+    final LinkDialog dialog = new LinkDialog( getWindow(), getParentPath() );
     dialog.showAndWait().ifPresent( result -> {
       getEditor().replaceSelection( result );
     } );
   }
   
   public void insertImage() {
-    ImageDialog dialog = new ImageDialog( getWindow(), getParentPath() );
+    final ImageDialog dialog = new ImageDialog( getWindow(), getParentPath() );
     dialog.showAndWait().ifPresent( result -> {
       getEditor().replaceSelection( result );
     } );

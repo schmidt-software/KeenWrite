@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2015 Karl Tauber <karl at jformdesigner dot com>
+ * Copyright 2016 Karl Tauber and White Magic Software, Ltd.
+ *
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -46,11 +47,12 @@ import org.commonmark.parser.Parser;
 import org.commonmark.renderer.html.HtmlRenderer;
 
 /**
- * Markdown preview pane.
+ * HTML preview pane is responsible for rendering an HTML document.
  *
  * @author Karl Tauber and White Magic Software, Ltd.
  */
-public final class MarkdownPreviewPane extends ScrollPane implements ChangeListener<String> {
+public final class HTMLPreviewPane
+  extends ScrollPane implements ChangeListener<String> {
 
   private final ObjectProperty<Path> path = new SimpleObjectProperty<>();
   private final DoubleProperty scrollY = new SimpleDoubleProperty();
@@ -64,7 +66,7 @@ public final class MarkdownPreviewPane extends ScrollPane implements ChangeListe
 
   private List<Extension> extensions;
 
-  public MarkdownPreviewPane() {
+  public HTMLPreviewPane() {
     setVbarPolicy( ALWAYS );
 
     pathProperty().addListener( (observable, oldValue, newValue) -> {
@@ -96,13 +98,24 @@ public final class MarkdownPreviewPane extends ScrollPane implements ChangeListe
     return createRenderer().render( createParser().parse( markdown ) );
   }
 
-  private List<Extension> getExtensions() {
+  private synchronized List<Extension> getExtensions() {
     if( this.extensions == null ) {
-      this.extensions = new ArrayList<>();
-      extensions.add( TablesExtension.create() );
+      this.extensions = createExtensions();
     }
 
     return this.extensions;
+  }
+
+  /**
+   * Creates a list that includes a TablesExtension. Subclasses may override
+   * this method to insert more extensions, or remove the table extension.
+   *
+   * @return A list with an extension.
+   */
+  protected List<Extension> createExtensions() {
+    final List<Extension> result = new ArrayList<>();
+    result.add( TablesExtension.create() );
+    return result;
   }
 
   private Parser createParser() {
@@ -122,7 +135,7 @@ public final class MarkdownPreviewPane extends ScrollPane implements ChangeListe
       "<!DOCTYPE html>"
       + "<html>"
       + "<head>"
-      + "<link rel='stylesheet' href='" + getClass().getResource( "markdownpad-github.css" ) + "'>"
+      + "<link rel='stylesheet' href='" + getClass().getResource( "pane.css" ) + "'>"
       + getBase()
       + "</head>"
       + "<body" + getScrollScript() + ">"

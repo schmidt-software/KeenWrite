@@ -27,7 +27,7 @@
 package com.scrivendor;
 
 import com.scrivendor.editor.MarkdownEditorPane;
-import com.scrivendor.preview.MarkdownPreviewPane;
+import com.scrivendor.preview.HTMLPreviewPane;
 import com.scrivendor.service.Options;
 import com.scrivendor.service.events.AlertMessage;
 import com.scrivendor.service.events.AlertService;
@@ -66,7 +66,7 @@ class FileEditor {
 
   private final Tab tab = new Tab();
   private MarkdownEditorPane markdownEditorPane;
-  private MarkdownPreviewPane markdownPreviewPane;
+  private HTMLPreviewPane markdownPreviewPane;
 
   private final ObjectProperty<Path> path = new SimpleObjectProperty<>();
   private final ReadOnlyBooleanWrapper modified = new ReadOnlyBooleanWrapper();
@@ -115,7 +115,7 @@ class FileEditor {
     }
 
     // Load file and create UI when the tab becomes visible the first time.
-    final MarkdownPreviewPane previewPane = getPreviewPane();
+    final HTMLPreviewPane previewPane = getPreviewPane();
 
     // The Markdown Preview Pane must receive the load event.
     editorPane.addChangeListener( previewPane );
@@ -269,9 +269,9 @@ class FileEditor {
     getEditorPane().removeEventListener( map );
   }
 
-  protected MarkdownPreviewPane getPreviewPane() {
+  protected HTMLPreviewPane getPreviewPane() {
     if( this.markdownPreviewPane == null ) {
-      this.markdownPreviewPane = new MarkdownPreviewPane();
+      this.markdownPreviewPane = new HTMLPreviewPane();
     }
 
     return this.markdownPreviewPane;

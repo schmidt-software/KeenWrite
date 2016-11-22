@@ -34,6 +34,7 @@ import static com.scrivendor.yaml.YamlTreeAdapter.adapt;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+import java.util.Stack;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.control.MultipleSelectionModel;
@@ -50,6 +51,8 @@ public class DefinitionPane extends AbstractPane {
 
   public final static String SEPARATOR = ".";
 
+  private final static String TERMINALS = ":;,.!?-/\\¡¿";
+
   private TreeView<String> treeView;
 
   /**
@@ -59,7 +62,7 @@ public class DefinitionPane extends AbstractPane {
     try {
       setTreeView(
         adapt(
-          // TODO: Allow user loading of variables file.
+          // TODO: Associate variable file with path to current file.
           asStream( "/com/scrivendor/variables.yaml" ),
           get( "Pane.defintion.node.root.title" )
         )
@@ -177,6 +180,78 @@ public class DefinitionPane extends AbstractPane {
   }
 
   /**
+   * Returns the leaf that matches the given value. If the value is terminally
+   * punctuated, the punctuation is removed if no match was found.
+   *
+   * @param value The value to find, never null.
+   *
+   * @return The leaf that contains the given value, or null if neither the
+   * original value nor the terminally-trimmed value was found.
+   */
+  public TreeItem<String> findLeaf( final String value ) {
+    final TreeItem<String> root = getTreeRoot();
+    final TreeItem<String> leaf = findLeaf( root, value );
+
+    return leaf == null
+      ? findLeaf( root, rtrimTerminalPunctuation( value ) )
+      : leaf;
+  }
+
+  /**
+   * Finds a leaf starting at the current node with text that matches the given
+   * value.
+   *
+   * @param root The node to search.
+   * @param text The text to match against each leaf in the tree.
+   *
+   * @return The leaf that has a value starting with the given text.
+   */
+  public TreeItem<String> findLeaf(
+    final TreeItem<String> root,
+    final String text ) {
+    final Stack<TreeItem<String>> stack = new Stack<>();
+    boolean found = false;
+    TreeItem<String> node = null;
+
+    stack.push( root );
+
+    while( !stack.isEmpty() && !found ) {
+      node = stack.pop();
+
+      if( node.isLeaf() && node.getValue().startsWith( text ) ) {
+        found = true;
+      } else {
+        for( final TreeItem<String> child : node.getChildren() ) {
+          stack.push( child );
+        }
+        
+        // No match found, yet.
+        node = null;
+      }
+    }
+
+    return node;
+  }
+
+  /**
+   * Removes punctuation from the end of a string. The character set includes:
+   * <code>:;,.!?-/\¡¿</code>.
+   *
+   * @param s The string to trim, never null.
+   *
+   * @return The string trimmed of all terminal characters from the end
+   */
+  private String rtrimTerminalPunctuation( final String s ) {
+    final StringBuilder result = new StringBuilder( s.trim() );
+
+    while( TERMINALS.contains( "" + result.charAt( result.length() - 1 ) ) ) {
+      result.setLength( result.length() - 1 );
+    }
+
+    return result.toString();
+  }
+
+  /**
    * Returns the tree root if either item or its first child are null.
    *
    * @param item The item to make null safe.
@@ -189,20 +264,6 @@ public class DefinitionPane extends AbstractPane {
       : item;
 
     return result == null ? item : result;
-  }
-
-  /**
-   * Returns the path for a node, with nodes made distinct using the separator
-   * character. This is the antithesis of the findExactNode method.
-   *
-   * @param t The tree item to path into a string.
-   *
-   * @return A non-null string, possibly empty.
-   */
-  public String toPath( TreeItem<String> t ) {
-    return t.getParent() == null
-      ? ""
-      : toPath( t.getParent() ) + SEPARATOR + t.getValue();
   }
 
   /**
