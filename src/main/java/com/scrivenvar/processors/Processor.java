@@ -25,32 +25,33 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.scrivenvar.service;
+package com.scrivenvar.processors;
 
 /**
  * Responsible for processing documents from one known format to another.
  *
  * @author White Magic Software, Ltd.
+ * @param <T> The type of processor to create.
  */
-public interface DocumentProcessor extends Service {
+public interface Processor<T> {
+
+  /**
+   * Processes the given content providing a transformation from one document
+   * format into another. For example, this could convert from XML to text using
+   * an XSLT processor, or from markdown to HTML.
+   *
+   * @param t The type of object to process.
+   *
+   * @return The post-processed document, or null if processing should stop.
+   */
+  public T processLink( T t );
 
   /**
    * Adds a document processor to call after this processor finishes processing
    * the document given to the process method.
    *
-   * @param next The processor that should transform the document after this
+   * @return The processor that should transform the document after this
    * instance has finished processing.
    */
-  public void chain(DocumentProcessor next);
-
-  /**
-   * Processes the given content providing a transformation from one document
-   * format into another. For example, this could convert from XML to structured
-   * text (e.g., markdown) using an XSLT processor, followed by a markdown to
-   * HTML processor (such as Common Mark).
-   *
-   * @param document The document to process.
-   * @return The post-processed document.
-   */
-  public String process(String document);
+  public Processor<T> next();
 }

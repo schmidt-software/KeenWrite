@@ -28,33 +28,23 @@
 package com.scrivenvar.preview;
 
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
 import javafx.application.Platform;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleDoubleProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.scene.control.ScrollPane;
 import static javafx.scene.control.ScrollPane.ScrollBarPolicy.ALWAYS;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
-import org.commonmark.Extension;
-import org.commonmark.ext.gfm.tables.TablesExtension;
-import org.commonmark.parser.Parser;
-import org.commonmark.renderer.html.HtmlRenderer;
 
 /**
  * HTML preview pane is responsible for rendering an HTML document.
  *
  * @author Karl Tauber and White Magic Software, Ltd.
  */
-public final class HTMLPreviewPane
-  extends ScrollPane implements ChangeListener<String> {
+public final class HTMLPreviewPane extends ScrollPane {
 
-  private final ObjectProperty<Path> path = new SimpleObjectProperty<>();
+  private ObjectProperty<Path> path;
   private final DoubleProperty scrollY = new SimpleDoubleProperty();
 
   private final WebView webView = new WebView();
@@ -62,68 +52,20 @@ public final class HTMLPreviewPane
   private int lastScrollY;
 
   private boolean delayScroll;
-  private String html = "";
 
-  private List<Extension> extensions;
+  private String html;
 
-  public HTMLPreviewPane() {
+  public HTMLPreviewPane( final ObjectProperty<Path> path ) {
+    setPath( path );
+    
     setVbarPolicy( ALWAYS );
+    scrollYProperty().addListener( (observable, oldValue, newValue) -> {
+      scrollY();
+    } );
 
     pathProperty().addListener( (observable, oldValue, newValue) -> {
       update();
     } );
-
-    scrollYProperty().addListener( (observable, oldValue, newValue) -> {
-      scrollY();
-    } );
-  }
-
-  @Override
-  public void changed( final ObservableValue<? extends String> observable,
-    final String oValue, final String nValue ) {
-    final String markdown = nValue == null ? "" : nValue;
-
-    setHtml( toHtml( markdown ) );
-    update();
-  }
-
-  /**
-   * Converts a string of markdown into HTML.
-   *
-   * @param markdown The markdown text to convert to HTML, must not be null.
-   *
-   * @return The markdown rendered as an HTML document.
-   */
-  private String toHtml( final String markdown ) {
-    return createRenderer().render( createParser().parse( markdown ) );
-  }
-
-  private synchronized List<Extension> getExtensions() {
-    if( this.extensions == null ) {
-      this.extensions = createExtensions();
-    }
-
-    return this.extensions;
-  }
-
-  /**
-   * Creates a list that includes a TablesExtension. Subclasses may override
-   * this method to insert more extensions, or remove the table extension.
-   *
-   * @return A list with an extension.
-   */
-  protected List<Extension> createExtensions() {
-    final List<Extension> result = new ArrayList<>();
-    result.add( TablesExtension.create() );
-    return result;
-  }
-
-  private Parser createParser() {
-    return Parser.builder().extensions( getExtensions() ).build();
-  }
-
-  private HtmlRenderer createRenderer() {
-    return HtmlRenderer.builder().extensions( getExtensions() ).build();
   }
 
   private void update() {
@@ -144,6 +86,11 @@ public final class HTMLPreviewPane
       + "</html>" );
   }
 
+  public void update( final String html ) {
+    setHtml( html );
+    update();
+  }
+
   /**
    * Obtain the window.scrollX and window.scrollY from web engine, but only no
    * worker is running (in this case the result would be zero).
@@ -158,11 +105,11 @@ public final class HTMLPreviewPane
   }
 
   private String getBase() {
-    final Path pathProperty = getPath();
+    final Path basePath = getPath();
 
-    return pathProperty == null
+    return basePath == null
       ? ""
-      : ("<base href='" + pathProperty.getParent().toUri().toString() + "'>");
+      : ("<base href='" + basePath.getParent().toUri().toString() + "'>");
   }
 
   private String getScrollScript() {
@@ -190,18 +137,6 @@ public final class HTMLPreviewPane
       "window.scrollTo(0, (document.body.scrollHeight - window.innerHeight) * "
       + value
       + ");" );
-  }
-
-  public Path getPath() {
-    return pathProperty().get();
-  }
-
-  public void setPath( final Path path ) {
-    pathProperty().set( path );
-  }
-
-  public ObjectProperty<Path> pathProperty() {
-    return this.path;
   }
 
   public double getScrollY() {
@@ -233,6 +168,19 @@ public final class HTMLPreviewPane
   }
 
   private void setHtml( final String html ) {
-    this.html = html == null ? "" : html;
+    this.html = html;
   }
+
+  private Path getPath() {
+    return this.path.get();
+  }
+
+  public ObjectProperty<Path> pathProperty() {
+    return this.path;
+  }
+
+  private void setPath( final ObjectProperty<Path> path ) {
+    this.path = path;
+  }
+
 }

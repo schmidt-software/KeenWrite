@@ -25,30 +25,57 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.scrivenvar.service;
-
-import com.scrivenvar.processors.Processor;
+package com.scrivenvar.processors;
 
 /**
- * Responsible for creating a chain of document processors for a given file
- * type. For example, an Rmd document creates an R document processor followed
- * by a markdown document processor to create a final web page document; whereas
- * an XML document creates an XSLT document processor with an option for
- * chaining another processor.
+ * Responsible for transforming a document through a variety of chained
+ * handlers. If there are conditions where this handler should not process the
+ * entire chain, create a second handler, or split the chain into reusable
+ * sub-chains.
  *
  * @author White Magic Software, Ltd.
+ * @param <T> The type of object to process.
  */
-public interface DocumentProcessorFactory extends Service {
+public abstract class AbstractProcessor<T> implements Processor<T> {
 
   /**
-   * Creates a document processor for a given file type. An XML document might
-   * be associated with an XSLT processor, for example, letting the client code
-   * chain a markdown processor afterwards.
-   *
-   * @param filetype The type of file to process (i.e., its extension).
-   * @return A processor capable of transforming a document from the given filet
-   * type to a destination file type (as hinted by the given file name
-   * extension).
+   * Used while processing the entire chain.
    */
-  public Processor createDocumentProcessor(String filetype);
+  private final Processor<T> next;
+
+  /**
+   * Constructs a succession without a successor (i.e., next is null).
+   */
+  protected AbstractProcessor() {
+    this( null );
+  }
+
+  /**
+   * Constructs a new default handler with a given successor.
+   *
+   * @param successor Use null to indicate last link in the chain.
+   */
+  public AbstractProcessor( final Processor<T> successor ) {
+    this.next = successor;
+  }
+
+  /**
+   * Processes links in the chain while there are successors and valid data to
+   * process.
+   *
+   * @param t The object to process.
+   */
+  public synchronized void processChain( T t ) {
+    Processor<T> handler = this;
+
+    while( handler != null && t != null ) {
+      t = handler.processLink( t );
+      handler = handler.next();
+    }
+  }
+
+  @Override
+  public Processor<T> next() {
+    return this.next;
+  }
 }

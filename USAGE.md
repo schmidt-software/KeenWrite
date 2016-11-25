@@ -24,4 +24,3 @@ To exit R, press `Ctrl+d` or type `q()` followed by pressing `Enter`.
 The required software packages are installed.
 
 # Markdown
-

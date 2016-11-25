@@ -27,12 +27,8 @@
  */
 package com.scrivenvar.definition;
 
-import static com.scrivenvar.Messages.get;
 import static com.scrivenvar.definition.Lists.getFirst;
 import com.scrivenvar.ui.AbstractPane;
-import static com.scrivenvar.yaml.YamlTreeAdapter.adapt;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.List;
 import java.util.Stack;
 import javafx.collections.ObservableList;
@@ -56,22 +52,14 @@ public class DefinitionPane extends AbstractPane {
   private TreeView<String> treeView;
 
   /**
-   * Reads YAML variables into a tree view.
+   * Constructs a definition pane with a given tree view root.
+   *
+   * @see YamlTreeAdapter.adapt
+   * @param root The root of the variable definition tree.
    */
-  public DefinitionPane() {
-    try {
-      setTreeView(
-        adapt(
-          // TODO: Associate variable file with path to current file.
-          asStream( "/com/scrivenvar/variables.yaml" ),
-          get( "Pane.defintion.node.root.title" )
-        )
-      );
-
-      initTreeView();
-    } catch( IOException e ) {
-      throw new RuntimeException( e );
-    }
+  public DefinitionPane( final TreeView<String> root ) {
+    setTreeView( root );
+    initTreeView();
   }
 
   /**
@@ -224,7 +212,7 @@ public class DefinitionPane extends AbstractPane {
         for( final TreeItem<String> child : node.getChildren() ) {
           stack.push( child );
         }
-        
+
         // No match found, yet.
         node = null;
       }
@@ -317,10 +305,6 @@ public class DefinitionPane extends AbstractPane {
 
   private void initTreeView() {
     getSelectionModel().setSelectionMode( SelectionMode.MULTIPLE );
-  }
-
-  private InputStream asStream( String resource ) {
-    return getClass().getResourceAsStream( resource );
   }
 
   /**

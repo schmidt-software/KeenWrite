@@ -30,30 +30,23 @@ package com.scrivenvar.editor;
 import static com.scrivenvar.Constants.STYLESHEET_EDITOR;
 import com.scrivenvar.dialogs.ImageDialog;
 import com.scrivenvar.dialogs.LinkDialog;
-import com.scrivenvar.ui.AbstractPane;
 import com.scrivenvar.util.Utils;
 import java.nio.file.Path;
 import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
 import javafx.beans.WeakInvalidationListener;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.ReadOnlyDoubleProperty;
-import javafx.beans.property.ReadOnlyDoubleWrapper;
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.Event;
+import javafx.scene.control.Dialog;
 import javafx.scene.control.IndexRange;
 import javafx.scene.input.InputEvent;
 import static javafx.scene.input.KeyCode.ENTER;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Window;
-import org.fxmisc.flowless.VirtualizedScrollPane;
 import org.fxmisc.richtext.StyleClassedTextArea;
-import org.fxmisc.undo.UndoManager;
 import org.fxmisc.wellbehaved.event.EventPattern;
 import static org.fxmisc.wellbehaved.event.EventPattern.keyPressed;
 import org.fxmisc.wellbehaved.event.InputMap;
@@ -63,13 +56,10 @@ import org.fxmisc.wellbehaved.event.Nodes;
 /**
  * Markdown editor pane.
  *
- * Uses pegdown (https://github.com/sirthias/pegdown) for styling the markdown
- * content within a text area.
- *
  * @author Karl Tauber and White Magic Software, Ltd.
  */
-public class MarkdownEditorPane extends AbstractPane {
-  
+public class MarkdownEditorPane extends EditorPane {
+
   private static final Pattern AUTO_INDENT_PATTERN = Pattern.compile(
     "(\\s*[*+-]\\s+|\\s*[0-9]+\\.\\s+|\\s+)(.*)" );
 
@@ -77,27 +67,22 @@ public class MarkdownEditorPane extends AbstractPane {
    * Set when entering variable edit mode; retrieved upon exiting.
    */
   private InputMap<InputEvent> nodeMap;
-  
-  private StyleClassedTextArea editor;
-  private VirtualizedScrollPane<StyleClassedTextArea> scrollPane;
+
   private String lineSeparator = getLineSeparator();
-  
-  private final ReadOnlyDoubleWrapper scrollY = new ReadOnlyDoubleWrapper();
-  private final ObjectProperty<Path> path = new SimpleObjectProperty<>();
-  
+
   public MarkdownEditorPane() {
     initEditor();
     initScrollEventListener();
     initOptionEventListener();
   }
-  
+
   private void initEditor() {
     final StyleClassedTextArea textArea = getEditor();
-    
+
     textArea.setWrapText( true );
     textArea.getStyleClass().add( "markdown-editor" );
     textArea.getStylesheets().add( STYLESHEET_EDITOR );
-    
+
     addEventListener( keyPressed( ENTER ), this::enterPressed );
 
     // TODO: Wait for implementation that allows cutting lines, not paragraphs.
@@ -150,23 +135,19 @@ public class MarkdownEditorPane extends AbstractPane {
     Nodes.removeInputMap( getEditor(), map );
     Nodes.addInputMap( getEditor(), this.nodeMap );
   }
-  
-  public void scrollToTop() {
-    getEditor().moveTo( 0 );
-  }
 
   /**
    * Add a listener to update the scrollY property.
    */
   private void initScrollEventListener() {
     final StyleClassedTextArea textArea = getEditor();
-    
+
     ChangeListener<Double> scrollYListener = (observable, oldValue, newValue) -> {
       double value = textArea.estimatedScrollYProperty().getValue();
       double maxValue = textArea.totalHeightEstimateProperty().getOrElse( 0. ) - textArea.getHeight();
-      scrollY.set( (maxValue > 0) ? Math.min( Math.max( value / maxValue, 0 ), 1 ) : 0 );
+      setScrollY( (maxValue > 0) ? Math.min( Math.max( value / maxValue, 0 ), 1 ) : 0 );
     };
-    
+
     textArea.estimatedScrollYProperty().addListener( scrollYListener );
     textArea.totalHeightEstimateProperty().addListener( scrollYListener );
   }
@@ -176,7 +157,7 @@ public class MarkdownEditorPane extends AbstractPane {
    */
   private void initOptionEventListener() {
     final StyleClassedTextArea textArea = getEditor();
-    
+
     final InvalidationListener listener = e -> {
       if( textArea.getScene() == null ) {
         // Editor closed but not yet garbage collected.
@@ -189,93 +170,61 @@ public class MarkdownEditorPane extends AbstractPane {
         //textChanged(textArea.getText());
       }
     };
-    
+
     WeakInvalidationListener weakOptionsListener = new WeakInvalidationListener( listener );
     getOptions().markdownExtensionsProperty().addListener( weakOptionsListener );
   }
-  
-  protected StyleClassedTextArea createTextArea() {
-    return new StyleClassedTextArea( false );
-  }
-  
-  @Override
-  public void requestFocus() {
-    Platform.runLater( () -> getEditor().requestFocus() );
-  }
-  
+
   private String getLineSeparator() {
     final String separator = getOptions().getLineSeparator();
-    
+
     return (separator != null)
       ? separator
       : System.lineSeparator();
   }
-  
+
   private String determineLineSeparator( final String s ) {
     final int length = s.length();
-    
+
+    // TODO: Looping backwards will probably detect a newline sooner.
     for( int i = 0; i < length; i++ ) {
       char ch = s.charAt( i );
       if( ch == '\n' ) {
         return (i > 0 && s.charAt( i - 1 ) == '\r') ? "\r\n" : "\n";
       }
     }
-    
+
     return getLineSeparator();
   }
-  
+
   public String getMarkdown() {
     String markdown = getEditor().getText();
-    
+
     if( !this.lineSeparator.equals( "\n" ) ) {
       markdown = markdown.replace( "\n", this.lineSeparator );
     }
-    
+
     return markdown;
   }
-  
+
   public void setMarkdown( final String markdown ) {
     this.lineSeparator = determineLineSeparator( markdown );
-    getEditor().replaceText( markdown );
     getEditor().deselect();
+    getEditor().replaceText( markdown );
+    getUndoManager().mark();
   }
-  
+
   public ObservableValue<String> markdownProperty() {
     return getEditor().textProperty();
   }
-  
-  public double getScrollY() {
-    return this.scrollY.get();
-  }
-  
-  public ReadOnlyDoubleProperty scrollYProperty() {
-    return this.scrollY.getReadOnlyProperty();
-  }
-  
-  public Path getPath() {
-    return this.path.get();
-  }
-  
-  public void setPath( final Path path ) {
-    this.path.set( path );
-  }
-  
-  public ObjectProperty<Path> pathProperty() {
-    return this.path;
-  }
-  
-  private Path getParentPath() {
-    final Path parentPath = getPath();
-    return (parentPath != null) ? parentPath.getParent() : null;
-  }
-  
+
   private void enterPressed( final KeyEvent e ) {
     final StyleClassedTextArea textArea = getEditor();
     final String currentLine = textArea.getText( textArea.getCurrentParagraph() );
     final Matcher matcher = AUTO_INDENT_PATTERN.matcher( currentLine );
-    
+
     String newText = "\n";
-    
+
     if( matcher.matches() ) {
       if( !matcher.group( 2 ).isEmpty() ) {
         // indent new line with same whitespace characters and list markers as current line
@@ -287,22 +236,14 @@ public class MarkdownEditorPane extends AbstractPane {
         textArea.selectRange( caretPosition - currentLine.length(), caretPosition );
       }
     }
-    
+
     textArea.replaceSelection( newText );
   }
-  
-  public void undo() {
-    getUndoManager().undo();
-  }
-  
-  public void redo() {
-    getUndoManager().redo();
-  }
-  
+
   public void surroundSelection( final String leading, final String trailing ) {
     surroundSelection( leading, trailing, null );
   }
-  
+
   public void surroundSelection( String leading, String trailing, final String hint ) {
     final StyleClassedTextArea textArea = getEditor();
 
@@ -311,7 +252,7 @@ public class MarkdownEditorPane extends AbstractPane {
     final IndexRange selection = textArea.getSelection();
     int start = selection.getStart();
     int end = selection.getEnd();
-    
+
     final String selectedText = textArea.getSelectedText();
 
     // remove leading and trailing whitespaces from selected text
@@ -346,25 +287,25 @@ public class MarkdownEditorPane extends AbstractPane {
     // if there are line separators after the selected text
     final boolean trailingIsEmpty = trailing.isEmpty();
     String str = trailingIsEmpty ? leading : trailing;
-    
+
     if( str.endsWith( "\n" ) ) {
       final int length = textArea.getLength();
-      
+
       for( int i = end; i < length && str.endsWith( "\n" ); i++ ) {
         if( !"\n".equals( textArea.getText( i, i + 1 ) ) ) {
           break;
         }
-        
+
         str = str.substring( 0, str.length() - 1 );
       }
-      
+
       if( trailingIsEmpty ) {
         leading = str;
       } else {
         trailing = str;
       }
     }
-    
+
     int selStart = start + leading.length();
     int selEnd = end + leading.length();
 
@@ -381,52 +322,32 @@ public class MarkdownEditorPane extends AbstractPane {
     textArea.replaceText( start, end, leading + trimmedSelectedText + trailing );
     textArea.selectRange( selStart, selEnd );
   }
-  
-  public void insertLink() {
-    final LinkDialog dialog = new LinkDialog( getWindow(), getParentPath() );
-    dialog.showAndWait().ifPresent( result -> {
-      getEditor().replaceSelection( result );
-    } );
-  }
-  
-  public void insertImage() {
-    final ImageDialog dialog = new ImageDialog( getWindow(), getParentPath() );
-    dialog.showAndWait().ifPresent( result -> {
-      getEditor().replaceSelection( result );
-    } );
-  }
-  
-  private void setEditor( StyleClassedTextArea textArea ) {
-    this.editor = textArea;
-  }
-  
-  public synchronized StyleClassedTextArea getEditor() {
-    if( this.editor == null ) {
-      setEditor( createTextArea() );
-    }
-    
-    return this.editor;
+
+  private Path getParentPath() {
+    final Path parentPath = getPath();
+    return (parentPath != null) ? parentPath.getParent() : null;
   }
 
-  /**
-   * Returns the scroll pane that contains the text area.
-   *
-   * @return The scroll pane that contains the content to edit.
-   */
-  public synchronized VirtualizedScrollPane getScrollPane() {
-    if( this.scrollPane == null ) {
-      this.scrollPane = createScrollPane();
-    }
-    
-    return this.scrollPane;
+  private Dialog<String> createLinkDialog() {
+    return new LinkDialog( getWindow(), getParentPath() );
   }
-  
-  protected VirtualizedScrollPane<StyleClassedTextArea> createScrollPane() {
-    return new VirtualizedScrollPane<>( getEditor() );
+
+  private Dialog<String> createImageDialog() {
+    return new ImageDialog( getWindow(), getParentPath() );
   }
-  
-  public UndoManager getUndoManager() {
-    return getEditor().getUndoManager();
+
+  private void insertObject( final Dialog<String> dialog ) {
+    dialog.showAndWait().ifPresent( result -> {
+      getEditor().replaceSelection( result );
+    } );
+  }
+
+  public void insertLink() {
+    insertObject( createLinkDialog() );
+  }
+
+  public void insertImage() {
+    insertObject( createImageDialog() );
   }
 
   /**
@@ -446,7 +367,7 @@ public class MarkdownEditorPane extends AbstractPane {
   private String getInputMapKey() {
     return "org.fxmisc.wellbehaved.event.inputmap";
   }
-  
+
   private Window getWindow() {
     return getScrollPane().getScene().getWindow();
   }

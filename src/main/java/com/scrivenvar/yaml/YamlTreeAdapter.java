@@ -74,7 +74,7 @@ public class YamlTreeAdapter {
    * @param rootNode A JSON node (YAML node) to adapt.
    * @param rootItem The tree item to use as the root when processing the node.
    */
-  protected void adapt(
+  private void adapt(
     final JsonNode rootNode,
     final TreeItem<String> rootItem ) {
     rootNode.fields().forEachRemaining(
@@ -88,7 +88,7 @@ public class YamlTreeAdapter {
    * @param rootNode The node to adapt.
    * @param rootItem The item to adapt using the node's key.
    */
-  protected void adapt(
+  private void adapt(
     final Entry<String, JsonNode> rootNode,
     final TreeItem<String> rootItem ) {
     final JsonNode leafNode = rootNode.getValue();

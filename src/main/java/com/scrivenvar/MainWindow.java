@@ -27,15 +27,23 @@
 package com.scrivenvar;
 
 import static com.scrivenvar.Constants.LOGO_32;
+import static com.scrivenvar.Messages.get;
 import com.scrivenvar.definition.DefinitionPane;
 import com.scrivenvar.editor.MarkdownEditorPane;
-import com.scrivenvar.editor.VariableEditor;
+import com.scrivenvar.editor.VariableNameInjector;
 import com.scrivenvar.options.OptionsDialog;
+import com.scrivenvar.preview.HTMLPreviewPane;
+import com.scrivenvar.processors.HTMLPreviewProcessor;
+import com.scrivenvar.processors.MarkdownProcessor;
+import com.scrivenvar.processors.Processor;
+import com.scrivenvar.processors.TextChangeProcessor;
+import com.scrivenvar.processors.VariableNameProcessor;
 import com.scrivenvar.service.Options;
 import com.scrivenvar.util.Action;
 import com.scrivenvar.util.ActionUtils;
 import static com.scrivenvar.util.StageState.K_PANE_SPLIT_DEFINITION;
 import static com.scrivenvar.util.StageState.K_PANE_SPLIT_EDITOR;
+import static com.scrivenvar.yaml.YamlTreeAdapter.adapt;
 import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.BOLD;
 import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.CODE;
 import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.FILE_ALT;
@@ -52,12 +60,15 @@ import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.QUOTE_LEFT;
 import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.REPEAT;
 import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.STRIKETHROUGH;
 import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.UNDO;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.function.Function;
 import java.util.prefs.Preferences;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableBooleanValue;
 import javafx.event.Event;
 import javafx.scene.Node;
@@ -68,6 +79,7 @@ import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.ToolBar;
+import javafx.scene.control.TreeView;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import static javafx.scene.input.KeyCode.ESCAPE;
@@ -89,16 +101,18 @@ public class MainWindow {
   private final Options options = Services.load( Options.class );
 
   private Scene scene;
-  private FileEditorPane fileEditorPane;
 
+  private TreeView<String> treeView;
+  private FileEditorPane fileEditorPane;
   private DefinitionPane definitionPane;
-  private VariableEditor variableEditor;
+
+  private VariableNameInjector variableNameInjector;
 
   private MenuBar menuBar;
 
   public MainWindow() {
     initLayout();
-    initVariableEditor();
+    initVariableNameInjector();
   }
 
   private void initLayout() {
@@ -108,9 +122,8 @@ public class MainWindow {
     splitPane.setDividerPositions(
       getFloat( K_PANE_SPLIT_DEFINITION, .05f ),
       getFloat( K_PANE_SPLIT_EDITOR, .95f ) );
-    
+
     // See: http://broadlyapplicable.blogspot.ca/2015/03/javafx-capture-restore-splitpane.html
-    
     BorderPane borderPane = new BorderPane();
     borderPane.setPrefSize( 1024, 800 );
     borderPane.setTop( createMenuBar() );
@@ -140,8 +153,8 @@ public class MainWindow {
       } );
   }
 
-  private void initVariableEditor() {
-    setVariableEditor( new VariableEditor(
+  private void initVariableNameInjector() {
+    setVariableNameInjector( new VariableNameInjector(
       getFileEditorPane(),
       getDefinitionPane() )
     );
@@ -395,7 +408,19 @@ public class MainWindow {
   }
 
   private FileEditorPane createFileEditorPane() {
-    return new FileEditorPane( this );
+    final FileEditorPane pane = new FileEditorPane( this );
+    // Load file and create UI when the tab becomes visible the first time.
+    final HTMLPreviewPane previewPane = pane.getActiveFileEditor().getPreviewPane();
+
+    // TODO: Change this to use a factory based on the filename extension.
+    Processor<String> hpp = new HTMLPreviewProcessor( previewPane );
+    Processor<String> mp = new MarkdownProcessor( hpp );
+    Processor<String> vnp = new VariableNameProcessor( mp, getTreeView() );
+    ChangeListener<String> tp = new TextChangeProcessor( vnp );
+    
+    pane.getActiveFileEditor().addChangeListener( tp );
+    
+    return pane;
   }
 
   private MarkdownEditorPane getActiveEditor() {
@@ -407,7 +432,7 @@ public class MainWindow {
   }
 
   protected DefinitionPane createDefinitionPane() {
-    return new DefinitionPane();
+    return new DefinitionPane( getTreeView() );
   }
 
   private DefinitionPane getDefinitionPane() {
@@ -426,12 +451,12 @@ public class MainWindow {
     this.menuBar = menuBar;
   }
 
-  public VariableEditor getVariableEditor() {
-    return this.variableEditor;
+  public VariableNameInjector getVariableNameInjector() {
+    return this.variableNameInjector;
   }
 
-  public void setVariableEditor( VariableEditor variableEditor ) {
-    this.variableEditor = variableEditor;
+  public void setVariableNameInjector( VariableNameInjector variableNameInjector ) {
+    this.variableNameInjector = variableNameInjector;
   }
 
   private float getFloat( String key, float defaultValue ) {
@@ -445,4 +470,31 @@ public class MainWindow {
   private Options getOptions() {
     return this.options;
   }
+  
+  private synchronized TreeView<String> getTreeView() throws RuntimeException {
+    if( this.treeView == null ) {
+      try {
+        this.treeView = createTreeView();
+      } catch( IOException ex ) {
+        
+        // TODO: Pop an error message.
+        throw new RuntimeException( ex );
+      }
+    }
+
+    return this.treeView;
+  }
+
+  private InputStream asStream( String resource ) {
+    return getClass().getResourceAsStream( resource );
+  }
+
+  private TreeView<String> createTreeView() throws IOException {
+    // TODO: Associate variable file with path to current file.
+    return adapt(
+      asStream( "/com/scrivenvar/variables.yaml" ),
+      get( "Pane.defintion.node.root.title" )
+    );
+  }
+
 }

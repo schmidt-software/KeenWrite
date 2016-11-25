@@ -27,11 +27,15 @@
  */
 package com.scrivenvar;
 
+import static com.scrivenvar.Messages.get;
 import com.scrivenvar.definition.DefinitionPane;
+import static com.scrivenvar.yaml.YamlTreeAdapter.adapt;
+import java.io.InputStream;
 import javafx.application.Application;
 import static javafx.application.Application.launch;
 import javafx.scene.Scene;
 import javafx.scene.control.TreeItem;
+import javafx.scene.control.TreeView;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import org.fxmisc.flowless.VirtualizedScrollPane;
@@ -62,7 +66,13 @@ public final class TestDefinitionPane extends Application {
     initScene();
     initStage( stage );
 
-    DefinitionPane pane = new DefinitionPane();
+    TreeView<String> root = adapt(
+      // TODO: Associate variable file with path to current file.
+      asStream( "/com/scrivenvar/variables.yaml" ),
+      get( "Pane.defintion.node.root.title" )
+    );
+
+    DefinitionPane pane = new DefinitionPane( root );
 
     test( pane, "language.ai.", "article" );
     test( pane, "language.ai", "ai" );
@@ -123,5 +133,9 @@ public final class TestDefinitionPane extends Application {
 
   public static void showDocument( String uri ) {
     getApplication().getHostServices().showDocument( uri );
+  }
+
+  private InputStream asStream( String resource ) {
+    return getClass().getResourceAsStream( resource );
   }
 }

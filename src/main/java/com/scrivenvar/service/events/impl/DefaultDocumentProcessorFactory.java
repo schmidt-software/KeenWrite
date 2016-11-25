@@ -27,8 +27,8 @@
  */
 package com.scrivenvar.service.events.impl;
 
-import com.scrivenvar.service.DocumentProcessor;
 import com.scrivenvar.service.Service;
+import com.scrivenvar.processors.Processor;
 
 /**
  * Responsible for creating document processor (chains) for file types
@@ -38,12 +38,12 @@ import com.scrivenvar.service.Service;
  */
 public class DefaultDocumentProcessorFactory implements Service {
 
-  public DocumentProcessor createDocumentProcessor(String filetype){
-    if(filetype == null ) {
+  public Processor createDocumentProcessor( String filetype ) {
+    if( filetype == null ) {
       filetype = "md";
     }
-    
+
     return null;
-    
+
   }
 }

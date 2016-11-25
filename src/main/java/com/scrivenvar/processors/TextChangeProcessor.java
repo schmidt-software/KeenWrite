@@ -25,30 +25,54 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.scrivenvar.service;
+package com.scrivenvar.processors;
 
-import com.scrivenvar.processors.Processor;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 
 /**
- * Responsible for creating a chain of document processors for a given file
- * type. For example, an Rmd document creates an R document processor followed
- * by a markdown document processor to create a final web page document; whereas
- * an XML document creates an XSLT document processor with an option for
- * chaining another processor.
+ * Responsible for forwarding change events to the document process chain. This
+ * class isolates knowledge of the change events from the other processors.
  *
  * @author White Magic Software, Ltd.
  */
-public interface DocumentProcessorFactory extends Service {
+public class TextChangeProcessor extends AbstractProcessor<String>
+  implements ChangeListener<String> {
 
   /**
-   * Creates a document processor for a given file type. An XML document might
-   * be associated with an XSLT processor, for example, letting the client code
-   * chain a markdown processor afterwards.
+   * Constructs a new text processor that listens for changes to text and then
+   * injects them into the processing chain.
    *
-   * @param filetype The type of file to process (i.e., its extension).
-   * @return A processor capable of transforming a document from the given filet
-   * type to a destination file type (as hinted by the given file name
-   * extension).
+   * @param successor Usually the HTML Preview Processor.
    */
-  public Processor createDocumentProcessor(String filetype);
+  public TextChangeProcessor( final Processor<String> successor ) {
+    super( successor );
+  }
+
+  /**
+   * Called when the text editor changes.
+   *
+   * @param observable Unused.
+   * @param oldValue The value before being changed (unused).
+   * @param newValue The value after being changed (passed to processChain).
+   */
+  @Override
+  public void changed(
+    final ObservableValue<? extends String> observable,
+    final String oldValue,
+    final String newValue ) {
+    processChain( newValue );
+  }
+
+  /**
+   * Performs no processing.
+   *
+   * @param t Returned value.
+   *
+   * @return t, without any processing.
+   */
+  @Override
+  public String processLink( String t ) {
+    return t;
+  }
 }

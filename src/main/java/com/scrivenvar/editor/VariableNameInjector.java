@@ -62,11 +62,11 @@ import static org.fxmisc.wellbehaved.event.InputMap.consume;
 import static org.fxmisc.wellbehaved.event.InputMap.sequence;
 
 /**
- * Provides the logic for editing variable names within the editor.
+ * Provides the logic for injecting variable names within the editor.
  *
  * @author White Magic Software, Ltd.
  */
-public class VariableEditor {
+public class VariableNameInjector {
   
   private static final int NO_DIFFERENCE = -1;
   
@@ -85,7 +85,7 @@ public class VariableEditor {
    */
   private int initialCaretPosition = 0;
   
-  public VariableEditor(
+  public VariableNameInjector(
     final FileEditorPane editorPane,
     final DefinitionPane definitionPane ) {
     setFileEditorPane( editorPane );

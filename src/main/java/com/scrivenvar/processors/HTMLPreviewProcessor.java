@@ -25,30 +25,55 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.scrivenvar.service;
+package com.scrivenvar.processors;
 
-import com.scrivenvar.processors.Processor;
+import com.scrivenvar.preview.HTMLPreviewPane;
 
 /**
- * Responsible for creating a chain of document processors for a given file
- * type. For example, an Rmd document creates an R document processor followed
- * by a markdown document processor to create a final web page document; whereas
- * an XML document creates an XSLT document processor with an option for
- * chaining another processor.
+ * Responsible for notifying the HTMLPreviewPane when the succession chain has
+ * updated. This decouples knowledge of changes to the editor panel from the
+ * HTML preview panel as well as any processing that takes place before the
+ * final HTML preview is rendered. This should be the last link in the processor
+ * chain.
  *
  * @author White Magic Software, Ltd.
  */
-public interface DocumentProcessorFactory extends Service {
+public class HTMLPreviewProcessor extends AbstractProcessor<String> {
+
+  private HTMLPreviewPane htmlPreviewPane;
 
   /**
-   * Creates a document processor for a given file type. An XML document might
-   * be associated with an XSLT processor, for example, letting the client code
-   * chain a markdown processor afterwards.
+   * Constructs the end of a processing chain.
    *
-   * @param filetype The type of file to process (i.e., its extension).
-   * @return A processor capable of transforming a document from the given filet
-   * type to a destination file type (as hinted by the given file name
-   * extension).
+   * @param htmlPreviewPane The pane to update with the post-processed document.
    */
-  public Processor createDocumentProcessor(String filetype);
+  public HTMLPreviewProcessor( final HTMLPreviewPane htmlPreviewPane ) {
+    super( null );
+    setHtmlPreviewPane( htmlPreviewPane );
+  }
+
+  /**
+   * Update the preview panel using HTML from the succession chain.
+   *
+   * @param html The document content to render in the preview pane. The HTML
+   * should not contain a doctype, head, or body tag, only content to render
+   * within the body.
+   *
+   * @return null
+   */
+  @Override
+  public String processLink( final String html ) {
+    getHtmlPreviewPane().update( html );
+
+    // No more processing required.
+    return null;
+  }
+
+  private HTMLPreviewPane getHtmlPreviewPane() {
+    return this.htmlPreviewPane;
+  }
+
+  private void setHtmlPreviewPane( final HTMLPreviewPane htmlPreviewPane ) {
+    this.htmlPreviewPane = htmlPreviewPane;
+  }
 }
