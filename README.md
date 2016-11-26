@@ -23,14 +23,14 @@ Requirements
 Installation
 ------------
 
-[Download](https://github.com/DaveJarvis/scrivendor/releases/download/0.2/scrivendor.zip) the archive and extract it to any folder.
+[Download](https://github.com/DaveJarvis/scrivenvar/releases/download/0.4/scrivenvar.zip) the archive and extract it to any folder.
 
-Double-click `scrivendor.jar` to start the application.
+Double-click `scrivenvar.jar` to start the application.
 
 If this does not work, try following command in a terminal window:
 
 ```
-java -jar scrivendor.jar
+java -jar scrivenvar.jar
 ```
 
 Credits
@@ -56,3 +56,4 @@ This software is licensed under the [BSD 2-Clause License](LICENSE)
    [Flowless]: https://github.com/TomasMikula/Flowless
    [UndoFX]: https://github.com/TomasMikula/UndoFX
    [FontAwesomeFX]: https://bitbucket.org/Jerady/fontawesomefx
+

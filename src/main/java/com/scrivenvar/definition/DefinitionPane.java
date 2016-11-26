@@ -29,8 +29,8 @@ package com.scrivenvar.definition;
 
 import static com.scrivenvar.definition.Lists.getFirst;
 import com.scrivenvar.ui.AbstractPane;
+import com.scrivenvar.ui.VariableTreeItem;
 import java.util.List;
-import java.util.Stack;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.control.MultipleSelectionModel;
@@ -176,49 +176,13 @@ public class DefinitionPane extends AbstractPane {
    * @return The leaf that contains the given value, or null if neither the
    * original value nor the terminally-trimmed value was found.
    */
-  public TreeItem<String> findLeaf( final String value ) {
-    final TreeItem<String> root = getTreeRoot();
-    final TreeItem<String> leaf = findLeaf( root, value );
+  public VariableTreeItem<String> findLeaf( final String value ) {
+    final VariableTreeItem<String> root = getTreeRoot();
+    final VariableTreeItem<String> leaf = root.findLeaf( value );
 
     return leaf == null
-      ? findLeaf( root, rtrimTerminalPunctuation( value ) )
+      ? root.findLeaf( rtrimTerminalPunctuation( value ) )
       : leaf;
-  }
-
-  /**
-   * Finds a leaf starting at the current node with text that matches the given
-   * value.
-   *
-   * @param root The node to search.
-   * @param text The text to match against each leaf in the tree.
-   *
-   * @return The leaf that has a value starting with the given text.
-   */
-  public TreeItem<String> findLeaf(
-    final TreeItem<String> root,
-    final String text ) {
-    final Stack<TreeItem<String>> stack = new Stack<>();
-    boolean found = false;
-    TreeItem<String> node = null;
-
-    stack.push( root );
-
-    while( !stack.isEmpty() && !found ) {
-      node = stack.pop();
-
-      if( node.isLeaf() && node.getValue().startsWith( text ) ) {
-        found = true;
-      } else {
-        for( final TreeItem<String> child : node.getChildren() ) {
-          stack.push( child );
-        }
-
-        // No match found, yet.
-        node = null;
-      }
-    }
-
-    return node;
   }
 
   /**
@@ -334,8 +298,8 @@ public class DefinitionPane extends AbstractPane {
    *
    * @return The first node added to the YAML definition tree.
    */
-  private TreeItem<String> getTreeRoot() {
-    return getTreeView().getRoot();
+  private VariableTreeItem<String> getTreeRoot() {
+    return (VariableTreeItem<String>)getTreeView().getRoot();
   }
 
   public <T> boolean isRoot( final TreeItem<T> item ) {

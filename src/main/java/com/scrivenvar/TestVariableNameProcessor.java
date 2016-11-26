@@ -27,56 +27,72 @@
  */
 package com.scrivenvar;
 
-import com.scrivenvar.definition.DefinitionPane;
+import com.scrivenvar.ui.VariableTreeItem;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import static java.util.concurrent.ThreadLocalRandom.current;
 import static javafx.application.Application.launch;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.stage.Stage;
+import static org.apache.commons.lang.RandomStringUtils.randomAscii;
 
 /**
- * TestDefinitionPane application for debugging.
+ * Tests substituting variable definitions with their values in a swath of text.
+ *
+ * @author White Magic Software, Ltd.
  */
-public final class TestDefinitionPane extends TestHarness {
-  /**
-   * Application entry point.
-   *
-   * @param stage The primary application stage.
-   *
-   * @throws Exception Could not read configuration file.
-   */
+public class TestVariableNameProcessor extends TestHarness {
+
+  private final static StringBuilder SOURCE
+    = new StringBuilder( randomAscii( 1000 ) );
+
+  public TestVariableNameProcessor() {
+  }
+
   @Override
   public void start( final Stage stage ) throws Exception {
     super.start( stage );
 
-    TreeView<String> root = createTreeView();
-    DefinitionPane pane = createDefinitionPane( root );
+    final TreeView<String> root = createTreeView();
+    final LinkedHashMap<String, String> definitions = new LinkedHashMap<>();
 
-    test( pane, "language.ai.", "article" );
-    test( pane, "language.ai", "ai" );
-    test( pane, "l", "location" );
-    test( pane, "la", "language" );
-    test( pane, "c.p.n", "name" );
-    test( pane, "c.p.n.", "First" );
-    test( pane, "...", "c" );
-    test( pane, "foo", "c" );
-    test( pane, "foo.bar", "c" );
-    test( pane, "", "c" );
-    test( pane, "c", "protagonist" );
-    test( pane, "c.", "protagonist" );
-    test( pane, "c.p", "protagonist" );
-    test( pane, "c.protagonist", "protagonist" );
-
+    populate( createTreeView().getRoot(), definitions );
+    injectVariables( definitions );
+    
+    System.out.println( SOURCE );
     System.exit( 0 );
   }
 
-  private void test( DefinitionPane pane, String path, String value ) {
-    System.out.println( "---------------------------" );
-    System.out.println( "Find Path: '" + path + "'" );
-    final TreeItem<String> node = pane.findNode( path );
-    System.out.println( "Path Node: " + node );
-    System.out.println( "Node Val : " + node.getValue() );
+  private void injectVariables( final LinkedHashMap<String, String> definitions ) {
+    for( int i = 5; i > 0; i-- ) {
+      final int r = current().nextInt( 1, SOURCE.length() );
+      SOURCE.insert( r, randomKey( definitions ) );
+    }
   }
 
+  private String randomKey( final LinkedHashMap<String, String> map ) {
+    final int r = current().nextInt( 1, map.size() - 1 );
+    return map.get( map.keySet().toArray()[ r ] );
+  }
+
+  private void populate( final TreeItem<String> parent, final Map<String, String> map ) {
+    for( final TreeItem<String> child : parent.getChildren() ) {
+      if( child.isLeaf() ) {
+        map.put(
+          asDefinition( ((VariableTreeItem<String>)child).toPath() ),
+          child.getValue() );
+      } else {
+        populate( child, map );
+      }
+    }
+  }
+
+  private String asDefinition( final String variable ) {
+    System.out.println( "VAR: " + variable );
+    return String.format( "$%s$", variable );
+  }
+  
   public static void main( String[] args ) {
     launch( args );
   }

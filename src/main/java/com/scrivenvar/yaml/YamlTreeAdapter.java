@@ -28,6 +28,7 @@
 package com.scrivenvar.yaml;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.scrivenvar.ui.VariableTreeItem;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map.Entry;
@@ -44,7 +45,7 @@ public class YamlTreeAdapter {
 
   protected YamlTreeAdapter() {
   }
-  
+
   /**
    * Converts a YAML document to a TreeView based on the document keys. Only the
    * first document in the stream is adapted. This does not close the stream.
@@ -60,7 +61,7 @@ public class YamlTreeAdapter {
     final InputStream in, final String name ) throws IOException {
     final YamlTreeAdapter adapter = new YamlTreeAdapter();
     final JsonNode rootNode = YamlParser.parse( in );
-    final TreeItem<String> rootItem = new TreeItem<>( name );
+    final TreeItem<String> rootItem = adapter.createTreeItem( name );
 
     rootItem.setExpanded( true );
     adapter.adapt( rootNode, rootItem );
@@ -93,10 +94,12 @@ public class YamlTreeAdapter {
     final TreeItem<String> rootItem ) {
     final JsonNode leafNode = rootNode.getValue();
     final String key = rootNode.getKey();
-    final TreeItem<String> leafItem = new TreeItem<>( key );
+    final TreeItem<String> leafItem = createTreeItem( key );
 
     if( leafNode.isValueNode() ) {
-      leafItem.getChildren().add( new TreeItem<>( rootNode.getValue().asText() ) );
+      leafItem.getChildren().add(
+        createTreeItem( rootNode.getValue().asText() )
+      );
     }
 
     rootItem.getChildren().add( leafItem );
@@ -104,5 +107,16 @@ public class YamlTreeAdapter {
     if( leafNode.isObject() ) {
       adapt( leafNode, leafItem );
     }
+  }
+
+  /**
+   * Creates a new tree item that can be added to the tree view.
+   *
+   * @param value The node's value.
+   *
+   * @return A new tree item node, never null.
+   */
+  private TreeItem<String> createTreeItem( final String value ) {
+    return new VariableTreeItem<>( value );
   }
 }

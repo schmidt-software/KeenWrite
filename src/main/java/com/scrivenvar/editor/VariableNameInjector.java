@@ -34,10 +34,10 @@ import static com.scrivenvar.definition.DefinitionPane.SEPARATOR;
 import static com.scrivenvar.definition.Lists.getFirst;
 import static com.scrivenvar.definition.Lists.getLast;
 import com.scrivenvar.service.Settings;
+import com.scrivenvar.ui.VariableTreeItem;
 import static java.lang.Character.isSpaceChar;
 import static java.lang.Character.isWhitespace;
 import static java.lang.Math.min;
-import java.util.Stack;
 import java.util.function.Consumer;
 import javafx.collections.ObservableList;
 import javafx.event.Event;
@@ -67,16 +67,18 @@ import static org.fxmisc.wellbehaved.event.InputMap.sequence;
  * @author White Magic Software, Ltd.
  */
 public class VariableNameInjector {
+
+  public static final int DEFAULT_MAX_VAR_LENGTH = 64;
   
   private static final int NO_DIFFERENCE = -1;
-  
+
   private final Settings settings = Services.load( Settings.class );
 
   /**
    * Used to capture keyboard events once the user presses @.
    */
   private InputMap<InputEvent> keyboardMap;
-  
+
   private FileEditorPane fileEditorPane;
   private DefinitionPane definitionPane;
 
@@ -84,13 +86,13 @@ public class VariableNameInjector {
    * Position of the variable in the text when in variable mode.
    */
   private int initialCaretPosition = 0;
-  
+
   public VariableNameInjector(
     final FileEditorPane editorPane,
     final DefinitionPane definitionPane ) {
     setFileEditorPane( editorPane );
     setDefinitionPane( definitionPane );
-    
+
     initKeyboardEventListeners();
   }
 
@@ -131,16 +133,16 @@ public class VariableNameInjector {
    */
   private void vModeKeyPressed( KeyEvent e ) {
     final KeyCode keyCode = e.getCode();
-    
+
     switch( keyCode ) {
       case BACK_SPACE:
         vModeBackspace();
         break;
-      
+
       case ESCAPE:
         vModeStop();
         break;
-      
+
       case ENTER:
       case PERIOD:
       case RIGHT:
@@ -150,23 +152,23 @@ public class VariableNameInjector {
           vModeStop();
         }
         break;
-      
+
       case UP:
         cyclePathPrev();
         break;
-      
+
       case DOWN:
         cyclePathNext();
         break;
-      
+
       default:
         vModeFilterKeyPressed( e );
         break;
     }
-    
+
     e.consume();
   }
-  
+
   private void vModeBackspace() {
     deleteSelection();
 
@@ -183,7 +185,7 @@ public class VariableNameInjector {
    */
   private void vModeAutocomplete() {
     final TreeItem<String> node = getCurrentNode();
-    
+
     if( !node.isLeaf() ) {
       final String word = getLastPathWord();
       final String label = node.getValue();
@@ -191,17 +193,17 @@ public class VariableNameInjector {
       final String remainder = delta == NO_DIFFERENCE
         ? label
         : label.substring( delta );
-      
+
       final StyledTextArea textArea = getEditor();
       final int posBegan = getCurrentCaretPosition();
       final int posEnded = posBegan + remainder.length();
-      
+
       textArea.replaceSelection( remainder );
-      
+
       if( posEnded - posBegan > 0 ) {
         textArea.selectRange( posEnded, posBegan );
       }
-      
+
       expand( node );
     }
   }
@@ -227,14 +229,14 @@ public class VariableNameInjector {
    */
   private boolean vModeConditionalComplete() {
     acceptPath();
-    
+
     final TreeItem<String> node = getCurrentNode();
     final boolean terminal = isTerminal( node );
-    
+
     if( !terminal ) {
       typed( SEPARATOR );
     }
-    
+
     return terminal;
   }
 
@@ -248,14 +250,14 @@ public class VariableNameInjector {
   private void autocomplete( KeyEvent e ) {
     final int caretPos = getCurrentCaretColumn();
     final String paragraph = getCaretParagraph();
-    
+
     final int[] boundaries = getWordBoundaries( paragraph, caretPos );
     final String word = paragraph.substring( boundaries[ 0 ], boundaries[ 1 ] );
-    
-    final TreeItem<String> leaf = findLeaf( word );
-    
+
+    final VariableTreeItem<String> leaf = findLeaf( word );
+
     if( leaf != null ) {
-      replaceText( boundaries[ 0 ], boundaries[ 1 ], toPath( leaf ) );
+      replaceText( boundaries[ 0 ], boundaries[ 1 ], leaf.toPath() );
       expand( leaf );
     }
   }
@@ -275,47 +277,6 @@ public class VariableNameInjector {
   }
 
   /**
-   * Returns the path for a node, with nodes made distinct using the separator
-   * character. This is the antithesis of the findExactNode method. This uses
-   * two loops: one for pushing nodes onto a stack and one for popping them
-   * off to create the path in desired order.
-   *
-   * @param node The tree item to path into a string, must not be null.
-   *
-   * @return A non-null string, possibly empty.
-   */
-  public String toPath( TreeItem<String> node ) {
-    final Stack<TreeItem<String>> stack = new Stack<>();
-    
-    while( node.getParent() != null ) {
-      stack.push( node );
-      node = node.getParent();
-    }
-    
-    final StringBuilder sb = new StringBuilder( getMaxVarLength() );
-    
-    while( !stack.isEmpty() ) {
-      node = stack.pop();
-      
-      if( !node.isLeaf() ) {
-        sb.append( node.getValue() );
-        
-        // This will add a superfluous separator, but instead of peeking at
-        // the stack all the time, the last separator will be removed outside
-        // the loop.
-        sb.append( SEPARATOR );
-      }
-    }
-
-    // Remove the trailing SEPARATOR.
-    if( sb.length() > 0 ) {
-      sb.setLength( sb.length() - 1 );
-    }
-    
-    return sb.toString();
-  }
-
-  /**
    * Returns current word boundary indexes into the current paragraph, including
    * punctuation.
    *
@@ -327,10 +288,10 @@ public class VariableNameInjector {
     // Remove dashes, but retain hyphens. Retain same number of characters
     // to preserve relative indexes.
     paragraph = paragraph.replace( "---", "   " ).replace( "--", "  " );
-    
+
     final int posBegan = getWordBegan( paragraph, offset );
     final int posEnded = getWordEnded( paragraph, offset );
-    
+
     return new int[]{ posBegan, posEnded };
   }
 
@@ -360,7 +321,7 @@ public class VariableNameInjector {
   private String getWordAt( final String s, final int offset ) {
     final int posBegan = getWordBegan( s, offset );
     final int posEnded = getWordEnded( s, offset );
-    
+
     return s.substring( posBegan, posEnded );
   }
 
@@ -377,7 +338,7 @@ public class VariableNameInjector {
     while( offset > 0 && isBoundary( s.charAt( offset - 1 ) ) ) {
       offset--;
     }
-    
+
     return offset;
   }
 
@@ -391,11 +352,11 @@ public class VariableNameInjector {
    */
   private int getWordEnded( final String s, int offset ) {
     final int length = s.length();
-    
+
     while( offset < length && isBoundary( s.charAt( offset ) ) ) {
       offset++;
     }
-    
+
     return offset;
   }
 
@@ -432,7 +393,7 @@ public class VariableNameInjector {
    */
   private <T> boolean isTerminal( final TreeItem<T> node ) {
     final ObservableList<TreeItem<T>> branches = node.getChildren();
-    
+
     return branches.size() == 1 && branches.get( 0 ).isLeaf();
   }
 
@@ -452,7 +413,7 @@ public class VariableNameInjector {
    */
   private void acceptPath() {
     final IndexRange range = getSelectionRange();
-    
+
     if( range != null ) {
       final int rangeEnd = range.getEnd();
       final StyledTextArea textArea = getEditor();
@@ -472,7 +433,7 @@ public class VariableNameInjector {
     final StyledTextArea textArea = getEditor();
     final int posBegan = getInitialCaretPosition();
     final int posEnded = posBegan + oldPath.length();
-    
+
     textArea.deselect();
     textArea.replaceText( posBegan, posEnded, newPath );
   }
@@ -505,13 +466,13 @@ public class VariableNameInjector {
     if( cycled == null ) {
       cycled = direction ? getFirstSibling( node ) : getLastSibling( node );
     }
-    
+
     final String path = getCurrentPath();
     final String cycledWord = cycled.getValue();
     final String word = getLastPathWord();
     final int index = path.indexOf( word );
     final String cycledPath = path.substring( 0, index ) + cycledWord;
-    
+
     expand( cycled );
     replacePath( path, cycledPath );
   }
@@ -540,26 +501,26 @@ public class VariableNameInjector {
   private String getCurrentPath() {
     final String s = extractTextChunk();
     final int length = s.length();
-    
+
     int i = 0;
-    
+
     while( i < length && !isWhitespace( s.charAt( i ) ) ) {
       i++;
     }
-    
+
     return s.substring( 0, i );
   }
-  
+
   private <T> ObservableList<TreeItem<T>> getSiblings(
     final TreeItem<T> item ) {
     final TreeItem<T> parent = item.getParent();
     return parent == null ? item.getChildren() : parent.getChildren();
   }
-  
+
   private <T> TreeItem<T> getFirstSibling( final TreeItem<T> item ) {
     return getFirst( getSiblings( item ), item );
   }
-  
+
   private <T> TreeItem<T> getLastSibling( final TreeItem<T> item ) {
     return getLast( getSiblings( item ), item );
   }
@@ -589,14 +550,14 @@ public class VariableNameInjector {
    */
   private String getLastPathWord() {
     String path = getCurrentPath();
-    
+
     int i = path.indexOf( SEPARATOR );
-    
+
     while( i > 0 ) {
       path = path.substring( i + 1 );
       i = path.indexOf( SEPARATOR );
     }
-    
+
     return path;
   }
 
@@ -615,7 +576,7 @@ public class VariableNameInjector {
     final int textBegan = getInitialCaretPosition();
     final int remaining = textArea.getLength() - textBegan;
     final int textEnded = min( remaining, getMaxVarLength() );
-    
+
     return textArea.getText( textBegan, textEnded );
   }
 
@@ -645,7 +606,7 @@ public class VariableNameInjector {
    *
    * @return The leaf that starts with the given text, or null if not found.
    */
-  private TreeItem<String> findLeaf( final String text ) {
+  private VariableTreeItem<String> findLeaf( final String text ) {
     return getDefinitionPane().findLeaf( text );
   }
 
@@ -669,12 +630,12 @@ public class VariableNameInjector {
       consume( keyPressed(), this::vModeKeyPressed )
     );
   }
-  
+
   private InputMap<InputEvent> getKeyboardMap() {
     if( this.keyboardMap == null ) {
       this.keyboardMap = createKeyboardMap();
     }
-    
+
     return this.keyboardMap;
   }
 
@@ -700,7 +661,7 @@ public class VariableNameInjector {
    */
   private boolean isVariableNameKey( final KeyEvent keyEvent ) {
     final KeyCode kc = keyEvent.getCode();
-    
+
     return (kc.isLetterKey()
       || kc.isDigitKey()
       || (keyEvent.isShiftDown() && kc == MINUS))
@@ -735,14 +696,14 @@ public class VariableNameInjector {
     if( s1 == s2 ) {
       return NO_DIFFERENCE;
     }
-    
+
     if( s1 == null || s2 == null ) {
       return 0;
     }
-    
+
     int i = 0;
     final int limit = min( s1.length(), s2.length() );
-    
+
     while( i < limit && s1.charAt( i ) == s2.charAt( i ) ) {
       i++;
     }
@@ -768,7 +729,7 @@ public class VariableNameInjector {
   private void addEventListener( final InputMap<InputEvent> map ) {
     getFileEditorPane().addEventListener( map );
   }
-  
+
   private void removeEventListener( final InputMap<InputEvent> map ) {
     getFileEditorPane().removeEventListener( map );
   }
@@ -792,27 +753,27 @@ public class VariableNameInjector {
   private void setInitialCaretPosition() {
     this.initialCaretPosition = getEditor().getCaretPosition();
   }
-  
+
   private StyledTextArea getEditor() {
     return getFileEditorPane().getEditor();
   }
-  
+
   public FileEditorPane getFileEditorPane() {
     return this.fileEditorPane;
   }
-  
+
   private void setFileEditorPane( final FileEditorPane fileEditorPane ) {
     this.fileEditorPane = fileEditorPane;
   }
-  
+
   private DefinitionPane getDefinitionPane() {
     return this.definitionPane;
   }
-  
+
   private void setDefinitionPane( final DefinitionPane definitionPane ) {
     this.definitionPane = definitionPane;
   }
-  
+
   private IndexRange getSelectionRange() {
     return getEditor().getSelection();
   }
@@ -823,9 +784,10 @@ public class VariableNameInjector {
    * @return 512 by default.
    */
   private int getMaxVarLength() {
-    return getSettings().getSetting( "editor.variable.maxLength", 512 );
+    return getSettings().getSetting(
+      "editor.variable.maxLength", DEFAULT_MAX_VAR_LENGTH );
   }
-  
+
   private Settings getSettings() {
     return this.settings;
   }

@@ -7,8 +7,8 @@
   <node name="designer">
     <entry key="_i18nJavaSettingsEnabled" value="true" />
     <entry key="_i18nSettingsEnabled" value="true" />
-    <entry key="i18n.externalizeexcludes1" value="com.scrivendor.controls.EscapeTextField#escapeCharacters" />
-    <entry key="i18n.externalizeexcludes2" value="com.scrivendor.controls.WebHyperlink#uri" />
+    <entry key="i18n.externalizeexcludes1" value="com.scrivenvar.controls.EscapeTextField#escapeCharacters" />
+    <entry key="i18n.externalizeexcludes2" value="com.scrivenvar.controls.WebHyperlink#uri" />
     <entry key="i18n.javagetstringformat" value="Messages.get(${key})" />
   </node>
   <node name="javacodegenerator">
