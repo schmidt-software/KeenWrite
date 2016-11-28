@@ -25,57 +25,51 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.scrivenvar.processors;
+package com.scrivenvar.processors.text;
 
-import com.scrivenvar.processors.text.TextReplacementFactory;
-import com.scrivenvar.processors.text.TextReplacer;
-import com.scrivenvar.ui.VariableTreeItem;
 import java.util.Map;
-import javafx.scene.control.TreeView;
+import org.ahocorasick.trie.Emit;
+import org.ahocorasick.trie.Trie;
 
 /**
- * Processes variables in the document and inserts their values into the
- * post-processed text.
+ * Replaces text using an Aho-Corsick algorithm.
  *
  * @author White Magic Software, Ltd.
  */
-public class VariableNameProcessor extends AbstractProcessor<String> {
-
-  private TreeView<String> treeView;
+public class AhoCorsickReplacer extends AbstractTextReplacer {
 
   /**
-   * Constructs a new Markdown processor that can create HTML documents.
-   *
-   * @param successor Usually the HTML Preview Processor.
+   * Default (empty) constructor.
    */
-  private VariableNameProcessor( final Processor<String> successor ) {
-    super( successor );
-  }
-
-  public VariableNameProcessor(
-    final Processor<String> successor,
-    final TreeView<String> root ) {
-    this( successor );
-    setTreeView( root );
+  protected AhoCorsickReplacer() {
   }
 
   @Override
-  public String processLink( final String text ) {
-    final Map<String, String> map = getTreeRoot().getMap();
-    final TextReplacer tr = TextReplacementFactory.getTextReplacer( text.length() );
+  public String replace( final String text, final Map<String, String> map ) {
+    // Create a buffer sufficiently large that re-allocations are minimized.
+    final StringBuilder sb = new StringBuilder( (int)(text.length() * 1.25) );
 
-    return tr.replace( text, map );
-  }
-  
-  private VariableTreeItem<String> getTreeRoot() {
-    return (VariableTreeItem<String>)getTreeView().getRoot();
-  }
+    // The TrieBuilder should only match whole words and ignore overlaps (there
+    // shouldn't be any).
+    final Trie.TrieBuilder builder = Trie.builder();
+    builder.onlyWholeWords();
+    builder.removeOverlaps();
 
-  private TreeView<String> getTreeView() {
-    return this.treeView;
-  }
+    for( final String key : keys( map ) ) {
+      builder.addKeyword( key );
+    }
 
-  private void setTreeView( final TreeView<String> treeView ) {
-    this.treeView = treeView;
+    int index = 0;
+
+    for( final Emit emit : builder.build().parseText( text ) ) {
+      sb.append( text.substring( index, emit.getStart() ) );
+      sb.append( map.get( emit.getKeyword() ) );
+      index = emit.getEnd() + 1;
+    }
+
+    // Add the remainder of the string (contains no more matches).
+    sb.append( text.substring( index ) );
+
+    return sb.toString();
   }
 }

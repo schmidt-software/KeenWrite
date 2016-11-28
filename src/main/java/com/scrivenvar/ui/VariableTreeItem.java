@@ -29,6 +29,8 @@ package com.scrivenvar.ui;
 
 import static com.scrivenvar.definition.DefinitionPane.SEPARATOR;
 import static com.scrivenvar.editor.VariableNameInjector.DEFAULT_MAX_VAR_LENGTH;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Stack;
 import javafx.scene.control.TreeItem;
 
@@ -39,6 +41,12 @@ import javafx.scene.control.TreeItem;
  * @param <T> The type of TreeItem (usually String).
  */
 public class VariableTreeItem<T> extends TreeItem<T> {
+  private final static int DEFAULT_MAP_SIZE = 1000;
+
+  /**
+   * Flattened tree.
+   */
+  private Map<String, String> map;
 
   /**
    * Constructs a new item with a default value.
@@ -58,22 +66,22 @@ public class VariableTreeItem<T> extends TreeItem<T> {
    * @return The leaf that has a value starting with the given text.
    */
   public VariableTreeItem<T> findLeaf( final String text ) {
-    final Stack<TreeItem<T>> stack = new Stack<>();
-    final TreeItem<T> root = this;
+    final Stack<VariableTreeItem<T>> stack = new Stack<>();
+    final VariableTreeItem<T> root = this;
 
     stack.push( root );
 
     boolean found = false;
-    TreeItem<T> node = null;
+    VariableTreeItem<T> node = null;
 
-    while( !stack.isEmpty() && !found ) {
+    while( !found && !stack.isEmpty() ) {
       node = stack.pop();
 
-      if( node.isLeaf() && node.getValue().toString().startsWith( text ) ) {
+      if( node.valueStartsWith( text ) ) {
         found = true;
       } else {
         for( final TreeItem<T> child : node.getChildren() ) {
-          stack.push( child );
+          stack.push( (VariableTreeItem<T>)child );
         }
 
         // No match found, yet.
@@ -82,6 +90,18 @@ public class VariableTreeItem<T> extends TreeItem<T> {
     }
 
     return (VariableTreeItem<T>)node;
+  }
+
+  /**
+   * Returns true if this node is a leaf and its value starts with the given
+   * text.
+   *
+   * @param s The text to compare against the node value.
+   *
+   * @return true Node is a leaf and its value starts with the given value.
+   */
+  private boolean valueStartsWith( final String s ) {
+    return isLeaf() && getValue().toString().startsWith( s );
   }
 
   /**
@@ -121,5 +141,44 @@ public class VariableTreeItem<T> extends TreeItem<T> {
     }
 
     return sb.toString();
+  }
+
+  /**
+   * Returns the hierarchy, flattened to key-value pairs.
+   *
+   * @return A map of this tree's key-value pairs.
+   */
+  public Map<String, String> getMap() {
+    if( this.map == null ) {
+      this.map = new HashMap<>( DEFAULT_MAP_SIZE );
+      populate( this, this.map );
+    }
+
+    return this.map;
+  }
+
+  private void populate( final TreeItem<T> parent, final Map<String, String> map ) {
+    for( final TreeItem<T> child : parent.getChildren() ) {
+      if( child.isLeaf() ) {
+        final String key = toVariable( ((VariableTreeItem<String>)child).toPath() );
+        final String value = child.getValue().toString();
+
+        map.put( key, value );
+      } else {
+        populate( child, map );
+      }
+    }
+  }
+
+  /**
+   * Converts the name of the key to a simple variable by enclosing it with
+   * dollar symbols.
+   *
+   * @param key The key name to change to a variable.
+   *
+   * @return $key$
+   */
+  private String toVariable( final String key ) {
+    return "$" + key + "$";
   }
 }

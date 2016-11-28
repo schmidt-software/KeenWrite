@@ -37,6 +37,7 @@ import javafx.scene.control.MultipleSelectionModel;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
+import static com.scrivenvar.definition.Lists.getFirst;
 
 /**
  * Provides a list of variables that can be referenced in the editor.

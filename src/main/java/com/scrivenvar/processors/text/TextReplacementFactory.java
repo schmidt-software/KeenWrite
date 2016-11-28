@@ -25,57 +25,31 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.scrivenvar.processors;
-
-import com.scrivenvar.processors.text.TextReplacementFactory;
-import com.scrivenvar.processors.text.TextReplacer;
-import com.scrivenvar.ui.VariableTreeItem;
-import java.util.Map;
-import javafx.scene.control.TreeView;
+package com.scrivenvar.processors.text;
 
 /**
- * Processes variables in the document and inserts their values into the
- * post-processed text.
+ * Used to generate a class capable of efficiently replacing variable
+ * definitions with their values.
  *
  * @author White Magic Software, Ltd.
  */
-public class VariableNameProcessor extends AbstractProcessor<String> {
-
-  private TreeView<String> treeView;
+public class TextReplacementFactory {
 
   /**
-   * Constructs a new Markdown processor that can create HTML documents.
+   * Returns a text search/replacement instance that is reasonably optimal for
+   * the given length of text.
    *
-   * @param successor Usually the HTML Preview Processor.
+   * @param length The length of text that requires some search and replacing.
+   *
+   * @return A class that can search and replace text with utmost expediency.
    */
-  private VariableNameProcessor( final Processor<String> successor ) {
-    super( successor );
-  }
-
-  public VariableNameProcessor(
-    final Processor<String> successor,
-    final TreeView<String> root ) {
-    this( successor );
-    setTreeView( root );
-  }
-
-  @Override
-  public String processLink( final String text ) {
-    final Map<String, String> map = getTreeRoot().getMap();
-    final TextReplacer tr = TextReplacementFactory.getTextReplacer( text.length() );
-
-    return tr.replace( text, map );
-  }
-  
-  private VariableTreeItem<String> getTreeRoot() {
-    return (VariableTreeItem<String>)getTreeView().getRoot();
-  }
-
-  private TreeView<String> getTreeView() {
-    return this.treeView;
-  }
-
-  private void setTreeView( final TreeView<String> treeView ) {
-    this.treeView = treeView;
+  public static TextReplacer getTextReplacer( final int length ) {
+    // After about 1,500 characters, the StringUtils implementation is less
+    // performant than the Aho-Corsick implementation.
+    //
+    // Ssee http://stackoverflow.com/a/40836618/59087
+    return length < 1500
+      ? new StringUtilsReplacer()
+      : new AhoCorsickReplacer();
   }
 }

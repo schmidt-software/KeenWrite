@@ -496,5 +496,4 @@ public class MainWindow {
       get( "Pane.defintion.node.root.title" )
     );
   }
-
 }

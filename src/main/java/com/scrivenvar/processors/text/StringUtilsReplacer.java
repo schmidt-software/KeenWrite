@@ -25,57 +25,26 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.scrivenvar.processors;
+package com.scrivenvar.processors.text;
 
-import com.scrivenvar.processors.text.TextReplacementFactory;
-import com.scrivenvar.processors.text.TextReplacer;
-import com.scrivenvar.ui.VariableTreeItem;
 import java.util.Map;
-import javafx.scene.control.TreeView;
+import org.apache.commons.lang.StringUtils;
 
 /**
- * Processes variables in the document and inserts their values into the
- * post-processed text.
+ * Replaces text using Apache's StringUtils.replaceEach method.
  *
  * @author White Magic Software, Ltd.
  */
-public class VariableNameProcessor extends AbstractProcessor<String> {
-
-  private TreeView<String> treeView;
+public class StringUtilsReplacer extends AbstractTextReplacer {
 
   /**
-   * Constructs a new Markdown processor that can create HTML documents.
-   *
-   * @param successor Usually the HTML Preview Processor.
+   * Default (empty) constructor.
    */
-  private VariableNameProcessor( final Processor<String> successor ) {
-    super( successor );
-  }
-
-  public VariableNameProcessor(
-    final Processor<String> successor,
-    final TreeView<String> root ) {
-    this( successor );
-    setTreeView( root );
+  protected StringUtilsReplacer() {
   }
 
   @Override
-  public String processLink( final String text ) {
-    final Map<String, String> map = getTreeRoot().getMap();
-    final TextReplacer tr = TextReplacementFactory.getTextReplacer( text.length() );
-
-    return tr.replace( text, map );
-  }
-  
-  private VariableTreeItem<String> getTreeRoot() {
-    return (VariableTreeItem<String>)getTreeView().getRoot();
-  }
-
-  private TreeView<String> getTreeView() {
-    return this.treeView;
-  }
-
-  private void setTreeView( final TreeView<String> treeView ) {
-    this.treeView = treeView;
+  public String replace( final String text, final Map<String, String> map ) {
+    return StringUtils.replaceEach( text, keys( map ), values( map ) );
   }
 }

@@ -25,30 +25,27 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.scrivenvar.service;
+package com.scrivenvar.processors.text;
 
-import com.scrivenvar.processors.Processor;
+import java.util.Map;
 
 /**
- * Responsible for creating a chain of document processors for a given file
- * type. For example, an Rmd document creates an R document processor followed
- * by a markdown document processor to create a final web page document; whereas
- * an XML document creates an XSLT document processor with an option for
- * chaining another processor.
+ * Defines the ability to replace text given a set of keys and values.
  *
  * @author White Magic Software, Ltd.
  */
-public interface DocumentProcessorFactory extends Service {
+public interface TextReplacer {
 
   /**
-   * Creates a document processor for a given file type. An XML document might
-   * be associated with an XSLT processor, for example, letting the client code
-   * chain a markdown processor afterwards.
+   * Searches through the given text for any of the keys given in the map and
+   * replaces the keys that appear in the text with the key's corresponding
+   * value.
    *
-   * @param filetype The type of file to process (i.e., its extension).
-   * @return A processor capable of transforming a document from the given filet
-   * type to a destination file type (as hinted by the given file name
-   * extension).
+   * @param text The text that contains zero or more keys.
+   * @param map The set of keys mapped to replacement values.
+   *
+   * @return The given text with all keys replaced with corresponding values.
    */
-  public Processor createDocumentProcessor(String filetype);
+  public String replace( String text, Map<String, String> map );
+
 }
