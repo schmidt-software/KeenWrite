@@ -50,6 +50,6 @@ public class TextReplacementFactory {
     // Ssee http://stackoverflow.com/a/40836618/59087
     return length < 1500
       ? new StringUtilsReplacer()
-      : new AhoCorsickReplacer();
+      : new AhoCorasickReplacer();
   }
 }

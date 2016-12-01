@@ -27,10 +27,12 @@
  */
 package com.scrivenvar.editor;
 
+import static com.scrivenvar.Constants.SEPARATOR;
 import com.scrivenvar.FileEditorPane;
 import com.scrivenvar.Services;
+import com.scrivenvar.decorators.YamlVariableDecorator;
+import com.scrivenvar.decorators.VariableDecorator;
 import com.scrivenvar.definition.DefinitionPane;
-import static com.scrivenvar.definition.DefinitionPane.SEPARATOR;
 import static com.scrivenvar.definition.Lists.getFirst;
 import static com.scrivenvar.definition.Lists.getLast;
 import com.scrivenvar.service.Settings;
@@ -77,7 +79,7 @@ import static org.fxmisc.wellbehaved.event.InputMap.consume;
 public class VariableNameInjector {
 
   public static final int DEFAULT_MAX_VAR_LENGTH = 64;
-  
+
   private static final int NO_DIFFERENCE = -1;
 
   private final Settings settings = Services.load( Settings.class );
@@ -91,9 +93,9 @@ public class VariableNameInjector {
   private DefinitionPane definitionPane;
 
   /**
-   * Position of the variable in the text when in variable mode.
+   * Position of the variable in the text when in variable mode (0 by default).
    */
-  private int initialCaretPosition = 0;
+  private int initialCaretPosition;
 
   public VariableNameInjector(
     final FileEditorPane editorPane,
@@ -144,10 +146,12 @@ public class VariableNameInjector {
 
     switch( keyCode ) {
       case BACK_SPACE:
+        // Don't decorate the variable upon exiting vMode.
         vModeBackspace();
         break;
 
       case ESCAPE:
+        // Don't decorate the variable upon exiting vMode.
         vModeStop();
         break;
 
@@ -158,6 +162,9 @@ public class VariableNameInjector {
         // Stop at a leaf node, ENTER means accept.
         if( vModeConditionalComplete() && keyCode == ENTER ) {
           vModeStop();
+
+          // Decorate the variable upon exiting vMode.
+          decorateVariable();
         }
         break;
 
@@ -256,51 +263,87 @@ public class VariableNameInjector {
    * @param e Ignored -- it can only be Ctrl+Space.
    */
   private void autocomplete( KeyEvent e ) {
-    final int caretPos = getCurrentCaretColumn();
     final String paragraph = getCaretParagraph();
-
-    final int[] boundaries = getWordBoundaries( paragraph, caretPos );
+    final int[] boundaries = getWordBoundaries( paragraph );
     final String word = paragraph.substring( boundaries[ 0 ], boundaries[ 1 ] );
 
     final VariableTreeItem<String> leaf = findLeaf( word );
 
     if( leaf != null ) {
       replaceText( boundaries[ 0 ], boundaries[ 1 ], leaf.toPath() );
+      decorateVariable();
       expand( leaf );
     }
   }
 
   /**
+   * Called when autocomplete finishes on a valid leaf or when the user presses
+   * Enter to finish manual autocomplete.
+   */
+  private void decorateVariable() {
+    // A little bit of duplication...
+    final String paragraph = getCaretParagraph();
+    final int[] boundaries = getWordBoundaries( paragraph );
+    final String old = paragraph.substring( boundaries[ 0 ], boundaries[ 1 ] );
+
+    final String newVariable = getVariableDecorator().decorate( old );
+
+    final int posEnded = getCurrentCaretPosition();
+    final int posBegan = posEnded - old.length();
+
+    getEditor().replaceText( posBegan, posEnded, newVariable );
+  }
+
+  /**
    * Updates the text at the given position within the current paragraph.
    *
-   * @param posBegan The starting index of the paragraph text to replace.
-   * @param posEnded The ending index of the paragraph text to replace.
+   * @param posBegan The starting index in the paragraph text to replace.
+   * @param posEnded The ending index in the paragraph text to replace.
    * @param text Overwrite the paragraph substring with this text.
    */
   private void replaceText(
     final int posBegan, final int posEnded, final String text ) {
-    final StyledTextArea textArea = getEditor();
-    final int p = textArea.getCurrentParagraph();
-    textArea.replaceText( p, posBegan, p, posEnded, text );
+    final int p = getCurrentParagraph();
+
+    getEditor().replaceText( p, posBegan, p, posEnded, text );
+  }
+
+  /**
+   * Returns the caret's current paragraph position.
+   *
+   * @return A number greater than or equal to 0.
+   */
+  private int getCurrentParagraph() {
+    return getEditor().getCurrentParagraph();
   }
 
   /**
    * Returns current word boundary indexes into the current paragraph, including
    * punctuation.
    *
-   * @param paragraph The paragraph
+   * @param p The paragraph wherein to hunt word boundaries.
+   * @param offset The offset into the paragraph to begin scanning left and
+   * right.
    *
    * @return The starting and ending index of the word closest to the caret.
    */
-  private int[] getWordBoundaries( String paragraph, final int offset ) {
+  private int[] getWordBoundaries( final String p, final int offset ) {
     // Remove dashes, but retain hyphens. Retain same number of characters
     // to preserve relative indexes.
-    paragraph = paragraph.replace( "---", "   " ).replace( "--", "  " );
+    final String paragraph = p.replace( "---", "   " ).replace( "--", "  " );
 
-    final int posBegan = getWordBegan( paragraph, offset );
-    final int posEnded = getWordEnded( paragraph, offset );
+    return getWordAt( paragraph, offset );
+  }
 
-    return new int[]{ posBegan, posEnded };
+  /**
+   * Helper method to get the word boundaries for the current paragraph.
+   *
+   * @param paragraph
+   *
+   * @return
+   */
+  private int[] getWordBoundaries( final String paragraph ) {
+    return getWordBoundaries( paragraph, getCurrentCaretColumn() );
   }
 
   /**
@@ -317,7 +360,7 @@ public class VariableNameInjector {
    * <li>after punctuation: <code>hello world!|</code> ("world!").</li>
    * </ul>
    *
-   * @param s The string to scan for a word.
+   * @param p The string to scan for a word.
    * @param offset The offset within s to begin searching for the nearest word
    * boundary, must not be out of bounds of s.
    *
@@ -326,11 +369,8 @@ public class VariableNameInjector {
    * @see getWordBegan( String, int )
    * @see getWordEnded( String, int )
    */
-  private String getWordAt( final String s, final int offset ) {
-    final int posBegan = getWordBegan( s, offset );
-    final int posEnded = getWordEnded( s, offset );
-
-    return s.substring( posBegan, posEnded );
+  private int[] getWordAt( final String p, final int offset ) {
+    return new int[]{ getWordBegan( p, offset ), getWordEnded( p, offset ) };
   }
 
   /**
@@ -386,8 +426,7 @@ public class VariableNameInjector {
    * @return A non-null string, possibly empty.
    */
   private String getCaretParagraph() {
-    final StyledTextArea textArea = getEditor();
-    return textArea.getText( textArea.getCurrentParagraph() );
+    return getEditor().getText( getCurrentParagraph() );
   }
 
   /**
@@ -500,7 +539,8 @@ public class VariableNameInjector {
   }
 
   /**
-   * Returns all the characters from the initial caret column to the the first
+   * Returns the variable name (or as much as has been typed so far). Returns
+   * all the characters from the initial caret column to the the first
    * whitespace character. This will return a path that contains zero or more
    * separators.
    *
@@ -685,9 +725,17 @@ public class VariableNameInjector {
 
   /**
    * Restores capturing of user input events to the previous event listener.
+   * Also asks the processing chain to modify the variable text into a
+   * machine-readable variable based on the format required by the file type.
+   * For example, a Markdown file (.md) will substitute a $VAR$ name while an R
+   * file (.Rmd, .Rxml) will use `r#xVAR`.
    */
   private void vModeStop() {
     removeEventListener( getKeyboardMap() );
+  }
+
+  private VariableDecorator getVariableDecorator() {
+    return new YamlVariableDecorator();
   }
 
   /**

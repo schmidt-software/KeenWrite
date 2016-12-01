@@ -35,6 +35,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
+import static com.scrivenvar.Constants.SEPARATOR;
+import com.scrivenvar.decorators.VariableDecorator;
+import com.scrivenvar.decorators.YamlVariableDecorator;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Writer;
@@ -81,21 +84,14 @@ public class YamlParser {
   private final static int GROUP_DELIMITED = 1;
   private final static int GROUP_REFERENCE = 2;
 
-  /**
-   * Matches variables delimited by dollar symbols. The outer group is necessary
-   * for substring replacement of delimited references.
-   */
-  private final static String DEFAULT_REGEX = "(\\$(.*?)\\$)";
+  private final static VariableDecorator VARIABLE_DECORATOR
+    = new YamlVariableDecorator();
 
   /**
    * Compiled version of DEFAULT_REGEX.
    */
-  private final static Pattern REGEX_PATTERN = Pattern.compile( DEFAULT_REGEX );
-
-  /**
-   * Separates variable nodes (e.g., the dots in <code>$root.node.var$</code>).
-   */
-  private final static String SEPARATOR_VARIABLE = ".";
+  private final static Pattern REGEX_PATTERN
+    = Pattern.compile( YamlVariableDecorator.REGEX );
 
   /**
    * Should be JsonPointer.SEPARATOR, but Jackson YAML uses magic values.
@@ -103,7 +99,7 @@ public class YamlParser {
   private final static char SEPARATOR_YAML = '/';
 
   /**
-   * Start of the Universe.
+   * Start of the Universe (the YAML document node that contains all others).
    */
   private ObjectNode documentRoot;
 
@@ -112,7 +108,88 @@ public class YamlParser {
    */
   private Map<String, String> references;
 
-  protected YamlParser() {
+  public YamlParser() {
+  }
+
+  /**
+   * Returns the given string with all the delimited references swapped with
+   * their recursively resolved values.
+   *
+   * @param text The text to parse with zero or more delimited references to
+   * replace.
+   *
+   * @return The substituted value.
+   *
+   * @throws InvalidParameterException The text has no associated value.
+   */
+  public String substitute( String text ) {
+    final Matcher matcher = patternMatch( text );
+    final Map<String, String> map = getReferences();
+
+    while( matcher.find() ) {
+      final String key = matcher.group( GROUP_DELIMITED );
+      final String value = map.get( key );
+
+      if( value == null ) {
+        missing( text );
+      } else {
+        text = text.replace( key, value );
+      }
+    }
+
+    return text;
+  }
+
+  /**
+   * Returns all the strings with their values resolved in a flat hierarchy.
+   * This copies all the keys and resolved values into a new map.
+   *
+   * @return The new map created with all values having been resolved,
+   * recursively.
+   *
+   * @throws InvalidParameterException A key in the map has no associated value.
+   */
+  public Map<String, String> createResolvedMap() {
+    final Map<String, String> map = new HashMap<>( 1024 );
+
+    resolve( getDocumentRoot(), "", map );
+
+    return map;
+  }
+
+  /**
+   * Iterate over a given root node (at any level of the tree) and adapt each
+   * leaf node.
+   *
+   * @param rootNode A JSON node (YAML node) to adapt.
+   */
+  private void resolve(
+    final JsonNode rootNode, final String path, final Map<String, String> map ) {
+
+    rootNode.fields().forEachRemaining(
+      (Entry<String, JsonNode> leaf) -> resolve( leaf, path, map )
+    );
+  }
+
+  /**
+   * Recursively adapt each rootNode to a corresponding rootItem.
+   *
+   * @param rootNode The node to adapt.
+   */
+  private void resolve(
+    final Entry<String, JsonNode> rootNode, final String path, final Map<String, String> map ) {
+    final JsonNode leafNode = rootNode.getValue();
+    final String key = rootNode.getKey();
+
+    if( leafNode.isValueNode() ) {
+      final String value = rootNode.getValue().asText();
+
+      map.put( VARIABLE_DECORATOR.decorate( path + key ), substitute( value ) );
+    }
+
+    if( leafNode.isObject() ) {
+      resolve( leafNode, path + key + SEPARATOR, map );
+    }
   }
 
   /**
@@ -127,20 +204,9 @@ public class YamlParser {
    *
    * @throws IOException Could not read the stream.
    */
-  public static JsonNode parse( final InputStream in ) throws IOException {
-    return (new YamlParser()).process( in );
-  }
+  public JsonNode process( final InputStream in ) throws IOException {
 
-  /**
-   * Read and process the contents from an open stream. The stream remains open
-   * after calling this method, regardless of success or error.
-   *
-   * @param in The stream with a YAML document to process.
-   *
-   * @throws IOException Could not read the file contents.
-   */
-  private JsonNode process( final InputStream in ) throws IOException {
-    ObjectNode root = (ObjectNode)getObjectMapper().readTree( in );
+    final ObjectNode root = (ObjectNode)getObjectMapper().readTree( in );
     setDocumentRoot( root );
     process( root );
     return getDocumentRoot();
@@ -229,31 +295,6 @@ public class YamlParser {
   }
 
   /**
-   * Returns the given string with all the delimited references swapped with
-   * their recursively resolved values.
-   *
-   * @param text The text to parse with zero or more delimited references to
-   * replace.
-   */
-  private String substitute( String text ) {
-    final Matcher matcher = patternMatch( text );
-    final Map<String, String> map = getReferences();
-
-    while( matcher.find() ) {
-      final String key = matcher.group( GROUP_DELIMITED );
-      final String value = map.get( key );
-
-      if( value == null ) {
-        missing( text );
-      } else {
-        text = text.replace( key, value );
-      }
-    }
-
-    return text;
-  }
-
-  /**
    * Writes the modified YAML document to standard output.
    */
   private void writeDocument() throws IOException {
@@ -261,8 +302,8 @@ public class YamlParser {
   }
 
   /**
-   * Called when a delimited reference is dereferenced to an empty string.
-   * This should produce a warning for the user.
+   * Called when a delimited reference is dereferenced to an empty string. This
+   * should produce a warning for the user.
    *
    * @param delimited Delimited reference with no derived value.
    */
@@ -359,7 +400,8 @@ public class YamlParser {
 
     @Override
     protected YAMLGenerator _createGenerator(
-      Writer out, IOContext ctxt ) throws IOException {
+      final Writer out, final IOContext ctxt ) throws IOException {
+
       return new ResolverYAMLGenerator(
         ctxt, _generatorFeatures, _yamlGeneratorFeatures, _objectCodec,
         out, _version );
@@ -369,17 +411,18 @@ public class YamlParser {
   private class ResolverYAMLGenerator extends YAMLGenerator {
 
     public ResolverYAMLGenerator(
-      IOContext ctxt,
-      int jsonFeatures,
-      int yamlFeatures,
-      ObjectCodec codec,
-      Writer out,
-      DumperOptions.Version version ) throws IOException {
+      final IOContext ctxt,
+      final int jsonFeatures,
+      final int yamlFeatures,
+      final ObjectCodec codec,
+      final Writer out,
+      final DumperOptions.Version version ) throws IOException {
+
       super( ctxt, jsonFeatures, yamlFeatures, codec, out, version );
     }
 
     @Override
-    public void writeString( String text )
+    public void writeString( final String text )
       throws IOException, JsonGenerationException {
       super.writeString( substitute( text ) );
     }
@@ -401,6 +444,6 @@ public class YamlParser {
    * @return A period by default.
    */
   private char getDelimitedSeparator() {
-    return SEPARATOR_VARIABLE.charAt( 0 );
+    return SEPARATOR.charAt( 0 );
   }
 }

@@ -49,4 +49,9 @@ public class Constants {
   public static final String LOGO_128 = "com/scrivenvar/logo128.png";
   public static final String LOGO_256 = "com/scrivenvar/logo256.png";
   public static final String LOGO_512 = "com/scrivenvar/logo512.png";
+  
+  /**
+   * Separates YAML variable nodes (e.g., the dots in <code>$root.node.var$</code>).
+   */
+  public static final String SEPARATOR = ".";
 }

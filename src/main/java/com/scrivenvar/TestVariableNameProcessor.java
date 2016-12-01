@@ -47,7 +47,6 @@ import org.ahocorasick.trie.*;
 import org.ahocorasick.trie.Trie.TrieBuilder;
 import static org.apache.commons.lang.RandomStringUtils.randomNumeric;
 import org.apache.commons.lang.StringUtils;
-import static javafx.application.Application.launch;
 
 /**
  * Tests substituting variable definitions with their values in a swath of text.
@@ -55,8 +54,9 @@ import static javafx.application.Application.launch;
  * @author White Magic Software, Ltd.
  */
 public class TestVariableNameProcessor extends TestHarness {
-  private final static int TEXT_SIZE = 1500;
-  private final static int MATCHES_DIVISOR = 10;
+
+  private final static int TEXT_SIZE = 1000000;
+  private final static int MATCHES_DIVISOR = 1000;
 
   private final static StringBuilder SOURCE
     = new StringBuilder( randomNumeric( TEXT_SIZE ) );
@@ -84,7 +84,7 @@ public class TestVariableNameProcessor extends TestHarness {
 
     // TODO: Test replaceEach (with intercoluated variables) and replaceEachRepeatedly
     // (without intercoluation).
-    final String result = testStringUtils(text, definitions );
+    final String result = testBorAhoCorasick( text, definitions );
 
     duration = System.nanoTime() - duration;
 
@@ -209,7 +209,7 @@ public class TestVariableNameProcessor extends TestHarness {
   }
 
   private String asDefinition( final String key ) {
-    return String.format( "$%s$", key );
+    return "$" + key + "$";
   }
 
   public static void main( String[] args ) {

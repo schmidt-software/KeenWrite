@@ -39,12 +39,10 @@ public abstract class AbstractTextReplacer implements TextReplacer {
   }
 
   protected String[] keys( final Map<String, String> map ) {
-    final int size = map.size();
-    return map.keySet().toArray( new String[ size ] );
+    return map.keySet().toArray( new String[ map.size() ] );
   }
 
   protected String[] values( final Map<String, String> map ) {
-    final int size = map.size();
-    return map.values().toArray( new String[ size ] );
+    return map.values().toArray( new String[ map.size() ] );
   }
 }

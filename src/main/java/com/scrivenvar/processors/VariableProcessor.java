@@ -27,55 +27,55 @@
  */
 package com.scrivenvar.processors;
 
+import com.scrivenvar.processors.text.TextReplacementFactory;
+import com.scrivenvar.processors.text.TextReplacer;
+import java.util.Map;
+
 /**
- * Responsible for transforming a document through a variety of chained
- * handlers. If there are conditions where this handler should not process the
- * entire chain, create a second handler, or split the chain into reusable
- * sub-chains.
+ * Processes variables in the document and inserts their values into the
+ * post-processed text.
  *
  * @author White Magic Software, Ltd.
- * @param <T> The type of object to process.
  */
-public abstract class AbstractProcessor<T> implements Processor<T> {
+public class VariableProcessor extends AbstractProcessor<String> {
+
+  private Map<String, String> definitions;
 
   /**
-   * Used while processing the entire chain; null to signify no more links.
-   */
-  private final Processor<T> next;
-
-  /**
-   * Constructs a succession without a successor (i.e., next is null).
-   */
-  protected AbstractProcessor() {
-    this( null );
-  }
-
-  /**
-   * Constructs a new default handler with a given successor.
+   * Constructs a new Markdown processor that can create HTML documents.
    *
-   * @param successor Use null to indicate last link in the chain.
+   * @param successor Usually the HTML Preview Processor.
    */
-  public AbstractProcessor( final Processor<T> successor ) {
-    this.next = successor;
+  private VariableProcessor( final Processor<String> successor ) {
+    super( successor );
+  }
+
+  public VariableProcessor(
+    final Processor<String> successor,
+    final Map<String, String> map ) {
+    this( successor );
+    setDefinitions( map );
   }
 
   /**
-   * Processes links in the chain while there are successors and valid data to
-   * process.
    *
-   * @param t The object to process.
+   * @param text The document text that includes variables that should be
+   * replaced with values when rendered as HTML.
+   *
+   * @return The text with all variables replaced.
    */
-  public synchronized void processChain( T t ) {
-    Processor<T> handler = this;
-
-    while( handler != null && t != null ) {
-      t = handler.processLink( t );
-      handler = handler.next();
-    }
-  }
-
   @Override
-  public Processor<T> next() {
-    return this.next;
+  public String processLink( final String text ) {
+    final TextReplacer tr = TextReplacementFactory.getTextReplacer( text.length() );
+
+    return tr.replace( text, getDefinitions() );
+  }
+
+  private Map<String, String> getDefinitions() {
+    return this.definitions;
+  }
+
+  private void setDefinitions( final Map<String, String> definitions ) {
+    this.definitions = definitions;
   }
 }

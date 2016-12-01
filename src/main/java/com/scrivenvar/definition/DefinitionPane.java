@@ -27,6 +27,7 @@
  */
 package com.scrivenvar.definition;
 
+import static com.scrivenvar.Constants.SEPARATOR;
 import static com.scrivenvar.definition.Lists.getFirst;
 import com.scrivenvar.ui.AbstractPane;
 import com.scrivenvar.ui.VariableTreeItem;
@@ -37,7 +38,6 @@ import javafx.scene.control.MultipleSelectionModel;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
-import static com.scrivenvar.definition.Lists.getFirst;
 
 /**
  * Provides a list of variables that can be referenced in the editor.
@@ -45,8 +45,6 @@ import static com.scrivenvar.definition.Lists.getFirst;
  * @author White Magic Software, Ltd.
  */
 public class DefinitionPane extends AbstractPane {
-
-  public final static String SEPARATOR = ".";
 
   private final static String TERMINALS = ":;,.!?-/\\¡¿";
 

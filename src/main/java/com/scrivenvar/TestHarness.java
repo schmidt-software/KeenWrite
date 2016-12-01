@@ -29,7 +29,8 @@ package com.scrivenvar;
 
 import static com.scrivenvar.Messages.get;
 import com.scrivenvar.definition.DefinitionPane;
-import static com.scrivenvar.yaml.YamlTreeAdapter.adapt;
+import com.scrivenvar.yaml.YamlParser;
+import com.scrivenvar.yaml.YamlTreeAdapter;
 import java.io.IOException;
 import java.io.InputStream;
 import javafx.application.Application;
@@ -63,7 +64,7 @@ public abstract class TestHarness extends Application {
   }
   
   protected TreeView<String> createTreeView() throws IOException {
-    return adapt(
+    return new YamlTreeAdapter( new YamlParser() ).adapt(
       asStream( "/com/scrivenvar/variables.yaml" ),
       get( "Pane.defintion.node.root.title" )
     );

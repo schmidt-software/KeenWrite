@@ -25,51 +25,22 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.scrivenvar.processors.text;
-
-import java.util.Map;
-import org.ahocorasick.trie.Emit;
-import org.ahocorasick.trie.Trie;
+package com.scrivenvar.decorators;
 
 /**
- * Replaces text using an Aho-Corsick algorithm.
- *
- * @author White Magic Software, Ltd.
+ * Responsible for updating variable names to use a machine-readable format
+ * corresponding to the type of file being edited.
  */
-public class AhoCorsickReplacer extends AbstractTextReplacer {
+public interface VariableDecorator {
 
   /**
-   * Default (empty) constructor.
+   * This decorates a variable name based on some criteria determined by the
+   * factory that creates implementations of this interface.
+   *
+   * @param variableName The text to decorate as per the filename extension
+   * would indicate (e.g., ".md" goes to $VAR$ while ".Rmd" goes to `r#VAR`).
+   *
+   * @return The given variable name modified with its requisite delimiters.
    */
-  protected AhoCorsickReplacer() {
-  }
-
-  @Override
-  public String replace( final String text, final Map<String, String> map ) {
-    // Create a buffer sufficiently large that re-allocations are minimized.
-    final StringBuilder sb = new StringBuilder( (int)(text.length() * 1.25) );
-
-    // The TrieBuilder should only match whole words and ignore overlaps (there
-    // shouldn't be any).
-    final Trie.TrieBuilder builder = Trie.builder();
-    builder.onlyWholeWords();
-    builder.removeOverlaps();
-
-    for( final String key : keys( map ) ) {
-      builder.addKeyword( key );
-    }
-
-    int index = 0;
-
-    for( final Emit emit : builder.build().parseText( text ) ) {
-      sb.append( text.substring( index, emit.getStart() ) );
-      sb.append( map.get( emit.getKeyword() ) );
-      index = emit.getEnd() + 1;
-    }
-
-    // Add the remainder of the string (contains no more matches).
-    sb.append( text.substring( index ) );
-
-    return sb.toString();
-  }
+  public String decorate( String variableName );
 }

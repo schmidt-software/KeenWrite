@@ -43,7 +43,10 @@ import javafx.scene.control.TreeView;
  */
 public class YamlTreeAdapter {
 
-  protected YamlTreeAdapter() {
+  private YamlParser yamlParser;
+
+  public YamlTreeAdapter( final YamlParser parser ) {
+    setYamlParser( parser );
   }
 
   /**
@@ -57,14 +60,14 @@ public class YamlTreeAdapter {
    *
    * @throws IOException Could not read from the stream.
    */
-  public static TreeView<String> adapt(
-    final InputStream in, final String name ) throws IOException {
-    final YamlTreeAdapter adapter = new YamlTreeAdapter();
-    final JsonNode rootNode = YamlParser.parse( in );
-    final TreeItem<String> rootItem = adapter.createTreeItem( name );
+  public TreeView<String> adapt( final InputStream in, final String name )
+    throws IOException {
+
+    final JsonNode rootNode = getYamlParser().process( in );
+    final TreeItem<String> rootItem = createTreeItem( name );
 
     rootItem.setExpanded( true );
-    adapter.adapt( rootNode, rootItem );
+    adapt( rootNode, rootItem );
     return new TreeView<>( rootItem );
   }
 
@@ -76,8 +79,8 @@ public class YamlTreeAdapter {
    * @param rootItem The tree item to use as the root when processing the node.
    */
   private void adapt(
-    final JsonNode rootNode,
-    final TreeItem<String> rootItem ) {
+    final JsonNode rootNode, final TreeItem<String> rootItem ) {
+
     rootNode.fields().forEachRemaining(
       (Entry<String, JsonNode> leaf) -> adapt( leaf, rootItem )
     );
@@ -90,22 +93,20 @@ public class YamlTreeAdapter {
    * @param rootItem The item to adapt using the node's key.
    */
   private void adapt(
-    final Entry<String, JsonNode> rootNode,
-    final TreeItem<String> rootItem ) {
+    final Entry<String, JsonNode> rootNode, final TreeItem<String> rootItem ) {
+
     final JsonNode leafNode = rootNode.getValue();
     final String key = rootNode.getKey();
-    final TreeItem<String> leafItem = createTreeItem( key );
+    final TreeItem<String> leaf = createTreeItem( key );
 
     if( leafNode.isValueNode() ) {
-      leafItem.getChildren().add(
-        createTreeItem( rootNode.getValue().asText() )
-      );
+      leaf.getChildren().add( createTreeItem( rootNode.getValue().asText() ) );
     }
 
-    rootItem.getChildren().add( leafItem );
+    rootItem.getChildren().add( leaf );
 
     if( leafNode.isObject() ) {
-      adapt( leafNode, leafItem );
+      adapt( leafNode, leaf );
     }
   }
 
@@ -119,4 +120,13 @@ public class YamlTreeAdapter {
   private TreeItem<String> createTreeItem( final String value ) {
     return new VariableTreeItem<>( value );
   }
+
+  private YamlParser getYamlParser() {
+    return this.yamlParser;
+  }
+
+  private void setYamlParser( final YamlParser yamlParser ) {
+    this.yamlParser = yamlParser;
+  }
+
 }

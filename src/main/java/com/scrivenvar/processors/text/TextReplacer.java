@@ -47,5 +47,4 @@ public interface TextReplacer {
    * @return The given text with all keys replaced with corresponding values.
    */
   public String replace( String text, Map<String, String> map );
-
 }

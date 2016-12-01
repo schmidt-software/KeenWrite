@@ -25,57 +25,31 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.scrivenvar.processors;
+package com.scrivenvar.decorators;
 
 /**
- * Responsible for transforming a document through a variety of chained
- * handlers. If there are conditions where this handler should not process the
- * entire chain, create a second handler, or split the chain into reusable
- * sub-chains.
+ * Brackets variable names with dollar symbols.
  *
  * @author White Magic Software, Ltd.
- * @param <T> The type of object to process.
  */
-public abstract class AbstractProcessor<T> implements Processor<T> {
+public class YamlVariableDecorator implements VariableDecorator {
 
   /**
-   * Used while processing the entire chain; null to signify no more links.
+   * Matches variables delimited by dollar symbols. The outer group is necessary
+   * for substring replacement of delimited references.
    */
-  private final Processor<T> next;
+  public final static String REGEX = "(\\$(.*?)\\$)";
 
   /**
-   * Constructs a succession without a successor (i.e., next is null).
-   */
-  protected AbstractProcessor() {
-    this( null );
-  }
-
-  /**
-   * Constructs a new default handler with a given successor.
+   * Returns the given string with a $ symbol prepended and appended. This is
+   * not null safe. Do not pass null into this method.
    *
-   * @param successor Use null to indicate last link in the chain.
-   */
-  public AbstractProcessor( final Processor<T> successor ) {
-    this.next = successor;
-  }
-
-  /**
-   * Processes links in the chain while there are successors and valid data to
-   * process.
+   * @param variableName The string to decorate.
    *
-   * @param t The object to process.
+   * @return "$" + variableName + "$".
    */
-  public synchronized void processChain( T t ) {
-    Processor<T> handler = this;
-
-    while( handler != null && t != null ) {
-      t = handler.processLink( t );
-      handler = handler.next();
-    }
-  }
-
   @Override
-  public Processor<T> next() {
-    return this.next;
+  public String decorate( final String variableName ) {
+    return "$" + variableName + "$";
   }
 }

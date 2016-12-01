@@ -37,13 +37,14 @@ import com.scrivenvar.processors.HTMLPreviewProcessor;
 import com.scrivenvar.processors.MarkdownProcessor;
 import com.scrivenvar.processors.Processor;
 import com.scrivenvar.processors.TextChangeProcessor;
-import com.scrivenvar.processors.VariableNameProcessor;
+import com.scrivenvar.processors.VariableProcessor;
 import com.scrivenvar.service.Options;
 import com.scrivenvar.util.Action;
 import com.scrivenvar.util.ActionUtils;
 import static com.scrivenvar.util.StageState.K_PANE_SPLIT_DEFINITION;
 import static com.scrivenvar.util.StageState.K_PANE_SPLIT_EDITOR;
-import static com.scrivenvar.yaml.YamlTreeAdapter.adapt;
+import com.scrivenvar.yaml.YamlParser;
+import com.scrivenvar.yaml.YamlTreeAdapter;
 import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.BOLD;
 import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.CODE;
 import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.FILE_ALT;
@@ -62,6 +63,7 @@ import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.STRIKETHROUGH;
 import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.UNDO;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.prefs.Preferences;
 import javafx.beans.binding.Bindings;
@@ -107,6 +109,9 @@ public class MainWindow {
   private DefinitionPane definitionPane;
 
   private VariableNameInjector variableNameInjector;
+
+  private YamlTreeAdapter yamlTreeAdapter;
+  private YamlParser yamlParser;
 
   private MenuBar menuBar;
 
@@ -409,17 +414,20 @@ public class MainWindow {
 
   private FileEditorPane createFileEditorPane() {
     final FileEditorPane pane = new FileEditorPane( this );
+
     // Load file and create UI when the tab becomes visible the first time.
     final HTMLPreviewPane previewPane = pane.getActiveFileEditor().getPreviewPane();
 
     // TODO: Change this to use a factory based on the filename extension.
-    Processor<String> hpp = new HTMLPreviewProcessor( previewPane );
-    Processor<String> mp = new MarkdownProcessor( hpp );
-    Processor<String> vnp = new VariableNameProcessor( mp, getTreeView() );
-    ChangeListener<String> tp = new TextChangeProcessor( vnp );
-    
+    // See: https://github.com/DaveJarvis/scrivenvar/issues/17
+    // See: https://github.com/DaveJarvis/scrivenvar/issues/18
+    final Processor<String> hpp = new HTMLPreviewProcessor( previewPane );
+    final Processor<String> mp = new MarkdownProcessor( hpp );
+    final Processor<String> vnp = new VariableProcessor( mp, getResolvedMap() );
+    final ChangeListener<String> tp = new TextChangeProcessor( vnp );
+
     pane.getActiveFileEditor().addChangeListener( tp );
-    
+
     return pane;
   }
 
@@ -470,13 +478,13 @@ public class MainWindow {
   private Options getOptions() {
     return this.options;
   }
-  
+
   private synchronized TreeView<String> getTreeView() throws RuntimeException {
     if( this.treeView == null ) {
       try {
         this.treeView = createTreeView();
       } catch( IOException ex ) {
-        
+
         // TODO: Pop an error message.
         throw new RuntimeException( ex );
       }
@@ -491,9 +499,37 @@ public class MainWindow {
 
   private TreeView<String> createTreeView() throws IOException {
     // TODO: Associate variable file with path to current file.
-    return adapt(
-      asStream( "/com/scrivenvar/variables.yaml" ),
-      get( "Pane.defintion.node.root.title" )
-    );
+    return getYamlTreeAdapter().adapt(
+        asStream( "/com/scrivenvar/variables.yaml" ),
+        get( "Pane.defintion.node.root.title" )
+      );
+  }
+
+  private Map<String, String> getResolvedMap() {
+    return getYamlParser().createResolvedMap();
+  }
+  
+  private YamlTreeAdapter getYamlTreeAdapter() {
+    if( this.yamlTreeAdapter == null ) {
+      setYamlTreeAdapter( new YamlTreeAdapter( getYamlParser() ) );
+    }
+
+    return this.yamlTreeAdapter;
+  }
+
+  private void setYamlTreeAdapter( final YamlTreeAdapter yamlTreeAdapter ) {
+    this.yamlTreeAdapter = yamlTreeAdapter;
+  }
+  
+  private YamlParser getYamlParser() {
+    if( this.yamlParser == null ) {
+      setYamlParser( new YamlParser() );
+    }
+    
+    return this.yamlParser;
+  }
+
+  private void setYamlParser( final YamlParser yamlParser ) {
+    this.yamlParser = yamlParser;
   }
 }

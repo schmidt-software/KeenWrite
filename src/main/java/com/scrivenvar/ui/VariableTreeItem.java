@@ -27,7 +27,9 @@
  */
 package com.scrivenvar.ui;
 
-import static com.scrivenvar.definition.DefinitionPane.SEPARATOR;
+import static com.scrivenvar.Constants.SEPARATOR;
+import com.scrivenvar.decorators.YamlVariableDecorator;
+import com.scrivenvar.decorators.VariableDecorator;
 import static com.scrivenvar.editor.VariableNameInjector.DEFAULT_MAX_VAR_LENGTH;
 import java.util.HashMap;
 import java.util.Map;
@@ -41,7 +43,11 @@ import javafx.scene.control.TreeItem;
  * @param <T> The type of TreeItem (usually String).
  */
 public class VariableTreeItem<T> extends TreeItem<T> {
+
   private final static int DEFAULT_MAP_SIZE = 1000;
+  
+  private final static VariableDecorator VARIABLE_DECORATOR =
+    new YamlVariableDecorator();
 
   /**
    * Flattened tree.
@@ -160,6 +166,7 @@ public class VariableTreeItem<T> extends TreeItem<T> {
   private void populate( final TreeItem<T> parent, final Map<String, String> map ) {
     for( final TreeItem<T> child : parent.getChildren() ) {
       if( child.isLeaf() ) {
+        @SuppressWarnings( "unchecked" )
         final String key = toVariable( ((VariableTreeItem<String>)child).toPath() );
         final String value = child.getValue().toString();
 
@@ -178,7 +185,7 @@ public class VariableTreeItem<T> extends TreeItem<T> {
    *
    * @return $key$
    */
-  private String toVariable( final String key ) {
-    return "$" + key + "$";
+  public String toVariable( final String key ) {
+    return VARIABLE_DECORATOR.decorate( key );
   }
 }
