@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2015 Karl Tauber <karl at jformdesigner dot com>
+ * Copyright 2016 Karl Tauber and White Magic Software, Ltd.
+ *
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -24,9 +25,14 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package com.scrivenvar.dialogs;
 
+import com.scrivenvar.Messages;
+import com.scrivenvar.controls.BrowseDirectoryButton;
+import com.scrivenvar.controls.BrowseFileButton;
+import com.scrivenvar.controls.EscapeTextField;
+import com.scrivenvar.editor.HyperlinkModel;
+import com.scrivenvar.service.events.impl.ButtonOrderPane;
 import java.nio.file.Path;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
@@ -38,10 +44,6 @@ import javafx.scene.control.Dialog;
 import javafx.scene.control.DialogPane;
 import javafx.scene.control.Label;
 import javafx.stage.Window;
-import com.scrivenvar.Messages;
-import com.scrivenvar.controls.BrowseDirectoryButton;
-import com.scrivenvar.controls.BrowseFileButton;
-import com.scrivenvar.controls.EscapeTextField;
 import org.tbee.javafx.scene.layout.fxml.MigPane;
 
 /**
@@ -49,110 +51,102 @@ import org.tbee.javafx.scene.layout.fxml.MigPane;
  *
  * @author Karl Tauber
  */
-public class LinkDialog
-	extends Dialog<String>
-{
-	private final StringProperty link = new SimpleStringProperty();
+public class LinkDialog extends Dialog<String> {
 
-	public LinkDialog(Window owner, Path basePath) {
-		setTitle(Messages.get("LinkDialog.title"));
-		initOwner(owner);
-		setResizable(true);
+  private final StringProperty link = new SimpleStringProperty();
 
-		initComponents();
+  public LinkDialog( final Window owner, final HyperlinkModel hyperlink, final Path basePath ) {
+    setTitle( Messages.get( "LinkDialog.title" ) );
+    initOwner( owner );
+    setResizable( true );
 
-		linkBrowseDirectoyButton.setBasePath(basePath);
-		linkBrowseDirectoyButton.urlProperty().bindBidirectional(urlField.escapedTextProperty());
+    initComponents();
 
-		linkBrowseFileButton.setBasePath(basePath);
-		linkBrowseFileButton.urlProperty().bindBidirectional(urlField.escapedTextProperty());
+    linkBrowseDirectoyButton.setBasePath( basePath );
+    linkBrowseDirectoyButton.urlProperty().bindBidirectional( urlField.escapedTextProperty() );
 
-		DialogPane dialogPane = getDialogPane();
-		dialogPane.setContent(pane);
-		dialogPane.getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+    linkBrowseFileButton.setBasePath( basePath );
+    linkBrowseFileButton.urlProperty().bindBidirectional( urlField.escapedTextProperty() );
 
-		dialogPane.lookupButton(ButtonType.OK).disableProperty().bind(
-				urlField.escapedTextProperty().isEmpty());
+    setDialogPane( new ButtonOrderPane() );
 
-		link.bind(Bindings.when(titleField.escapedTextProperty().isNotEmpty())
-				.then(Bindings.format("[%s](%s \"%s\")", textField.escapedTextProperty(), urlField.escapedTextProperty(), titleField.escapedTextProperty()))
-				.otherwise(Bindings.when(textField.escapedTextProperty().isNotEmpty())
-						.then(Bindings.format("[%s](%s)", textField.escapedTextProperty(), urlField.escapedTextProperty()))
-						.otherwise(urlField.escapedTextProperty())));
-		previewField.textProperty().bind(link);
+    final DialogPane dialog = getDialogPane();
+    dialog.setContent( dialog );
+    dialog.getButtonTypes().addAll( ButtonType.OK, ButtonType.CANCEL );
 
-		setResultConverter(dialogButton -> {
-			ButtonData data = (dialogButton != null) ? dialogButton.getButtonData() : null;
-			return (data == ButtonData.OK_DONE) ? link.get() : null;
-		});
+    dialog.lookupButton( ButtonType.OK ).disableProperty().bind(
+      urlField.escapedTextProperty().isEmpty() );
 
-		Platform.runLater(() -> {
-			urlField.requestFocus();
+    textField.setText( hyperlink.getText() );
+    urlField.setText( hyperlink.getUrl() );
+    titleField.setText( hyperlink.getTitle() );
 
-			if (urlField.getText().startsWith("http://"))
-				urlField.selectRange("http://".length(), urlField.getLength());
-		});
-	}
+    link.bind( Bindings.when( titleField.escapedTextProperty().isNotEmpty() )
+      .then( Bindings.format( "[%s](%s \"%s\")", textField.escapedTextProperty(), urlField.escapedTextProperty(), titleField.escapedTextProperty() ) )
+      .otherwise( Bindings.when( textField.escapedTextProperty().isNotEmpty() )
+        .then( Bindings.format( "[%s](%s)", textField.escapedTextProperty(), urlField.escapedTextProperty() ) )
+        .otherwise( urlField.escapedTextProperty() ) ) );
 
-	private void initComponents() {
-		// JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
-		pane = new MigPane();
-		Label urlLabel = new Label();
-		urlField = new EscapeTextField();
-		linkBrowseDirectoyButton = new BrowseDirectoryButton();
-		linkBrowseFileButton = new BrowseFileButton();
-		Label textLabel = new Label();
-		textField = new EscapeTextField();
-		Label titleLabel = new Label();
-		titleField = new EscapeTextField();
-		Label previewLabel = new Label();
-		previewField = new Label();
+    setResultConverter( dialogButton -> {
+      ButtonData data = (dialogButton != null) ? dialogButton.getButtonData() : null;
+      return (data == ButtonData.OK_DONE) ? link.get() : null;
+    } );
 
-		//======== pane ========
-		{
-			pane.setCols("[shrink 0,fill][300,grow,fill][fill][fill]");
-			pane.setRows("[][][][]");
+    Platform.runLater( () -> {
+      urlField.requestFocus();
+      urlField.selectRange( 0, urlField.getLength() );
+    } );
+  }
 
-			//---- urlLabel ----
-			urlLabel.setText(Messages.get("LinkDialog.urlLabel.text"));
-			pane.add(urlLabel, "cell 0 0");
+  private void initComponents() {
+    // JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
+    pane = new MigPane();
+    Label urlLabel = new Label();
+    urlField = new EscapeTextField();
+    linkBrowseDirectoyButton = new BrowseDirectoryButton();
+    linkBrowseFileButton = new BrowseFileButton();
+    Label textLabel = new Label();
+    textField = new EscapeTextField();
+    Label titleLabel = new Label();
+    titleField = new EscapeTextField();
 
-			//---- urlField ----
-			urlField.setEscapeCharacters("()");
-			urlField.setText("http://yourlink.com");
-			urlField.setPromptText("http://yourlink.com");
-			pane.add(urlField, "cell 1 0");
-			pane.add(linkBrowseDirectoyButton, "cell 2 0");
-			pane.add(linkBrowseFileButton, "cell 3 0");
+    //======== pane ========
+    {
+      pane.setCols( "[shrink 0,fill][300,grow,fill][fill][fill]" );
+      pane.setRows( "[][][][]" );
 
-			//---- textLabel ----
-			textLabel.setText(Messages.get("LinkDialog.textLabel.text"));
-			pane.add(textLabel, "cell 0 1");
+      //---- urlLabel ----
+      urlLabel.setText( Messages.get( "LinkDialog.urlLabel.text" ) );
+      pane.add( urlLabel, "cell 0 0" );
 
-			//---- textField ----
-			textField.setEscapeCharacters("[]");
-			pane.add(textField, "cell 1 1 3 1");
+      //---- urlField ----
+      urlField.setEscapeCharacters( "()" );
+      pane.add( urlField, "cell 1 0" );
+      pane.add( linkBrowseDirectoyButton, "cell 2 0" );
+      pane.add( linkBrowseFileButton, "cell 3 0" );
 
-			//---- titleLabel ----
-			titleLabel.setText(Messages.get("LinkDialog.titleLabel.text"));
-			pane.add(titleLabel, "cell 0 2");
-			pane.add(titleField, "cell 1 2 3 1");
+      //---- textLabel ----
+      textLabel.setText( Messages.get( "LinkDialog.textLabel.text" ) );
+      pane.add( textLabel, "cell 0 1" );
 
-			//---- previewLabel ----
-			previewLabel.setText(Messages.get("LinkDialog.previewLabel.text"));
-			pane.add(previewLabel, "cell 0 3");
-			pane.add(previewField, "cell 1 3 3 1");
-		}
-		// JFormDesigner - End of component initialization  //GEN-END:initComponents
-	}
+      //---- textField ----
+      textField.setEscapeCharacters( "[]" );
+      pane.add( textField, "cell 1 1 3 1" );
 
-	// JFormDesigner - Variables declaration - DO NOT MODIFY  //GEN-BEGIN:variables
-	private MigPane pane;
-	private EscapeTextField urlField;
-	private BrowseDirectoryButton linkBrowseDirectoyButton;
-	private BrowseFileButton linkBrowseFileButton;
-	private EscapeTextField textField;
-	private EscapeTextField titleField;
-	private Label previewField;
-	// JFormDesigner - End of variables declaration  //GEN-END:variables
+      //---- titleLabel ----
+      titleLabel.setText( Messages.get( "LinkDialog.titleLabel.text" ) );
+      pane.add( titleLabel, "cell 0 2" );
+      pane.add( titleField, "cell 1 2 3 1" );
+    }
+    // JFormDesigner - End of component initialization  //GEN-END:initComponents
+  }
+
+  // JFormDesigner - Variables declaration - DO NOT MODIFY  //GEN-BEGIN:variables
+  private MigPane pane;
+  private EscapeTextField urlField;
+  private BrowseDirectoryButton linkBrowseDirectoyButton;
+  private BrowseFileButton linkBrowseFileButton;
+  private EscapeTextField textField;
+  private EscapeTextField titleField;
+  // JFormDesigner - End of variables declaration  //GEN-END:variables
 }

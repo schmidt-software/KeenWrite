@@ -25,29 +25,24 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.scrivenvar.definition;
+package com.scrivenvar.predicates.strings;
+
+import java.util.function.Predicate;
 
 /**
- * Determines if one string contains another.
+ * General predicate for different types of string comparisons.
  *
  * @author White Magic Software, Ltd.
  */
-public class ContainsPredicate implements Predicate {
+public abstract class StringPredicate implements Predicate<String> {
 
-  /**
-   * Answers whether the given strings match each other. What match means will
-   * depend on user preferences. The empty condition is required to return the
-   * first node in a list of child nodes when the user has not yet selected a
-   * node.
-   *
-   * @param s1 The string to compare against s2.
-   * @param s2 The string to compare against s1.
-   *
-   * @return true if s1 and s2 are a match according to some criteria,or s2 is
-   * empty.
-   */
-  @Override
-  public boolean pass( final String s1, final String s2 ) {
-    return s1.toLowerCase().contains( s2.toLowerCase() ) || s2.isEmpty();
+  private final String comparate;
+
+  public StringPredicate( final String comparate ) {
+    this.comparate = comparate;
+  }
+
+  protected String getComparate() {
+    return this.comparate;
   }
 }

@@ -1,45 +1,25 @@
 ![Logo](images/logo64.png)
 
 Scrivenvar
-==========
+===
 
-An open source [Markdown] editor for authors that separates content from presentation.
+A word processor with variables.
 
 ![Screenshot](images/screenshot.png)
 
-Features
---------
-
-* Structured variable references
-* Keyboard shortcuts (bold, italic, hyperlinks, images, headers, lists)
-* HTML preview
-* Operating system independent (Windows, Mac, Linux)
-
 Requirements
-------------
+---
 
-* Java version 8u40 or later.
+Download and install [Java 8u40](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html).
 
 Installation
-------------
+---
 
-[Download](https://github.com/DaveJarvis/scrivenvar/releases/download/0.4/scrivenvar.zip) the archive and extract it to any folder.
-
-Double-click `scrivenvar.jar` to start the application.
-
-If this does not work, try following command in a terminal window:
-
-```
-java -jar scrivenvar.jar
-```
-
-Credits
--------
-
-See [credits](CREDITS.md).
+1. [Download](https://github.com/DaveJarvis/scrivenvar/releases) the latest zip archive and extract it to any folder.
+1. Double-click `scrivenvar.jar` to start the application.
 
 License
--------
+---
 
 This software is licensed under the [BSD 2-Clause License](LICENSE)
 

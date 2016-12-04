@@ -27,12 +27,14 @@
  */
 package com.scrivenvar.processors;
 
+import com.vladsch.flexmark.Extension;
+import com.vladsch.flexmark.ast.Node;
+import com.vladsch.flexmark.ext.gfm.tables.TablesExtension;
+import com.vladsch.flexmark.html.HtmlRenderer;
+import com.vladsch.flexmark.parser.Parser;
 import java.util.ArrayList;
 import java.util.List;
-import org.commonmark.Extension;
-import org.commonmark.ext.gfm.tables.TablesExtension;
-import org.commonmark.parser.Parser;
-import org.commonmark.renderer.html.HtmlRenderer;
+
 
 /**
  * Responsible for parsing a Markdown document and rendering it as HTML.
@@ -66,6 +68,30 @@ public class MarkdownProcessor extends AbstractProcessor<String> {
   }
 
   /**
+   * Returns the AST in the form of a node for the given markdown document. This
+   * can be used, for example, to determine if a hyperlink exists inside of a
+   * paragraph.
+   *
+   * @param markdown The markdown to convert into an AST.
+   *
+   * @return The markdown AST for the given text (usually a paragraph).
+   */
+  public Node toNode( final String markdown ) {
+    return parse( markdown );
+  }
+
+  /**
+   * Helper method to create an AST given some markdown.
+   *
+   * @param markdown The markdown to parse.
+   *
+   * @return The root node of the markdown tree.
+   */
+  private Node parse( final String markdown ) {
+    return createParser().parse( markdown );
+  }
+
+  /**
    * Converts a string of markdown into HTML.
    *
    * @param markdown The markdown text to convert to HTML, must not be null.
@@ -73,7 +99,7 @@ public class MarkdownProcessor extends AbstractProcessor<String> {
    * @return The markdown rendered as an HTML document.
    */
   private String toHtml( final String markdown ) {
-    return createRenderer().render( createParser().parse( markdown ) );
+    return createRenderer().render( parse( markdown ) );
   }
 
   /**

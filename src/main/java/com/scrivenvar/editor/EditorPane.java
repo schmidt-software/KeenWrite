@@ -34,14 +34,14 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyDoubleProperty;
 import javafx.beans.property.ReadOnlyDoubleWrapper;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.scene.control.ScrollPane;
 import org.fxmisc.flowless.VirtualizedScrollPane;
 import org.fxmisc.richtext.StyleClassedTextArea;
 import org.fxmisc.undo.UndoManager;
-import com.scrivenvar.processors.Processor;
 
 /**
  * Represents common editing features for various types of text editors.
- * 
+ *
  * @author White Magic Software, Ltd.
  */
 public class EditorPane extends AbstractPane {
@@ -50,11 +50,6 @@ public class EditorPane extends AbstractPane {
   private VirtualizedScrollPane<StyleClassedTextArea> scrollPane;
   private final ReadOnlyDoubleWrapper scrollY = new ReadOnlyDoubleWrapper();
   private final ObjectProperty<Path> path = new SimpleObjectProperty<>();
-  
-  /**
-   * Chain of events for text processing.
-   */
-  private Processor<String> succession;
 
   @Override
   public void requestFocus() {
@@ -103,7 +98,10 @@ public class EditorPane extends AbstractPane {
   }
 
   protected VirtualizedScrollPane<StyleClassedTextArea> createScrollPane() {
-    return new VirtualizedScrollPane<>( getEditor() );
+    final VirtualizedScrollPane<StyleClassedTextArea> pane = new VirtualizedScrollPane<>( getEditor() );
+
+    pane.setVbarPolicy( ScrollPane.ScrollBarPolicy.ALWAYS );
+    return pane;
   }
 
   protected StyleClassedTextArea createTextArea() {

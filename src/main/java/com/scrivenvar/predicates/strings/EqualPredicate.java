@@ -25,25 +25,33 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.scrivenvar.service.events.impl;
-
-import com.scrivenvar.service.Service;
-import com.scrivenvar.processors.Processor;
+package com.scrivenvar.predicates.strings;
 
 /**
- * Responsible for creating document processor (chains) for file types
- * (extensions).
+ * Determines if two strings are equal.
  *
  * @author White Magic Software, Ltd.
  */
-public class DefaultDocumentProcessorFactory implements Service {
+public class EqualPredicate extends StringPredicate {
 
-  public Processor createDocumentProcessor( String filetype ) {
-    if( filetype == null ) {
-      filetype = "md";
-    }
+  /**
+   * Calls the superclass to construct the instance.
+   *
+   * @param comparate Not null.
+   */
+  public EqualPredicate( final String comparate ) {
+    super( comparate );
+  }
 
-    return null;
-
+  /**
+   * Compares two strings.
+   *
+   * @param comparator A non-null string, possibly empty.
+   *
+   * @return true The strings are equal, ignoring case.
+   */
+  @Override
+  public boolean test( final String comparator ) {
+    return comparator.equalsIgnoreCase( getComparate() );
   }
 }

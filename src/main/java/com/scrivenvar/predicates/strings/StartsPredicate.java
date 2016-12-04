@@ -25,24 +25,34 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.scrivenvar.definition;
+package com.scrivenvar.predicates.strings;
 
 /**
- * Determines if two strings are equal.
- * 
+ * Determines if a string starts with another.
+ *
  * @author White Magic Software, Ltd.
  */
-public class EqualPredicate implements Predicate {
+public class StartsPredicate extends StringPredicate {
+
   /**
-   * Compares two strings taking into consideration options for case.
+   * Calls the superclass to construct the instance.
    *
-   * @param s1 A non-null string, possibly empty.
-   * @param s2 A non-null string, possibly empty.
+   * @param comparate Not null.
+   */
+  public StartsPredicate( final String comparate ) {
+    super( comparate );
+  }
+
+  /**
+   * Compares two strings.
    *
-   * @return true The strings are equal.
+   * @param comparator A non-null string, possibly empty.
+   *
+   * @return true The strings are equal, ignoring case.
    */
   @Override
-  public boolean pass( final String s1, final String s2 ) {
-    return s1.equalsIgnoreCase( s2 );
+  public boolean test( final String comparator ) {
+    final String comparate = getComparate().toLowerCase();
+    return comparator.startsWith( comparate.toLowerCase() );
   }
 }

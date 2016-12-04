@@ -25,22 +25,74 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.scrivenvar.definition;
+package com.scrivenvar.editor;
+
+import com.vladsch.flexmark.ast.Link;
+import com.vladsch.flexmark.ast.Node;
+import com.vladsch.flexmark.ast.NodeVisitor;
+import com.vladsch.flexmark.ast.VisitHandler;
 
 /**
- * Answers whether two strings may pass through a filter.
- * 
  * @author White Magic Software, Ltd.
  */
-public interface Predicate {
+public class LinkVisitor {
+
+  private NodeVisitor visitor;
+  private Link link;
+  private final int offset;
 
   /**
-   * Returns true if the strings match in some subclass-defined criteria.
+   * Creates a hyperlink given an offset into a paragraph and the markdown AST
+   * link node.
    *
-   * @param s1 The string to compare against s2.
-   * @param s2 The string to compare against s1.
-   *
-   * @return true The strings pass the filter test.
+   * @param index Index into the paragraph that indicates the hyperlink to
+   * change.
    */
-  public boolean pass( String s1, String s2 );
+  public LinkVisitor( final int index ) {
+    this.offset = index;
+  }
+
+  public Link process( final Node root ) {
+    getVisitor().visit( root );
+    return getLink();
+  }
+
+  /**
+   *
+   * @param link Not null.
+   */
+  private void visit( final Link link ) {
+    final int began = link.getStartOffset();
+    final int ended = link.getEndOffset();
+    final int index = getOffset();
+
+    if( index >= began && index <= ended ) {
+      setLink( link );
+    }
+  }
+
+  private synchronized NodeVisitor getVisitor() {
+    if( this.visitor == null ) {
+      this.visitor = createVisitor();
+    }
+
+    return this.visitor;
+  }
+
+  protected NodeVisitor createVisitor() {
+    return new NodeVisitor(
+      new VisitHandler<>( Link.class, LinkVisitor.this::visit ) );
+  }
+
+  private Link getLink() {
+    return this.link;
+  }
+
+  private void setLink( final Link link ) {
+    this.link = link;
+  }
+
+  public int getOffset() {
+    return this.offset;
+  }
 }

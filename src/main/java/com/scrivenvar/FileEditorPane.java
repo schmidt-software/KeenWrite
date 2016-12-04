@@ -27,6 +27,8 @@
  */
 package com.scrivenvar;
 
+import static com.scrivenvar.Messages.get;
+import com.scrivenvar.predicates.files.FileTypePredicate;
 import com.scrivenvar.service.Settings;
 import com.scrivenvar.service.events.AlertMessage;
 import com.scrivenvar.service.events.AlertService;
@@ -40,6 +42,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.prefs.Preferences;
+import java.util.stream.Collectors;
 import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.property.ReadOnlyBooleanWrapper;
 import javafx.beans.property.ReadOnlyObjectProperty;
@@ -190,52 +193,94 @@ public class FileEditorPane extends AbstractPane {
     return fileEditor;
   }
 
-  FileEditor[] openEditor() {
-    final FileChooser fileChooser
-      = createFileChooser( Messages.get( "Dialog.file.choose.open.title" ) );
-    final List<File> selectedFiles
-      = fileChooser.showOpenMultipleDialog( getWindow() );
+  void openFileDialog() {
+    final FileChooser dialog
+      = createFileChooser( get( "Dialog.file.choose.open.title" ) );
+    final List<File> files = dialog.showOpenMultipleDialog( getWindow() );
 
-    if( selectedFiles == null ) {
-      return null;
+    if( files != null && !files.isEmpty() ) {
+      openFiles( files );
     }
-
-    saveLastDirectory( selectedFiles.get( 0 ) );
-    return openEditors( selectedFiles, 0 );
   }
 
-  private FileEditor[] openEditors( List<File> files, int activeIndex ) {
-    // close single unmodified "Untitled" tab
+  /**
+   * Opens the files into new editors, unless one of those files was a
+   * definition file. The definition file is loaded into the definition pane,
+   * but only the first one selected (multiple definition files will result in a
+   * warning).
+   *
+   * @param files The list of non-definition files that the were requested to
+   * open.
+   *
+   * @return A list of files that can be opened in text editors.
+   */
+  private void openFiles( final List<File> files ) {
+    final FileTypePredicate predicate
+      = new FileTypePredicate( createExtensionFilter( "definition" ).getExtensions() );
+
+    // The user might have opened muliple definitions files. These will
+    // be discarded from the text editable files.
+    final List<File> definitions
+      = files.stream().filter( predicate ).collect( Collectors.toList() );
+
+    // Create a modifiable list to remove any definition files that were
+    // opened.
+    final List<File> editors = new ArrayList<>( files );
+    editors.removeAll( definitions );
+
+    // If there are any editor-friendly files opened (e.g,. Markdown, XML), then
+    // open them up in new tabs.
+    if( editors.size() > 0 ) {
+      saveLastDirectory( editors.get( 0 ) );
+      openEditors( editors, 0 );
+    }
+
+    if( definitions.size() > 0 ) {
+      openDefinition( definitions.get( 0 ) );
+    }
+  }
+
+  private void openEditors( final List<File> files, final int activeIndex ) {
+    // Close single unmodified "Untitled" tab.
     if( getTabs().size() == 1 ) {
-      FileEditor fileEditor = (FileEditor)(getTab( 0 ).getUserData());
+      final FileEditor fileEditor = (FileEditor)(getTab( 0 ).getUserData());
+
       if( fileEditor.getPath() == null && !fileEditor.isModified() ) {
         closeEditor( fileEditor, false );
       }
     }
 
-    FileEditor[] fileEditors = new FileEditor[ files.size() ];
     for( int i = 0; i < files.size(); i++ ) {
       Path path = files.get( i ).toPath();
 
-      // check whether file is already opened
+      // Check whether file is already opened.
       FileEditor fileEditor = findEditor( path );
+
       if( fileEditor == null ) {
         fileEditor = createFileEditor( path );
 
         getTabs().add( fileEditor.getTab() );
       }
 
-      // select first file
+      // Select first file.
       if( i == activeIndex ) {
         getTabPane().getSelectionModel().select( fileEditor.getTab() );
       }
-
-      fileEditors[ i ] = fileEditor;
     }
-    return fileEditors;
   }
 
-  boolean saveEditor( FileEditor fileEditor ) {
+  /**
+   * Called when the user has opened a definition file (using the file open
+   * dialog box). This will replace the current set of definitions for the
+   * active tab.
+   * 
+   * @param definition The file to open.
+   */
+  private void openDefinition( final File definition ) {
+    System.out.println( "open definition file: " + definition.toString() );
+  }
+
+  boolean saveEditor( final FileEditor fileEditor ) {
     if( fileEditor == null || !fileEditor.isModified() ) {
       return true;
     }
@@ -243,8 +288,8 @@ public class FileEditorPane extends AbstractPane {
     if( fileEditor.getPath() == null ) {
       getTabPane().getSelectionModel().select( fileEditor.getTab() );
 
-      FileChooser fileChooser = createFileChooser( Messages.get( "Dialog.file.choose.save.title" ) );
-      File file = fileChooser.showSaveDialog( getWindow() );
+      final FileChooser fileChooser = createFileChooser( Messages.get( "Dialog.file.choose.save.title" ) );
+      final File file = fileChooser.showSaveDialog( getWindow() );
       if( file == null ) {
         return false;
       }

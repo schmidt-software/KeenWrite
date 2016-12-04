@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2015 Karl Tauber <karl at jformdesigner dot com>
+ * Copyright 2016 Karl Tauber and White Magic Software, Ltd.
+ *
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -178,7 +179,7 @@ public class MainWindow {
   }
 
   private Node createMenuBar() {
-    BooleanBinding activeFileEditorIsNull = getFileEditorPane().activeFileEditorProperty().isNull();
+    final BooleanBinding activeFileEditorIsNull = getFileEditorPane().activeFileEditorProperty().isNull();
 
     // File actions
     Action fileNewAction = new Action( Messages.get( "Main.menu.file.new" ), "Shortcut+N", FILE_ALT, e -> fileNew() );
@@ -228,6 +229,7 @@ public class MainWindow {
 
     final Action[] headers = new Action[ 6 ];
 
+    // Insert header actions (H1 ... H6)
     for( int i = 1; i <= 6; i++ ) {
       final String hashes = new String( new char[ i ] ).replace( "\0", "#" );
       final String markup = String.format( "\n\n%s ", hashes );
@@ -335,6 +337,7 @@ public class MainWindow {
    */
   private BooleanProperty createActiveBooleanProperty(
     final Function<FileEditor, ObservableBooleanValue> func ) {
+
     final BooleanProperty b = new SimpleBooleanProperty();
     final FileEditor fileEditor = getActiveFileEditor();
 
@@ -362,7 +365,7 @@ public class MainWindow {
   }
 
   private void fileOpen() {
-    getFileEditorPane().openEditor();
+    getFileEditorPane().openFileDialog();
   }
 
   private void fileClose() {
@@ -467,7 +470,7 @@ public class MainWindow {
     this.variableNameInjector = variableNameInjector;
   }
 
-  private float getFloat( String key, float defaultValue ) {
+  private float getFloat( final String key, final float defaultValue ) {
     return getPreferences().getFloat( key, defaultValue );
   }
 
@@ -493,7 +496,7 @@ public class MainWindow {
     return this.treeView;
   }
 
-  private InputStream asStream( String resource ) {
+  private InputStream asStream( final String resource ) {
     return getClass().getResourceAsStream( resource );
   }
 

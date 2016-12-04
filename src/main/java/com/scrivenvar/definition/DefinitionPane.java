@@ -29,6 +29,9 @@ package com.scrivenvar.definition;
 
 import static com.scrivenvar.Constants.SEPARATOR;
 import static com.scrivenvar.definition.Lists.getFirst;
+import com.scrivenvar.predicates.strings.ContainsPredicate;
+import com.scrivenvar.predicates.strings.StartsPredicate;
+import com.scrivenvar.predicates.strings.StringPredicate;
 import com.scrivenvar.ui.AbstractPane;
 import com.scrivenvar.ui.VariableTreeItem;
 import java.util.List;
@@ -72,13 +75,12 @@ public class DefinitionPane extends AbstractPane {
    */
   private TreeItem<String> findNode(
     final TreeItem<String> trunk,
-    final String word,
-    final Predicate predicate ) {
+    final StringPredicate predicate ) {
     final List<TreeItem<String>> branches = trunk.getChildren();
     TreeItem<String> result = null;
 
     for( final TreeItem<String> leaf : branches ) {
-      if( predicate.pass( leaf.getValue(), word ) ) {
+      if( predicate.test( leaf.getValue() ) ) {
         result = leaf;
         break;
       }
@@ -96,7 +98,7 @@ public class DefinitionPane extends AbstractPane {
   private TreeItem<String> findStartsNode(
     final TreeItem<String> trunk,
     final String word ) {
-    return findNode( trunk, word, new StartsPredicate() );
+    return findNode( trunk, new StartsPredicate( word ) );
   }
 
   /**
@@ -108,7 +110,7 @@ public class DefinitionPane extends AbstractPane {
   private TreeItem<String> findSubstringNode(
     final TreeItem<String> trunk,
     final String word ) {
-    return findNode( trunk, word, new ContainsPredicate() );
+    return findNode( trunk, new ContainsPredicate( word ) );
   }
 
   /**

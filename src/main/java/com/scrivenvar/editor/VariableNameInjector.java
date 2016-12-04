@@ -30,8 +30,8 @@ package com.scrivenvar.editor;
 import static com.scrivenvar.Constants.SEPARATOR;
 import com.scrivenvar.FileEditorPane;
 import com.scrivenvar.Services;
-import com.scrivenvar.decorators.YamlVariableDecorator;
 import com.scrivenvar.decorators.VariableDecorator;
+import com.scrivenvar.decorators.YamlVariableDecorator;
 import com.scrivenvar.definition.DefinitionPane;
 import static com.scrivenvar.definition.Lists.getFirst;
 import static com.scrivenvar.definition.Lists.getLast;
@@ -62,14 +62,6 @@ import static org.fxmisc.wellbehaved.event.EventPattern.keyTyped;
 import org.fxmisc.wellbehaved.event.InputMap;
 import static org.fxmisc.wellbehaved.event.InputMap.consume;
 import static org.fxmisc.wellbehaved.event.InputMap.sequence;
-import static com.scrivenvar.definition.Lists.getFirst;
-import static com.scrivenvar.definition.Lists.getLast;
-import static java.lang.Character.isSpaceChar;
-import static java.lang.Character.isWhitespace;
-import static java.lang.Math.min;
-import static org.fxmisc.wellbehaved.event.EventPattern.keyPressed;
-import static org.fxmisc.wellbehaved.event.EventPattern.keyTyped;
-import static org.fxmisc.wellbehaved.event.InputMap.consume;
 
 /**
  * Provides the logic for injecting variable names within the editor.

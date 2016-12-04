@@ -30,7 +30,10 @@ package com.scrivenvar.editor;
 import static com.scrivenvar.Constants.STYLESHEET_EDITOR;
 import com.scrivenvar.dialogs.ImageDialog;
 import com.scrivenvar.dialogs.LinkDialog;
+import com.scrivenvar.processors.MarkdownProcessor;
 import com.scrivenvar.util.Utils;
+import com.vladsch.flexmark.ast.Link;
+import com.vladsch.flexmark.ast.Node;
 import java.nio.file.Path;
 import java.util.function.Consumer;
 import java.util.regex.Matcher;
@@ -323,13 +326,50 @@ public class MarkdownEditorPane extends EditorPane {
     textArea.selectRange( selStart, selEnd );
   }
 
+  /**
+   * Returns one of: selected text, word under cursor, or parsed hyperlink from
+   * the markdown AST.
+   *
+   * @return
+   */
+  private HyperlinkModel getHyperlink() {
+    final StyleClassedTextArea textArea = getEditor();
+    final String selectedText = textArea.getSelectedText();
+
+    // Get the current paragraph, convert to Markdown nodes.
+    final MarkdownProcessor mp = new MarkdownProcessor( null );
+    final int p = textArea.getCurrentParagraph();
+    final String paragraph = textArea.getText( p );
+    final Node node = mp.toNode( paragraph );
+    final LinkVisitor visitor = new LinkVisitor( textArea.getCaretColumn() );
+    final Link link = visitor.process( node );
+
+    if( link != null ) {
+      textArea.selectRange( p, link.getStartOffset(), p, link.getEndOffset() );
+    }
+
+    final HyperlinkModel model = createHyperlinkModel(
+      link, selectedText, "http://website.com"
+    );
+
+    return model;
+  }
+
+  private HyperlinkModel createHyperlinkModel(
+    final Link link, final String selection, final String url ) {
+
+    return link == null
+      ? new HyperlinkModel( selection, url )
+      : new HyperlinkModel( link );
+  }
+
   private Path getParentPath() {
     final Path parentPath = getPath();
     return (parentPath != null) ? parentPath.getParent() : null;
   }
 
   private Dialog<String> createLinkDialog() {
-    return new LinkDialog( getWindow(), getParentPath() );
+    return new LinkDialog( getWindow(), getHyperlink(), getParentPath() );
   }
 
   private Dialog<String> createImageDialog() {

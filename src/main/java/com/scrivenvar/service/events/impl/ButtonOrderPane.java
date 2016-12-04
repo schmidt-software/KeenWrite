@@ -50,7 +50,7 @@ public class ButtonOrderPane extends DialogPane {
   }
 
   private String getButtonOrder() {
-    return getSetting( "dialog.alert.button.order", BUTTON_ORDER_WINDOWS );
+    return getSetting( "dialog.alert.button.order.windows", BUTTON_ORDER_WINDOWS );
   }
 
   private String getSetting( final String key, final String defaultValue ) {

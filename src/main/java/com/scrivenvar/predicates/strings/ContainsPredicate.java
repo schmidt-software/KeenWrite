@@ -25,25 +25,39 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.scrivenvar.definition;
+package com.scrivenvar.predicates.strings;
 
 /**
- * Determines if one string starts with another.
+ * Determines if one string contains another.
  *
  * @author White Magic Software, Ltd.
  */
-public class StartsPredicate implements Predicate {
+public class ContainsPredicate extends StringPredicate {
 
   /**
-   * Compares two strings taking into consideration options for case.
+   * Calls the superclass to construct the instance.
    *
-   * @param s1 A non-null string, possibly empty.
-   * @param s2 A non-null string, possibly empty.
+   * @param comparate Not null.
+   */
+  public ContainsPredicate( final String comparate ) {
+    super( comparate );
+  }
+
+  /**
+   * Answers whether the given strings match each other. What match means will
+   * depend on user preferences. The empty condition is required to return the
+   * first node in a list of child nodes when the user has not yet selected a
+   * node.
    *
-   * @return true The strings are equal.
+   * @param comparator The string to compare against the comparate.
+   *
+   * @return true if s1 and s2 are a match according to some criteria,or s2 is
+   * empty.
    */
   @Override
-  public boolean pass( final String s1, final String s2 ) {
-    return s1.toLowerCase().startsWith( s2.toLowerCase() );
+  public boolean test( final String comparator ) {
+    final String comparate = getComparate().toLowerCase();
+    return comparator.contains( comparate.toLowerCase() )
+      || comparate.isEmpty();
   }
 }

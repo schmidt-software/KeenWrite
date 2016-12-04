@@ -38,9 +38,9 @@ import javafx.beans.property.StringProperty;
 import org.pegdown.Extensions;
 
 /**
- * Options
+ * Persistent options user can change at runtime.
  *
- * @author Karl Tauber
+ * @author Karl Tauber and White Magic Software, Ltd.
  */
 public class DefaultOptions implements Options {
   private final StringProperty LINE_SEPARATOR = new SimpleStringProperty();

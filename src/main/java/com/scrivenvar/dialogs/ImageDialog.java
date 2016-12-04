@@ -26,6 +26,10 @@
  */
 package com.scrivenvar.dialogs;
 
+import com.scrivenvar.Messages;
+import com.scrivenvar.controls.BrowseFileButton;
+import com.scrivenvar.controls.EscapeTextField;
+import com.scrivenvar.service.events.impl.ButtonOrderPane;
 import java.nio.file.Path;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
@@ -38,9 +42,6 @@ import javafx.scene.control.DialogPane;
 import javafx.scene.control.Label;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Window;
-import com.scrivenvar.Messages;
-import com.scrivenvar.controls.BrowseFileButton;
-import com.scrivenvar.controls.EscapeTextField;
 import org.tbee.javafx.scene.layout.fxml.MigPane;
 
 /**
@@ -63,7 +64,8 @@ public class ImageDialog extends Dialog<String> {
     linkBrowseFileButton.addExtensionFilter( new ExtensionFilter( Messages.get( "ImageDialog.chooser.imagesFilter" ), "*.png", "*.gif", "*.jpg" ) );
     linkBrowseFileButton.urlProperty().bindBidirectional( urlField.escapedTextProperty() );
 
-    DialogPane dialogPane = getDialogPane();
+    setDialogPane( new ButtonOrderPane() );
+    final DialogPane dialogPane = getDialogPane();
     dialogPane.setContent( pane );
     dialogPane.getButtonTypes().addAll( ButtonType.OK, ButtonType.CANCEL );
 
