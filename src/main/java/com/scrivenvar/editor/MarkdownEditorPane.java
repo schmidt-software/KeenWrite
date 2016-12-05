@@ -35,26 +35,19 @@ import com.scrivenvar.util.Utils;
 import com.vladsch.flexmark.ast.Link;
 import com.vladsch.flexmark.ast.Node;
 import java.nio.file.Path;
-import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javafx.beans.InvalidationListener;
 import javafx.beans.WeakInvalidationListener;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.event.Event;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.IndexRange;
-import javafx.scene.input.InputEvent;
 import static javafx.scene.input.KeyCode.ENTER;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Window;
 import org.fxmisc.richtext.StyleClassedTextArea;
-import org.fxmisc.wellbehaved.event.EventPattern;
 import static org.fxmisc.wellbehaved.event.EventPattern.keyPressed;
-import org.fxmisc.wellbehaved.event.InputMap;
-import static org.fxmisc.wellbehaved.event.InputMap.consume;
-import org.fxmisc.wellbehaved.event.Nodes;
 
 /**
  * Markdown editor pane.
@@ -65,13 +58,6 @@ public class MarkdownEditorPane extends EditorPane {
 
   private static final Pattern AUTO_INDENT_PATTERN = Pattern.compile(
     "(\\s*[*+-]\\s+|\\s*[0-9]+\\.\\s+|\\s+)(.*)" );
-
-  /**
-   * Set when entering variable edit mode; retrieved upon exiting.
-   */
-  private InputMap<InputEvent> nodeMap;
-
-  private String lineSeparator = getLineSeparator();
 
   public MarkdownEditorPane() {
     initEditor();
@@ -90,53 +76,6 @@ public class MarkdownEditorPane extends EditorPane {
 
     // TODO: Wait for implementation that allows cutting lines, not paragraphs.
 //    addEventListener( keyPressed( X, SHORTCUT_DOWN ), this::cutLine );
-  }
-
-  /**
-   * Call to hook into changes to the text area.
-   *
-   * @param listener The listener to receive editor change events.
-   */
-  public void addChangeListener( ChangeListener<? super String> listener ) {
-    getEditor().textProperty().addListener( listener );
-  }
-
-  /**
-   * This method adds listeners to editor events.
-   *
-   * @param <T> The event type.
-   * @param <U> The consumer type for the given event type.
-   * @param event The event of interest.
-   * @param consumer The method to call when the event happens.
-   */
-  public <T extends Event, U extends T> void addEventListener(
-    final EventPattern<? super T, ? extends U> event,
-    final Consumer<? super U> consumer ) {
-    Nodes.addInputMap( getEditor(), consume( event, consumer ) );
-  }
-
-  /**
-   * This method adds listeners to editor events that can be removed without
-   * affecting the original listeners (i.e., the original lister is restored on
-   * a call to removeEventListener).
-   *
-   * @param map The map of methods to events.
-   */
-  @SuppressWarnings( "unchecked" )
-  public void addEventListener( final InputMap<InputEvent> map ) {
-    this.nodeMap = (InputMap<InputEvent>)getInputMap();
-    Nodes.addInputMap( getEditor(), map );
-  }
-
-  /**
-   * This method removes listeners to editor events and restores the default
-   * handler.
-   *
-   * @param map The map of methods to events.
-   */
-  public void removeEventListener( final InputMap<InputEvent> map ) {
-    Nodes.removeInputMap( getEditor(), map );
-    Nodes.addInputMap( getEditor(), this.nodeMap );
   }
 
   /**
@@ -159,62 +98,11 @@ public class MarkdownEditorPane extends EditorPane {
    * Listen to option changes.
    */
   private void initOptionEventListener() {
-    final StyleClassedTextArea textArea = getEditor();
-
     final InvalidationListener listener = e -> {
-      if( textArea.getScene() == null ) {
-        // Editor closed but not yet garbage collected.
-        return;
-      }
-
-      // Re-process markdown if markdown extensions option changes.
-      if( e == getOptions().markdownExtensionsProperty() ) {
-        // TODO: Watch for invalidation events.
-        //textChanged(textArea.getText());
-      }
     };
 
     WeakInvalidationListener weakOptionsListener = new WeakInvalidationListener( listener );
     getOptions().markdownExtensionsProperty().addListener( weakOptionsListener );
-  }
-
-  private String getLineSeparator() {
-    final String separator = getOptions().getLineSeparator();
-
-    return (separator != null)
-      ? separator
-      : System.lineSeparator();
-  }
-
-  private String determineLineSeparator( final String s ) {
-    final int length = s.length();
-
-    // TODO: Looping backwards will probably detect a newline sooner.
-    for( int i = 0; i < length; i++ ) {
-      char ch = s.charAt( i );
-      if( ch == '\n' ) {
-        return (i > 0 && s.charAt( i - 1 ) == '\r') ? "\r\n" : "\n";
-      }
-    }
-
-    return getLineSeparator();
-  }
-
-  public String getMarkdown() {
-    String markdown = getEditor().getText();
-
-    if( !this.lineSeparator.equals( "\n" ) ) {
-      markdown = markdown.replace( "\n", this.lineSeparator );
-    }
-
-    return markdown;
-  }
-
-  public void setMarkdown( final String markdown ) {
-    this.lineSeparator = determineLineSeparator( markdown );
-    getEditor().deselect();
-    getEditor().replaceText( markdown );
-    getUndoManager().mark();
   }
 
   public ObservableValue<String> markdownProperty() {
@@ -349,7 +237,7 @@ public class MarkdownEditorPane extends EditorPane {
     }
 
     final HyperlinkModel model = createHyperlinkModel(
-      link, selectedText, "http://website.com"
+      link, selectedText, "https://website.com"
     );
 
     return model;
@@ -388,24 +276,6 @@ public class MarkdownEditorPane extends EditorPane {
 
   public void insertImage() {
     insertObject( createImageDialog() );
-  }
-
-  /**
-   * Returns the value for "org.fxmisc.wellbehaved.event.inputmap".
-   *
-   * @return An input map of input events.
-   */
-  private Object getInputMap() {
-    return getEditor().getProperties().get( getInputMapKey() );
-  }
-
-  /**
-   * Returns the hashmap key entry for the input map.
-   *
-   * @return "org.fxmisc.wellbehaved.event.inputmap"
-   */
-  private String getInputMapKey() {
-    return "org.fxmisc.wellbehaved.event.inputmap";
   }
 
   private Window getWindow() {

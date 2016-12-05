@@ -30,7 +30,6 @@ package com.scrivenvar.preview;
 import java.nio.file.Path;
 import javafx.application.Platform;
 import javafx.beans.property.DoubleProperty;
-import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.scene.control.ScrollPane;
 import static javafx.scene.control.ScrollPane.ScrollBarPolicy.ALWAYS;
@@ -44,7 +43,7 @@ import javafx.scene.web.WebView;
  */
 public final class HTMLPreviewPane extends ScrollPane {
 
-  private ObjectProperty<Path> path;
+  private Path path;
   private final DoubleProperty scrollY = new SimpleDoubleProperty();
 
   private final WebView webView = new WebView();
@@ -55,17 +54,17 @@ public final class HTMLPreviewPane extends ScrollPane {
 
   private String html;
 
-  public HTMLPreviewPane( final ObjectProperty<Path> path ) {
+  public HTMLPreviewPane( final Path path ) {
     setPath( path );
-    
     setVbarPolicy( ALWAYS );
     scrollYProperty().addListener( (observable, oldValue, newValue) -> {
       scrollY();
     } );
+  }
 
-    pathProperty().addListener( (observable, oldValue, newValue) -> {
-      update();
-    } );
+  public void update( final String html ) {
+    setHtml( html );
+    update();
   }
 
   private void update() {
@@ -84,11 +83,6 @@ public final class HTMLPreviewPane extends ScrollPane {
       + getHtml()
       + "</body>"
       + "</html>" );
-  }
-
-  public void update( final String html ) {
-    setHtml( html );
-    update();
   }
 
   /**
@@ -173,15 +167,10 @@ public final class HTMLPreviewPane extends ScrollPane {
   }
 
   private Path getPath() {
-    return this.path.get();
-  }
-
-  public ObjectProperty<Path> pathProperty() {
     return this.path;
   }
 
-  private void setPath( final ObjectProperty<Path> path ) {
+  private void setPath( final Path path ) {
     this.path = path;
   }
-
 }

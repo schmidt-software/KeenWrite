@@ -1,6 +1,5 @@
 /*
- * Copyright (c) 2015 Karl Tauber <karl at jformdesigner dot com>
- * All rights reserved.
+ * Copyright 2016 Karl Tauber and White Magic Software, Ltd.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -26,6 +25,7 @@
  */
 package com.scrivenvar;
 
+import com.scrivenvar.editor.EditorPane;
 import com.scrivenvar.editor.MarkdownEditorPane;
 import com.scrivenvar.preview.HTMLPreviewPane;
 import com.scrivenvar.service.Options;
@@ -38,11 +38,9 @@ import java.util.function.Consumer;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.property.ReadOnlyBooleanWrapper;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.event.Event;
 import javafx.scene.control.Alert;
@@ -60,61 +58,68 @@ import org.fxmisc.wellbehaved.event.InputMap;
  *
  * @author Karl Tauber and White Magic Software, Ltd.
  */
-public final class FileEditor {
+public final class FileEditorTab extends Tab {
 
   private final Options options = Services.load( Options.class );
   private final AlertService alertService = Services.load( AlertService.class );
 
-  private Tab tab;
-  private MarkdownEditorPane markdownEditorPane;
-  private HTMLPreviewPane htmlPreviewPane;
+  private EditorPane editorPane;
+  private HTMLPreviewPane previewPane;
 
-  private final ObjectProperty<Path> path = new SimpleObjectProperty<>();
   private final ReadOnlyBooleanWrapper modified = new ReadOnlyBooleanWrapper();
   private final BooleanProperty canUndo = new SimpleBooleanProperty();
   private final BooleanProperty canRedo = new SimpleBooleanProperty();
+  private Path path;
 
-  FileEditor( final Path path ) {
+  FileEditorTab( final Path path ) {
     setPath( path );
+    setUserData( this );
 
-    Tab activeTab = getTab();
-
-    // avoid that this is GCed
-    activeTab.setUserData( this );
-
-    pathProperty().addListener( (observable, oldPath, newPath) -> updateTab() );
     this.modified.addListener( (observable, oldPath, newPath) -> updateTab() );
     updateTab();
 
-    activeTab.setOnSelectionChanged( e -> {
-      if( activeTab.isSelected() ) {
+    setOnSelectionChanged( e -> {
+      if( isSelected() ) {
         Platform.runLater( () -> activated() );
       }
     } );
   }
 
   private void updateTab() {
-    final Tab activeTab = getTab();
     final Path filePath = getPath();
-    activeTab.setText( (filePath != null) ? filePath.getFileName().toString() : Messages.get( "FileEditor.untitled" ) );
-    activeTab.setTooltip( (filePath != null) ? new Tooltip( filePath.toString() ) : null );
-    activeTab.setGraphic( isModified() ? new Text( "*" ) : null );
+
+    setText( getFilename( filePath ) );
+    setGraphic( getModifiedMark() );
+    setTooltip( getTooltip( filePath ) );
   }
 
-  private void activated() {
-    final Tab activeTab = getTab();
+  private String getFilename( final Path filePath ) {
+    return (filePath == null)
+      ? Messages.get( "FileEditor.untitled" )
+      : filePath.getFileName().toString();
+  }
 
-    if( activeTab.getTabPane() == null || !activeTab.isSelected() ) {
+  private Tooltip getTooltip( final Path filePath ) {
+    return (filePath == null)
+      ? null
+      : new Tooltip( filePath.toString() );
+  }
+
+  private Text getModifiedMark() {
+    return isModified() ? new Text( "*" ) : null;
+  }
+
+  /**
+   * Called when the user switches tab.
+   */
+  private void activated() {
+    if( getTabPane() == null || !isSelected() ) {
       // Tab is closed or no longer active.
       return;
     }
 
-    final MarkdownEditorPane editorPane = getEditorPane();
-    editorPane.pathProperty().bind( pathProperty() );
-
-
-    if( activeTab.getContent() != null ) {
-      editorPane.requestFocus();
+    if( getContent() != null ) {
+      getEditorPane().requestFocus();
       return;
     }
 
@@ -125,25 +130,25 @@ public final class FileEditor {
     initUndoManager();
     initSplitPane();
   }
-  
+
   public void initSplitPane() {
-    final MarkdownEditorPane editorPane = getEditorPane();
-    final HTMLPreviewPane previewPane = getPreviewPane();
+    final EditorPane editor = getEditorPane();
+    final HTMLPreviewPane preview = getPreviewPane();
 
     // Make the preview pane scroll correspond to the editor pane scroll.
-    previewPane.scrollYProperty().bind( editorPane.scrollYProperty() );
-    
+    preview.scrollYProperty().bind( editor.scrollYProperty() );
+
     // Separate the edit and preview panels.
-    SplitPane splitPane = new SplitPane(
-      editorPane.getScrollPane(),
-      previewPane.getWebView() );
-    getTab().setContent( splitPane );
+    final SplitPane splitPane = new SplitPane(
+      editor.getScrollPane(),
+      preview.getWebView() );
+    setContent( splitPane );
 
     // Set the caret position to 0.
-    editorPane.scrollToTop();
+    editor.scrollToTop();
 
     // Let the user edit.
-    editorPane.requestFocus();
+    editor.requestFocus();
   }
 
   private void initUndoManager() {
@@ -157,7 +162,7 @@ public final class FileEditor {
     canUndo.bind( undoManager.undoAvailableProperty() );
     canRedo.bind( undoManager.redoAvailableProperty() );
   }
-  
+
   /**
    * Delegates to add a listener for changes to the text area.
    *
@@ -182,7 +187,7 @@ public final class FileEditor {
           markdown = new String( bytes );
         }
 
-        getEditorPane().setMarkdown( markdown );
+        getEditorPane().setText( markdown );
       } catch( IOException ex ) {
         final AlertMessage message = getAlertService().createAlertMessage(
           Messages.get( "FileEditor.loadFailed.title" ),
@@ -199,14 +204,14 @@ public final class FileEditor {
   }
 
   boolean save() {
-    final String markdown = getEditorPane().getMarkdown();
+    final String text = getEditorPane().getText();
 
     byte[] bytes;
 
     try {
-      bytes = markdown.getBytes( getOptions().getEncoding() );
+      bytes = text.getBytes( getOptions().getEncoding() );
     } catch( Exception ex ) {
-      bytes = markdown.getBytes();
+      bytes = text.getBytes();
     }
 
     try {
@@ -229,24 +234,12 @@ public final class FileEditor {
     }
   }
 
-  public synchronized Tab getTab() {
-    if( this.tab == null ) {
-      this.tab = new Tab();
-    }
-
-    return this.tab;
-  }
-
   Path getPath() {
-    return this.path.get();
-  }
-
-  void setPath( Path path ) {
-    this.path.set( path );
-  }
-
-  ObjectProperty<Path> pathProperty() {
     return this.path;
+  }
+
+  void setPath( final Path path ) {
+    this.path = path;
   }
 
   boolean isModified() {
@@ -283,12 +276,12 @@ public final class FileEditor {
     getEditorPane().removeEventListener( map );
   }
 
-  protected MarkdownEditorPane getEditorPane() {
-    if( this.markdownEditorPane == null ) {
-      this.markdownEditorPane = new MarkdownEditorPane();
+  protected EditorPane getEditorPane() {
+    if( this.editorPane == null ) {
+      this.editorPane = new MarkdownEditorPane();
     }
 
-    return this.markdownEditorPane;
+    return this.editorPane;
   }
 
   private AlertService getAlertService() {
@@ -300,10 +293,10 @@ public final class FileEditor {
   }
 
   public HTMLPreviewPane getPreviewPane() {
-    if( this.htmlPreviewPane == null ) {
-      this.htmlPreviewPane = new HTMLPreviewPane( pathProperty() );
+    if( this.previewPane == null ) {
+      this.previewPane = new HTMLPreviewPane( getPath() );
     }
 
-    return this.htmlPreviewPane;
+    return this.previewPane;
   }
 }

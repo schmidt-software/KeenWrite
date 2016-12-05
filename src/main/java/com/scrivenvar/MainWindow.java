@@ -71,8 +71,9 @@ import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableBooleanValue;
+import javafx.collections.ListChangeListener.Change;
+import javafx.collections.ObservableList;
 import javafx.event.Event;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -81,6 +82,7 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.SplitPane;
+import javafx.scene.control.Tab;
 import javafx.scene.control.ToolBar;
 import javafx.scene.control.TreeView;
 import javafx.scene.image.Image;
@@ -106,7 +108,7 @@ public class MainWindow {
   private Scene scene;
 
   private TreeView<String> treeView;
-  private FileEditorPane fileEditorPane;
+  private FileEditorTabPane fileEditorPane;
   private DefinitionPane definitionPane;
 
   private VariableNameInjector variableNameInjector;
@@ -125,12 +127,13 @@ public class MainWindow {
     final SplitPane splitPane = new SplitPane(
       getDefinitionPane().getNode(),
       getFileEditorPane().getNode() );
+
     splitPane.setDividerPositions(
       getFloat( K_PANE_SPLIT_DEFINITION, .05f ),
       getFloat( K_PANE_SPLIT_EDITOR, .95f ) );
 
     // See: http://broadlyapplicable.blogspot.ca/2015/03/javafx-capture-restore-splitpane.html
-    BorderPane borderPane = new BorderPane();
+    final BorderPane borderPane = new BorderPane();
     borderPane.setPrefSize( 1024, 800 );
     borderPane.setTop( createMenuBar() );
     borderPane.setCenter( splitPane );
@@ -178,6 +181,241 @@ public class MainWindow {
     this.scene = scene;
   }
 
+  /**
+   * Creates a boolean property that is bound to another boolean value of the
+   * active editor.
+   */
+  private BooleanProperty createActiveBooleanProperty(
+    final Function<FileEditorTab, ObservableBooleanValue> func ) {
+
+    final BooleanProperty b = new SimpleBooleanProperty();
+    final FileEditorTab fileEditor = getActiveFileEditor();
+
+    if( fileEditor != null ) {
+      b.bind( func.apply( fileEditor ) );
+    }
+
+    getFileEditorPane().activeFileEditorProperty().addListener(
+      (observable, oldFileEditor, newFileEditor) -> {
+        b.unbind();
+
+        if( newFileEditor != null ) {
+          b.bind( func.apply( newFileEditor ) );
+        } else {
+          b.set( false );
+        }
+      } );
+
+    return b;
+  }
+
+  //---- File actions -------------------------------------------------------
+  private void fileNew() {
+    getFileEditorPane().newEditor();
+  }
+
+  private void fileOpen() {
+    getFileEditorPane().openFileDialog();
+  }
+
+  private void fileClose() {
+    getFileEditorPane().closeEditor( getActiveFileEditor(), true );
+  }
+
+  private void fileCloseAll() {
+    getFileEditorPane().closeAllEditors();
+  }
+
+  private void fileSave() {
+    getFileEditorPane().saveEditor( getActiveFileEditor() );
+  }
+
+  private void fileSaveAll() {
+    getFileEditorPane().saveAllEditors();
+  }
+
+  private void fileExit() {
+    final Window window = getWindow();
+    Event.fireEvent( window,
+      new WindowEvent( window, WindowEvent.WINDOW_CLOSE_REQUEST ) );
+  }
+
+  //---- Tools actions ------------------------------------------------------
+  private void toolsOptions() {
+    new OptionsDialog( getWindow() ).showAndWait();
+  }
+
+  //---- Help actions -------------------------------------------------------
+  private void helpAbout() {
+    Alert alert = new Alert( AlertType.INFORMATION );
+    alert.setTitle( Messages.get( "Dialog.about.title" ) );
+    alert.setHeaderText( Messages.get( "Dialog.about.header" ) );
+    alert.setContentText( Messages.get( "Dialog.about.content" ) );
+    alert.setGraphic( new ImageView( new Image( LOGO_32 ) ) );
+    alert.initOwner( getWindow() );
+
+    alert.showAndWait();
+  }
+
+  private FileEditorTabPane getFileEditorPane() {
+    if( this.fileEditorPane == null ) {
+      this.fileEditorPane = createFileEditorPane();
+    }
+
+    return this.fileEditorPane;
+  }
+
+  private FileEditorTabPane createFileEditorPane() {
+    // Create an editor pane to hold file editor tabs.
+    final FileEditorTabPane editorPane = new FileEditorTabPane();
+
+    // Make sure the text processor kicks off when new files are opened.
+    final ObservableList<Tab> tabs = editorPane.getTabs();
+
+    tabs.addListener( (Change<? extends Tab> change) -> {
+      while( change.next() ) {
+        if( change.wasAdded() ) {
+          for( final Tab tab : change.getAddedSubList() ) {
+            final FileEditorTab feTab = (FileEditorTab)tab;
+            
+            // Load file and create UI when the tab becomes visible the first time.
+            final HTMLPreviewPane previewPane = feTab.getPreviewPane();
+
+            // TODO: Change this to use a factory based on the filename extension.
+            // See: https://github.com/DaveJarvis/scrivenvar/issues/17
+            // See: https://github.com/DaveJarvis/scrivenvar/issues/18
+            final Processor<String> hpp = new HTMLPreviewProcessor( previewPane );
+            final Processor<String> mp = new MarkdownProcessor( hpp );
+            final Processor<String> vnp = new VariableProcessor( mp, getResolvedMap() );
+            final TextChangeProcessor tp = new TextChangeProcessor( vnp );
+
+            feTab.getEditorPane().addChangeListener( tp );
+            System.out.println( "TAB WAS ADDED" );
+          }
+        } else if( change.wasRemoved() ) {
+          System.out.println( "TAB WAS REMOVED" );
+        }
+      }
+    } );
+
+    /*
+    editorPane.getActiveFileEditor().getEditorPane().getEditor().focusedProperty().addListener(
+      (ObservableValue<? extends Boolean> b, Boolean oldB, Boolean newB) -> {
+
+        if( newB ) {
+          System.out.println( "Textfield on focus" );
+        } else {
+          System.out.println( "Textfield out focus" );
+        }
+      }
+    );
+     */
+//    editorPane.getActiveFileEditor().addChangeListener( tp );
+    return editorPane;
+  }
+
+  private MarkdownEditorPane getActiveEditor() {
+    return (MarkdownEditorPane)(getActiveFileEditor().getEditorPane());
+  }
+
+  private FileEditorTab getActiveFileEditor() {
+    return getFileEditorPane().getActiveFileEditor();
+  }
+
+  protected DefinitionPane createDefinitionPane() {
+    return new DefinitionPane( getTreeView() );
+  }
+
+  private DefinitionPane getDefinitionPane() {
+    if( this.definitionPane == null ) {
+      this.definitionPane = createDefinitionPane();
+    }
+
+    return this.definitionPane;
+  }
+
+  public MenuBar getMenuBar() {
+    return menuBar;
+  }
+
+  public void setMenuBar( MenuBar menuBar ) {
+    this.menuBar = menuBar;
+  }
+
+  public VariableNameInjector getVariableNameInjector() {
+    return this.variableNameInjector;
+  }
+
+  public void setVariableNameInjector( VariableNameInjector variableNameInjector ) {
+    this.variableNameInjector = variableNameInjector;
+  }
+
+  private float getFloat( final String key, final float defaultValue ) {
+    return getPreferences().getFloat( key, defaultValue );
+  }
+
+  private Preferences getPreferences() {
+    return getOptions().getState();
+  }
+
+  private Options getOptions() {
+    return this.options;
+  }
+
+  private synchronized TreeView<String> getTreeView() throws RuntimeException {
+    if( this.treeView == null ) {
+      try {
+        this.treeView = createTreeView();
+      } catch( IOException ex ) {
+
+        // TODO: Pop an error message.
+        throw new RuntimeException( ex );
+      }
+    }
+
+    return this.treeView;
+  }
+
+  private InputStream asStream( final String resource ) {
+    return getClass().getResourceAsStream( resource );
+  }
+
+  private TreeView<String> createTreeView() throws IOException {
+    // TODO: Associate variable file with path to current file.
+    return getYamlTreeAdapter().adapt(
+      asStream( "/com/scrivenvar/variables.yaml" ),
+      get( "Pane.defintion.node.root.title" )
+    );
+  }
+
+  private Map<String, String> getResolvedMap() {
+    return getYamlParser().createResolvedMap();
+  }
+
+  private YamlTreeAdapter getYamlTreeAdapter() {
+    if( this.yamlTreeAdapter == null ) {
+      setYamlTreeAdapter( new YamlTreeAdapter( getYamlParser() ) );
+    }
+
+    return this.yamlTreeAdapter;
+  }
+
+  private void setYamlTreeAdapter( final YamlTreeAdapter yamlTreeAdapter ) {
+    this.yamlTreeAdapter = yamlTreeAdapter;
+  }
+
+  private YamlParser getYamlParser() {
+    if( this.yamlParser == null ) {
+      setYamlParser( new YamlParser() );
+    }
+
+    return this.yamlParser;
+  }
+
+  private void setYamlParser( final YamlParser yamlParser ) {
+    this.yamlParser = yamlParser;
+  }
+
   private Node createMenuBar() {
     final BooleanBinding activeFileEditorIsNull = getFileEditorPane().activeFileEditorProperty().isNull();
 
@@ -187,7 +425,7 @@ public class MainWindow {
     Action fileCloseAction = new Action( Messages.get( "Main.menu.file.close" ), "Shortcut+W", null, e -> fileClose(), activeFileEditorIsNull );
     Action fileCloseAllAction = new Action( Messages.get( "Main.menu.file.close_all" ), null, null, e -> fileCloseAll(), activeFileEditorIsNull );
     Action fileSaveAction = new Action( Messages.get( "Main.menu.file.save" ), "Shortcut+S", FLOPPY_ALT, e -> fileSave(),
-      createActiveBooleanProperty( FileEditor::modifiedProperty ).not() );
+      createActiveBooleanProperty( FileEditorTab::modifiedProperty ).not() );
     Action fileSaveAllAction = new Action( Messages.get( "Main.menu.file.save_all" ), "Shortcut+Shift+S", null, e -> fileSaveAll(),
       Bindings.not( getFileEditorPane().anyFileEditorModifiedProperty() ) );
     Action fileExitAction = new Action( Messages.get( "Main.menu.file.exit" ), null, null, e -> fileExit() );
@@ -195,10 +433,10 @@ public class MainWindow {
     // Edit actions
     Action editUndoAction = new Action( Messages.get( "Main.menu.edit.undo" ), "Shortcut+Z", UNDO,
       e -> getActiveEditor().undo(),
-      createActiveBooleanProperty( FileEditor::canUndoProperty ).not() );
+      createActiveBooleanProperty( FileEditorTab::canUndoProperty ).not() );
     Action editRedoAction = new Action( Messages.get( "Main.menu.edit.redo" ), "Shortcut+Y", REPEAT,
       e -> getActiveEditor().redo(),
-      createActiveBooleanProperty( FileEditor::canRedoProperty ).not() );
+      createActiveBooleanProperty( FileEditorTab::canRedoProperty ).not() );
 
     // Insert actions
     Action insertBoldAction = new Action( Messages.get( "Main.menu.insert.bold" ), "Shortcut+B", BOLD,
@@ -331,208 +569,4 @@ public class MainWindow {
     return new VBox( menuBar, toolBar );
   }
 
-  /**
-   * Creates a boolean property that is bound to another boolean value of the
-   * active editor.
-   */
-  private BooleanProperty createActiveBooleanProperty(
-    final Function<FileEditor, ObservableBooleanValue> func ) {
-
-    final BooleanProperty b = new SimpleBooleanProperty();
-    final FileEditor fileEditor = getActiveFileEditor();
-
-    if( fileEditor != null ) {
-      b.bind( func.apply( fileEditor ) );
-    }
-
-    getFileEditorPane().activeFileEditorProperty().addListener(
-      (observable, oldFileEditor, newFileEditor) -> {
-        b.unbind();
-
-        if( newFileEditor != null ) {
-          b.bind( func.apply( newFileEditor ) );
-        } else {
-          b.set( false );
-        }
-      } );
-
-    return b;
-  }
-
-  //---- File actions -------------------------------------------------------
-  private void fileNew() {
-    getFileEditorPane().newEditor();
-  }
-
-  private void fileOpen() {
-    getFileEditorPane().openFileDialog();
-  }
-
-  private void fileClose() {
-    getFileEditorPane().closeEditor( getActiveFileEditor(), true );
-  }
-
-  private void fileCloseAll() {
-    getFileEditorPane().closeAllEditors();
-  }
-
-  private void fileSave() {
-    getFileEditorPane().saveEditor( getActiveFileEditor() );
-  }
-
-  private void fileSaveAll() {
-    getFileEditorPane().saveAllEditors();
-  }
-
-  private void fileExit() {
-    final Window window = getWindow();
-    Event.fireEvent( window,
-      new WindowEvent( window, WindowEvent.WINDOW_CLOSE_REQUEST ) );
-  }
-
-  //---- Tools actions ------------------------------------------------------
-  private void toolsOptions() {
-    new OptionsDialog( getWindow() ).showAndWait();
-  }
-
-  //---- Help actions -------------------------------------------------------
-  private void helpAbout() {
-    Alert alert = new Alert( AlertType.INFORMATION );
-    alert.setTitle( Messages.get( "Dialog.about.title" ) );
-    alert.setHeaderText( Messages.get( "Dialog.about.header" ) );
-    alert.setContentText( Messages.get( "Dialog.about.content" ) );
-    alert.setGraphic( new ImageView( new Image( LOGO_32 ) ) );
-    alert.initOwner( getWindow() );
-
-    alert.showAndWait();
-  }
-
-  private FileEditorPane getFileEditorPane() {
-    if( this.fileEditorPane == null ) {
-      this.fileEditorPane = createFileEditorPane();
-    }
-
-    return this.fileEditorPane;
-  }
-
-  private FileEditorPane createFileEditorPane() {
-    final FileEditorPane pane = new FileEditorPane( this );
-
-    // Load file and create UI when the tab becomes visible the first time.
-    final HTMLPreviewPane previewPane = pane.getActiveFileEditor().getPreviewPane();
-
-    // TODO: Change this to use a factory based on the filename extension.
-    // See: https://github.com/DaveJarvis/scrivenvar/issues/17
-    // See: https://github.com/DaveJarvis/scrivenvar/issues/18
-    final Processor<String> hpp = new HTMLPreviewProcessor( previewPane );
-    final Processor<String> mp = new MarkdownProcessor( hpp );
-    final Processor<String> vnp = new VariableProcessor( mp, getResolvedMap() );
-    final ChangeListener<String> tp = new TextChangeProcessor( vnp );
-
-    pane.getActiveFileEditor().addChangeListener( tp );
-
-    return pane;
-  }
-
-  private MarkdownEditorPane getActiveEditor() {
-    return getActiveFileEditor().getEditorPane();
-  }
-
-  private FileEditor getActiveFileEditor() {
-    return getFileEditorPane().getActiveFileEditor();
-  }
-
-  protected DefinitionPane createDefinitionPane() {
-    return new DefinitionPane( getTreeView() );
-  }
-
-  private DefinitionPane getDefinitionPane() {
-    if( this.definitionPane == null ) {
-      this.definitionPane = createDefinitionPane();
-    }
-
-    return this.definitionPane;
-  }
-
-  public MenuBar getMenuBar() {
-    return menuBar;
-  }
-
-  public void setMenuBar( MenuBar menuBar ) {
-    this.menuBar = menuBar;
-  }
-
-  public VariableNameInjector getVariableNameInjector() {
-    return this.variableNameInjector;
-  }
-
-  public void setVariableNameInjector( VariableNameInjector variableNameInjector ) {
-    this.variableNameInjector = variableNameInjector;
-  }
-
-  private float getFloat( final String key, final float defaultValue ) {
-    return getPreferences().getFloat( key, defaultValue );
-  }
-
-  private Preferences getPreferences() {
-    return getOptions().getState();
-  }
-
-  private Options getOptions() {
-    return this.options;
-  }
-
-  private synchronized TreeView<String> getTreeView() throws RuntimeException {
-    if( this.treeView == null ) {
-      try {
-        this.treeView = createTreeView();
-      } catch( IOException ex ) {
-
-        // TODO: Pop an error message.
-        throw new RuntimeException( ex );
-      }
-    }
-
-    return this.treeView;
-  }
-
-  private InputStream asStream( final String resource ) {
-    return getClass().getResourceAsStream( resource );
-  }
-
-  private TreeView<String> createTreeView() throws IOException {
-    // TODO: Associate variable file with path to current file.
-    return getYamlTreeAdapter().adapt(
-        asStream( "/com/scrivenvar/variables.yaml" ),
-        get( "Pane.defintion.node.root.title" )
-      );
-  }
-
-  private Map<String, String> getResolvedMap() {
-    return getYamlParser().createResolvedMap();
-  }
-  
-  private YamlTreeAdapter getYamlTreeAdapter() {
-    if( this.yamlTreeAdapter == null ) {
-      setYamlTreeAdapter( new YamlTreeAdapter( getYamlParser() ) );
-    }
-
-    return this.yamlTreeAdapter;
-  }
-
-  private void setYamlTreeAdapter( final YamlTreeAdapter yamlTreeAdapter ) {
-    this.yamlTreeAdapter = yamlTreeAdapter;
-  }
-  
-  private YamlParser getYamlParser() {
-    if( this.yamlParser == null ) {
-      setYamlParser( new YamlParser() );
-    }
-    
-    return this.yamlParser;
-  }
-
-  private void setYamlParser( final YamlParser yamlParser ) {
-    this.yamlParser = yamlParser;
-  }
 }

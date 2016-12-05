@@ -29,9 +29,8 @@ package com.scrivenvar.service;
 
 /**
  * All services inherit from this one.
- * 
+ *
  * @author White Magic Software, Ltd.
  */
 public interface Service {
-  
 }

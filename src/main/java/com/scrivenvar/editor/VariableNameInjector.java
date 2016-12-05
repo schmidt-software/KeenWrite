@@ -28,7 +28,7 @@
 package com.scrivenvar.editor;
 
 import static com.scrivenvar.Constants.SEPARATOR;
-import com.scrivenvar.FileEditorPane;
+import com.scrivenvar.FileEditorTabPane;
 import com.scrivenvar.Services;
 import com.scrivenvar.decorators.VariableDecorator;
 import com.scrivenvar.decorators.YamlVariableDecorator;
@@ -62,6 +62,14 @@ import static org.fxmisc.wellbehaved.event.EventPattern.keyTyped;
 import org.fxmisc.wellbehaved.event.InputMap;
 import static org.fxmisc.wellbehaved.event.InputMap.consume;
 import static org.fxmisc.wellbehaved.event.InputMap.sequence;
+import static com.scrivenvar.definition.Lists.getFirst;
+import static com.scrivenvar.definition.Lists.getLast;
+import static java.lang.Character.isSpaceChar;
+import static java.lang.Character.isWhitespace;
+import static java.lang.Math.min;
+import static org.fxmisc.wellbehaved.event.EventPattern.keyPressed;
+import static org.fxmisc.wellbehaved.event.EventPattern.keyTyped;
+import static org.fxmisc.wellbehaved.event.InputMap.consume;
 
 /**
  * Provides the logic for injecting variable names within the editor.
@@ -81,7 +89,7 @@ public class VariableNameInjector {
    */
   private InputMap<InputEvent> keyboardMap;
 
-  private FileEditorPane fileEditorPane;
+  private FileEditorTabPane fileEditorPane;
   private DefinitionPane definitionPane;
 
   /**
@@ -90,7 +98,7 @@ public class VariableNameInjector {
   private int initialCaretPosition;
 
   public VariableNameInjector(
-    final FileEditorPane editorPane,
+    final FileEditorTabPane editorPane,
     final DefinitionPane definitionPane ) {
     setFileEditorPane( editorPane );
     setDefinitionPane( definitionPane );
@@ -806,11 +814,11 @@ public class VariableNameInjector {
     return getFileEditorPane().getEditor();
   }
 
-  public FileEditorPane getFileEditorPane() {
+  public FileEditorTabPane getFileEditorPane() {
     return this.fileEditorPane;
   }
 
-  private void setFileEditorPane( final FileEditorPane fileEditorPane ) {
+  private void setFileEditorPane( final FileEditorTabPane fileEditorPane ) {
     this.fileEditorPane = fileEditorPane;
   }
 

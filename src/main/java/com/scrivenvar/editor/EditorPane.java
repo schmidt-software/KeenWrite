@@ -29,15 +29,23 @@ package com.scrivenvar.editor;
 
 import com.scrivenvar.ui.AbstractPane;
 import java.nio.file.Path;
+import java.util.function.Consumer;
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyDoubleProperty;
 import javafx.beans.property.ReadOnlyDoubleWrapper;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.event.Event;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.input.InputEvent;
 import org.fxmisc.flowless.VirtualizedScrollPane;
 import org.fxmisc.richtext.StyleClassedTextArea;
 import org.fxmisc.undo.UndoManager;
+import org.fxmisc.wellbehaved.event.EventPattern;
+import org.fxmisc.wellbehaved.event.InputMap;
+import static org.fxmisc.wellbehaved.event.InputMap.consume;
+import org.fxmisc.wellbehaved.event.Nodes;
 
 /**
  * Represents common editing features for various types of text editors.
@@ -50,6 +58,13 @@ public class EditorPane extends AbstractPane {
   private VirtualizedScrollPane<StyleClassedTextArea> scrollPane;
   private final ReadOnlyDoubleWrapper scrollY = new ReadOnlyDoubleWrapper();
   private final ObjectProperty<Path> path = new SimpleObjectProperty<>();
+
+  private String lineSeparator = getLineSeparator();
+
+  /**
+   * Set when entering variable edit mode; retrieved upon exiting.
+   */
+  private InputMap<InputEvent> nodeMap;
 
   @Override
   public void requestFocus() {
@@ -66,6 +81,88 @@ public class EditorPane extends AbstractPane {
 
   public UndoManager getUndoManager() {
     return getEditor().getUndoManager();
+  }
+
+  public String getText() {
+    String text = getEditor().getText();
+
+    if( !this.lineSeparator.equals( "\n" ) ) {
+      text = text.replace( "\n", this.lineSeparator );
+    }
+
+    return text;
+  }
+
+  public void setText( final String text ) {
+    this.lineSeparator = determineLineSeparator( text );
+    getEditor().deselect();
+    getEditor().replaceText( text );
+    getUndoManager().mark();
+  }
+
+  /**
+   * Call to hook into changes to the text area.
+   *
+   * @param listener The listener to receive editor change events.
+   */
+  public void addChangeListener( ChangeListener<? super String> listener ) {
+    getEditor().textProperty().addListener( listener );
+  }
+
+  /**
+   * This method adds listeners to editor events.
+   *
+   * @param <T> The event type.
+   * @param <U> The consumer type for the given event type.
+   * @param event The event of interest.
+   * @param consumer The method to call when the event happens.
+   */
+  public <T extends Event, U extends T> void addEventListener(
+    final EventPattern<? super T, ? extends U> event,
+    final Consumer<? super U> consumer ) {
+    Nodes.addInputMap( getEditor(), consume( event, consumer ) );
+  }
+
+  /**
+   * This method adds listeners to editor events that can be removed without
+   * affecting the original listeners (i.e., the original lister is restored on
+   * a call to removeEventListener).
+   *
+   * @param map The map of methods to events.
+   */
+  @SuppressWarnings( "unchecked" )
+  public void addEventListener( final InputMap<InputEvent> map ) {
+    this.nodeMap = (InputMap<InputEvent>)getInputMap();
+    Nodes.addInputMap( getEditor(), map );
+  }
+
+  /**
+   * This method removes listeners to editor events and restores the default
+   * handler.
+   *
+   * @param map The map of methods to events.
+   */
+  public void removeEventListener( final InputMap<InputEvent> map ) {
+    Nodes.removeInputMap( getEditor(), map );
+    Nodes.addInputMap( getEditor(), this.nodeMap );
+  }
+
+  /**
+   * Returns the value for "org.fxmisc.wellbehaved.event.inputmap".
+   *
+   * @return An input map of input events.
+   */
+  private Object getInputMap() {
+    return getEditor().getProperties().get( getInputMapKey() );
+  }
+
+  /**
+   * Returns the hashmap key entry for the input map.
+   *
+   * @return "org.fxmisc.wellbehaved.event.inputmap"
+   */
+  private String getInputMapKey() {
+    return "org.fxmisc.wellbehaved.event.inputmap";
   }
 
   public void scrollToTop() {
@@ -130,5 +227,27 @@ public class EditorPane extends AbstractPane {
 
   public ObjectProperty<Path> pathProperty() {
     return this.path;
+  }
+
+  private String getLineSeparator() {
+    final String separator = getOptions().getLineSeparator();
+
+    return (separator != null)
+      ? separator
+      : System.lineSeparator();
+  }
+
+  private String determineLineSeparator( final String s ) {
+    final int length = s.length();
+
+    // TODO: Looping backwards will probably detect a newline sooner.
+    for( int i = 0; i < length; i++ ) {
+      char ch = s.charAt( i );
+      if( ch == '\n' ) {
+        return (i > 0 && s.charAt( i - 1 ) == '\r') ? "\r\n" : "\n";
+      }
+    }
+
+    return getLineSeparator();
   }
 }
