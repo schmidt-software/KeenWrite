@@ -127,7 +127,6 @@ public final class HTMLPreviewPane extends ScrollPane {
   }
 
   private void scrollY( final double value ) {
-    System.out.println( "Scroll to: " + value );
     execute(
       "window.scrollTo(0, (document.body.scrollHeight - window.innerHeight) * "
       + value

@@ -102,14 +102,14 @@ public class FileEditorTabPane extends TabPane implements ChangeListener<Tab> {
       }
     };
 
-    tabs.addListener( (ListChangeListener<Tab>)c -> {
-      while( c.next() ) {
-        if( c.wasAdded() ) {
-          c.getAddedSubList().stream().forEach( (tab) -> {
+    tabs.addListener( (ListChangeListener<Tab>)change -> {
+      while( change.next() ) {
+        if( change.wasAdded() ) {
+          change.getAddedSubList().stream().forEach( (tab) -> {
             ((FileEditorTab)tab.getUserData()).modifiedProperty().addListener( modifiedListener );
           } );
-        } else if( c.wasRemoved() ) {
-          c.getRemoved().stream().forEach( (tab) -> {
+        } else if( change.wasRemoved() ) {
+          change.getRemoved().stream().forEach( (tab) -> {
             ((FileEditorTab)tab.getUserData()).modifiedProperty().removeListener( modifiedListener );
           } );
         }
@@ -119,9 +119,6 @@ public class FileEditorTabPane extends TabPane implements ChangeListener<Tab> {
       // (e.g. closed modified file)
       modifiedListener.changed( null, null, null );
     } );
-
-    // re-open files
-    restoreState();
   }
 
   public <T extends Event, U extends T> void addEventListener(
@@ -151,8 +148,6 @@ public class FileEditorTabPane extends TabPane implements ChangeListener<Tab> {
     final Tab newTab ) {
 
     if( newTab != null ) {
-      final FileEditorTab tab = (FileEditorTab)newTab;
-
       this.activeFileEditor.set( (FileEditorTab)newTab.getUserData() );
     }
   }
@@ -182,21 +177,26 @@ public class FileEditorTabPane extends TabPane implements ChangeListener<Tab> {
     return this.anyFileEditorModified.getReadOnlyProperty();
   }
 
-  private FileEditorTab createFileEditor( Path path ) {
-    final FileEditorTab fileEditor = new FileEditorTab( path );
+  private FileEditorTab createFileEditor( final Path path ) {
+    final FileEditorTab tab = new FileEditorTab( path );
 
-    fileEditor.setOnCloseRequest( e -> {
-      if( !canCloseEditor( fileEditor ) ) {
+    tab.setOnCloseRequest( e -> {
+      if( !canCloseEditor( tab ) ) {
         e.consume();
       }
     } );
 
-    return fileEditor;
+    return tab;
   }
 
+  /**
+   * Called when the user selects New from the File menu.
+   *
+   * @return The newly added tab.
+   */
   FileEditorTab newEditor() {
     final FileEditorTab tab = createFileEditor( null );
-    
+
     getTabs().add( tab );
     getSelectionModel().select( tab );
     return tab;
@@ -256,7 +256,7 @@ public class FileEditorTabPane extends TabPane implements ChangeListener<Tab> {
   private List<FileEditorTab> openEditors( final List<File> files, final int activeIndex ) {
     final List<FileEditorTab> editors = new ArrayList<>();
     final List<Tab> tabs = getTabs();
-
+    
     // Close single unmodified "Untitled" tab.
     if( tabs.size() == 1 ) {
       final FileEditorTab fileEditor = (FileEditorTab)(tabs.get( 0 ).getUserData());
@@ -320,7 +320,7 @@ public class FileEditorTabPane extends TabPane implements ChangeListener<Tab> {
   }
 
   boolean saveAllEditors() {
-    FileEditorTab[] allEditors = getAllEditors();
+    final FileEditorTab[] allEditors = getAllEditors();
 
     boolean success = true;
     for( FileEditorTab fileEditor : allEditors ) {
@@ -332,21 +332,21 @@ public class FileEditorTabPane extends TabPane implements ChangeListener<Tab> {
     return success;
   }
 
-  boolean canCloseEditor( final FileEditorTab fileEditor ) {
-    if( !fileEditor.isModified() ) {
+  boolean canCloseEditor( final FileEditorTab tab ) {
+    if( !tab.isModified() ) {
       return true;
     }
 
     final AlertMessage message = getAlertService().createAlertMessage(
       Messages.get( "Alert.file.close.title" ),
       Messages.get( "Alert.file.close.text" ),
-      fileEditor.getText()
+      tab.getText()
     );
 
     final Alert alert = getAlertService().createAlertConfirmation( message );
     final ButtonType response = alert.showAndWait().get();
 
-    return response == YES ? saveEditor( fileEditor ) : response == NO;
+    return response == YES ? saveEditor( tab ) : response == NO;
   }
 
   private AlertService getAlertService() {
@@ -497,7 +497,7 @@ public class FileEditorTabPane extends TabPane implements ChangeListener<Tab> {
     getState().put( "lastDirectory", file.getParent() );
   }
 
-  private void restoreState() {
+  public void restoreState() {
     int activeIndex = 0;
 
     final Preferences state = getState();

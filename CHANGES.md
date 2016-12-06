@@ -1,5 +1,11 @@
-Change Log
-==========
+# Change Log
+
+## 0.5
+
+- Added document processors for Markdown and Variables
+- Simplified code base
+- Added `Ctrl+Space` hot key for quick variable injection
+- Replaced commonmark-java with flexmark
 
 ## 0.4
 
@@ -23,4 +29,3 @@ Change Log
 ## 0.1
 
 - Initial release
-

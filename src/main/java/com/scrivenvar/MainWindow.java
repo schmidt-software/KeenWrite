@@ -30,6 +30,7 @@ package com.scrivenvar;
 import static com.scrivenvar.Constants.LOGO_32;
 import static com.scrivenvar.Messages.get;
 import com.scrivenvar.definition.DefinitionPane;
+import com.scrivenvar.editor.EditorPane;
 import com.scrivenvar.editor.MarkdownEditorPane;
 import com.scrivenvar.editor.VariableNameInjector;
 import com.scrivenvar.options.OptionsDialog;
@@ -272,15 +273,16 @@ public class MainWindow {
     // Make sure the text processor kicks off when new files are opened.
     final ObservableList<Tab> tabs = editorPane.getTabs();
 
-    tabs.addListener( (Change<? extends Tab> change) -> {
+    tabs.addListener((Change<? extends Tab> change) -> {
       while( change.next() ) {
         if( change.wasAdded() ) {
+          // Multiple tabs can be added simultaneously.
           for( final Tab tab : change.getAddedSubList() ) {
             final FileEditorTab feTab = (FileEditorTab)tab;
+            final HTMLPreviewPane previewPane = feTab.getPreviewPane();
+            final EditorPane editorPane1 = feTab.getEditorPane();
             
             // Load file and create UI when the tab becomes visible the first time.
-            final HTMLPreviewPane previewPane = feTab.getPreviewPane();
-
             // TODO: Change this to use a factory based on the filename extension.
             // See: https://github.com/DaveJarvis/scrivenvar/issues/17
             // See: https://github.com/DaveJarvis/scrivenvar/issues/18
@@ -288,29 +290,17 @@ public class MainWindow {
             final Processor<String> mp = new MarkdownProcessor( hpp );
             final Processor<String> vnp = new VariableProcessor( mp, getResolvedMap() );
             final TextChangeProcessor tp = new TextChangeProcessor( vnp );
-
-            feTab.getEditorPane().addChangeListener( tp );
-            System.out.println( "TAB WAS ADDED" );
+            
+            editorPane1.addChangeListener( tp );
           }
-        } else if( change.wasRemoved() ) {
-          System.out.println( "TAB WAS REMOVED" );
         }
       }
-    } );
+    });
+    
+    // After the processors are in place, restore the previously closed
+    // tabs. Adding them will trigger the change event, above.
+    editorPane.restoreState();
 
-    /*
-    editorPane.getActiveFileEditor().getEditorPane().getEditor().focusedProperty().addListener(
-      (ObservableValue<? extends Boolean> b, Boolean oldB, Boolean newB) -> {
-
-        if( newB ) {
-          System.out.println( "Textfield on focus" );
-        } else {
-          System.out.println( "Textfield out focus" );
-        }
-      }
-    );
-     */
-//    editorPane.getActiveFileEditor().addChangeListener( tp );
     return editorPane;
   }
 

@@ -28,8 +28,6 @@
 package com.scrivenvar.dialogs;
 
 import com.scrivenvar.Messages;
-import com.scrivenvar.controls.BrowseDirectoryButton;
-import com.scrivenvar.controls.BrowseFileButton;
 import com.scrivenvar.controls.EscapeTextField;
 import com.scrivenvar.editor.HyperlinkModel;
 import com.scrivenvar.service.events.impl.ButtonOrderPane;
@@ -62,16 +60,10 @@ public class LinkDialog extends Dialog<String> {
 
     initComponents();
 
-    linkBrowseDirectoyButton.setBasePath( basePath );
-    linkBrowseDirectoyButton.urlProperty().bindBidirectional( urlField.escapedTextProperty() );
-
-    linkBrowseFileButton.setBasePath( basePath );
-    linkBrowseFileButton.urlProperty().bindBidirectional( urlField.escapedTextProperty() );
-
     setDialogPane( new ButtonOrderPane() );
 
     final DialogPane dialog = getDialogPane();
-    dialog.setContent( dialog );
+    dialog.setContent( pane );
     dialog.getButtonTypes().addAll( ButtonType.OK, ButtonType.CANCEL );
 
     dialog.lookupButton( ButtonType.OK ).disableProperty().bind(
@@ -103,8 +95,6 @@ public class LinkDialog extends Dialog<String> {
     pane = new MigPane();
     Label urlLabel = new Label();
     urlField = new EscapeTextField();
-    linkBrowseDirectoyButton = new BrowseDirectoryButton();
-    linkBrowseFileButton = new BrowseFileButton();
     Label textLabel = new Label();
     textField = new EscapeTextField();
     Label titleLabel = new Label();
@@ -122,8 +112,6 @@ public class LinkDialog extends Dialog<String> {
       //---- urlField ----
       urlField.setEscapeCharacters( "()" );
       pane.add( urlField, "cell 1 0" );
-      pane.add( linkBrowseDirectoyButton, "cell 2 0" );
-      pane.add( linkBrowseFileButton, "cell 3 0" );
 
       //---- textLabel ----
       textLabel.setText( Messages.get( "LinkDialog.textLabel.text" ) );
@@ -144,8 +132,6 @@ public class LinkDialog extends Dialog<String> {
   // JFormDesigner - Variables declaration - DO NOT MODIFY  //GEN-BEGIN:variables
   private MigPane pane;
   private EscapeTextField urlField;
-  private BrowseDirectoryButton linkBrowseDirectoyButton;
-  private BrowseFileButton linkBrowseFileButton;
   private EscapeTextField textField;
   private EscapeTextField titleField;
   // JFormDesigner - End of variables declaration  //GEN-END:variables
