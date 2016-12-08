@@ -41,7 +41,6 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.property.ReadOnlyBooleanWrapper;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.value.ChangeListener;
 import javafx.event.Event;
 import javafx.scene.control.Alert;
 import javafx.scene.control.SplitPane;
@@ -49,6 +48,8 @@ import javafx.scene.control.Tab;
 import javafx.scene.control.Tooltip;
 import javafx.scene.input.InputEvent;
 import javafx.scene.text.Text;
+import org.fxmisc.flowless.VirtualizedScrollPane;
+import org.fxmisc.richtext.StyleClassedTextArea;
 import org.fxmisc.undo.UndoManager;
 import org.fxmisc.wellbehaved.event.EventPattern;
 import org.fxmisc.wellbehaved.event.InputMap;
@@ -135,17 +136,14 @@ public final class FileEditorTab extends Tab {
     final EditorPane editor = getEditorPane();
     final HTMLPreviewPane preview = getPreviewPane();
 
-    // Make the preview pane scroll correspond to the editor pane scroll.
-    preview.scrollYProperty().bind( editor.scrollYProperty() );
+    final VirtualizedScrollPane<StyleClassedTextArea> editorScrollPane = editor.getScrollPane();
 
+    // Make the preview pane scroll correspond to the editor pane scroll.
     // Separate the edit and preview panels.
     final SplitPane splitPane = new SplitPane(
-      editor.getScrollPane(),
+      editorScrollPane,
       preview.getWebView() );
     setContent( splitPane );
-
-    // Set the caret position to 0.
-    editor.scrollToTop();
 
     // Let the user edit.
     editor.requestFocus();
@@ -164,12 +162,12 @@ public final class FileEditorTab extends Tab {
   }
 
   /**
-   * Delegates to add a listener for changes to the text area.
+   * Returns the index into the text where the caret blinks happily away.
    *
-   * @param listener The listener to receive editor change events.
+   * @return A number from 0 to the editor's document text length.
    */
-  public void addChangeListener( ChangeListener<? super String> listener ) {
-    getEditorPane().addChangeListener( listener );
+  public int getCaretPosition() {
+    return getEditorPane().getEditor().getCaretPosition();
   }
 
   void load() {

@@ -36,6 +36,8 @@ import com.scrivenvar.editor.VariableNameInjector;
 import com.scrivenvar.options.OptionsDialog;
 import com.scrivenvar.preview.HTMLPreviewPane;
 import com.scrivenvar.processors.HTMLPreviewProcessor;
+import com.scrivenvar.processors.MarkdownCaretInsertionProcessor;
+import com.scrivenvar.processors.MarkdownCaretReplacementProcessor;
 import com.scrivenvar.processors.MarkdownProcessor;
 import com.scrivenvar.processors.Processor;
 import com.scrivenvar.processors.TextChangeProcessor;
@@ -287,10 +289,12 @@ public class MainWindow {
             // See: https://github.com/DaveJarvis/scrivenvar/issues/17
             // See: https://github.com/DaveJarvis/scrivenvar/issues/18
             final Processor<String> hpp = new HTMLPreviewProcessor( previewPane );
-            final Processor<String> mp = new MarkdownProcessor( hpp );
-            final Processor<String> vnp = new VariableProcessor( mp, getResolvedMap() );
+            final Processor<String> mcrp = new MarkdownCaretReplacementProcessor( hpp );
+            final Processor<String> mp = new MarkdownProcessor( mcrp );
+            final Processor<String> mcip = new MarkdownCaretInsertionProcessor( mp, feTab.getEditorPane().getEditor() );
+            final Processor<String> vnp = new VariableProcessor( mcip, getResolvedMap() );
             final TextChangeProcessor tp = new TextChangeProcessor( vnp );
-            
+
             editorPane1.addChangeListener( tp );
           }
         }

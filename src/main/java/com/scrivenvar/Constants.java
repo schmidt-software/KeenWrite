@@ -54,4 +54,8 @@ public class Constants {
    * Separates YAML variable nodes (e.g., the dots in <code>$root.node.var$</code>).
    */
   public static final String SEPARATOR = ".";
+  
+  public static final String CARET_POSITION = "CARETPOSITION";
+  public static final String MD_CARET_POSITION = "${" + CARET_POSITION + "}";
+  public static final String XML_CARET_POSITION = "<![CDATA[" + MD_CARET_POSITION + "]]>";
 }

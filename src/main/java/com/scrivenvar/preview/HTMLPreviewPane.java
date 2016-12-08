@@ -27,12 +27,12 @@
  */
 package com.scrivenvar.preview;
 
+import static com.scrivenvar.Constants.CARET_POSITION;
 import java.nio.file.Path;
-import javafx.application.Platform;
-import javafx.beans.property.DoubleProperty;
-import javafx.beans.property.SimpleDoubleProperty;
-import javafx.scene.control.ScrollPane;
-import static javafx.scene.control.ScrollPane.ScrollBarPolicy.ALWAYS;
+import javafx.beans.value.ObservableValue;
+import javafx.concurrent.Worker.State;
+import static javafx.concurrent.Worker.State.SUCCEEDED;
+import javafx.scene.layout.Pane;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 
@@ -41,37 +41,38 @@ import javafx.scene.web.WebView;
  *
  * @author Karl Tauber and White Magic Software, Ltd.
  */
-public final class HTMLPreviewPane extends ScrollPane {
+public final class HTMLPreviewPane extends Pane {
 
-  private Path path;
-  private final DoubleProperty scrollY = new SimpleDoubleProperty();
+  private static final String SCROLL_SCRIPT
+    = "var e = document.getElementById('" + CARET_POSITION + "'); if( e != null ) { e.scrollIntoView(true); }";
 
   private final WebView webView = new WebView();
-  private int lastScrollX;
-  private int lastScrollY;
-
-  private boolean delayScroll;
-
   private String html;
+  private Path path;
 
+  /**
+   * Creates a new preview pane that can scroll to the caret position within the
+   * document.
+   *
+   * @param path The base path for loading resources, such as images.
+   */
   public HTMLPreviewPane( final Path path ) {
     setPath( path );
-    setVbarPolicy( ALWAYS );
-    scrollYProperty().addListener( (observable, oldValue, newValue) -> {
-      scrollY();
-    } );
+    initListeners();
   }
 
+  /**
+   * Updates the internal HTML source, loads it into the preview pane, then
+   * scrolls to the caret position.
+   *
+   * @param html
+   */
   public void update( final String html ) {
     setHtml( html );
     update();
   }
 
   private void update() {
-    if( !getEngine().getLoadWorker().isRunning() ) {
-      setScrollXY();
-    }
-
     getEngine().loadContent(
       "<!DOCTYPE html>"
       + "<html>"
@@ -79,23 +80,10 @@ public final class HTMLPreviewPane extends ScrollPane {
       + "<link rel='stylesheet' href='" + getClass().getResource( "pane.css" ) + "'>"
       + getBase()
       + "</head>"
-      + "<body" + getScrollScript() + ">"
+      + "<body>"
       + getHtml()
       + "</body>"
       + "</html>" );
-  }
-
-  /**
-   * Obtain the window.scrollX and window.scrollY from web engine, but only no
-   * worker is running (in this case the result would be zero).
-   */
-  private void setScrollXY() {
-    lastScrollX = getNumber( execute( "window.scrollX" ) );
-    lastScrollY = getNumber( execute( "window.scrollY" ) );
-  }
-
-  private int getNumber( final Object number ) {
-    return (number instanceof Number) ? ((Number)number).intValue() : 0;
   }
 
   private String getBase() {
@@ -106,43 +94,25 @@ public final class HTMLPreviewPane extends ScrollPane {
       : ("<base href='" + basePath.getParent().toUri().toString() + "'>");
   }
 
-  private String getScrollScript() {
-    return (lastScrollX > 0 || lastScrollY > 0)
-      ? (" onload='window.scrollTo(" + lastScrollX + "," + lastScrollY + ");'")
-      : "";
+  /**
+   * Initializes observers for document changes.
+   */
+  private void initListeners() {
+    // Scrolls to the caret after the content has been loaded.
+    getEngine().getLoadWorker().stateProperty().addListener(
+      (ObservableValue<? extends State> observable,
+        State oldValue, State newValue) -> {
+        if( newValue == SUCCEEDED ) {
+          scrollToCaret();
+        }
+      } );
   }
 
   /**
-   * Helps avoid many superfluous runLater() calls.
+   * Scrolls to the caret position in the document.
    */
-  private void scrollY() {
-    if( !delayScroll ) {
-      delayScroll = true;
-
-      Platform.runLater( () -> {
-        delayScroll = false;
-        scrollY( getScrollY() );
-      } );
-    }
-  }
-
-  private void scrollY( final double value ) {
-    execute(
-      "window.scrollTo(0, (document.body.scrollHeight - window.innerHeight) * "
-      + value
-      + ");" );
-  }
-
-  public double getScrollY() {
-    return scrollYProperty().get();
-  }
-
-  public void setScrollY( final double value ) {
-    scrollYProperty().set( value );
-  }
-
-  public DoubleProperty scrollYProperty() {
-    return this.scrollY;
+  private void scrollToCaret() {
+    execute( SCROLL_SCRIPT );
   }
 
   private Object execute( final String script ) {

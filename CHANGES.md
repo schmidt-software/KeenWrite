@@ -6,6 +6,7 @@
 - Simplified code base
 - Added `Ctrl+Space` hot key for quick variable injection
 - Replaced commonmark-java with flexmark
+- Added generic CARETPOSITION into document to scroll preview pane
 
 ## 0.4
 

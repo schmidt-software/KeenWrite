@@ -28,7 +28,7 @@
 package com.scrivenvar.processors.text;
 
 import java.util.Map;
-import org.apache.commons.lang.StringUtils;
+import static org.apache.commons.lang.StringUtils.replaceEach;
 
 /**
  * Replaces text using Apache's StringUtils.replaceEach method.
@@ -45,6 +45,6 @@ public class StringUtilsReplacer extends AbstractTextReplacer {
 
   @Override
   public String replace( final String text, final Map<String, String> map ) {
-    return StringUtils.replaceEach( text, keys( map ), values( map ) );
+    return replaceEach( text, keys( map ), values( map ) );
   }
 }

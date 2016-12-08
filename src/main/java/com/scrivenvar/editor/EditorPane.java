@@ -186,7 +186,7 @@ public class EditorPane extends AbstractPane {
    *
    * @return The scroll pane that contains the content to edit.
    */
-  public synchronized VirtualizedScrollPane getScrollPane() {
+  public synchronized VirtualizedScrollPane<StyleClassedTextArea> getScrollPane() {
     if( this.scrollPane == null ) {
       this.scrollPane = createScrollPane();
     }
@@ -196,8 +196,8 @@ public class EditorPane extends AbstractPane {
 
   protected VirtualizedScrollPane<StyleClassedTextArea> createScrollPane() {
     final VirtualizedScrollPane<StyleClassedTextArea> pane = new VirtualizedScrollPane<>( getEditor() );
-
     pane.setVbarPolicy( ScrollPane.ScrollBarPolicy.ALWAYS );
+
     return pane;
   }
 
