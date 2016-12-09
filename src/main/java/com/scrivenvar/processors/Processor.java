@@ -34,6 +34,16 @@ package com.scrivenvar.processors;
  * @param <T> The type of processor to create.
  */
 public interface Processor<T> {
+  
+  /**
+   * Provided so that the chain can be invoked from any link using a given
+   * value. This should be called automatically by a superclass so that
+   * the links in the chain need only implement the processLink method.
+   * 
+   * @param t The value to pass along to each link in the chain.
+   * @return The value after having been processed by each link.
+   */
+  public void processChain( T t );
 
   /**
    * Processes the given content providing a transformation from one document

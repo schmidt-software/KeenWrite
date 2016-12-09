@@ -28,9 +28,13 @@
 package com.scrivenvar.processors;
 
 import static com.scrivenvar.Constants.MD_CARET_POSITION;
+import static java.lang.Character.isLetterOrDigit;
 import org.fxmisc.richtext.model.TextEditingArea;
 
 /**
+ * Responsible for inserting the magic CARET POSITION into the markdown so
+ * that, upon rendering into HTML, the HTML pane can scroll to the correct
+ * position (relative to the caret position in the editor).
  *
  * @author White Magic Software, Ltd.
  */
@@ -52,8 +56,7 @@ public class MarkdownCaretInsertionProcessor extends AbstractProcessor<String> {
 
   /**
    * Changes the text to insert a "caret" at the caret position. This will
-   * insert the unique key of Constants.MD_CARET_POSITION into the document. The
-   * Markdown processor is responsible for
+   * insert the unique key of Constants.MD_CARET_POSITION into the document.
    *
    * @param t The document text to process.
    *
@@ -62,11 +65,19 @@ public class MarkdownCaretInsertionProcessor extends AbstractProcessor<String> {
    */
   @Override
   public String processLink( final String t ) {
-    final int caretPosition = getCaretPosition();
+    int offset = getCaretPosition();
+    final int length = t.length();
 
-    // Insert the caret position into the Markdown text at the caret position.
+    // Insert the caret at the closest non-Markdown delimiter (i.e., the 
+    // closest character from the caret position forward).
+    while( offset < length && !isLetterOrDigit( t.charAt( offset ) ) ) {
+      offset++;
+    }
+
+    // Insert the caret position into the Markdown text, but don't interfere
+    // with the Markdown iteself.
     return new StringBuilder( t ).replace(
-      caretPosition, caretPosition, MD_CARET_POSITION ).toString();
+      offset, offset, MD_CARET_POSITION ).toString();
   }
 
   /**

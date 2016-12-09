@@ -75,6 +75,7 @@ import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ObservableBooleanValue;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener.Change;
 import javafx.collections.ObservableList;
 import javafx.event.Event;
@@ -98,6 +99,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Window;
 import javafx.stage.WindowEvent;
+import org.fxmisc.richtext.StyleClassedTextArea;
 
 /**
  * Main window containing a tab pane in the center for file editors.
@@ -275,32 +277,17 @@ public class MainWindow {
     // Make sure the text processor kicks off when new files are opened.
     final ObservableList<Tab> tabs = editorPane.getTabs();
 
-    tabs.addListener((Change<? extends Tab> change) -> {
+    tabs.addListener( (Change<? extends Tab> change) -> {
       while( change.next() ) {
         if( change.wasAdded() ) {
           // Multiple tabs can be added simultaneously.
           for( final Tab tab : change.getAddedSubList() ) {
-            final FileEditorTab feTab = (FileEditorTab)tab;
-            final HTMLPreviewPane previewPane = feTab.getPreviewPane();
-            final EditorPane editorPane1 = feTab.getEditorPane();
-            
-            // Load file and create UI when the tab becomes visible the first time.
-            // TODO: Change this to use a factory based on the filename extension.
-            // See: https://github.com/DaveJarvis/scrivenvar/issues/17
-            // See: https://github.com/DaveJarvis/scrivenvar/issues/18
-            final Processor<String> hpp = new HTMLPreviewProcessor( previewPane );
-            final Processor<String> mcrp = new MarkdownCaretReplacementProcessor( hpp );
-            final Processor<String> mp = new MarkdownProcessor( mcrp );
-            final Processor<String> mcip = new MarkdownCaretInsertionProcessor( mp, feTab.getEditorPane().getEditor() );
-            final Processor<String> vnp = new VariableProcessor( mcip, getResolvedMap() );
-            final TextChangeProcessor tp = new TextChangeProcessor( vnp );
-
-            editorPane1.addChangeListener( tp );
+            addListener( (FileEditorTab)tab );
           }
         }
       }
-    });
-    
+    } );
+
     // After the processors are in place, restore the previously closed
     // tabs. Adding them will trigger the change event, above.
     editorPane.restoreState();
@@ -314,6 +301,40 @@ public class MainWindow {
 
   private FileEditorTab getActiveFileEditor() {
     return getFileEditorPane().getActiveFileEditor();
+  }
+
+  /**
+   * Monitors the tab (and its text editor) for changes.
+   *
+   * @see https://github.com/DaveJarvis/scrivenvar/issues/17
+   * @see https://github.com/DaveJarvis/scrivenvar/issues/18
+   *
+   * @param tab The file editor tab that contains a text editor.
+   */
+  private void addListener( FileEditorTab tab ) {
+    final HTMLPreviewPane previewPane = tab.getPreviewPane();
+    final EditorPane editorPanel = tab.getEditorPane();
+    final StyleClassedTextArea editor = editorPanel.getEditor();
+
+    // TODO: Use a factory based on the filename extension. The default
+    // extension will be for a markdown file (e.g., on file new).
+    final Processor<String> hpp = new HTMLPreviewProcessor( previewPane );
+    final Processor<String> mcrp = new MarkdownCaretReplacementProcessor( hpp );
+    final Processor<String> mp = new MarkdownProcessor( mcrp );
+    final Processor<String> mcip = new MarkdownCaretInsertionProcessor( mp, editor );
+    final Processor<String> vnp = new VariableProcessor( mcip, getResolvedMap() );
+    final TextChangeProcessor tp = new TextChangeProcessor( vnp );
+
+    editorPanel.addChangeListener( tp );
+    editorPanel.getEditor().currentParagraphProperty().addListener(
+      (final ObservableValue<? extends Integer> observable,
+        final Integer oldValue, final Integer newValue) -> {
+        
+        // Kick off the processing chain at the variable processor when the
+        // cursor changes paragraphs. This might cause some slight duplication
+        // when the Enter key is pressed.
+        vnp.processChain( editor.getText() );
+      } );
   }
 
   protected DefinitionPane createDefinitionPane() {
@@ -562,5 +583,4 @@ public class MainWindow {
 
     return new VBox( menuBar, toolBar );
   }
-
 }

@@ -65,6 +65,7 @@ public abstract class AbstractProcessor<T> implements Processor<T> {
    *
    * @param t The object to process.
    */
+  @Override
   public synchronized void processChain( T t ) {
     Processor<T> handler = this;
 

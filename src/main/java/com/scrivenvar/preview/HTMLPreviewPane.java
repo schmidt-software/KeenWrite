@@ -43,9 +43,6 @@ import javafx.scene.web.WebView;
  */
 public final class HTMLPreviewPane extends Pane {
 
-  private static final String SCROLL_SCRIPT
-    = "var e = document.getElementById('" + CARET_POSITION + "'); if( e != null ) { e.scrollIntoView(true); }";
-
   private final WebView webView = new WebView();
   private String html;
   private Path path;
@@ -59,6 +56,9 @@ public final class HTMLPreviewPane extends Pane {
   public HTMLPreviewPane( final Path path ) {
     setPath( path );
     initListeners();
+
+    // Prevent tabbing into the preview pane.
+    getWebView().setFocusTraversable( false );
   }
 
   /**
@@ -112,7 +112,23 @@ public final class HTMLPreviewPane extends Pane {
    * Scrolls to the caret position in the document.
    */
   private void scrollToCaret() {
-    execute( SCROLL_SCRIPT );
+    execute( getScrollScript() );
+  }
+
+  /**
+   * Returns the JavaScript used to scroll the WebView pane.
+   *
+   * @return A script that tries to center the view port on the CARET POSITION.
+   */
+  private String getScrollScript() {
+    return ""
+      + "var e = document.getElementById('" + CARET_POSITION + "');"
+      + "if( e != null ) { "
+      + "  Element.prototype.topOffset = function () {"
+      + "    return this.offsetTop + (this.offsetParent ? this.offsetParent.topOffset() : 0);"
+      + "  };"
+      + "  window.scrollTo( 0, e.topOffset() - (window.innerHeight / 2 ) );"
+      + "}";
   }
 
   private Object execute( final String script ) {
