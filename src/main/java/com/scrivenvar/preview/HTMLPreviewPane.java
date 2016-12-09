@@ -77,7 +77,7 @@ public final class HTMLPreviewPane extends Pane {
       "<!DOCTYPE html>"
       + "<html>"
       + "<head>"
-      + "<link rel='stylesheet' href='" + getClass().getResource( "pane.css" ) + "'>"
+      + "<link rel='stylesheet' href='" + getClass().getResource( "webview.css" ) + "'>"
       + getBase()
       + "</head>"
       + "<body>"
@@ -95,7 +95,10 @@ public final class HTMLPreviewPane extends Pane {
   }
 
   /**
-   * Initializes observers for document changes.
+   * Initializes observers for document changes. When the document is reloaded
+   * with new HTML, this triggers a scroll event that repositions the document
+   * to the injected caret (that corresponds with the position in the text
+   * editor).
    */
   private void initListeners() {
     // Scrolls to the caret after the content has been loaded.
