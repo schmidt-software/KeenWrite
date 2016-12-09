@@ -7,6 +7,21 @@ Word processing with variables.
 
 ![Screenshot](images/screenshot.png)
 
+Features
+---
+
+* User-defined variables
+* Preview variable values in real time
+* Platform independent (Windows, Linux, MacOS)
+* Auto-insert variable names by typing in values followed by `Control+Space`
+
+Future Features
+---
+* Spell check
+* XML and XSL processing
+* Search and replace text with variables
+* R integration using [Rserve](https://rforge.net/Rserve/)
+
 Requirements
 ---
 
