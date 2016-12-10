@@ -33,7 +33,6 @@ import com.scrivenvar.definition.DefinitionPane;
 import com.scrivenvar.editor.EditorPane;
 import com.scrivenvar.editor.MarkdownEditorPane;
 import com.scrivenvar.editor.VariableNameInjector;
-import com.scrivenvar.options.OptionsDialog;
 import com.scrivenvar.preview.HTMLPreviewPane;
 import com.scrivenvar.processors.HTMLPreviewProcessor;
 import com.scrivenvar.processors.MarkdownCaretInsertionProcessor;
@@ -100,6 +99,13 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Window;
 import javafx.stage.WindowEvent;
 import org.fxmisc.richtext.StyleClassedTextArea;
+import static com.scrivenvar.Messages.get;
+import static com.scrivenvar.Messages.get;
+import static com.scrivenvar.Messages.get;
+import static com.scrivenvar.Messages.get;
+import static com.scrivenvar.Messages.get;
+import static com.scrivenvar.Messages.get;
+import static com.scrivenvar.Messages.get;
 
 /**
  * Main window containing a tab pane in the center for file editors.
@@ -137,7 +143,7 @@ public class MainWindow {
       getFloat( K_PANE_SPLIT_DEFINITION, .05f ),
       getFloat( K_PANE_SPLIT_EDITOR, .95f ) );
 
-    // See: http://broadlyapplicable.blogspot.ca/2015/03/javafx-capture-restore-splitpane.html
+    // See: http://broadlyapplicable.blogspot.ca/2015/03/javafx-capture-restorePreferences-splitpane.html
     final BorderPane borderPane = new BorderPane();
     borderPane.setPrefSize( 1024, 800 );
     borderPane.setTop( createMenuBar() );
@@ -246,11 +252,6 @@ public class MainWindow {
       new WindowEvent( window, WindowEvent.WINDOW_CLOSE_REQUEST ) );
   }
 
-  //---- Tools actions ------------------------------------------------------
-  private void toolsOptions() {
-    new OptionsDialog( getWindow() ).showAndWait();
-  }
-
   //---- Help actions -------------------------------------------------------
   private void helpAbout() {
     Alert alert = new Alert( AlertType.INFORMATION );
@@ -289,9 +290,9 @@ public class MainWindow {
       }
     } );
 
-    // After the processors are in place, restore the previously closed
+    // After the processors are in place, restorePreferences the previously closed
     // tabs. Adding them will trigger the change event, above.
-    editorPane.restoreState();
+    editorPane.restorePreferences();
 
     return editorPane;
   }
@@ -506,9 +507,6 @@ public class MainWindow {
       e -> getActiveEditor().surroundSelection( "\n\n---\n\n", "" ),
       activeFileEditorIsNull );
 
-    // Tools actions
-    Action toolsOptionsAction = new Action( Messages.get( "Main.menu.tools.options" ), "Shortcut+,", null, e -> toolsOptions() );
-
     // Help actions
     Action helpAboutAction = new Action( Messages.get( "Main.menu.help.about" ), null, null, e -> helpAbout() );
 
@@ -551,13 +549,10 @@ public class MainWindow {
       insertOrderedListAction,
       insertHorizontalRuleAction );
 
-    Menu toolsMenu = ActionUtils.createMenu( Messages.get( "Main.menu.tools" ),
-      toolsOptionsAction );
-
     Menu helpMenu = ActionUtils.createMenu( Messages.get( "Main.menu.help" ),
       helpAboutAction );
 
-    menuBar = new MenuBar( fileMenu, editMenu, insertMenu, toolsMenu, helpMenu );
+    menuBar = new MenuBar( fileMenu, editMenu, insertMenu, helpMenu );
 
     //---- ToolBar ----
     ToolBar toolBar = ActionUtils.createToolBar(

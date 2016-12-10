@@ -28,30 +28,33 @@
 package com.scrivenvar.service;
 
 import java.util.prefs.Preferences;
-import javafx.beans.property.StringProperty;
 
 /**
- * Options
+ * Responsible for persistent options.
  *
  * @author White Magic Software, Ltd.
  */
 public interface Options {
-  
+
   public Preferences getState();
+  
+  /**
+   * Stores the key and value into the user preferences to be loaded the next
+   * time the application is launched.
+   *
+   * @param key Name of the key to persist along with its value.
+   * @param value Value to associate with the key.
+   */
+  public void put( String key, String value );
 
-  public void load( Preferences options );
-
-  public void save();
-
-  public String getLineSeparator();
-
-  public void setLineSeparator( String lineSeparator );
-
-  public StringProperty lineSeparatorProperty();
-
-  public String getEncoding();
-
-  public void setEncoding( String encoding );
-
-  public StringProperty encodingProperty();
+  /**
+   * Retrieves the value for a key in the user preferences.
+   *
+   * @param key Retrieve the value of this key.
+   * @param defaultValue The value to return in the event that the given key has
+   * no associated value.
+   *
+   * @return The value associated with the key.
+   */
+  public String get( String key, String defaultValue );
 }

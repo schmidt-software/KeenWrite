@@ -24,43 +24,44 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package com.scrivenvar.util;
 
 /**
- * Simple item for a ChoiceBox, ComboBox or ListView.
- * Consists of a string name and a value object.
- * toString() returns the name.
- * equals() compares the value and hashCode() returns the hash code of the value.
+ * Simple item for a ChoiceBox, ComboBox or ListView. Consists of a string name
+ * and a value object. toString() returns the name. equals() compares the value
+ * and hashCode() returns the hash code of the value.
  *
  * @author Karl Tauber
+ * @param <V> The type of item value.
  */
-public class Item<V>
-{
-	public final String name;
-	public final V value;
+public class Item<V> {
 
-	public Item(String name, V value) {
-		this.name = name;
-		this.value = value;
-	}
+  public final String name;
+  public final V value;
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (!(obj instanceof Item))
-			return false;
-		return Utils.safeEquals(value, ((Item<?>)obj).value);
-	}
+  public Item( final String name, final V value ) {
+    this.name = name;
+    this.value = value;
+  }
 
-	@Override
-	public int hashCode() {
-		return (value != null) ? value.hashCode() : 0;
-	}
+  @Override
+  public boolean equals( final Object obj ) {
+    if( this == obj ) {
+      return true;
+    }
+    if( !(obj instanceof Item) ) {
+      return false;
+    }
+    return Utils.safeEquals( value, ((Item<?>)obj).value );
+  }
 
-	@Override
-	public String toString() {
-		return name;
-	}
+  @Override
+  public int hashCode() {
+    return (value != null) ? value.hashCode() : 0;
+  }
+
+  @Override
+  public String toString() {
+    return name;
+  }
 }

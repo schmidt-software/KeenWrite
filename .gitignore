@@ -5,4 +5,4 @@
 /.nb-gradle
 /private
 .nb-gradle-properties
-src/main/resources/com/scrivenvar/build.sh
+scrivenvar.pro

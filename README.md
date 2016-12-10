@@ -11,16 +11,18 @@ Features
 ---
 
 * User-defined variables
-* Preview variable values in real time
+* Recursive variable definitions
+* Real-time document preview with variable substitution
 * Platform independent (Windows, Linux, MacOS)
-* Auto-insert variable names by typing in values followed by `Control+Space`
+* Auto-insert variable names pressing `Control+Space`
 
 Future Features
 ---
 * Spell check
+* Search and replace, with or without variables
 * XML and XSL processing
-* Search and replace text with variables
 * R integration using [Rserve](https://rforge.net/Rserve/)
+* Re-organize variable names
 
 Requirements
 ---

@@ -27,18 +27,14 @@
 package com.scrivenvar.util;
 
 import java.util.ArrayList;
-import java.util.Set;
 import java.util.prefs.Preferences;
-import javafx.geometry.Orientation;
-import javafx.scene.Node;
-import javafx.scene.control.ScrollBar;
 
 /**
  * @author Karl Tauber
  */
 public class Utils {
 
-  public static boolean safeEquals( Object o1, Object o2 ) {
+  public static boolean safeEquals( final Object o1, final Object o2 ) {
     if( o1 == o2 ) {
       return true;
     }
@@ -48,7 +44,7 @@ public class Utils {
     return o1.equals( o2 );
   }
 
-  public static boolean isNullOrEmpty( String s ) {
+  public static boolean isNullOrEmpty( final String s ) {
     return s == null || s.isEmpty();
   }
 
@@ -97,7 +93,7 @@ public class Utils {
   }
 
   public static String[] getPrefsStrings( final Preferences prefs, String key ) {
-    final ArrayList<String> arr = new ArrayList<>();
+    final ArrayList<String> arr = new ArrayList<>( 256 );
 
     for( int i = 0; i < 10000; i++ ) {
       final String s = prefs.get( key + (i + 1), null );
@@ -105,6 +101,7 @@ public class Utils {
       if( s == null ) {
         break;
       }
+
       arr.add( s );
     }
 
@@ -119,18 +116,5 @@ public class Utils {
     for( int i = strings.length; prefs.get( key + (i + 1), null ) != null; i++ ) {
       prefs.remove( key + (i + 1) );
     }
-  }
-
-  public static ScrollBar findVScrollBar( Node node ) {
-    final Set<Node> scrollBars = node.lookupAll( ".scroll-bar" );
-
-    for( final Node scrollBar : scrollBars ) {
-      if( scrollBar instanceof ScrollBar
-        && ((ScrollBar)scrollBar).getOrientation() == Orientation.VERTICAL ) {
-        return (ScrollBar)scrollBar;
-      }
-    }
-
-    return null;
   }
 }

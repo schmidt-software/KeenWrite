@@ -8,3 +8,4 @@ Credits
   * Tom Eugelink: [MigPane](https://github.com/mikaelgrev/miglayout/blob/master/javafx/src/main/java/org/tbee/javafx/scene/layout/fxml/MigPane.java)
   * Vladimir Schneider: [flexmark](https://website.com)
   * Jens Deters: [FontAwesomeFX](https://bitbucket.org/Jerady/fontawesomefx)
+  * Apache Tika Team: [Apache Tika](https://tika.apache.org/)

@@ -27,11 +27,8 @@
 package com.scrivenvar.service.impl;
 
 import com.scrivenvar.service.Options;
-import static com.scrivenvar.util.Utils.putPrefs;
 import java.util.prefs.Preferences;
 import static java.util.prefs.Preferences.userRoot;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
 
 /**
  * Persistent options user can change at runtime.
@@ -39,16 +36,23 @@ import javafx.beans.property.StringProperty;
  * @author Karl Tauber and White Magic Software, Ltd.
  */
 public class DefaultOptions implements Options {
-  private final StringProperty LINE_SEPARATOR = new SimpleStringProperty();
-  private final StringProperty ENCODING = new SimpleStringProperty();
-
   private Preferences preferences;
   
   public DefaultOptions() {
     setPreferences( getRootPreferences().node( "options" ) );
   }
+
+  @Override
+  public void put( final String key, final String value ) {
+    getPreferences().put( key, value );
+  }
   
-  private void setPreferences( Preferences preferences ) {
+  @Override
+  public String get( final String key, final String defalutValue ) {
+    return getPreferences().get( key, defalutValue );
+  }
+  
+  private void setPreferences( final Preferences preferences ) {
     this.preferences = preferences;
   }
 
@@ -61,51 +65,7 @@ public class DefaultOptions implements Options {
     return getRootPreferences().node( "state" );
   }
 
-  public Preferences getPreferences() {
+  private Preferences getPreferences() {
     return this.preferences;
-  }
-
-  @Override
-  public void load( Preferences options ) {
-    setLineSeparator( options.get( "lineSeparator", null ) );
-    setEncoding( options.get( "encoding", null ) );
-  }
-
-  @Override
-  public void save() {
-    final Preferences prefs = getPreferences();
-    
-    putPrefs( prefs, "lineSeparator", getLineSeparator(), null );
-    putPrefs( prefs, "encoding", getEncoding(), null );
-  }
-
-  @Override
-  public String getLineSeparator() {
-    return LINE_SEPARATOR.get();
-  }
-
-  @Override
-  public void setLineSeparator( String lineSeparator ) {
-    LINE_SEPARATOR.set( lineSeparator );
-  }
-
-  @Override
-  public StringProperty lineSeparatorProperty() {
-    return LINE_SEPARATOR;
-  }
-
-  @Override
-  public String getEncoding() {
-    return ENCODING.get();
-  }
-
-  @Override
-  public void setEncoding( String encoding ) {
-    ENCODING.set( encoding );
-  }
-
-  @Override
-  public StringProperty encodingProperty() {
-    return ENCODING;
   }
 }

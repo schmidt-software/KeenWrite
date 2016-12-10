@@ -31,7 +31,8 @@ import static com.scrivenvar.Constants.STYLESHEET_EDITOR;
 import com.scrivenvar.dialogs.ImageDialog;
 import com.scrivenvar.dialogs.LinkDialog;
 import com.scrivenvar.processors.MarkdownProcessor;
-import com.scrivenvar.util.Utils;
+import static com.scrivenvar.util.Utils.ltrim;
+import static com.scrivenvar.util.Utils.rtrim;
 import com.vladsch.flexmark.ast.Link;
 import com.vladsch.flexmark.ast.Node;
 import java.nio.file.Path;
@@ -123,12 +124,12 @@ public class MarkdownEditorPane extends EditorPane {
 
     // remove leading whitespaces from leading text if selection starts at zero
     if( start == 0 ) {
-      leading = Utils.ltrim( leading );
+      leading = ltrim( leading );
     }
 
     // remove trailing whitespaces from trailing text if selection ends at text end
     if( end == textArea.getLength() ) {
-      trailing = Utils.rtrim( trailing );
+      trailing = rtrim( trailing );
     }
 
     // remove leading line separators from leading text

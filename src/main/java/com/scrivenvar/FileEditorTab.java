@@ -31,9 +31,10 @@ import com.scrivenvar.preview.HTMLPreviewPane;
 import com.scrivenvar.service.Options;
 import com.scrivenvar.service.events.AlertMessage;
 import com.scrivenvar.service.events.AlertService;
-import java.io.IOException;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import static java.util.Locale.ENGLISH;
 import java.util.function.Consumer;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
@@ -42,7 +43,6 @@ import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.property.ReadOnlyBooleanWrapper;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.event.Event;
-import javafx.scene.control.Alert;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.Tab;
 import javafx.scene.control.Tooltip;
@@ -53,6 +53,7 @@ import org.fxmisc.richtext.StyleClassedTextArea;
 import org.fxmisc.undo.UndoManager;
 import org.fxmisc.wellbehaved.event.EventPattern;
 import org.fxmisc.wellbehaved.event.InputMap;
+import org.mozilla.universalchardet.UniversalDetector;
 
 /**
  * Editor for a single file.
@@ -66,6 +67,11 @@ public final class FileEditorTab extends Tab {
 
   private EditorPane editorPane;
   private HTMLPreviewPane previewPane;
+
+  /**
+   * Character encoding used by the file (or default encoding if none found).
+   */
+  private Charset encoding;
 
   private final ReadOnlyBooleanWrapper modified = new ReadOnlyBooleanWrapper();
   private final BooleanProperty canUndo = new SimpleBooleanProperty();
@@ -87,25 +93,42 @@ public final class FileEditorTab extends Tab {
   }
 
   private void updateTab() {
-    final Path filePath = getPath();
-
-    setText( getFilename( filePath ) );
+    setText( getTabTitle() );
     setGraphic( getModifiedMark() );
-    setTooltip( getTooltip( filePath ) );
+    setTooltip( getTabTooltip() );
   }
 
-  private String getFilename( final Path filePath ) {
+  /**
+   * Returns the base filename (without the directory names).
+   *
+   * @return The untitled text if the path hasn't been set.
+   */
+  private String getTabTitle() {
+    final Path filePath = getPath();
+
     return (filePath == null)
       ? Messages.get( "FileEditor.untitled" )
       : filePath.getFileName().toString();
   }
 
-  private Tooltip getTooltip( final Path filePath ) {
+  /**
+   * Returns the full filename represented by the path.
+   *
+   * @return The untitled text if the path hasn't been set.
+   */
+  private Tooltip getTabTooltip() {
+    final Path filePath = getPath();
+
     return (filePath == null)
       ? null
       : new Tooltip( filePath.toString() );
   }
 
+  /**
+   * Returns a marker to indicate whether the file has been modified.
+   *
+   * @return "*" when the file has changed; otherwise null.
+   */
   private Text getModifiedMark() {
     return isModified() ? new Text( "*" ) : null;
   }
@@ -114,11 +137,12 @@ public final class FileEditorTab extends Tab {
    * Called when the user switches tab.
    */
   private void activated() {
+    // Tab is closed or no longer active.
     if( getTabPane() == null || !isSelected() ) {
-      // Tab is closed or no longer active.
       return;
     }
 
+    // Switch to the tab without loading if the contents are already in memory.
     if( getContent() != null ) {
       getEditorPane().requestFocus();
       return;
@@ -127,26 +151,24 @@ public final class FileEditorTab extends Tab {
     // Load the text and update the preview before the undo manager.
     load();
 
-    // Track undo requests (must not be called before load).
+    // Track undo requests (*must* be called after load).
     initUndoManager();
     initSplitPane();
+    initFocus();
   }
 
   public void initSplitPane() {
     final EditorPane editor = getEditorPane();
     final HTMLPreviewPane preview = getPreviewPane();
-
     final VirtualizedScrollPane<StyleClassedTextArea> editorScrollPane = editor.getScrollPane();
 
     // Make the preview pane scroll correspond to the editor pane scroll.
     // Separate the edit and preview panels.
-    final SplitPane splitPane = new SplitPane(
-      editorScrollPane,
-      preview.getWebView() );
-    setContent( splitPane );
+    setContent( new SplitPane( editorScrollPane, preview.getNode() ) );
+  }
 
-    // Let the user edit.
-    editor.requestFocus();
+  private void initFocus() {
+    getEditorPane().requestFocus();
   }
 
   private void initUndoManager() {
@@ -170,66 +192,122 @@ public final class FileEditorTab extends Tab {
     return getEditorPane().getEditor().getCaretPosition();
   }
 
-  void load() {
+  /**
+   * Returns true if the given path exactly matches this tab's path.
+   *
+   * @param check The path to compare against.
+   *
+   * @return true The paths are the same.
+   */
+  public boolean isPath( final Path check ) {
+    final Path filePath = getPath();
+
+    return filePath == null ? false : filePath.equals( check );
+  }
+
+  /**
+   * Reads the entire file contents from the path associated with this tab.
+   */
+  private void load() {
     final Path filePath = getPath();
 
     if( filePath != null ) {
       try {
-        final byte[] bytes = Files.readAllBytes( filePath );
-        String markdown;
-
-        try {
-          markdown = new String( bytes, getOptions().getEncoding() );
-        } catch( Exception e ) {
-          // Unsupported encodings and null pointers fallback here.
-          markdown = new String( bytes );
-        }
-
-        getEditorPane().setText( markdown );
-      } catch( IOException ex ) {
-        final AlertMessage message = getAlertService().createAlertMessage(
-          Messages.get( "FileEditor.loadFailed.title" ),
-          Messages.get( "FileEditor.loadFailed.message" ),
-          filePath,
-          ex.getMessage()
+        getEditorPane().setText( asString( Files.readAllBytes( filePath ) ) );
+      } catch( Exception ex ) {
+        alert(
+          "FileEditor.loadFailed.title", "FileEditor.loadFailed.message", ex
         );
-
-        final Alert alert = getAlertService().createAlertError( message );
-
-        alert.showAndWait();
       }
     }
   }
 
-  boolean save() {
-    final String text = getEditorPane().getText();
-
-    byte[] bytes;
-
+  /**
+   * Saves the entire file contents from the path associated with this tab.
+   *
+   * @return true The file has been saved.
+   */
+  public boolean save() {
     try {
-      bytes = text.getBytes( getOptions().getEncoding() );
-    } catch( Exception ex ) {
-      bytes = text.getBytes();
-    }
-
-    try {
-      Files.write( getPath(), bytes );
+      Files.write( getPath(), asBytes( getEditorPane().getText() ) );
       getEditorPane().getUndoManager().mark();
       return true;
-    } catch( IOException ex ) {
-      final AlertService service = getAlertService();
-      final AlertMessage message = service.createAlertMessage(
-        Messages.get( "FileEditor.saveFailed.title" ),
-        Messages.get( "FileEditor.saveFailed.message" ),
-        getPath(),
-        ex.getMessage()
+    } catch( Exception ex ) {
+      return alert(
+        "FileEditor.saveFailed.title", "FileEditor.saveFailed.message", ex
       );
-
-      final Alert alert = service.createAlertError( message );
-
-      alert.showAndWait();
-      return false;
     }
+  }
+
+  /**
+   * Creates an alert dialog and waits for it to close.
+   *
+   * @param titleKey Resource bundle key for the alert dialog title.
+   * @param messageKey Resource bundle key for the alert dialog message.
+   * @param e The unexpected happening.
+   *
+   * @return false
+   */
+  private boolean alert( String titleKey, String messageKey, Exception e ) {
+    final AlertService service = getAlertService();
+
+    final AlertMessage message = service.createAlertMessage(
+      Messages.get( titleKey ),
+      Messages.get( messageKey ),
+      getPath(),
+      e.getMessage()
+    );
+
+    service.createAlertError( message ).showAndWait();
+    return false;
+  }
+
+  /**
+   * Returns a best guess at the file encoding. If the encoding could not be
+   * detected, this will return the default charset for the JVM.
+   *
+   * @param bytes The bytes to perform character encoding detection.
+   *
+   * @return The character encoding.
+   */
+  private Charset detectEncoding( final byte[] bytes ) {
+    final UniversalDetector detector = new UniversalDetector( null );
+    detector.handleData( bytes, 0, bytes.length );
+    detector.dataEnd();
+
+    final String charset = detector.getDetectedCharset();
+    final Charset charEncoding = charset == null
+      ? Charset.defaultCharset()
+      : Charset.forName( charset.toUpperCase( ENGLISH ) );
+
+    detector.reset();
+
+    return charEncoding;
+  }
+
+  /**
+   * Converts the given string to an array of bytes using the encoding that was
+   * originally detected (if any) and associated with this file.
+   *
+   * @param text The text to convert into the original file encoding.
+   *
+   * @return A series of bytes ready for writing to a file.
+   */
+  private byte[] asBytes( final String text ) {
+    return text.getBytes( getEncoding() );
+  }
+
+  /**
+   * Converts the given bytes into a Java String. This will call setEncoding
+   * with the encoding detected by the CharsetDetector.
+   *
+   * @param text The text of unknown character encoding.
+   *
+   * @return The text, in its auto-detected encoding, as a String.
+   */
+  private String asString( final byte[] text ) {
+    setEncoding( detectEncoding( text ) );
+    return new String( text, getEncoding() );
   }
 
   Path getPath() {
@@ -240,7 +318,7 @@ public final class FileEditorTab extends Tab {
     this.path = path;
   }
 
-  boolean isModified() {
+  public boolean isModified() {
     return this.modified.get();
   }
 
@@ -260,20 +338,43 @@ public final class FileEditorTab extends Tab {
     return getEditorPane().getUndoManager();
   }
 
+  /**
+   * Forwards the request to the editor pane.
+   *
+   * @param <T> The type of event listener to add.
+   * @param <U> The type of consumer to add.
+   * @param event The event that should trigger updates to the listener.
+   * @param consumer The listener to receive update events.
+   */
   public <T extends Event, U extends T> void addEventListener(
     final EventPattern<? super T, ? extends U> event,
     final Consumer<? super U> consumer ) {
     getEditorPane().addEventListener( event, consumer );
   }
 
+  /**
+   * Forwards to the editor pane's listeners for keyboard events.
+   *
+   * @param map The new input map to replace the existing keyboard listener.
+   */
   public void addEventListener( final InputMap<InputEvent> map ) {
     getEditorPane().addEventListener( map );
   }
 
+  /**
+   * Forwards to the editor pane's listeners for keyboard events.
+   *
+   * @param map The existing input map to remove from the keyboard listeners.
+   */
   public void removeEventListener( final InputMap<InputEvent> map ) {
     getEditorPane().removeEventListener( map );
   }
 
+  /**
+   * Returns the editor pane, or creates one if it doesn't yet exist.
+   *
+   * @return The editor pane, never null.
+   */
   protected EditorPane getEditorPane() {
     if( this.editorPane == null ) {
       this.editorPane = new MarkdownEditorPane();
@@ -296,5 +397,13 @@ public final class FileEditorTab extends Tab {
     }
 
     return this.previewPane;
+  }
+
+  private Charset getEncoding() {
+    return this.encoding;
+  }
+
+  private void setEncoding( final Charset encoding ) {
+    this.encoding = encoding;
   }
 }

@@ -32,8 +32,6 @@ import java.nio.file.Path;
 import java.util.function.Consumer;
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.ReadOnlyDoubleProperty;
-import javafx.beans.property.ReadOnlyDoubleWrapper;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.event.Event;
@@ -56,10 +54,7 @@ public class EditorPane extends AbstractPane {
 
   private StyleClassedTextArea editor;
   private VirtualizedScrollPane<StyleClassedTextArea> scrollPane;
-  private final ReadOnlyDoubleWrapper scrollY = new ReadOnlyDoubleWrapper();
   private final ObjectProperty<Path> path = new SimpleObjectProperty<>();
-
-  private String lineSeparator = getLineSeparator();
 
   /**
    * Set when entering variable edit mode; retrieved upon exiting.
@@ -84,17 +79,10 @@ public class EditorPane extends AbstractPane {
   }
 
   public String getText() {
-    String text = getEditor().getText();
-
-    if( !this.lineSeparator.equals( "\n" ) ) {
-      text = text.replace( "\n", this.lineSeparator );
-    }
-
-    return text;
+    return getEditor().getText();
   }
 
   public void setText( final String text ) {
-    this.lineSeparator = determineLineSeparator( text );
     getEditor().deselect();
     getEditor().replaceText( text );
     getUndoManager().mark();
@@ -214,18 +202,6 @@ public class EditorPane extends AbstractPane {
     return new StyleClassedTextArea( false );
   }
 
-  public double getScrollY() {
-    return this.scrollY.get();
-  }
-
-  protected void setScrollY( double scrolled ) {
-    this.scrollY.set( scrolled );
-  }
-
-  public ReadOnlyDoubleProperty scrollYProperty() {
-    return this.scrollY.getReadOnlyProperty();
-  }
-
   public Path getPath() {
     return this.path.get();
   }
@@ -236,27 +212,5 @@ public class EditorPane extends AbstractPane {
 
   public ObjectProperty<Path> pathProperty() {
     return this.path;
-  }
-
-  private String getLineSeparator() {
-    final String separator = getOptions().getLineSeparator();
-
-    return (separator != null)
-      ? separator
-      : System.lineSeparator();
-  }
-
-  private String determineLineSeparator( final String s ) {
-    final int length = s.length();
-
-    // TODO: Looping backwards will probably detect a newline sooner.
-    for( int i = 0; i < length; i++ ) {
-      char ch = s.charAt( i );
-      if( ch == '\n' ) {
-        return (i > 0 && s.charAt( i - 1 ) == '\r') ? "\r\n" : "\n";
-      }
-    }
-
-    return getLineSeparator();
   }
 }

@@ -32,6 +32,7 @@ import java.nio.file.Path;
 import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Worker.State;
 import static javafx.concurrent.Worker.State.SUCCEEDED;
+import javafx.scene.Node;
 import javafx.scene.layout.Pane;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
@@ -56,42 +57,7 @@ public final class HTMLPreviewPane extends Pane {
   public HTMLPreviewPane( final Path path ) {
     setPath( path );
     initListeners();
-
-    // Prevent tabbing into the preview pane.
-    getWebView().setFocusTraversable( false );
-  }
-
-  /**
-   * Updates the internal HTML source, loads it into the preview pane, then
-   * scrolls to the caret position.
-   *
-   * @param html
-   */
-  public void update( final String html ) {
-    setHtml( html );
-    update();
-  }
-
-  private void update() {
-    getEngine().loadContent(
-      "<!DOCTYPE html>"
-      + "<html>"
-      + "<head>"
-      + "<link rel='stylesheet' href='" + getClass().getResource( "webview.css" ) + "'>"
-      + getBase()
-      + "</head>"
-      + "<body>"
-      + getHtml()
-      + "</body>"
-      + "</html>" );
-  }
-
-  private String getBase() {
-    final Path basePath = getPath();
-
-    return basePath == null
-      ? ""
-      : ("<base href='" + basePath.getParent().toUri().toString() + "'>");
+    initTraversal();
   }
 
   /**
@@ -104,11 +70,45 @@ public final class HTMLPreviewPane extends Pane {
     // Scrolls to the caret after the content has been loaded.
     getEngine().getLoadWorker().stateProperty().addListener(
       (ObservableValue<? extends State> observable,
-        State oldValue, State newValue) -> {
+        final State oldValue, final State newValue) -> {
         if( newValue == SUCCEEDED ) {
           scrollToCaret();
         }
       } );
+  }
+
+  /**
+   * Ensures images can be found relative to the document.
+   *
+   * @return The base path element to use for the document, or the empty string
+   * if no path has been set, yet.
+   */
+  private String getBase() {
+    final Path basePath = getPath();
+
+    return basePath == null
+      ? ""
+      : ("<base href='" + basePath.getParent().toUri().toString() + "'>");
+  }
+
+  /**
+   * Updates the internal HTML source, loads it into the preview pane, then
+   * scrolls to the caret position.
+   *
+   * @param html The new HTML document to display.
+   */
+  public void update( final String html ) {
+    getEngine().loadContent(
+      "<!DOCTYPE html>"
+      + "<html>"
+      + "<head>"
+      + "<link rel='stylesheet' href='" + getClass().getResource( "webview.css" ) + "'>"
+      + getBase()
+      + "</head>"
+      + "<body>"
+      + html
+      + "</body>"
+      + "</html>" );
   }
 
   /**
@@ -134,6 +134,13 @@ public final class HTMLPreviewPane extends Pane {
       + "}";
   }
 
+  /**
+   * Prevent tabbing into the preview pane.
+   */
+  private void initTraversal() {
+    getWebView().setFocusTraversable( false );
+  }
+
   private Object execute( final String script ) {
     return getEngine().executeScript( script );
   }
@@ -142,16 +149,8 @@ public final class HTMLPreviewPane extends Pane {
     return getWebView().getEngine();
   }
 
-  public WebView getWebView() {
+  private WebView getWebView() {
     return this.webView;
-  }
-
-  private String getHtml() {
-    return this.html;
-  }
-
-  private void setHtml( final String html ) {
-    this.html = html;
   }
 
   private Path getPath() {
@@ -160,5 +159,9 @@ public final class HTMLPreviewPane extends Pane {
 
   private void setPath( final Path path ) {
     this.path = path;
+  }
+  
+  public Node getNode() {
+    return getWebView();
   }
 }
