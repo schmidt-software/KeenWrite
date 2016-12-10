@@ -28,7 +28,7 @@
 package com.scrivenvar.processors;
 
 import static com.scrivenvar.Constants.MD_CARET_POSITION;
-import static java.lang.Character.isLetterOrDigit;
+import static java.lang.Character.isLetter;
 import org.fxmisc.richtext.model.TextEditingArea;
 
 /**
@@ -70,7 +70,7 @@ public class MarkdownCaretInsertionProcessor extends AbstractProcessor<String> {
 
     // Insert the caret at the closest non-Markdown delimiter (i.e., the 
     // closest character from the caret position forward).
-    while( offset < length && !isLetterOrDigit( t.charAt( offset ) ) ) {
+    while( offset < length && !isLetter( t.charAt( offset ) ) ) {
       offset++;
     }
 

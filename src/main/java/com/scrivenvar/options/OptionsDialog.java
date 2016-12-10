@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2015 Karl Tauber <karl at jformdesigner dot com>
+ * Copyright 2016 Karl Tauber and White Magic Software, Ltd.
+ *
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -26,6 +27,10 @@
  */
 package com.scrivenvar.options;
 
+import com.scrivenvar.Messages;
+import com.scrivenvar.Services;
+import com.scrivenvar.service.Options;
+import com.scrivenvar.service.events.impl.ButtonOrderPane;
 import java.util.prefs.Preferences;
 import javafx.event.ActionEvent;
 import javafx.scene.control.ButtonType;
@@ -34,14 +39,11 @@ import javafx.scene.control.DialogPane;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.stage.Window;
-import com.scrivenvar.Messages;
-import com.scrivenvar.Services;
-import com.scrivenvar.service.Options;
 
 /**
- * Options dialog
+ * Options dialog.
  *
- * @author Karl Tauber
+ * @author Karl Tauber and White Magic Software, Ltd.
  */
 public class OptionsDialog extends Dialog<Void> {
 
@@ -55,11 +57,12 @@ public class OptionsDialog extends Dialog<Void> {
 
     tabPane.getStyleClass().add( TabPane.STYLE_CLASS_FLOATING );
 
-    DialogPane dialogPane = getDialogPane();
+    setDialogPane( new ButtonOrderPane() );
+
+    final DialogPane dialogPane = getDialogPane();
     dialogPane.setContent( tabPane );
     dialogPane.getButtonTypes().addAll( ButtonType.OK, ButtonType.CANCEL );
 
-    // save options on OK clicked
     dialogPane.lookupButton( ButtonType.OK ).addEventHandler( ActionEvent.ACTION, e -> {
       save();
       e.consume();
@@ -90,12 +93,10 @@ public class OptionsDialog extends Dialog<Void> {
 
   private void load() {
     generalOptionsPane.load();
-    markdownOptionsPane.load();
   }
 
   private void save() {
     generalOptionsPane.save();
-    markdownOptionsPane.save();
     Services.load( Options.class ).save();
   }
 
@@ -104,8 +105,6 @@ public class OptionsDialog extends Dialog<Void> {
     tabPane = new TabPane();
     generalTab = new Tab();
     generalOptionsPane = new GeneralOptionsPane();
-    markdownTab = new Tab();
-    markdownOptionsPane = new MarkdownOptionsPane();
 
     //======== tabPane ========
     {
@@ -117,13 +116,7 @@ public class OptionsDialog extends Dialog<Void> {
         generalTab.setContent( generalOptionsPane );
       }
 
-      //======== markdownTab ========
-      {
-        markdownTab.setText( Messages.get( "OptionsDialog.markdownTab.text" ) );
-        markdownTab.setContent( markdownOptionsPane );
-      }
-
-      tabPane.getTabs().addAll( generalTab, markdownTab );
+      tabPane.getTabs().addAll( generalTab );
     }
     // JFormDesigner - End of component initialization  //GEN-END:initComponents
   }
@@ -132,7 +125,5 @@ public class OptionsDialog extends Dialog<Void> {
   private TabPane tabPane;
   private Tab generalTab;
   private GeneralOptionsPane generalOptionsPane;
-  private Tab markdownTab;
-  private MarkdownOptionsPane markdownOptionsPane;
 	// JFormDesigner - End of variables declaration  //GEN-END:variables
 }

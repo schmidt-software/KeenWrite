@@ -28,7 +28,6 @@
 package com.scrivenvar.service;
 
 import java.util.prefs.Preferences;
-import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.StringProperty;
 
 /**
@@ -55,10 +54,4 @@ public interface Options {
   public void setEncoding( String encoding );
 
   public StringProperty encodingProperty();
-
-  public int getMarkdownExtensions();
-
-  public void setMarkdownExtensions( int markdownExtensions );
-
-  public IntegerProperty markdownExtensionsProperty();
 }

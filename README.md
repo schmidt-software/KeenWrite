@@ -29,7 +29,6 @@ Download and install [Java 8u40](http://www.oracle.com/technetwork/java/javase/d
 
 Installation
 ---
-
 1. [Download](https://github.com/DaveJarvis/scrivenvar/releases) the latest zip archive and extract it to any folder.
 1. Double-click `scrivenvar.jar` to start the application.
 

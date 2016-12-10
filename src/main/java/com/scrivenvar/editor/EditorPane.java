@@ -103,10 +103,19 @@ public class EditorPane extends AbstractPane {
   /**
    * Call to hook into changes to the text area.
    *
-   * @param listener The listener to receive editor change events.
+   * @param listener Receives editor text change events.
    */
-  public void addChangeListener( ChangeListener<? super String> listener ) {
+  public void addChangeListener( final ChangeListener<? super String> listener ) {
     getEditor().textProperty().addListener( listener );
+  }
+
+  /**
+   * Call to listen for when the caret moves to another paragraph.
+   * 
+   * @param listener Receives paragraph change events.
+   */
+  public void addCaretParagraphListener( final ChangeListener<? super Integer> listener ) {
+    getEditor().currentParagraphProperty().addListener( listener );
   }
 
   /**

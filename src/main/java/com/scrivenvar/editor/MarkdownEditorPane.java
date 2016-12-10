@@ -37,9 +37,6 @@ import com.vladsch.flexmark.ast.Node;
 import java.nio.file.Path;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import javafx.beans.InvalidationListener;
-import javafx.beans.WeakInvalidationListener;
-import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.IndexRange;
@@ -61,8 +58,6 @@ public class MarkdownEditorPane extends EditorPane {
 
   public MarkdownEditorPane() {
     initEditor();
-    initScrollEventListener();
-    initOptionEventListener();
   }
 
   private void initEditor() {
@@ -76,33 +71,6 @@ public class MarkdownEditorPane extends EditorPane {
 
     // TODO: Wait for implementation that allows cutting lines, not paragraphs.
 //    addEventListener( keyPressed( X, SHORTCUT_DOWN ), this::cutLine );
-  }
-
-  /**
-   * Add a listener to update the scrollY property.
-   */
-  private void initScrollEventListener() {
-    final StyleClassedTextArea textArea = getEditor();
-
-    ChangeListener<Double> scrollYListener = (observable, oldValue, newValue) -> {
-      double value = textArea.estimatedScrollYProperty().getValue();
-      double maxValue = textArea.totalHeightEstimateProperty().getOrElse( 0. ) - textArea.getHeight();
-      setScrollY( (maxValue > 0) ? Math.min( Math.max( value / maxValue, 0 ), 1 ) : 0 );
-    };
-
-    textArea.estimatedScrollYProperty().addListener( scrollYListener );
-    textArea.totalHeightEstimateProperty().addListener( scrollYListener );
-  }
-
-  /**
-   * Listen to option changes.
-   */
-  private void initOptionEventListener() {
-    final InvalidationListener listener = e -> {
-    };
-
-    WeakInvalidationListener weakOptionsListener = new WeakInvalidationListener( listener );
-    getOptions().markdownExtensionsProperty().addListener( weakOptionsListener );
   }
 
   public ObservableValue<String> markdownProperty() {

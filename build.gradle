@@ -20,7 +20,6 @@ dependencies {
   compile group: 'org.fxmisc.richtext', name: 'richtextfx', version: '0.7-M2'
 	compile group: 'com.miglayout', name: 'miglayout-javafx', version: '5.0'
 	compile group: 'de.jensd', name: 'fontawesomefx-fontawesome', version: '4.5.0'
-	compile group: 'org.pegdown', name: 'pegdown', version: '1.6.0'
   compile group: 'commons-configuration', name: 'commons-configuration', version: '1.10'
   compile group: 'com.vladsch.flexmark', name: 'flexmark', version: '0.6.1'
   compile group: 'com.vladsch.flexmark', name: 'flexmark-ext-gfm-tables', version: '0.6.1'

@@ -28,14 +28,10 @@ package com.scrivenvar.service.impl;
 
 import com.scrivenvar.service.Options;
 import static com.scrivenvar.util.Utils.putPrefs;
-import static com.scrivenvar.util.Utils.putPrefsInt;
 import java.util.prefs.Preferences;
 import static java.util.prefs.Preferences.userRoot;
-import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-import org.pegdown.Extensions;
 
 /**
  * Persistent options user can change at runtime.
@@ -45,7 +41,6 @@ import org.pegdown.Extensions;
 public class DefaultOptions implements Options {
   private final StringProperty LINE_SEPARATOR = new SimpleStringProperty();
   private final StringProperty ENCODING = new SimpleStringProperty();
-  private final IntegerProperty MARKDOWN_EXTENSIONS = new SimpleIntegerProperty();
 
   private Preferences preferences;
   
@@ -74,7 +69,6 @@ public class DefaultOptions implements Options {
   public void load( Preferences options ) {
     setLineSeparator( options.get( "lineSeparator", null ) );
     setEncoding( options.get( "encoding", null ) );
-    setMarkdownExtensions( options.getInt( "markdownExtensions", Extensions.ALL ) );
   }
 
   @Override
@@ -83,7 +77,6 @@ public class DefaultOptions implements Options {
     
     putPrefs( prefs, "lineSeparator", getLineSeparator(), null );
     putPrefs( prefs, "encoding", getEncoding(), null );
-    putPrefsInt( prefs, "markdownExtensions", getMarkdownExtensions(), Extensions.ALL );
   }
 
   @Override
@@ -114,20 +107,5 @@ public class DefaultOptions implements Options {
   @Override
   public StringProperty encodingProperty() {
     return ENCODING;
-  }
-
-  @Override
-  public int getMarkdownExtensions() {
-    return MARKDOWN_EXTENSIONS.get();
-  }
-
-  @Override
-  public void setMarkdownExtensions( int markdownExtensions ) {
-    MARKDOWN_EXTENSIONS.set( markdownExtensions );
-  }
-
-  @Override
-  public IntegerProperty markdownExtensionsProperty() {
-    return MARKDOWN_EXTENSIONS;
   }
 }

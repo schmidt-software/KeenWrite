@@ -142,10 +142,11 @@ public class MainWindow {
     borderPane.setPrefSize( 1024, 800 );
     borderPane.setTop( createMenuBar() );
     borderPane.setCenter( splitPane );
-
-    setScene( new Scene( borderPane ) );
-    getScene().getStylesheets().add( Constants.STYLESHEET_PREVIEW );
-    getScene().windowProperty().addListener(
+    
+    final Scene appScene = new Scene( borderPane );
+    setScene( appScene );
+    appScene.getStylesheets().add( Constants.STYLESHEET_PREVIEW );
+    appScene.windowProperty().addListener(
       (observable, oldWindow, newWindow) -> {
         newWindow.setOnCloseRequest( e -> {
           if( !getFileEditorPane().closeAllEditors() ) {
@@ -194,10 +195,10 @@ public class MainWindow {
     final Function<FileEditorTab, ObservableBooleanValue> func ) {
 
     final BooleanProperty b = new SimpleBooleanProperty();
-    final FileEditorTab fileEditor = getActiveFileEditor();
+    final FileEditorTab tab = getActiveFileEditor();
 
-    if( fileEditor != null ) {
-      b.bind( func.apply( fileEditor ) );
+    if( tab != null ) {
+      b.bind( func.apply( tab ) );
     }
 
     getFileEditorPane().activeFileEditorProperty().addListener(
@@ -304,7 +305,7 @@ public class MainWindow {
   }
 
   /**
-   * Monitors the tab (and its text editor) for changes.
+   * Listens for changes to tabs and their text editors.
    *
    * @see https://github.com/DaveJarvis/scrivenvar/issues/17
    * @see https://github.com/DaveJarvis/scrivenvar/issues/18
@@ -326,7 +327,7 @@ public class MainWindow {
     final TextChangeProcessor tp = new TextChangeProcessor( vnp );
 
     editorPanel.addChangeListener( tp );
-    editorPanel.getEditor().currentParagraphProperty().addListener(
+    editorPanel.addCaretParagraphListener(
       (final ObservableValue<? extends Integer> observable,
         final Integer oldValue, final Integer newValue) -> {
         
