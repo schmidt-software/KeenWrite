@@ -159,10 +159,6 @@ public final class FileEditorTabPane extends TabPane {
     getSelectionModel().selectedItemProperty().addListener( listener );
   }
   
-  Node getNode() {
-    return this;
-  }
-
   /**
    * Allows clients to manipulate the editor content directly.
    *
@@ -194,6 +190,10 @@ public final class FileEditorTabPane extends TabPane {
     } );
     
     return tab;
+  }
+
+  Node getNode() {
+    return this;
   }
 
   /**

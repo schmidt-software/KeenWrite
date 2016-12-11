@@ -30,7 +30,6 @@ package com.scrivenvar;
 import static com.scrivenvar.Constants.LOGO_32;
 import static com.scrivenvar.Messages.get;
 import com.scrivenvar.definition.DefinitionPane;
-import com.scrivenvar.editor.EditorPane;
 import com.scrivenvar.editor.MarkdownEditorPane;
 import com.scrivenvar.editor.VariableNameInjector;
 import com.scrivenvar.preview.HTMLPreviewPane;
@@ -39,7 +38,6 @@ import com.scrivenvar.processors.MarkdownCaretInsertionProcessor;
 import com.scrivenvar.processors.MarkdownCaretReplacementProcessor;
 import com.scrivenvar.processors.MarkdownProcessor;
 import com.scrivenvar.processors.Processor;
-import com.scrivenvar.processors.TextChangeProcessor;
 import com.scrivenvar.processors.VariableProcessor;
 import com.scrivenvar.service.Options;
 import com.scrivenvar.util.Action;
@@ -99,7 +97,6 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Window;
 import javafx.stage.WindowEvent;
-import org.fxmisc.richtext.StyleClassedTextArea;
 
 /**
  * Main window containing a tab pane in the center for file editors.
@@ -126,9 +123,9 @@ public class MainWindow {
 
   public MainWindow() {
     initLayout();
-    initTabsListener();
+    initTabAddedListener();
     restorePreferences();
-    initEditorPaneListeners();
+    initTabChangeListener();
     initVariableNameInjector();
   }
 
@@ -288,7 +285,7 @@ public class MainWindow {
     getFileEditorPane().restorePreferences();
   }
 
-  private void initTabsListener() {
+  private void initTabAddedListener() {
     final FileEditorTabPane editorPane = getFileEditorPane();
 
     // Make sure the text processor kicks off when new files are opened.
@@ -302,17 +299,22 @@ public class MainWindow {
           for( final Tab newTab : change.getAddedSubList() ) {
             final FileEditorTab tab = (FileEditorTab)newTab;
 
-            refresh( tab );
+            initTextChangeListener( tab );
+            initCaretParagraphListener( tab );
+            process( tab );
           }
         }
       }
     } );
   }
 
-  private void initEditorPaneListeners() {
+  /**
+   * Listen for tab changes.
+   */
+  private void initTabChangeListener() {
     final FileEditorTabPane editorPane = getFileEditorPane();
 
-    // Update the preview pane when moving the caret to a new paragraph.
+    // Update the preview pane changing tabs.
     editorPane.addTabChangeListener(
       (ObservableValue<? extends Tab> tabPane,
         final Tab oldTab, final Tab newTab) -> {
@@ -320,18 +322,45 @@ public class MainWindow {
         final FileEditorTab tab = (FileEditorTab)newTab;
 
         if( tab != null ) {
+          // When a new tab is selected, ensure that the base path to images
+          // is set correctly.
           getPreviewPane().setPath( tab.getPath() );
-          refresh( tab );
+          process( tab );
         }
       } );
+  }
 
-    editorPane.getEditor().textProperty().addListener( (ov, oldv, newv) -> {
-      refresh( getActiveFileEditor() );
+  private void initTextChangeListener( final FileEditorTab tab ) {
+    tab.addTextChangeListener( (ObservableValue<? extends String> editor,
+      final String oldValue, final String newValue) -> {
+      process( tab );
     } );
   }
 
-  private void refresh( final FileEditorTab tab ) {
-    System.out.println( "REFRESH: " + tab.getPath().toAbsolutePath() );
+  private void initCaretParagraphListener( final FileEditorTab tab ) {
+    tab.addCaretParagraphListener( (ObservableValue<? extends Integer> editor,
+      final Integer oldValue, final Integer newValue) -> {
+      process( tab );
+    } );
+  }
+
+  /**
+   * Called whenever the preview pane becomes out of sync with the file editor
+   * tab. This can be called when the text changes, the caret paragraph changes,
+   * or the file tab changes.
+   *
+   * @param tab The file editor tab that has been changed in some fashion.
+   */
+  private void process( final FileEditorTab tab ) {
+    // TODO: Use a factory based on the filename extension. The default
+    // extension will be for a markdown file (e.g., on file new).
+    final Processor<String> hpp = new HTMLPreviewProcessor( getPreviewPane() );
+    final Processor<String> mcrp = new MarkdownCaretReplacementProcessor( hpp );
+    final Processor<String> mp = new MarkdownProcessor( mcrp );
+    final Processor<String> mcip = new MarkdownCaretInsertionProcessor( mp, tab.getCaretPosition() );
+    final Processor<String> vp = new VariableProcessor( mcip, getResolvedMap() );
+    
+    vp.processChain( tab.getEditorText() );
   }
 
   private MarkdownEditorPane getActiveEditor() {
@@ -340,64 +369,6 @@ public class MainWindow {
 
   private FileEditorTab getActiveFileEditor() {
     return getFileEditorPane().getActiveFileEditor();
-  }
-
-  private Processor<String> createVariableProcessor( final FileEditorTab tab ) {
-    final HTMLPreviewPane previewPanel = getPreviewPane();
-    final EditorPane editorPanel = tab.getEditorPane();
-    final StyleClassedTextArea editor = editorPanel.getEditor();
-
-    // TODO: Use a factory based on the filename extension. The default
-    // extension will be for a markdown file (e.g., on file new).
-    final Processor<String> hpp = new HTMLPreviewProcessor( previewPanel );
-    final Processor<String> mcrp = new MarkdownCaretReplacementProcessor( hpp );
-    final Processor<String> mp = new MarkdownProcessor( mcrp );
-    final Processor<String> mcip = new MarkdownCaretInsertionProcessor( mp, editor.caretPositionProperty() );
-    final Processor<String> vp = new VariableProcessor( mcip, getResolvedMap() );
-
-    return vp;
-  }
-
-  private TextChangeProcessor createTextChangeProcessor(
-    final Processor<String> link ) {
-    return new TextChangeProcessor( link );
-  }
-
-  /**
-   * Listens for changes to tabs and their text editors.
-   *
-   * @see https://github.com/DaveJarvis/scrivenvar/issues/17
-   * @see https://github.com/DaveJarvis/scrivenvar/issues/18
-   *
-   * @param tab The file editor tab that contains a text editor.
-   */
-  private void addListener( final FileEditorTab tab ) {
-    final Processor<String> vnp = createVariableProcessor( tab );
-    final TextChangeProcessor tcp = createTextChangeProcessor( vnp );
-
-    addCaretParagraphListener( tab, vnp );
-  }
-
-  /**
-   * When the caret changes paragraph, force re-rendering of the preview panel
-   * using the chain-of-command.
-   *
-   * @param tab Contains a text editor to monitor for caret position changes.
-   * @param vnp Called to re-process chain using the editor's content.
-   */
-  private void addCaretParagraphListener( final FileEditorTab tab, final Processor<String> vnp ) {
-    final EditorPane editorPanel = tab.getEditorPane();
-    final StyleClassedTextArea editor = editorPanel.getEditor();
-
-    editorPanel.addCaretParagraphListener(
-      (final ObservableValue<? extends Integer> observable,
-        final Integer oldValue, final Integer newValue) -> {
-
-        // Kick off the processing chain at the variable processor when the
-        // cursor changes paragraphs. This might cause some slight duplication
-        // when the Enter key is pressed.
-        vnp.processChain( editor.getText() );
-      } );
   }
 
   protected DefinitionPane createDefinitionPane() {
@@ -413,7 +384,7 @@ public class MainWindow {
   }
 
   public MenuBar getMenuBar() {
-    return menuBar;
+    return this.menuBar;
   }
 
   public void setMenuBar( MenuBar menuBar ) {

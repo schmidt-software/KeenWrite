@@ -93,7 +93,7 @@ public class EditorPane extends AbstractPane {
    *
    * @param listener Receives editor text change events.
    */
-  public void addChangeListener( final ChangeListener<? super String> listener ) {
+  public void addTextChangeListener( final ChangeListener<? super String> listener ) {
     getEditor().textProperty().addListener( listener );
   }
 
@@ -106,7 +106,7 @@ public class EditorPane extends AbstractPane {
     final ChangeListener<? super Integer> listener ) {
     getEditor().currentParagraphProperty().addListener( listener );
   }
-
+  
   /**
    * This method adds listeners to editor events.
    *

@@ -1,5 +1,12 @@
 # Change Log
 
+## 0.6
+
+- Bug fixes synchronized scrolling
+- Added universal character encoding detection
+- Removed options panel
+- Decoupled Editor Tab and Preview Pane
+
 ## 0.5
 
 - Added document processors for Markdown and Variables

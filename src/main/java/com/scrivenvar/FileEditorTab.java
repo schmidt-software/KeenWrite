@@ -41,6 +41,7 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.property.ReadOnlyBooleanWrapper;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.value.ChangeListener;
 import javafx.event.Event;
 import javafx.scene.Node;
 import javafx.scene.control.Tab;
@@ -363,6 +364,33 @@ public final class FileEditorTab extends Tab {
    */
   public void removeEventListener( final InputMap<InputEvent> map ) {
     getEditorPane().removeEventListener( map );
+  }
+
+  /**
+   * Forwards to the editor pane's listeners for text change events.
+   *
+   * @param listener The listener to notify when the text changes.
+   */
+  public void addTextChangeListener( final ChangeListener<String> listener ) {
+    getEditorPane().addTextChangeListener( listener );
+  }
+  
+  /**
+   * Forwards to the editor pane's listeners for paragraph change events.
+   *
+   * @param listener The listener to notify when the caret changes paragraphs.
+   */
+  public void addCaretParagraphListener( final ChangeListener<Integer> listener){
+    getEditorPane().addCaretParagraphListener( listener );
+  }
+  
+  /**
+   * Delegates the request to the editor pane.
+   *
+   * @return The text to process.
+   */
+  public String getEditorText() {
+    return getEditorPane().getText();
   }
 
   /**
