@@ -41,6 +41,7 @@ public class StageState {
 
   public static final String K_PANE_SPLIT_DEFINITION = "pane.split.definition";
   public static final String K_PANE_SPLIT_EDITOR = "pane.split.editor";
+  public static final String K_PANE_SPLIT_PREVIEW = "pane.split.preview";
 
   private final Stage stage;
   private final Preferences state;

@@ -45,17 +45,13 @@ import javafx.scene.web.WebView;
 public final class HTMLPreviewPane extends Pane {
 
   private final WebView webView = new WebView();
-  private String html;
   private Path path;
 
   /**
    * Creates a new preview pane that can scroll to the caret position within the
    * document.
-   *
-   * @param path The base path for loading resources, such as images.
    */
-  public HTMLPreviewPane( final Path path ) {
-    setPath( path );
+  public HTMLPreviewPane() {
     initListeners();
     initTraversal();
   }
@@ -157,10 +153,15 @@ public final class HTMLPreviewPane extends Pane {
     return this.path;
   }
 
-  private void setPath( final Path path ) {
+  public void setPath( final Path path ) {
     this.path = path;
   }
   
+  /**
+   * Content to embed in a panel.
+   * 
+   * @return The content to display to the user.
+   */
   public Node getNode() {
     return getWebView();
   }

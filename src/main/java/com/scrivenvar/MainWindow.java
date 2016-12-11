@@ -46,6 +46,7 @@ import com.scrivenvar.util.Action;
 import com.scrivenvar.util.ActionUtils;
 import static com.scrivenvar.util.StageState.K_PANE_SPLIT_DEFINITION;
 import static com.scrivenvar.util.StageState.K_PANE_SPLIT_EDITOR;
+import static com.scrivenvar.util.StageState.K_PANE_SPLIT_PREVIEW;
 import com.scrivenvar.yaml.YamlParser;
 import com.scrivenvar.yaml.YamlTreeAdapter;
 import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.BOLD;
@@ -99,13 +100,6 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Window;
 import javafx.stage.WindowEvent;
 import org.fxmisc.richtext.StyleClassedTextArea;
-import static com.scrivenvar.Messages.get;
-import static com.scrivenvar.Messages.get;
-import static com.scrivenvar.Messages.get;
-import static com.scrivenvar.Messages.get;
-import static com.scrivenvar.Messages.get;
-import static com.scrivenvar.Messages.get;
-import static com.scrivenvar.Messages.get;
 
 /**
  * Main window containing a tab pane in the center for file editors.
@@ -119,8 +113,9 @@ public class MainWindow {
   private Scene scene;
 
   private TreeView<String> treeView;
-  private FileEditorTabPane fileEditorPane;
   private DefinitionPane definitionPane;
+  private FileEditorTabPane fileEditorPane;
+  private HTMLPreviewPane previewPane;
 
   private VariableNameInjector variableNameInjector;
 
@@ -131,24 +126,29 @@ public class MainWindow {
 
   public MainWindow() {
     initLayout();
+    initTabsListener();
+    restorePreferences();
+    initEditorPaneListeners();
     initVariableNameInjector();
   }
 
   private void initLayout() {
     final SplitPane splitPane = new SplitPane(
       getDefinitionPane().getNode(),
-      getFileEditorPane().getNode() );
+      getFileEditorPane().getNode(),
+      getPreviewPane().getNode() );
 
     splitPane.setDividerPositions(
-      getFloat( K_PANE_SPLIT_DEFINITION, .05f ),
-      getFloat( K_PANE_SPLIT_EDITOR, .95f ) );
+      getFloat( K_PANE_SPLIT_DEFINITION, .10f ),
+      getFloat( K_PANE_SPLIT_EDITOR, .45f ),
+      getFloat( K_PANE_SPLIT_PREVIEW, .45f ) );
 
     // See: http://broadlyapplicable.blogspot.ca/2015/03/javafx-capture-restorePreferences-splitpane.html
     final BorderPane borderPane = new BorderPane();
     borderPane.setPrefSize( 1024, 800 );
     borderPane.setTop( createMenuBar() );
     borderPane.setCenter( splitPane );
-    
+
     final Scene appScene = new Scene( borderPane );
     setScene( appScene );
     appScene.getStylesheets().add( Constants.STYLESHEET_PREVIEW );
@@ -272,29 +272,66 @@ public class MainWindow {
     return this.fileEditorPane;
   }
 
+  /**
+   * Create an editor pane to hold file editor tabs.
+   *
+   * @return A new instance, never null.
+   */
   private FileEditorTabPane createFileEditorPane() {
-    // Create an editor pane to hold file editor tabs.
-    final FileEditorTabPane editorPane = new FileEditorTabPane();
+    return new FileEditorTabPane();
+  }
+
+  /**
+   * Reloads the preferences from the previous load.
+   */
+  private void restorePreferences() {
+    getFileEditorPane().restorePreferences();
+  }
+
+  private void initTabsListener() {
+    final FileEditorTabPane editorPane = getFileEditorPane();
 
     // Make sure the text processor kicks off when new files are opened.
     final ObservableList<Tab> tabs = editorPane.getTabs();
 
-    tabs.addListener( (Change<? extends Tab> change) -> {
+    // Update the preview pane on tab changes.
+    tabs.addListener( (final Change<? extends Tab> change) -> {
       while( change.next() ) {
         if( change.wasAdded() ) {
           // Multiple tabs can be added simultaneously.
-          for( final Tab tab : change.getAddedSubList() ) {
-            addListener( (FileEditorTab)tab );
+          for( final Tab newTab : change.getAddedSubList() ) {
+            final FileEditorTab tab = (FileEditorTab)newTab;
+
+            refresh( tab );
           }
         }
       }
     } );
+  }
 
-    // After the processors are in place, restorePreferences the previously closed
-    // tabs. Adding them will trigger the change event, above.
-    editorPane.restorePreferences();
+  private void initEditorPaneListeners() {
+    final FileEditorTabPane editorPane = getFileEditorPane();
 
-    return editorPane;
+    // Update the preview pane when moving the caret to a new paragraph.
+    editorPane.addTabChangeListener(
+      (ObservableValue<? extends Tab> tabPane,
+        final Tab oldTab, final Tab newTab) -> {
+
+        final FileEditorTab tab = (FileEditorTab)newTab;
+
+        if( tab != null ) {
+          getPreviewPane().setPath( tab.getPath() );
+          refresh( tab );
+        }
+      } );
+
+    editorPane.getEditor().textProperty().addListener( (ov, oldv, newv) -> {
+      refresh( getActiveFileEditor() );
+    } );
+  }
+
+  private void refresh( final FileEditorTab tab ) {
+    System.out.println( "REFRESH: " + tab.getPath().toAbsolutePath() );
   }
 
   private MarkdownEditorPane getActiveEditor() {
@@ -305,6 +342,27 @@ public class MainWindow {
     return getFileEditorPane().getActiveFileEditor();
   }
 
+  private Processor<String> createVariableProcessor( final FileEditorTab tab ) {
+    final HTMLPreviewPane previewPanel = getPreviewPane();
+    final EditorPane editorPanel = tab.getEditorPane();
+    final StyleClassedTextArea editor = editorPanel.getEditor();
+
+    // TODO: Use a factory based on the filename extension. The default
+    // extension will be for a markdown file (e.g., on file new).
+    final Processor<String> hpp = new HTMLPreviewProcessor( previewPanel );
+    final Processor<String> mcrp = new MarkdownCaretReplacementProcessor( hpp );
+    final Processor<String> mp = new MarkdownProcessor( mcrp );
+    final Processor<String> mcip = new MarkdownCaretInsertionProcessor( mp, editor.caretPositionProperty() );
+    final Processor<String> vp = new VariableProcessor( mcip, getResolvedMap() );
+
+    return vp;
+  }
+
+  private TextChangeProcessor createTextChangeProcessor(
+    final Processor<String> link ) {
+    return new TextChangeProcessor( link );
+  }
+
   /**
    * Listens for changes to tabs and their text editors.
    *
@@ -313,25 +371,28 @@ public class MainWindow {
    *
    * @param tab The file editor tab that contains a text editor.
    */
-  private void addListener( FileEditorTab tab ) {
-    final HTMLPreviewPane previewPane = tab.getPreviewPane();
+  private void addListener( final FileEditorTab tab ) {
+    final Processor<String> vnp = createVariableProcessor( tab );
+    final TextChangeProcessor tcp = createTextChangeProcessor( vnp );
+
+    addCaretParagraphListener( tab, vnp );
+  }
+
+  /**
+   * When the caret changes paragraph, force re-rendering of the preview panel
+   * using the chain-of-command.
+   *
+   * @param tab Contains a text editor to monitor for caret position changes.
+   * @param vnp Called to re-process chain using the editor's content.
+   */
+  private void addCaretParagraphListener( final FileEditorTab tab, final Processor<String> vnp ) {
     final EditorPane editorPanel = tab.getEditorPane();
     final StyleClassedTextArea editor = editorPanel.getEditor();
 
-    // TODO: Use a factory based on the filename extension. The default
-    // extension will be for a markdown file (e.g., on file new).
-    final Processor<String> hpp = new HTMLPreviewProcessor( previewPane );
-    final Processor<String> mcrp = new MarkdownCaretReplacementProcessor( hpp );
-    final Processor<String> mp = new MarkdownProcessor( mcrp );
-    final Processor<String> mcip = new MarkdownCaretInsertionProcessor( mp, editor );
-    final Processor<String> vnp = new VariableProcessor( mcip, getResolvedMap() );
-    final TextChangeProcessor tp = new TextChangeProcessor( vnp );
-
-    editorPanel.addChangeListener( tp );
     editorPanel.addCaretParagraphListener(
       (final ObservableValue<? extends Integer> observable,
         final Integer oldValue, final Integer newValue) -> {
-        
+
         // Kick off the processing chain at the variable processor when the
         // cursor changes paragraphs. This might cause some slight duplication
         // when the Enter key is pressed.
@@ -579,4 +640,13 @@ public class MainWindow {
 
     return new VBox( menuBar, toolBar );
   }
+
+  private synchronized HTMLPreviewPane getPreviewPane() {
+    if( this.previewPane == null ) {
+      this.previewPane = new HTMLPreviewPane();
+    }
+
+    return this.previewPane;
+  }
+
 }

@@ -102,7 +102,8 @@ public class EditorPane extends AbstractPane {
    * 
    * @param listener Receives paragraph change events.
    */
-  public void addCaretParagraphListener( final ChangeListener<? super Integer> listener ) {
+  public void addCaretParagraphListener(
+    final ChangeListener<? super Integer> listener ) {
     getEditor().currentParagraphProperty().addListener( listener );
   }
 

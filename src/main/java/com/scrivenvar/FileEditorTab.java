@@ -27,7 +27,6 @@ package com.scrivenvar;
 
 import com.scrivenvar.editor.EditorPane;
 import com.scrivenvar.editor.MarkdownEditorPane;
-import com.scrivenvar.preview.HTMLPreviewPane;
 import com.scrivenvar.service.Options;
 import com.scrivenvar.service.events.AlertMessage;
 import com.scrivenvar.service.events.AlertService;
@@ -43,13 +42,11 @@ import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.property.ReadOnlyBooleanWrapper;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.event.Event;
-import javafx.scene.control.SplitPane;
+import javafx.scene.Node;
 import javafx.scene.control.Tab;
 import javafx.scene.control.Tooltip;
 import javafx.scene.input.InputEvent;
 import javafx.scene.text.Text;
-import org.fxmisc.flowless.VirtualizedScrollPane;
-import org.fxmisc.richtext.StyleClassedTextArea;
 import org.fxmisc.undo.UndoManager;
 import org.fxmisc.wellbehaved.event.EventPattern;
 import org.fxmisc.wellbehaved.event.InputMap;
@@ -66,7 +63,6 @@ public final class FileEditorTab extends Tab {
   private final AlertService alertService = Services.load( AlertService.class );
 
   private EditorPane editorPane;
-  private HTMLPreviewPane previewPane;
 
   /**
    * Character encoding used by the file (or default encoding if none found).
@@ -153,18 +149,16 @@ public final class FileEditorTab extends Tab {
 
     // Track undo requests (*must* be called after load).
     initUndoManager();
-    initSplitPane();
+    initLayout();
     initFocus();
   }
 
-  public void initSplitPane() {
-    final EditorPane editor = getEditorPane();
-    final HTMLPreviewPane preview = getPreviewPane();
-    final VirtualizedScrollPane<StyleClassedTextArea> editorScrollPane = editor.getScrollPane();
+  private void initLayout() {
+    setContent( getScrollPane() );
+  }
 
-    // Make the preview pane scroll correspond to the editor pane scroll.
-    // Separate the edit and preview panels.
-    setContent( new SplitPane( editorScrollPane, preview.getNode() ) );
+  private Node getScrollPane() {
+    return getEditorPane().getScrollPane();
   }
 
   private void initFocus() {
@@ -248,7 +242,8 @@ public final class FileEditorTab extends Tab {
    *
    * @return false
    */
-  private boolean alert( String titleKey, String messageKey, Exception e ) {
+  private boolean alert(
+    final String titleKey, final String messageKey, final Exception e ) {
     final AlertService service = getAlertService();
 
     final AlertMessage message = service.createAlertMessage(
@@ -389,14 +384,6 @@ public final class FileEditorTab extends Tab {
 
   private Options getOptions() {
     return this.options;
-  }
-
-  public HTMLPreviewPane getPreviewPane() {
-    if( this.previewPane == null ) {
-      this.previewPane = new HTMLPreviewPane( getPath() );
-    }
-
-    return this.previewPane;
   }
 
   private Charset getEncoding() {

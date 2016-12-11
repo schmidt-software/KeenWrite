@@ -29,7 +29,7 @@ package com.scrivenvar.processors;
 
 import static com.scrivenvar.Constants.MD_CARET_POSITION;
 import static java.lang.Character.isLetter;
-import org.fxmisc.richtext.model.TextEditingArea;
+import javafx.beans.value.ObservableValue;
 
 /**
  * Responsible for inserting the magic CARET POSITION into the markdown so
@@ -40,18 +40,18 @@ import org.fxmisc.richtext.model.TextEditingArea;
  */
 public class MarkdownCaretInsertionProcessor extends AbstractProcessor<String> {
 
-  private TextEditingArea editor;
+  private final ObservableValue<Integer> caretPosition;
 
   /**
    * Constructs a processor capable of inserting a caret marker into Markdown.
    *
    * @param processor The next processor in the chain.
-   * @param editor The editor that has a caret with a position in the text.
+   * @param position The caret's current position in the text, cannot be null.
    */
   public MarkdownCaretInsertionProcessor(
-    final Processor<String> processor, final TextEditingArea editor ) {
+    final Processor<String> processor, final ObservableValue<Integer> position ) {
     super( processor );
-    setEditor( editor );
+    this.caretPosition = position;
   }
 
   /**
@@ -73,6 +73,11 @@ public class MarkdownCaretInsertionProcessor extends AbstractProcessor<String> {
     while( offset < length && !isLetter( t.charAt( offset ) ) ) {
       offset++;
     }
+    
+    // TODO: Ensure that the caret position is outside of an element, 
+    // so that a caret inserted in the image doesn't corrupt it. Such as:
+    //
+    // ![Screenshot](images/scr|eenshot.png)
 
     // Insert the caret position into the Markdown text, but don't interfere
     // with the Markdown iteself.
@@ -86,19 +91,6 @@ public class MarkdownCaretInsertionProcessor extends AbstractProcessor<String> {
    * @return Where the user has positioned the caret.
    */
   private int getCaretPosition() {
-    return getEditor().getCaretPosition();
-  }
-
-  /**
-   * Returns the editor that has a caret position.
-   *
-   * @return An editor with a caret position.
-   */
-  private TextEditingArea getEditor() {
-    return this.editor;
-  }
-
-  private void setEditor( final TextEditingArea editor ) {
-    this.editor = editor;
+    return this.caretPosition.getValue();
   }
 }
