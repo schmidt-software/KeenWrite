@@ -108,6 +108,13 @@ public final class HTMLPreviewPane extends Pane {
   }
 
   /**
+   * Clears out the HTML content from the preview.
+   */
+  public void clear() {
+    update( "" );
+  }
+
+  /**
    * Scrolls to the caret position in the document.
    */
   private void scrollToCaret() {
@@ -156,10 +163,10 @@ public final class HTMLPreviewPane extends Pane {
   public void setPath( final Path path ) {
     this.path = path;
   }
-  
+
   /**
    * Content to embed in a panel.
-   * 
+   *
    * @return The content to display to the user.
    */
   public Node getNode() {

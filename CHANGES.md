@@ -1,8 +1,12 @@
 # Change Log
 
+## 0.7
+
+- Load YAML variables from files
+
 ## 0.6
 
-- Bug fixes synchronized scrolling
+- Fixed synchronized scrolling with preview panel
 - Added universal character encoding detection
 - Removed options panel
 - Decoupled Editor Tab and Preview Pane
@@ -13,7 +17,7 @@
 - Simplified code base
 - Added `Ctrl+Space` hot key for quick variable injection
 - Replaced commonmark-java with flexmark
-- Added generic CARETPOSITION into document to scroll preview pane
+- Insert `CARETPOSITION` into document for preview pane scroll position reference
 
 ## 0.4
 

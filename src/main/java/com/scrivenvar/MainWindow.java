@@ -28,6 +28,7 @@
 package com.scrivenvar;
 
 import static com.scrivenvar.Constants.LOGO_32;
+import static com.scrivenvar.Constants.STYLESHEET_PREVIEW;
 import static com.scrivenvar.Messages.get;
 import com.scrivenvar.definition.DefinitionPane;
 import com.scrivenvar.editor.MarkdownEditorPane;
@@ -123,6 +124,7 @@ public class MainWindow {
 
   public MainWindow() {
     initLayout();
+    initOnOpenListener();
     initTabAddedListener();
     restorePreferences();
     initTabChangeListener();
@@ -148,7 +150,7 @@ public class MainWindow {
 
     final Scene appScene = new Scene( borderPane );
     setScene( appScene );
-    appScene.getStylesheets().add( Constants.STYLESHEET_PREVIEW );
+    appScene.getStylesheets().add( STYLESHEET_PREVIEW );
     appScene.windowProperty().addListener(
       (observable, oldWindow, newWindow) -> {
         newWindow.setOnCloseRequest( e -> {
@@ -167,14 +169,149 @@ public class MainWindow {
                   KEY_PRESSED, CHAR_UNDEFINED, "", ESCAPE,
                   false, false, false, false ) );
             }
-          } );
-      } );
+          }
+        );
+      }
+    );
+  }
+
+  /**
+   * When tabs are added, hook the various change listeners onto the new tab so
+   * that the preview pane refreshes as necessary.
+   */
+  private void initTabAddedListener() {
+    final FileEditorTabPane editorPane = getFileEditorPane();
+
+    // Make sure the text processor kicks off when new files are opened.
+    final ObservableList<Tab> tabs = editorPane.getTabs();
+
+    // Update the preview pane on tab changes.
+    tabs.addListener(
+      (final Change<? extends Tab> change) -> {
+        while( change.next() ) {
+          if( change.wasAdded() ) {
+            // Multiple tabs can be added simultaneously.
+            for( final Tab newTab : change.getAddedSubList() ) {
+              final FileEditorTab tab = (FileEditorTab)newTab;
+
+              initTextChangeListener( tab );
+              initCaretParagraphListener( tab );
+            }
+          }
+        }
+      }
+    );
+  }
+
+  /**
+   * Listen for the active editor to change once one or more files have been
+   * opened.
+   */
+  private void initOnOpenListener() {
+    getFileEditorPane().onOpenProperty().addListener(
+      (ObservableValue<? extends FileEditorTab> tabPane,
+        final FileEditorTab oldTab, final FileEditorTab tab) -> {
+        initialize( tab );
+      }
+    );
+  }
+
+  /**
+   * Listen for new tab selection events.
+   */
+  private void initTabChangeListener() {
+    final FileEditorTabPane editorPane = getFileEditorPane();
+
+    // Update the preview pane changing tabs.
+    editorPane.addTabChangeListener(
+      (ObservableValue<? extends Tab> tabPane,
+        final Tab oldTab, final Tab newTab) -> {
+
+        final FileEditorTab tab = (FileEditorTab)newTab;
+
+        if( tab != null ) {
+          initialize( tab );
+
+          // Synchronize the preview with the edited text.
+          updatePreviewPane( tab );
+        } else {
+          closeRemainingTab();
+        }
+      }
+    );
+  }
+
+  private void closeRemainingTab() {
+    getPreviewPane().clear();
+    getDefinitionPane().clear();
+  }
+
+  /**
+   * Initializes the given tab by ensure the preview pane's path is set and the
+   * definition pane for that tab is loaded.
+   *
+   * TODO: Ensure this is only called once.
+   *
+   * @param tab The tab to initialize.
+   */
+  private void initialize( final FileEditorTab tab ) {
+    // Ensure that the base path to images is set correctly.
+    getPreviewPane().setPath( tab.getPath() );
+
+    // Ensure that the definitions is associated with the edited file.
+    updateDefinitionPane( tab );
+  }
+
+  private void initTextChangeListener( final FileEditorTab tab ) {
+    tab.addTextChangeListener(
+      (ObservableValue<? extends String> editor,
+        final String oldValue, final String newValue) -> {
+        updatePreviewPane( tab );
+      }
+    );
+  }
+
+  private void initCaretParagraphListener( final FileEditorTab tab ) {
+    tab.addCaretParagraphListener(
+      (ObservableValue<? extends Integer> editor,
+        final Integer oldValue, final Integer newValue) -> {
+        updatePreviewPane( tab );
+      }
+    );
+  }
+
+  /**
+   * Called whenever the preview pane becomes out of sync with the file editor
+   * tab. This can be called when the text changes, the caret paragraph changes,
+   * or the file tab changes.
+   *
+   * @param tab The file editor tab that has been changed in some fashion.
+   */
+  private void updatePreviewPane( final FileEditorTab tab ) {
+    // TODO: Use a factory based on the filename extension. The default
+    // extension will be for a markdown file (e.g., on file new).
+    final Processor<String> hpp = new HTMLPreviewProcessor( getPreviewPane() );
+    final Processor<String> mcrp = new MarkdownCaretReplacementProcessor( hpp );
+    final Processor<String> mp = new MarkdownProcessor( mcrp );
+    final Processor<String> mcip = new MarkdownCaretInsertionProcessor( mp, tab.getCaretPosition() );
+    final Processor<String> vp = new VariableProcessor( mcip, getResolvedMap() );
+
+    vp.processChain( tab.getEditorText() );
+  }
+
+  /**
+   * Called when the tab has changed to a new editor to replace the current
+   * definition pane with the
+   *
+   * @param tab
+   */
+  private void updateDefinitionPane( final FileEditorTab tab ) {
+    System.out.println( "load YAML for: " + tab.getPath() );
   }
 
   private void initVariableNameInjector() {
-    setVariableNameInjector( new VariableNameInjector(
-      getFileEditorPane(),
-      getDefinitionPane() )
+    setVariableNameInjector(
+      new VariableNameInjector( getFileEditorPane(), getDefinitionPane() )
     );
   }
 
@@ -213,7 +350,8 @@ public class MainWindow {
         } else {
           b.set( false );
         }
-      } );
+      }
+    );
 
     return b;
   }
@@ -283,84 +421,6 @@ public class MainWindow {
    */
   private void restorePreferences() {
     getFileEditorPane().restorePreferences();
-  }
-
-  private void initTabAddedListener() {
-    final FileEditorTabPane editorPane = getFileEditorPane();
-
-    // Make sure the text processor kicks off when new files are opened.
-    final ObservableList<Tab> tabs = editorPane.getTabs();
-
-    // Update the preview pane on tab changes.
-    tabs.addListener( (final Change<? extends Tab> change) -> {
-      while( change.next() ) {
-        if( change.wasAdded() ) {
-          // Multiple tabs can be added simultaneously.
-          for( final Tab newTab : change.getAddedSubList() ) {
-            final FileEditorTab tab = (FileEditorTab)newTab;
-
-            initTextChangeListener( tab );
-            initCaretParagraphListener( tab );
-            process( tab );
-          }
-        }
-      }
-    } );
-  }
-
-  /**
-   * Listen for tab changes.
-   */
-  private void initTabChangeListener() {
-    final FileEditorTabPane editorPane = getFileEditorPane();
-
-    // Update the preview pane changing tabs.
-    editorPane.addTabChangeListener(
-      (ObservableValue<? extends Tab> tabPane,
-        final Tab oldTab, final Tab newTab) -> {
-
-        final FileEditorTab tab = (FileEditorTab)newTab;
-
-        if( tab != null ) {
-          // When a new tab is selected, ensure that the base path to images
-          // is set correctly.
-          getPreviewPane().setPath( tab.getPath() );
-          process( tab );
-        }
-      } );
-  }
-
-  private void initTextChangeListener( final FileEditorTab tab ) {
-    tab.addTextChangeListener( (ObservableValue<? extends String> editor,
-      final String oldValue, final String newValue) -> {
-      process( tab );
-    } );
-  }
-
-  private void initCaretParagraphListener( final FileEditorTab tab ) {
-    tab.addCaretParagraphListener( (ObservableValue<? extends Integer> editor,
-      final Integer oldValue, final Integer newValue) -> {
-      process( tab );
-    } );
-  }
-
-  /**
-   * Called whenever the preview pane becomes out of sync with the file editor
-   * tab. This can be called when the text changes, the caret paragraph changes,
-   * or the file tab changes.
-   *
-   * @param tab The file editor tab that has been changed in some fashion.
-   */
-  private void process( final FileEditorTab tab ) {
-    // TODO: Use a factory based on the filename extension. The default
-    // extension will be for a markdown file (e.g., on file new).
-    final Processor<String> hpp = new HTMLPreviewProcessor( getPreviewPane() );
-    final Processor<String> mcrp = new MarkdownCaretReplacementProcessor( hpp );
-    final Processor<String> mp = new MarkdownProcessor( mcrp );
-    final Processor<String> mcip = new MarkdownCaretInsertionProcessor( mp, tab.getCaretPosition() );
-    final Processor<String> vp = new VariableProcessor( mcip, getResolvedMap() );
-    
-    vp.processChain( tab.getEditorText() );
   }
 
   private MarkdownEditorPane getActiveEditor() {
@@ -463,6 +523,14 @@ public class MainWindow {
 
   private void setYamlParser( final YamlParser yamlParser ) {
     this.yamlParser = yamlParser;
+  }
+
+  private synchronized HTMLPreviewPane getPreviewPane() {
+    if( this.previewPane == null ) {
+      this.previewPane = new HTMLPreviewPane();
+    }
+
+    return this.previewPane;
   }
 
   private Node createMenuBar() {
@@ -611,13 +679,4 @@ public class MainWindow {
 
     return new VBox( menuBar, toolBar );
   }
-
-  private synchronized HTMLPreviewPane getPreviewPane() {
-    if( this.previewPane == null ) {
-      this.previewPane = new HTMLPreviewPane();
-    }
-
-    return this.previewPane;
-  }
-
 }

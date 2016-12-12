@@ -48,9 +48,9 @@ import javafx.scene.control.TreeView;
  * @author White Magic Software, Ltd.
  */
 public class DefinitionPane extends AbstractPane {
-
+  
   private final static String TERMINALS = ":;,.!?-/\\¡¿";
-
+  
   private TreeView<String> treeView;
 
   /**
@@ -62,6 +62,10 @@ public class DefinitionPane extends AbstractPane {
   public DefinitionPane( final TreeView<String> root ) {
     setTreeView( root );
     initTreeView();
+  }
+  
+  public void clear() {
+    getTreeView().setRoot( null );
   }
 
   /**
@@ -78,14 +82,14 @@ public class DefinitionPane extends AbstractPane {
     final StringPredicate predicate ) {
     final List<TreeItem<String>> branches = trunk.getChildren();
     TreeItem<String> result = null;
-
+    
     for( final TreeItem<String> leaf : branches ) {
       if( predicate.test( leaf.getValue() ) ) {
         result = leaf;
         break;
       }
     }
-
+    
     return result;
   }
 
@@ -136,17 +140,17 @@ public class DefinitionPane extends AbstractPane {
   public TreeItem<String> findNode( String path ) {
     TreeItem<String> cItem = getTreeRoot();
     TreeItem<String> pItem = cItem;
-
+    
     int index = path.indexOf( SEPARATOR );
-
+    
     while( index >= 0 ) {
       final String node = path.substring( 0, index );
       path = path.substring( index + 1 );
-
+      
       if( (cItem = findStartsNode( cItem, node )) == null ) {
         break;
       }
-
+      
       index = path.indexOf( SEPARATOR );
       pItem = cItem;
     }
@@ -164,7 +168,7 @@ public class DefinitionPane extends AbstractPane {
     if( cItem == null ) {
       cItem = pItem;
     }
-
+    
     return sanitize( cItem );
   }
 
@@ -180,7 +184,7 @@ public class DefinitionPane extends AbstractPane {
   public VariableTreeItem<String> findLeaf( final String value ) {
     final VariableTreeItem<String> root = getTreeRoot();
     final VariableTreeItem<String> leaf = root.findLeaf( value );
-
+    
     return leaf == null
       ? root.findLeaf( rtrimTerminalPunctuation( value ) )
       : leaf;
@@ -196,11 +200,11 @@ public class DefinitionPane extends AbstractPane {
    */
   private String rtrimTerminalPunctuation( final String s ) {
     final StringBuilder result = new StringBuilder( s.trim() );
-
+    
     while( TERMINALS.contains( "" + result.charAt( result.length() - 1 ) ) ) {
       result.setLength( result.length() - 1 );
     }
-
+    
     return result.toString();
   }
 
@@ -215,7 +219,7 @@ public class DefinitionPane extends AbstractPane {
     final TreeItem<String> result = item == getTreeRoot()
       ? getFirst( item.getChildren() )
       : item;
-
+    
     return result == null ? item : result;
   }
 
@@ -228,22 +232,22 @@ public class DefinitionPane extends AbstractPane {
   public <T> void expand( final TreeItem<T> node ) {
     if( node != null ) {
       expand( node.getParent() );
-
+      
       if( !node.isLeaf() ) {
         node.setExpanded( true );
       }
     }
   }
-
+  
   public void select( final TreeItem<String> item ) {
     clearSelection();
     selectItem( getTreeView().getRow( item ) );
   }
-
+  
   private void clearSelection() {
     getSelectionModel().clearSelection();
   }
-
+  
   private void selectItem( final int row ) {
     getSelectionModel().select( row );
   }
@@ -267,7 +271,7 @@ public class DefinitionPane extends AbstractPane {
       collapse( node.getChildren() );
     }
   }
-
+  
   private void initTreeView() {
     getSelectionModel().setSelectionMode( SelectionMode.MULTIPLE );
   }
@@ -280,7 +284,7 @@ public class DefinitionPane extends AbstractPane {
   public Node getNode() {
     return getTreeView();
   }
-
+  
   private MultipleSelectionModel getSelectionModel() {
     return getTreeView().getSelectionModel();
   }
@@ -302,7 +306,7 @@ public class DefinitionPane extends AbstractPane {
   private VariableTreeItem<String> getTreeRoot() {
     return (VariableTreeItem<String>)getTreeView().getRoot();
   }
-
+  
   public <T> boolean isRoot( final TreeItem<T> item ) {
     return getTreeRoot().equals( item );
   }

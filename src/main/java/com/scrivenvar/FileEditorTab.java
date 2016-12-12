@@ -376,7 +376,7 @@ public final class FileEditorTab extends Tab {
   }
   
   /**
-   * Forwards to the editor pane's listeners for paragraph change events.
+   * Forwards to the editor pane's listeners for caret paragraph change events.
    *
    * @param listener The listener to notify when the caret changes paragraphs.
    */
@@ -385,7 +385,7 @@ public final class FileEditorTab extends Tab {
   }
   
   /**
-   * Delegates the request to the editor pane.
+   * Forwards the request to the editor pane.
    *
    * @return The text to process.
    */
