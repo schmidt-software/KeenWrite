@@ -27,12 +27,14 @@
  */
 package com.scrivenvar;
 
-import static com.scrivenvar.Constants.LOGO_32;
-import static com.scrivenvar.Constants.STYLESHEET_PREVIEW;
+import static com.scrivenvar.Constants.FILE_LOGO_32;
+import static com.scrivenvar.Constants.STYLESHEET_SCENE;
 import static com.scrivenvar.Messages.get;
+import com.scrivenvar.definition.DefinitionFactory;
 import com.scrivenvar.definition.DefinitionPane;
-import com.scrivenvar.editor.MarkdownEditorPane;
-import com.scrivenvar.editor.VariableNameInjector;
+import com.scrivenvar.definition.DefinitionSource;
+import com.scrivenvar.editors.VariableNameInjector;
+import com.scrivenvar.editors.markdown.MarkdownEditorPane;
 import com.scrivenvar.preview.HTMLPreviewPane;
 import com.scrivenvar.processors.HTMLPreviewProcessor;
 import com.scrivenvar.processors.MarkdownCaretInsertionProcessor;
@@ -46,8 +48,6 @@ import com.scrivenvar.util.ActionUtils;
 import static com.scrivenvar.util.StageState.K_PANE_SPLIT_DEFINITION;
 import static com.scrivenvar.util.StageState.K_PANE_SPLIT_EDITOR;
 import static com.scrivenvar.util.StageState.K_PANE_SPLIT_PREVIEW;
-import com.scrivenvar.yaml.YamlParser;
-import com.scrivenvar.yaml.YamlTreeAdapter;
 import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.BOLD;
 import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.CODE;
 import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.FILE_ALT;
@@ -64,8 +64,9 @@ import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.QUOTE_LEFT;
 import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.REPEAT;
 import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.STRIKETHROUGH;
 import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.UNDO;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.File;
+import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.prefs.Preferences;
@@ -110,69 +111,33 @@ public class MainWindow {
 
   private Scene scene;
 
-  private TreeView<String> treeView;
   private DefinitionPane definitionPane;
   private FileEditorTabPane fileEditorPane;
   private HTMLPreviewPane previewPane;
 
   private VariableNameInjector variableNameInjector;
 
-  private YamlTreeAdapter yamlTreeAdapter;
-  private YamlParser yamlParser;
-
   private MenuBar menuBar;
 
   public MainWindow() {
     initLayout();
-    initOnOpenListener();
+    initOpenDefinitionListener();
     initTabAddedListener();
-    restorePreferences();
     initTabChangeListener();
+    initPreferences();
     initVariableNameInjector();
   }
 
-  private void initLayout() {
-    final SplitPane splitPane = new SplitPane(
-      getDefinitionPane().getNode(),
-      getFileEditorPane().getNode(),
-      getPreviewPane().getNode() );
-
-    splitPane.setDividerPositions(
-      getFloat( K_PANE_SPLIT_DEFINITION, .10f ),
-      getFloat( K_PANE_SPLIT_EDITOR, .45f ),
-      getFloat( K_PANE_SPLIT_PREVIEW, .45f ) );
-
-    // See: http://broadlyapplicable.blogspot.ca/2015/03/javafx-capture-restorePreferences-splitpane.html
-    final BorderPane borderPane = new BorderPane();
-    borderPane.setPrefSize( 1024, 800 );
-    borderPane.setTop( createMenuBar() );
-    borderPane.setCenter( splitPane );
-
-    final Scene appScene = new Scene( borderPane );
-    setScene( appScene );
-    appScene.getStylesheets().add( STYLESHEET_PREVIEW );
-    appScene.windowProperty().addListener(
-      (observable, oldWindow, newWindow) -> {
-        newWindow.setOnCloseRequest( e -> {
-          if( !getFileEditorPane().closeAllEditors() ) {
-            e.consume();
-          }
-        } );
-
-        // Workaround JavaFX bug: deselect menubar if window loses focus.
-        newWindow.focusedProperty().addListener(
-          (obs, oldFocused, newFocused) -> {
-            if( !newFocused ) {
-              // Send an ESC key event to the menubar
-              this.menuBar.fireEvent(
-                new KeyEvent(
-                  KEY_PRESSED, CHAR_UNDEFINED, "", ESCAPE,
-                  false, false, false, false ) );
-            }
-          }
-        );
-      }
-    );
+  /**
+   * Listen for file editor tab pane to receive an open definition source event.
+   */
+  private void initOpenDefinitionListener() {
+    getFileEditorPane().onOpenDefinitionFileProperty().addListener(
+      (ObservableValue<? extends Path> definitionFile,
+        final Path oldPath, final Path newPath) -> {
+        final DefinitionSource ds = createDefinitionSource( newPath );
+        associate( ds, getActiveFileEditor() );
+      } );
   }
 
   /**
@@ -204,16 +169,10 @@ public class MainWindow {
   }
 
   /**
-   * Listen for the active editor to change once one or more files have been
-   * opened.
+   * Reloads the preferences from the previous load.
    */
-  private void initOnOpenListener() {
-    getFileEditorPane().onOpenProperty().addListener(
-      (ObservableValue<? extends FileEditorTab> tabPane,
-        final FileEditorTab oldTab, final FileEditorTab tab) -> {
-        initialize( tab );
-      }
-    );
+  private void initPreferences() {
+    getFileEditorPane().restorePreferences();
   }
 
   /**
@@ -223,50 +182,38 @@ public class MainWindow {
     final FileEditorTabPane editorPane = getFileEditorPane();
 
     // Update the preview pane changing tabs.
-    editorPane.addTabChangeListener(
+    editorPane.addTabSelectionListener(
       (ObservableValue<? extends Tab> tabPane,
         final Tab oldTab, final Tab newTab) -> {
 
-        final FileEditorTab tab = (FileEditorTab)newTab;
-
-        if( tab != null ) {
-          initialize( tab );
-
-          // Synchronize the preview with the edited text.
-          updatePreviewPane( tab );
-        } else {
-          closeRemainingTab();
+        // If there was no old tab, then this is a first time load, which
+        // can be ignored.
+        if( oldTab != null ) {
+          if( newTab == null ) {
+            closeRemainingTab();
+          } else {
+            // Synchronize the preview with the edited text.
+            refreshSelectedTab( (FileEditorTab)newTab );
+          }
         }
       }
     );
   }
 
-  private void closeRemainingTab() {
-    getPreviewPane().clear();
-    getDefinitionPane().clear();
-  }
-
   /**
-   * Initializes the given tab by ensure the preview pane's path is set and the
-   * definition pane for that tab is loaded.
-   *
-   * TODO: Ensure this is only called once.
-   *
-   * @param tab The tab to initialize.
+   * Initialize the variable name editor.
    */
-  private void initialize( final FileEditorTab tab ) {
-    // Ensure that the base path to images is set correctly.
-    getPreviewPane().setPath( tab.getPath() );
-
-    // Ensure that the definitions is associated with the edited file.
-    updateDefinitionPane( tab );
+  private void initVariableNameInjector() {
+    setVariableNameInjector(
+      new VariableNameInjector( getFileEditorPane(), getDefinitionPane() )
+    );
   }
 
   private void initTextChangeListener( final FileEditorTab tab ) {
     tab.addTextChangeListener(
       (ObservableValue<? extends String> editor,
         final String oldValue, final String newValue) -> {
-        updatePreviewPane( tab );
+        refreshSelectedTab( tab );
       }
     );
   }
@@ -275,7 +222,7 @@ public class MainWindow {
     tab.addCaretParagraphListener(
       (ObservableValue<? extends Integer> editor,
         final Integer oldValue, final Integer newValue) -> {
-        updatePreviewPane( tab );
+        refreshSelectedTab( tab );
       }
     );
   }
@@ -287,10 +234,11 @@ public class MainWindow {
    *
    * @param tab The file editor tab that has been changed in some fashion.
    */
-  private void updatePreviewPane( final FileEditorTab tab ) {
-    // TODO: Use a factory based on the filename extension. The default
-    // extension will be for a markdown file (e.g., on file new).
-    final Processor<String> hpp = new HTMLPreviewProcessor( getPreviewPane() );
+  private void refreshSelectedTab( final FileEditorTab tab ) {
+    final HTMLPreviewPane preview = getPreviewPane();
+    preview.setPath( tab.getPath() );
+
+    final Processor<String> hpp = new HTMLPreviewProcessor( preview );
     final Processor<String> mcrp = new MarkdownCaretReplacementProcessor( hpp );
     final Processor<String> mp = new MarkdownProcessor( mcrp );
     final Processor<String> mcip = new MarkdownCaretInsertionProcessor( mp, tab.getCaretPosition() );
@@ -300,31 +248,52 @@ public class MainWindow {
   }
 
   /**
+   * TODO: Patch into loading of definition source.
+   *
+   * @return
+   */
+  private Map<String, String> getResolvedMap() {
+    return new HashMap<>();
+  }
+
+  /**
+   * TODO: Patch into loading of definition source.
+   *
+   * @return
+   */
+  private TreeView<String> getTreeView() {
+    return new TreeView<>();
+  }
+
+  /**
    * Called when the tab has changed to a new editor to replace the current
    * definition pane with the
    *
-   * @param tab
+   * @param tab Reference to the tab that has the file being edited.
    */
   private void updateDefinitionPane( final FileEditorTab tab ) {
-    System.out.println( "load YAML for: " + tab.getPath() );
+    // Look up the path to the variable definition file associated with the
+    // given tab.
+    final Path path = getVariableDefinitionPath( tab.getPath() );
+    final DefinitionSource ds = createDefinitionSource( path );
+
+    associate( ds, tab );
   }
 
-  private void initVariableNameInjector() {
-    setVariableNameInjector(
-      new VariableNameInjector( getFileEditorPane(), getDefinitionPane() )
-    );
+  private void associate( final DefinitionSource ds, final FileEditorTab tab ) {
+    System.out.println( "Associate " + ds + " with " + tab );
   }
 
-  private Window getWindow() {
-    return getScene().getWindow();
-  }
-
-  public Scene getScene() {
-    return this.scene;
-  }
-
-  private void setScene( Scene scene ) {
-    this.scene = scene;
+  /**
+   * Searches the persistent settings for the variable definition file that is
+   * associated with the given path.
+   *
+   * @param tabPath The path that may be associated with some variables.
+   *
+   * @return A path to the variable definition file for the given document path.
+   */
+  private Path getVariableDefinitionPath( final Path tabPath ) {
+    return new File( "/tmp/variables.yaml" ).toPath();
   }
 
   /**
@@ -354,6 +323,15 @@ public class MainWindow {
     );
 
     return b;
+  }
+
+  /**
+   * Called when the last open tab is closed. This clears out the preview pane
+   * and the definition pane.
+   */
+  private void closeRemainingTab() {
+    getPreviewPane().clear();
+    getDefinitionPane().clear();
   }
 
   //---- File actions -------------------------------------------------------
@@ -390,13 +368,43 @@ public class MainWindow {
   //---- Help actions -------------------------------------------------------
   private void helpAbout() {
     Alert alert = new Alert( AlertType.INFORMATION );
-    alert.setTitle( Messages.get( "Dialog.about.title" ) );
-    alert.setHeaderText( Messages.get( "Dialog.about.header" ) );
-    alert.setContentText( Messages.get( "Dialog.about.content" ) );
-    alert.setGraphic( new ImageView( new Image( LOGO_32 ) ) );
+    alert.setTitle( get( "Dialog.about.title" ) );
+    alert.setHeaderText( get( "Dialog.about.header" ) );
+    alert.setContentText( get( "Dialog.about.content" ) );
+    alert.setGraphic( new ImageView( new Image( FILE_LOGO_32 ) ) );
     alert.initOwner( getWindow() );
 
     alert.showAndWait();
+  }
+
+  //---- Convenience accessors ----------------------------------------------
+  private float getFloat( final String key, final float defaultValue ) {
+    return getPreferences().getFloat( key, defaultValue );
+  }
+
+  private Preferences getPreferences() {
+    return getOptions().getState();
+  }
+
+  private Window getWindow() {
+    return getScene().getWindow();
+  }
+
+  private MarkdownEditorPane getActiveEditor() {
+    return (MarkdownEditorPane)(getActiveFileEditor().getEditorPane());
+  }
+
+  private FileEditorTab getActiveFileEditor() {
+    return getFileEditorPane().getActiveFileEditor();
+  }
+
+  //---- Member accessors ---------------------------------------------------
+  public Scene getScene() {
+    return this.scene;
+  }
+
+  private void setScene( Scene scene ) {
+    this.scene = scene;
   }
 
   private FileEditorTabPane getFileEditorPane() {
@@ -405,6 +413,47 @@ public class MainWindow {
     }
 
     return this.fileEditorPane;
+  }
+
+  private synchronized HTMLPreviewPane getPreviewPane() {
+    if( this.previewPane == null ) {
+      this.previewPane = createPreviewPane();
+    }
+
+    return this.previewPane;
+  }
+
+  private DefinitionPane getDefinitionPane() {
+    if( this.definitionPane == null ) {
+      this.definitionPane = createDefinitionPane();
+    }
+
+    return this.definitionPane;
+  }
+
+  public VariableNameInjector getVariableNameInjector() {
+    return this.variableNameInjector;
+  }
+
+  public void setVariableNameInjector( final VariableNameInjector injector ) {
+    this.variableNameInjector = injector;
+  }
+
+  private Options getOptions() {
+    return this.options;
+  }
+
+  public MenuBar getMenuBar() {
+    return this.menuBar;
+  }
+
+  public void setMenuBar( MenuBar menuBar ) {
+    this.menuBar = menuBar;
+  }
+
+  //---- Member creators ----------------------------------------------------
+  private DefinitionSource createDefinitionSource( final Path path ) {
+    return createDefinitionFactory().fileDefinitionSource( path );
   }
 
   /**
@@ -416,169 +465,64 @@ public class MainWindow {
     return new FileEditorTabPane();
   }
 
-  /**
-   * Reloads the preferences from the previous load.
-   */
-  private void restorePreferences() {
-    getFileEditorPane().restorePreferences();
-  }
-
-  private MarkdownEditorPane getActiveEditor() {
-    return (MarkdownEditorPane)(getActiveFileEditor().getEditorPane());
-  }
-
-  private FileEditorTab getActiveFileEditor() {
-    return getFileEditorPane().getActiveFileEditor();
+  private HTMLPreviewPane createPreviewPane() {
+    return new HTMLPreviewPane();
   }
 
   protected DefinitionPane createDefinitionPane() {
     return new DefinitionPane( getTreeView() );
   }
 
-  private DefinitionPane getDefinitionPane() {
-    if( this.definitionPane == null ) {
-      this.definitionPane = createDefinitionPane();
-    }
-
-    return this.definitionPane;
-  }
-
-  public MenuBar getMenuBar() {
-    return this.menuBar;
-  }
-
-  public void setMenuBar( MenuBar menuBar ) {
-    this.menuBar = menuBar;
-  }
-
-  public VariableNameInjector getVariableNameInjector() {
-    return this.variableNameInjector;
-  }
-
-  public void setVariableNameInjector( VariableNameInjector variableNameInjector ) {
-    this.variableNameInjector = variableNameInjector;
-  }
-
-  private float getFloat( final String key, final float defaultValue ) {
-    return getPreferences().getFloat( key, defaultValue );
-  }
-
-  private Preferences getPreferences() {
-    return getOptions().getState();
-  }
-
-  private Options getOptions() {
-    return this.options;
-  }
-
-  private synchronized TreeView<String> getTreeView() throws RuntimeException {
-    if( this.treeView == null ) {
-      try {
-        this.treeView = createTreeView();
-      } catch( IOException ex ) {
-
-        // TODO: Pop an error message.
-        throw new RuntimeException( ex );
-      }
-    }
-
-    return this.treeView;
-  }
-
-  private InputStream asStream( final String resource ) {
-    return getClass().getResourceAsStream( resource );
-  }
-
-  private TreeView<String> createTreeView() throws IOException {
-    // TODO: Associate variable file with path to current file.
-    return getYamlTreeAdapter().adapt(
-      asStream( "/com/scrivenvar/variables.yaml" ),
-      get( "Pane.defintion.node.root.title" )
-    );
-  }
-
-  private Map<String, String> getResolvedMap() {
-    return getYamlParser().createResolvedMap();
-  }
-
-  private YamlTreeAdapter getYamlTreeAdapter() {
-    if( this.yamlTreeAdapter == null ) {
-      setYamlTreeAdapter( new YamlTreeAdapter( getYamlParser() ) );
-    }
-
-    return this.yamlTreeAdapter;
-  }
-
-  private void setYamlTreeAdapter( final YamlTreeAdapter yamlTreeAdapter ) {
-    this.yamlTreeAdapter = yamlTreeAdapter;
-  }
-
-  private YamlParser getYamlParser() {
-    if( this.yamlParser == null ) {
-      setYamlParser( new YamlParser() );
-    }
-
-    return this.yamlParser;
-  }
-
-  private void setYamlParser( final YamlParser yamlParser ) {
-    this.yamlParser = yamlParser;
-  }
-
-  private synchronized HTMLPreviewPane getPreviewPane() {
-    if( this.previewPane == null ) {
-      this.previewPane = new HTMLPreviewPane();
-    }
-
-    return this.previewPane;
+  private DefinitionFactory createDefinitionFactory() {
+    return new DefinitionFactory();
   }
 
   private Node createMenuBar() {
     final BooleanBinding activeFileEditorIsNull = getFileEditorPane().activeFileEditorProperty().isNull();
 
     // File actions
-    Action fileNewAction = new Action( Messages.get( "Main.menu.file.new" ), "Shortcut+N", FILE_ALT, e -> fileNew() );
-    Action fileOpenAction = new Action( Messages.get( "Main.menu.file.open" ), "Shortcut+O", FOLDER_OPEN_ALT, e -> fileOpen() );
-    Action fileCloseAction = new Action( Messages.get( "Main.menu.file.close" ), "Shortcut+W", null, e -> fileClose(), activeFileEditorIsNull );
-    Action fileCloseAllAction = new Action( Messages.get( "Main.menu.file.close_all" ), null, null, e -> fileCloseAll(), activeFileEditorIsNull );
-    Action fileSaveAction = new Action( Messages.get( "Main.menu.file.save" ), "Shortcut+S", FLOPPY_ALT, e -> fileSave(),
+    Action fileNewAction = new Action( get( "Main.menu.file.new" ), "Shortcut+N", FILE_ALT, e -> fileNew() );
+    Action fileOpenAction = new Action( get( "Main.menu.file.open" ), "Shortcut+O", FOLDER_OPEN_ALT, e -> fileOpen() );
+    Action fileCloseAction = new Action( get( "Main.menu.file.close" ), "Shortcut+W", null, e -> fileClose(), activeFileEditorIsNull );
+    Action fileCloseAllAction = new Action( get( "Main.menu.file.close_all" ), null, null, e -> fileCloseAll(), activeFileEditorIsNull );
+    Action fileSaveAction = new Action( get( "Main.menu.file.save" ), "Shortcut+S", FLOPPY_ALT, e -> fileSave(),
       createActiveBooleanProperty( FileEditorTab::modifiedProperty ).not() );
-    Action fileSaveAllAction = new Action( Messages.get( "Main.menu.file.save_all" ), "Shortcut+Shift+S", null, e -> fileSaveAll(),
+    Action fileSaveAllAction = new Action( get( "Main.menu.file.save_all" ), "Shortcut+Shift+S", null, e -> fileSaveAll(),
       Bindings.not( getFileEditorPane().anyFileEditorModifiedProperty() ) );
-    Action fileExitAction = new Action( Messages.get( "Main.menu.file.exit" ), null, null, e -> fileExit() );
+    Action fileExitAction = new Action( get( "Main.menu.file.exit" ), null, null, e -> fileExit() );
 
     // Edit actions
-    Action editUndoAction = new Action( Messages.get( "Main.menu.edit.undo" ), "Shortcut+Z", UNDO,
+    Action editUndoAction = new Action( get( "Main.menu.edit.undo" ), "Shortcut+Z", UNDO,
       e -> getActiveEditor().undo(),
       createActiveBooleanProperty( FileEditorTab::canUndoProperty ).not() );
-    Action editRedoAction = new Action( Messages.get( "Main.menu.edit.redo" ), "Shortcut+Y", REPEAT,
+    Action editRedoAction = new Action( get( "Main.menu.edit.redo" ), "Shortcut+Y", REPEAT,
       e -> getActiveEditor().redo(),
       createActiveBooleanProperty( FileEditorTab::canRedoProperty ).not() );
 
     // Insert actions
-    Action insertBoldAction = new Action( Messages.get( "Main.menu.insert.bold" ), "Shortcut+B", BOLD,
+    Action insertBoldAction = new Action( get( "Main.menu.insert.bold" ), "Shortcut+B", BOLD,
       e -> getActiveEditor().surroundSelection( "**", "**" ),
       activeFileEditorIsNull );
-    Action insertItalicAction = new Action( Messages.get( "Main.menu.insert.italic" ), "Shortcut+I", ITALIC,
+    Action insertItalicAction = new Action( get( "Main.menu.insert.italic" ), "Shortcut+I", ITALIC,
       e -> getActiveEditor().surroundSelection( "*", "*" ),
       activeFileEditorIsNull );
-    Action insertStrikethroughAction = new Action( Messages.get( "Main.menu.insert.strikethrough" ), "Shortcut+T", STRIKETHROUGH,
+    Action insertStrikethroughAction = new Action( get( "Main.menu.insert.strikethrough" ), "Shortcut+T", STRIKETHROUGH,
       e -> getActiveEditor().surroundSelection( "~~", "~~" ),
       activeFileEditorIsNull );
-    Action insertBlockquoteAction = new Action( Messages.get( "Main.menu.insert.blockquote" ), "Ctrl+Q", QUOTE_LEFT, // not Shortcut+Q because of conflict on Mac
+    Action insertBlockquoteAction = new Action( get( "Main.menu.insert.blockquote" ), "Ctrl+Q", QUOTE_LEFT, // not Shortcut+Q because of conflict on Mac
       e -> getActiveEditor().surroundSelection( "\n\n> ", "" ),
       activeFileEditorIsNull );
-    Action insertCodeAction = new Action( Messages.get( "Main.menu.insert.code" ), "Shortcut+K", CODE,
+    Action insertCodeAction = new Action( get( "Main.menu.insert.code" ), "Shortcut+K", CODE,
       e -> getActiveEditor().surroundSelection( "`", "`" ),
       activeFileEditorIsNull );
-    Action insertFencedCodeBlockAction = new Action( Messages.get( "Main.menu.insert.fenced_code_block" ), "Shortcut+Shift+K", FILE_CODE_ALT,
-      e -> getActiveEditor().surroundSelection( "\n\n```\n", "\n```\n\n", Messages.get( "Main.menu.insert.fenced_code_block.prompt" ) ),
+    Action insertFencedCodeBlockAction = new Action( get( "Main.menu.insert.fenced_code_block" ), "Shortcut+Shift+K", FILE_CODE_ALT,
+      e -> getActiveEditor().surroundSelection( "\n\n```\n", "\n```\n\n", get( "Main.menu.insert.fenced_code_block.prompt" ) ),
       activeFileEditorIsNull );
 
-    Action insertLinkAction = new Action( Messages.get( "Main.menu.insert.link" ), "Shortcut+L", LINK,
+    Action insertLinkAction = new Action( get( "Main.menu.insert.link" ), "Shortcut+L", LINK,
       e -> getActiveEditor().insertLink(),
       activeFileEditorIsNull );
-    Action insertImageAction = new Action( Messages.get( "Main.menu.insert.image" ), "Shortcut+G", PICTURE_ALT,
+    Action insertImageAction = new Action( get( "Main.menu.insert.image" ), "Shortcut+G", PICTURE_ALT,
       e -> getActiveEditor().insertImage(),
       activeFileEditorIsNull );
 
@@ -588,30 +532,30 @@ public class MainWindow {
     for( int i = 1; i <= 6; i++ ) {
       final String hashes = new String( new char[ i ] ).replace( "\0", "#" );
       final String markup = String.format( "\n\n%s ", hashes );
-      final String text = Messages.get( "Main.menu.insert.header_" + i );
+      final String text = get( "Main.menu.insert.header_" + i );
       final String accelerator = "Shortcut+" + i;
-      final String prompt = Messages.get( "Main.menu.insert.header_" + i + ".prompt" );
+      final String prompt = get( "Main.menu.insert.header_" + i + ".prompt" );
 
       headers[ i - 1 ] = new Action( text, accelerator, HEADER,
         e -> getActiveEditor().surroundSelection( markup, "", prompt ),
         activeFileEditorIsNull );
     }
 
-    Action insertUnorderedListAction = new Action( Messages.get( "Main.menu.insert.unordered_list" ), "Shortcut+U", LIST_UL,
+    Action insertUnorderedListAction = new Action( get( "Main.menu.insert.unordered_list" ), "Shortcut+U", LIST_UL,
       e -> getActiveEditor().surroundSelection( "\n\n* ", "" ),
       activeFileEditorIsNull );
-    Action insertOrderedListAction = new Action( Messages.get( "Main.menu.insert.ordered_list" ), "Shortcut+Shift+O", LIST_OL,
+    Action insertOrderedListAction = new Action( get( "Main.menu.insert.ordered_list" ), "Shortcut+Shift+O", LIST_OL,
       e -> getActiveEditor().surroundSelection( "\n\n1. ", "" ),
       activeFileEditorIsNull );
-    Action insertHorizontalRuleAction = new Action( Messages.get( "Main.menu.insert.horizontal_rule" ), "Shortcut+H", null,
+    Action insertHorizontalRuleAction = new Action( get( "Main.menu.insert.horizontal_rule" ), "Shortcut+H", null,
       e -> getActiveEditor().surroundSelection( "\n\n---\n\n", "" ),
       activeFileEditorIsNull );
 
     // Help actions
-    Action helpAboutAction = new Action( Messages.get( "Main.menu.help.about" ), null, null, e -> helpAbout() );
+    Action helpAboutAction = new Action( get( "Main.menu.help.about" ), null, null, e -> helpAbout() );
 
     //---- MenuBar ----
-    Menu fileMenu = ActionUtils.createMenu( Messages.get( "Main.menu.file" ),
+    Menu fileMenu = ActionUtils.createMenu( get( "Main.menu.file" ),
       fileNewAction,
       fileOpenAction,
       null,
@@ -623,11 +567,11 @@ public class MainWindow {
       null,
       fileExitAction );
 
-    Menu editMenu = ActionUtils.createMenu( Messages.get( "Main.menu.edit" ),
+    Menu editMenu = ActionUtils.createMenu( get( "Main.menu.edit" ),
       editUndoAction,
       editRedoAction );
 
-    Menu insertMenu = ActionUtils.createMenu( Messages.get( "Main.menu.insert" ),
+    Menu insertMenu = ActionUtils.createMenu( get( "Main.menu.insert" ),
       insertBoldAction,
       insertItalicAction,
       insertStrikethroughAction,
@@ -649,7 +593,7 @@ public class MainWindow {
       insertOrderedListAction,
       insertHorizontalRuleAction );
 
-    Menu helpMenu = ActionUtils.createMenu( Messages.get( "Main.menu.help" ),
+    Menu helpMenu = ActionUtils.createMenu( get( "Main.menu.help" ),
       helpAboutAction );
 
     menuBar = new MenuBar( fileMenu, editMenu, insertMenu, helpMenu );
@@ -678,5 +622,49 @@ public class MainWindow {
       insertOrderedListAction );
 
     return new VBox( menuBar, toolBar );
+  }
+
+  private void initLayout() {
+    final SplitPane splitPane = new SplitPane(
+      getDefinitionPane().getNode(),
+      getFileEditorPane().getNode(),
+      getPreviewPane().getNode() );
+
+    splitPane.setDividerPositions(
+      getFloat( K_PANE_SPLIT_DEFINITION, .10f ),
+      getFloat( K_PANE_SPLIT_EDITOR, .45f ),
+      getFloat( K_PANE_SPLIT_PREVIEW, .45f ) );
+
+    // See: http://broadlyapplicable.blogspot.ca/2015/03/javafx-capture-restorePreferences-splitpane.html
+    final BorderPane borderPane = new BorderPane();
+    borderPane.setPrefSize( 1024, 800 );
+    borderPane.setTop( createMenuBar() );
+    borderPane.setCenter( splitPane );
+
+    final Scene appScene = new Scene( borderPane );
+    setScene( appScene );
+    appScene.getStylesheets().add( STYLESHEET_SCENE );
+    appScene.windowProperty().addListener(
+      (observable, oldWindow, newWindow) -> {
+        newWindow.setOnCloseRequest( e -> {
+          if( !getFileEditorPane().closeAllEditors() ) {
+            e.consume();
+          }
+        } );
+
+        // Workaround JavaFX bug: deselect menubar if window loses focus.
+        newWindow.focusedProperty().addListener(
+          (obs, oldFocused, newFocused) -> {
+            if( !newFocused ) {
+              // Send an ESC key event to the menubar
+              this.menuBar.fireEvent(
+                new KeyEvent(
+                  KEY_PRESSED, CHAR_UNDEFINED, "", ESCAPE,
+                  false, false, false, false ) );
+            }
+          }
+        );
+      }
+    );
   }
 }

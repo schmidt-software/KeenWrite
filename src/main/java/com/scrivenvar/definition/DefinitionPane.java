@@ -27,13 +27,12 @@
  */
 package com.scrivenvar.definition;
 
-import static com.scrivenvar.Constants.SEPARATOR;
-import static com.scrivenvar.definition.Lists.getFirst;
+import com.scrivenvar.AbstractPane;
+import static com.scrivenvar.definition.yaml.YamlParser.SEPARATOR;
 import com.scrivenvar.predicates.strings.ContainsPredicate;
 import com.scrivenvar.predicates.strings.StartsPredicate;
 import com.scrivenvar.predicates.strings.StringPredicate;
-import com.scrivenvar.ui.AbstractPane;
-import com.scrivenvar.ui.VariableTreeItem;
+import static com.scrivenvar.util.Lists.getFirst;
 import java.util.List;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
@@ -48,9 +47,12 @@ import javafx.scene.control.TreeView;
  * @author White Magic Software, Ltd.
  */
 public class DefinitionPane extends AbstractPane {
-  
+
+  /**
+   * Trimmed off the end of a word to match a variable name.
+   */
   private final static String TERMINALS = ":;,.!?-/\\¡¿";
-  
+
   private TreeView<String> treeView;
 
   /**
@@ -63,7 +65,7 @@ public class DefinitionPane extends AbstractPane {
     setTreeView( root );
     initTreeView();
   }
-  
+
   public void clear() {
     getTreeView().setRoot( null );
   }
@@ -82,14 +84,14 @@ public class DefinitionPane extends AbstractPane {
     final StringPredicate predicate ) {
     final List<TreeItem<String>> branches = trunk.getChildren();
     TreeItem<String> result = null;
-    
+
     for( final TreeItem<String> leaf : branches ) {
       if( predicate.test( leaf.getValue() ) ) {
         result = leaf;
         break;
       }
     }
-    
+
     return result;
   }
 
@@ -130,27 +132,29 @@ public class DefinitionPane extends AbstractPane {
    * <li>Path contains a complete and partial match, return nearest node.</li>
    * </ol>
    *
-   * @param path The word typed by the user, which contains dot-separated node
+   * @param word The word typed by the user, which contains dot-separated node
    * names that represent a path within the YAML tree plus a partial variable
    * name match (for a node).
    *
    * @return The node value that starts with the suffix portion of the given
    * path, never null.
    */
-  public TreeItem<String> findNode( String path ) {
+  public TreeItem<String> findNode( final String word ) {
+    String path = word;
+
     TreeItem<String> cItem = getTreeRoot();
     TreeItem<String> pItem = cItem;
-    
+
     int index = path.indexOf( SEPARATOR );
-    
+
     while( index >= 0 ) {
       final String node = path.substring( 0, index );
       path = path.substring( index + 1 );
-      
+
       if( (cItem = findStartsNode( cItem, node )) == null ) {
         break;
       }
-      
+
       index = path.indexOf( SEPARATOR );
       pItem = cItem;
     }
@@ -168,7 +172,7 @@ public class DefinitionPane extends AbstractPane {
     if( cItem == null ) {
       cItem = pItem;
     }
-    
+
     return sanitize( cItem );
   }
 
@@ -184,7 +188,7 @@ public class DefinitionPane extends AbstractPane {
   public VariableTreeItem<String> findLeaf( final String value ) {
     final VariableTreeItem<String> root = getTreeRoot();
     final VariableTreeItem<String> leaf = root.findLeaf( value );
-    
+
     return leaf == null
       ? root.findLeaf( rtrimTerminalPunctuation( value ) )
       : leaf;
@@ -200,11 +204,11 @@ public class DefinitionPane extends AbstractPane {
    */
   private String rtrimTerminalPunctuation( final String s ) {
     final StringBuilder result = new StringBuilder( s.trim() );
-    
+
     while( TERMINALS.contains( "" + result.charAt( result.length() - 1 ) ) ) {
       result.setLength( result.length() - 1 );
     }
-    
+
     return result.toString();
   }
 
@@ -219,7 +223,7 @@ public class DefinitionPane extends AbstractPane {
     final TreeItem<String> result = item == getTreeRoot()
       ? getFirst( item.getChildren() )
       : item;
-    
+
     return result == null ? item : result;
   }
 
@@ -232,22 +236,22 @@ public class DefinitionPane extends AbstractPane {
   public <T> void expand( final TreeItem<T> node ) {
     if( node != null ) {
       expand( node.getParent() );
-      
+
       if( !node.isLeaf() ) {
         node.setExpanded( true );
       }
     }
   }
-  
+
   public void select( final TreeItem<String> item ) {
     clearSelection();
     selectItem( getTreeView().getRow( item ) );
   }
-  
+
   private void clearSelection() {
     getSelectionModel().clearSelection();
   }
-  
+
   private void selectItem( final int row ) {
     getSelectionModel().select( row );
   }
@@ -271,7 +275,7 @@ public class DefinitionPane extends AbstractPane {
       collapse( node.getChildren() );
     }
   }
-  
+
   private void initTreeView() {
     getSelectionModel().setSelectionMode( SelectionMode.MULTIPLE );
   }
@@ -284,7 +288,7 @@ public class DefinitionPane extends AbstractPane {
   public Node getNode() {
     return getTreeView();
   }
-  
+
   private MultipleSelectionModel getSelectionModel() {
     return getTreeView().getSelectionModel();
   }
@@ -306,7 +310,7 @@ public class DefinitionPane extends AbstractPane {
   private VariableTreeItem<String> getTreeRoot() {
     return (VariableTreeItem<String>)getTreeView().getRoot();
   }
-  
+
   public <T> boolean isRoot( final TreeItem<T> item ) {
     return getTreeRoot().equals( item );
   }

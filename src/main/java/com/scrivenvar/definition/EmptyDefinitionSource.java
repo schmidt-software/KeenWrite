@@ -25,42 +25,31 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.scrivenvar.processors;
+package com.scrivenvar.definition;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import javafx.scene.control.TreeView;
 
 /**
- * Responsible for processing documents from one known format to another.
+ * Creates a definition source that has no information to load or save.
  *
  * @author White Magic Software, Ltd.
- * @param <T> The type of processor to create.
  */
-public interface Processor<T> {
-  
-  /**
-   * Provided so that the chain can be invoked from any link using a given
-   * value. This should be called automatically by a superclass so that
-   * the links in the chain need only implement the processLink method.
-   * 
-   * @param t The value to pass along to each link in the chain.
-   */
-  public void processChain( T t );
+public class EmptyDefinitionSource extends AbstractDefinitionSource {
 
-  /**
-   * Processes the given content providing a transformation from one document
-   * format into another. For example, this could convert from XML to text using
-   * an XSLT processor, or from markdown to HTML.
-   *
-   * @param t The type of object to process.
-   *
-   * @return The post-processed document, or null if processing should stop.
-   */
-  public T processLink( T t );
+  public EmptyDefinitionSource() {
+  }
 
-  /**
-   * Adds a document processor to call after this processor finishes processing
-   * the document given to the process method.
-   *
-   * @return The processor that should transform the document after this
-   * instance has finished processing.
-   */
-  public Processor<T> next();
+  @Override
+  public TreeView<String> asTreeView() throws IOException {
+    return new TreeView<>();
+  }
+
+  @Override
+  public Map<String, String> getResolvedMap() {
+    return new HashMap<>();
+  }
+
 }

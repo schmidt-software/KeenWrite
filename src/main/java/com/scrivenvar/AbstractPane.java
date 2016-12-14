@@ -25,42 +25,27 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.scrivenvar.processors;
+package com.scrivenvar;
+
+import com.scrivenvar.Services;
+import com.scrivenvar.service.Options;
+import java.util.prefs.Preferences;
+import org.tbee.javafx.scene.layout.fxml.MigPane;
 
 /**
- * Responsible for processing documents from one known format to another.
+ * Provides options to all subclasses.
  *
  * @author White Magic Software, Ltd.
- * @param <T> The type of processor to create.
  */
-public interface Processor<T> {
+public abstract class AbstractPane extends MigPane {
+
+  private final Options options = Services.load( Options.class );
+
+  protected Options getOptions() {
+    return this.options;
+  }
   
-  /**
-   * Provided so that the chain can be invoked from any link using a given
-   * value. This should be called automatically by a superclass so that
-   * the links in the chain need only implement the processLink method.
-   * 
-   * @param t The value to pass along to each link in the chain.
-   */
-  public void processChain( T t );
-
-  /**
-   * Processes the given content providing a transformation from one document
-   * format into another. For example, this could convert from XML to text using
-   * an XSLT processor, or from markdown to HTML.
-   *
-   * @param t The type of object to process.
-   *
-   * @return The post-processed document, or null if processing should stop.
-   */
-  public T processLink( T t );
-
-  /**
-   * Adds a document processor to call after this processor finishes processing
-   * the document given to the process method.
-   *
-   * @return The processor that should transform the document after this
-   * instance has finished processing.
-   */
-  public Processor<T> next();
+  protected Preferences getState() {
+    return getOptions().getState();
+  }
 }

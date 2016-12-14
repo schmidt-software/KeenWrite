@@ -35,9 +35,10 @@ package com.scrivenvar.predicates.strings;
 public class StartsPredicate extends StringPredicate {
 
   /**
-   * Calls the superclass to construct the instance.
+   * Constructs a new instance using a comparate that will be compared with
+   * the comparator during the test.
    *
-   * @param comparate Not null.
+   * @param comparate The string to compare against the comparator.
    */
   public StartsPredicate( final String comparate ) {
     super( comparate );
@@ -48,7 +49,7 @@ public class StartsPredicate extends StringPredicate {
    *
    * @param comparator A non-null string, possibly empty.
    *
-   * @return true The strings are equal, ignoring case.
+   * @return true The comparator starts with the comparate, ignoring case.
    */
   @Override
   public boolean test( final String comparator ) {

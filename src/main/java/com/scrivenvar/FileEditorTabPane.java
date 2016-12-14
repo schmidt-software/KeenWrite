@@ -27,7 +27,6 @@
  */
 package com.scrivenvar;
 
-import static com.scrivenvar.Messages.get;
 import com.scrivenvar.predicates.files.FileTypePredicate;
 import com.scrivenvar.service.Options;
 import com.scrivenvar.service.Settings;
@@ -65,6 +64,7 @@ import javafx.stage.Window;
 import org.fxmisc.richtext.StyledTextArea;
 import org.fxmisc.wellbehaved.event.EventPattern;
 import org.fxmisc.wellbehaved.event.InputMap;
+import static com.scrivenvar.Messages.get;
 
 /**
  * Tab pane for file editors.
@@ -73,23 +73,27 @@ import org.fxmisc.wellbehaved.event.InputMap;
  */
 public final class FileEditorTabPane extends TabPane {
 
-  private final static String FILTER_PREFIX = "Dialog.file.choose.filter";
+  private final static String FILTER_EXTENSIONS = "filter.file";
+  private final static String FILTER_EXTENSION_TITLES = "Dialog.file.choose.filter";
 
   private final Options options = Services.load( Options.class );
   private final Settings settings = Services.load( Settings.class );
   private final AlertService alertService = Services.load( AlertService.class );
 
+  private final ReadOnlyObjectWrapper<Path> openDefinition = new ReadOnlyObjectWrapper<>();
   private final ReadOnlyObjectWrapper<FileEditorTab> activeFileEditor = new ReadOnlyObjectWrapper<>();
   private final ReadOnlyBooleanWrapper anyFileEditorModified = new ReadOnlyBooleanWrapper();
-  private final ReadOnlyObjectWrapper<FileEditorTab> onOpen = new ReadOnlyObjectWrapper<>();
 
+  /**
+   * Constructs a new file editor tab pane.
+   */
   public FileEditorTabPane() {
     final ObservableList<Tab> tabs = getTabs();
 
     setFocusTraversable( false );
     setTabClosingPolicy( TabClosingPolicy.ALL_TABS );
 
-    addTabChangeListener(
+    addTabSelectionListener(
       (ObservableValue<? extends Tab> tabPane,
         final Tab oldTab, final Tab newTab) -> {
 
@@ -129,6 +133,14 @@ public final class FileEditorTabPane extends TabPane {
     );
   }
 
+  /**
+   * Delegates to the active file editor.
+   *
+   * @param <T> Event type.
+   * @param <U> Consumer type.
+   * @param event Event to pass to the editor.
+   * @param consumer Consumer to pass to the editor.
+   */
   public <T extends Event, U extends T> void addEventListener(
     final EventPattern<? super T, ? extends U> event,
     final Consumer<? super U> consumer ) {
@@ -159,7 +171,7 @@ public final class FileEditorTabPane extends TabPane {
    *
    * @param listener The listener to notify of tab change events.
    */
-  public void addTabChangeListener( final ChangeListener<Tab> listener ) {
+  public void addTabSelectionListener( final ChangeListener<Tab> listener ) {
     // Observe the tab so that when a new tab is opened or selected,
     // a notification is kicked off.
     getSelectionModel().selectedItemProperty().addListener( listener );
@@ -198,31 +210,22 @@ public final class FileEditorTabPane extends TabPane {
     return tab;
   }
 
-  Node getNode() {
-    return this;
-  }
-
   /**
    * Called when the user selects New from the File menu.
    *
    * @return The newly added tab.
    */
-  FileEditorTab newEditor() {
+  void newEditor() {
     final FileEditorTab tab = createFileEditor( null );
 
     getTabs().add( tab );
     getSelectionModel().select( tab );
-    return tab;
   }
 
-  List<FileEditorTab> openFileDialog() {
-    final FileChooser dialog
-      = createFileChooser( get( "Dialog.file.choose.open.title" ) );
-    final List<File> files = dialog.showOpenMultipleDialog( getWindow() );
-
-    return (files != null && !files.isEmpty())
-      ? openFiles( files )
-      : new ArrayList<>();
+  void openFileDialog() {
+    final String title = get( "Dialog.file.choose.open.title" );
+    final FileChooser dialog = createFileChooser( title );
+    openFiles( dialog.showOpenMultipleDialog( getWindow() ) );
   }
 
   /**
@@ -236,13 +239,11 @@ public final class FileEditorTabPane extends TabPane {
    *
    * @return A list of files that can be opened in text editors.
    */
-  private List<FileEditorTab> openFiles( final List<File> files ) {
-    final List<FileEditorTab> openedEditors = new ArrayList<>();
-
+  private void openFiles( final List<File> files ) {
     final FileTypePredicate predicate
       = new FileTypePredicate( createExtensionFilter( "definition" ).getExtensions() );
 
-    // The user might have opened muliple definitions files. These will
+    // The user might have opened multiple definitions files. These will
     // be discarded from the text editable files.
     final List<File> definitions
       = files.stream().filter( predicate ).collect( Collectors.toList() );
@@ -250,25 +251,25 @@ public final class FileEditorTabPane extends TabPane {
     // Create a modifiable list to remove any definition files that were
     // opened.
     final List<File> editors = new ArrayList<>( files );
-    editors.removeAll( definitions );
 
-    // If there are any editor-friendly files opened (e.g,. Markdown, XML), then
-    // open them up in new tabs.
     if( editors.size() > 0 ) {
       saveLastDirectory( editors.get( 0 ) );
-      openedEditors.addAll( openEditors( editors, 0 ) );
+    }
+
+    editors.removeAll( definitions );
+
+    // Open editor-friendly files (e.g,. Markdown, XML) in new tabs.
+    if( editors.size() > 0 ) {
+      openEditors( editors, 0 );
     }
 
     if( definitions.size() > 0 ) {
       openDefinition( definitions.get( 0 ) );
     }
-
-    return openedEditors;
   }
 
-  private List<FileEditorTab> openEditors( final List<File> files, final int activeIndex ) {
+  private void openEditors( final List<File> files, final int activeIndex ) {
     final int fileTally = files.size();
-    final List<FileEditorTab> editors = new ArrayList<>( fileTally );
     final List<Tab> tabs = getTabs();
 
     // Close single unmodified "Untitled" tab.
@@ -283,34 +284,32 @@ public final class FileEditorTabPane extends TabPane {
     for( int i = 0; i < fileTally; i++ ) {
       final Path path = files.get( i ).toPath();
 
-      // Check whether file is already opened.
-      FileEditorTab fileEditor = findEditor( path );
+      FileEditorTab fileEditorTab = findEditor( path );
 
-      if( fileEditor == null ) {
-        fileEditor = createFileEditor( path );
-        getTabs().add( fileEditor );
-        editors.add( fileEditor );
+      // Only open new files.
+      if( fileEditorTab == null ) {
+        fileEditorTab = createFileEditor( path );
+        getTabs().add( fileEditorTab );
       }
 
-      // Select first file.
+      // Select the first file in the list.
       if( i == activeIndex ) {
-        getSelectionModel().select( fileEditor );
+        getSelectionModel().select( fileEditorTab );
       }
     }
-
-    if( activeIndex < fileTally ) {
-      getOnOpen().set( editors.get( activeIndex ) );
-    }
-
-    return editors;
   }
 
-  private ReadOnlyObjectWrapper<FileEditorTab> getOnOpen() {
-    return this.onOpen;
+  /**
+   * Returns a property that changes when a new definition file is opened.
+   *
+   * @return The path to a definition file that was opened.
+   */
+  public ReadOnlyObjectProperty<Path> onOpenDefinitionFileProperty() {
+    return getOnOpenDefinitionFile().getReadOnlyProperty();
   }
 
-  public ReadOnlyObjectProperty<FileEditorTab> onOpenProperty() {
-    return getOnOpen().getReadOnlyProperty();
+  private ReadOnlyObjectWrapper<Path> getOnOpenDefinitionFile() {
+    return this.openDefinition;
   }
 
   /**
@@ -321,7 +320,9 @@ public final class FileEditorTabPane extends TabPane {
    * @param definition The file to open.
    */
   private void openDefinition( final File definition ) {
-    System.out.println( "open definition file: " + definition.toString() );
+    // TODO: Prevent reading this file twice when a new text document is opened.
+    // (might be a matter of checking the value first).
+    getOnOpenDefinitionFile().set( definition.toPath() );
   }
 
   boolean saveEditor( final FileEditorTab fileEditor ) {
@@ -357,6 +358,13 @@ public final class FileEditorTabPane extends TabPane {
     return success;
   }
 
+  /**
+   * Answers whether the file has had modifications. '
+   *
+   * @param tab THe tab to check for modifications.
+   *
+   * @return false The file is unmodified.
+   */
   boolean canCloseEditor( final FileEditorTab tab ) {
     if( !tab.isModified() ) {
       return true;
@@ -505,22 +513,14 @@ public final class FileEditorTabPane extends TabPane {
   }
 
   private ExtensionFilter createExtensionFilter( final String filetype ) {
-    final String tKey = String.format( "%s.title.%s", FILTER_PREFIX, filetype );
-    final String eKey = String.format( "%s.ext.%s", FILTER_PREFIX, filetype );
+    final String tKey = String.format( "%s.title.%s", FILTER_EXTENSION_TITLES, filetype );
+    final String eKey = String.format( "%s.ext.%s", FILTER_EXTENSIONS, filetype );
 
     return new ExtensionFilter( Messages.get( tKey ), getExtensions( eKey ) );
   }
 
   private List<String> getExtensions( final String key ) {
-    return getStringSettingList( key );
-  }
-
-  private List<String> getStringSettingList( String key ) {
-    return getStringSettingList( key, null );
-  }
-
-  private List<String> getStringSettingList( String key, List<String> values ) {
-    return getSettings().getStringSettingList( key, values );
+    return getSettings().getStringSettingList( key );
   }
 
   private void saveLastDirectory( final File file ) {
@@ -595,5 +595,9 @@ public final class FileEditorTabPane extends TabPane {
 
   protected Preferences getState() {
     return getOptions().getState();
+  }
+
+  Node getNode() {
+    return this;
   }
 }

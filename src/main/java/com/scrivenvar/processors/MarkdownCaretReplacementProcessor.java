@@ -27,8 +27,8 @@
  */
 package com.scrivenvar.processors;
 
-import static com.scrivenvar.Constants.CARET_POSITION;
-import static com.scrivenvar.Constants.MD_CARET_POSITION;
+import static com.scrivenvar.Constants.CARET_POSITION_HTML;
+import static com.scrivenvar.Constants.CARET_POSITION_MD;
 
 /**
  * Responsible for replacing the caret position marker with an HTML element
@@ -38,9 +38,6 @@ import static com.scrivenvar.Constants.MD_CARET_POSITION;
  */
 public class MarkdownCaretReplacementProcessor extends AbstractProcessor<String> {
   private static final int INDEX_NOT_FOUND = -1;
-
-  private static final String HTML_ELEMENT
-    = "<span id='" + CARET_POSITION + "'></span>";
 
   public MarkdownCaretReplacementProcessor( final Processor<String> processor ) {
     super( processor );
@@ -56,7 +53,7 @@ public class MarkdownCaretReplacementProcessor extends AbstractProcessor<String>
    */
   @Override
   public String processLink( final String t ) {
-    return replace( t, MD_CARET_POSITION, HTML_ELEMENT );
+    return replace(t, CARET_POSITION_MD, CARET_POSITION_HTML );
   }
 
   /**

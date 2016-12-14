@@ -49,7 +49,7 @@ public class StageState {
   private Rectangle normalBounds;
   private boolean runLaterPending;
 
-  public StageState( Stage stage, Preferences state ) {
+  public StageState( final Stage stage, final Preferences state ) {
     this.stage = stage;
     this.state = state;
 
@@ -64,24 +64,26 @@ public class StageState {
   }
 
   private void save() {
-    Rectangle bounds = isNormalState() ? getStageBounds() : normalBounds;
+    final Rectangle bounds = isNormalState() ? getStageBounds() : normalBounds;
+    
     if( bounds != null ) {
       state.putDouble( "windowX", bounds.getX() );
       state.putDouble( "windowY", bounds.getY() );
       state.putDouble( "windowWidth", bounds.getWidth() );
       state.putDouble( "windowHeight", bounds.getHeight() );
     }
+    
     state.putBoolean( "windowMaximized", stage.isMaximized() );
     state.putBoolean( "windowFullScreen", stage.isFullScreen() );
   }
 
   private void restore() {
-    double x = state.getDouble( "windowX", Double.NaN );
-    double y = state.getDouble( "windowY", Double.NaN );
-    double w = state.getDouble( "windowWidth", Double.NaN );
-    double h = state.getDouble( "windowHeight", Double.NaN );
-    boolean maximized = state.getBoolean( "windowMaximized", false );
-    boolean fullScreen = state.getBoolean( "windowFullScreen", false );
+    final double x = state.getDouble( "windowX", Double.NaN );
+    final double y = state.getDouble( "windowY", Double.NaN );
+    final double w = state.getDouble( "windowWidth", Double.NaN );
+    final double h = state.getDouble( "windowHeight", Double.NaN );
+    final boolean maximized = state.getBoolean( "windowMaximized", false );
+    final boolean fullScreen = state.getBoolean( "windowFullScreen", false );
 
     if( !Double.isNaN( x ) && !Double.isNaN( y ) ) {
       stage.setX( x );
@@ -96,6 +98,7 @@ public class StageState {
     if( fullScreen != stage.isFullScreen() ) {
       stage.setFullScreen( fullScreen );
     }
+    
     if( maximized != stage.isMaximized() ) {
       stage.setMaximized( maximized );
     }
@@ -110,6 +113,7 @@ public class StageState {
     if( runLaterPending ) {
       return;
     }
+    
     runLaterPending = true;
 
     // must use runLater() to ensure that change of all properties

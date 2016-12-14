@@ -25,9 +25,9 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.scrivenvar.editor;
+package com.scrivenvar.editors;
 
-import com.scrivenvar.ui.AbstractPane;
+import com.scrivenvar.AbstractPane;
 import java.nio.file.Path;
 import java.util.function.Consumer;
 import javafx.application.Platform;
@@ -99,14 +99,14 @@ public class EditorPane extends AbstractPane {
 
   /**
    * Call to listen for when the caret moves to another paragraph.
-   * 
+   *
    * @param listener Receives paragraph change events.
    */
   public void addCaretParagraphListener(
     final ChangeListener<? super Integer> listener ) {
     getEditor().currentParagraphProperty().addListener( listener );
   }
-  
+
   /**
    * This method adds listeners to editor events.
    *
@@ -193,7 +193,8 @@ public class EditorPane extends AbstractPane {
   }
 
   protected VirtualizedScrollPane<StyleClassedTextArea> createScrollPane() {
-    final VirtualizedScrollPane<StyleClassedTextArea> pane = new VirtualizedScrollPane<>( getEditor() );
+    final VirtualizedScrollPane<StyleClassedTextArea> pane
+      = new VirtualizedScrollPane<>( getEditor() );
     pane.setVbarPolicy( ScrollPane.ScrollBarPolicy.ALWAYS );
 
     return pane;

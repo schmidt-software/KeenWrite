@@ -25,42 +25,74 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.scrivenvar.processors;
+package com.scrivenvar.editors.markdown;
+
+import com.vladsch.flexmark.ast.Link;
+import com.vladsch.flexmark.ast.Node;
+import com.vladsch.flexmark.ast.NodeVisitor;
+import com.vladsch.flexmark.ast.VisitHandler;
 
 /**
- * Responsible for processing documents from one known format to another.
- *
  * @author White Magic Software, Ltd.
- * @param <T> The type of processor to create.
  */
-public interface Processor<T> {
-  
-  /**
-   * Provided so that the chain can be invoked from any link using a given
-   * value. This should be called automatically by a superclass so that
-   * the links in the chain need only implement the processLink method.
-   * 
-   * @param t The value to pass along to each link in the chain.
-   */
-  public void processChain( T t );
+public class LinkVisitor {
+
+  private NodeVisitor visitor;
+  private Link link;
+  private final int offset;
 
   /**
-   * Processes the given content providing a transformation from one document
-   * format into another. For example, this could convert from XML to text using
-   * an XSLT processor, or from markdown to HTML.
+   * Creates a hyperlink given an offset into a paragraph and the markdown AST
+   * link node.
    *
-   * @param t The type of object to process.
-   *
-   * @return The post-processed document, or null if processing should stop.
+   * @param index Index into the paragraph that indicates the hyperlink to
+   * change.
    */
-  public T processLink( T t );
+  public LinkVisitor( final int index ) {
+    this.offset = index;
+  }
+
+  public Link process( final Node root ) {
+    getVisitor().visit( root );
+    return getLink();
+  }
 
   /**
-   * Adds a document processor to call after this processor finishes processing
-   * the document given to the process method.
    *
-   * @return The processor that should transform the document after this
-   * instance has finished processing.
+   * @param link Not null.
    */
-  public Processor<T> next();
+  private void visit( final Link link ) {
+    final int began = link.getStartOffset();
+    final int ended = link.getEndOffset();
+    final int index = getOffset();
+
+    if( index >= began && index <= ended ) {
+      setLink( link );
+    }
+  }
+
+  private synchronized NodeVisitor getVisitor() {
+    if( this.visitor == null ) {
+      this.visitor = createVisitor();
+    }
+
+    return this.visitor;
+  }
+
+  protected NodeVisitor createVisitor() {
+    return new NodeVisitor(
+      new VisitHandler<>( Link.class, LinkVisitor.this::visit ) );
+  }
+
+  private Link getLink() {
+    return this.link;
+  }
+
+  private void setLink( final Link link ) {
+    this.link = link;
+  }
+
+  public int getOffset() {
+    return this.offset;
+  }
 }

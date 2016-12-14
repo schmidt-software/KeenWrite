@@ -27,13 +27,13 @@
  */
 package com.scrivenvar.processors;
 
-import static com.scrivenvar.Constants.MD_CARET_POSITION;
+import static com.scrivenvar.Constants.CARET_POSITION_MD;
 import static java.lang.Character.isLetter;
 
 /**
- * Responsible for inserting the magic CARET POSITION into the markdown so
- * that, upon rendering into HTML, the HTML pane can scroll to the correct
- * position (relative to the caret position in the editor).
+ * Responsible for inserting the magic CARET POSITION into the markdown so that,
+ * upon rendering into HTML, the HTML pane can scroll to the correct position
+ * (relative to the caret position in the editor).
  *
  * @author White Magic Software, Ltd.
  */
@@ -72,16 +72,15 @@ public class MarkdownCaretInsertionProcessor extends AbstractProcessor<String> {
     while( offset < length && !isLetter( t.charAt( offset ) ) ) {
       offset++;
     }
-    
+
     // TODO: Ensure that the caret position is outside of an element, 
     // so that a caret inserted in the image doesn't corrupt it. Such as:
     //
     // ![Screenshot](images/scr|eenshot.png)
-
     // Insert the caret position into the Markdown text, but don't interfere
     // with the Markdown iteself.
     return new StringBuilder( t ).replace(
-      offset, offset, MD_CARET_POSITION ).toString();
+      offset, offset, CARET_POSITION_MD ).toString();
   }
 
   /**

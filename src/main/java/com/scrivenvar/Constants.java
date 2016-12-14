@@ -27,35 +27,46 @@
  */
 package com.scrivenvar;
 
+import com.scrivenvar.service.Settings;
+
 /**
  * @author White Magic Software, Ltd.
  */
 public class Constants {
+
+  private static final Settings SETTINGS = Services.load( Settings.class );
 
   /**
    * Prevent instantiation.
    */
   private Constants() {
   }
-  
-  public static final String BUNDLE_NAME = "com.scrivenvar.messages";
+
+  private static String get( final String key ) {
+    return SETTINGS.getSetting( key, "" );
+  }
+
+  // Bootstrapping...
   public static final String SETTINGS_NAME = "/com/scrivenvar/settings.properties";
 
-  public static final String STYLESHEET_PREVIEW = "com/scrivenvar/scene.css";
-  public static final String STYLESHEET_EDITOR = "com/scrivenvar/editor/Markdown.css";
+  public static final String APP_BUNDLE_NAME = get( "application.messages" );
 
-  public static final String LOGO_32 = "com/scrivenvar/logo32.png";
-  public static final String LOGO_16 = "com/scrivenvar/logo16.png";
-  public static final String LOGO_128 = "com/scrivenvar/logo128.png";
-  public static final String LOGO_256 = "com/scrivenvar/logo256.png";
-  public static final String LOGO_512 = "com/scrivenvar/logo512.png";
-  
-  /**
-   * Separates YAML variable nodes (e.g., the dots in <code>$root.node.var$</code>).
-   */
-  public static final String SEPARATOR = ".";
-  
-  public static final String CARET_POSITION = "CARETPOSITION";
-  public static final String MD_CARET_POSITION = "${" + CARET_POSITION + "}";
-  public static final String XML_CARET_POSITION = "<![CDATA[" + MD_CARET_POSITION + "]]>";
+  public static final String STYLESHEET_SCENE = get( "file.stylesheet.scene" );
+  public static final String STYLESHEET_MARKDOWN = get( "file.stylesheet.markdown" );
+  public static final String STYLESHEET_PREVIEW = get( "file.stylesheet.preview" );
+
+  public static final String FILE_LOGO_16 = get( "file.logo.16" );
+  public static final String FILE_LOGO_32 = get( "file.logo.32" );
+  public static final String FILE_LOGO_128 = get( "file.logo.128" );
+  public static final String FILE_LOGO_256 = get( "file.logo.256" );
+  public static final String FILE_LOGO_512 = get( "file.logo.512" );
+
+  public static final String CARET_POSITION_BASE = get( "caret.token.base" );
+  public static final String CARET_POSITION_MD = get( "caret.token.markdown" );
+  public static final String CARET_POSITION_XML = get( "caret.token.xml" );
+  public static final String CARET_POSITION_HTML = get( "caret.token.html" );
+
+  public static final String PREFS_ROOT = get( "preferences.root" );
+  public static final String PREFS_ROOT_STATE = get( "preferences.root.state" );
+  public static final String PREFS_ROOT_OPTIONS = get( "preferences.root.options" );
 }

@@ -25,74 +25,46 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.scrivenvar.editor;
+package com.scrivenvar.definition.yaml;
 
-import com.vladsch.flexmark.ast.Link;
-import com.vladsch.flexmark.ast.Node;
-import com.vladsch.flexmark.ast.NodeVisitor;
-import com.vladsch.flexmark.ast.VisitHandler;
+import com.scrivenvar.definition.AbstractDefinitionSource;
+import java.nio.file.Path;
 
 /**
+ * Implements common behaviour for file definition sources.
+ *
  * @author White Magic Software, Ltd.
  */
-public class LinkVisitor {
+public abstract class FileDefinitionSource extends AbstractDefinitionSource {
 
-  private NodeVisitor visitor;
-  private Link link;
-  private final int offset;
+  private Path path;
 
   /**
-   * Creates a hyperlink given an offset into a paragraph and the markdown AST
-   * link node.
+   * Constructs a new file definition source that can read and write data in the
+   * hierarchical format contained within the file location specified by the
+   * path.
    *
-   * @param index Index into the paragraph that indicates the hyperlink to
-   * change.
+   * @param path Must not be null.
    */
-  public LinkVisitor( final int index ) {
-    this.offset = index;
+  public FileDefinitionSource( final Path path ) {
+    setPath( path );
   }
 
-  public Link process( final Node root ) {
-    getVisitor().visit( root );
-    return getLink();
+  private void setPath( final Path path ) {
+    this.path = path;
+  }
+
+  protected Path getPath() {
+    return this.path;
   }
 
   /**
+   * Returns the path represented by this object.
    *
-   * @param link Not null.
+   * @return The
    */
-  private void visit( final Link link ) {
-    final int began = link.getStartOffset();
-    final int ended = link.getEndOffset();
-    final int index = getOffset();
-
-    if( index >= began && index <= ended ) {
-      setLink( link );
-    }
-  }
-
-  private synchronized NodeVisitor getVisitor() {
-    if( this.visitor == null ) {
-      this.visitor = createVisitor();
-    }
-
-    return this.visitor;
-  }
-
-  protected NodeVisitor createVisitor() {
-    return new NodeVisitor(
-      new VisitHandler<>( Link.class, LinkVisitor.this::visit ) );
-  }
-
-  private Link getLink() {
-    return this.link;
-  }
-
-  private void setLink( final Link link ) {
-    this.link = link;
-  }
-
-  public int getOffset() {
-    return this.offset;
+  @Override
+  public String toString() {
+    return getPath().toString();
   }
 }

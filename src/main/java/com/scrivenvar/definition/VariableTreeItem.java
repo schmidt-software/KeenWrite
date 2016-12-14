@@ -25,12 +25,12 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.scrivenvar.ui;
+package com.scrivenvar.definition;
 
-import static com.scrivenvar.Constants.SEPARATOR;
-import com.scrivenvar.decorators.YamlVariableDecorator;
 import com.scrivenvar.decorators.VariableDecorator;
-import static com.scrivenvar.editor.VariableNameInjector.DEFAULT_MAX_VAR_LENGTH;
+import com.scrivenvar.decorators.YamlVariableDecorator;
+import static com.scrivenvar.definition.yaml.YamlParser.SEPARATOR;
+import static com.scrivenvar.editors.VariableNameInjector.DEFAULT_MAX_VAR_LENGTH;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;

@@ -25,42 +25,36 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.scrivenvar.processors;
+package com.scrivenvar.definition;
+
+import java.io.IOException;
+import java.util.Map;
+import javafx.scene.control.TreeView;
 
 /**
- * Responsible for processing documents from one known format to another.
+ * Represents behaviours for reading and writing variable definitions.
  *
  * @author White Magic Software, Ltd.
- * @param <T> The type of processor to create.
  */
-public interface Processor<T> {
+public interface DefinitionSource {
+
+  /**
+   * Creates a TreeView from this definition source. The definition source is
+   * responsible for observing the TreeView instance for changes and persisting
+   * them, if needed.
+   *
+   * @return A hierarchical tree suitable for displaying in the definition pane.
+   *
+   * @throws IOException Could not obtain the definition source data.
+   */
+  public TreeView<String> asTreeView() throws IOException;
   
   /**
-   * Provided so that the chain can be invoked from any link using a given
-   * value. This should be called automatically by a superclass so that
-   * the links in the chain need only implement the processLink method.
-   * 
-   * @param t The value to pass along to each link in the chain.
-   */
-  public void processChain( T t );
-
-  /**
-   * Processes the given content providing a transformation from one document
-   * format into another. For example, this could convert from XML to text using
-   * an XSLT processor, or from markdown to HTML.
+   * Returns all the strings with their values resolved in a flat hierarchy.
+   * This copies all the keys and resolved values into a new map.
    *
-   * @param t The type of object to process.
-   *
-   * @return The post-processed document, or null if processing should stop.
+   * @return The new map created with all values having been resolved,
+   * recursively.
    */
-  public T processLink( T t );
-
-  /**
-   * Adds a document processor to call after this processor finishes processing
-   * the document given to the process method.
-   *
-   * @return The processor that should transform the document after this
-   * instance has finished processing.
-   */
-  public Processor<T> next();
+  public Map<String, String> getResolvedMap();
 }

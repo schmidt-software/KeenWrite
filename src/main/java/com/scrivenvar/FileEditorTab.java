@@ -25,8 +25,8 @@
  */
 package com.scrivenvar;
 
-import com.scrivenvar.editor.EditorPane;
-import com.scrivenvar.editor.MarkdownEditorPane;
+import com.scrivenvar.editors.EditorPane;
+import com.scrivenvar.editors.markdown.MarkdownEditorPane;
 import com.scrivenvar.service.Options;
 import com.scrivenvar.service.events.AlertMessage;
 import com.scrivenvar.service.events.AlertService;
@@ -77,7 +77,6 @@ public final class FileEditorTab extends Tab {
 
   FileEditorTab( final Path path ) {
     setPath( path );
-    setUserData( this );
 
     this.modified.addListener( (observable, oldPath, newPath) -> updateTab() );
     updateTab();
@@ -148,7 +147,7 @@ public final class FileEditorTab extends Tab {
     // Load the text and update the preview before the undo manager.
     load();
 
-    // Track undo requests (*must* be called after load).
+    // Track undo requests -- can only be called *after* load.
     initUndoManager();
     initLayout();
     initFocus();
@@ -374,16 +373,16 @@ public final class FileEditorTab extends Tab {
   public void addTextChangeListener( final ChangeListener<String> listener ) {
     getEditorPane().addTextChangeListener( listener );
   }
-  
+
   /**
    * Forwards to the editor pane's listeners for caret paragraph change events.
    *
    * @param listener The listener to notify when the caret changes paragraphs.
    */
-  public void addCaretParagraphListener( final ChangeListener<Integer> listener){
+  public void addCaretParagraphListener( final ChangeListener<Integer> listener ) {
     getEditorPane().addCaretParagraphListener( listener );
   }
-  
+
   /**
    * Forwards the request to the editor pane.
    *
@@ -420,5 +419,15 @@ public final class FileEditorTab extends Tab {
 
   private void setEncoding( final Charset encoding ) {
     this.encoding = encoding;
+  }
+
+  /**
+   * Returns the tab title, without any modified indicators.
+   *
+   * @return The tab title.
+   */
+  @Override
+  public String toString() {
+    return getTabTitle();
   }
 }

@@ -29,7 +29,7 @@ package com.scrivenvar.dialogs;
 
 import com.scrivenvar.Messages;
 import com.scrivenvar.controls.EscapeTextField;
-import com.scrivenvar.editor.HyperlinkModel;
+import com.scrivenvar.editors.markdown.HyperlinkModel;
 import com.scrivenvar.service.events.impl.ButtonOrderPane;
 import java.nio.file.Path;
 import javafx.application.Platform;

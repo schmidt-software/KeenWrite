@@ -25,10 +25,10 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.scrivenvar.yaml;
+package com.scrivenvar.definition.yaml;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.scrivenvar.ui.VariableTreeItem;
+import com.scrivenvar.definition.VariableTreeItem;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map.Entry;
@@ -54,7 +54,7 @@ public class YamlTreeAdapter {
    * first document in the stream is adapted. This does not close the stream.
    *
    * @param in Contains a YAML document.
-   * @param name Name of the root TreeItem.
+   * @param name Root TreeItem node name.
    *
    * @return A TreeView populated with all the keys in the YAML document.
    *
@@ -128,5 +128,4 @@ public class YamlTreeAdapter {
   private void setYamlParser( final YamlParser yamlParser ) {
     this.yamlParser = yamlParser;
   }
-
 }

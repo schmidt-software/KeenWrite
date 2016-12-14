@@ -26,10 +26,10 @@
  */
 package com.scrivenvar;
 
-import static com.scrivenvar.Constants.BUNDLE_NAME;
 import java.text.MessageFormat;
 import java.util.ResourceBundle;
 import java.util.Stack;
+import static com.scrivenvar.Constants.APP_BUNDLE_NAME;
 
 /**
  * Recursively resolves message properties. Property values can refer to other
@@ -39,7 +39,7 @@ import java.util.Stack;
  */
 public class Messages {
 
-  private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle( BUNDLE_NAME );
+  private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle(APP_BUNDLE_NAME );
 
   private Messages() {
   }

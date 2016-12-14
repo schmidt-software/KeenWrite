@@ -27,11 +27,7 @@
  */
 package com.scrivenvar;
 
-import static com.scrivenvar.Constants.LOGO_128;
-import static com.scrivenvar.Constants.LOGO_16;
-import static com.scrivenvar.Constants.LOGO_256;
-import static com.scrivenvar.Constants.LOGO_32;
-import static com.scrivenvar.Constants.LOGO_512;
+import static com.scrivenvar.Constants.*;
 import com.scrivenvar.service.Options;
 import com.scrivenvar.service.events.AlertService;
 import com.scrivenvar.util.StageState;
@@ -70,7 +66,7 @@ public final class Main extends Application {
     initState( stage );
     initStage( stage );
     initAlertService();
-    
+
     stage.show();
   }
 
@@ -92,11 +88,11 @@ public final class Main extends Application {
 
   private void initStage( Stage stage ) {
     stage.getIcons().addAll(
-      new Image( LOGO_16 ),
-      new Image( LOGO_32 ),
-      new Image( LOGO_128 ),
-      new Image( LOGO_256 ),
-      new Image( LOGO_512 ) );
+      createImage( FILE_LOGO_16 ),
+      createImage( FILE_LOGO_32 ),
+      createImage( FILE_LOGO_128 ),
+      createImage( FILE_LOGO_256 ),
+      createImage( FILE_LOGO_512 ) );
     stage.setTitle( getApplicationTitle() );
     stage.setScene( getScene() );
   }
@@ -120,5 +116,9 @@ public final class Main extends Application {
 
   public static void showDocument( String uri ) {
     getApplication().getHostServices().showDocument( uri );
+  }
+
+  private Image createImage( final String filename ) {
+    return new Image( filename );
   }
 }

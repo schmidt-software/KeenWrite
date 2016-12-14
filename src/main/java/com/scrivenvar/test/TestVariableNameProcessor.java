@@ -25,9 +25,9 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.scrivenvar;
+package com.scrivenvar.test;
 
-import com.scrivenvar.ui.VariableTreeItem;
+import com.scrivenvar.definition.VariableTreeItem;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;

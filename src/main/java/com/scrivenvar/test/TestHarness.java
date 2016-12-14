@@ -25,12 +25,12 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.scrivenvar;
+package com.scrivenvar.test;
 
 import static com.scrivenvar.Messages.get;
 import com.scrivenvar.definition.DefinitionPane;
-import com.scrivenvar.yaml.YamlParser;
-import com.scrivenvar.yaml.YamlTreeAdapter;
+import com.scrivenvar.definition.yaml.YamlParser;
+import com.scrivenvar.definition.yaml.YamlTreeAdapter;
 import java.io.IOException;
 import java.io.InputStream;
 import javafx.application.Application;

@@ -25,18 +25,18 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.scrivenvar.editor;
+package com.scrivenvar.editors;
 
-import static com.scrivenvar.Constants.SEPARATOR;
 import com.scrivenvar.FileEditorTabPane;
 import com.scrivenvar.Services;
 import com.scrivenvar.decorators.VariableDecorator;
 import com.scrivenvar.decorators.YamlVariableDecorator;
 import com.scrivenvar.definition.DefinitionPane;
-import static com.scrivenvar.definition.Lists.getFirst;
-import static com.scrivenvar.definition.Lists.getLast;
+import com.scrivenvar.definition.VariableTreeItem;
+import static com.scrivenvar.definition.yaml.YamlParser.SEPARATOR;
 import com.scrivenvar.service.Settings;
-import com.scrivenvar.ui.VariableTreeItem;
+import static com.scrivenvar.util.Lists.getFirst;
+import static com.scrivenvar.util.Lists.getLast;
 import static java.lang.Character.isSpaceChar;
 import static java.lang.Character.isWhitespace;
 import static java.lang.Math.min;
@@ -62,6 +62,14 @@ import static org.fxmisc.wellbehaved.event.EventPattern.keyTyped;
 import org.fxmisc.wellbehaved.event.InputMap;
 import static org.fxmisc.wellbehaved.event.InputMap.consume;
 import static org.fxmisc.wellbehaved.event.InputMap.sequence;
+import static com.scrivenvar.util.Lists.getFirst;
+import static com.scrivenvar.util.Lists.getLast;
+import static java.lang.Character.isSpaceChar;
+import static java.lang.Character.isWhitespace;
+import static java.lang.Math.min;
+import static org.fxmisc.wellbehaved.event.EventPattern.keyPressed;
+import static org.fxmisc.wellbehaved.event.EventPattern.keyTyped;
+import static org.fxmisc.wellbehaved.event.InputMap.consume;
 
 /**
  * Provides the logic for injecting variable names within the editor.

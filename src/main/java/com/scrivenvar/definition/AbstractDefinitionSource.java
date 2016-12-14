@@ -25,27 +25,12 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.scrivenvar.ui;
-
-import com.scrivenvar.Services;
-import com.scrivenvar.service.Options;
-import java.util.prefs.Preferences;
-import org.tbee.javafx.scene.layout.fxml.MigPane;
+package com.scrivenvar.definition;
 
 /**
- * Provides options to all subclasses.
- *
+ * Implements common behaviour for definition sources.
+ * 
  * @author White Magic Software, Ltd.
  */
-public abstract class AbstractPane extends MigPane {
-
-  private final Options options = Services.load( Options.class );
-
-  protected Options getOptions() {
-    return this.options;
-  }
-  
-  protected Preferences getState() {
-    return getOptions().getState();
-  }
+public abstract class AbstractDefinitionSource implements DefinitionSource {
 }

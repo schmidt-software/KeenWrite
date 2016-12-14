@@ -25,7 +25,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.scrivenvar.yaml;
+package com.scrivenvar.definition.yaml;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.ObjectCodec;
@@ -35,7 +35,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
-import static com.scrivenvar.Constants.SEPARATOR;
 import com.scrivenvar.decorators.VariableDecorator;
 import com.scrivenvar.decorators.YamlVariableDecorator;
 import java.io.IOException;
@@ -81,6 +80,12 @@ import org.yaml.snakeyaml.DumperOptions;
  */
 public class YamlParser {
 
+  /**
+   * Separates YAML variable nodes (e.g., the dots in
+   * <code>$root.node.var$</code>).
+   */
+  public static final String SEPARATOR = ".";
+
   private final static int GROUP_DELIMITED = 1;
   private final static int GROUP_REFERENCE = 2;
 
@@ -119,8 +124,6 @@ public class YamlParser {
    * replace.
    *
    * @return The substituted value.
-   *
-   * @throws InvalidParameterException The text has no associated value.
    */
   public String substitute( String text ) {
     final Matcher matcher = patternMatch( text );
@@ -146,8 +149,6 @@ public class YamlParser {
    *
    * @return The new map created with all values having been resolved,
    * recursively.
-   *
-   * @throws InvalidParameterException A key in the map has no associated value.
    */
   public Map<String, String> createResolvedMap() {
     final Map<String, String> map = new HashMap<>( 1024 );
@@ -177,7 +178,10 @@ public class YamlParser {
    * @param rootNode The node to adapt.
    */
   private void resolve(
-    final Entry<String, JsonNode> rootNode, final String path, final Map<String, String> map ) {
+    final Entry<String, JsonNode> rootNode,
+    final String path,
+    final Map<String, String> map ) {
+
     final JsonNode leafNode = rootNode.getValue();
     final String key = rootNode.getKey();
 

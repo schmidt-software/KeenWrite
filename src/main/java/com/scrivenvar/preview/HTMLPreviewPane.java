@@ -27,7 +27,8 @@
  */
 package com.scrivenvar.preview;
 
-import static com.scrivenvar.Constants.CARET_POSITION;
+import static com.scrivenvar.Constants.CARET_POSITION_BASE;
+import static com.scrivenvar.Constants.STYLESHEET_PREVIEW;
 import java.nio.file.Path;
 import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Worker.State;
@@ -98,7 +99,7 @@ public final class HTMLPreviewPane extends Pane {
       "<!DOCTYPE html>"
       + "<html>"
       + "<head>"
-      + "<link rel='stylesheet' href='" + getClass().getResource( "webview.css" ) + "'>"
+      + "<link rel='stylesheet' href='" + getClass().getResource( STYLESHEET_PREVIEW ) + "'>"
       + getBase()
       + "</head>"
       + "<body>"
@@ -128,7 +129,7 @@ public final class HTMLPreviewPane extends Pane {
    */
   private String getScrollScript() {
     return ""
-      + "var e = document.getElementById('" + CARET_POSITION + "');"
+      + "var e = document.getElementById('" + CARET_POSITION_BASE + "');"
       + "if( e != null ) { "
       + "  Element.prototype.topOffset = function () {"
       + "    return this.offsetTop + (this.offsetParent ? this.offsetParent.topOffset() : 0);"

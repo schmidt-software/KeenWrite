@@ -33,6 +33,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -50,7 +51,7 @@ public class DefaultSettings implements Settings {
 
   public DefaultSettings()
     throws ConfigurationException, URISyntaxException, IOException {
-    setProperties(createProperties());
+    setProperties( createProperties() );
   }
 
   /**
@@ -62,8 +63,8 @@ public class DefaultSettings implements Settings {
    * @return The property key value, or defaultValue when no key found.
    */
   @Override
-  public String getSetting(final String property, final String defaultValue) {
-    return getSettings().getString(property, defaultValue);
+  public String getSetting( final String property, final String defaultValue ) {
+    return getSettings().getString( property, defaultValue );
   }
 
   /**
@@ -75,17 +76,25 @@ public class DefaultSettings implements Settings {
    * @return The property key value, or defaultValue when no key found.
    */
   @Override
-  public int getSetting(final String property, final int defaultValue) {
-    return getSettings().getInt(property, defaultValue);
+  public int getSetting( final String property, final int defaultValue ) {
+    return getSettings().getInt( property, defaultValue );
   }
 
+  /**
+   * Returns a list of objects for a given setting.
+   *
+   * @param property The setting key name.
+   * @param defaults The default values to return, which may be null.
+   *
+   * @return A list, possibly empty, never null.
+   */
   @Override
-  public List<Object> getSettingList(final String property, List<String> defaults) {
-    if (defaults == null) {
+  public List<Object> getSettingList( final String property, List<String> defaults ) {
+    if( defaults == null ) {
       defaults = new ArrayList<>();
     }
-    
-    return getSettings().getList(property, defaults);
+
+    return getSettings().getList( property, defaults );
   }
 
   /**
@@ -98,12 +107,36 @@ public class DefaultSettings implements Settings {
    */
   @Override
   public List<String> getStringSettingList(
-    final String property, final List<String> defaults) {
-    final List<Object> settings = getSettingList(property, defaults);
+    final String property, final List<String> defaults ) {
+    final List<Object> settings = getSettingList( property, defaults );
 
     return settings.stream()
-      .map(object -> Objects.toString(object, null))
-      .collect(Collectors.toList());
+      .map( object -> Objects.toString( object, null ) )
+      .collect( Collectors.toList() );
+  }
+
+  /**
+   * Convert a list of property objects into strings, with no default value.
+   *
+   * @param property The property value to coerce.
+   *
+   * @return The list of properties coerced from objects to strings.
+   */
+  @Override
+  public List<String> getStringSettingList( final String property ) {
+    return getStringSettingList( property, null );
+  }
+
+  /**
+   * Returns a list of property names that begin with the given prefix.
+   *
+   * @param prefix The prefix to compare against each property name.
+   *
+   * @return The list of property names that have the given prefix.
+   */
+  @Override
+  public Iterator<String> getKeys( final String prefix ) {
+    return getSettings().getKeys( prefix );
   }
 
   private PropertiesConfiguration createProperties()
@@ -112,18 +145,18 @@ public class DefaultSettings implements Settings {
 
     return url == null
       ? new PropertiesConfiguration()
-      : new PropertiesConfiguration(url);
+      : new PropertiesConfiguration( url );
   }
 
   private URL getPropertySource() {
-    return getClass().getResource(getSettingsFilename());
+    return getClass().getResource( getSettingsFilename() );
   }
 
   private String getSettingsFilename() {
     return SETTINGS_NAME;
   }
 
-  private void setProperties(final PropertiesConfiguration configuration) {
+  private void setProperties( final PropertiesConfiguration configuration ) {
     this.properties = configuration;
   }
 
