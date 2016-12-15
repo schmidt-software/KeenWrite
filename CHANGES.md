@@ -1,8 +1,13 @@
 # Change Log
 
-## 0.7
+## 0.8
 
 - Load YAML variables from files
+- Upgraded to Apache Commons Configuration 2.1
+- Fixed bug with settings using comma-separated file extensions
+
+## 0.7
+
 - Added cursor to the preview pane
 - Reconfigured constants to use settings
 - Organized MainWindow code by similar method calls

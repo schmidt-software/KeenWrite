@@ -60,17 +60,6 @@ public interface Settings extends Service {
   public int getSetting( String property, int defaultValue );
 
   /**
-   * Returns a setting property or its default value.
-   *
-   * @param property The property key name to obtain its value.
-   * @param defaults The default values to return iff the property cannot be
-   * found.
-   *
-   * @return The property values for the given property key.
-   */
-  public List<Object> getSettingList( String property, List<String> defaults );
-
-  /**
    * Returns a list of property names that begin with the given prefix. The
    * prefix is included in any matching results. This will return keys that
    * either match the prefix or start with the prefix followed by a dot ('.').

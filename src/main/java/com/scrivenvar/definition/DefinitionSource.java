@@ -48,7 +48,7 @@ public interface DefinitionSource {
    * @throws IOException Could not obtain the definition source data.
    */
   public TreeView<String> asTreeView() throws IOException;
-  
+
   /**
    * Returns all the strings with their values resolved in a flat hierarchy.
    * This copies all the keys and resolved values into a new map.
@@ -57,4 +57,14 @@ public interface DefinitionSource {
    * recursively.
    */
   public Map<String, String> getResolvedMap();
+
+  /**
+   * Must return a re-loadable path to the data source. For a file, this is the
+   * absolute file path. For a database, this could be the JDBC connection. For
+   * a web site, this might be the GET url.
+   *
+   * @return A non-null, non-empty string.
+   */
+  @Override
+  public String toString();
 }

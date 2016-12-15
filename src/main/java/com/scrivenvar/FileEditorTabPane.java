@@ -27,6 +27,7 @@
  */
 package com.scrivenvar;
 
+import static com.scrivenvar.Messages.get;
 import com.scrivenvar.predicates.files.FileTypePredicate;
 import com.scrivenvar.service.Options;
 import com.scrivenvar.service.Settings;
@@ -64,7 +65,6 @@ import javafx.stage.Window;
 import org.fxmisc.richtext.StyledTextArea;
 import org.fxmisc.wellbehaved.event.EventPattern;
 import org.fxmisc.wellbehaved.event.InputMap;
-import static com.scrivenvar.Messages.get;
 
 /**
  * Tab pane for file editors.
@@ -225,7 +225,11 @@ public final class FileEditorTabPane extends TabPane {
   void openFileDialog() {
     final String title = get( "Dialog.file.choose.open.title" );
     final FileChooser dialog = createFileChooser( title );
-    openFiles( dialog.showOpenMultipleDialog( getWindow() ) );
+    final List<File> files = dialog.showOpenMultipleDialog( getWindow() );
+
+    if( files != null ) {
+      openFiles( files );
+    }
   }
 
   /**
@@ -488,7 +492,7 @@ public final class FileEditorTabPane extends TabPane {
     fileChooser.getExtensionFilters().addAll(
       createExtensionFilters() );
 
-    final String lastDirectory = getState().get( "lastDirectory", null );
+    final String lastDirectory = getPreferences().get( "lastDirectory", null );
     File file = new File( (lastDirectory != null) ? lastDirectory : "." );
 
     if( !file.isDirectory() ) {
@@ -505,8 +509,8 @@ public final class FileEditorTabPane extends TabPane {
     // TODO: Return a list of all properties that match the filter prefix.
     // This will allow dynamic filters to be added and removed just by
     // updating the properties file.
-    list.add( createExtensionFilter( "markdown" ) );
     list.add( createExtensionFilter( "definition" ) );
+    list.add( createExtensionFilter( "markdown" ) );
     list.add( createExtensionFilter( "xml" ) );
     list.add( createExtensionFilter( "all" ) );
     return list;
@@ -524,13 +528,13 @@ public final class FileEditorTabPane extends TabPane {
   }
 
   private void saveLastDirectory( final File file ) {
-    getState().put( "lastDirectory", file.getParent() );
+    getPreferences().put( "lastDirectory", file.getParent() );
   }
 
   public void restorePreferences() {
     int activeIndex = 0;
 
-    final Preferences preferences = getState();
+    final Preferences preferences = getPreferences();
     final String[] fileNames = Utils.getPrefsStrings( preferences, "file" );
     final String activeFileName = preferences.get( "activeFile", null );
 
@@ -568,7 +572,7 @@ public final class FileEditorTabPane extends TabPane {
       }
     }
 
-    final Preferences preferences = getState();
+    final Preferences preferences = getPreferences();
     Utils.putPrefsStrings( preferences, "file", fileNames.toArray( new String[ fileNames.size() ] ) );
 
     final FileEditorTab activeEditor = getActiveFileEditor();
@@ -593,7 +597,7 @@ public final class FileEditorTabPane extends TabPane {
     return getScene().getWindow();
   }
 
-  protected Preferences getState() {
+  private Preferences getPreferences() {
     return getOptions().getState();
   }
 

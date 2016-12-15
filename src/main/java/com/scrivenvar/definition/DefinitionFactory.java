@@ -31,7 +31,13 @@ import com.scrivenvar.Services;
 import com.scrivenvar.definition.yaml.YamlFileDefinitionSource;
 import com.scrivenvar.predicates.files.FileTypePredicate;
 import com.scrivenvar.service.Settings;
+import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Iterator;
 import java.util.List;
 
@@ -70,7 +76,7 @@ public class DefinitionFactory {
     final Settings properties = getSettings();
     final Iterator<String> keys = properties.getKeys( EXTENSIONS_PREFIX );
 
-    DefinitionSource definitions = null;
+    DefinitionSource result = new EmptyDefinitionSource();
 
     while( keys.hasNext() ) {
       final String key = keys.next();
@@ -80,11 +86,29 @@ public class DefinitionFactory {
       if( predicate.test( path.toFile() ) ) {
         final String filetype = key.replace( EXTENSIONS_PREFIX + ".", "" );
 
-        definitions = createFileDefinitionSource( filetype, path );
+        result = createFileDefinitionSource( filetype, path );
       }
     }
 
-    return definitions;
+    return result;
+  }
+
+  public DefinitionSource createDefinitionSource( final String path ) {
+
+    final String protocol = getProtocol( path );
+    DefinitionSource result = new EmptyDefinitionSource();
+
+    switch( protocol ) {
+      case "file":
+        result = fileDefinitionSource( Paths.get( path ) );
+        break;
+
+      default:
+        unknownDefinitionSource( protocol, path );
+        break;
+    }
+
+    return result;
   }
 
   /**
@@ -97,7 +121,7 @@ public class DefinitionFactory {
    */
   private DefinitionSource createFileDefinitionSource(
     final String filetype, final Path path ) {
-    final DefinitionSource result;
+    DefinitionSource result = new EmptyDefinitionSource();
 
     switch( filetype ) {
       case "yaml":
@@ -105,14 +129,78 @@ public class DefinitionFactory {
         break;
 
       default:
-        result = new EmptyDefinitionSource();
+        unknownDefinitionSource( filetype, path.toString() );
         break;
     }
 
     return result;
   }
 
+  /**
+   * Throws IllegalArgumentException because the given path could not be
+   * recognized.
+   *
+   * @param type The detected path type (protocol, file extension, etc.).
+   * @param path The path to a source of definitions.
+   */
+  private void unknownDefinitionSource( final String type, final String path ) {
+    throw new IllegalArgumentException(
+      "Unknown type '" + type + "' for " + path + "."
+    );
+  }
+
   private Settings getSettings() {
     return this.settings;
+  }
+
+  /**
+   * Returns the protocol for a given URI or filename.
+   *
+   * @param source Determine the protocol for this URI or filename.
+   *
+   * @return The protocol for the given source.
+   */
+  private String getProtocol( final String source ) {
+    String protocol = null;
+
+    try {
+      final URI uri = new URI( source );
+
+      if( uri.isAbsolute() ) {
+        protocol = uri.getScheme();
+      } else {
+        final URL url = new URL( source );
+        protocol = url.getProtocol();
+      }
+    } catch( final URISyntaxException | MalformedURLException e ) {
+      // Could be HTTP, HTTPS?
+      if( source.startsWith( "//" ) ) {
+        throw new IllegalArgumentException( "Relative context: " + source );
+      } else {
+        final File file = new File( source );
+        protocol = getProtocol( file );
+      }
+    }
+
+    return protocol;
+  }
+
+  /**
+   * Returns the protocol for a given file.
+   *
+   * @param file Determine the protocol for this file.
+   *
+   * @return The protocol for the given file.
+   */
+  private String getProtocol( final File file ) {
+    String result;
+
+    try {
+      result = file.toURI().toURL().getProtocol();
+    } catch( Exception e ) {
+      result = "unknown";
+    }
+
+    return result;
   }
 }

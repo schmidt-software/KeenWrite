@@ -1,6 +1,6 @@
 ![Logo](images/logo64.png)
 
-Scrivenvar
+$application.title$
 ===
 
 Word processing with variables.

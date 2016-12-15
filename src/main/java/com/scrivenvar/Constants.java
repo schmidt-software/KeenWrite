@@ -67,6 +67,7 @@ public class Constants {
   public static final String CARET_POSITION_HTML = get( "caret.token.html" );
 
   public static final String PREFS_ROOT = get( "preferences.root" );
-  public static final String PREFS_ROOT_STATE = get( "preferences.root.state" );
-  public static final String PREFS_ROOT_OPTIONS = get( "preferences.root.options" );
+  public static final String PREFS_STATE = get( "preferences.root.state" );
+  public static final String PREFS_OPTIONS = get( "preferences.root.options" );
+  public static final String PREFS_DEFINITION_SOURCE = get( "preferences.root.definition.source" );
 }

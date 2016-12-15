@@ -28,7 +28,7 @@
 package com.scrivenvar.processors.text;
 
 import java.util.Map;
-import static org.apache.commons.lang.StringUtils.replaceEach;
+import static org.apache.commons.lang3.StringUtils.replaceEach;
 
 /**
  * Replaces text using Apache's StringUtils.replaceEach method.

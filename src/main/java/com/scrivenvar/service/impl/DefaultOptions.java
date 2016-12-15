@@ -27,11 +27,11 @@
 package com.scrivenvar.service.impl;
 
 import static com.scrivenvar.Constants.PREFS_ROOT;
-import static com.scrivenvar.Constants.PREFS_ROOT_OPTIONS;
-import static com.scrivenvar.Constants.PREFS_ROOT_STATE;
 import com.scrivenvar.service.Options;
 import java.util.prefs.Preferences;
 import static java.util.prefs.Preferences.userRoot;
+import static com.scrivenvar.Constants.PREFS_STATE;
+import static com.scrivenvar.Constants.PREFS_OPTIONS;
 
 /**
  * Persistent options user can change at runtime.
@@ -42,7 +42,7 @@ public class DefaultOptions implements Options {
   private Preferences preferences;
   
   public DefaultOptions() {
-    setPreferences( getRootPreferences().node( PREFS_ROOT_OPTIONS ) );
+    setPreferences(getRootPreferences().node(PREFS_OPTIONS ) );
   }
 
   @Override
@@ -65,7 +65,7 @@ public class DefaultOptions implements Options {
 
   @Override
   public Preferences getState() {
-    return getRootPreferences().node( PREFS_ROOT_STATE );
+    return getRootPreferences().node(PREFS_STATE );
   }
 
   private Preferences getPreferences() {

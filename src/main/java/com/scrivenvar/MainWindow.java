@@ -28,11 +28,13 @@
 package com.scrivenvar;
 
 import static com.scrivenvar.Constants.FILE_LOGO_32;
+import static com.scrivenvar.Constants.PREFS_DEFINITION_SOURCE;
 import static com.scrivenvar.Constants.STYLESHEET_SCENE;
 import static com.scrivenvar.Messages.get;
 import com.scrivenvar.definition.DefinitionFactory;
 import com.scrivenvar.definition.DefinitionPane;
 import com.scrivenvar.definition.DefinitionSource;
+import com.scrivenvar.definition.EmptyDefinitionSource;
 import com.scrivenvar.editors.VariableNameInjector;
 import com.scrivenvar.editors.markdown.MarkdownEditorPane;
 import com.scrivenvar.preview.HTMLPreviewPane;
@@ -64,9 +66,8 @@ import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.QUOTE_LEFT;
 import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.REPEAT;
 import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.STRIKETHROUGH;
 import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.UNDO;
-import java.io.File;
+import java.net.MalformedURLException;
 import java.nio.file.Path;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.prefs.Preferences;
@@ -110,20 +111,20 @@ public class MainWindow {
   private final Options options = Services.load( Options.class );
 
   private Scene scene;
+  private MenuBar menuBar;
 
   private DefinitionPane definitionPane;
   private FileEditorTabPane fileEditorPane;
   private HTMLPreviewPane previewPane;
 
   private VariableNameInjector variableNameInjector;
-
-  private MenuBar menuBar;
+  private DefinitionSource definitionSource;
 
   public MainWindow() {
     initLayout();
     initOpenDefinitionListener();
     initTabAddedListener();
-    initTabChangeListener();
+    initTabChangedListener();
     initPreferences();
     initVariableNameInjector();
   }
@@ -135,8 +136,7 @@ public class MainWindow {
     getFileEditorPane().onOpenDefinitionFileProperty().addListener(
       (ObservableValue<? extends Path> definitionFile,
         final Path oldPath, final Path newPath) -> {
-        final DefinitionSource ds = createDefinitionSource( newPath );
-        associate( ds, getActiveFileEditor() );
+        openDefinition( newPath );
       } );
   }
 
@@ -173,12 +173,13 @@ public class MainWindow {
    */
   private void initPreferences() {
     getFileEditorPane().restorePreferences();
+    restoreDefinitionSource();
   }
 
   /**
    * Listen for new tab selection events.
    */
-  private void initTabChangeListener() {
+  private void initTabChangedListener() {
     final FileEditorTabPane editorPane = getFileEditorPane();
 
     // Update the preview pane changing tabs.
@@ -248,81 +249,59 @@ public class MainWindow {
   }
 
   /**
-   * TODO: Patch into loading of definition source.
+   * Returns the variable map of interpolated definitions.
    *
-   * @return
+   * @return A map to help dereference variables.
    */
   private Map<String, String> getResolvedMap() {
-    return new HashMap<>();
+    return getDefinitionSource().getResolvedMap();
   }
 
   /**
-   * TODO: Patch into loading of definition source.
+   * Returns the root node for the hierarchical definition source.
    *
-   * @return
+   * @return Data to display in the definition pane.
    */
   private TreeView<String> getTreeView() {
+    try {
+      return getDefinitionSource().asTreeView();
+    } catch( Exception e ) {
+      alert( e );
+    }
+
     return new TreeView<>();
   }
 
-  /**
-   * Called when the tab has changed to a new editor to replace the current
-   * definition pane with the
-   *
-   * @param tab Reference to the tab that has the file being edited.
-   */
-  private void updateDefinitionPane( final FileEditorTab tab ) {
-    // Look up the path to the variable definition file associated with the
-    // given tab.
-    final Path path = getVariableDefinitionPath( tab.getPath() );
-    final DefinitionSource ds = createDefinitionSource( path );
-
-    associate( ds, tab );
+  private void openDefinition( final Path path ) {
+    openDefinition( path.toString() );
   }
 
-  private void associate( final DefinitionSource ds, final FileEditorTab tab ) {
-    System.out.println( "Associate " + ds + " with " + tab );
-  }
+  private void openDefinition( final String path ) {
+    try {
+      final DefinitionSource ds = createDefinitionSource( path );
+      setDefinitionSource( ds );
+      storeDefinitionSource();
 
-  /**
-   * Searches the persistent settings for the variable definition file that is
-   * associated with the given path.
-   *
-   * @param tabPath The path that may be associated with some variables.
-   *
-   * @return A path to the variable definition file for the given document path.
-   */
-  private Path getVariableDefinitionPath( final Path tabPath ) {
-    return new File( "/tmp/variables.yaml" ).toPath();
-  }
-
-  /**
-   * Creates a boolean property that is bound to another boolean value of the
-   * active editor.
-   */
-  private BooleanProperty createActiveBooleanProperty(
-    final Function<FileEditorTab, ObservableBooleanValue> func ) {
-
-    final BooleanProperty b = new SimpleBooleanProperty();
-    final FileEditorTab tab = getActiveFileEditor();
-
-    if( tab != null ) {
-      b.bind( func.apply( tab ) );
+      getDefinitionPane().setRoot( ds.asTreeView() );
+    } catch( Exception e ) {
+      alert( e );
     }
+  }
 
-    getFileEditorPane().activeFileEditorProperty().addListener(
-      (observable, oldFileEditor, newFileEditor) -> {
-        b.unbind();
+  private void restoreDefinitionSource() {
+    final Preferences preferences = getPreferences();
+    final String source = preferences.get( PREFS_DEFINITION_SOURCE, null );
 
-        if( newFileEditor != null ) {
-          b.bind( func.apply( newFileEditor ) );
-        } else {
-          b.set( false );
-        }
-      }
-    );
+    if( source != null ) {
+      openDefinition( source );
+    }
+  }
 
-    return b;
+  private void storeDefinitionSource() {
+    final Preferences preferences = getPreferences();
+    final DefinitionSource ds = getDefinitionSource();
+
+    preferences.put( PREFS_DEFINITION_SOURCE, ds.toString() );
   }
 
   /**
@@ -332,6 +311,15 @@ public class MainWindow {
   private void closeRemainingTab() {
     getPreviewPane().clear();
     getDefinitionPane().clear();
+  }
+
+  /**
+   * Called when an exception occurs that warrants the user's attention.
+   *
+   * @param e The exception with a message that the user should know about.
+   */
+  private void alert( final Exception e ) {
+    // TODO: Raise a notice.
   }
 
   //---- File actions -------------------------------------------------------
@@ -423,6 +411,18 @@ public class MainWindow {
     return this.previewPane;
   }
 
+  private void setDefinitionSource( final DefinitionSource definitionSource ) {
+    this.definitionSource = definitionSource;
+  }
+
+  private synchronized DefinitionSource getDefinitionSource() {
+    if( this.definitionSource == null ) {
+      this.definitionSource = new EmptyDefinitionSource();
+    }
+
+    return this.definitionSource;
+  }
+
   private DefinitionPane getDefinitionPane() {
     if( this.definitionPane == null ) {
       this.definitionPane = createDefinitionPane();
@@ -452,8 +452,9 @@ public class MainWindow {
   }
 
   //---- Member creators ----------------------------------------------------
-  private DefinitionSource createDefinitionSource( final Path path ) {
-    return createDefinitionFactory().fileDefinitionSource( path );
+  private DefinitionSource createDefinitionSource( final String path )
+    throws MalformedURLException {
+    return createDefinitionFactory().createDefinitionSource( path );
   }
 
   /**
@@ -469,7 +470,7 @@ public class MainWindow {
     return new HTMLPreviewPane();
   }
 
-  protected DefinitionPane createDefinitionPane() {
+  private DefinitionPane createDefinitionPane() {
     return new DefinitionPane( getTreeView() );
   }
 
@@ -622,6 +623,35 @@ public class MainWindow {
       insertOrderedListAction );
 
     return new VBox( menuBar, toolBar );
+  }
+
+  /**
+   * Creates a boolean property that is bound to another boolean value of the
+   * active editor.
+   */
+  private BooleanProperty createActiveBooleanProperty(
+    final Function<FileEditorTab, ObservableBooleanValue> func ) {
+
+    final BooleanProperty b = new SimpleBooleanProperty();
+    final FileEditorTab tab = getActiveFileEditor();
+
+    if( tab != null ) {
+      b.bind( func.apply( tab ) );
+    }
+
+    getFileEditorPane().activeFileEditorProperty().addListener(
+      (observable, oldFileEditor, newFileEditor) -> {
+        b.unbind();
+
+        if( newFileEditor != null ) {
+          b.bind( func.apply( newFileEditor ) );
+        } else {
+          b.set( false );
+        }
+      }
+    );
+
+    return b;
   }
 
   private void initLayout() {

@@ -167,9 +167,11 @@ public class YamlParser {
   private void resolve(
     final JsonNode rootNode, final String path, final Map<String, String> map ) {
 
-    rootNode.fields().forEachRemaining(
-      (Entry<String, JsonNode> leaf) -> resolve( leaf, path, map )
-    );
+    if( rootNode != null ) {
+      rootNode.fields().forEachRemaining(
+        (Entry<String, JsonNode> leaf) -> resolve( leaf, path, map )
+      );
+    }
   }
 
   /**

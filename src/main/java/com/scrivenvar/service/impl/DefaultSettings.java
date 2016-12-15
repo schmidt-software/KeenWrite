@@ -30,15 +30,16 @@ package com.scrivenvar.service.impl;
 import static com.scrivenvar.Constants.SETTINGS_NAME;
 import com.scrivenvar.service.Settings;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
-import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.commons.configuration2.PropertiesConfiguration;
+import org.apache.commons.configuration2.convert.DefaultListDelimiterHandler;
+import org.apache.commons.configuration2.convert.ListDelimiterHandler;
+import org.apache.commons.configuration2.ex.ConfigurationException;
 
 /**
  * Responsible for loading settings that help avoid hard-coded assumptions.
@@ -46,6 +47,7 @@ import org.apache.commons.configuration.PropertiesConfiguration;
  * @author White Magic Software, Ltd.
  */
 public class DefaultSettings implements Settings {
+  private static final char VALUE_SEPARATOR = ',';
 
   private PropertiesConfiguration properties;
 
@@ -81,23 +83,6 @@ public class DefaultSettings implements Settings {
   }
 
   /**
-   * Returns a list of objects for a given setting.
-   *
-   * @param property The setting key name.
-   * @param defaults The default values to return, which may be null.
-   *
-   * @return A list, possibly empty, never null.
-   */
-  @Override
-  public List<Object> getSettingList( final String property, List<String> defaults ) {
-    if( defaults == null ) {
-      defaults = new ArrayList<>();
-    }
-
-    return getSettings().getList( property, defaults );
-  }
-
-  /**
    * Convert the generic list of property objects into strings.
    *
    * @param property The property value to coerce.
@@ -108,11 +93,7 @@ public class DefaultSettings implements Settings {
   @Override
   public List<String> getStringSettingList(
     final String property, final List<String> defaults ) {
-    final List<Object> settings = getSettingList( property, defaults );
-
-    return settings.stream()
-      .map( object -> Objects.toString( object, null ) )
-      .collect( Collectors.toList() );
+    return getSettings().getList( String.class, property, defaults );
   }
 
   /**
@@ -141,11 +122,25 @@ public class DefaultSettings implements Settings {
 
   private PropertiesConfiguration createProperties()
     throws ConfigurationException {
-    final URL url = getPropertySource();
 
-    return url == null
-      ? new PropertiesConfiguration()
-      : new PropertiesConfiguration( url );
+    final URL url = getPropertySource();
+    final PropertiesConfiguration configuration = new PropertiesConfiguration();
+
+    if( url != null ) {
+      try( final Reader r = new InputStreamReader( url.openStream() ) ) {
+        configuration.setListDelimiterHandler( createListDelimiterHandler() );
+        configuration.read( r );
+
+      } catch( IOException e ) {
+        throw new ConfigurationException( e );
+      }
+    }
+
+    return configuration;
+  }
+  
+  protected ListDelimiterHandler createListDelimiterHandler() {
+    return new DefaultListDelimiterHandler( VALUE_SEPARATOR );
   }
 
   private URL getPropertySource() {

@@ -29,6 +29,7 @@ package com.scrivenvar.processors;
 
 import static com.scrivenvar.Constants.CARET_POSITION_MD;
 import static java.lang.Character.isLetter;
+import static java.lang.Math.min;
 
 /**
  * Responsible for inserting the magic CARET POSITION into the markdown so that,
@@ -64,8 +65,19 @@ public class MarkdownCaretInsertionProcessor extends AbstractProcessor<String> {
    */
   @Override
   public String processLink( final String t ) {
-    int offset = getCaretPosition();
     final int length = t.length();
+    int offset = min( getCaretPosition(), length );
+
+    // TODO: Ensure that the caret position is outside of an element, 
+    // so that a caret inserted in the image doesn't corrupt it. Such as:
+    //
+    // ![Screenshot](images/scr|eenshot.png)
+    //
+    // 1. Scan back to the previous EOL, which will be the MD AST start point.
+    // 2. Scan forward until EOF or EOL, which will be the MD AST ending point.
+    // 3. Convert the text between start and end into MD AST.
+    // 4. Find the nearest text node to the caret.
+    // 5. Insert the CARET_POSITION_MD value in the text at that offsset.
 
     // Insert the caret at the closest non-Markdown delimiter (i.e., the 
     // closest character from the caret position forward).
@@ -73,10 +85,6 @@ public class MarkdownCaretInsertionProcessor extends AbstractProcessor<String> {
       offset++;
     }
 
-    // TODO: Ensure that the caret position is outside of an element, 
-    // so that a caret inserted in the image doesn't corrupt it. Such as:
-    //
-    // ![Screenshot](images/scr|eenshot.png)
     // Insert the caret position into the Markdown text, but don't interfere
     // with the Markdown iteself.
     return new StringBuilder( t ).replace(

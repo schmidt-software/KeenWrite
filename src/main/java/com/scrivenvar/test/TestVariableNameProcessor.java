@@ -45,8 +45,8 @@ import javafx.scene.control.TreeView;
 import javafx.stage.Stage;
 import org.ahocorasick.trie.*;
 import org.ahocorasick.trie.Trie.TrieBuilder;
-import static org.apache.commons.lang.RandomStringUtils.randomNumeric;
-import org.apache.commons.lang.StringUtils;
+import static org.apache.commons.lang3.RandomStringUtils.randomNumeric;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Tests substituting variable definitions with their values in a swath of text.
