@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.9
+
+- Associate variable name injector with all tabs.
+
 ## 0.8
 
 - Load YAML variables from files

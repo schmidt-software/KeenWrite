@@ -185,7 +185,7 @@ public final class FileEditorTab extends Tab {
   public int getCaretPosition() {
     return getEditorPane().getEditor().getCaretPosition();
   }
-
+  
   /**
    * Returns true if the given path exactly matches this tab's path.
    *
@@ -397,7 +397,7 @@ public final class FileEditorTab extends Tab {
    *
    * @return The editor pane, never null.
    */
-  protected EditorPane getEditorPane() {
+  public EditorPane getEditorPane() {
     if( this.editorPane == null ) {
       this.editorPane = new MarkdownEditorPane();
     }

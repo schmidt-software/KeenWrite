@@ -27,7 +27,7 @@
  */
 package com.scrivenvar.editors;
 
-import com.scrivenvar.FileEditorTabPane;
+import com.scrivenvar.FileEditorTab;
 import com.scrivenvar.Services;
 import com.scrivenvar.decorators.VariableDecorator;
 import com.scrivenvar.decorators.YamlVariableDecorator;
@@ -81,7 +81,7 @@ public class VariableNameInjector {
    */
   private InputMap<InputEvent> keyboardMap;
 
-  private FileEditorTabPane fileEditorPane;
+  private FileEditorTab tab;
   private DefinitionPane definitionPane;
 
   /**
@@ -90,9 +90,9 @@ public class VariableNameInjector {
   private int initialCaretPosition;
 
   public VariableNameInjector(
-    final FileEditorTabPane editorPane,
+    final FileEditorTab tab,
     final DefinitionPane definitionPane ) {
-    setFileEditorPane( editorPane );
+    setFileEditorTab( tab );
     setDefinitionPane( definitionPane );
 
     initKeyboardEventListeners();
@@ -254,7 +254,7 @@ public class VariableNameInjector {
    *
    * @param e Ignored -- it can only be Ctrl+Space.
    */
-  private void autocomplete( KeyEvent e ) {
+  private void autocomplete( final KeyEvent e ) {
     final String paragraph = getCaretParagraph();
     final int[] boundaries = getWordBoundaries( paragraph );
     final String word = paragraph.substring( boundaries[ 0 ], boundaries[ 1 ] );
@@ -759,6 +759,10 @@ public class VariableNameInjector {
     // If one string was shorter than the other, that's where they differ.
     return i;
   }
+  
+  private EditorPane getEditorPane() {
+    return getFileEditorTab().getEditorPane();
+  }
 
   /**
    * Delegates to the file editor pane, and, ultimately, to its text area.
@@ -766,7 +770,7 @@ public class VariableNameInjector {
   private <T extends Event, U extends T> void addEventListener(
     final EventPattern<? super T, ? extends U> event,
     final Consumer<? super U> consumer ) {
-    getFileEditorPane().addEventListener( event, consumer );
+    getEditorPane().addEventListener( event, consumer );
   }
 
   /**
@@ -775,11 +779,11 @@ public class VariableNameInjector {
    * @param map The map of methods to events.
    */
   private void addEventListener( final InputMap<InputEvent> map ) {
-    getFileEditorPane().addEventListener( map );
+    getEditorPane().addEventListener( map );
   }
 
   private void removeEventListener( final InputMap<InputEvent> map ) {
-    getFileEditorPane().removeEventListener( map );
+    getEditorPane().removeEventListener( map );
   }
 
   /**
@@ -803,15 +807,15 @@ public class VariableNameInjector {
   }
 
   private StyledTextArea getEditor() {
-    return getFileEditorPane().getEditor();
+    return getFileEditorTab().getEditorPane().getEditor();
   }
 
-  public FileEditorTabPane getFileEditorPane() {
-    return this.fileEditorPane;
+  public FileEditorTab getFileEditorTab() {
+    return this.tab;
   }
 
-  private void setFileEditorPane( final FileEditorTabPane fileEditorPane ) {
-    this.fileEditorPane = fileEditorPane;
+  private void setFileEditorTab( final FileEditorTab editorTab ) {
+    this.tab = editorTab;
   }
 
   private DefinitionPane getDefinitionPane() {
