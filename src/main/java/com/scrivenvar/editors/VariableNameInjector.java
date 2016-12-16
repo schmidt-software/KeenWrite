@@ -34,6 +34,7 @@ import com.scrivenvar.decorators.YamlVariableDecorator;
 import com.scrivenvar.definition.DefinitionPane;
 import com.scrivenvar.definition.VariableTreeItem;
 import static com.scrivenvar.definition.yaml.YamlParser.SEPARATOR;
+import static com.scrivenvar.definition.yaml.YamlParser.SEPARATOR_CHAR;
 import com.scrivenvar.service.Settings;
 import static com.scrivenvar.util.Lists.getFirst;
 import static com.scrivenvar.util.Lists.getLast;
@@ -89,13 +90,16 @@ public class VariableNameInjector {
    */
   private int initialCaretPosition;
 
-  public VariableNameInjector(
-    final FileEditorTab tab,
-    final DefinitionPane definitionPane ) {
-    setFileEditorTab( tab );
-    setDefinitionPane( definitionPane );
+  private VariableNameInjector() {
+  }
 
-    initKeyboardEventListeners();
+  public static void listen( final FileEditorTab tab, final DefinitionPane pane ) {
+    VariableNameInjector vni = new VariableNameInjector();
+
+    vni.setFileEditorTab( tab );
+    vni.setDefinitionPane( pane );
+
+    vni.initKeyboardEventListeners();
   }
 
   /**
@@ -591,11 +595,11 @@ public class VariableNameInjector {
   private String getLastPathWord() {
     String path = getCurrentPath();
 
-    int i = path.indexOf( SEPARATOR );
+    int i = path.indexOf( SEPARATOR_CHAR );
 
     while( i > 0 ) {
       path = path.substring( i + 1 );
-      i = path.indexOf( SEPARATOR );
+      i = path.indexOf( SEPARATOR_CHAR );
     }
 
     return path;
@@ -759,7 +763,7 @@ public class VariableNameInjector {
     // If one string was shorter than the other, that's where they differ.
     return i;
   }
-  
+
   private EditorPane getEditorPane() {
     return getFileEditorTab().getEditorPane();
   }

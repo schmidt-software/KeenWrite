@@ -81,22 +81,23 @@ public class TestVariableNameProcessor extends TestHarness {
     show( text );
 
     long duration = System.nanoTime();
-
-    // TODO: Test replaceEach (with intercoluated variables) and replaceEachRepeatedly
-    // (without intercoluation).
-    final String result = testBorAhoCorasick( text, definitions );
-
+    String result = testBorAhoCorasick( text, definitions );
     duration = System.nanoTime() - duration;
-
     show( result );
     System.out.println( elapsed( duration ) );
 
-    System.exit( 0 );
+    duration = System.nanoTime();
+    result = testStringUtils( text, definitions );
+    duration = System.nanoTime() - duration;
+    show( result );
+    System.out.println( elapsed( duration ) );
+
+    throw new RuntimeException( "Complete" );
   }
 
   private void show( final String s ) {
     if( DEBUG ) {
-      System.out.printf( "%s\n\n", s );
+      System.out.printf( "%s%n%n", s );
     }
   }
 
@@ -198,7 +199,16 @@ public class TestVariableNameProcessor extends TestHarness {
   private void populate( final TreeItem<String> parent, final Map<String, String> map ) {
     for( final TreeItem<String> child : parent.getChildren() ) {
       if( child.isLeaf() ) {
-        final String key = asDefinition( ((VariableTreeItem<String>)child).toPath() );
+        final VariableTreeItem<String> item;
+
+        if( child instanceof VariableTreeItem ) {
+          item = ((VariableTreeItem<String>)child);
+        } else {
+          throw new IllegalArgumentException(
+            "Child must be subclass of VariableTreeItem: " + child );
+        }
+
+        final String key = asDefinition( item.toPath() );
         final String value = child.getValue();
 
         map.put( key, value );

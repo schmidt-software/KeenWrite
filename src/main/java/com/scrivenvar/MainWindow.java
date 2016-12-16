@@ -30,10 +30,12 @@ package com.scrivenvar;
 import static com.scrivenvar.Constants.FILE_LOGO_32;
 import static com.scrivenvar.Constants.PREFS_DEFINITION_SOURCE;
 import static com.scrivenvar.Constants.STYLESHEET_SCENE;
+import static com.scrivenvar.Messages.get;
 import com.scrivenvar.definition.DefinitionFactory;
 import com.scrivenvar.definition.DefinitionPane;
 import com.scrivenvar.definition.DefinitionSource;
 import com.scrivenvar.definition.EmptyDefinitionSource;
+import com.scrivenvar.editors.EditorPane;
 import com.scrivenvar.editors.VariableNameInjector;
 import com.scrivenvar.editors.markdown.MarkdownEditorPane;
 import com.scrivenvar.preview.HTMLPreviewPane;
@@ -99,7 +101,6 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Window;
 import javafx.stage.WindowEvent;
-import static com.scrivenvar.Messages.get;
 
 /**
  * Main window containing a tab pane in the center for file editors.
@@ -193,7 +194,7 @@ public class MainWindow {
           if( newTab == null ) {
             closeRemainingTab();
           } else {
-            // Synchronize the preview with the edited text.
+            // Update the preview with the edited text.
             refreshSelectedTab( (FileEditorTab)newTab );
           }
         }
@@ -220,7 +221,7 @@ public class MainWindow {
   }
 
   private void initVariableNameInjector( final FileEditorTab tab ) {
-    VariableNameInjector vni = new VariableNameInjector( tab, getDefinitionPane() );
+    VariableNameInjector.listen( tab, getDefinitionPane() );
   }
 
   /**
@@ -231,6 +232,12 @@ public class MainWindow {
    * @param tab The file editor tab that has been changed in some fashion.
    */
   private void refreshSelectedTab( final FileEditorTab tab ) {
+    final Path path = tab.getPath();
+
+    if( path != null ) {
+      System.out.println( "Tab File: " + path );
+    }
+
     final HTMLPreviewPane preview = getPreviewPane();
     preview.setPath( tab.getPath() );
 
@@ -374,7 +381,9 @@ public class MainWindow {
   }
 
   private MarkdownEditorPane getActiveEditor() {
-    return (MarkdownEditorPane)(getActiveFileEditor().getEditorPane());
+    final EditorPane pane = getActiveFileEditor().getEditorPane();
+
+    return pane instanceof MarkdownEditorPane ? (MarkdownEditorPane)pane : null;
   }
 
   private FileEditorTab getActiveFileEditor() {
@@ -398,7 +407,7 @@ public class MainWindow {
     return this.fileEditorPane;
   }
 
-  private synchronized HTMLPreviewPane getPreviewPane() {
+  private HTMLPreviewPane getPreviewPane() {
     if( this.previewPane == null ) {
       this.previewPane = createPreviewPane();
     }
@@ -410,7 +419,7 @@ public class MainWindow {
     this.definitionSource = definitionSource;
   }
 
-  private synchronized DefinitionSource getDefinitionSource() {
+  private DefinitionSource getDefinitionSource() {
     if( this.definitionSource == null ) {
       this.definitionSource = new EmptyDefinitionSource();
     }
@@ -519,7 +528,7 @@ public class MainWindow {
     // Insert header actions (H1 ... H6)
     for( int i = 1; i <= 6; i++ ) {
       final String hashes = new String( new char[ i ] ).replace( "\0", "#" );
-      final String markup = String.format( "\n\n%s ", hashes );
+      final String markup = String.format( "%n%n%s ", hashes );
       final String text = get( "Main.menu.insert.header_" + i );
       final String accelerator = "Shortcut+" + i;
       final String prompt = get( "Main.menu.insert.header_" + i + ".prompt" );

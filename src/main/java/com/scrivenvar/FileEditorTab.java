@@ -27,7 +27,6 @@ package com.scrivenvar;
 
 import com.scrivenvar.editors.EditorPane;
 import com.scrivenvar.editors.markdown.MarkdownEditorPane;
-import com.scrivenvar.service.Options;
 import com.scrivenvar.service.events.AlertMessage;
 import com.scrivenvar.service.events.AlertService;
 import java.nio.charset.Charset;
@@ -60,9 +59,7 @@ import org.mozilla.universalchardet.UniversalDetector;
  */
 public final class FileEditorTab extends Tab {
 
-  private final Options options = Services.load( Options.class );
   private final AlertService alertService = Services.load( AlertService.class );
-
   private EditorPane editorPane;
 
   /**
@@ -305,7 +302,7 @@ public final class FileEditorTab extends Tab {
     return new String( text, getEncoding() );
   }
 
-  Path getPath() {
+  public Path getPath() {
     return this.path;
   }
 
@@ -407,10 +404,6 @@ public final class FileEditorTab extends Tab {
 
   private AlertService getAlertService() {
     return this.alertService;
-  }
-
-  private Options getOptions() {
-    return this.options;
   }
 
   private Charset getEncoding() {

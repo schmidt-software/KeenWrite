@@ -34,6 +34,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.Iterator;
 import java.util.List;
 import org.apache.commons.configuration2.PropertiesConfiguration;
@@ -127,7 +128,7 @@ public class DefaultSettings implements Settings {
     final PropertiesConfiguration configuration = new PropertiesConfiguration();
 
     if( url != null ) {
-      try( final Reader r = new InputStreamReader( url.openStream() ) ) {
+      try( final Reader r = new InputStreamReader( url.openStream(), getDefaultEncoding() ) ) {
         configuration.setListDelimiterHandler( createListDelimiterHandler() );
         configuration.read( r );
 
@@ -139,12 +140,16 @@ public class DefaultSettings implements Settings {
     return configuration;
   }
   
+  protected Charset getDefaultEncoding() {
+    return Charset.defaultCharset();
+  }
+  
   protected ListDelimiterHandler createListDelimiterHandler() {
     return new DefaultListDelimiterHandler( VALUE_SEPARATOR );
   }
 
   private URL getPropertySource() {
-    return getClass().getResource( getSettingsFilename() );
+    return DefaultSettings.class.getResource( getSettingsFilename() );
   }
 
   private String getSettingsFilename() {

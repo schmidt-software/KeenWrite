@@ -96,7 +96,7 @@ public class DefinitionFactory {
   public DefinitionSource createDefinitionSource( final String path ) {
 
     final String protocol = getProtocol( path );
-    DefinitionSource result = new EmptyDefinitionSource();
+    DefinitionSource result = null;
 
     switch( protocol ) {
       case "file":
@@ -121,7 +121,8 @@ public class DefinitionFactory {
    */
   private DefinitionSource createFileDefinitionSource(
     final String filetype, final Path path ) {
-    DefinitionSource result = new EmptyDefinitionSource();
+    
+    DefinitionSource result = null;
 
     switch( filetype ) {
       case "yaml":

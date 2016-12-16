@@ -78,13 +78,14 @@ import org.yaml.snakeyaml.DumperOptions;
  *
  * @author White Magic Software, Ltd.
  */
-public class YamlParser {
+public class YamlParser  {
 
   /**
    * Separates YAML variable nodes (e.g., the dots in
    * <code>$root.node.var$</code>).
    */
   public static final String SEPARATOR = ".";
+  public static final char SEPARATOR_CHAR = SEPARATOR.charAt( 0 );
 
   private final static int GROUP_DELIMITED = 1;
   private final static int GROUP_REFERENCE = 2;
@@ -402,7 +403,9 @@ public class YamlParser {
     return new HashMap<>();
   }
 
-  private class ResolverYAMLFactory extends YAMLFactory {
+  private final class ResolverYAMLFactory extends YAMLFactory {
+
+    private static final long serialVersionUID = 1L;
 
     @Override
     protected YAMLGenerator _createGenerator(

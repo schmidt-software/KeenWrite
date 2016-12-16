@@ -110,6 +110,6 @@ public abstract class TestHarness extends Application {
   }
 
   protected InputStream asStream( String resource ) {
-    return getClass().getResourceAsStream( resource );
+    return TestHarness.class.getResourceAsStream( resource );
   }
 }

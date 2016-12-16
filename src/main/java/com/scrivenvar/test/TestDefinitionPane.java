@@ -66,7 +66,7 @@ public final class TestDefinitionPane extends TestHarness {
     test( pane, "c.p", "protagonist" );
     test( pane, "c.protagonist", "protagonist" );
 
-    System.exit( 0 );
+    throw new RuntimeException( "Complete" );
   }
 
   private void test( DefinitionPane pane, String path, String value ) {

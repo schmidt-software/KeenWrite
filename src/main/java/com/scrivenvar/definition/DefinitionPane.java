@@ -28,7 +28,7 @@
 package com.scrivenvar.definition;
 
 import com.scrivenvar.AbstractPane;
-import static com.scrivenvar.definition.yaml.YamlParser.SEPARATOR;
+import static com.scrivenvar.definition.yaml.YamlParser.SEPARATOR_CHAR;
 import com.scrivenvar.predicates.strings.ContainsPredicate;
 import com.scrivenvar.predicates.strings.StartsPredicate;
 import com.scrivenvar.predicates.strings.StringPredicate;
@@ -159,7 +159,7 @@ public class DefinitionPane extends AbstractPane {
     TreeItem<String> cItem = getTreeRoot();
     TreeItem<String> pItem = cItem;
 
-    int index = path.indexOf( SEPARATOR );
+    int index = path.indexOf( SEPARATOR_CHAR );
 
     while( index >= 0 ) {
       final String node = path.substring( 0, index );
@@ -169,7 +169,7 @@ public class DefinitionPane extends AbstractPane {
         break;
       }
 
-      index = path.indexOf( SEPARATOR );
+      index = path.indexOf( SEPARATOR_CHAR );
       pItem = cItem;
     }
 
@@ -322,7 +322,9 @@ public class DefinitionPane extends AbstractPane {
    * @return The first node added to the YAML definition tree.
    */
   private VariableTreeItem<String> getTreeRoot() {
-    return (VariableTreeItem<String>)getTreeView().getRoot();
+    final TreeItem<String> root = getTreeView().getRoot();
+
+    return root instanceof VariableTreeItem ? (VariableTreeItem<String>)root : null;
   }
 
   public <T> boolean isRoot( final TreeItem<T> item ) {

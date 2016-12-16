@@ -100,8 +100,4 @@ public class YamlFileDefinitionSource extends FileDefinitionSource {
   private void setYamlParser( final YamlParser yamlParser ) {
     this.yamlParser = yamlParser;
   }
-
-  private InputStream asStream( final String resource ) {
-    return getClass().getResourceAsStream( resource );
-  }
 }

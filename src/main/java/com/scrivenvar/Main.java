@@ -49,7 +49,7 @@ public final class Main extends Application {
   private final MainWindow mainWindow = new MainWindow();
   private final Options options = Services.load( Options.class );
 
-  public static void main( String[] args ) {
+  public static void main( final String[] args ) {
     launch( args );
   }
 
@@ -82,11 +82,11 @@ public final class Main extends Application {
     return Messages.get( "Main.title" );
   }
 
-  private StageState initState( Stage stage ) {
+  private StageState initState( final Stage stage ) {
     return new StageState( stage, getOptions().getState() );
   }
 
-  private void initStage( Stage stage ) {
+  private void initStage( final Stage stage ) {
     stage.getIcons().addAll(
       createImage( FILE_LOGO_16 ),
       createImage( FILE_LOGO_32 ),
