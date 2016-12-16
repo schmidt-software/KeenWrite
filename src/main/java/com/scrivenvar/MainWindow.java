@@ -45,6 +45,7 @@ import com.scrivenvar.processors.MarkdownCaretReplacementProcessor;
 import com.scrivenvar.processors.MarkdownProcessor;
 import com.scrivenvar.processors.Processor;
 import com.scrivenvar.processors.VariableProcessor;
+import com.scrivenvar.processors.XMLProcessor;
 import com.scrivenvar.service.Options;
 import com.scrivenvar.util.Action;
 import com.scrivenvar.util.ActionUtils;
@@ -237,14 +238,15 @@ public class MainWindow {
     if( path != null ) {
       System.out.println( "Tab File: " + path );
     }
-
+    
     final HTMLPreviewPane preview = getPreviewPane();
     preview.setPath( tab.getPath() );
 
     final Processor<String> hpp = new HTMLPreviewProcessor( preview );
     final Processor<String> mcrp = new MarkdownCaretReplacementProcessor( hpp );
     final Processor<String> mp = new MarkdownProcessor( mcrp );
-    final Processor<String> mcip = new MarkdownCaretInsertionProcessor( mp, tab.getCaretPosition() );
+    final Processor<String> xmlp = new XMLProcessor( mp, tab.getPath() );
+    final Processor<String> mcip = new MarkdownCaretInsertionProcessor( xmlp, tab.getCaretPosition() );
     final Processor<String> vp = new VariableProcessor( mcip, getResolvedMap() );
 
     vp.processChain( tab.getEditorText() );

@@ -301,7 +301,7 @@ public final class FileEditorTab extends Tab {
     setEncoding( detectEncoding( text ) );
     return new String( text, getEncoding() );
   }
-
+  
   public Path getPath() {
     return this.path;
   }
