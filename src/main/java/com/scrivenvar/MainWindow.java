@@ -245,7 +245,7 @@ public class MainWindow {
     final Processor<String> mcrp = new CaretReplacementProcessor( hpp );
     final Processor<String> mp = new MarkdownProcessor( mcrp );
 //    final Processor<String> mcip = new MarkdownCaretInsertionProcessor( mp, tab.getCaretPosition() );
-    final Processor<String> xmlp = new XMLCaretInsertionProcessor( mp, tab );
+    final Processor<String> xmlp = new XMLCaretInsertionProcessor( mp, tab.getCaretPosition() );
     final Processor<String> vp = new VariableProcessor( xmlp, getResolvedMap() );
 
     vp.processChain( tab.getEditorText() );

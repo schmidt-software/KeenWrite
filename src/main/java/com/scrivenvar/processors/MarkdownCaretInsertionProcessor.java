@@ -27,41 +27,35 @@
  */
 package com.scrivenvar.processors;
 
-import static com.scrivenvar.Constants.CARET_POSITION_MD;
 import static java.lang.Character.isLetter;
 import static java.lang.Math.min;
 
 /**
- * Responsible for inserting the magic CARET POSITION into the markdown so that,
- * upon rendering into HTML, the HTML pane can scroll to the correct position
- * (relative to the caret position in the editor).
+ * Responsible for inserting a caret position token into a markdown document.
  *
  * @author White Magic Software, Ltd.
  */
-public class MarkdownCaretInsertionProcessor extends AbstractProcessor<String> {
-
-  private final int caretPosition;
+public  class MarkdownCaretInsertionProcessor extends CaretInsertionProcessor {
 
   /**
    * Constructs a processor capable of inserting a caret marker into Markdown.
    *
    * @param processor The next processor in the chain.
-   * @param position The caret's current position in the text, cannot be null.
+   * @param position The caret's current position in the text.
    */
   public MarkdownCaretInsertionProcessor(
     final Processor<String> processor, final int position ) {
-    super( processor );
-    this.caretPosition = position;
+    super( processor, position );
   }
 
   /**
    * Changes the text to insert a "caret" at the caret position. This will
    * insert the unique key of Constants.MD_CARET_POSITION into the document.
    *
-   * @param t The document text to process.
+   * @param t The text document to process.
    *
-   * @return The document text with the Markdown caret text inserted at the
-   * caret position (given at construction time).
+   * @return The text with the caret position token inserted at the caret
+   * position.
    */
   @Override
   public String processLink( final String t ) {
@@ -78,25 +72,12 @@ public class MarkdownCaretInsertionProcessor extends AbstractProcessor<String> {
     // 3. Convert the text between start and end into MD AST.
     // 4. Find the nearest text node to the caret.
     // 5. Insert the CARET_POSITION_MD value in the text at that offsset.
-
     // Insert the caret at the closest non-Markdown delimiter (i.e., the 
     // closest character from the caret position forward).
     while( offset < length && !isLetter( t.charAt( offset ) ) ) {
       offset++;
     }
 
-    // Insert the caret position into the Markdown text, but don't interfere
-    // with the Markdown iteself.
-    return new StringBuilder( t ).replace(
-      offset, offset, CARET_POSITION_MD ).toString();
-  }
-
-  /**
-   * Returns the editor's caret position.
-   *
-   * @return Where the user has positioned the caret.
-   */
-  private int getCaretPosition() {
-    return this.caretPosition;
+    return inject( t, offset );
   }
 }

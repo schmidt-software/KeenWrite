@@ -28,27 +28,30 @@
 package com.scrivenvar.processors;
 
 import com.scrivenvar.FileEditorTab;
+import com.ximpleware.VTDException;
 import com.ximpleware.VTDGen;
 import static com.ximpleware.VTDGen.TOKEN_CHARACTER_DATA;
 import com.ximpleware.VTDNav;
+import java.text.ParseException;
 
 /**
  * Inserts a caret position indicator into the document.
  *
  * @author White Magic Software, Ltd.
  */
-public class XMLCaretInsertionProcessor extends AbstractProcessor<String> {
+public class XMLCaretInsertionProcessor extends CaretInsertionProcessor {
 
   private FileEditorTab tab;
 
   /**
+   * Constructs a processor capable of inserting a caret marker into XML.
    *
-   * @param processor Next link in the processing chain.
-   * @param tab
+   * @param processor The next processor in the chain.
+   * @param position The caret's current position in the text, cannot be null.
    */
-  public XMLCaretInsertionProcessor( final Processor<String> processor, final FileEditorTab tab ) {
-    super( processor );
-    setFileEditorTab( tab );
+  public XMLCaretInsertionProcessor(
+    final Processor<String> processor, final int position ) {
+    super( processor, position );
   }
 
   /**
@@ -61,23 +64,18 @@ public class XMLCaretInsertionProcessor extends AbstractProcessor<String> {
    */
   @Override
   public String processLink( final String t ) {
+    final int caretOffset = getCaretPosition();
     int insertOffset = -1;
 
     if( t.length() > 0 ) {
 
       try {
-        final VTDGen vg = new VTDGen();
+        final VTDNav vn = getNavigator( t );
 
-        vg.setDoc( t.getBytes() );
-        vg.parse( true );
-
-        final VTDNav vn = vg.getNav();
-
-        final int caretOffset = getCaretPosition();
         final int tokens = vn.getTokenCount();
 
-        int currTextTokenIndex = 0;
-        int prevTextTokenIndex = currTextTokenIndex;
+        int currTokenIndex = 0;
+        int prevTokenIndex = currTokenIndex;
         int currTokenOffset = 0;
 
         boolean found = false;
@@ -85,17 +83,15 @@ public class XMLCaretInsertionProcessor extends AbstractProcessor<String> {
         // To find the insertion spot even faster, the algorithm could
         // use a binary search or interpolation search algorithm. This
         // would reduce the worst-case iterations to O(log n) from O(n).
-        while( currTextTokenIndex < tokens && !found ) {
-          final int prevTokenOffset = currTokenOffset;
-          final int currTokenType = vn.getTokenType( currTextTokenIndex );
-
-          if( currTokenType == TOKEN_CHARACTER_DATA ) {
-            currTokenOffset = vn.getTokenOffset( currTextTokenIndex );
+        while( currTokenIndex < tokens && !found ) {
+          if( vn.getTokenType( currTokenIndex ) == TOKEN_CHARACTER_DATA ) {
+            final int prevTokenOffset = currTokenOffset;
+            currTokenOffset = vn.getTokenOffset( currTokenIndex );
 
             if( currTokenOffset > caretOffset ) {
               found = true;
 
-              final int prevTokenLength = vn.getTokenLength( prevTextTokenIndex );
+              final int prevTokenLength = vn.getTokenLength( prevTokenIndex );
 
               // If the caret falls within the limits of the previous token, then
               // insert the caret position marker at the caret offset.
@@ -103,73 +99,54 @@ public class XMLCaretInsertionProcessor extends AbstractProcessor<String> {
                 insertOffset = caretOffset;
               } else {
                 // The caret position is outside the previous token's text
-                // boundaries, but the current text token is far away. The
-                // cursor should be positioned into the closer text token.
+                // boundaries, but not inside the current text token. The
+                // caret should be positioned into the closer text token.
                 // For now, the cursor is positioned at the start of the
                 // current text token.
                 insertOffset = currTokenOffset;
               }
 
+              // Done.
               continue;
             }
 
-            prevTextTokenIndex = currTextTokenIndex;
+            prevTokenIndex = currTokenIndex;
           }
 
-          currTextTokenIndex++;
+          currTokenIndex++;
         }
 
       } catch( final Exception ex ) {
-        ex.printStackTrace();
+        throw new RuntimeException(
+          new ParseException( ex.getMessage(), caretOffset )
+        );
       }
     }
 
-    
-    /*
-    System.out.println( "-- CARET --------------------------------" );
-    System.out.println( "offset: " + caretOffset );
-    System.out.println( "-- BETWEEN PREV TOKEN --------------------" );
-    System.out.println( "index  : " + prevTextTokenIndex );
-    System.out.println( "type   : " + prevTokenType );
-    System.out.println( "offset : " + prevTokenOffset );
-    System.out.println( "length : " + prevTokenLength );
-    System.out.println( "offset + length: " + (prevTokenOffset + prevTokenLength - 1) );
-    System.out.println( "text   : '" + prevToken.trim() + "'" );
-    System.out.println( "-- CURR TOKEN ---------------------------" );
-    System.out.println( "index  : " + currTextTokenIndex );
-    System.out.println( "type   : " + currTokenType );
-    System.out.println( "offset : " + currTokenOffset );
-    System.out.println( "length : " + currTokenLength );
-    System.out.println( "between: " + currBetween );
-    System.out.println( "text   : '" + currToken.trim() + "'" );
-     */
-
-
-    if( insertOffset > 0 ) {
-      // Insert the caret at the given offset.
-      // TODO: Create and use CaretInsertion superclass.
-      System.out.println( "insert offset: " + insertOffset );
-      System.out.println( "caret offset : " + getCaretPosition() );
-    }
-
-    return t;
-  }
-  
-  
-
-  private int getCaretPosition() {
-    return getFileEditorTab().getCaretPosition();
-  }
-
-  private void setFileEditorTab( final FileEditorTab tab ) {
-    this.tab = tab;
-  }
-
-  private FileEditorTab getFileEditorTab() {
-    return this.tab;
+    return inject( t, insertOffset );
   }
 
   private boolean isBetween( int i, int min, int max ) {
     return i >= min && i <= max;
+  }
+
+  /**
+   * Parses the given XML document and returns a high-performance navigator
+   * instance for scanning through the XML elements.
+   *
+   * @param xml
+   *
+   * @return
+   */
+  private VTDNav getNavigator( final String xml ) throws VTDException {
+    final VTDGen vg = getParser();
+
+    vg.setDoc( xml.getBytes() );
+    vg.parse( true );
+    return vg.getNav();
+  }
+
+  private VTDGen getParser() {
+    return new VTDGen();
   }
 }
