@@ -39,13 +39,12 @@ import com.scrivenvar.editors.EditorPane;
 import com.scrivenvar.editors.VariableNameInjector;
 import com.scrivenvar.editors.markdown.MarkdownEditorPane;
 import com.scrivenvar.preview.HTMLPreviewPane;
+import com.scrivenvar.processors.CaretReplacementProcessor;
 import com.scrivenvar.processors.HTMLPreviewProcessor;
-import com.scrivenvar.processors.MarkdownCaretInsertionProcessor;
-import com.scrivenvar.processors.MarkdownCaretReplacementProcessor;
 import com.scrivenvar.processors.MarkdownProcessor;
 import com.scrivenvar.processors.Processor;
 import com.scrivenvar.processors.VariableProcessor;
-import com.scrivenvar.processors.XMLProcessor;
+import com.scrivenvar.processors.XMLCaretInsertionProcessor;
 import com.scrivenvar.service.Options;
 import com.scrivenvar.util.Action;
 import com.scrivenvar.util.ActionUtils;
@@ -243,11 +242,11 @@ public class MainWindow {
     preview.setPath( tab.getPath() );
 
     final Processor<String> hpp = new HTMLPreviewProcessor( preview );
-    final Processor<String> mcrp = new MarkdownCaretReplacementProcessor( hpp );
+    final Processor<String> mcrp = new CaretReplacementProcessor( hpp );
     final Processor<String> mp = new MarkdownProcessor( mcrp );
-    final Processor<String> xmlp = new XMLProcessor( mp, tab.getPath() );
-    final Processor<String> mcip = new MarkdownCaretInsertionProcessor( xmlp, tab.getCaretPosition() );
-    final Processor<String> vp = new VariableProcessor( mcip, getResolvedMap() );
+//    final Processor<String> mcip = new MarkdownCaretInsertionProcessor( mp, tab.getCaretPosition() );
+    final Processor<String> xmlp = new XMLCaretInsertionProcessor( mp, tab );
+    final Processor<String> vp = new VariableProcessor( xmlp, getResolvedMap() );
 
     vp.processChain( tab.getEditorText() );
   }

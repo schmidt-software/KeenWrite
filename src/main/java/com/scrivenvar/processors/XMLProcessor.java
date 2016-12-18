@@ -39,7 +39,7 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
-import org.jdom2.ProcessingInstruction;
+import static net.sf.saxon.tree.util.ProcInstParser.getPseudoAttribute;
 import org.xml.sax.InputSource;
 import org.xml.sax.helpers.DefaultHandler;
 
@@ -56,14 +56,18 @@ import org.xml.sax.helpers.DefaultHandler;
  */
 public class XMLProcessor extends AbstractProcessor<String> {
 
-  private ProcessingInstructionHandler handler = new ProcessingInstructionHandler();
+  private final ProcessingInstructionHandler handler = new ProcessingInstructionHandler();
   private String href;
   private Path path;
 
   /**
+   * Constructs an XML processor that can transform an XML document into another
+   * format based on the XSL file specified as a processing instruction. The
+   * path must point to the directory where the XSL file is found, which implies
+   * that they must be in the same directory.
    *
    * @param processor Next link in the processing chain.
-   * @param path
+   * @param path The path to the XML file content to be processed.
    */
   public XMLProcessor( final Processor<String> processor, final Path path ) {
     super( processor );
@@ -98,11 +102,11 @@ public class XMLProcessor extends AbstractProcessor<String> {
 
       final Source xslt = new StreamSource( xslPath.toFile() );
       final Transformer transformer = factory.newTransformer( xslt );
-      
+
       final StreamResult sr = new StreamResult( output );
 
       transformer.transform( source, sr );
-      
+
       result = output.toString();
 
       input.close();
@@ -138,9 +142,9 @@ public class XMLProcessor extends AbstractProcessor<String> {
 
     @Override
     public void processingInstruction( final String target, final String data ) {
-      final ProcessingInstruction xmlstylesheet
-        = new ProcessingInstruction( target, data );
-      setHref( xmlstylesheet.getPseudoAttributeValue( "href" ) );
+      if( "xml-stylesheet".equalsIgnoreCase( target ) ) {
+        setHref( getPseudoAttribute( data, "href" ) );
+      }
     }
   }
 }

@@ -36,10 +36,10 @@ import static com.scrivenvar.Constants.CARET_POSITION_MD;
  *
  * @author White Magic Software, Ltd.
  */
-public class MarkdownCaretReplacementProcessor extends AbstractProcessor<String> {
+public class CaretReplacementProcessor extends AbstractProcessor<String> {
   private static final int INDEX_NOT_FOUND = -1;
 
-  public MarkdownCaretReplacementProcessor( final Processor<String> processor ) {
+  public CaretReplacementProcessor( final Processor<String> processor ) {
     super( processor );
   }
 
