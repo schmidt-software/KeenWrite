@@ -45,10 +45,12 @@ import javafx.stage.Stage;
  */
 public final class Main extends Application {
 
-  private static Application app;
-
-  private final MainWindow mainWindow = new MainWindow();
   private final Options options = Services.load( Options.class );
+  private final Snitch snitch = Services.load( Snitch.class );
+  private Thread snitchThread;
+
+  private static Application app;
+  private final MainWindow mainWindow = new MainWindow();
 
   public static void main( final String[] args ) {
     launch( args );
@@ -67,28 +69,17 @@ public final class Main extends Application {
     initState( stage );
     initStage( stage );
     initAlertService();
+    initWatchDog();
 
     stage.show();
   }
 
-  /**
-   * Stops the snitch service, if its running.
-   */
-  @Override
-  public void stop() {
-    Services.load( Snitch.class ).stop();
+  public static void showDocument( final String uri ) {
+    getApplication().getHostServices().showDocument( uri );
   }
 
   private void initApplication() {
     app = this;
-  }
-
-  private Options getOptions() {
-    return this.options;
-  }
-
-  private String getApplicationTitle() {
-    return Messages.get( "Main.title" );
   }
 
   private StageState initState( final Stage stage ) {
@@ -111,6 +102,44 @@ public final class Main extends Application {
     service.setWindow( getScene().getWindow() );
   }
 
+  private void initWatchDog() {
+    setSnitchThread( new Thread( getWatchDog() ) );
+    getSnitchThread().start();
+  }
+
+  /**
+   * Stops the snitch service, if its running.
+   *
+   * @throws InterruptedException Couldn't stop the snitch thread.
+   */
+  @Override
+  public void stop() throws InterruptedException {
+    getWatchDog().stop();
+
+    final Thread thread = getSnitchThread();
+
+    if( thread != null ) {
+      thread.interrupt();
+      thread.join();
+    }
+  }
+
+  private Snitch getWatchDog() {
+    return this.snitch;
+  }
+
+  private Thread getSnitchThread() {
+    return this.snitchThread;
+  }
+
+  private void setSnitchThread( final Thread thread ) {
+    this.snitchThread = thread;
+  }
+
+  private Options getOptions() {
+    return this.options;
+  }
+
   private Scene getScene() {
     return getMainWindow().getScene();
   }
@@ -119,12 +148,12 @@ public final class Main extends Application {
     return this.mainWindow;
   }
 
-  private static Application getApplication() {
-    return app;
+  private String getApplicationTitle() {
+    return Messages.get( "Main.title" );
   }
 
-  public static void showDocument( String uri ) {
-    getApplication().getHostServices().showDocument( uri );
+  private static Application getApplication() {
+    return app;
   }
 
   private Image createImage( final String filename ) {

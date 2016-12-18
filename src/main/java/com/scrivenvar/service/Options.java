@@ -34,7 +34,7 @@ import java.util.prefs.Preferences;
  *
  * @author White Magic Software, Ltd.
  */
-public interface Options {
+public interface Options extends Service {
 
   public Preferences getState();
   

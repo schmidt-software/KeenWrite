@@ -26,12 +26,12 @@
  */
 package com.scrivenvar.service.impl;
 
+import static com.scrivenvar.Constants.PREFS_OPTIONS;
 import static com.scrivenvar.Constants.PREFS_ROOT;
+import static com.scrivenvar.Constants.PREFS_STATE;
 import com.scrivenvar.service.Options;
 import java.util.prefs.Preferences;
 import static java.util.prefs.Preferences.userRoot;
-import static com.scrivenvar.Constants.PREFS_STATE;
-import static com.scrivenvar.Constants.PREFS_OPTIONS;
 
 /**
  * Persistent options user can change at runtime.
@@ -39,22 +39,23 @@ import static com.scrivenvar.Constants.PREFS_OPTIONS;
  * @author Karl Tauber and White Magic Software, Ltd.
  */
 public class DefaultOptions implements Options {
+
   private Preferences preferences;
-  
+
   public DefaultOptions() {
-    setPreferences(getRootPreferences().node(PREFS_OPTIONS ) );
+    setPreferences( getRootPreferences().node( PREFS_OPTIONS ) );
   }
 
   @Override
   public void put( final String key, final String value ) {
     getPreferences().put( key, value );
   }
-  
+
   @Override
   public String get( final String key, final String defalutValue ) {
     return getPreferences().get( key, defalutValue );
   }
-  
+
   private void setPreferences( final Preferences preferences ) {
     this.preferences = preferences;
   }
@@ -65,7 +66,7 @@ public class DefaultOptions implements Options {
 
   @Override
   public Preferences getState() {
-    return getRootPreferences().node(PREFS_STATE );
+    return getRootPreferences().node( PREFS_STATE );
   }
 
   private Preferences getPreferences() {

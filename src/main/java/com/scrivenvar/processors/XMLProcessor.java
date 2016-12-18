@@ -62,13 +62,12 @@ import static net.sf.saxon.tree.util.ProcInstParser.getPseudoAttribute;
  * @author White Magic Software, Ltd.
  */
 public class XMLProcessor extends AbstractProcessor<String> {
-
+  
   private final Snitch snitch = Services.load( Snitch.class );
-
+  
   private XMLInputFactory xmlInputFactory;
   private TransformerFactory transformerFactory;
-
-  private String href;
+  
   private Path path;
 
   /**
@@ -113,16 +112,20 @@ public class XMLProcessor extends AbstractProcessor<String> {
   private String transform( final String text ) throws Exception {
     // Extract the XML stylesheet processing instruction.
     final String template = getXsltFilename( text );
+    final Path xsl = getXslPath( template );
+    
+    // Listen for external file modification events.
+    getWatchDog().listen( xsl );
 
     try(
-      final StringWriter output = new StringWriter();
+      final StringWriter output = new StringWriter( text.length() );
       final StringReader input = new StringReader( text ) ) {
-
-      final Source xml = new StreamSource( input );
-      final Path xsl = getXslPath( template );
-      final StreamResult sr = new StreamResult( output );
-      getTransformer( xsl ).transform( xml, sr );
-
+      
+      getTransformer( xsl ).transform(
+        new StreamSource( input ),
+        new StreamResult( output )
+      );
+      
       return output.toString();
     }
   }
@@ -142,16 +145,16 @@ public class XMLProcessor extends AbstractProcessor<String> {
    */
   private Transformer getTransformer( final Path path )
     throws TransformerConfigurationException {
-
+    
     final TransformerFactory factory = getTransformerFactory();
     final Source xslt = new StreamSource( path.toFile() );
     return factory.newTransformer( xslt );
   }
-
+  
   private Path getXslPath( final String filename ) {
     final Path xmlPath = getPath();
     final File xmlDirectory = xmlPath.toFile().getParentFile();
-
+    
     return Paths.get( xmlDirectory.getPath(), filename );
   }
 
@@ -169,9 +172,9 @@ public class XMLProcessor extends AbstractProcessor<String> {
    */
   private String getXsltFilename( final String xml )
     throws XMLStreamException, ParseException {
-
+    
     String result = "";
-
+    
     try( final StringReader sr = new StringReader( xml ) ) {
       boolean found = false;
       int count = 0;
@@ -181,64 +184,67 @@ public class XMLProcessor extends AbstractProcessor<String> {
       // fail fast. This should iterate twice through the loop.
       while( !found && reader.hasNext() && count++ < 10 ) {
         final XMLEvent event = reader.nextEvent();
-
+        
         if( event.isProcessingInstruction() ) {
           final ProcessingInstruction pi = (ProcessingInstruction)event;
           final String target = pi.getTarget();
-
+          
           if( "xml-stylesheet".equalsIgnoreCase( target ) ) {
             result = getPseudoAttribute( pi.getData(), "href" );
             found = true;
           }
         }
       }
-
+      
       sr.close();
     }
-
+    
     return result;
   }
-
+  
   private XMLEventReader createXMLEventReader( final Reader reader )
     throws XMLStreamException {
     return getXMLInputFactory().createXMLEventReader( reader );
   }
-
+  
   private synchronized XMLInputFactory getXMLInputFactory() {
     if( this.xmlInputFactory == null ) {
       this.xmlInputFactory = createXMLInputFactory();
     }
-
+    
     return this.xmlInputFactory;
   }
-
+  
   private XMLInputFactory createXMLInputFactory() {
     return XMLInputFactory.newInstance();
   }
-
+  
   private synchronized TransformerFactory getTransformerFactory() {
     if( this.transformerFactory == null ) {
       this.transformerFactory = createTransformerFactory();
     }
-
+    
     return this.transformerFactory;
   }
 
   /**
    * Returns a high-performance XSLT 2 transformation engine.
-   * 
+   *
    * @return An XSL transforming engine.
    */
   private TransformerFactory createTransformerFactory() {
     return new TransformerFactoryImpl();
-    //return TransformerFactory.newInstance();
   }
-
+  
   private void setPath( final Path path ) {
     this.path = path;
   }
-
+  
   private Path getPath() {
     return this.path;
+  }
+  
+  private Snitch getWatchDog() {
+    return this.snitch;
   }
 }

@@ -225,7 +225,7 @@ public class MainWindow {
   private void initVariableNameInjector( final FileEditorTab tab ) {
     VariableNameInjector.listen( tab, getDefinitionPane() );
   }
-
+  
   /**
    * Called whenever the preview pane becomes out of sync with the file editor
    * tab. This can be called when the text changes, the caret paragraph changes,
@@ -235,10 +235,6 @@ public class MainWindow {
    */
   private void refreshSelectedTab( final FileEditorTab tab ) {
     final Path path = tab.getPath();
-
-    if( path != null ) {
-      System.out.println( "Tab File: " + path );
-    }
 
     final HTMLPreviewPane preview = getPreviewPane();
     preview.setPath( tab.getPath() );

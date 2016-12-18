@@ -35,12 +35,14 @@ import java.nio.file.Path;
  *
  * @author White Magic Software, Ltd.
  */
-public interface Snitch {
+public interface Snitch extends Service, Runnable {
 
   /**
    * Listens for changes to the path. If the path specifies a file, then only
    * notifications pertaining to that file are sent. Otherwise, change events
-   * for the directory that contains the file are sent.
+   * for the directory that contains the file are sent. This method must allow
+   * for multiple calls to the same file without incurring additional listeners
+   * or events.
    *
    * @param file Send notifications when this file changes.
    *
@@ -50,7 +52,7 @@ public interface Snitch {
 
   /**
    * Removes the given file from the notifications list.
-   * 
+   *
    * @param file The file to stop monitoring for any changes.
    */
   public void ignore( final Path file );

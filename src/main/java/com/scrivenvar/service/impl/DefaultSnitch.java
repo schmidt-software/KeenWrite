@@ -48,7 +48,7 @@ import java.util.Set;
  *
  * @author White Magic Software, Ltd.
  */
-public class DefaultSnitch implements Snitch, Runnable {
+public class DefaultSnitch implements Snitch {
 
   /**
    * Service for listening to directories for modifications.
@@ -68,7 +68,7 @@ public class DefaultSnitch implements Snitch, Runnable {
   /**
    * Set to true when running; set to false to stop listening.
    */
-  private boolean listening;
+  private volatile boolean listening;
 
   public DefaultSnitch() {
   }
@@ -79,7 +79,8 @@ public class DefaultSnitch implements Snitch, Runnable {
   }
 
   /**
-   * Adds a listener to the list of files to watch for changes.
+   * Adds a listener to the list of files to watch for changes. If the file is
+   * already in the monitored list, this will return immediately.
    *
    * @param file Path to a file to watch for changes.
    *
@@ -87,12 +88,30 @@ public class DefaultSnitch implements Snitch, Runnable {
    */
   @Override
   public void listen( final Path file ) throws IOException {
-    // This will fail if the file is stored in the root folder.
-    final Path path = Files.isDirectory( file ) ? file : file.getParent();
-    final WatchKey key = path.register( getWatchService(), ENTRY_MODIFY );
+    if( getEavesdropped().add( file ) ) {
+      final Path dir = toDirectory( file );
+      final WatchKey key = dir.register( getWatchService(), ENTRY_MODIFY );
 
-    getWatchMap().put( key, path );
-    getEavesdropped().add( file );
+      getWatchMap().put( key, dir );
+    }
+  }
+
+  /**
+   * Returns the given path to a file (or directory) as a directory. If the
+   * given path is already a directory, it is returned. Otherwise, this returns
+   * the directory that contains the file. This will fail if the file is stored
+   * in the root folder.
+   *
+   * @param path The file to return as a directory, which should always be the
+   * case.
+   *
+   * @return The given path as a directory, if a file, otherwise the path
+   * itself.
+   */
+  private Path toDirectory( final Path path ) {
+    return Files.isDirectory( path )
+      ? path
+      : path.toFile().getParentFile().toPath();
   }
 
   /**
@@ -102,14 +121,20 @@ public class DefaultSnitch implements Snitch, Runnable {
    */
   @Override
   public void ignore( final Path file ) {
-    // Remove all occurrences.
-    getWatchMap().values().removeAll( Collections.singleton( file ) );
+    final Path directory = toDirectory( file );
+
+    // Remove all occurrences (there should be only one).
+    getWatchMap().values().removeAll( Collections.singleton( directory ) );
+
+    // Remove all occurrences (there can be only one).
+    getEavesdropped().remove( file );
   }
 
   /**
-   * Loops until isRunning is set to false.
+   * Loops until stop is called, or the application is terminated.
    */
   @Override
+  @SuppressWarnings( "SleepWhileInLoop" )
   public void run() {
     setListening( true );
 
@@ -118,12 +143,16 @@ public class DefaultSnitch implements Snitch, Runnable {
         final WatchKey key = getWatchService().take();
         final Path path = get( key );
 
-        for( WatchEvent<?> event : key.pollEvents() ) {
-          final Path changed = (Path)event.context();
+        // Prevent receiving two separate ENTRY_MODIFY events: file modified
+        // and timestamp updated. Instead, receive one ENTRY_MODIFY event
+        // with two counts.
+        Thread.sleep( 50 );
 
-          for( final Path file : getEavesdropped() ) {
-            System.out.println( "Changed: " + changed );
-            System.out.println( "Monitored: " + file );
+        for( final WatchEvent<?> event : key.pollEvents() ) {
+          final Path changed = path.resolve( (Path)event.context() );
+
+          if( event.kind() == ENTRY_MODIFY && isListening( changed ) ) {
+            System.out.println( "RELOAD XSL: " + changed );
           }
         }
 
@@ -137,6 +166,17 @@ public class DefaultSnitch implements Snitch, Runnable {
     }
   }
 
+  private boolean isListening( final Path path ) {
+    return getEavesdropped().contains( path );
+  }
+
+  /**
+   * Returns a path for a given watch key.
+   *
+   * @param key The key to lookup its corresponding path.
+   *
+   * @return The path for the given key.
+   */
   private Path get( final WatchKey key ) {
     return getWatchMap().get( key );
   }

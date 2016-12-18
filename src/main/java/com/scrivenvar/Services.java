@@ -27,28 +27,42 @@
  */
 package com.scrivenvar;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.ServiceLoader;
 
 /**
- * Responsible for loading services.
+ * Responsible for loading services. The services are treated as singleton
+ * instances.
  *
  * @author White Magic Software, Ltd.
  */
 public class Services {
 
+  private static final Map<Class, Object> SINGLETONS = new HashMap<>( 8 );
+
   /**
-   * Loads a service based on its interface definition.
+   * Loads a service based on its interface definition. This will return an
+   * existing instance if the class has already been instantiated.
    *
    * @param <T> The service to load.
    * @param api The interface definition for the service.
    *
    * @return A class that implements the interface.
    */
-  public static <T> T load( Class<T> api ) {
+  public static <T> T load( final Class<T> api ) {
+    @SuppressWarnings( "unchecked" )
+    final T o = (T)get( api );
+
+    return o == null ? newInstance( api ) : o;
+  }
+
+  private static <T> T newInstance( final Class<T> api ) {
     final ServiceLoader<T> services = ServiceLoader.load( api );
+
     T result = null;
 
-    for( T service : services ) {
+    for( final T service : services ) {
       result = service;
 
       if( result != null ) {
@@ -60,6 +74,17 @@ public class Services {
       throw new RuntimeException( "No implementation for: " + api );
     }
 
+    // Re-use the same instance the next time the class is loaded.
+    put( api, result );
+
     return result;
+  }
+
+  private static void put( Class key, Object value ) {
+    SINGLETONS.put( key, value );
+  }
+
+  private static Object get( Class api ) {
+    return SINGLETONS.get( api );
   }
 }
