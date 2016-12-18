@@ -45,6 +45,7 @@ import com.scrivenvar.processors.MarkdownProcessor;
 import com.scrivenvar.processors.Processor;
 import com.scrivenvar.processors.VariableProcessor;
 import com.scrivenvar.processors.XMLCaretInsertionProcessor;
+import com.scrivenvar.processors.XMLProcessor;
 import com.scrivenvar.service.Options;
 import com.scrivenvar.util.Action;
 import com.scrivenvar.util.ActionUtils;
@@ -80,7 +81,7 @@ import javafx.beans.value.ObservableBooleanValue;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener.Change;
 import javafx.collections.ObservableList;
-import javafx.event.Event;
+import static javafx.event.Event.fireEvent;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
@@ -101,6 +102,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Window;
 import javafx.stage.WindowEvent;
+import static javafx.stage.WindowEvent.WINDOW_CLOSE_REQUEST;
 
 /**
  * Main window containing a tab pane in the center for file editors.
@@ -237,7 +239,7 @@ public class MainWindow {
     if( path != null ) {
       System.out.println( "Tab File: " + path );
     }
-    
+
     final HTMLPreviewPane preview = getPreviewPane();
     preview.setPath( tab.getPath() );
 
@@ -245,8 +247,9 @@ public class MainWindow {
     final Processor<String> mcrp = new CaretReplacementProcessor( hpp );
     final Processor<String> mp = new MarkdownProcessor( mcrp );
 //    final Processor<String> mcip = new MarkdownCaretInsertionProcessor( mp, tab.getCaretPosition() );
-    final Processor<String> xmlp = new XMLCaretInsertionProcessor( mp, tab.getCaretPosition() );
-    final Processor<String> vp = new VariableProcessor( xmlp, getResolvedMap() );
+    final Processor<String> xmlp = new XMLProcessor( mp, tab.getPath() );
+    final Processor<String> xcip = new XMLCaretInsertionProcessor( xmlp, tab.getCaretPosition() );
+    final Processor<String> vp = new VariableProcessor( xcip, getResolvedMap() );
 
     vp.processChain( tab.getEditorText() );
   }
@@ -352,8 +355,7 @@ public class MainWindow {
 
   private void fileExit() {
     final Window window = getWindow();
-    Event.fireEvent( window,
-      new WindowEvent( window, WindowEvent.WINDOW_CLOSE_REQUEST ) );
+    fireEvent( window, new WindowEvent( window, WINDOW_CLOSE_REQUEST ) );
   }
 
   //---- Help actions -------------------------------------------------------

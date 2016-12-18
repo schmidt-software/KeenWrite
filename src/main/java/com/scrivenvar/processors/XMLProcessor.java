@@ -27,21 +27,28 @@
  */
 package com.scrivenvar.processors;
 
+import com.scrivenvar.Services;
+import com.scrivenvar.service.Snitch;
 import java.io.File;
+import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
+import java.text.ParseException;
+import javax.xml.stream.XMLEventReader;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.events.ProcessingInstruction;
+import javax.xml.stream.events.XMLEvent;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
+import net.sf.saxon.TransformerFactoryImpl;
 import static net.sf.saxon.tree.util.ProcInstParser.getPseudoAttribute;
-import org.xml.sax.InputSource;
-import org.xml.sax.helpers.DefaultHandler;
 
 /**
  * Transforms an XML document. The XML document must have a stylesheet specified
@@ -56,7 +63,11 @@ import org.xml.sax.helpers.DefaultHandler;
  */
 public class XMLProcessor extends AbstractProcessor<String> {
 
-  private final ProcessingInstructionHandler handler = new ProcessingInstructionHandler();
+  private final Snitch snitch = Services.load( Snitch.class );
+
+  private XMLInputFactory xmlInputFactory;
+  private TransformerFactory transformerFactory;
+
   private String href;
   private Path path;
 
@@ -74,60 +85,153 @@ public class XMLProcessor extends AbstractProcessor<String> {
     setPath( path );
   }
 
+  /**
+   * Transforms the given XML text into another form (typically Markdown).
+   *
+   * @param text The text to transform, can be empty, cannot be null.
+   *
+   * @return The transformed text, or empty if text is empty.
+   */
   @Override
-  public String processLink( final String t ) {
-    String result = t;
-
-    try( final StringReader sr = new StringReader( t ) ) {
-      SAXParserFactory saxFactory = SAXParserFactory.newInstance();
-      SAXParser saxParser = saxFactory.newSAXParser();
-
-      final InputSource is = new InputSource( sr );
-      saxParser.parse( is, getHandler() );
-
-    } catch( Exception ex ) {
-      System.out.println( ex.getMessage() );
+  public String processLink( final String text ) {
+    try {
+      return text.isEmpty() ? text : transform( text );
+    } catch( Exception e ) {
+      throw new RuntimeException( e );
     }
+  }
+
+  /**
+   * Performs an XSL transformation on the given XML text. The XML text must
+   * have a processing instruction that points to the XSL template file to use
+   * for the transformation.
+   *
+   * @param text The text to transform.
+   *
+   * @return The transformed text.
+   */
+  private String transform( final String text ) throws Exception {
+    // Extract the XML stylesheet processing instruction.
+    final String template = getXsltFilename( text );
 
     try(
-      final StringReader input = new StringReader( t );
-      final StringWriter output = new StringWriter(); ) {
-      final Source source = new StreamSource( input );
+      final StringWriter output = new StringWriter();
+      final StringReader input = new StringReader( text ) ) {
 
-      final TransformerFactory factory = TransformerFactory.newInstance();
-      final Path xmlPath = getPath();
-      final File xmlDirectory = xmlPath.toFile().getParentFile();
-
-      final Path xslPath = Paths.get( xmlDirectory.getPath(), getHref() );
-
-      final Source xslt = new StreamSource( xslPath.toFile() );
-      final Transformer transformer = factory.newTransformer( xslt );
-
+      final Source xml = new StreamSource( input );
+      final Path xsl = getXslPath( template );
       final StreamResult sr = new StreamResult( output );
+      getTransformer( xsl ).transform( xml, sr );
 
-      transformer.transform( source, sr );
+      return output.toString();
+    }
+  }
 
-      result = output.toString();
+  /**
+   * Returns an XSL transformer ready to transform an XML document using the
+   * XSLT file specified by the given path. If the path is already known then
+   * this will return the associated transformer.
+   *
+   * @param path The path to an XSLT file.
+   *
+   * @return A transformer that will transform XML documents using the given
+   * XSLT file.
+   *
+   * @throws TransformerConfigurationException Could not instantiate the
+   * transformer.
+   */
+  private Transformer getTransformer( final Path path )
+    throws TransformerConfigurationException {
 
-      input.close();
-      output.close();
-    } catch( Exception e ) {
-      System.out.println( e.getMessage() );
+    final TransformerFactory factory = getTransformerFactory();
+    final Source xslt = new StreamSource( path.toFile() );
+    return factory.newTransformer( xslt );
+  }
+
+  private Path getXslPath( final String filename ) {
+    final Path xmlPath = getPath();
+    final File xmlDirectory = xmlPath.toFile().getParentFile();
+
+    return Paths.get( xmlDirectory.getPath(), filename );
+  }
+
+  /**
+   * Given XML text, this will use a StAX pull reader to obtain the XML
+   * stylesheet processing instruction. This will throw a parse exception if the
+   * href pseudo-attribute filename value cannot be found.
+   *
+   * @param xml The XML containing an xml-stylesheet processing instruction.
+   *
+   * @return The href pseudo-attribute value.
+   *
+   * @throws XMLStreamException Could not parse the XML file.
+   * @throws ParseException Could not find a non-empty HREF attribute value.
+   */
+  private String getXsltFilename( final String xml )
+    throws XMLStreamException, ParseException {
+
+    String result = "";
+
+    try( final StringReader sr = new StringReader( xml ) ) {
+      boolean found = false;
+      int count = 0;
+      final XMLEventReader reader = createXMLEventReader( sr );
+
+      // If the processing instruction wasn't found in the first 10 lines,
+      // fail fast. This should iterate twice through the loop.
+      while( !found && reader.hasNext() && count++ < 10 ) {
+        final XMLEvent event = reader.nextEvent();
+
+        if( event.isProcessingInstruction() ) {
+          final ProcessingInstruction pi = (ProcessingInstruction)event;
+          final String target = pi.getTarget();
+
+          if( "xml-stylesheet".equalsIgnoreCase( target ) ) {
+            result = getPseudoAttribute( pi.getData(), "href" );
+            found = true;
+          }
+        }
+      }
+
+      sr.close();
     }
 
     return result;
   }
 
-  private ProcessingInstructionHandler getHandler() {
-    return this.handler;
+  private XMLEventReader createXMLEventReader( final Reader reader )
+    throws XMLStreamException {
+    return getXMLInputFactory().createXMLEventReader( reader );
   }
 
-  private String getHref() {
-    return this.href;
+  private synchronized XMLInputFactory getXMLInputFactory() {
+    if( this.xmlInputFactory == null ) {
+      this.xmlInputFactory = createXMLInputFactory();
+    }
+
+    return this.xmlInputFactory;
   }
 
-  private void setHref( final String href ) {
-    this.href = href;
+  private XMLInputFactory createXMLInputFactory() {
+    return XMLInputFactory.newInstance();
+  }
+
+  private synchronized TransformerFactory getTransformerFactory() {
+    if( this.transformerFactory == null ) {
+      this.transformerFactory = createTransformerFactory();
+    }
+
+    return this.transformerFactory;
+  }
+
+  /**
+   * Returns a high-performance XSLT 2 transformation engine.
+   * 
+   * @return An XSL transforming engine.
+   */
+  private TransformerFactory createTransformerFactory() {
+    return new TransformerFactoryImpl();
+    //return TransformerFactory.newInstance();
   }
 
   private void setPath( final Path path ) {
@@ -136,15 +240,5 @@ public class XMLProcessor extends AbstractProcessor<String> {
 
   private Path getPath() {
     return this.path;
-  }
-
-  private class ProcessingInstructionHandler extends DefaultHandler {
-
-    @Override
-    public void processingInstruction( final String target, final String data ) {
-      if( "xml-stylesheet".equalsIgnoreCase( target ) ) {
-        setHref( getPseudoAttribute( data, "href" ) );
-      }
-    }
   }
 }

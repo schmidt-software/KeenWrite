@@ -29,6 +29,7 @@ package com.scrivenvar;
 
 import static com.scrivenvar.Constants.*;
 import com.scrivenvar.service.Options;
+import com.scrivenvar.service.Snitch;
 import com.scrivenvar.service.events.AlertService;
 import com.scrivenvar.util.StageState;
 import javafx.application.Application;
@@ -68,6 +69,14 @@ public final class Main extends Application {
     initAlertService();
 
     stage.show();
+  }
+
+  /**
+   * Stops the snitch service, if its running.
+   */
+  @Override
+  public void stop() {
+    Services.load( Snitch.class ).stop();
   }
 
   private void initApplication() {

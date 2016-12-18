@@ -64,50 +64,44 @@ public class XMLCaretInsertionProcessor extends CaretInsertionProcessor {
    */
   @Override
   public String processLink( final String t ) {
-    final int caretOffset = getCaretPosition();
+    final int caret = getCaretPosition();
     int insertOffset = -1;
 
     if( t.length() > 0 ) {
 
       try {
         final VTDNav vn = getNavigator( t );
-
         final int tokens = vn.getTokenCount();
 
         int currTokenIndex = 0;
         int prevTokenIndex = currTokenIndex;
-        int currTokenOffset = 0;
-
-        boolean found = false;
+        int currOffset = 0;
 
         // To find the insertion spot even faster, the algorithm could
         // use a binary search or interpolation search algorithm. This
         // would reduce the worst-case iterations to O(log n) from O(n).
-        while( currTokenIndex < tokens && !found ) {
+        while( currTokenIndex < tokens ) {
           if( vn.getTokenType( currTokenIndex ) == TOKEN_CHARACTER_DATA ) {
-            final int prevTokenOffset = currTokenOffset;
-            currTokenOffset = vn.getTokenOffset( currTokenIndex );
+            final int prevOffset = currOffset;
+            currOffset = vn.getTokenOffset( currTokenIndex );
 
-            if( currTokenOffset > caretOffset ) {
-              found = true;
-
-              final int prevTokenLength = vn.getTokenLength( prevTokenIndex );
+            if( currOffset > caret ) {
+              final int prevLength = vn.getTokenLength( prevTokenIndex );
 
               // If the caret falls within the limits of the previous token, then
               // insert the caret position marker at the caret offset.
-              if( isBetween( caretOffset, prevTokenOffset, prevTokenOffset + prevTokenLength ) ) {
-                insertOffset = caretOffset;
+              if( isBetween( caret, prevOffset, prevOffset + prevLength ) ) {
+                insertOffset = caret;
               } else {
                 // The caret position is outside the previous token's text
                 // boundaries, but not inside the current text token. The
                 // caret should be positioned into the closer text token.
                 // For now, the cursor is positioned at the start of the
                 // current text token.
-                insertOffset = currTokenOffset;
+                insertOffset = currOffset;
               }
-
-              // Done.
-              continue;
+              
+              break;
             }
 
             prevTokenIndex = currTokenIndex;
@@ -118,7 +112,7 @@ public class XMLCaretInsertionProcessor extends CaretInsertionProcessor {
 
       } catch( final Exception ex ) {
         throw new RuntimeException(
-          new ParseException( ex.getMessage(), caretOffset )
+          new ParseException( ex.getMessage(), caret )
         );
       }
     }
@@ -134,13 +128,14 @@ public class XMLCaretInsertionProcessor extends CaretInsertionProcessor {
    * Parses the given XML document and returns a high-performance navigator
    * instance for scanning through the XML elements.
    *
-   * @param xml
+   * @param xml The XML document to parse.
    *
-   * @return
+   * @return A document navigator instance.
    */
   private VTDNav getNavigator( final String xml ) throws VTDException {
     final VTDGen vg = getParser();
 
+    // TODO: Use the document's encoding...
     vg.setDoc( xml.getBytes() );
     vg.parse( true );
     return vg.getNav();
