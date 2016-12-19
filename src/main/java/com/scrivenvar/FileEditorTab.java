@@ -41,12 +41,14 @@ import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.property.ReadOnlyBooleanWrapper;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.Event;
 import javafx.scene.Node;
 import javafx.scene.control.Tab;
 import javafx.scene.control.Tooltip;
 import javafx.scene.input.InputEvent;
 import javafx.scene.text.Text;
+import org.fxmisc.richtext.StyleClassedTextArea;
 import org.fxmisc.undo.UndoManager;
 import org.fxmisc.wellbehaved.event.EventPattern;
 import org.fxmisc.wellbehaved.event.InputMap;
@@ -180,9 +182,27 @@ public final class FileEditorTab extends Tab {
    * @return A number from 0 to the editor's document text length.
    */
   public int getCaretPosition() {
-    return getEditorPane().getEditor().getCaretPosition();
+    return getEditor().getCaretPosition();
   }
-  
+
+  /**
+   * Allows observers to synchronize caret position changes.
+   *
+   * @return An observable caret property value.
+   */
+  public final ObservableValue<Integer> caretPositionProperty() {
+    return getEditor().caretPositionProperty();
+  }
+
+  /**
+   * Returns the text area associated with this tab.
+   *
+   * @return A text editor.
+   */
+  private StyleClassedTextArea getEditor() {
+    return getEditorPane().getEditor();
+  }
+
   /**
    * Returns true if the given path exactly matches this tab's path.
    *
@@ -301,7 +321,7 @@ public final class FileEditorTab extends Tab {
     setEncoding( detectEncoding( text ) );
     return new String( text, getEncoding() );
   }
-  
+
   public Path getPath() {
     return this.path;
   }

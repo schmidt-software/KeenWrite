@@ -39,7 +39,7 @@ import java.util.ServiceLoader;
  */
 public class Services {
 
-  private static final Map<Class, Object> SINGLETONS = new HashMap<>( 8 );
+  private static final Map<Class, Object> SINGLETONS = new HashMap<>();
 
   /**
    * Loads a service based on its interface definition. This will return an
@@ -60,24 +60,15 @@ public class Services {
   private static <T> T newInstance( final Class<T> api ) {
     final ServiceLoader<T> services = ServiceLoader.load( api );
 
-    T result = null;
-
     for( final T service : services ) {
-      result = service;
-
-      if( result != null ) {
-        break;
+      if( service != null ) {
+        // Re-use the same instance the next time the class is loaded.
+        put( api, service );
+        return service;
       }
     }
 
-    if( result == null ) {
-      throw new RuntimeException( "No implementation for: " + api );
-    }
-
-    // Re-use the same instance the next time the class is loaded.
-    put( api, result );
-
-    return result;
+    throw new RuntimeException( "No implementation for: " + api );
   }
 
   private static void put( Class key, Object value ) {

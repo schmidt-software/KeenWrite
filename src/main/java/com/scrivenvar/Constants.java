@@ -37,7 +37,7 @@ public class Constants {
   private static final Settings SETTINGS = Services.load( Settings.class );
 
   /**
-   * Prevent instantiation.
+   * Prevent instantiation, deliberately.
    */
   private Constants() {
   }
@@ -46,10 +46,15 @@ public class Constants {
     return SETTINGS.getSetting( key, "" );
   }
 
+  private static int get( final String key, int defaultValue ) {
+    return SETTINGS.getSetting( key, defaultValue );
+  }
+
   // Bootstrapping...
   public static final String SETTINGS_NAME = "/com/scrivenvar/settings.properties";
 
   public static final String APP_BUNDLE_NAME = get( "application.messages" );
+  public static final int APP_WATCHDOG_TIMEOUT = get( "application.watchdog.timeout", 100 );
 
   public static final String STYLESHEET_SCENE = get( "file.stylesheet.scene" );
   public static final String STYLESHEET_MARKDOWN = get( "file.stylesheet.markdown" );
@@ -63,11 +68,19 @@ public class Constants {
 
   public static final String CARET_POSITION_BASE = get( "caret.token.base" );
   public static final String CARET_POSITION_MD = get( "caret.token.markdown" );
-  public static final String CARET_POSITION_XML = get( "caret.token.xml" );
   public static final String CARET_POSITION_HTML = get( "caret.token.html" );
 
   public static final String PREFS_ROOT = get( "preferences.root" );
   public static final String PREFS_STATE = get( "preferences.root.state" );
   public static final String PREFS_OPTIONS = get( "preferences.root.options" );
   public static final String PREFS_DEFINITION_SOURCE = get( "preferences.root.definition.source" );
+
+  // Refer to filename extension settings in the configuration file. Do not
+  // terminate these prefixes with a period.
+  public static final String GLOB_PREFIX_FILE = "file.ext";
+  public static final String GLOB_PREFIX_DEFINITION = "definition." + GLOB_PREFIX_FILE;
+
+  // Different definition source protocols.
+  public static final String DEFINITION_PROTOCOL_UNKNOWN = "unknown";
+  public static final String DEFINITION_PROTOCOL_FILE = "file";
 }

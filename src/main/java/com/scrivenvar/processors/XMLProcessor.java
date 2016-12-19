@@ -30,6 +30,7 @@ package com.scrivenvar.processors;
 import com.scrivenvar.Services;
 import com.scrivenvar.service.Snitch;
 import java.io.File;
+import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -62,12 +63,13 @@ import static net.sf.saxon.tree.util.ProcInstParser.getPseudoAttribute;
  * @author White Magic Software, Ltd.
  */
 public class XMLProcessor extends AbstractProcessor<String> {
-  
+
   private final Snitch snitch = Services.load( Snitch.class );
-  
+
   private XMLInputFactory xmlInputFactory;
   private TransformerFactory transformerFactory;
-  
+  private Transformer transformer;
+
   private Path path;
 
   /**
@@ -113,19 +115,19 @@ public class XMLProcessor extends AbstractProcessor<String> {
     // Extract the XML stylesheet processing instruction.
     final String template = getXsltFilename( text );
     final Path xsl = getXslPath( template );
-    
-    // Listen for external file modification events.
-    getWatchDog().listen( xsl );
 
     try(
       final StringWriter output = new StringWriter( text.length() );
       final StringReader input = new StringReader( text ) ) {
-      
+
+      // Listen for external file modification events.
+      getSnitch().listen( xsl );
+
       getTransformer( xsl ).transform(
         new StreamSource( input ),
         new StreamResult( output )
       );
-      
+
       return output.toString();
     }
   }
@@ -135,7 +137,7 @@ public class XMLProcessor extends AbstractProcessor<String> {
    * XSLT file specified by the given path. If the path is already known then
    * this will return the associated transformer.
    *
-   * @param path The path to an XSLT file.
+   * @param xsl The path to an XSLT file.
    *
    * @return A transformer that will transform XML documents using the given
    * XSLT file.
@@ -143,18 +145,25 @@ public class XMLProcessor extends AbstractProcessor<String> {
    * @throws TransformerConfigurationException Could not instantiate the
    * transformer.
    */
-  private Transformer getTransformer( final Path path )
-    throws TransformerConfigurationException {
-    
-    final TransformerFactory factory = getTransformerFactory();
-    final Source xslt = new StreamSource( path.toFile() );
-    return factory.newTransformer( xslt );
+  private Transformer getTransformer( final Path xsl )
+    throws TransformerConfigurationException, IOException {
+    if( this.transformer == null ) {
+      this.transformer = createTransformer( xsl );
+    }
+
+    return this.transformer;
   }
-  
+
+  protected Transformer createTransformer( final Path xsl )
+    throws TransformerConfigurationException {
+    final Source xslt = new StreamSource( xsl.toFile() );
+    return getTransformerFactory().newTransformer( xslt );
+  }
+
   private Path getXslPath( final String filename ) {
     final Path xmlPath = getPath();
     final File xmlDirectory = xmlPath.toFile().getParentFile();
-    
+
     return Paths.get( xmlDirectory.getPath(), filename );
   }
 
@@ -172,9 +181,9 @@ public class XMLProcessor extends AbstractProcessor<String> {
    */
   private String getXsltFilename( final String xml )
     throws XMLStreamException, ParseException {
-    
+
     String result = "";
-    
+
     try( final StringReader sr = new StringReader( xml ) ) {
       boolean found = false;
       int count = 0;
@@ -184,46 +193,46 @@ public class XMLProcessor extends AbstractProcessor<String> {
       // fail fast. This should iterate twice through the loop.
       while( !found && reader.hasNext() && count++ < 10 ) {
         final XMLEvent event = reader.nextEvent();
-        
+
         if( event.isProcessingInstruction() ) {
           final ProcessingInstruction pi = (ProcessingInstruction)event;
           final String target = pi.getTarget();
-          
+
           if( "xml-stylesheet".equalsIgnoreCase( target ) ) {
             result = getPseudoAttribute( pi.getData(), "href" );
             found = true;
           }
         }
       }
-      
+
       sr.close();
     }
-    
+
     return result;
   }
-  
+
   private XMLEventReader createXMLEventReader( final Reader reader )
     throws XMLStreamException {
     return getXMLInputFactory().createXMLEventReader( reader );
   }
-  
+
   private synchronized XMLInputFactory getXMLInputFactory() {
     if( this.xmlInputFactory == null ) {
       this.xmlInputFactory = createXMLInputFactory();
     }
-    
+
     return this.xmlInputFactory;
   }
-  
+
   private XMLInputFactory createXMLInputFactory() {
     return XMLInputFactory.newInstance();
   }
-  
+
   private synchronized TransformerFactory getTransformerFactory() {
     if( this.transformerFactory == null ) {
       this.transformerFactory = createTransformerFactory();
     }
-    
+
     return this.transformerFactory;
   }
 
@@ -235,16 +244,16 @@ public class XMLProcessor extends AbstractProcessor<String> {
   private TransformerFactory createTransformerFactory() {
     return new TransformerFactoryImpl();
   }
-  
+
   private void setPath( final Path path ) {
     this.path = path;
   }
-  
+
   private Path getPath() {
     return this.path;
   }
-  
-  private Snitch getWatchDog() {
+
+  private Snitch getSnitch() {
     return this.snitch;
   }
 }

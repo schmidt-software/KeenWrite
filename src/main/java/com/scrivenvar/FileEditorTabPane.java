@@ -27,6 +27,8 @@
  */
 package com.scrivenvar;
 
+import static com.scrivenvar.Constants.GLOB_PREFIX_FILE;
+import static com.scrivenvar.FileType.*;
 import static com.scrivenvar.Messages.get;
 import com.scrivenvar.predicates.files.FileTypePredicate;
 import com.scrivenvar.service.Options;
@@ -73,7 +75,6 @@ import org.fxmisc.wellbehaved.event.InputMap;
  */
 public final class FileEditorTabPane extends TabPane {
 
-  private final static String FILTER_EXTENSIONS = "filter.file";
   private final static String FILTER_EXTENSION_TITLES = "Dialog.file.choose.filter";
 
   private final Options options = Services.load( Options.class );
@@ -245,7 +246,7 @@ public final class FileEditorTabPane extends TabPane {
    */
   private void openFiles( final List<File> files ) {
     final FileTypePredicate predicate
-      = new FileTypePredicate( createExtensionFilter( "definition" ).getExtensions() );
+      = new FileTypePredicate( createExtensionFilter( DEFINITION ).getExtensions() );
 
     // The user might have opened multiple definitions files. These will
     // be discarded from the text editable files.
@@ -509,16 +510,24 @@ public final class FileEditorTabPane extends TabPane {
     // TODO: Return a list of all properties that match the filter prefix.
     // This will allow dynamic filters to be added and removed just by
     // updating the properties file.
-    list.add( createExtensionFilter( "markdown" ) );
-    list.add( createExtensionFilter( "definition" ) );
-    list.add( createExtensionFilter( "xml" ) );
-    list.add( createExtensionFilter( "all" ) );
+    list.add( createExtensionFilter( MARKDOWN ) );
+    list.add( createExtensionFilter( DEFINITION ) );
+    list.add( createExtensionFilter( XML ) );
+    list.add( createExtensionFilter( ALL ) );
     return list;
   }
 
-  private ExtensionFilter createExtensionFilter( final String filetype ) {
+  /**
+   * Returns a filter for file name extensions recognized by the application
+   * that can be opened by the user.
+   *
+   * @param filetype Used to find the globbing pattern for extensions.
+   *
+   * @return A filename filter suitable for use by a FileDialog instance.
+   */
+  private ExtensionFilter createExtensionFilter( final FileType filetype ) {
     final String tKey = String.format( "%s.title.%s", FILTER_EXTENSION_TITLES, filetype );
-    final String eKey = String.format( "%s.ext.%s", FILTER_EXTENSIONS, filetype );
+    final String eKey = String.format("%s.%s", GLOB_PREFIX_FILE, filetype );
 
     return new ExtensionFilter( Messages.get( tKey ), getExtensions( eKey ) );
   }

@@ -29,6 +29,7 @@ package com.scrivenvar.service;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.Observer;
 
 /**
  * Listens for changes to file system files and directories.
@@ -36,6 +37,16 @@ import java.nio.file.Path;
  * @author White Magic Software, Ltd.
  */
 public interface Snitch extends Service, Runnable {
+
+  /**
+   * Adds an observer to the set of observers for this object, provided that it
+   * is not the same as some observer already in the set. The order in which
+   * notifications will be delivered to multiple observers is not specified.
+   *
+   * @param o The object to receive changed events for when monitored files
+   * are changed.
+   */
+  public void addObserver( Observer o );
 
   /**
    * Listens for changes to the path. If the path specifies a file, then only

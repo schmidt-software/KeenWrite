@@ -27,9 +27,7 @@
  */
 package com.scrivenvar;
 
-import static com.scrivenvar.Constants.FILE_LOGO_32;
-import static com.scrivenvar.Constants.PREFS_DEFINITION_SOURCE;
-import static com.scrivenvar.Constants.STYLESHEET_SCENE;
+import static com.scrivenvar.Constants.*;
 import static com.scrivenvar.Messages.get;
 import com.scrivenvar.definition.DefinitionFactory;
 import com.scrivenvar.definition.DefinitionPane;
@@ -39,40 +37,23 @@ import com.scrivenvar.editors.EditorPane;
 import com.scrivenvar.editors.VariableNameInjector;
 import com.scrivenvar.editors.markdown.MarkdownEditorPane;
 import com.scrivenvar.preview.HTMLPreviewPane;
-import com.scrivenvar.processors.CaretReplacementProcessor;
-import com.scrivenvar.processors.HTMLPreviewProcessor;
-import com.scrivenvar.processors.MarkdownProcessor;
 import com.scrivenvar.processors.Processor;
-import com.scrivenvar.processors.VariableProcessor;
-import com.scrivenvar.processors.XMLCaretInsertionProcessor;
-import com.scrivenvar.processors.XMLProcessor;
+import com.scrivenvar.processors.ProcessorFactory;
 import com.scrivenvar.service.Options;
+import com.scrivenvar.service.Snitch;
 import com.scrivenvar.util.Action;
 import com.scrivenvar.util.ActionUtils;
-import static com.scrivenvar.util.StageState.K_PANE_SPLIT_DEFINITION;
-import static com.scrivenvar.util.StageState.K_PANE_SPLIT_EDITOR;
-import static com.scrivenvar.util.StageState.K_PANE_SPLIT_PREVIEW;
-import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.BOLD;
-import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.CODE;
-import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.FILE_ALT;
-import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.FILE_CODE_ALT;
-import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.FLOPPY_ALT;
-import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.FOLDER_OPEN_ALT;
-import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.HEADER;
-import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.ITALIC;
-import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.LINK;
-import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.LIST_OL;
-import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.LIST_UL;
-import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.PICTURE_ALT;
-import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.QUOTE_LEFT;
-import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.REPEAT;
-import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.STRIKETHROUGH;
-import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.UNDO;
+import static com.scrivenvar.util.StageState.*;
+import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.*;
 import java.net.MalformedURLException;
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Observable;
+import java.util.Observer;
 import java.util.function.Function;
 import java.util.prefs.Preferences;
+import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.BooleanProperty;
@@ -109,9 +90,16 @@ import static javafx.stage.WindowEvent.WINDOW_CLOSE_REQUEST;
  *
  * @author Karl Tauber and White Magic Software, Ltd.
  */
-public class MainWindow {
+public class MainWindow implements Observer {
 
   private final Options options = Services.load( Options.class );
+  private final Snitch snitch = Services.load( Snitch.class );
+
+  /**
+   * Prevent re-instantiation of classes for processing.
+   */
+  private Map<FileEditorTab, Processor<String>> processors;
+  private ProcessorFactory processorFactory;
 
   private Scene scene;
   private MenuBar menuBar;
@@ -128,6 +116,7 @@ public class MainWindow {
     initTabAddedListener();
     initTabChangedListener();
     initPreferences();
+    initWatchDog();
   }
 
   /**
@@ -225,7 +214,11 @@ public class MainWindow {
   private void initVariableNameInjector( final FileEditorTab tab ) {
     VariableNameInjector.listen( tab, getDefinitionPane() );
   }
-  
+
+  private void initWatchDog() {
+    getSnitch().addObserver( this );
+  }
+
   /**
    * Called whenever the preview pane becomes out of sync with the file editor
    * tab. This can be called when the text changes, the caret paragraph changes,
@@ -234,20 +227,16 @@ public class MainWindow {
    * @param tab The file editor tab that has been changed in some fashion.
    */
   private void refreshSelectedTab( final FileEditorTab tab ) {
-    final Path path = tab.getPath();
+    getPreviewPane().setPath( tab.getPath() );
 
-    final HTMLPreviewPane preview = getPreviewPane();
-    preview.setPath( tab.getPath() );
+    Processor<String> processor = getProcessors().get( tab );
 
-    final Processor<String> hpp = new HTMLPreviewProcessor( preview );
-    final Processor<String> mcrp = new CaretReplacementProcessor( hpp );
-    final Processor<String> mp = new MarkdownProcessor( mcrp );
-//    final Processor<String> mcip = new MarkdownCaretInsertionProcessor( mp, tab.getCaretPosition() );
-    final Processor<String> xmlp = new XMLProcessor( mp, tab.getPath() );
-    final Processor<String> xcip = new XMLCaretInsertionProcessor( xmlp, tab.getCaretPosition() );
-    final Processor<String> vp = new VariableProcessor( xcip, getResolvedMap() );
+    if( processor == null ) {
+      processor = createProcessor( tab );
+      getProcessors().put( tab, processor );
+    }
 
-    vp.processChain( tab.getEditorText() );
+    processor.processChain( tab.getEditorText() );
   }
 
   /**
@@ -321,7 +310,37 @@ public class MainWindow {
    * @param e The exception with a message that the user should know about.
    */
   private void alert( final Exception e ) {
-    // TODO: Raise a notice.
+    // TODO: Update the status bar.
+  }
+
+  //---- File actions -------------------------------------------------------
+  /**
+   * Called when a file has been modified.
+   *
+   * @param snitch The watchdog file monitoring instance.
+   * @param file The file that was modified.
+   */
+  @Override
+  public void update( final Observable snitch, final Object file ) {
+    if( file instanceof Path ) {
+      update( (Path)file );
+    }
+  }
+
+  /**
+   * Called when a file has been modified.
+   *
+   * @param file Path to the modified file.
+   */
+  private void update( final Path file ) {
+    // Avoid throwing IllegalStateException by running from a non-JavaFX thread.
+    Platform.runLater(
+      () -> {
+        // Brute-force XSLT file reload by re-instantiating all processors.
+        getProcessors().clear();
+        refreshSelectedTab( getActiveFileEditor() );
+      }
+    );
   }
 
   //---- File actions -------------------------------------------------------
@@ -398,6 +417,22 @@ public class MainWindow {
     this.scene = scene;
   }
 
+  private Map<FileEditorTab, Processor<String>> getProcessors() {
+    if( this.processors == null ) {
+      this.processors = new HashMap<>();
+    }
+
+    return this.processors;
+  }
+  
+  private ProcessorFactory getProcessorFactory() {
+    if( this.processorFactory == null ) {
+      this.processorFactory = createProcessorFactory();
+    }
+
+    return this.processorFactory;
+  }
+
   private FileEditorTabPane getFileEditorPane() {
     if( this.fileEditorPane == null ) {
       this.fileEditorPane = createFileEditorPane();
@@ -438,6 +473,10 @@ public class MainWindow {
     return this.options;
   }
 
+  private Snitch getSnitch() {
+    return this.snitch;
+  }
+
   public MenuBar getMenuBar() {
     return this.menuBar;
   }
@@ -447,6 +486,21 @@ public class MainWindow {
   }
 
   //---- Member creators ----------------------------------------------------
+  /**
+   * Factory to create processors that are suited to different file types.
+   *
+   * @param tab The tab that is subjected to processing.
+   *
+   * @return A processor suited to the file type specified by the tab's path.
+   */
+  private Processor<String> createProcessor( final FileEditorTab tab ) {
+    return getProcessorFactory().createProcessor( tab );
+  }
+
+  private ProcessorFactory createProcessorFactory() {
+    return new ProcessorFactory( getPreviewPane(), getResolvedMap() );
+  }
+
   private DefinitionSource createDefinitionSource( final String path )
     throws MalformedURLException {
     return createDefinitionFactory().createDefinitionSource( path );

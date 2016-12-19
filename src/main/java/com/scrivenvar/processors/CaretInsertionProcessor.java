@@ -28,6 +28,9 @@
 package com.scrivenvar.processors;
 
 import static com.scrivenvar.Constants.CARET_POSITION_MD;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.value.ObservableValue;
 
 /**
  * Base class for inserting the magic CARET POSITION into the text so that, upon
@@ -38,12 +41,13 @@ import static com.scrivenvar.Constants.CARET_POSITION_MD;
  */
 public abstract class CaretInsertionProcessor extends AbstractProcessor<String> {
 
-  private final int caretPosition;
+  private final IntegerProperty caretPosition = new SimpleIntegerProperty();
 
   public CaretInsertionProcessor(
-    final Processor<String> processor, final int position ) {
+    final Processor<String> processor,
+    final ObservableValue<Integer> position ) {
     super( processor );
-    this.caretPosition = position;
+    this.caretPosition.bind( position );
   }
 
   /**
@@ -69,6 +73,6 @@ public abstract class CaretInsertionProcessor extends AbstractProcessor<String> 
    * @return Where the user has positioned the caret.
    */
   protected int getCaretPosition() {
-    return this.caretPosition;
+    return this.caretPosition.getValue();
   }
 }

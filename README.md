@@ -15,12 +15,12 @@ Features
 * Real-time document preview with variable substitution
 * Platform independent (Windows, Linux, MacOS)
 * Auto-insert variable names pressing `Control+Space`
+* Real-time XSLT2 transformation of XML documents
 
 Future Features
 ---
 * Spell check
 * Search and replace, with or without variables
-* XML and XSL processing
 * R integration using [Rserve](https://rforge.net/Rserve/)
 * Re-organize variable names
 

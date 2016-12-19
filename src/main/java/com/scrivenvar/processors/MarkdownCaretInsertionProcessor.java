@@ -29,13 +29,14 @@ package com.scrivenvar.processors;
 
 import static java.lang.Character.isLetter;
 import static java.lang.Math.min;
+import javafx.beans.value.ObservableValue;
 
 /**
  * Responsible for inserting a caret position token into a markdown document.
  *
  * @author White Magic Software, Ltd.
  */
-public  class MarkdownCaretInsertionProcessor extends CaretInsertionProcessor {
+public class MarkdownCaretInsertionProcessor extends CaretInsertionProcessor {
 
   /**
    * Constructs a processor capable of inserting a caret marker into Markdown.
@@ -44,7 +45,8 @@ public  class MarkdownCaretInsertionProcessor extends CaretInsertionProcessor {
    * @param position The caret's current position in the text.
    */
   public MarkdownCaretInsertionProcessor(
-    final Processor<String> processor, final int position ) {
+    final Processor<String> processor,
+    final ObservableValue<Integer> position ) {
     super( processor, position );
   }
 

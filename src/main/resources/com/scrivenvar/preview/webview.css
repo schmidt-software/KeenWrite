@@ -26,7 +26,13 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 /* RESET
 =============================================================================*/
 
-html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i, center, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas, details, embed, figure, figcaption, footer, header, hgroup, menu, nav, output, ruby, section, summary, time, mark, audio, video {
+html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6,
+p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn,
+em, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var,
+b, u, i, center, dl, dt, dd, ol, ul, li, fieldset, form, label,
+legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas,
+details, embed, figure, figcaption, footer, header, hgroup, menu, nav, output,
+ruby, section, summary, time, mark, audio, video {
   margin: 0;
   padding: 0;
   border: 0;
@@ -71,7 +77,8 @@ h1, h2, h3, h4, h5, h6 {
   -webkit-font-smoothing: antialiased;
 }
 
-h1 tt, h1 code, h2 tt, h2 code, h3 tt, h3 code, h4 tt, h4 code, h5 tt, h5 code, h6 tt, h6 code {
+h1 tt, h1 code, h2 tt, h2 code, h3 tt, h3 code,
+h4 tt, h4 code, h5 tt, h5 code, h6 tt, h6 code {
   font-size: inherit;
 }
 
@@ -103,12 +110,15 @@ h6 {
   font-size: 14px;
 }
 
-body>h2:first-child, body>h1:first-child, body>h1:first-child+h2, body>h3:first-child, body>h4:first-child, body>h5:first-child, body>h6:first-child {
+body>h2:first-child, body>h1:first-child, body>h1:first-child+h2,
+body>h3:first-child, body>h4:first-child, body>h5:first-child,
+body>h6:first-child {
   margin-top: 0;
   padding-top: 0;
 }
 
-a:first-child h1, a:first-child h2, a:first-child h3, a:first-child h4, a:first-child h5, a:first-child h6 {
+a:first-child h1, a:first-child h2, a:first-child h3,
+a:first-child h4, a:first-child h5, a:first-child h6 {
   margin-top: 0;
   padding-top: 0;
 }
@@ -307,7 +317,9 @@ img {
 =============================================================================*/
 
 #CARETPOSITION {
-  border-right:1px solid #333;
+  border-top: 2px solid #333;
+  border-bottom: 2px solid #333;
+  border-right: 1px solid #333;
   margin-right:-1px;
   animation: blink 1s linear infinite;
 }

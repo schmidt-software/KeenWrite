@@ -27,6 +27,7 @@
  */
 package com.scrivenvar.service.impl;
 
+import static com.scrivenvar.Constants.APP_WATCHDOG_TIMEOUT;
 import com.scrivenvar.service.Snitch;
 import java.io.IOException;
 import java.nio.file.FileSystem;
@@ -38,17 +39,18 @@ import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
+import java.util.Observable;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Listens for file changes.
+ * Listens for file changes. Other classes can register paths to be monitored
+ * and listen for changes to those paths.
  *
  * @author White Magic Software, Ltd.
  */
-public class DefaultSnitch implements Snitch {
+public class DefaultSnitch extends Observable implements Snitch {
 
   /**
    * Service for listening to directories for modifications.
@@ -146,13 +148,14 @@ public class DefaultSnitch implements Snitch {
         // Prevent receiving two separate ENTRY_MODIFY events: file modified
         // and timestamp updated. Instead, receive one ENTRY_MODIFY event
         // with two counts.
-        Thread.sleep( 50 );
+        Thread.sleep( APP_WATCHDOG_TIMEOUT );
 
         for( final WatchEvent<?> event : key.pollEvents() ) {
           final Path changed = path.resolve( (Path)event.context() );
 
           if( event.kind() == ENTRY_MODIFY && isListening( changed ) ) {
-            System.out.println( "RELOAD XSL: " + changed );
+            setChanged();
+            notifyObservers( changed );
           }
         }
 
@@ -166,8 +169,16 @@ public class DefaultSnitch implements Snitch {
     }
   }
 
-  private boolean isListening( final Path path ) {
-    return getEavesdropped().contains( path );
+  /**
+   * Returns true if the list of files being listened to for changes contains
+   * the given file.
+   *
+   * @param file Path to a system file.
+   *
+   * @return true The given file is being monitored for changes.
+   */
+  private boolean isListening( final Path file ) {
+    return getEavesdropped().contains( file );
   }
 
   /**
@@ -190,7 +201,7 @@ public class DefaultSnitch implements Snitch {
   }
 
   protected Map<WatchKey, Path> createWatchKeys() {
-    return new HashMap<>();
+    return new ConcurrentHashMap<>();
   }
 
   /**
@@ -207,7 +218,7 @@ public class DefaultSnitch implements Snitch {
   }
 
   protected Set<Path> createEavesdropped() {
-    return new HashSet<>();
+    return ConcurrentHashMap.newKeySet();
   }
 
   /**

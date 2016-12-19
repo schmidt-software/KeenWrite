@@ -27,12 +27,12 @@
  */
 package com.scrivenvar.processors;
 
-import com.scrivenvar.FileEditorTab;
 import com.ximpleware.VTDException;
 import com.ximpleware.VTDGen;
 import static com.ximpleware.VTDGen.TOKEN_CHARACTER_DATA;
 import com.ximpleware.VTDNav;
 import java.text.ParseException;
+import javafx.beans.value.ObservableValue;
 
 /**
  * Inserts a caret position indicator into the document.
@@ -41,7 +41,7 @@ import java.text.ParseException;
  */
 public class XMLCaretInsertionProcessor extends CaretInsertionProcessor {
 
-  private FileEditorTab tab;
+  private VTDGen parser;
 
   /**
    * Constructs a processor capable of inserting a caret marker into XML.
@@ -50,27 +50,27 @@ public class XMLCaretInsertionProcessor extends CaretInsertionProcessor {
    * @param position The caret's current position in the text, cannot be null.
    */
   public XMLCaretInsertionProcessor(
-    final Processor<String> processor, final int position ) {
+    final Processor<String> processor,
+    final ObservableValue<Integer> position ) {
     super( processor, position );
   }
 
   /**
    * Inserts a caret at a valid position within the XML document.
    *
-   * @param t The string into which caret position marker text is inserted.
+   * @param text The string into which caret position marker text is inserted.
    *
-   * @return t with a caret position marker included, or t if no place to insert
-   * could be found.
+   * @return The text with a caret position marker included, or the original
+   * text if no insertion point could be found.
    */
   @Override
-  public String processLink( final String t ) {
+  public String processLink( final String text ) {
     final int caret = getCaretPosition();
     int insertOffset = -1;
 
-    if( t.length() > 0 ) {
-
+    if( text.length() > 0 ) {
       try {
-        final VTDNav vn = getNavigator( t );
+        final VTDNav vn = getNavigator( text );
         final int tokens = vn.getTokenCount();
 
         int currTokenIndex = 0;
@@ -88,8 +88,8 @@ public class XMLCaretInsertionProcessor extends CaretInsertionProcessor {
             if( currOffset > caret ) {
               final int prevLength = vn.getTokenLength( prevTokenIndex );
 
-              // If the caret falls within the limits of the previous token, then
-              // insert the caret position marker at the caret offset.
+              // If the caret falls within the limits of the previous token,
+              // theninsert the caret position marker at the caret offset.
               if( isBetween( caret, prevOffset, prevOffset + prevLength ) ) {
                 insertOffset = caret;
               } else {
@@ -100,7 +100,7 @@ public class XMLCaretInsertionProcessor extends CaretInsertionProcessor {
                 // current text token.
                 insertOffset = currOffset;
               }
-              
+
               break;
             }
 
@@ -117,7 +117,7 @@ public class XMLCaretInsertionProcessor extends CaretInsertionProcessor {
       }
     }
 
-    return inject( t, insertOffset );
+    return inject( text, insertOffset );
   }
 
   private boolean isBetween( int i, int min, int max ) {
@@ -141,7 +141,20 @@ public class XMLCaretInsertionProcessor extends CaretInsertionProcessor {
     return vg.getNav();
   }
 
-  private VTDGen getParser() {
+  private synchronized VTDGen getParser() {
+    if( this.parser == null ) {
+      this.parser = createParser();
+    }
+
+    return this.parser;
+  }
+
+  /**
+   * Creates a high-performance XML document parser.
+   *
+   * @return A new XML parser.
+   */
+  protected VTDGen createParser() {
     return new VTDGen();
   }
 }
