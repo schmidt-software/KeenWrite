@@ -6,13 +6,12 @@ apply plugin: 'application'
 
 sourceCompatibility = JavaVersion.VERSION_1_8
 
+applicationName = 'scrivenvar'
+
 mainClassName = 'com.scrivenvar.Main'
 
 repositories {
   jcenter()
-  maven {
-    url "https://nexus.bedatadriven.com/content/groups/public"
-  }
 }
 
 compileJava {
@@ -39,7 +38,7 @@ dependencies {
 }
 
 jar {
-  baseName = 'scrivenvar'
+  baseName = applicationName
   
   doFirst {
     from {
@@ -58,7 +57,7 @@ jar {
 
 distributions {
   main {
-    baseName = 'scrivenvar'
+    baseName = applicationName
     contents {
       from { ['LICENSE', 'README.md'] }
       into( 'images' ) {
