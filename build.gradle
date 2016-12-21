@@ -42,26 +42,14 @@ jar {
   baseName = 'scrivenvar'
   
   // Remove digital signature files to ensure an executable JAR file.
-  doFirst { 
+  doFirst {
     from {
-      (configurations.runtime.resolve()).collect {
-        it.isDirectory() ? it : zipTree(it)
-      }
-      {
-        exclude 'META-INF/MANIFEST.MF'
-        exclude 'META-INF/*.SF'
-        exclude 'META-INF/*.DSA'
-        exclude 'META-INF/*.RSA'
-      }
+      configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
     }
   }
-  
-  from {
-    (configurations.runtime).collect {
-      it.isDirectory() ? it : zipTree(it)
-    }
-  }
-    
+
+  exclude 'META-INF/*.RSA', 'META-INF/*.SF','META-INF/*.DSA' 
+
   manifest {
     attributes 'Main-Class': mainClassName
     attributes 'Class-Path': configurations.compile.collect { 'libs/' + it.getName() }.join(' ')
