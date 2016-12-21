@@ -41,13 +41,13 @@ dependencies {
 jar {
   baseName = 'scrivenvar'
   
-  // Remove digital signature files to ensure an executable JAR file.
   doFirst {
     from {
       configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
     }
   }
 
+  // Remove digital signature files to ensure an executable JAR file.
   exclude 'META-INF/*.RSA', 'META-INF/*.SF','META-INF/*.DSA' 
 
   manifest {
