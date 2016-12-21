@@ -95,20 +95,20 @@ public class MainWindow implements Observer {
   private final Options options = Services.load( Options.class );
   private final Snitch snitch = Services.load( Snitch.class );
 
-  /**
-   * Prevent re-instantiation of classes for processing.
-   */
-  private Map<FileEditorTab, Processor<String>> processors;
-  private ProcessorFactory processorFactory;
-
   private Scene scene;
   private MenuBar menuBar;
 
+  private DefinitionSource definitionSource;
   private DefinitionPane definitionPane;
   private FileEditorTabPane fileEditorPane;
   private HTMLPreviewPane previewPane;
 
-  private DefinitionSource definitionSource;
+  /**
+   * Prevent re-instantiation processing classes.
+   */
+  private Map<FileEditorTab, Processor<String>> processors;
+  private ProcessorFactory processorFactory;
+  
 
   public MainWindow() {
     initLayout();

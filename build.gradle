@@ -1,15 +1,18 @@
-version = '1.0.0'
+version = '1.0.2'
 
 apply plugin: 'java'
 apply plugin: 'java-library-distribution'
 apply plugin: 'application'
 
-sourceCompatibility = 1.8
+sourceCompatibility = JavaVersion.VERSION_1_8
 
 mainClassName = 'com.scrivenvar.Main'
 
 repositories {
-	jcenter()
+  jcenter()
+  maven {
+    url "https://nexus.bedatadriven.com/content/groups/public"
+  }
 }
 
 compileJava {
@@ -17,25 +20,41 @@ compileJava {
 }
 
 dependencies {
-  compile group: 'org.fxmisc.richtext', name: 'richtextfx', version: '0.7-M2'
-	compile group: 'com.miglayout', name: 'miglayout-javafx', version: '5.0'
-	compile group: 'de.jensd', name: 'fontawesomefx-fontawesome', version: '4.5.0'
-  compile group: 'org.ahocorasick', name: 'ahocorasick', version: '0.3.0'
-  compile group: 'com.vladsch.flexmark', name: 'flexmark', version: '0.6.1'
-  compile group: 'com.vladsch.flexmark', name: 'flexmark-ext-gfm-tables', version: '0.6.1'
-  compile group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.8.4'
-  compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.8.4'
-  compile group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version: '2.8.4'
-  compile group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-yaml', version: '2.8.4'
-  compile group: 'org.yaml', name: 'snakeyaml', version: '1.17'
-  compile group: 'com.ximpleware', name: 'vtd-xml', version: '2.13'
-  compile group: 'net.sf.saxon', name: 'Saxon-HE', version: '9.7.0-14'
-  compile group: 'com.googlecode.juniversalchardet', name: 'juniversalchardet', version: '1.0.3'
-  compile group: 'org.apache.commons', name: 'commons-configuration2', version: '2.1'
+  compile 'org.fxmisc.richtext:richtextfx:0.7-M2'
+  compile 'com.miglayout:miglayout-javafx:5.0'
+  compile 'de.jensd:fontawesomefx-fontawesome:4.5.0'
+  compile 'org.ahocorasick:ahocorasick:0.3.0'
+  compile 'com.vladsch.flexmark:flexmark:0.6.1'
+  compile 'com.vladsch.flexmark:flexmark-ext-gfm-tables:0.6.1'
+  compile 'com.fasterxml.jackson.core:jackson-core:2.8.4'
+  compile 'com.fasterxml.jackson.core:jackson-databind:2.8.4'
+  compile 'com.fasterxml.jackson.core:jackson-annotations:2.8.4'
+  compile 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.8.4'
+  compile 'org.yaml:snakeyaml:1.17'
+  compile 'com.ximpleware:vtd-xml:2.13'
+  compile 'net.sf.saxon:Saxon-HE:9.7.0-14'
+  compile 'com.googlecode.juniversalchardet:juniversalchardet:1.0.3'
+  compile 'org.apache.commons:commons-configuration2:2.1'
+  compile files('libs/renjin-script-engine-0.8.2300-jar-with-dependencies.jar')
 }
 
 jar {
-	baseName = 'scrivenvar'
+  baseName = 'scrivenvar'
+  
+  // remove the security files (from mail.jar / activation.jar) so that the jar will be executable.
+  doFirst { 
+    from {
+      (configurations.runtime.resolve()).collect {
+        it.isDirectory() ? it : zipTree(it)
+      }
+      {
+        exclude 'META-INF/MANIFEST.MF'
+        exclude 'META-INF/*.SF'
+        exclude 'META-INF/*.DSA'
+        exclude 'META-INF/*.RSA'
+      }
+    }
+  }
   
   from {
     (configurations.runtime).collect {
@@ -43,20 +62,20 @@ jar {
     }
   }
     
-	manifest {
-		attributes 'Main-Class': mainClassName,
-					'Class-Path': configurations.compile.collect { 'lib/' + it.getName() }.join(' ')
-	}
+  manifest {
+    attributes 'Main-Class': mainClassName,
+          'Class-Path': configurations.compile.collect { 'libs/' + it.getName() }.join(' ')
+  }
 }
 
 distributions {
-	main {
-		baseName = 'scrivenvar'
-		contents {
-			from { ['LICENSE', 'README.md'] }
-			into( 'images' ) {
-				from { 'images' }
-			}
-		}
-	}
+  main {
+    baseName = 'scrivenvar'
+    contents {
+      from { ['LICENSE', 'README.md'] }
+      into( 'images' ) {
+        from { 'images' }
+      }
+    }
+  }
 }
