@@ -41,7 +41,7 @@ dependencies {
 jar {
   baseName = 'scrivenvar'
   
-  // remove the security files (from mail.jar / activation.jar) so that the jar will be executable.
+  // Remove digital signature files to ensure an executable JAR file.
   doFirst { 
     from {
       (configurations.runtime.resolve()).collect {
@@ -63,8 +63,8 @@ jar {
   }
     
   manifest {
-    attributes 'Main-Class': mainClassName,
-          'Class-Path': configurations.compile.collect { 'libs/' + it.getName() }.join(' ')
+    attributes 'Main-Class': mainClassName
+    attributes 'Class-Path': configurations.compile.collect { 'libs/' + it.getName() }.join(' ')
   }
 }
 
