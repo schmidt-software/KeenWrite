@@ -27,7 +27,6 @@
  */
 package com.scrivenvar.definition;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import javafx.scene.control.TreeView;
@@ -43,7 +42,7 @@ public class EmptyDefinitionSource extends AbstractDefinitionSource {
   }
 
   @Override
-  public TreeView<String> asTreeView() throws IOException {
+  public TreeView<String> asTreeView() {
     return new TreeView<>();
   }
 
@@ -51,5 +50,4 @@ public class EmptyDefinitionSource extends AbstractDefinitionSource {
   public Map<String, String> getResolvedMap() {
     return new HashMap<>();
   }
-
 }

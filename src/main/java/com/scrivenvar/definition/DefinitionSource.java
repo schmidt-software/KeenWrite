@@ -27,7 +27,6 @@
  */
 package com.scrivenvar.definition;
 
-import java.io.IOException;
 import java.util.Map;
 import javafx.scene.control.TreeView;
 
@@ -44,10 +43,8 @@ public interface DefinitionSource {
    * them, if needed.
    *
    * @return A hierarchical tree suitable for displaying in the definition pane.
-   *
-   * @throws IOException Could not obtain the definition source data.
    */
-  public TreeView<String> asTreeView() throws IOException;
+  public TreeView<String> asTreeView();
 
   /**
    * Returns all the strings with their values resolved in a flat hierarchy.
@@ -61,7 +58,7 @@ public interface DefinitionSource {
   /**
    * Must return a re-loadable path to the data source. For a file, this is the
    * absolute file path. For a database, this could be the JDBC connection. For
-   * a web site, this might be the GET url.
+   * a web site, this might be the GET URL.
    *
    * @return A non-null, non-empty string.
    */

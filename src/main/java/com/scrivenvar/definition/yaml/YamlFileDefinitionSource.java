@@ -28,7 +28,6 @@
 package com.scrivenvar.definition.yaml;
 
 import static com.scrivenvar.Messages.get;
-import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -44,6 +43,7 @@ public class YamlFileDefinitionSource extends FileDefinitionSource {
 
   private YamlTreeAdapter yamlTreeAdapter;
   private YamlParser yamlParser;
+  private TreeView<String> treeView;
 
   /**
    * Constructs a new YAML definition source, populated from the given file.
@@ -52,24 +52,25 @@ public class YamlFileDefinitionSource extends FileDefinitionSource {
    */
   public YamlFileDefinitionSource( final Path path ) {
     super( path );
+    init();
+  }
+  
+  private void init() {
+    setYamlParser( createYamlParser() );
   }
 
   /**
    * TODO: Associate variable file with path to current file.
    *
    * @return The TreeView for this definition source.
-   *
-   * @throws IOException
    */
   @Override
-  public TreeView<String> asTreeView() throws IOException {
-
-    try( final InputStream in = Files.newInputStream( getPath() ) ) {
-      return getYamlTreeAdapter().adapt(
-        in,
-        get( "Pane.defintion.node.root.title" )
-      );
+  public TreeView<String> asTreeView() {
+    if( this.treeView == null ) {
+      this.treeView = createTreeView();
     }
+
+    return this.treeView;
   }
 
   @Override
@@ -91,7 +92,7 @@ public class YamlFileDefinitionSource extends FileDefinitionSource {
 
   private YamlParser getYamlParser() {
     if( this.yamlParser == null ) {
-      setYamlParser( new YamlParser() );
+      setYamlParser( createYamlParser() );
     }
 
     return this.yamlParser;
@@ -99,5 +100,19 @@ public class YamlFileDefinitionSource extends FileDefinitionSource {
 
   private void setYamlParser( final YamlParser yamlParser ) {
     this.yamlParser = yamlParser;
+  }
+
+  private YamlParser createYamlParser() {
+    try( final InputStream in = Files.newInputStream( getPath() ) ) {
+      return new YamlParser( in );
+    } catch( final Exception e ) {
+      throw new RuntimeException( e );
+    }
+  }
+
+  private TreeView<String> createTreeView() {
+    return getYamlTreeAdapter().adapt(
+      get( "Pane.defintion.node.root.title" )
+    );
   }
 }

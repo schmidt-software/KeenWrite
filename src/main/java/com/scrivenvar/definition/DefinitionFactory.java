@@ -59,7 +59,7 @@ public class DefinitionFactory extends AbstractFileFactory {
 
   /**
    * 
-   * @param path
+   * @param path Path to a file containing definitions.
    * @return 
    */
   public DefinitionSource createDefinitionSource( final String path ) {

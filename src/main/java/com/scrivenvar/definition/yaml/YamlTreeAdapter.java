@@ -29,8 +29,6 @@ package com.scrivenvar.definition.yaml;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.scrivenvar.definition.VariableTreeItem;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.Map.Entry;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
@@ -51,19 +49,14 @@ public class YamlTreeAdapter {
 
   /**
    * Converts a YAML document to a TreeView based on the document keys. Only the
-   * first document in the stream is adapted. This does not close the stream.
+   * first document in the stream is adapted.
    *
-   * @param in Contains a YAML document.
    * @param name Root TreeItem node name.
    *
    * @return A TreeView populated with all the keys in the YAML document.
-   *
-   * @throws IOException Could not read from the stream.
    */
-  public TreeView<String> adapt( final InputStream in, final String name )
-    throws IOException {
-
-    final JsonNode rootNode = getYamlParser().process( in );
+  public TreeView<String> adapt( final String name ){
+    final JsonNode rootNode = getYamlParser().getDocumentRoot();
     final TreeItem<String> rootItem = createTreeItem( name );
 
     rootItem.setExpanded( true );

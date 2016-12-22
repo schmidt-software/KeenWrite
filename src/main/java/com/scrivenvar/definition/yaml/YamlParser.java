@@ -78,7 +78,7 @@ import org.yaml.snakeyaml.DumperOptions;
  *
  * @author White Magic Software, Ltd.
  */
-public class YamlParser  {
+public class YamlParser {
 
   /**
    * Separates YAML variable nodes (e.g., the dots in
@@ -86,10 +86,10 @@ public class YamlParser  {
    */
   public static final String SEPARATOR = ".";
   public static final char SEPARATOR_CHAR = SEPARATOR.charAt( 0 );
-
+  
   private final static int GROUP_DELIMITED = 1;
   private final static int GROUP_REFERENCE = 2;
-
+  
   private final static VariableDecorator VARIABLE_DECORATOR
     = new YamlVariableDecorator();
 
@@ -107,14 +107,15 @@ public class YamlParser  {
   /**
    * Start of the Universe (the YAML document node that contains all others).
    */
-  private ObjectNode documentRoot;
+  private JsonNode documentRoot;
 
   /**
    * Map of references to dereferenced field values.
    */
   private Map<String, String> references;
-
-  public YamlParser() {
+  
+  public YamlParser( final InputStream in ) throws IOException {
+    process( in );
   }
 
   /**
@@ -129,18 +130,18 @@ public class YamlParser  {
   public String substitute( String text ) {
     final Matcher matcher = patternMatch( text );
     final Map<String, String> map = getReferences();
-
+    
     while( matcher.find() ) {
       final String key = matcher.group( GROUP_DELIMITED );
       final String value = map.get( key );
-
+      
       if( value == null ) {
         missing( text );
       } else {
         text = text.replace( key, value );
       }
     }
-
+    
     return text;
   }
 
@@ -153,9 +154,9 @@ public class YamlParser  {
    */
   public Map<String, String> createResolvedMap() {
     final Map<String, String> map = new HashMap<>( 1024 );
-
+    
     resolve( getDocumentRoot(), "", map );
-
+    
     return map;
   }
 
@@ -164,10 +165,11 @@ public class YamlParser  {
    * leaf node.
    *
    * @param rootNode A JSON node (YAML node) to adapt.
+   * @param map Container that associates definitions with values.
    */
   private void resolve(
     final JsonNode rootNode, final String path, final Map<String, String> map ) {
-
+    
     if( rootNode != null ) {
       rootNode.fields().forEachRemaining(
         (Entry<String, JsonNode> leaf) -> resolve( leaf, path, map )
@@ -184,16 +186,16 @@ public class YamlParser  {
     final Entry<String, JsonNode> rootNode,
     final String path,
     final Map<String, String> map ) {
-
+    
     final JsonNode leafNode = rootNode.getValue();
     final String key = rootNode.getKey();
-
+    
     if( leafNode.isValueNode() ) {
       final String value = rootNode.getValue().asText();
-
+      
       map.put( VARIABLE_DECORATOR.decorate( path + key ), substitute( value ) );
     }
-
+    
     if( leafNode.isObject() ) {
       resolve( leafNode, path + key + SEPARATOR, map );
     }
@@ -211,8 +213,8 @@ public class YamlParser  {
    *
    * @throws IOException Could not read the stream.
    */
-  public JsonNode process( final InputStream in ) throws IOException {
-
+  private JsonNode process( final InputStream in ) throws IOException {
+    
     final ObjectNode root = (ObjectNode)getObjectMapper().readTree( in );
     setDocumentRoot( root );
     process( root );
@@ -238,7 +240,7 @@ public class YamlParser  {
    */
   private void process( final Entry<String, JsonNode> field ) {
     final JsonNode node = field.getValue();
-
+    
     if( node.isObject() ) {
       process( node );
     } else {
@@ -269,19 +271,19 @@ public class YamlParser  {
    */
   private String resolve( String fieldValue ) {
     final Matcher matcher = patternMatch( fieldValue );
-
+    
     while( matcher.find() ) {
       final String delimited = matcher.group( GROUP_DELIMITED );
       final String reference = matcher.group( GROUP_REFERENCE );
       final String dereference = resolve( lookup( reference ) );
-
+      
       fieldValue = fieldValue.replace( delimited, dereference );
 
       // This will perform some superfluous calls by overwriting existing
       // items in the delimited reference map.
       put( delimited, dereference );
     }
-
+    
     return fieldValue;
   }
 
@@ -367,7 +369,7 @@ public class YamlParser  {
    *
    * @return The parent node.
    */
-  private ObjectNode getDocumentRoot() {
+  protected JsonNode getDocumentRoot() {
     return this.documentRoot;
   }
 
@@ -390,7 +392,7 @@ public class YamlParser  {
     if( this.references == null ) {
       this.references = createReferences();
     }
-
+    
     return this.references;
   }
 
@@ -402,23 +404,23 @@ public class YamlParser  {
   protected Map<String, String> createReferences() {
     return new HashMap<>();
   }
-
+  
   private final class ResolverYAMLFactory extends YAMLFactory {
-
+    
     private static final long serialVersionUID = 1L;
-
+    
     @Override
     protected YAMLGenerator _createGenerator(
       final Writer out, final IOContext ctxt ) throws IOException {
-
+      
       return new ResolverYAMLGenerator(
         ctxt, _generatorFeatures, _yamlGeneratorFeatures, _objectCodec,
         out, _version );
     }
   }
-
+  
   private class ResolverYAMLGenerator extends YAMLGenerator {
-
+    
     public ResolverYAMLGenerator(
       final IOContext ctxt,
       final int jsonFeatures,
@@ -426,21 +428,21 @@ public class YamlParser  {
       final ObjectCodec codec,
       final Writer out,
       final DumperOptions.Version version ) throws IOException {
-
+      
       super( ctxt, jsonFeatures, yamlFeatures, codec, out, version );
     }
-
+    
     @Override
     public void writeString( final String text )
       throws IOException, JsonGenerationException {
       super.writeString( substitute( text ) );
     }
   }
-
+  
   private YAMLFactory getYAMLFactory() {
     return new ResolverYAMLFactory();
   }
-
+  
   private ObjectMapper getObjectMapper() {
     return new ObjectMapper( getYAMLFactory() );
   }
