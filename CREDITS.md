@@ -9,3 +9,4 @@ Credits
   * Vladimir Schneider: [flexmark](https://website.com)
   * Jens Deters: [FontAwesomeFX](https://bitbucket.org/Jerady/fontawesomefx)
   * Shy Shalom, Kohei Taketa: [juniversalchardet](https://github.com/takscape/juniversalchardet)
+ * David Croft, [File Preferences](http://www.davidc.net/programming/java/java-preferences-using-file-backing-store)

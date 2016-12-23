@@ -28,6 +28,7 @@
 package com.scrivenvar;
 
 import static com.scrivenvar.Constants.*;
+import com.scrivenvar.preferences.FilePreferencesFactory;
 import com.scrivenvar.service.Options;
 import com.scrivenvar.service.Snitch;
 import com.scrivenvar.service.events.AlertService;
@@ -45,15 +46,28 @@ import javafx.stage.Stage;
  */
 public final class Main extends Application {
 
-  private final Options options = Services.load( Options.class );
-  private final Snitch snitch = Services.load( Snitch.class );
+  private Options options;
+  private Snitch snitch;
   private Thread snitchThread;
 
   private static Application app;
   private final MainWindow mainWindow = new MainWindow();
 
   public static void main( final String[] args ) {
+    initPreferences();
     launch( args );
+  }
+
+  /**
+   * Sets the factory used for reading user preferences.
+   */
+  private static void initPreferences() {
+    System.setProperty(
+      "java.util.prefs.PreferencesFactory",
+      FilePreferencesFactory.class.getName()
+    );
+    
+    System.setProperty( "application.name", APP_TITLE );
   }
 
   /**
@@ -124,7 +138,11 @@ public final class Main extends Application {
     }
   }
 
-  private Snitch getWatchDog() {
+  private synchronized Snitch getWatchDog() {
+    if( this.snitch == null ) {
+      this.snitch = Services.load( Snitch.class );
+    }
+    
     return this.snitch;
   }
 
@@ -136,7 +154,11 @@ public final class Main extends Application {
     this.snitchThread = thread;
   }
 
-  private Options getOptions() {
+  private synchronized Options getOptions() {
+    if( this.options == null ) {
+      this.options = Services.load( Options.class );
+    }
+
     return this.options;
   }
 

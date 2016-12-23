@@ -87,13 +87,13 @@ import static javafx.stage.WindowEvent.WINDOW_CLOSE_REQUEST;
  * @author Karl Tauber and White Magic Software, Ltd.
  */
 public class MainWindow implements Observer {
-  
+
   private final Options options = Services.load( Options.class );
   private final Snitch snitch = Services.load( Snitch.class );
-  
+
   private Scene scene;
   private MenuBar menuBar;
-  
+
   private DefinitionSource definitionSource;
   private DefinitionPane definitionPane;
   private FileEditorTabPane fileEditorPane;
@@ -121,6 +121,8 @@ public class MainWindow implements Observer {
       (ObservableValue<? extends Path> definitionFile,
         final Path oldPath, final Path newPath) -> {
         openDefinition( newPath );
+
+        // Ensure that the resolved map gets refreshed.
         setProcessors( null );
         refreshSelectedTab( getActiveFileEditor() );
       }
@@ -145,7 +147,7 @@ public class MainWindow implements Observer {
             // Multiple tabs can be added simultaneously.
             for( final Tab newTab : change.getAddedSubList() ) {
               final FileEditorTab tab = (FileEditorTab)newTab;
-              
+
               initTextChangeListener( tab );
               initCaretParagraphListener( tab );
               initVariableNameInjector( tab );
@@ -189,7 +191,7 @@ public class MainWindow implements Observer {
       }
     );
   }
-  
+
   private void initTextChangeListener( final FileEditorTab tab ) {
     tab.addTextChangeListener(
       (ObservableValue<? extends String> editor,
@@ -198,7 +200,7 @@ public class MainWindow implements Observer {
       }
     );
   }
-  
+
   private void initCaretParagraphListener( final FileEditorTab tab ) {
     tab.addCaretParagraphListener(
       (ObservableValue<? extends Integer> editor,
@@ -207,7 +209,7 @@ public class MainWindow implements Observer {
       }
     );
   }
-  
+
   private void initVariableNameInjector( final FileEditorTab tab ) {
     VariableNameInjector.listen( tab, getDefinitionPane() );
   }
@@ -232,14 +234,14 @@ public class MainWindow implements Observer {
    */
   private void refreshSelectedTab( final FileEditorTab tab ) {
     getPreviewPane().setPath( tab.getPath() );
-    
+
     Processor<String> processor = getProcessors().get( tab );
-    
+
     if( processor == null ) {
       processor = createProcessor( tab );
       getProcessors().put( tab, processor );
     }
-    
+
     processor.processChain( tab.getEditorText() );
   }
 
@@ -263,7 +265,7 @@ public class MainWindow implements Observer {
     } catch( Exception e ) {
       alert( e );
     }
-    
+
     return new TreeView<>();
   }
 
@@ -291,21 +293,25 @@ public class MainWindow implements Observer {
       alert( e );
     }
   }
-  
+
   private void updateDefinitionPane() {
     getDefinitionPane().setRoot( getDefinitionSource().asTreeView() );
   }
-  
+
   private void restoreDefinitionSource() {
     final Preferences preferences = getPreferences();
     final String source = preferences.get( PREFS_DEFINITION_SOURCE, null );
-    setDefinitionSource( createDefinitionSource( source ) );
+
+    // If there's no definition source set, don't try to load it.
+    if( source != null ) {
+      setDefinitionSource( createDefinitionSource( source ) );
+    }
   }
-  
+
   private void storeDefinitionSource() {
     final Preferences preferences = getPreferences();
     final DefinitionSource ds = getDefinitionSource();
-    
+
     preferences.put( PREFS_DEFINITION_SOURCE, ds.toString() );
   }
 
@@ -369,27 +375,27 @@ public class MainWindow implements Observer {
   private void fileNew() {
     getFileEditorPane().newEditor();
   }
-  
+
   private void fileOpen() {
     getFileEditorPane().openFileDialog();
   }
-  
+
   private void fileClose() {
     getFileEditorPane().closeEditor( getActiveFileEditor(), true );
   }
-  
+
   private void fileCloseAll() {
     getFileEditorPane().closeAllEditors();
   }
-  
+
   private void fileSave() {
     getFileEditorPane().saveEditor( getActiveFileEditor() );
   }
-  
+
   private void fileSaveAll() {
     getFileEditorPane().saveAllEditors();
   }
-  
+
   private void fileExit() {
     final Window window = getWindow();
     fireEvent( window, new WindowEvent( window, WINDOW_CLOSE_REQUEST ) );
@@ -403,7 +409,7 @@ public class MainWindow implements Observer {
     alert.setContentText( get( "Dialog.about.content" ) );
     alert.setGraphic( new ImageView( new Image( FILE_LOGO_32 ) ) );
     alert.initOwner( getWindow() );
-    
+
     alert.showAndWait();
   }
 
@@ -411,21 +417,21 @@ public class MainWindow implements Observer {
   private float getFloat( final String key, final float defaultValue ) {
     return getPreferences().getFloat( key, defaultValue );
   }
-  
+
   private Preferences getPreferences() {
     return getOptions().getState();
   }
-  
+
   private Window getWindow() {
     return getScene().getWindow();
   }
-  
+
   private MarkdownEditorPane getActiveEditor() {
     final EditorPane pane = getActiveFileEditor().getEditorPane();
-    
+
     return pane instanceof MarkdownEditorPane ? (MarkdownEditorPane)pane : null;
   }
-  
+
   private FileEditorTab getActiveFileEditor() {
     return getFileEditorPane().getActiveFileEditor();
   }
@@ -434,20 +440,20 @@ public class MainWindow implements Observer {
   private void setScene( Scene scene ) {
     this.scene = scene;
   }
-  
+
   public Scene getScene() {
     return this.scene;
   }
-  
+
   private void setProcessors( final Map<FileEditorTab, Processor<String>> map ) {
     this.processors = map;
   }
-  
+
   private Map<FileEditorTab, Processor<String>> getProcessors() {
     if( this.processors == null ) {
       setProcessors( new HashMap<>() );
     }
-    
+
     return this.processors;
   }
 
@@ -455,50 +461,50 @@ public class MainWindow implements Observer {
     if( this.fileEditorPane == null ) {
       this.fileEditorPane = createFileEditorPane();
     }
-    
+
     return this.fileEditorPane;
   }
-  
+
   private HTMLPreviewPane getPreviewPane() {
     if( this.previewPane == null ) {
       this.previewPane = createPreviewPane();
     }
-    
+
     return this.previewPane;
   }
-  
+
   private void setDefinitionSource( final DefinitionSource definitionSource ) {
     this.definitionSource = definitionSource;
   }
-  
+
   private DefinitionSource getDefinitionSource() {
     if( this.definitionSource == null ) {
       this.definitionSource = new EmptyDefinitionSource();
     }
-    
+
     return this.definitionSource;
   }
-  
+
   private DefinitionPane getDefinitionPane() {
     if( this.definitionPane == null ) {
       this.definitionPane = createDefinitionPane();
     }
-    
+
     return this.definitionPane;
   }
-  
+
   private Options getOptions() {
     return this.options;
   }
-  
+
   private Snitch getSnitch() {
     return this.snitch;
   }
-  
+
   public void setMenuBar( MenuBar menuBar ) {
     this.menuBar = menuBar;
   }
-  
+
   public MenuBar getMenuBar() {
     return this.menuBar;
   }
@@ -514,11 +520,11 @@ public class MainWindow implements Observer {
   private Processor<String> createProcessor( final FileEditorTab tab ) {
     return createProcessorFactory().createProcessor( tab );
   }
-  
+
   private ProcessorFactory createProcessorFactory() {
     return new ProcessorFactory( getPreviewPane(), getResolvedMap() );
   }
-  
+
   private DefinitionSource createDefinitionSource( final String path ) {
     return createDefinitionFactory().createDefinitionSource( path );
   }
@@ -531,19 +537,19 @@ public class MainWindow implements Observer {
   private FileEditorTabPane createFileEditorPane() {
     return new FileEditorTabPane();
   }
-  
+
   private HTMLPreviewPane createPreviewPane() {
     return new HTMLPreviewPane();
   }
-  
+
   private DefinitionPane createDefinitionPane() {
     return new DefinitionPane( getTreeView() );
   }
-  
+
   private DefinitionFactory createDefinitionFactory() {
     return new DefinitionFactory();
   }
-  
+
   private Node createMenuBar() {
     final BooleanBinding activeFileEditorIsNull = getFileEditorPane().activeFileEditorProperty().isNull();
 
@@ -585,14 +591,14 @@ public class MainWindow implements Observer {
     Action insertFencedCodeBlockAction = new Action( get( "Main.menu.insert.fenced_code_block" ), "Shortcut+Shift+K", FILE_CODE_ALT,
       e -> getActiveEditor().surroundSelection( "\n\n```\n", "\n```\n\n", get( "Main.menu.insert.fenced_code_block.prompt" ) ),
       activeFileEditorIsNull );
-    
+
     Action insertLinkAction = new Action( get( "Main.menu.insert.link" ), "Shortcut+L", LINK,
       e -> getActiveEditor().insertLink(),
       activeFileEditorIsNull );
     Action insertImageAction = new Action( get( "Main.menu.insert.image" ), "Shortcut+G", PICTURE_ALT,
       e -> getActiveEditor().insertImage(),
       activeFileEditorIsNull );
-    
+
     final Action[] headers = new Action[ 6 ];
 
     // Insert header actions (H1 ... H6)
@@ -602,12 +608,12 @@ public class MainWindow implements Observer {
       final String text = get( "Main.menu.insert.header_" + i );
       final String accelerator = "Shortcut+" + i;
       final String prompt = get( "Main.menu.insert.header_" + i + ".prompt" );
-      
+
       headers[ i - 1 ] = new Action( text, accelerator, HEADER,
         e -> getActiveEditor().surroundSelection( markup, "", prompt ),
         activeFileEditorIsNull );
     }
-    
+
     Action insertUnorderedListAction = new Action( get( "Main.menu.insert.unordered_list" ), "Shortcut+U", LIST_UL,
       e -> getActiveEditor().surroundSelection( "\n\n* ", "" ),
       activeFileEditorIsNull );
@@ -633,11 +639,11 @@ public class MainWindow implements Observer {
       fileSaveAllAction,
       null,
       fileExitAction );
-    
+
     Menu editMenu = ActionUtils.createMenu( get( "Main.menu.edit" ),
       editUndoAction,
       editRedoAction );
-    
+
     Menu insertMenu = ActionUtils.createMenu( get( "Main.menu.insert" ),
       insertBoldAction,
       insertItalicAction,
@@ -659,10 +665,10 @@ public class MainWindow implements Observer {
       insertUnorderedListAction,
       insertOrderedListAction,
       insertHorizontalRuleAction );
-    
+
     Menu helpMenu = ActionUtils.createMenu( get( "Main.menu.help" ),
       helpAboutAction );
-    
+
     menuBar = new MenuBar( fileMenu, editMenu, insertMenu, helpMenu );
 
     //---- ToolBar ----
@@ -687,7 +693,7 @@ public class MainWindow implements Observer {
       null,
       insertUnorderedListAction,
       insertOrderedListAction );
-    
+
     return new VBox( menuBar, toolBar );
   }
 
@@ -697,18 +703,18 @@ public class MainWindow implements Observer {
    */
   private BooleanProperty createActiveBooleanProperty(
     final Function<FileEditorTab, ObservableBooleanValue> func ) {
-    
+
     final BooleanProperty b = new SimpleBooleanProperty();
     final FileEditorTab tab = getActiveFileEditor();
-    
+
     if( tab != null ) {
       b.bind( func.apply( tab ) );
     }
-    
+
     getFileEditorPane().activeFileEditorProperty().addListener(
       (observable, oldFileEditor, newFileEditor) -> {
         b.unbind();
-        
+
         if( newFileEditor != null ) {
           b.bind( func.apply( newFileEditor ) );
         } else {
@@ -716,16 +722,16 @@ public class MainWindow implements Observer {
         }
       }
     );
-    
+
     return b;
   }
-  
+
   private void initLayout() {
     final SplitPane splitPane = new SplitPane(
       getDefinitionPane().getNode(),
       getFileEditorPane().getNode(),
       getPreviewPane().getNode() );
-    
+
     splitPane.setDividerPositions(
       getFloat( K_PANE_SPLIT_DEFINITION, .10f ),
       getFloat( K_PANE_SPLIT_EDITOR, .45f ),
@@ -736,7 +742,7 @@ public class MainWindow implements Observer {
     borderPane.setPrefSize( 1024, 800 );
     borderPane.setTop( createMenuBar() );
     borderPane.setCenter( splitPane );
-    
+
     final Scene appScene = new Scene( borderPane );
     setScene( appScene );
     appScene.getStylesheets().add( STYLESHEET_SCENE );

@@ -27,7 +27,6 @@
  */
 package com.scrivenvar;
 
-import com.scrivenvar.Services;
 import com.scrivenvar.service.Options;
 import java.util.prefs.Preferences;
 import org.tbee.javafx.scene.layout.fxml.MigPane;

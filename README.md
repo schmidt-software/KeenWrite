@@ -21,7 +21,7 @@ Future Features
 ---
 * Spell check
 * Search and replace, with or without variables
-* R integration using [Rserve](https://rforge.net/Rserve/)
+* R integration
 * Re-organize variable names
 
 Requirements

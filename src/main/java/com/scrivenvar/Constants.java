@@ -52,7 +52,8 @@ public class Constants {
 
   // Bootstrapping...
   public static final String SETTINGS_NAME = "/com/scrivenvar/settings.properties";
-
+  
+  public static final String APP_TITLE = get( "application.title" );
   public static final String APP_BUNDLE_NAME = get( "application.messages" );
   public static final int APP_WATCHDOG_TIMEOUT = get( "application.watchdog.timeout", 100 );
 
@@ -73,7 +74,7 @@ public class Constants {
   public static final String PREFS_ROOT = get( "preferences.root" );
   public static final String PREFS_STATE = get( "preferences.root.state" );
   public static final String PREFS_OPTIONS = get( "preferences.root.options" );
-  public static final String PREFS_DEFINITION_SOURCE = get( "preferences.root.definition.source" );
+  public static final String PREFS_DEFINITION_SOURCE = get( "preferences.root.definitionSource" );
 
   // Refer to filename extension settings in the configuration file. Do not
   // terminate these prefixes with a period.
