@@ -27,73 +27,40 @@
  */
 package com.scrivenvar.service.events.impl;
 
-import com.scrivenvar.service.events.AlertMessage;
-import com.scrivenvar.service.events.AlertService;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Alert.AlertType;
-import static javafx.scene.control.Alert.AlertType.CONFIRMATION;
-import static javafx.scene.control.Alert.AlertType.ERROR;
-import javafx.stage.Window;
+import com.scrivenvar.service.events.Notification;
+import java.text.MessageFormat;
 
 /**
- * Provides the ability to create error alert boxes.
  *
  * @author White Magic Software, Ltd.
  */
-public final class DefaultAlertService implements AlertService {
+public class DefaultNotification implements Notification {
 
-  private Window window;
+  private final String title;
+  private final String content;
 
-  public DefaultAlertService() {
-  }
-
-  public DefaultAlertService( final Window window ) {
-    this.window = window;
-  }
-
-  @Override
-  public AlertMessage createAlertMessage(
+  /**
+   * Constructs default message text for a notification.
+   * 
+   * @param title The message title.
+   * @param message The message content (needs formatting).
+   * @param args The arguments to the message content that must be formatted.
+   */
+  public DefaultNotification(
     final String title,
     final String message,
     final Object... args ) {
-    return new DefaultAlertMessage( title, message, args );
-  }
-
-  private Alert createAlertDialog(
-    final AlertType alertType,
-    final AlertMessage message ) {
-
-    final Alert alert = new Alert( alertType );
-
-    alert.setDialogPane( new ButtonOrderPane() );
-    alert.setTitle( message.getTitle() );
-    alert.setHeaderText( null );
-    alert.setContentText( message.getContent() );
-    alert.initOwner( getWindow() );
-
-    return alert;
+    this.title = title;
+    this.content = MessageFormat.format( message, args );
   }
 
   @Override
-  public Alert createAlertConfirmation( final AlertMessage message ) {
-    final Alert alert = createAlertDialog( CONFIRMATION, message );
-
-    alert.getButtonTypes().setAll( YES, NO, CANCEL );
-
-    return alert;
+  public String getTitle() {
+    return this.title;
   }
 
   @Override
-  public Alert createAlertError( final AlertMessage message ) {
-    return createAlertDialog( ERROR, message );
-  }
-
-  private Window getWindow() {
-    return this.window;
-  }
-
-  @Override
-  public void setWindow( Window window ) {
-    this.window = window;
+  public String getContent() {
+    return this.content;
   }
 }

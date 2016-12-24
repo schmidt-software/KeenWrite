@@ -106,7 +106,7 @@ public class MainWindow implements Observer {
 
   public MainWindow() {
     initLayout();
-    initOpenDefinitionListener();
+    initDefinitionListener();
     initTabAddedListener();
     initTabChangedListener();
     initPreferences();
@@ -116,15 +116,19 @@ public class MainWindow implements Observer {
   /**
    * Listen for file editor tab pane to receive an open definition source event.
    */
-  private void initOpenDefinitionListener() {
+  private void initDefinitionListener() {
     getFileEditorPane().onOpenDefinitionFileProperty().addListener(
       (ObservableValue<? extends Path> definitionFile,
         final Path oldPath, final Path newPath) -> {
         openDefinition( newPath );
 
-        // Ensure that the resolved map gets refreshed.
+        // Indirectly refresh the resolved map.
         setProcessors( null );
+        
+        // Will create new processors and therefore a new resolved map.
         refreshSelectedTab( getActiveFileEditor() );
+        
+        updateDefinitionPane();
       }
     );
   }
@@ -233,16 +237,18 @@ public class MainWindow implements Observer {
    * @param tab The file editor tab that has been changed in some fashion.
    */
   private void refreshSelectedTab( final FileEditorTab tab ) {
-    getPreviewPane().setPath( tab.getPath() );
+    if( tab.isFileOpen() ) {
+      getPreviewPane().setPath( tab.getPath() );
 
-    Processor<String> processor = getProcessors().get( tab );
+      Processor<String> processor = getProcessors().get( tab );
 
-    if( processor == null ) {
-      processor = createProcessor( tab );
-      getProcessors().put( tab, processor );
+      if( processor == null ) {
+        processor = createProcessor( tab );
+        getProcessors().put( tab, processor );
+      }
+
+      processor.processChain( tab.getEditorText() );
     }
-
-    processor.processChain( tab.getEditorText() );
   }
 
   /**
@@ -270,26 +276,17 @@ public class MainWindow implements Observer {
   }
 
   /**
-   * Called when a definition file is opened.
+   * Called when a definition source is opened.
    *
-   * @param path Path to the file that was opened.
+   * @param path Path to the definition source that was opened.
    */
   private void openDefinition( final Path path ) {
-    openDefinition( path.toString() );
-  }
-
-  /**
-   * Called to load a definition file from its source location.
-   *
-   * @param path The path to the definition file that was loaded.
-   */
-  private void openDefinition( final String path ) {
     try {
-      final DefinitionSource ds = createDefinitionSource( path );
+      final DefinitionSource ds = createDefinitionSource( path.toString() );
       setDefinitionSource( ds );
       storeDefinitionSource();
       updateDefinitionPane();
-    } catch( Exception e ) {
+    } catch( final Exception e ) {
       alert( e );
     }
   }
@@ -316,12 +313,10 @@ public class MainWindow implements Observer {
   }
 
   /**
-   * Called when the last open tab is closed. This clears out the preview pane
-   * and the definition pane.
+   * Called when the last open tab is closed to clear the preview pane.
    */
   private void closeRemainingTab() {
     getPreviewPane().clear();
-    getDefinitionPane().clear();
   }
 
   /**

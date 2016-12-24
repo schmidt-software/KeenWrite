@@ -25,25 +25,29 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.scrivenvar.decorators;
+package com.scrivenvar.processors;
+
+import javax.script.ScriptEngine;
+import org.renjin.script.RenjinScriptEngineFactory;
 
 /**
- * Brackets variable names with <code>`r#</code> and <code>`</code>.
+ * Transforms an R document into markdown using knitr:
  *
  * @author White Magic Software, Ltd.
  */
-public class RVariableDecorator implements VariableDecorator {
+public class RProcessor extends AbstractProcessor<String> {
 
-  /**
-   * Returns the given string R-escaping backticks prepended and appended. This
-   * is not null safe. Do not pass null into this method.
-   *
-   * @param variableName The string to decorate.
-   *
-   * @return "`r#" + variableName + "`".
-   */
+  public RProcessor( Processor<String> processor ) {
+    super( processor );
+  }
+
   @Override
-  public String decorate( final String variableName ) {
-    return "`r#x(" + variableName + ")`";
+  public String processLink( final String text ) {
+    System.out.println( "Renjin + Knitr Smackdown" );
+
+    RenjinScriptEngineFactory factory = new RenjinScriptEngineFactory();
+    ScriptEngine engine = factory.getScriptEngine();
+
+    return text;
   }
 }

@@ -25,42 +25,59 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.scrivenvar.service.events.impl;
+package com.scrivenvar.service.events;
 
-import com.scrivenvar.service.events.AlertMessage;
-import java.text.MessageFormat;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
+import javafx.stage.Window;
 
 /**
+ * Provides the application with a uniform way to notify the user of events.
  *
  * @author White Magic Software, Ltd.
  */
-public class DefaultAlertMessage implements AlertMessage {
-
-  private final String title;
-  private final String content;
+public interface NotifyService {
+  public static final ButtonType YES = ButtonType.YES;
+  public static final ButtonType NO = ButtonType.NO;
+  public static final ButtonType CANCEL = ButtonType.CANCEL;
 
   /**
-   * Constructs a default alert message text for an alert modal dialog.
-   * 
+   * Called to set the window used as the parent for the alert dialogs.
+   *
+   * @param window
+   */
+  public void setWindow( Window window );
+
+  /**
+   * Constructs a default alert message text for a modal alert dialog.
+   *
    * @param title The dialog box message title.
    * @param message The dialog box message content (needs formatting).
    * @param args The arguments to the message content that must be formatted.
+   *
+   * @return The message suitable for building a modal alert dialog.
    */
-  public DefaultAlertMessage(
-    final String title,
-    final String message,
-    final Object... args ) {
-    this.title = title;
-    this.content = MessageFormat.format( message, args );
-  }
+  public Notification createNotification(
+    String title,
+    String message,
+    Object... args );
 
-  @Override
-  public String getTitle() {
-    return this.title;
-  }
+  /**
+   * Creates an alert of alert type error with a message showing the cause of
+   * the error.
+   *
+   * @param message The error message, title, and possibly more details.
+   *
+   * @return A modal alert dialog box ready to display using showAndWait.
+   */
+  public Alert createError( Notification message );
 
-  @Override
-  public String getContent() {
-    return this.content;
-  }
+  /**
+   * Creates an alert of alert type confirmation with Yes/No/Cancel buttons.
+   *
+   * @param message The message, title, and possibly more details.
+   *
+   * @return A modal alert dialog box ready to display using showAndWait.
+   */
+  public Alert createConfirmation( Notification message );
 }

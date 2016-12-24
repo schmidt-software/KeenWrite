@@ -25,9 +25,8 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.scrivenvar.definition.yaml;
+package com.scrivenvar.definition;
 
-import com.scrivenvar.definition.AbstractDefinitionSource;
 import java.nio.file.Path;
 
 /**

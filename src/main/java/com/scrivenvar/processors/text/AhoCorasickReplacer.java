@@ -60,6 +60,7 @@ public class AhoCorasickReplacer extends AbstractTextReplacer {
 
     int index = 0;
 
+    // Replace all instances with dereferenced variables.
     for( final Emit emit : builder.build().parseText( text ) ) {
       sb.append( text.substring( index, emit.getStart() ) );
       sb.append( map.get( emit.getKeyword() ) );

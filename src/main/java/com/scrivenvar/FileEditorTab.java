@@ -27,8 +27,8 @@ package com.scrivenvar;
 
 import com.scrivenvar.editors.EditorPane;
 import com.scrivenvar.editors.markdown.MarkdownEditorPane;
-import com.scrivenvar.service.events.AlertMessage;
-import com.scrivenvar.service.events.AlertService;
+import com.scrivenvar.service.events.Notification;
+import com.scrivenvar.service.events.NotifyService;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -61,7 +61,7 @@ import org.mozilla.universalchardet.UniversalDetector;
  */
 public final class FileEditorTab extends Tab {
 
-  private final AlertService alertService = Services.load( AlertService.class );
+  private final NotifyService alertService = Services.load( NotifyService.class );
   private EditorPane editorPane;
 
   /**
@@ -72,6 +72,9 @@ public final class FileEditorTab extends Tab {
   private final ReadOnlyBooleanWrapper modified = new ReadOnlyBooleanWrapper();
   private final BooleanProperty canUndo = new SimpleBooleanProperty();
   private final BooleanProperty canRedo = new SimpleBooleanProperty();
+
+  // Might be simpler to revert this back to a property and have the main
+  // window listen for changes to it...
   private Path path;
 
   FileEditorTab( final Path path ) {
@@ -113,10 +116,7 @@ public final class FileEditorTab extends Tab {
    */
   private Tooltip getTabTooltip() {
     final Path filePath = getPath();
-
-    return (filePath == null)
-      ? null
-      : new Tooltip( filePath.toString() );
+    return new Tooltip( filePath == null ? "" : filePath.toString() );
   }
 
   /**
@@ -261,16 +261,17 @@ public final class FileEditorTab extends Tab {
    */
   private boolean alert(
     final String titleKey, final String messageKey, final Exception e ) {
-    final AlertService service = getAlertService();
+    final NotifyService service = getAlertService();
+    final Path filePath = getPath();
 
-    final AlertMessage message = service.createAlertMessage(
+    final Notification message = service.createNotification(
       Messages.get( titleKey ),
       Messages.get( messageKey ),
-      getPath(),
+      filePath == null ? "" : filePath,
       e.getMessage()
     );
 
-    service.createAlertError( message ).showAndWait();
+    service.createError( message ).showAndWait();
     return false;
   }
 
@@ -326,8 +327,17 @@ public final class FileEditorTab extends Tab {
     return this.path;
   }
 
-  void setPath( final Path path ) {
+  public void setPath( final Path path ) {
     this.path = path;
+  }
+
+  /**
+   * Answers whether this tab has an initialized path reference.
+   *
+   * @return false This tab has no path.
+   */
+  public boolean isFileOpen() {
+    return this.path != null;
   }
 
   public boolean isModified() {
@@ -422,7 +432,7 @@ public final class FileEditorTab extends Tab {
     return this.editorPane;
   }
 
-  private AlertService getAlertService() {
+  private NotifyService getAlertService() {
     return this.alertService;
   }
 

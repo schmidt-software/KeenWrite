@@ -31,12 +31,12 @@ import static com.scrivenvar.Constants.*;
 import com.scrivenvar.preferences.FilePreferencesFactory;
 import com.scrivenvar.service.Options;
 import com.scrivenvar.service.Snitch;
-import com.scrivenvar.service.events.AlertService;
 import com.scrivenvar.util.StageState;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
+import com.scrivenvar.service.events.NotifyService;
 
 /**
  * Main application entry point. The application allows users to edit Markdown
@@ -66,8 +66,6 @@ public final class Main extends Application {
       "java.util.prefs.PreferencesFactory",
       FilePreferencesFactory.class.getName()
     );
-    
-    System.setProperty( "application.name", APP_TITLE );
   }
 
   /**
@@ -112,7 +110,7 @@ public final class Main extends Application {
   }
 
   private void initAlertService() {
-    final AlertService service = Services.load( AlertService.class );
+    final NotifyService service = Services.load(NotifyService.class );
     service.setWindow( getScene().getWindow() );
   }
 

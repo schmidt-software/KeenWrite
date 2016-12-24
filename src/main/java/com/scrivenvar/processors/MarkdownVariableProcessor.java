@@ -27,8 +27,7 @@
  */
 package com.scrivenvar.processors;
 
-import com.scrivenvar.processors.text.TextReplacementFactory;
-import com.scrivenvar.processors.text.TextReplacer;
+import static com.scrivenvar.processors.text.TextReplacementFactory.replace;
 import java.util.Map;
 
 /**
@@ -37,7 +36,7 @@ import java.util.Map;
  *
  * @author White Magic Software, Ltd.
  */
-public class VariableProcessor extends AbstractProcessor<String> {
+public class MarkdownVariableProcessor extends AbstractProcessor<String> {
 
   private Map<String, String> definitions;
 
@@ -46,13 +45,12 @@ public class VariableProcessor extends AbstractProcessor<String> {
    *
    * @param successor Usually the HTML Preview Processor.
    */
-  private VariableProcessor( final Processor<String> successor ) {
+  private MarkdownVariableProcessor( final Processor<String> successor ) {
     super( successor );
   }
 
-  public VariableProcessor(
-    final Processor<String> successor,
-    final Map<String, String> map ) {
+  public MarkdownVariableProcessor(
+    final Processor<String> successor, final Map<String, String> map ) {
     this( successor );
     setDefinitions( map );
   }
@@ -66,9 +64,7 @@ public class VariableProcessor extends AbstractProcessor<String> {
    */
   @Override
   public String processLink( final String text ) {
-    final TextReplacer tr = TextReplacementFactory.getTextReplacer( text.length() );
-
-    return tr.replace( text, getDefinitions() );
+    return replace( text, getDefinitions() );
   }
 
   private Map<String, String> getDefinitions() {

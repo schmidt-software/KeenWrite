@@ -27,6 +27,7 @@
  */
 package com.scrivenvar.definition.yaml;
 
+import com.scrivenvar.definition.FileDefinitionSource;
 import static com.scrivenvar.Messages.get;
 import java.io.InputStream;
 import java.nio.file.Files;

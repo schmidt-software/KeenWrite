@@ -33,10 +33,10 @@ import static com.scrivenvar.Messages.get;
 import com.scrivenvar.predicates.files.FileTypePredicate;
 import com.scrivenvar.service.Options;
 import com.scrivenvar.service.Settings;
-import com.scrivenvar.service.events.AlertMessage;
-import com.scrivenvar.service.events.AlertService;
-import static com.scrivenvar.service.events.AlertService.NO;
-import static com.scrivenvar.service.events.AlertService.YES;
+import com.scrivenvar.service.events.Notification;
+import com.scrivenvar.service.events.NotifyService;
+import static com.scrivenvar.service.events.NotifyService.NO;
+import static com.scrivenvar.service.events.NotifyService.YES;
 import com.scrivenvar.util.Utils;
 import java.io.File;
 import java.nio.file.Path;
@@ -79,7 +79,7 @@ public final class FileEditorTabPane extends TabPane {
 
   private final Options options = Services.load( Options.class );
   private final Settings settings = Services.load( Settings.class );
-  private final AlertService alertService = Services.load( AlertService.class );
+  private final NotifyService alertService = Services.load(NotifyService.class );
 
   private final ReadOnlyObjectWrapper<Path> openDefinition = new ReadOnlyObjectWrapper<>();
   private final ReadOnlyObjectWrapper<FileEditorTab> activeFileEditor = new ReadOnlyObjectWrapper<>();
@@ -375,19 +375,19 @@ public final class FileEditorTabPane extends TabPane {
       return true;
     }
 
-    final AlertMessage message = getAlertService().createAlertMessage(
+    final Notification message = getAlertService().createNotification(
       Messages.get( "Alert.file.close.title" ),
       Messages.get( "Alert.file.close.text" ),
       tab.getText()
     );
 
-    final Alert alert = getAlertService().createAlertConfirmation( message );
+    final Alert alert = getAlertService().createConfirmation( message );
     final ButtonType response = alert.showAndWait().get();
 
     return response == YES ? saveEditor( tab ) : response == NO;
   }
 
-  private AlertService getAlertService() {
+  private NotifyService getAlertService() {
     return this.alertService;
   }
 

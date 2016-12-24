@@ -27,13 +27,18 @@
  */
 package com.scrivenvar.processors.text;
 
+import java.util.Map;
+
 /**
  * Used to generate a class capable of efficiently replacing variable
  * definitions with their values.
  *
  * @author White Magic Software, Ltd.
  */
-public class TextReplacementFactory {
+public final class TextReplacementFactory {
+
+  private final static TextReplacer APACHE = new StringUtilsReplacer();
+  private final static TextReplacer AHO_CORASICK = new AhoCorasickReplacer();
 
   /**
    * Returns a text search/replacement instance that is reasonably optimal for
@@ -48,8 +53,19 @@ public class TextReplacementFactory {
     // performant than the Aho-Corsick implementation.
     //
     // Ssee http://stackoverflow.com/a/40836618/59087
-    return length < 1500
-      ? new StringUtilsReplacer()
-      : new AhoCorasickReplacer();
+    return length < 1500 ? APACHE : AHO_CORASICK;
+  }
+
+  /**
+   * Convenience method to instantiate a suitable text replacer algorithm and
+   * perform a replacement using the given map.
+   *
+   * @param text The text containing zero or more variables to replace.
+   * @param map The map of variables to their dereferenced values.
+   *
+   * @return The text with all variables replaced.
+   */
+  public static String replace( final String text, final Map<String, String> map ) {
+    return getTextReplacer( text.length() ).replace( text, map );
   }
 }

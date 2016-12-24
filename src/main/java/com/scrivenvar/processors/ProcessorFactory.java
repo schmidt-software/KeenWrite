@@ -34,6 +34,7 @@ import com.scrivenvar.FileType;
 import com.scrivenvar.preview.HTMLPreviewPane;
 import java.nio.file.Path;
 import java.util.Map;
+import javafx.beans.value.ObservableValue;
 
 /**
  * Responsible for creating processors capable of parsing, transforming,
@@ -104,13 +105,18 @@ public class ProcessorFactory extends AbstractFileFactory {
    */
   private Processor<String> getTerminalProcessChain() {
     if( this.terminalProcessChain == null ) {
-      this.terminalProcessChain = createTerminalProcessChain();
+      this.terminalProcessChain = createCommonChain();
     }
 
     return this.terminalProcessChain;
   }
 
-  private Processor<String> createTerminalProcessChain() {
+  /**
+   * Creates and links the processors at the end of the processing chain.
+   *
+   * @return A markdown, caret replacement, and preview pane processor chain.
+   */
+  private Processor<String> createCommonChain() {
     final Processor<String> hpp = new HTMLPreviewProcessor( getPreviewPane() );
     final Processor<String> mcrp = new CaretReplacementProcessor( hpp );
     final Processor<String> mpp = new MarkdownProcessor( mcrp );
@@ -118,23 +124,34 @@ public class ProcessorFactory extends AbstractFileFactory {
     return mpp;
   }
 
+  private Processor<String> createInsertionProcessor(
+    final Processor<String> tpc, final ObservableValue<Integer> caret ) {
+    return new MarkdownCaretInsertionProcessor( tpc, caret );
+  }
+
   protected Processor<String> createMarkdownProcessor( final FileEditorTab tab ) {
-    final Processor<String> bp = getTerminalProcessChain();
-    final Processor<String> xcip = new MarkdownCaretInsertionProcessor( bp, tab.caretPositionProperty() );
-    final Processor<String> vp = new VariableProcessor( xcip, getResolvedMap() );
+    final ObservableValue<Integer> caret = tab.caretPositionProperty();
+    final Processor<String> tpc = getTerminalProcessChain();
+    final Processor<String> cip = createInsertionProcessor( tpc, caret );
+    final Processor<String> vp = new MarkdownVariableProcessor( cip, getResolvedMap() );
 
     return vp;
   }
 
   protected Processor<String> createRMarkdownProcessor( final FileEditorTab tab ) {
-    return createMarkdownProcessor( tab );
+    final ObservableValue<Integer> caret = tab.caretPositionProperty();
+    final Processor<String> tpc = getTerminalProcessChain();
+    final Processor<String> cip = createInsertionProcessor( tpc, caret );
+    final Processor<String> rp = new RProcessor( cip );
+    
+    return rp;
   }
 
   protected Processor<String> createXMLProcessor( final FileEditorTab tab ) {
-    final Processor<String> bp = getTerminalProcessChain();
-    final Processor<String> xmlp = new XMLProcessor( bp, tab.getPath() );
+    final Processor<String> tpc = getTerminalProcessChain();
+    final Processor<String> xmlp = new XMLProcessor( tpc, tab.getPath() );
     final Processor<String> xcip = new XMLCaretInsertionProcessor( xmlp, tab.caretPositionProperty() );
-    final Processor<String> vp = new VariableProcessor( xcip, getResolvedMap() );
+    final Processor<String> vp = new MarkdownVariableProcessor( xcip, getResolvedMap() );
 
     return vp;
   }

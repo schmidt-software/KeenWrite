@@ -28,22 +28,23 @@
 package com.scrivenvar.service.events;
 
 /**
+ * Represents a message that contains a title and content.
  *
  * @author White Magic Software, Ltd.
  */
-public interface AlertMessage {
+public interface Notification {
 
   /**
-   * Dialog box title.
+   * Alert title.
    *
-   * @return A non-null string to use as the title for the dialog.
+   * @return A non-null string to use as alert message title.
    */
   public String getTitle();
 
   /**
-   * Dialog box message content.
+   * Alert message content.
    *
-   * @return A non-null string to use as the alert message for the dialog.
+   * @return A non-null string that contains information for the user.
    */
   public String getContent();
 }

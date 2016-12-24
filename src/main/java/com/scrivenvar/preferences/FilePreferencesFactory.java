@@ -27,6 +27,7 @@
  */
 package com.scrivenvar.preferences;
 
+import static com.scrivenvar.Constants.APP_TITLE;
 import java.io.File;
 import java.nio.file.FileSystems;
 import java.util.prefs.Preferences;
@@ -76,7 +77,7 @@ public class FilePreferencesFactory implements PreferencesFactory {
   }
 
   public static String getPreferencesFilename() {
-    final String filename = System.getProperty( "application.name", "preferences" );
+    final String filename = System.getProperty( "application.name", APP_TITLE );
     return System.getProperty( "user.home" ) + getSeparator() + "." + filename;
   }
 
