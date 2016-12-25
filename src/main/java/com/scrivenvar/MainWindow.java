@@ -80,7 +80,6 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Window;
 import javafx.stage.WindowEvent;
 import static javafx.stage.WindowEvent.WINDOW_CLOSE_REQUEST;
-import static com.scrivenvar.Messages.get;
 
 /**
  * Main window containing a tab pane in the center for file editors.
@@ -575,6 +574,12 @@ public class MainWindow implements Observer {
     Action insertItalicAction = new Action( get( "Main.menu.insert.italic" ), "Shortcut+I", ITALIC,
       e -> getActiveEditor().surroundSelection( "*", "*" ),
       activeFileEditorIsNull );
+    Action insertSuperscriptAction = new Action( get( "Main.menu.insert.superscript" ), "Shortcut+[", SUPERSCRIPT,
+      e -> getActiveEditor().surroundSelection( "^", "^" ),
+      activeFileEditorIsNull );
+    Action insertSubscriptAction = new Action( get( "Main.menu.insert.subscript" ), "Shortcut+]", SUBSCRIPT,
+      e -> getActiveEditor().surroundSelection( "~", "~" ),
+      activeFileEditorIsNull );
     Action insertStrikethroughAction = new Action( get( "Main.menu.insert.strikethrough" ), "Shortcut+T", STRIKETHROUGH,
       e -> getActiveEditor().surroundSelection( "~~", "~~" ),
       activeFileEditorIsNull );
@@ -643,6 +648,8 @@ public class MainWindow implements Observer {
     Menu insertMenu = ActionUtils.createMenu( get( "Main.menu.insert" ),
       insertBoldAction,
       insertItalicAction,
+      insertSuperscriptAction,
+      insertSubscriptAction,
       insertStrikethroughAction,
       insertBlockquoteAction,
       insertCodeAction,
@@ -678,6 +685,8 @@ public class MainWindow implements Observer {
       null,
       insertBoldAction,
       insertItalicAction,
+      insertSuperscriptAction,
+      insertSubscriptAction,
       insertBlockquoteAction,
       insertCodeAction,
       insertFencedCodeBlockAction,
