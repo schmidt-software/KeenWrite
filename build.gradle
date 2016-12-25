@@ -1,4 +1,4 @@
-version = '1.0.3'
+version = '1.0.6'
 
 apply plugin: 'java'
 apply plugin: 'java-library-distribution'
@@ -23,8 +23,10 @@ dependencies {
   compile 'com.miglayout:miglayout-javafx:5.0'
   compile 'de.jensd:fontawesomefx-fontawesome:4.5.0'
   compile 'org.ahocorasick:ahocorasick:0.3.0'
-  compile 'com.vladsch.flexmark:flexmark:0.6.1'
-  compile 'com.vladsch.flexmark:flexmark-ext-gfm-tables:0.6.1'
+  compile 'com.vladsch.flexmark:flexmark:0.9.0'
+  compile 'com.vladsch.flexmark:flexmark-ext-gfm-tables:0.9.0'
+  compile 'com.vladsch.flexmark:flexmark-ext-superscript:0.9.0'
+  compile 'com.vladsch.flexmark:flexmark-ext-gfm-strikethrough:0.9.0'
   compile 'com.fasterxml.jackson.core:jackson-core:2.8.4'
   compile 'com.fasterxml.jackson.core:jackson-databind:2.8.4'
   compile 'com.fasterxml.jackson.core:jackson-annotations:2.8.4'

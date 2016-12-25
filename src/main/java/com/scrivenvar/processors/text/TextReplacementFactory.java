@@ -58,14 +58,17 @@ public final class TextReplacementFactory {
 
   /**
    * Convenience method to instantiate a suitable text replacer algorithm and
-   * perform a replacement using the given map.
+   * perform a replacement using the given map. At this point, the values should
+   * be already dereferenced and ready to be substituted verbatim; any
+   * recursively defined values must have been interpolated previously.
    *
    * @param text The text containing zero or more variables to replace.
    * @param map The map of variables to their dereferenced values.
    *
    * @return The text with all variables replaced.
    */
-  public static String replace( final String text, final Map<String, String> map ) {
+  public static String replace(
+    final String text, final Map<String, String> map ) {
     return getTextReplacer( text.length() ).replace( text, map );
   }
 }

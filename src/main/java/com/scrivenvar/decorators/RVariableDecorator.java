@@ -33,6 +33,8 @@ package com.scrivenvar.decorators;
  * @author White Magic Software, Ltd.
  */
 public class RVariableDecorator implements VariableDecorator {
+  public static final String PREFIX = "`r#";
+  public static final String SUFFIX = "`";
 
   /**
    * Returns the given string R-escaping backticks prepended and appended. This
@@ -44,6 +46,6 @@ public class RVariableDecorator implements VariableDecorator {
    */
   @Override
   public String decorate( final String variableName ) {
-    return "`r#x(" + variableName + ")`";
+    return PREFIX + "x(" + variableName + ")" + SUFFIX ;
   }
 }

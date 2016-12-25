@@ -46,10 +46,10 @@ public class YamlVariableDecorator implements VariableDecorator {
    *
    * @param variableName The string to decorate.
    *
-   * @return "$" + variableName + "$".
+   * @return '$' + variableName + '$';
    */
   @Override
   public String decorate( final String variableName ) {
-    return "$" + variableName + "$";
+    return '$' + variableName + '$';
   }
 }

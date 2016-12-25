@@ -204,8 +204,6 @@ public class XMLProcessor extends AbstractProcessor<String> {
           }
         }
       }
-
-      sr.close();
     }
 
     return result;

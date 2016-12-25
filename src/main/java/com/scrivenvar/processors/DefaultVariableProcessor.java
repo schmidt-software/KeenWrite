@@ -32,30 +32,31 @@ import java.util.Map;
 
 /**
  * Processes variables in the document and inserts their values into the
- * post-processed text.
+ * post-processed text. The default variable syntax is <code>$variable$</code>.
  *
  * @author White Magic Software, Ltd.
  */
-public class MarkdownVariableProcessor extends AbstractProcessor<String> {
+public class DefaultVariableProcessor extends AbstractProcessor<String> {
 
   private Map<String, String> definitions;
 
   /**
-   * Constructs a new Markdown processor that can create HTML documents.
+   * Constructs a variable processor for dereferencing variables.
    *
    * @param successor Usually the HTML Preview Processor.
    */
-  private MarkdownVariableProcessor( final Processor<String> successor ) {
+  private DefaultVariableProcessor( final Processor<String> successor ) {
     super( successor );
   }
 
-  public MarkdownVariableProcessor(
+  public DefaultVariableProcessor(
     final Processor<String> successor, final Map<String, String> map ) {
     this( successor );
     setDefinitions( map );
   }
 
   /**
+   * Processes the given text document by replacing variables with their values.
    *
    * @param text The document text that includes variables that should be
    * replaced with values when rendered as HTML.
@@ -67,7 +68,12 @@ public class MarkdownVariableProcessor extends AbstractProcessor<String> {
     return replace( text, getDefinitions() );
   }
 
-  private Map<String, String> getDefinitions() {
+  /**
+   * Returns the map to use for variable substitution.
+   *
+   * @return A map of variable names to values.
+   */
+  protected Map<String, String> getDefinitions() {
     return this.definitions;
   }
 

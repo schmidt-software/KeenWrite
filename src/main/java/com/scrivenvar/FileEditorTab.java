@@ -271,7 +271,10 @@ public final class FileEditorTab extends Tab {
       e.getMessage()
     );
 
-    service.createError( message ).showAndWait();
+    // TODO: Put this into a status bar or status area
+    System.out.println( e );
+
+//    service.createError( message ).showAndWait();
     return false;
   }
 

@@ -80,6 +80,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Window;
 import javafx.stage.WindowEvent;
 import static javafx.stage.WindowEvent.WINDOW_CLOSE_REQUEST;
+import static com.scrivenvar.Messages.get;
 
 /**
  * Main window containing a tab pane in the center for file editors.
@@ -325,7 +326,7 @@ public class MainWindow implements Observer {
    * @param e The exception with a message that the user should know about.
    */
   private void alert( final Exception e ) {
-    // TODO: Update the status bar.
+    // TODO: Update the status bar or do something clever with the error.
   }
 
   //---- File actions -------------------------------------------------------
