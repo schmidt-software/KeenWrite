@@ -65,7 +65,7 @@ class RVariableProcessor extends DefaultVariableProcessor {
     final Map<String, String> rMap = new HashMap<>( map.size() );
 
     for( final String key : map.keySet() ) {
-      rMap.put( toR( key ), '\'' + map.get( key ) + '\'' );
+      rMap.put( toRKey( key ), toRValue( map.get( key ) ) );
     }
 
     return rMap;
@@ -79,7 +79,7 @@ class RVariableProcessor extends DefaultVariableProcessor {
    *
    * @return The transformed variable name.
    */
-  private String toR( final String key ) {
+  private String toRKey( final String key ) {
     // Replace all the periods with dollar symbols.
     final StringBuilder sb = new StringBuilder( 'v' + key );
     final int length = sb.length();
@@ -96,5 +96,43 @@ class RVariableProcessor extends DefaultVariableProcessor {
     sb.setLength( length - 1 );
 
     return sb.toString();
+  }
+
+  private String toRValue( final String value ) {
+    return '\'' + escape( value, '\'', "\\'" ) + '\'';
+  }
+
+  /**
+   * TODO: Make generic method for replacing text.
+   * 
+   * @see CaretReplacementProcessor.replace
+   *
+   * @param haystack Search this string for the needle, must not be null.
+   * @param needle The character to find in the haystack.
+   * @param thread Replace the needle with this text, if the needle is found.
+   *
+   * @return The haystack with the all instances of needle replaced with thread.
+   */
+  private String escape(
+    final String haystack, final char needle, final String thread ) {
+    int end = haystack.indexOf( needle );
+
+    if( end < 0 ) {
+      return haystack;
+    }
+
+    final int length = haystack.length();
+    int start = 0;
+
+    // Replace up to 32 occurrences before the string reallocates its buffer.
+    final StringBuilder sb = new StringBuilder( length + 32 );
+
+    while( end >= 0 ) {
+      sb.append( haystack.substring( start, end ) ).append( thread );
+      start = end + 1;
+      end = haystack.indexOf( needle, start );
+    }
+
+    return sb.append( haystack.substring( start ) ).toString();
   }
 }

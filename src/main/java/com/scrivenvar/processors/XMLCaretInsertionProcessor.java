@@ -120,10 +120,6 @@ public class XMLCaretInsertionProcessor extends CaretInsertionProcessor {
     return inject( text, insertOffset );
   }
 
-  private boolean isBetween( int i, int min, int max ) {
-    return i >= min && i <= max;
-  }
-
   /**
    * Parses the given XML document and returns a high-performance navigator
    * instance for scanning through the XML elements.

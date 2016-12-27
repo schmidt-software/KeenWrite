@@ -131,20 +131,10 @@ public class ProcessorFactory extends AbstractFileFactory {
   protected Processor<String> createMarkdownProcessor( final FileEditorTab tab ) {
     final ObservableValue<Integer> caret = tab.caretPositionProperty();
     final Processor<String> tpc = getCommonProcessor();
-    final Processor<String> cip = createInsertionProcessor( tpc, caret );
+    final Processor<String> cip = createMarkdownInsertionProcessor( tpc, caret );
     final Processor<String> dvp = new DefaultVariableProcessor( cip, getResolvedMap() );
 
     return dvp;
-  }
-
-  protected Processor<String> createRProcessor( final FileEditorTab tab ) {
-    final ObservableValue<Integer> caret = tab.caretPositionProperty();
-    final Processor<String> tpc = getCommonProcessor();
-    final Processor<String> cip = createInsertionProcessor( tpc, caret );
-    final Processor<String> rp = new InlineRProcessor( cip, getResolvedMap(), tab.getPath() );
-    final Processor<String> rvp = new RVariableProcessor( rp, getResolvedMap() );
-
-    return rvp;
   }
 
   protected Processor<String> createXMLProcessor( final FileEditorTab tab ) {
@@ -155,6 +145,16 @@ public class ProcessorFactory extends AbstractFileFactory {
     final Processor<String> dvp = new DefaultVariableProcessor( xcip, getResolvedMap() );
 
     return dvp;
+  }
+
+  protected Processor<String> createRProcessor( final FileEditorTab tab ) {
+    final ObservableValue<Integer> caret = tab.caretPositionProperty();
+    final Processor<String> tpc = getCommonProcessor();
+    final Processor<String> rp = new InlineRProcessor( tpc, getResolvedMap(), tab.getPath() );
+    final Processor<String> rvp = new RVariableProcessor( rp, getResolvedMap() );
+    final Processor<String> cip = createRInsertionProcessor( rvp, caret );
+
+    return cip;
   }
 
   protected Processor<String> createRXMLProcessor( final FileEditorTab tab ) {
@@ -168,9 +168,24 @@ public class ProcessorFactory extends AbstractFileFactory {
     return rvp;
   }
 
-  private Processor<String> createInsertionProcessor(
+  private Processor<String> createMarkdownInsertionProcessor(
     final Processor<String> tpc, final ObservableValue<Integer> caret ) {
     return new MarkdownCaretInsertionProcessor( tpc, caret );
+  }
+
+  /**
+   * Create an insertion processor that is aware of R statements and will insert
+   * a caret outside of any statement the caret falls within.
+   *
+   * @param processor Another link in the processor chain.
+   * @param caret The caret insertion point.
+   *
+   * @return A processor that can insert a caret token without disturbing any R
+   * code.
+   */
+  private Processor<String> createRInsertionProcessor(
+    final Processor<String> processor, final ObservableValue<Integer> caret ) {
+    return new RMarkdownCaretInsertionProcessor( processor, caret );
   }
 
   private Processor<String> createXMLInsertionProcessor(

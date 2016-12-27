@@ -42,6 +42,7 @@ import javafx.beans.value.ObservableValue;
 public abstract class CaretInsertionProcessor extends AbstractProcessor<String> {
 
   private final IntegerProperty caretPosition = new SimpleIntegerProperty();
+  private final static String NEWLINE_CARET_POSITION_MD = NEWLINE + CARET_POSITION_MD;
 
   public CaretInsertionProcessor(
     final Processor<String> processor,
@@ -55,16 +56,36 @@ public abstract class CaretInsertionProcessor extends AbstractProcessor<String> 
    * interfere with parsing the text itself, regardless of text format.
    *
    * @param text The text document to change.
-   * @param i The caret position token insertion point to use, or -1 to
-   * return the text without any injection.
+   * @param i The caret position token insertion point to use, or -1 to return
+   * the text without any injection.
    *
    * @return The given text with a caret position token inserted at the given
    * offset.
    */
   protected String inject( final String text, final int i ) {
-    return i > 0 && i <= text.length()
-      ? new StringBuilder( text ).replace( i, i, CARET_POSITION_MD ).toString()
-      : text;
+    if( i > 0 && i <= text.length() ) {
+      final String replacement = text.charAt( i - 1 ) == NEWLINE
+        ? NEWLINE_CARET_POSITION_MD
+        : CARET_POSITION_MD;
+
+      return new StringBuilder( text ).replace( i, i, replacement ).toString();
+    }
+
+    return text;
+  }
+
+  /**
+   * Returns true if i is greater than or equal to min and less than or equal to
+   * max.
+   *
+   * @param i The value to check.
+   * @param min The lower bound.
+   * @param max The upper bound.
+   *
+   * @return false The value of i is either lower than min or greater than max.
+   */
+  protected boolean isBetween( int i, int min, int max ) {
+    return i >= min && i <= max;
   }
 
   /**
