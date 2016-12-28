@@ -27,37 +27,45 @@
  */
 package com.scrivenvar.service.events.impl;
 
-import com.scrivenvar.service.events.NotifyService;
+import com.scrivenvar.service.events.Notification;
+import com.scrivenvar.service.events.Notifier;
+import java.util.Observable;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import static javafx.scene.control.Alert.AlertType.CONFIRMATION;
 import static javafx.scene.control.Alert.AlertType.ERROR;
 import javafx.stage.Window;
-import com.scrivenvar.service.events.Notification;
 
 /**
  * Provides the ability to notify the user of problems.
  *
  * @author White Magic Software, Ltd.
  */
-public final class DefaultNotifyService implements NotifyService {
+public final class DefaultNotifier extends Observable
+  implements Notifier {
 
-  private Window window;
-
-  public DefaultNotifyService() {
+  public DefaultNotifier() {
   }
 
-  public DefaultNotifyService( final Window window ) {
-    this.window = window;
+  /**
+   * Notifies all observer instances of the given message.
+   *
+   * @param message The text to display to the user.
+   */
+  @Override
+  public void notify( final String message ) {
+    setChanged();
+    notifyObservers( message );
   }
 
   /**
    * Contains all the information that the user needs to know about a problem.
-   * 
+   *
    * @param title The context for the message.
    * @param message The message content (formatted with the given args).
    * @param args Parameters for the message content.
-   * @return 
+   *
+   * @return
    */
   @Override
   public Notification createNotification(
@@ -67,7 +75,14 @@ public final class DefaultNotifyService implements NotifyService {
     return new DefaultNotification( title, message, args );
   }
 
+  @Override
+  public void clear() {
+    setChanged();
+    notifyObservers( "OK" );
+  }
+
   private Alert createAlertDialog(
+    final Window parent,
     final AlertType alertType,
     final Notification message ) {
 
@@ -77,14 +92,14 @@ public final class DefaultNotifyService implements NotifyService {
     alert.setTitle( message.getTitle() );
     alert.setHeaderText( null );
     alert.setContentText( message.getContent() );
-    alert.initOwner( getWindow() );
+    alert.initOwner( parent );
 
     return alert;
   }
 
   @Override
-  public Alert createConfirmation( final Notification message ) {
-    final Alert alert = createAlertDialog( CONFIRMATION, message );
+  public Alert createConfirmation( final Window parent, final Notification message ) {
+    final Alert alert = createAlertDialog( parent, CONFIRMATION, message );
 
     alert.getButtonTypes().setAll( YES, NO, CANCEL );
 
@@ -92,16 +107,7 @@ public final class DefaultNotifyService implements NotifyService {
   }
 
   @Override
-  public Alert createError( final Notification message ) {
-    return createAlertDialog( ERROR, message );
-  }
-
-  private Window getWindow() {
-    return this.window;
-  }
-
-  @Override
-  public void setWindow( Window window ) {
-    this.window = window;
+  public Alert createError( final Window parent, final Notification message ) {
+    return createAlertDialog( parent, ERROR, message );
   }
 }

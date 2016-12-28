@@ -66,6 +66,7 @@ public class RMarkdownCaretInsertionProcessor
     int offset = getCaretPosition();
 
     // Search for inline R code from the start of the caret's paragraph.
+    // This should be much faster than scanning text from the beginning.
     int index = text.lastIndexOf( NEWLINE, offset );
 
     if( index == INDEX_NOT_FOUND ) {
@@ -85,7 +86,8 @@ public class RMarkdownCaretInsertionProcessor
       // Scan for inline R prefixes until the text is exhausted or indexed
       // beyond the caret position.
       while( index != INDEX_NOT_FOUND && index < offset ) {
-        // Set rPrefix to the index that might precede the caret.
+        // Set rPrefix to the index that might precede the caret. The + 1 is
+        // to skip passed the leading backtick in the prefix (`r#).
         rPrefix = index + 1;
 
         // If there are no more R prefixes, exit the loop and look for a
@@ -96,6 +98,8 @@ public class RMarkdownCaretInsertionProcessor
       // Scan from the character after the R prefix up to any R suffix.
       final int rSuffix = max( text.indexOf( SUFFIX, rPrefix ), rPrefix );
 
+      // If the caret falls between the rPrefix and rSuffix, then change the
+      // insertion point.
       final boolean between = isBetween( offset, rPrefix, rSuffix );
       
       // Insert the caret marker at the start of the R statement.

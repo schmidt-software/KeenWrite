@@ -132,8 +132,8 @@ public class DefaultSettings implements Settings {
         configuration.setListDelimiterHandler( createListDelimiterHandler() );
         configuration.read( r );
 
-      } catch( IOException e ) {
-        throw new ConfigurationException( e );
+      } catch( final IOException ex ) {
+        throw new RuntimeException( new ConfigurationException( ex ) );
       }
     }
 

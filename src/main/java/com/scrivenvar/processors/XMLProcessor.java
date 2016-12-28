@@ -97,8 +97,8 @@ public class XMLProcessor extends AbstractProcessor<String> {
   public String processLink( final String text ) {
     try {
       return text.isEmpty() ? text : transform( text );
-    } catch( Exception e ) {
-      throw new RuntimeException( e );
+    } catch( final Exception ex ) {
+      throw new RuntimeException( ex );
     }
   }
 

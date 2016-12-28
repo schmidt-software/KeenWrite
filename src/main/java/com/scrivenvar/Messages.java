@@ -26,10 +26,10 @@
  */
 package com.scrivenvar;
 
+import static com.scrivenvar.Constants.APP_BUNDLE_NAME;
 import java.text.MessageFormat;
 import java.util.ResourceBundle;
 import java.util.Stack;
-import static com.scrivenvar.Constants.APP_BUNDLE_NAME;
 
 /**
  * Recursively resolves message properties. Property values can refer to other
@@ -112,10 +112,7 @@ public class Messages {
 
     try {
       result = resolve( RESOURCE_BUNDLE, RESOURCE_BUNDLE.getString( key ) );
-    } catch( Exception e ) {
-      
-      // Instead of crashing, launch the application and show the resource
-      // name.
+    } catch( final Exception ex ) {
       result = key;
     }
 

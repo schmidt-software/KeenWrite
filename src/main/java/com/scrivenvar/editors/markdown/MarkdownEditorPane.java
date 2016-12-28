@@ -62,6 +62,22 @@ import static org.fxmisc.wellbehaved.event.EventPattern.keyPressed;
 import static org.fxmisc.wellbehaved.event.EventPattern.keyPressed;
 import static org.fxmisc.wellbehaved.event.EventPattern.keyPressed;
 import static org.fxmisc.wellbehaved.event.EventPattern.keyPressed;
+import static org.fxmisc.wellbehaved.event.EventPattern.keyPressed;
+import static org.fxmisc.wellbehaved.event.EventPattern.keyPressed;
+import static org.fxmisc.wellbehaved.event.EventPattern.keyPressed;
+import static org.fxmisc.wellbehaved.event.EventPattern.keyPressed;
+import static org.fxmisc.wellbehaved.event.EventPattern.keyPressed;
+import static org.fxmisc.wellbehaved.event.EventPattern.keyPressed;
+import static org.fxmisc.wellbehaved.event.EventPattern.keyPressed;
+import static org.fxmisc.wellbehaved.event.EventPattern.keyPressed;
+import static org.fxmisc.wellbehaved.event.EventPattern.keyPressed;
+import static org.fxmisc.wellbehaved.event.EventPattern.keyPressed;
+import static org.fxmisc.wellbehaved.event.EventPattern.keyPressed;
+import static org.fxmisc.wellbehaved.event.EventPattern.keyPressed;
+import static org.fxmisc.wellbehaved.event.EventPattern.keyPressed;
+import static org.fxmisc.wellbehaved.event.EventPattern.keyPressed;
+import static org.fxmisc.wellbehaved.event.EventPattern.keyPressed;
+import static org.fxmisc.wellbehaved.event.EventPattern.keyPressed;
 
 /**
  * Markdown editor pane.

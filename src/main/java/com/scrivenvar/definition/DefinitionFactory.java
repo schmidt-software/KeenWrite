@@ -151,7 +151,7 @@ public class DefinitionFactory extends AbstractFileFactory {
 
     try {
       result = file.toURI().toURL().getProtocol();
-    } catch( Exception e ) {
+    } catch( final Exception e ) {
       result = DEFINITION_PROTOCOL_UNKNOWN;
     }
 

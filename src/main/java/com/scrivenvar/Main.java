@@ -36,7 +36,7 @@ import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
-import com.scrivenvar.service.events.NotifyService;
+import com.scrivenvar.service.events.Notifier;
 
 /**
  * Main application entry point. The application allows users to edit Markdown
@@ -78,10 +78,10 @@ public final class Main extends Application {
   @Override
   public void start( final Stage stage ) throws Exception {
     initApplication();
+    initNotifyService();
     initState( stage );
     initStage( stage );
-    initAlertService();
-    initWatchDog();
+    initSnitch();
 
     stage.show();
   }
@@ -92,6 +92,15 @@ public final class Main extends Application {
 
   private void initApplication() {
     app = this;
+  }
+
+  /**
+   * Constructs the notify service and appends the main window to the list of
+   * notification observers.
+   */
+  private void initNotifyService() {
+    final Notifier service = Services.load(Notifier.class );
+    service.addObserver( getMainWindow() );
   }
 
   private StageState initState( final Stage stage ) {
@@ -109,13 +118,8 @@ public final class Main extends Application {
     stage.setScene( getScene() );
   }
 
-  private void initAlertService() {
-    final NotifyService service = Services.load(NotifyService.class );
-    service.setWindow( getScene().getWindow() );
-  }
-
-  private void initWatchDog() {
-    setSnitchThread( new Thread( getWatchDog() ) );
+  private void initSnitch() {
+    setSnitchThread( new Thread( getSnitch() ) );
     getSnitchThread().start();
   }
 
@@ -126,7 +130,7 @@ public final class Main extends Application {
    */
   @Override
   public void stop() throws InterruptedException {
-    getWatchDog().stop();
+    getSnitch().stop();
 
     final Thread thread = getSnitchThread();
 
@@ -136,11 +140,11 @@ public final class Main extends Application {
     }
   }
 
-  private synchronized Snitch getWatchDog() {
+  private synchronized Snitch getSnitch() {
     if( this.snitch == null ) {
       this.snitch = Services.load( Snitch.class );
     }
-    
+
     return this.snitch;
   }
 

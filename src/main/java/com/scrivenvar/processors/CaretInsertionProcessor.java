@@ -64,6 +64,7 @@ public abstract class CaretInsertionProcessor extends AbstractProcessor<String> 
    */
   protected String inject( final String text, final int i ) {
     if( i > 0 && i <= text.length() ) {
+      // Preserve the newline character when inserting the caret position mark.
       final String replacement = text.charAt( i - 1 ) == NEWLINE
         ? NEWLINE_CARET_POSITION_MD
         : CARET_POSITION_MD;

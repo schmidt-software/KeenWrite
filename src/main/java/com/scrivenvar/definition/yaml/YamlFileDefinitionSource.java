@@ -27,8 +27,8 @@
  */
 package com.scrivenvar.definition.yaml;
 
-import com.scrivenvar.definition.FileDefinitionSource;
 import static com.scrivenvar.Messages.get;
+import com.scrivenvar.definition.FileDefinitionSource;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -106,8 +106,8 @@ public class YamlFileDefinitionSource extends FileDefinitionSource {
   private YamlParser createYamlParser() {
     try( final InputStream in = Files.newInputStream( getPath() ) ) {
       return new YamlParser( in );
-    } catch( final Exception e ) {
-      throw new RuntimeException( e );
+    } catch( final Exception ex ) {
+      throw new RuntimeException( ex );
     }
   }
 

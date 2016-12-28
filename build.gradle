@@ -1,4 +1,4 @@
-version = '1.0.7'
+version = '1.0.8'
 
 apply plugin: 'java'
 apply plugin: 'java-library-distribution'
@@ -19,6 +19,7 @@ compileJava {
 }
 
 dependencies {
+  compile 'org.controlsfx:controlsfx:8.40.12'
   compile 'org.fxmisc.richtext:richtextfx:0.7-M2'
   compile 'com.miglayout:miglayout-javafx:5.0'
   compile 'de.jensd:fontawesomefx-fontawesome:4.5.0'

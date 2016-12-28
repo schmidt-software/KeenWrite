@@ -63,6 +63,14 @@ import static org.fxmisc.wellbehaved.event.EventPattern.keyTyped;
 import org.fxmisc.wellbehaved.event.InputMap;
 import static org.fxmisc.wellbehaved.event.InputMap.consume;
 import static org.fxmisc.wellbehaved.event.InputMap.sequence;
+import static com.scrivenvar.util.Lists.getFirst;
+import static com.scrivenvar.util.Lists.getLast;
+import static java.lang.Character.isSpaceChar;
+import static java.lang.Character.isWhitespace;
+import static java.lang.Math.min;
+import static org.fxmisc.wellbehaved.event.EventPattern.keyPressed;
+import static org.fxmisc.wellbehaved.event.EventPattern.keyTyped;
+import static org.fxmisc.wellbehaved.event.InputMap.consume;
 
 /**
  * Provides the logic for injecting variable names within the editor.

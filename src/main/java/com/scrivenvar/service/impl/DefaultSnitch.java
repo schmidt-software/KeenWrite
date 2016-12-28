@@ -162,7 +162,7 @@ public class DefaultSnitch extends Observable implements Snitch {
         if( !key.reset() ) {
           ignore( path );
         }
-      } catch( IOException | InterruptedException ex ) {
+      } catch( final IOException | InterruptedException ex ) {
         // Stop eavesdropping.
         setListening( false );
       }

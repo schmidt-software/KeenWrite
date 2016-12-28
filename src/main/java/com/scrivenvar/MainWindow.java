@@ -38,6 +38,7 @@ import com.scrivenvar.processors.Processor;
 import com.scrivenvar.processors.ProcessorFactory;
 import com.scrivenvar.service.Options;
 import com.scrivenvar.service.Snitch;
+import com.scrivenvar.service.events.Notifier;
 import com.scrivenvar.util.Action;
 import com.scrivenvar.util.ActionUtils;
 import static com.scrivenvar.util.StageState.*;
@@ -80,6 +81,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Window;
 import javafx.stage.WindowEvent;
 import static javafx.stage.WindowEvent.WINDOW_CLOSE_REQUEST;
+import org.controlsfx.control.StatusBar;
 
 /**
  * Main window containing a tab pane in the center for file editors.
@@ -90,9 +92,11 @@ public class MainWindow implements Observer {
 
   private final Options options = Services.load( Options.class );
   private final Snitch snitch = Services.load( Snitch.class );
+  private final Notifier notifier = Services.load( Notifier.class );
 
   private Scene scene;
   private MenuBar menuBar;
+  private StatusBar statusBar;
 
   private DefinitionSource definitionSource;
   private DefinitionPane definitionPane;
@@ -110,7 +114,7 @@ public class MainWindow implements Observer {
     initTabAddedListener();
     initTabChangedListener();
     initPreferences();
-    initWatchDog();
+    initSnitch();
   }
 
   /**
@@ -124,10 +128,10 @@ public class MainWindow implements Observer {
 
         // Indirectly refresh the resolved map.
         setProcessors( null );
-        
+
         // Will create new processors and therefore a new resolved map.
         refreshSelectedTab( getActiveFileEditor() );
-        
+
         updateDefinitionPane();
       }
     );
@@ -221,11 +225,11 @@ public class MainWindow implements Observer {
   /**
    * Watch for changes to external files. In particular, this awaits
    * modifications to any XSL files associated with XML files being edited. When
-   * an XSL file is modified (external to the application), the watchdog's ears
+   * an XSL file is modified (external to the application), the snitch's ears
    * perk up and the file is reloaded. This keeps the XSL transformation up to
    * date with what's on the file system.
    */
-  private void initWatchDog() {
+  private void initSnitch() {
     getSnitch().addObserver( this );
   }
 
@@ -247,7 +251,12 @@ public class MainWindow implements Observer {
         getProcessors().put( tab, processor );
       }
 
-      processor.processChain( tab.getEditorText() );
+      try {
+        processor.processChain( tab.getEditorText() );
+        getNotifier().clear();
+      } catch( final Exception ex ) {
+        error( ex );
+      }
     }
   }
 
@@ -269,7 +278,7 @@ public class MainWindow implements Observer {
     try {
       return getDefinitionSource().asTreeView();
     } catch( Exception e ) {
-      alert( e );
+      error( e );
     }
 
     return new TreeView<>();
@@ -287,7 +296,7 @@ public class MainWindow implements Observer {
       storeDefinitionSource();
       updateDefinitionPane();
     } catch( final Exception e ) {
-      alert( e );
+      error( e );
     }
   }
 
@@ -324,21 +333,30 @@ public class MainWindow implements Observer {
    *
    * @param e The exception with a message that the user should know about.
    */
-  private void alert( final Exception e ) {
-    // TODO: Update the status bar or do something clever with the error.
+  private void error( final Exception e ) {
+    getNotifier().notify( e );
   }
 
   //---- File actions -------------------------------------------------------
   /**
-   * Called when a file has been modified.
+   * Called when an observable instance has changed. This includes the snitch
+   * service and the notify service.
    *
-   * @param snitch The watchdog file monitoring instance.
-   * @param file The file that was modified.
+   * @param observable The observed instance.
+   * @param o The noteworthy item.
    */
   @Override
-  public void update( final Observable snitch, final Object file ) {
-    if( file instanceof Path ) {
-      update( (Path)file );
+  public void update( final Observable observable, final Object o ) {
+    if( observable instanceof Snitch ) {
+      if( o instanceof Path ) {
+        update( (Path)o );
+      }
+    } else if( observable instanceof Notifier && o != null ) {
+      final String s = (String)o;
+      final int index = s.indexOf( '\n' );
+      final String message = s.substring( 0, index > 0 ? index : s.length() );
+
+      getStatusBar().setText( message );
     }
   }
 
@@ -417,7 +435,7 @@ public class MainWindow implements Observer {
     return getOptions().getState();
   }
 
-  private Window getWindow() {
+  public Window getWindow() {
     return getScene().getWindow();
   }
 
@@ -496,12 +514,24 @@ public class MainWindow implements Observer {
     return this.snitch;
   }
 
-  public void setMenuBar( MenuBar menuBar ) {
+  private Notifier getNotifier() {
+    return this.notifier;
+  }
+
+  public void setMenuBar( final MenuBar menuBar ) {
     this.menuBar = menuBar;
   }
 
   public MenuBar getMenuBar() {
     return this.menuBar;
+  }
+
+  private synchronized StatusBar getStatusBar() {
+    if( this.statusBar == null ) {
+      this.statusBar = createStatusBar();
+    }
+
+    return this.statusBar;
   }
 
   //---- Member creators ----------------------------------------------------
@@ -545,6 +575,10 @@ public class MainWindow implements Observer {
     return new DefinitionFactory();
   }
 
+  private StatusBar createStatusBar() {
+    return new StatusBar();
+  }
+
   private Node createMenuBar() {
     final BooleanBinding activeFileEditorIsNull = getFileEditorPane().activeFileEditorProperty().isNull();
 
@@ -566,6 +600,18 @@ public class MainWindow implements Observer {
     Action editRedoAction = new Action( get( "Main.menu.edit.redo" ), "Shortcut+Y", REPEAT,
       e -> getActiveEditor().redo(),
       createActiveBooleanProperty( FileEditorTab::canRedoProperty ).not() );
+    Action editFindAction = new Action( Messages.get( "Main.menu.edit.find" ), "Shortcut+F", SEARCH,
+      e -> getActiveEditor().find(),
+      activeFileEditorIsNull );
+    Action editReplaceAction = new Action( Messages.get( "Main.menu.edit.find.replace" ), "Shortcut+H", RETWEET,
+      e -> getActiveEditor().replace(),
+      activeFileEditorIsNull );
+    Action editFindNextAction = new Action( Messages.get( "Main.menu.edit.find.next" ), "F3", null,
+      e -> getActiveEditor().findNext(),
+      activeFileEditorIsNull );
+    Action editFindPreviousAction = new Action( Messages.get( "Main.menu.edit.find.previous" ), "Shift+F3", null,
+      e -> getActiveEditor().findPrevious(),
+      activeFileEditorIsNull );
 
     // Insert actions
     Action insertBoldAction = new Action( get( "Main.menu.insert.bold" ), "Shortcut+B", BOLD,
@@ -643,7 +689,11 @@ public class MainWindow implements Observer {
 
     Menu editMenu = ActionUtils.createMenu( get( "Main.menu.edit" ),
       editUndoAction,
-      editRedoAction );
+      editRedoAction,
+      editFindAction,
+      editReplaceAction,
+      editFindNextAction,
+      editFindPreviousAction );
 
     Menu insertMenu = ActionUtils.createMenu( get( "Main.menu.insert" ),
       insertBoldAction,
@@ -746,6 +796,7 @@ public class MainWindow implements Observer {
     final BorderPane borderPane = new BorderPane();
     borderPane.setPrefSize( 1024, 800 );
     borderPane.setTop( createMenuBar() );
+    borderPane.setBottom( getStatusBar() );
     borderPane.setCenter( splitPane );
 
     final Scene appScene = new Scene( borderPane );

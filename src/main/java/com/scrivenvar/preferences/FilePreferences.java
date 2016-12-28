@@ -62,7 +62,7 @@ public class FilePreferences extends AbstractPreferences {
     try {
       sync();
     } catch( final BackingStoreException ex ) {
-      problem( ex );
+      error( ex );
     }
   }
 
@@ -73,7 +73,7 @@ public class FilePreferences extends AbstractPreferences {
     try {
       flush();
     } catch( final BackingStoreException ex ) {
-      problem( ex );
+      error( ex );
     }
   }
 
@@ -89,7 +89,7 @@ public class FilePreferences extends AbstractPreferences {
     try {
       flush();
     } catch( final BackingStoreException ex ) {
-      problem( ex );
+      error( ex );
     }
   }
 
@@ -154,8 +154,8 @@ public class FilePreferences extends AbstractPreferences {
             }
           }
         }
-      } catch( final IOException e ) {
-        throw new BackingStoreException( e );
+      } catch( final IOException ex ) {
+        error( new BackingStoreException( ex ) );
       }
     }
   }
@@ -210,13 +210,13 @@ public class FilePreferences extends AbstractPreferences {
         }
 
         p.store( new FileOutputStream( file ), "FilePreferences" );
-      } catch( final IOException e ) {
-        throw new BackingStoreException( e );
+      } catch( final IOException ex ) {
+        error( new BackingStoreException( ex ) );
       }
     }
   }
 
-  private void problem( final BackingStoreException ex ) {
+  private void error( final BackingStoreException ex ) {
     throw new RuntimeException( ex );
   }
 }

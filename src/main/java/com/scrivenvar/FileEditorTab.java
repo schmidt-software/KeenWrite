@@ -28,7 +28,7 @@ package com.scrivenvar;
 import com.scrivenvar.editors.EditorPane;
 import com.scrivenvar.editors.markdown.MarkdownEditorPane;
 import com.scrivenvar.service.events.Notification;
-import com.scrivenvar.service.events.NotifyService;
+import com.scrivenvar.service.events.Notifier;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -48,6 +48,7 @@ import javafx.scene.control.Tab;
 import javafx.scene.control.Tooltip;
 import javafx.scene.input.InputEvent;
 import javafx.scene.text.Text;
+import javafx.stage.Window;
 import org.fxmisc.richtext.StyleClassedTextArea;
 import org.fxmisc.undo.UndoManager;
 import org.fxmisc.wellbehaved.event.EventPattern;
@@ -61,7 +62,7 @@ import org.mozilla.universalchardet.UniversalDetector;
  */
 public final class FileEditorTab extends Tab {
 
-  private final NotifyService alertService = Services.load( NotifyService.class );
+  private final Notifier alertService = Services.load(Notifier.class );
   private EditorPane editorPane;
 
   /**
@@ -225,10 +226,8 @@ public final class FileEditorTab extends Tab {
     if( filePath != null ) {
       try {
         getEditorPane().setText( asString( Files.readAllBytes( filePath ) ) );
-      } catch( Exception ex ) {
-        alert(
-          "FileEditor.loadFailed.title", "FileEditor.loadFailed.message", ex
-        );
+      } catch( final Exception ex ) {
+        getNotifyService().notify( ex );
       }
     }
   }
@@ -243,7 +242,7 @@ public final class FileEditorTab extends Tab {
       Files.write( getPath(), asBytes( getEditorPane().getText() ) );
       getEditorPane().getUndoManager().mark();
       return true;
-    } catch( Exception ex ) {
+    } catch( final Exception ex ) {
       return alert(
         "FileEditor.saveFailed.title", "FileEditor.saveFailed.message", ex
       );
@@ -261,7 +260,7 @@ public final class FileEditorTab extends Tab {
    */
   private boolean alert(
     final String titleKey, final String messageKey, final Exception e ) {
-    final NotifyService service = getAlertService();
+    final Notifier service = getNotifyService();
     final Path filePath = getPath();
 
     final Notification message = service.createNotification(
@@ -271,11 +270,12 @@ public final class FileEditorTab extends Tab {
       e.getMessage()
     );
 
-    // TODO: Put this into a status bar or status area
-    System.out.println( e );
-
-//    service.createError( message ).showAndWait();
+    service.createError( getWindow(), message ).showAndWait();
     return false;
+  }
+
+  private Window getWindow() {
+    return getEditorPane().getScene().getWindow();
   }
 
   /**
@@ -435,7 +435,7 @@ public final class FileEditorTab extends Tab {
     return this.editorPane;
   }
 
-  private NotifyService getAlertService() {
+  private Notifier getNotifyService() {
     return this.alertService;
   }
 

@@ -27,6 +27,7 @@
  */
 package com.scrivenvar.service.events;
 
+import java.util.Observer;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.stage.Window;
@@ -36,17 +37,32 @@ import javafx.stage.Window;
  *
  * @author White Magic Software, Ltd.
  */
-public interface NotifyService {
+public interface Notifier {
+
   public static final ButtonType YES = ButtonType.YES;
   public static final ButtonType NO = ButtonType.NO;
   public static final ButtonType CANCEL = ButtonType.CANCEL;
 
   /**
-   * Called to set the window used as the parent for the alert dialogs.
+   * Notifies the user of a problem.
    *
-   * @param window
+   * @param message The problem description.
    */
-  public void setWindow( Window window );
+  public void notify( final String message );
+
+  /**
+   * Notifies the user about the exception.
+   *
+   * @param exception The exception containing a message to show to the user.
+   */
+  default public void notify( final Exception exception ) {
+    notify( exception.getMessage() );
+  }
+
+  /**
+   * Causes any displayed notifications to disappear.
+   */
+  public void clear();
 
   /**
    * Constructs a default alert message text for a modal alert dialog.
@@ -66,18 +82,36 @@ public interface NotifyService {
    * Creates an alert of alert type error with a message showing the cause of
    * the error.
    *
+   * @param parent Dialog box owner (for modal purposes).
    * @param message The error message, title, and possibly more details.
    *
    * @return A modal alert dialog box ready to display using showAndWait.
    */
-  public Alert createError( Notification message );
+  public Alert createError( Window parent, Notification message );
 
   /**
    * Creates an alert of alert type confirmation with Yes/No/Cancel buttons.
    *
+   * @param parent Dialog box owner (for modal purposes).
    * @param message The message, title, and possibly more details.
    *
    * @return A modal alert dialog box ready to display using showAndWait.
    */
-  public Alert createConfirmation( Notification message );
+  public Alert createConfirmation( Window parent, Notification message );
+
+  /**
+   * Adds an observer to the list of objects that receive notifications about
+   * error messages to be presented to the user.
+   *
+   * @param observer The observer instance to notify.
+   */
+  public void addObserver( Observer observer );
+
+  /**
+   * Removes an observer from the list of objects that receive notifications
+   * about error messages to be presented to the user.
+   *
+   * @param observer The observer instance to no longer notify.
+   */
+  public void deleteObserver( Observer observer );
 }

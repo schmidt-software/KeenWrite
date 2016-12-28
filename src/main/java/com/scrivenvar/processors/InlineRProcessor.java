@@ -106,10 +106,10 @@ public final class InlineRProcessor extends DefaultVariableProcessor {
         prevIndex = currIndex + 1;
 
       } else {
+        // TODO: Implement this.
         // There was a starting prefix but no ending suffix. Ignore the
         // problem, copy to the end, and exit the loop.
-//        sb.append()
-
+        //sb.append()
       }
 
       // Find the start of the next inline R statement.
@@ -133,10 +133,8 @@ public final class InlineRProcessor extends DefaultVariableProcessor {
     try {
       return getScriptEngine().eval( r );
     } catch( final ScriptException ex ) {
-      problem( ex );
+      throw new IllegalArgumentException( ex );
     }
-
-    return "";
   }
 
   private synchronized ScriptEngine getScriptEngine() {
@@ -145,15 +143,5 @@ public final class InlineRProcessor extends DefaultVariableProcessor {
     }
 
     return this.engine;
-  }
-
-  /**
-   * Notify the user (passively) of the problem.
-   *
-   * @param ex A problem parsing the text.
-   */
-  private void problem( final Exception ex ) {
-    // TODO: Use the notify service to warn the user that there's an issue.
-    System.out.println( ex );
   }
 }

@@ -52,7 +52,7 @@ public class AbstractFileFactory {
    *
    * @return The file type that corresponds to the given path.
    */
-    protected FileType lookup( final Path path, final String prefix ) {
+  protected FileType lookup( final Path path, final String prefix ) {
     final Settings properties = getSettings();
     final Iterator<String> keys = properties.getKeys( prefix );
 
@@ -108,5 +108,4 @@ public class AbstractFileFactory {
   private Settings getSettings() {
     return this.settings;
   }
-
 }

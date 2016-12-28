@@ -34,9 +34,8 @@ import com.scrivenvar.predicates.files.FileTypePredicate;
 import com.scrivenvar.service.Options;
 import com.scrivenvar.service.Settings;
 import com.scrivenvar.service.events.Notification;
-import com.scrivenvar.service.events.NotifyService;
-import static com.scrivenvar.service.events.NotifyService.NO;
-import static com.scrivenvar.service.events.NotifyService.YES;
+import static com.scrivenvar.service.events.Notifier.NO;
+import static com.scrivenvar.service.events.Notifier.YES;
 import com.scrivenvar.util.Utils;
 import java.io.File;
 import java.nio.file.Path;
@@ -67,6 +66,8 @@ import javafx.stage.Window;
 import org.fxmisc.richtext.StyledTextArea;
 import org.fxmisc.wellbehaved.event.EventPattern;
 import org.fxmisc.wellbehaved.event.InputMap;
+import com.scrivenvar.service.events.Notifier;
+import static com.scrivenvar.Messages.get;
 
 /**
  * Tab pane for file editors.
@@ -79,7 +80,7 @@ public final class FileEditorTabPane extends TabPane {
 
   private final Options options = Services.load( Options.class );
   private final Settings settings = Services.load( Settings.class );
-  private final NotifyService alertService = Services.load(NotifyService.class );
+  private final Notifier notifyService = Services.load(Notifier.class );
 
   private final ReadOnlyObjectWrapper<Path> openDefinition = new ReadOnlyObjectWrapper<>();
   private final ReadOnlyObjectWrapper<FileEditorTab> activeFileEditor = new ReadOnlyObjectWrapper<>();
@@ -375,20 +376,21 @@ public final class FileEditorTabPane extends TabPane {
       return true;
     }
 
-    final Notification message = getAlertService().createNotification(
+    final Notification message = getNotifyService().createNotification(
       Messages.get( "Alert.file.close.title" ),
       Messages.get( "Alert.file.close.text" ),
       tab.getText()
     );
 
-    final Alert alert = getAlertService().createConfirmation( message );
+    final Alert alert = getNotifyService().createConfirmation(
+      getWindow(), message );
     final ButtonType response = alert.showAndWait().get();
 
     return response == YES ? saveEditor( tab ) : response == NO;
   }
 
-  private NotifyService getAlertService() {
-    return this.alertService;
+  private Notifier getNotifyService() {
+    return this.notifyService;
   }
 
   boolean closeEditor( FileEditorTab fileEditor, boolean save ) {
@@ -527,7 +529,7 @@ public final class FileEditorTabPane extends TabPane {
    */
   private ExtensionFilter createExtensionFilter( final FileType filetype ) {
     final String tKey = String.format( "%s.title.%s", FILTER_EXTENSION_TITLES, filetype );
-    final String eKey = String.format("%s.%s", GLOB_PREFIX_FILE, filetype );
+    final String eKey = String.format( "%s.%s", GLOB_PREFIX_FILE, filetype );
 
     return new ExtensionFilter( Messages.get( tKey ), getExtensions( eKey ) );
   }
