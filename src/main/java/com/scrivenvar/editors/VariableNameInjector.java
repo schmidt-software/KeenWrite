@@ -63,14 +63,6 @@ import static org.fxmisc.wellbehaved.event.EventPattern.keyTyped;
 import org.fxmisc.wellbehaved.event.InputMap;
 import static org.fxmisc.wellbehaved.event.InputMap.consume;
 import static org.fxmisc.wellbehaved.event.InputMap.sequence;
-import static com.scrivenvar.util.Lists.getFirst;
-import static com.scrivenvar.util.Lists.getLast;
-import static java.lang.Character.isSpaceChar;
-import static java.lang.Character.isWhitespace;
-import static java.lang.Math.min;
-import static org.fxmisc.wellbehaved.event.EventPattern.keyPressed;
-import static org.fxmisc.wellbehaved.event.EventPattern.keyTyped;
-import static org.fxmisc.wellbehaved.event.InputMap.consume;
 
 /**
  * Provides the logic for injecting variable names within the editor.
@@ -194,7 +186,8 @@ public class VariableNameInjector {
     // Break out of variable mode by back spacing to the original position.
     if( getCurrentCaretPosition() > getInitialCaretPosition() ) {
       vModeAutocomplete();
-    } else {
+    }
+    else {
       vModeStop();
     }
   }
@@ -627,7 +620,7 @@ public class VariableNameInjector {
     final StyledTextArea textArea = getEditor();
     final int textBegan = getInitialCaretPosition();
     final int remaining = textArea.getLength() - textBegan;
-    final int textEnded = min( remaining, getMaxVarLength() );
+    final int textEnded = min( remaining - 1, getMaxVarLength() );
 
     return textArea.getText( textBegan, textEnded );
   }
