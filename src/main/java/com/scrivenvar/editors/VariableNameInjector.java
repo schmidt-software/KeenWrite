@@ -198,7 +198,7 @@ public class VariableNameInjector {
   private void vModeAutocomplete() {
     final TreeItem<String> node = getCurrentNode();
 
-    if( !node.isLeaf() ) {
+    if( node != null && !node.isLeaf() ) {
       final String word = getLastPathWord();
       final String label = node.getValue();
       final int delta = difference( label, word );
