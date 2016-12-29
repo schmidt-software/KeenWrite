@@ -60,6 +60,7 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener.Change;
 import javafx.collections.ObservableList;
 import static javafx.event.Event.fireEvent;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
@@ -78,6 +79,7 @@ import static javafx.scene.input.KeyEvent.CHAR_UNDEFINED;
 import static javafx.scene.input.KeyEvent.KEY_PRESSED;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
 import javafx.stage.Window;
 import javafx.stage.WindowEvent;
 import static javafx.stage.WindowEvent.WINDOW_CLOSE_REQUEST;
@@ -159,6 +161,7 @@ public class MainWindow implements Observer {
               initTextChangeListener( tab );
               initCaretParagraphListener( tab );
               initVariableNameInjector( tab );
+//              initSyntaxListener( tab );
             }
           }
         }
@@ -191,7 +194,8 @@ public class MainWindow implements Observer {
         if( oldTab != null ) {
           if( newTab == null ) {
             closeRemainingTab();
-          } else {
+          }
+          else {
             // Update the preview with the edited text.
             refreshSelectedTab( (FileEditorTab)newTab );
           }
@@ -343,20 +347,21 @@ public class MainWindow implements Observer {
    * service and the notify service.
    *
    * @param observable The observed instance.
-   * @param o The noteworthy item.
+   * @param value The noteworthy item.
    */
   @Override
-  public void update( final Observable observable, final Object o ) {
-    if( observable instanceof Snitch ) {
-      if( o instanceof Path ) {
-        update( (Path)o );
+  public void update( final Observable observable, final Object value ) {
+    if( value != null ) {
+      if( observable instanceof Snitch && value instanceof Path ) {
+        update( (Path)value );
       }
-    } else if( observable instanceof Notifier && o != null ) {
-      final String s = (String)o;
-      final int index = s.indexOf( '\n' );
-      final String message = s.substring( 0, index > 0 ? index : s.length() );
+      else if( observable instanceof Notifier && value instanceof String ) {
+        final String s = (String)value;
+        final int index = s.indexOf( '\n' );
+        final String message = s.substring( 0, index > 0 ? index : s.length() );
 
-      getStatusBar().setText( message );
+        getStatusBar().setText( message );
+      }
     }
   }
 
@@ -435,6 +440,14 @@ public class MainWindow implements Observer {
     return getOptions().getState();
   }
 
+  protected Scene getScene() {
+    if( this.scene == null ) {
+      this.scene = createScene();
+    }
+
+    return this.scene;
+  }
+
   public Window getWindow() {
     return getScene().getWindow();
   }
@@ -452,10 +465,6 @@ public class MainWindow implements Observer {
   //---- Member accessors ---------------------------------------------------
   private void setScene( Scene scene ) {
     this.scene = scene;
-  }
-
-  public Scene getScene() {
-    return this.scene;
   }
 
   private void setProcessors( final Map<FileEditorTab, Processor<String>> map ) {
@@ -577,6 +586,32 @@ public class MainWindow implements Observer {
 
   private StatusBar createStatusBar() {
     return new StatusBar();
+  }
+
+  private Scene createScene() {
+    final SplitPane splitPane = new SplitPane(
+      getDefinitionPane().getNode(),
+      getFileEditorPane().getNode(),
+      getPreviewPane().getNode() );
+
+    splitPane.setDividerPositions(
+      getFloat( K_PANE_SPLIT_DEFINITION, .10f ),
+      getFloat( K_PANE_SPLIT_EDITOR, .45f ),
+      getFloat( K_PANE_SPLIT_PREVIEW, .45f ) );
+
+    // See: http://broadlyapplicable.blogspot.ca/2015/03/javafx-capture-restorePreferences-splitpane.html
+    final BorderPane borderPane = new BorderPane();
+    borderPane.setPrefSize( 1024, 800 );
+    borderPane.setTop( createMenuBar() );
+    borderPane.setBottom( getStatusBar() );
+    borderPane.setCenter( splitPane );
+
+    final VBox box = new VBox();
+    box.setAlignment( Pos.BASELINE_CENTER );
+    box.getChildren().add( new Text( "Line %d of %d" ) );
+    getStatusBar().getRightItems().add( box );
+
+    return new Scene( borderPane );
   }
 
   private Node createMenuBar() {
@@ -772,7 +807,8 @@ public class MainWindow implements Observer {
 
         if( newFileEditor != null ) {
           b.bind( func.apply( newFileEditor ) );
-        } else {
+        }
+        else {
           b.set( false );
         }
       }
@@ -782,26 +818,11 @@ public class MainWindow implements Observer {
   }
 
   private void initLayout() {
-    final SplitPane splitPane = new SplitPane(
-      getDefinitionPane().getNode(),
-      getFileEditorPane().getNode(),
-      getPreviewPane().getNode() );
+    final Scene appScene = getScene();
 
-    splitPane.setDividerPositions(
-      getFloat( K_PANE_SPLIT_DEFINITION, .10f ),
-      getFloat( K_PANE_SPLIT_EDITOR, .45f ),
-      getFloat( K_PANE_SPLIT_PREVIEW, .45f ) );
-
-    // See: http://broadlyapplicable.blogspot.ca/2015/03/javafx-capture-restorePreferences-splitpane.html
-    final BorderPane borderPane = new BorderPane();
-    borderPane.setPrefSize( 1024, 800 );
-    borderPane.setTop( createMenuBar() );
-    borderPane.setBottom( getStatusBar() );
-    borderPane.setCenter( splitPane );
-
-    final Scene appScene = new Scene( borderPane );
-    setScene( appScene );
     appScene.getStylesheets().add( STYLESHEET_SCENE );
+//    appScene.getStylesheets().add( STYLESHEET_XML );
+
     appScene.windowProperty().addListener(
       (observable, oldWindow, newWindow) -> {
         newWindow.setOnCloseRequest( e -> {
@@ -825,4 +846,72 @@ public class MainWindow implements Observer {
       }
     );
   }
+
+//  private void initSyntaxListener( final FileEditorTab tab ) {
+//    tab.addTextChangeListener(
+//      (ObservableValue<? extends String> observable,
+//        final String oText, final String nText) -> {
+//        tab.getEditorPane().getEditor().setStyleSpans( 0, highlight( nText ) );
+//      }
+//    );
+//  }
+//
+//  private static final Pattern XML_TAG = Pattern.compile( "(?<ELEMENT>(</?\\h*)(\\w+)([^<>]*)(\\h*/?>))"
+//    + "|(?<COMMENT><!--[^<>]+-->)" );
+//
+//  private static final Pattern ATTRIBUTES = Pattern.compile( "(\\w+\\h*)(=)(\\h*\"[^\"]+\")" );
+//
+//  private static final int GROUP_OPEN_BRACKET = 2;
+//  private static final int GROUP_ELEMENT_NAME = 3;
+//  private static final int GROUP_ATTRIBUTES_SECTION = 4;
+//  private static final int GROUP_CLOSE_BRACKET = 5;
+//  private static final int GROUP_ATTRIBUTE_NAME = 1;
+//  private static final int GROUP_EQUAL_SYMBOL = 2;
+//  private static final int GROUP_ATTRIBUTE_VALUE = 3;
+//
+//  private static StyleSpans<Collection<String>> highlight( final String text ) {
+//    final Matcher matcher = XML_TAG.matcher( text );
+//    int lastKwEnd = 0;
+//    final StyleSpansBuilder<Collection<String>> spansBuilder = new StyleSpansBuilder<>();
+//
+//    while( matcher.find() ) {
+//      spansBuilder.add( Collections.emptyList(), matcher.start() - lastKwEnd );
+//
+//      if( matcher.group( "COMMENT" ) != null ) {
+//        spansBuilder.add( Collections.singleton( "comment" ), matcher.end() - matcher.start() );
+//      }
+//      else if( matcher.group( "ELEMENT" ) != null ) {
+//        String attributesText = matcher.group( GROUP_ATTRIBUTES_SECTION );
+//
+//        spansBuilder.add( Collections.singleton( "tagmark" ), matcher.end( GROUP_OPEN_BRACKET ) - matcher.start( GROUP_OPEN_BRACKET ) );
+//        spansBuilder.add( Collections.singleton( "anytag" ), matcher.end( GROUP_ELEMENT_NAME ) - matcher.end( GROUP_OPEN_BRACKET ) );
+//
+//        if( !attributesText.isEmpty() ) {
+//          lastKwEnd = 0;
+//
+//          final Matcher amatcher = ATTRIBUTES.matcher( attributesText );
+//
+//          while( amatcher.find() ) {
+//            spansBuilder.add( Collections.emptyList(), amatcher.start() - lastKwEnd );
+//            spansBuilder.add( Collections.singleton( "attribute" ), amatcher.end( GROUP_ATTRIBUTE_NAME ) - amatcher.start( GROUP_ATTRIBUTE_NAME ) );
+//            spansBuilder.add( Collections.singleton( "tagmark" ), amatcher.end( GROUP_EQUAL_SYMBOL ) - amatcher.end( GROUP_ATTRIBUTE_NAME ) );
+//            spansBuilder.add( Collections.singleton( "avalue" ), amatcher.end( GROUP_ATTRIBUTE_VALUE ) - amatcher.end( GROUP_EQUAL_SYMBOL ) );
+//            lastKwEnd = amatcher.end();
+//          }
+//
+//          if( attributesText.length() > lastKwEnd ) {
+//            spansBuilder.add( Collections.emptyList(), attributesText.length() - lastKwEnd );
+//          }
+//        }
+//
+//        lastKwEnd = matcher.end( GROUP_ATTRIBUTES_SECTION );
+//        spansBuilder.add( Collections.singleton( "tagmark" ), matcher.end( GROUP_CLOSE_BRACKET ) - lastKwEnd );
+//      }
+//
+//      lastKwEnd = matcher.end();
+//    }
+//
+//    spansBuilder.add( Collections.emptyList(), text.length() - lastKwEnd );
+//    return spansBuilder.create();
+//  }
 }

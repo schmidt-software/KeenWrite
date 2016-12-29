@@ -42,9 +42,11 @@ import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.ProcessingInstruction;
 import javax.xml.stream.events.XMLEvent;
+import javax.xml.transform.ErrorListener;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
@@ -62,7 +64,8 @@ import static net.sf.saxon.tree.util.ProcInstParser.getPseudoAttribute;
  *
  * @author White Magic Software, Ltd.
  */
-public class XMLProcessor extends AbstractProcessor<String> {
+public class XMLProcessor extends AbstractProcessor<String>
+  implements ErrorListener {
 
   private final Snitch snitch = Services.load( Snitch.class );
 
@@ -154,9 +157,20 @@ public class XMLProcessor extends AbstractProcessor<String> {
     return this.transformer;
   }
 
+  /**
+   * Creates a configured transformer ready to run.
+   *
+   * @param xsl The stylesheet to use for transforming XML documents.
+   *
+   * @return The edited XML document transformed into another format (usually
+   * markdown).
+   *
+   * @throws TransformerConfigurationException Could not create the transformer.
+   */
   protected Transformer createTransformer( final Path xsl )
     throws TransformerConfigurationException {
     final Source xslt = new StreamSource( xsl.toFile() );
+
     return getTransformerFactory().newTransformer( xslt );
   }
 
@@ -240,7 +254,43 @@ public class XMLProcessor extends AbstractProcessor<String> {
    * @return An XSL transforming engine.
    */
   private TransformerFactory createTransformerFactory() {
-    return new TransformerFactoryImpl();
+    final TransformerFactory factory = new TransformerFactoryImpl();
+
+    // Bubble problems up to the user interface, rather than standard error.
+    factory.setErrorListener( this );
+
+    return factory;
+  }
+
+  /**
+   * Called when the XSL transformer issues a warning.
+   *
+   * @param ex The problem the transformer encountered.
+   */
+  @Override
+  public void warning( final TransformerException ex ) {
+    throw new RuntimeException( ex );
+  }
+
+  /**
+   * Called when the XSL transformer issues an error.
+   *
+   * @param ex The problem the transformer encountered.
+   */
+  @Override
+  public void error( final TransformerException ex ) {
+    throw new RuntimeException( ex );
+  }
+
+  /**
+   * Called when the XSL transformer issues a fatal error, which is probably
+   * a bit over-dramatic a method name.
+   *
+   * @param ex The problem the transformer encountered.
+   */
+  @Override
+  public void fatalError( final TransformerException ex ) {
+    throw new RuntimeException( ex );
   }
 
   private void setPath( final Path path ) {
