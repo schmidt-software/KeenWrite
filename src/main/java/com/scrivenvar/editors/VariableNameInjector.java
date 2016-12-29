@@ -627,8 +627,8 @@ public class VariableNameInjector {
       textBegan = 0;
     }
 
-    if( textEnded > length ) {
-      textEnded = length;
+    if( textEnded >= length ) {
+      textEnded = length - 1;
     }
 
     return textArea.getText( textBegan, textEnded );
