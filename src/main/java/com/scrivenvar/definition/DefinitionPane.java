@@ -96,13 +96,16 @@ public class DefinitionPane extends AbstractPane {
   private TreeItem<String> findNode(
     final TreeItem<String> trunk,
     final StringPredicate predicate ) {
-    final List<TreeItem<String>> branches = trunk.getChildren();
     TreeItem<String> result = null;
 
-    for( final TreeItem<String> leaf : branches ) {
-      if( predicate.test( leaf.getValue() ) ) {
-        result = leaf;
-        break;
+    if( trunk != null ) {
+      final List<TreeItem<String>> branches = trunk.getChildren();
+
+      for( final TreeItem<String> leaf : branches ) {
+        if( predicate.test( leaf.getValue() ) ) {
+          result = leaf;
+          break;
+        }
       }
     }
 
