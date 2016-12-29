@@ -141,10 +141,10 @@ public class ProcessorFactory extends AbstractFileFactory {
     final ObservableValue<Integer> caret = tab.caretPositionProperty();
     final Processor<String> tpc = getCommonProcessor();
     final Processor<String> xmlp = new XMLProcessor( tpc, tab.getPath() );
-    final Processor<String> xcip = createXMLInsertionProcessor( xmlp, caret );
-    final Processor<String> dvp = new DefaultVariableProcessor( xcip, getResolvedMap() );
+    final Processor<String> dvp = new DefaultVariableProcessor( xmlp, getResolvedMap() );
+    final Processor<String> xcip = createXMLInsertionProcessor( dvp, caret );
 
-    return dvp;
+    return xcip;
   }
 
   protected Processor<String> createRProcessor( final FileEditorTab tab ) {
@@ -161,11 +161,11 @@ public class ProcessorFactory extends AbstractFileFactory {
     final ObservableValue<Integer> caret = tab.caretPositionProperty();
     final Processor<String> tpc = getCommonProcessor();
     final Processor<String> xmlp = new XMLProcessor( tpc, tab.getPath() );
-    final Processor<String> xcip = createXMLInsertionProcessor( xmlp, caret );
-    final Processor<String> rp = new InlineRProcessor( xcip, getResolvedMap(), tab.getPath() );
+    final Processor<String> rp = new InlineRProcessor( xmlp, getResolvedMap(), tab.getPath() );
     final Processor<String> rvp = new RVariableProcessor( rp, getResolvedMap() );
+    final Processor<String> xcip = createXMLInsertionProcessor( rvp, caret );
 
-    return rvp;
+    return xcip;
   }
 
   private Processor<String> createMarkdownInsertionProcessor(

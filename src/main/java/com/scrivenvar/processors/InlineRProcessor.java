@@ -63,9 +63,10 @@ public final class InlineRProcessor extends DefaultVariableProcessor {
   }
 
   public void init( final Path workingDirectory ) {
+    // In Windows, setwd doesn't work.
     eval( replace( ""
       + "assign( 'anchor', as.Date( '$date.anchor$', format='%Y-%m-%d' ), envir = .GlobalEnv );"
-      + "setwd( '" + workingDirectory + "' );"
+      + "setwd( '" + workingDirectory.toString().replace( '\\', '/' ) + "' );"
       + "source( '../bin/pluralize.R' );"
       + "source( '../bin/common.R' )", getDefinitions() ) );
   }
@@ -105,7 +106,8 @@ public final class InlineRProcessor extends DefaultVariableProcessor {
         // Retain the R statement's ending position in the text.
         prevIndex = currIndex + 1;
 
-      } else {
+      }
+      else {
         // TODO: Implement this.
         // There was a starting prefix but no ending suffix. Ignore the
         // problem, copy to the end, and exit the loop.
