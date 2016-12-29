@@ -618,20 +618,16 @@ public class VariableNameInjector {
    */
   private String extractTextChunk() {
     final StyledTextArea textArea = getEditor();
-    int textBegan = getInitialCaretPosition();
-    final int length = textArea.getLength();
-    final int remaining = length - textBegan;
-    int textEnded = min( remaining, getMaxVarLength() );
+    final int textBegan = getInitialCaretPosition();
+    final int remaining = textArea.getLength() - textBegan;
+    final int textEnded = min( remaining, getMaxVarLength() );
 
-    if( textBegan < 0 ) {
-      textBegan = 0;
+    try {
+      return textArea.getText( textBegan, textEnded );
     }
-
-    if( textEnded >= length ) {
-      textEnded = length - 1;
+    catch( final Exception e ) {
+      return textArea.getText();
     }
-
-    return textArea.getText( textBegan, textEnded );
   }
 
   /**
