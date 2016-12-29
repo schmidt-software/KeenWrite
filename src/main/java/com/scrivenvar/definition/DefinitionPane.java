@@ -237,11 +237,18 @@ public class DefinitionPane extends AbstractPane {
    * @return A non-null TreeItem, possibly the root item (to avoid null).
    */
   private TreeItem<String> sanitize( final TreeItem<String> item ) {
-    final TreeItem<String> result = item == getTreeRoot()
-      ? getFirst( item.getChildren() )
-      : item;
+    TreeItem<String> result;
 
-    return result == null ? item : result;
+    if( item == null ) {
+      result = getTreeRoot();
+    }
+    else {
+      result = item == getTreeRoot()
+        ? getFirst( item.getChildren() )
+        : item;
+    }
+
+    return result;
   }
 
   /**
