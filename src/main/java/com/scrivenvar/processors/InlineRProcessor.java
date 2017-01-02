@@ -63,7 +63,7 @@ public final class InlineRProcessor extends DefaultVariableProcessor {
   }
 
   public void init( final Path workingDirectory ) {
-    // In Windows, setwd doesn't work.
+    // In Windows, path characters must be changed from escape chars.
     eval( replace( ""
       + "assign( 'anchor', as.Date( '$date.anchor$', format='%Y-%m-%d' ), envir = .GlobalEnv );"
       + "setwd( '" + workingDirectory.toString().replace( '\\', '/' ) + "' );"
