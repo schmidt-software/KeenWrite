@@ -50,6 +50,8 @@ import javafx.scene.input.InputEvent;
 import javafx.scene.text.Text;
 import javafx.stage.Window;
 import org.fxmisc.richtext.StyleClassedTextArea;
+import static org.fxmisc.richtext.model.TwoDimensional.Bias.Forward;
+import org.fxmisc.richtext.model.TwoDimensional.Position;
 import org.fxmisc.undo.UndoManager;
 import org.fxmisc.wellbehaved.event.EventPattern;
 import org.fxmisc.wellbehaved.event.InputMap;
@@ -62,7 +64,7 @@ import org.mozilla.universalchardet.UniversalDetector;
  */
 public final class FileEditorTab extends Tab {
 
-  private final Notifier alertService = Services.load(Notifier.class );
+  private final Notifier alertService = Services.load( Notifier.class );
   private EditorPane editorPane;
 
   /**
@@ -184,6 +186,15 @@ public final class FileEditorTab extends Tab {
    */
   public int getCaretPosition() {
     return getEditor().getCaretPosition();
+  }
+
+  /**
+   * Returns the caret's current row and column position.
+   * 
+   * @return The caret's offset into the document.
+   */
+  public Position getCaretOffset() {
+    return getEditor().offsetToPosition( getCaretPosition(), Forward );
   }
 
   /**

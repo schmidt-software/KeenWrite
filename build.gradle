@@ -1,4 +1,4 @@
-version = '1.0.9'
+version = '1.0.10'
 
 apply plugin: 'java'
 apply plugin: 'java-library-distribution'
@@ -20,7 +20,7 @@ compileJava {
 
 dependencies {
   compile 'org.controlsfx:controlsfx:8.40.12'
-  compile 'org.fxmisc.richtext:richtextfx:0.7-M2'
+  compile 'org.fxmisc.richtext:richtextfx:0.7-M3'
   compile 'com.miglayout:miglayout-javafx:5.0'
   compile 'de.jensd:fontawesomefx-fontawesome:4.5.0'
   compile 'org.ahocorasick:ahocorasick:0.3.0'
@@ -54,7 +54,9 @@ jar {
 
   manifest {
     attributes 'Main-Class': mainClassName
-    attributes 'Class-Path': configurations.compile.collect { 'libs/' + it.getName() }.join(' ')
+    attributes 'Class-Path': configurations.compile.collect {
+     'libs/' + it.getName()
+    }.join(' ')
   }
 }
 

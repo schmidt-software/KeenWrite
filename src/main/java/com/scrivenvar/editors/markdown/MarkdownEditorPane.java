@@ -47,37 +47,6 @@ import javafx.scene.input.KeyEvent;
 import javafx.stage.Window;
 import org.fxmisc.richtext.StyleClassedTextArea;
 import static org.fxmisc.wellbehaved.event.EventPattern.keyPressed;
-import static org.fxmisc.wellbehaved.event.EventPattern.keyPressed;
-import static org.fxmisc.wellbehaved.event.EventPattern.keyPressed;
-import static org.fxmisc.wellbehaved.event.EventPattern.keyPressed;
-import static org.fxmisc.wellbehaved.event.EventPattern.keyPressed;
-import static org.fxmisc.wellbehaved.event.EventPattern.keyPressed;
-import static org.fxmisc.wellbehaved.event.EventPattern.keyPressed;
-import static org.fxmisc.wellbehaved.event.EventPattern.keyPressed;
-import static org.fxmisc.wellbehaved.event.EventPattern.keyPressed;
-import static org.fxmisc.wellbehaved.event.EventPattern.keyPressed;
-import static org.fxmisc.wellbehaved.event.EventPattern.keyPressed;
-import static org.fxmisc.wellbehaved.event.EventPattern.keyPressed;
-import static org.fxmisc.wellbehaved.event.EventPattern.keyPressed;
-import static org.fxmisc.wellbehaved.event.EventPattern.keyPressed;
-import static org.fxmisc.wellbehaved.event.EventPattern.keyPressed;
-import static org.fxmisc.wellbehaved.event.EventPattern.keyPressed;
-import static org.fxmisc.wellbehaved.event.EventPattern.keyPressed;
-import static org.fxmisc.wellbehaved.event.EventPattern.keyPressed;
-import static org.fxmisc.wellbehaved.event.EventPattern.keyPressed;
-import static org.fxmisc.wellbehaved.event.EventPattern.keyPressed;
-import static org.fxmisc.wellbehaved.event.EventPattern.keyPressed;
-import static org.fxmisc.wellbehaved.event.EventPattern.keyPressed;
-import static org.fxmisc.wellbehaved.event.EventPattern.keyPressed;
-import static org.fxmisc.wellbehaved.event.EventPattern.keyPressed;
-import static org.fxmisc.wellbehaved.event.EventPattern.keyPressed;
-import static org.fxmisc.wellbehaved.event.EventPattern.keyPressed;
-import static org.fxmisc.wellbehaved.event.EventPattern.keyPressed;
-import static org.fxmisc.wellbehaved.event.EventPattern.keyPressed;
-import static org.fxmisc.wellbehaved.event.EventPattern.keyPressed;
-import static org.fxmisc.wellbehaved.event.EventPattern.keyPressed;
-import static org.fxmisc.wellbehaved.event.EventPattern.keyPressed;
-import static org.fxmisc.wellbehaved.event.EventPattern.keyPressed;
 
 /**
  * Markdown editor pane.
@@ -98,7 +67,7 @@ public class MarkdownEditorPane extends EditorPane {
 
     textArea.setWrapText( true );
     textArea.getStyleClass().add( "markdown-editor" );
-    textArea.getStylesheets().add(STYLESHEET_MARKDOWN );
+    textArea.getStylesheets().add( STYLESHEET_MARKDOWN );
 
     addEventListener( keyPressed( ENTER ), this::enterPressed );
 
@@ -121,7 +90,8 @@ public class MarkdownEditorPane extends EditorPane {
       if( !matcher.group( 2 ).isEmpty() ) {
         // indent new line with same whitespace characters and list markers as current line
         newText = newText.concat( matcher.group( 1 ) );
-      } else {
+      }
+      else {
         // current line contains only whitespace characters and list markers
         // --> empty current line
         final int caretPosition = textArea.getCaretPosition();
@@ -130,6 +100,10 @@ public class MarkdownEditorPane extends EditorPane {
     }
 
     textArea.replaceSelection( newText );
+
+    // Ensure that the window scrolls when Enter is pressed at the bottom of
+    // the pane.
+    textArea.requestFollowCaret();
   }
 
   public void surroundSelection( final String leading, final String trailing ) {
@@ -193,7 +167,8 @@ public class MarkdownEditorPane extends EditorPane {
 
       if( trailingIsEmpty ) {
         leading = str;
-      } else {
+      }
+      else {
         trailing = str;
       }
     }

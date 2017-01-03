@@ -84,6 +84,7 @@ import javafx.stage.Window;
 import javafx.stage.WindowEvent;
 import static javafx.stage.WindowEvent.WINDOW_CLOSE_REQUEST;
 import org.controlsfx.control.StatusBar;
+import org.fxmisc.richtext.model.TwoDimensional.Position;
 
 /**
  * Main window containing a tab pane in the center for file editors.
@@ -99,6 +100,7 @@ public class MainWindow implements Observer {
   private Scene scene;
   private MenuBar menuBar;
   private StatusBar statusBar;
+  private Text lineNumberText;
 
   private DefinitionSource definitionSource;
   private DefinitionPane definitionPane;
@@ -133,7 +135,6 @@ public class MainWindow implements Observer {
 
         // Will create new processors and therefore a new resolved map.
         refreshSelectedTab( getActiveFileEditor() );
-
         updateDefinitionPane();
       }
     );
@@ -247,6 +248,12 @@ public class MainWindow implements Observer {
   private void refreshSelectedTab( final FileEditorTab tab ) {
     if( tab.isFileOpen() ) {
       getPreviewPane().setPath( tab.getPath() );
+
+      // TODO: https://github.com/DaveJarvis/scrivenvar/issues/29
+      final Position p = tab.getCaretOffset();
+      getLineNumberText().setText(
+        get( STATUS_BAR_LINE, p.getMajor() + 1, p.getMinor() + 1 )
+      );
 
       Processor<String> processor = getProcessors().get( tab );
 
@@ -535,6 +542,14 @@ public class MainWindow implements Observer {
     return this.menuBar;
   }
 
+  private Text getLineNumberText() {
+    if( this.lineNumberText == null ) {
+      this.lineNumberText = createLineNumberText();
+    }
+
+    return this.lineNumberText;
+  }
+
   private synchronized StatusBar getStatusBar() {
     if( this.statusBar == null ) {
       this.statusBar = createStatusBar();
@@ -608,10 +623,14 @@ public class MainWindow implements Observer {
 
     final VBox box = new VBox();
     box.setAlignment( Pos.BASELINE_CENTER );
-    box.getChildren().add( new Text( "Line %d of %d" ) );
+    box.getChildren().add( getLineNumberText() );
     getStatusBar().getRightItems().add( box );
 
     return new Scene( borderPane );
+  }
+
+  private Text createLineNumberText() {
+    return new Text( get( STATUS_BAR_LINE, 1, 1 ) );
   }
 
   private Node createMenuBar() {

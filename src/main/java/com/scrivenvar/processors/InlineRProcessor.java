@@ -62,7 +62,11 @@ public final class InlineRProcessor extends DefaultVariableProcessor {
     init( path.getParent() );
   }
 
-  public void init( final Path workingDirectory ) {
+  /**
+   * @see https://github.com/DaveJarvis/scrivenvar/issues/30
+   * @param workingDirectory 
+   */
+  private void init( final Path workingDirectory ) {
     // In Windows, path characters must be changed from escape chars.
     eval( replace( ""
       + "assign( 'anchor', as.Date( '$date.anchor$', format='%Y-%m-%d' ), envir = .GlobalEnv );"
@@ -87,6 +91,7 @@ public final class InlineRProcessor extends DefaultVariableProcessor {
       // Copy everything up to, but not including, an R statement (`r#).
       sb.append( text.substring( prevIndex, currIndex ) );
 
+      // Jump to the start of the R statement.
       prevIndex = currIndex + prefixLength;
 
       // Find the statement ending (`), without indexing past the text boundary.
@@ -119,9 +124,7 @@ public final class InlineRProcessor extends DefaultVariableProcessor {
     }
 
     // Copy from the previous index to the end of the string.
-    sb.append( text.substring( min( prevIndex, length ) ) );
-
-    return sb.toString();
+    return sb.append( text.substring( min( prevIndex, length ) ) ).toString();
   }
 
   /**
