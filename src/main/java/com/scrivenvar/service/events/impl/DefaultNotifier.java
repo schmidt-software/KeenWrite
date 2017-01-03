@@ -27,6 +27,7 @@
  */
 package com.scrivenvar.service.events.impl;
 
+import static com.scrivenvar.Constants.STATUS_BAR_DEFAULT;
 import com.scrivenvar.service.events.Notification;
 import com.scrivenvar.service.events.Notifier;
 import java.util.Observable;
@@ -78,7 +79,7 @@ public final class DefaultNotifier extends Observable
   @Override
   public void clear() {
     setChanged();
-    notifyObservers( "OK" );
+    notifyObservers( STATUS_BAR_DEFAULT );
   }
 
   private Alert createAlertDialog(

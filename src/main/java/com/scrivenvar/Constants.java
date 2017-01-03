@@ -52,7 +52,7 @@ public class Constants {
 
   // Bootstrapping...
   public static final String SETTINGS_NAME = "/com/scrivenvar/settings.properties";
-  
+
   public static final String APP_TITLE = get( "application.title" );
   public static final String APP_BUNDLE_NAME = get( "application.messages" );
   // Prevent double events when updating files on Linux (save and timestamp).
@@ -86,9 +86,9 @@ public class Constants {
   // Different definition source protocols.
   public static final String DEFINITION_PROTOCOL_UNKNOWN = "unknown";
   public static final String DEFINITION_PROTOCOL_FILE = "file";
-  
+
   // Takes two parameters: line number and column number.
   public static final String STATUS_BAR_LINE = "Main.statusbar.line";
   // "OK" text
-  public static final String STATUS_BAR_DEFAULT = "Main.statusbar.state.default";
+  public static final String STATUS_BAR_DEFAULT = get( "Main.statusbar.state.default" );
 }
