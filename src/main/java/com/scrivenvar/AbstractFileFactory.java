@@ -27,6 +27,7 @@
  */
 package com.scrivenvar;
 
+import static com.scrivenvar.Constants.GLOB_PREFIX_FILE;
 import com.scrivenvar.predicates.files.FileTypePredicate;
 import com.scrivenvar.service.Settings;
 import java.nio.file.Path;
@@ -44,8 +45,21 @@ public class AbstractFileFactory {
   private final Settings settings = Services.load( Settings.class );
 
   /**
-   * Creates a definition source that can read and write files that match the
-   * given file type (from the path).
+   * Determines the file type from the path extension. This should only be
+   * called when it is known that the file type won't be a definition file
+   * (e.g., YAML or other definition source), but rather an editable file
+   * (e.g., Markdown, XML, etc.).
+   *
+   * @param path The path with a file name extension.
+   *
+   * @return The FileType for the given path.
+   */
+  public FileType lookup( final Path path ) {
+    return lookup( path, GLOB_PREFIX_FILE );
+  }
+
+  /**
+   * Creates a file type that corresponds to the given path.
    *
    * @param path Reference to a variable definition file.
    * @param prefix One of GLOB_PREFIX_DEFINITION or GLOB_PREFIX_FILE.

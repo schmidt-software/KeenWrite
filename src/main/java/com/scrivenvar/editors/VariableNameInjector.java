@@ -30,7 +30,6 @@ package com.scrivenvar.editors;
 import com.scrivenvar.FileEditorTab;
 import com.scrivenvar.Services;
 import com.scrivenvar.decorators.VariableDecorator;
-import com.scrivenvar.decorators.YamlVariableDecorator;
 import com.scrivenvar.definition.DefinitionPane;
 import com.scrivenvar.definition.VariableTreeItem;
 import static com.scrivenvar.definition.yaml.YamlParser.SEPARATOR;
@@ -41,6 +40,7 @@ import static com.scrivenvar.util.Lists.getLast;
 import static java.lang.Character.isSpaceChar;
 import static java.lang.Character.isWhitespace;
 import static java.lang.Math.min;
+import java.nio.file.Path;
 import java.util.function.Consumer;
 import javafx.collections.ObservableList;
 import javafx.event.Event;
@@ -624,8 +624,7 @@ public class VariableNameInjector {
 
     try {
       return textArea.getText( textBegan, textEnded );
-    }
-    catch( final Exception e ) {
+    } catch( final Exception e ) {
       return textArea.getText();
     }
   }
@@ -736,8 +735,17 @@ public class VariableNameInjector {
     removeEventListener( getKeyboardMap() );
   }
 
+  /**
+   * Returns a variable decorator that corresponds to the given file type.
+   *
+   * @return
+   */
   private VariableDecorator getVariableDecorator() {
-    return new YamlVariableDecorator();
+    return VariableNameDecoratorFactory.newInstance( getFilename() );
+  }
+
+  private Path getFilename() {
+    return getFileEditorTab().getPath();
   }
 
   /**

@@ -25,36 +25,40 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.scrivenvar.decorators;
+package com.scrivenvar.editors;
+
+import com.scrivenvar.AbstractFileFactory;
+import com.scrivenvar.decorators.RVariableDecorator;
+import com.scrivenvar.decorators.VariableDecorator;
+import com.scrivenvar.decorators.YamlVariableDecorator;
+import java.nio.file.Path;
 
 /**
- * Brackets variable names with <code>`r#</code> and <code>`</code>.
+ * Responsible for creating a variable name decorator suited to a particular
+ * file type.
  *
  * @author White Magic Software, Ltd.
  */
-public class RVariableDecorator implements VariableDecorator {
-  public static final String PREFIX = "`r#";
-  public static final char SUFFIX = '`';
+public class VariableNameDecoratorFactory extends AbstractFileFactory {
 
-  /**
-   * Returns the given string R-escaping backticks prepended and appended. This
-   * is not null safe. Do not pass null into this method.
-   *
-   * @param variableName The string to decorate.
-   *
-   * @return "`r#" + variableName + "`".
-   */
-  @Override
-  public String decorate( final String variableName ) {
-    // 12 = PREFIX + x(...) + SUFFIX + 1 for good measure
-    final StringBuilder sb = new StringBuilder( variableName.length() + 12 );
-    
-    sb.append( PREFIX );
-    sb.append( "x( v$" );
-    sb.append( variableName.replace( '.', '$' ) );
-    sb.append( " )" );
-    sb.append( SUFFIX );
-    
-    return sb.toString();
+  private VariableNameDecoratorFactory() {
+  }
+
+  public static VariableDecorator newInstance( final Path path ) {
+    final VariableNameDecoratorFactory f = new VariableNameDecoratorFactory();
+    final VariableDecorator result;
+
+    switch( f.lookup( path ) ) {
+      case RMARKDOWN:
+      case RXML:
+        result = new RVariableDecorator();
+        break;
+
+      default:
+        result = new YamlVariableDecorator();
+        break;
+    }
+
+    return result;
   }
 }

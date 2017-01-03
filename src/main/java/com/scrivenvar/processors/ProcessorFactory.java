@@ -28,9 +28,7 @@
 package com.scrivenvar.processors;
 
 import com.scrivenvar.AbstractFileFactory;
-import com.scrivenvar.Constants;
 import com.scrivenvar.FileEditorTab;
-import com.scrivenvar.FileType;
 import com.scrivenvar.preview.HTMLPreviewPane;
 import java.nio.file.Path;
 import java.util.Map;
@@ -73,10 +71,9 @@ public class ProcessorFactory extends AbstractFileFactory {
    */
   public Processor<String> createProcessor( final FileEditorTab tab ) {
     final Path path = tab.getPath();
-    final FileType fileType = lookup( path, Constants.GLOB_PREFIX_FILE );
     Processor<String> processor = null;
 
-    switch( fileType ) {
+    switch( lookup( path ) ) {
       case RMARKDOWN:
         processor = createRProcessor( tab );
         break;
