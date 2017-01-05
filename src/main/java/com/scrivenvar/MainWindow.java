@@ -33,6 +33,7 @@ import com.scrivenvar.definition.*;
 import com.scrivenvar.editors.EditorPane;
 import com.scrivenvar.editors.VariableNameInjector;
 import com.scrivenvar.editors.markdown.MarkdownEditorPane;
+import com.scrivenvar.predicates.files.FileTypePredicate;
 import com.scrivenvar.preview.HTMLPreviewPane;
 import com.scrivenvar.processors.Processor;
 import com.scrivenvar.processors.ProcessorFactory;
@@ -43,6 +44,7 @@ import com.scrivenvar.util.Action;
 import com.scrivenvar.util.ActionUtils;
 import static com.scrivenvar.util.StageState.*;
 import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.*;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
@@ -114,11 +116,11 @@ public class MainWindow implements Observer {
 
   public MainWindow() {
     initLayout();
+    initSnitch();
     initDefinitionListener();
     initTabAddedListener();
     initTabChangedListener();
     initPreferences();
-    initSnitch();
   }
 
   /**
@@ -134,6 +136,13 @@ public class MainWindow implements Observer {
         setProcessors( null );
 
         updateDefinitionPane();
+
+        try {
+          getSnitch().ignore( oldPath );
+          getSnitch().listen( newPath );
+        } catch( final IOException ex ) {
+          error( ex );
+        }
 
         // Will create new processors and therefore a new resolved map.
         refreshSelectedTab( getActiveFileEditor() );
@@ -357,8 +366,9 @@ public class MainWindow implements Observer {
 
   //---- File actions -------------------------------------------------------
   /**
-   * Called when an observable instance has changed. This includes the snitch
-   * service and the notify service.
+   * Called when an observable instance has changed. This is called by both the
+   * snitch service and the notify service. The snitch service can be called for
+   * different file types, including definition sources.
    *
    * @param observable The observed instance.
    * @param value The noteworthy item.
@@ -367,16 +377,37 @@ public class MainWindow implements Observer {
   public void update( final Observable observable, final Object value ) {
     if( value != null ) {
       if( observable instanceof Snitch && value instanceof Path ) {
-        update( (Path)value );
+        final Path path = (Path)value;
+        final FileTypePredicate predicate
+          = new FileTypePredicate( GLOB_DEFINITION_EXTENSIONS );
+
+        // Reload definitions.
+        if( predicate.test( path.toFile() ) ) {
+          updateDefinitionSource( path );
+        }
+
+        updateSelectedTab();
       }
       else if( observable instanceof Notifier && value instanceof String ) {
-        final String s = (String)value;
+        updateStatusBar( (String)value );
+      }
+    }
+  }
+
+  /**
+   * Updates the status bar to show the given message.
+   *
+   * @param s The message to show in the status bar.
+   */
+  private void updateStatusBar( final String s ) {
+    Platform.runLater(
+      () -> {
         final int index = s.indexOf( '\n' );
         final String message = s.substring( 0, index > 0 ? index : s.length() );
 
         getStatusBar().setText( message );
       }
-    }
+    );
   }
 
   /**
@@ -384,13 +415,25 @@ public class MainWindow implements Observer {
    *
    * @param file Path to the modified file.
    */
-  private void update( final Path file ) {
-    // Avoid throwing IllegalStateException by running from a non-JavaFX thread.
+  private void updateSelectedTab() {
     Platform.runLater(
       () -> {
         // Brute-force XSLT file reload by re-instantiating all processors.
         resetProcessors();
         refreshSelectedTab( getActiveFileEditor() );
+      }
+    );
+  }
+
+  /**
+   * Reloads the definition source from the given path.
+   *
+   * @param path The path containing new definition information.
+   */
+  private void updateDefinitionSource( final Path path ) {
+    Platform.runLater(
+      () -> {
+        openDefinition( path );
       }
     );
   }
@@ -477,10 +520,6 @@ public class MainWindow implements Observer {
   }
 
   //---- Member accessors ---------------------------------------------------
-  private void setScene( Scene scene ) {
-    this.scene = scene;
-  }
-
   private void setProcessors( final Map<FileEditorTab, Processor<String>> map ) {
     this.processors = map;
   }
@@ -582,7 +621,18 @@ public class MainWindow implements Observer {
   }
 
   private DefinitionSource createDefinitionSource( final String path ) {
-    return createDefinitionFactory().createDefinitionSource( path );
+    final DefinitionSource ds
+      = createDefinitionFactory().createDefinitionSource( path );
+
+    if( ds instanceof FileDefinitionSource ) {
+      try {
+        getSnitch().listen( ((FileDefinitionSource)ds).getPath() );
+      } catch( final IOException ex ) {
+        error( ex );
+      }
+    }
+
+    return ds;
   }
 
   /**

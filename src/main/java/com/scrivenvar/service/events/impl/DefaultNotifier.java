@@ -70,7 +70,7 @@ public final class DefaultNotifier extends Observable implements Notifier {
    * @param message The message content (formatted with the given args).
    * @param args Parameters for the message content.
    *
-   * @return
+   * @return A notification instance, never null.
    */
   @Override
   public Notification createNotification(

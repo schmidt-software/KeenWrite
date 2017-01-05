@@ -90,7 +90,7 @@ public class DefaultSnitch extends Observable implements Snitch {
    */
   @Override
   public void listen( final Path file ) throws IOException {
-    if( getEavesdropped().add( file ) ) {
+    if( file != null && getEavesdropped().add( file ) ) {
       final Path dir = toDirectory( file );
       final WatchKey key = dir.register( getWatchService(), ENTRY_MODIFY );
 
@@ -123,13 +123,15 @@ public class DefaultSnitch extends Observable implements Snitch {
    */
   @Override
   public void ignore( final Path file ) {
-    final Path directory = toDirectory( file );
+    if( file != null ) {
+      final Path directory = toDirectory( file );
 
-    // Remove all occurrences (there should be only one).
-    getWatchMap().values().removeAll( Collections.singleton( directory ) );
+      // Remove all occurrences (there should be only one).
+      getWatchMap().values().removeAll( Collections.singleton( directory ) );
 
-    // Remove all occurrences (there can be only one).
-    getEavesdropped().remove( file );
+      // Remove all occurrences (there can be only one).
+      getEavesdropped().remove( file );
+    }
   }
 
   /**

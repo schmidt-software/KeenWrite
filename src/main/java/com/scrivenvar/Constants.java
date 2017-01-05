@@ -28,6 +28,7 @@
 package com.scrivenvar;
 
 import com.scrivenvar.service.Settings;
+import java.util.Collection;
 
 /**
  * @author White Magic Software, Ltd.
@@ -48,6 +49,10 @@ public class Constants {
 
   private static int get( final String key, int defaultValue ) {
     return SETTINGS.getSetting( key, defaultValue );
+  }
+
+  private static Collection<String> getStringSettingList( final String key ) {
+    return SETTINGS.getStringSettingList( key );
   }
 
   // Bootstrapping...
@@ -82,6 +87,9 @@ public class Constants {
   // terminate these prefixes with a period.
   public static final String GLOB_PREFIX_FILE = "file.ext";
   public static final String GLOB_PREFIX_DEFINITION = "definition." + GLOB_PREFIX_FILE;
+
+  public static final Collection<String> GLOB_DEFINITION_EXTENSIONS
+    = getStringSettingList( GLOB_PREFIX_FILE + ".definition" );
 
   // Different definition source protocols.
   public static final String DEFINITION_PROTOCOL_UNKNOWN = "unknown";

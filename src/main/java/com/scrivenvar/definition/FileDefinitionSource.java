@@ -53,7 +53,7 @@ public abstract class FileDefinitionSource extends AbstractDefinitionSource {
     this.path = path;
   }
 
-  protected Path getPath() {
+  public Path getPath() {
     return this.path;
   }
 

@@ -34,6 +34,7 @@ import com.scrivenvar.predicates.files.FileTypePredicate;
 import com.scrivenvar.service.Options;
 import com.scrivenvar.service.Settings;
 import com.scrivenvar.service.events.Notification;
+import com.scrivenvar.service.events.Notifier;
 import static com.scrivenvar.service.events.Notifier.NO;
 import static com.scrivenvar.service.events.Notifier.YES;
 import com.scrivenvar.util.Utils;
@@ -66,8 +67,6 @@ import javafx.stage.Window;
 import org.fxmisc.richtext.StyledTextArea;
 import org.fxmisc.wellbehaved.event.EventPattern;
 import org.fxmisc.wellbehaved.event.InputMap;
-import com.scrivenvar.service.events.Notifier;
-import static com.scrivenvar.Messages.get;
 
 /**
  * Tab pane for file editors.

@@ -55,7 +55,7 @@ public interface Snitch extends Service, Runnable {
    * for multiple calls to the same file without incurring additional listeners
    * or events.
    *
-   * @param file Send notifications when this file changes.
+   * @param file Send notifications when this file changes, can be null.
    *
    * @throws IOException Couldn't create a watcher for the given file.
    */
@@ -64,9 +64,9 @@ public interface Snitch extends Service, Runnable {
   /**
    * Removes the given file from the notifications list.
    *
-   * @param file The file to stop monitoring for any changes.
+   * @param file The file to stop monitoring for any changes, can be null.
    */
-  public void ignore( final Path file );
+  public void ignore( Path file );
 
   /**
    * Stop listening for events.

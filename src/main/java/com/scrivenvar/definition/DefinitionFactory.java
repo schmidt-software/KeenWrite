@@ -58,9 +58,12 @@ public class DefinitionFactory extends AbstractFileFactory {
   }
 
   /**
-   * 
-   * @param path Path to a file containing definitions.
-   * @return 
+   * Creates a definition source capable of reading definitions from the given
+   * path.
+   *
+   * @param path Path to a resource containing definitions.
+   *
+   * @return The definition source appropriate for the given path.
    */
   public DefinitionSource createDefinitionSource( final String path ) {
     final String protocol = getProtocol( path );
@@ -122,7 +125,8 @@ public class DefinitionFactory extends AbstractFileFactory {
 
       if( uri.isAbsolute() ) {
         protocol = uri.getScheme();
-      } else {
+      }
+      else {
         final URL url = new URL( source );
         protocol = url.getProtocol();
       }
@@ -130,7 +134,8 @@ public class DefinitionFactory extends AbstractFileFactory {
       // Could be HTTP, HTTPS?
       if( source.startsWith( "//" ) ) {
         throw new IllegalArgumentException( "Relative context: " + source );
-      } else {
+      }
+      else {
         final File file = new File( source );
         protocol = getProtocol( file );
       }
