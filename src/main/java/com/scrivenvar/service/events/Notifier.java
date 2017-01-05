@@ -53,10 +53,10 @@ public interface Notifier {
   /**
    * Notifies the user about the exception.
    *
-   * @param exception The exception containing a message to show to the user.
+   * @param ex The exception containing a message to show to the user.
    */
-  default public void notify( final Exception exception ) {
-    notify( exception.getMessage() );
+  default public void notify( final Exception ex ) {
+    notify( ex.getMessage() );
   }
 
   /**

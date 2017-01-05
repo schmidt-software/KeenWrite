@@ -41,13 +41,14 @@ public class EmptyDefinitionSource extends AbstractDefinitionSource {
   public EmptyDefinitionSource() {
   }
 
-  @Override
-  public TreeView<String> asTreeView() {
-    return new TreeView<>();
-  }
 
   @Override
   public Map<String, String> getResolvedMap() {
     return new HashMap<>();
+  }
+
+  @Override
+  protected TreeView<String> createTreeView() {
+    return new TreeView<>();
   }
 }

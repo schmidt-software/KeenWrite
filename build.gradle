@@ -1,4 +1,4 @@
-version = '1.0.12'
+version = '1.0.13'
 
 apply plugin: 'java'
 apply plugin: 'java-library-distribution'

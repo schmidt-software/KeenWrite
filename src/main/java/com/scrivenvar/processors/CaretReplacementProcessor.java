@@ -52,13 +52,13 @@ public class CaretReplacementProcessor extends AbstractProcessor<String> {
    */
   @Override
   public String processLink( final String t ) {
-    return replace(t, CARET_POSITION_MD, CARET_POSITION_HTML );
+    return replace( t, CARET_POSITION_MD, CARET_POSITION_HTML );
   }
 
   /**
    * Replaces the needle with thread in the given haystack. Based on Apache
-   * Commons 3 StringUtils.replace method. Should be faster than
-   * String.replace, which performs a little regex under the hood.
+   * Commons 3 StringUtils.replace method. Should be faster than String.replace,
+   * which performs a little regex under the hood.
    *
    * @param haystack Search this string for the needle, must not be null.
    * @param needle The text to find in the haystack.
@@ -79,9 +79,9 @@ public class CaretReplacementProcessor extends AbstractProcessor<String> {
     int start = 0;
     final int needleLength = needle.length();
 
-    int increase = thread.length() - needleLength;
-    increase = (increase < 0 ? 0 : increase);
-    final StringBuilder buffer = new StringBuilder( haystack.length() + increase );
+    int len = thread.length() - needleLength;
+    len = (len < 0 ? 0 : len);
+    final StringBuilder buffer = new StringBuilder( haystack.length() + len );
 
     if( end != INDEX_NOT_FOUND ) {
       buffer.append( haystack.substring( start, end ) ).append( thread );

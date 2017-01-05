@@ -42,8 +42,7 @@ import javafx.stage.Window;
  *
  * @author White Magic Software, Ltd.
  */
-public final class DefaultNotifier extends Observable
-  implements Notifier {
+public final class DefaultNotifier extends Observable implements Notifier {
 
   public DefaultNotifier() {
   }
@@ -57,6 +56,11 @@ public final class DefaultNotifier extends Observable
   public void notify( final String message ) {
     setChanged();
     notifyObservers( message );
+  }
+
+  @Override
+  public void clear() {
+    notify( STATUS_BAR_DEFAULT );
   }
 
   /**
@@ -74,12 +78,6 @@ public final class DefaultNotifier extends Observable
     final String message,
     final Object... args ) {
     return new DefaultNotification( title, message, args );
-  }
-
-  @Override
-  public void clear() {
-    setChanged();
-    notifyObservers( STATUS_BAR_DEFAULT );
   }
 
   private Alert createAlertDialog(

@@ -133,9 +133,10 @@ public class MainWindow implements Observer {
         // Indirectly refresh the resolved map.
         setProcessors( null );
 
+        updateDefinitionPane();
+
         // Will create new processors and therefore a new resolved map.
         refreshSelectedTab( getActiveFileEditor() );
-        updateDefinitionPane();
       }
     );
   }
@@ -252,7 +253,11 @@ public class MainWindow implements Observer {
       // TODO: https://github.com/DaveJarvis/scrivenvar/issues/29
       final Position p = tab.getCaretOffset();
       getLineNumberText().setText(
-        get( STATUS_BAR_LINE, p.getMajor() + 1, p.getMinor() + 1 )
+        get( STATUS_BAR_LINE,
+          p.getMajor() + 1,
+          p.getMinor() + 1,
+          tab.getCaretPosition() + 1
+        )
       );
 
       Processor<String> processor = getProcessors().get( tab );
@@ -263,8 +268,8 @@ public class MainWindow implements Observer {
       }
 
       try {
-        processor.processChain( tab.getEditorText() );
         getNotifier().clear();
+        processor.processChain( tab.getEditorText() );
       } catch( final Exception ex ) {
         error( ex );
       }
@@ -292,7 +297,9 @@ public class MainWindow implements Observer {
       error( e );
     }
 
-    return new TreeView<>();
+    // Slightly redundant as getDefinitionSource() might have returned an
+    // empty definition source.
+    return (new EmptyDefinitionSource()).asTreeView();
   }
 
   /**
@@ -630,7 +637,7 @@ public class MainWindow implements Observer {
   }
 
   private Text createLineNumberText() {
-    return new Text( get( STATUS_BAR_LINE, 1, 1 ) );
+    return new Text( get( STATUS_BAR_LINE, 1, 1, 1 ) );
   }
 
   private Node createMenuBar() {

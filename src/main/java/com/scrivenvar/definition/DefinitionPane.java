@@ -70,7 +70,7 @@ public class DefinitionPane extends AbstractPane {
    * Changes the root node of the tree view. Swaps the current root node for the
    * root node of the given
    *
-   * @param treeView The treeview containing a new root node; if the parameter
+   * @param treeView The tree view containing a new root node; if the parameter
    * is null, the tree is cleared.
    */
   public void setRoot( final TreeView<String> treeView ) {
@@ -78,7 +78,7 @@ public class DefinitionPane extends AbstractPane {
   }
 
   /**
-   * Clears the treeview by setting the root node to null.
+   * Clears the tree view by setting the root node to null.
    */
   public void clear() {
     setRoot( null );

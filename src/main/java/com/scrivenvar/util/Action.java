@@ -24,41 +24,48 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package com.scrivenvar.util;
 
+import de.jensd.fx.glyphs.GlyphIcons;
 import javafx.beans.value.ObservableBooleanValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.input.KeyCombination;
-import de.jensd.fx.glyphs.GlyphIcons;
 
 /**
  * Simple action class
  *
  * @author Karl Tauber
  */
-public class Action
-{
-	public final String text;
-	public final KeyCombination accelerator;
-	public final GlyphIcons icon;
-	public final EventHandler<ActionEvent> action;
-	public final ObservableBooleanValue disable;
+public class Action {
 
-	public Action(String text, String accelerator, GlyphIcons icon,
-		EventHandler<ActionEvent> action)
-	{
-		this(text, accelerator, icon, action, null);
-	}
+  public final String text;
+  public final KeyCombination accelerator;
+  public final GlyphIcons icon;
+  public final EventHandler<ActionEvent> action;
+  public final ObservableBooleanValue disable;
 
-	public Action(String text, String accelerator, GlyphIcons icon,
-		EventHandler<ActionEvent> action, ObservableBooleanValue disable)
-	{
-		this.text = text;
-		this.accelerator = (accelerator != null) ? KeyCombination.valueOf(accelerator) : null;
-		this.icon = icon;
-		this.action = action;
-		this.disable = disable;
-	}
+  public Action(
+    final String text,
+    final String accelerator,
+    final GlyphIcons icon,
+    final EventHandler<ActionEvent> action ) {
+    this( text, accelerator, icon, action, null );
+  }
+
+  public Action(
+    final String text,
+    final String accelerator,
+    final GlyphIcons icon,
+    final EventHandler<ActionEvent> action,
+    final ObservableBooleanValue disable ) {
+
+    this.text = text;
+    this.accelerator = (accelerator != null)
+      ? KeyCombination.valueOf( accelerator )
+      : null;
+    this.icon = icon;
+    this.action = action;
+    this.disable = disable;
+  }
 }

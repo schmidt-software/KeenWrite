@@ -27,10 +27,42 @@
  */
 package com.scrivenvar.definition;
 
+import javafx.scene.control.TreeView;
+
 /**
  * Implements common behaviour for definition sources.
- * 
+ *
  * @author White Magic Software, Ltd.
  */
 public abstract class AbstractDefinitionSource implements DefinitionSource {
+
+  private TreeView<String> treeView;
+
+  /**
+   * Returns this definition source as an editable graphical user interface
+   * component.
+   *
+   * @return The TreeView for this definition source.
+   */
+  @Override
+  public TreeView<String> asTreeView() {
+
+    if( this.treeView == null ) {
+      this.treeView = createTreeView();
+      this.treeView.setEditable( true );
+      this.treeView.setCellFactory(
+        (TreeView<String> t) -> new TextFieldTreeCell()
+      );
+    }
+
+    return this.treeView;
+  }
+
+  /**
+   * Creates a newly instantiated tree view ready for adding to the definition
+   * pane.
+   *
+   * @return A new tree view instance, never null.
+   */
+  protected abstract TreeView<String> createTreeView();
 }

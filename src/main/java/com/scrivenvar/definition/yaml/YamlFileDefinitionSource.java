@@ -44,7 +44,6 @@ public class YamlFileDefinitionSource extends FileDefinitionSource {
 
   private YamlTreeAdapter yamlTreeAdapter;
   private YamlParser yamlParser;
-  private TreeView<String> treeView;
 
   /**
    * Constructs a new YAML definition source, populated from the given file.
@@ -58,20 +57,6 @@ public class YamlFileDefinitionSource extends FileDefinitionSource {
   
   private void init() {
     setYamlParser( createYamlParser() );
-  }
-
-  /**
-   * TODO: Associate variable file with path to current file.
-   *
-   * @return The TreeView for this definition source.
-   */
-  @Override
-  public TreeView<String> asTreeView() {
-    if( this.treeView == null ) {
-      this.treeView = createTreeView();
-    }
-
-    return this.treeView;
   }
 
   @Override
@@ -111,7 +96,8 @@ public class YamlFileDefinitionSource extends FileDefinitionSource {
     }
   }
 
-  private TreeView<String> createTreeView() {
+  @Override
+  protected TreeView<String> createTreeView() {
     return getYamlTreeAdapter().adapt(
       get( "Pane.defintion.node.root.title" )
     );

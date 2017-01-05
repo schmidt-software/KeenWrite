@@ -31,12 +31,13 @@ import static com.scrivenvar.Constants.*;
 import com.scrivenvar.preferences.FilePreferencesFactory;
 import com.scrivenvar.service.Options;
 import com.scrivenvar.service.Snitch;
+import com.scrivenvar.service.events.Notifier;
 import com.scrivenvar.util.StageState;
+import java.util.logging.LogManager;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
-import com.scrivenvar.service.events.Notifier;
 
 /**
  * Main application entry point. The application allows users to edit Markdown
@@ -54,8 +55,18 @@ public final class Main extends Application {
   private final MainWindow mainWindow = new MainWindow();
 
   public static void main( final String[] args ) {
+    initLogger();
     initPreferences();
     launch( args );
+  }
+
+  /**
+   * Prevents JavaFX from logging to standard error.
+   *
+   * @see http://stackoverflow.com/a/41476462/59087
+   */
+  private static void initLogger() {
+    LogManager.getLogManager().reset();
   }
 
   /**
@@ -99,8 +110,8 @@ public final class Main extends Application {
    * notification observers.
    */
   private void initNotifyService() {
-    final Notifier service = Services.load(Notifier.class );
-    service.addObserver( getMainWindow() );
+    final Notifier notifier = Services.load( Notifier.class );
+    notifier.addObserver( getMainWindow() );
   }
 
   private StageState initState( final Stage stage ) {

@@ -90,5 +90,7 @@ public class Constants {
   // Takes two parameters: line number and column number.
   public static final String STATUS_BAR_LINE = "Main.statusbar.line";
   // "OK" text
-  public static final String STATUS_BAR_DEFAULT = get( "Main.statusbar.state.default" );
+  public static final String STATUS_BAR_DEFAULT = Messages.get( "Main.statusbar.state.default" );
+
+  public static final String STATUS_PARSE_ERROR = "Main.statusbar.parse.error";
 }

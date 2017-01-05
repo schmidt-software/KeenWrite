@@ -27,9 +27,13 @@
  */
 package com.scrivenvar.processors;
 
+import static com.scrivenvar.Constants.STATUS_PARSE_ERROR;
+import static com.scrivenvar.Messages.get;
+import com.scrivenvar.Services;
 import static com.scrivenvar.decorators.RVariableDecorator.PREFIX;
 import static com.scrivenvar.decorators.RVariableDecorator.SUFFIX;
 import static com.scrivenvar.processors.text.TextReplacementFactory.replace;
+import com.scrivenvar.service.events.Notifier;
 import static java.lang.Math.min;
 import java.nio.file.Path;
 import java.util.Map;
@@ -45,6 +49,8 @@ import javax.script.ScriptException;
 public final class InlineRProcessor extends DefaultVariableProcessor {
 
   private ScriptEngine engine;
+
+  private final Notifier notifier = Services.load( Notifier.class );
 
   /**
    * Constructs a processor capable of evaluating R statements.
@@ -64,15 +70,19 @@ public final class InlineRProcessor extends DefaultVariableProcessor {
 
   /**
    * @see https://github.com/DaveJarvis/scrivenvar/issues/30
-   * @param workingDirectory 
+   * @param workingDirectory
    */
   private void init( final Path workingDirectory ) {
     // In Windows, path characters must be changed from escape chars.
-    eval( replace( ""
-      + "assign( 'anchor', as.Date( '$date.anchor$', format='%Y-%m-%d' ), envir = .GlobalEnv );"
-      + "setwd( '" + workingDirectory.toString().replace( '\\', '/' ) + "' );"
-      + "source( '../bin/pluralize.R' );"
-      + "source( '../bin/common.R' )", getDefinitions() ) );
+    try {
+      eval( replace( ""
+        + "assign( 'anchor', as.Date( '$date.anchor$', format='%Y-%m-%d' ), envir = .GlobalEnv );"
+        + "setwd( '" + workingDirectory.toString().replace( '\\', '/' ) + "' );"
+        + "source( '../bin/pluralize.R' );"
+        + "source( '../bin/common.R' )", getDefinitions() ) );
+    } catch( final Exception e ) {
+      throw new RuntimeException( e );
+    }
   }
 
   @Override
@@ -103,14 +113,24 @@ public final class InlineRProcessor extends DefaultVariableProcessor {
         final String r = text.substring( prevIndex, currIndex );
 
         // Pass the R statement into the R engine for evaluation.
-        final Object result = eval( r );
+        try {
+          final Object result = eval( r );
 
-        // Append the string representation of the result into the text.
-        sb.append( result );
+          // Append the string representation of the result into the text.
+          sb.append( result );
+        } catch( final Exception e ) {
+          // If the string couldn't be parsed using R, append the statement
+          // that failed to parse, instead of its evaluated value.
+          sb.append( PREFIX ).append( r ).append( SUFFIX );
+
+          // Tell the user that there was a problem.
+          getNotifier().notify( get( STATUS_PARSE_ERROR,
+            e.getMessage(), currIndex )
+          );
+        }
 
         // Retain the R statement's ending position in the text.
         prevIndex = currIndex + 1;
-
       }
       else {
         // TODO: Implement this.
@@ -134,12 +154,8 @@ public final class InlineRProcessor extends DefaultVariableProcessor {
    *
    * @return The object resulting from the evaluation.
    */
-  private Object eval( final String r ) {
-    try {
-      return getScriptEngine().eval( r );
-    } catch( final ScriptException ex ) {
-      throw new IllegalArgumentException( ex );
-    }
+  private Object eval( final String r ) throws ScriptException {
+    return getScriptEngine().eval( r );
   }
 
   private synchronized ScriptEngine getScriptEngine() {
@@ -148,5 +164,9 @@ public final class InlineRProcessor extends DefaultVariableProcessor {
     }
 
     return this.engine;
+  }
+
+  private Notifier getNotifier() {
+    return this.notifier;
   }
 }
