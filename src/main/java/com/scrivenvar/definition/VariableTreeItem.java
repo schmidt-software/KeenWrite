@@ -45,9 +45,9 @@ import javafx.scene.control.TreeItem;
 public class VariableTreeItem<T> extends TreeItem<T> {
 
   private final static int DEFAULT_MAP_SIZE = 1000;
-  
-  private final static VariableDecorator VARIABLE_DECORATOR =
-    new YamlVariableDecorator();
+
+  private final static VariableDecorator VARIABLE_DECORATOR
+    = new YamlVariableDecorator();
 
   /**
    * Flattened tree.
@@ -72,6 +72,23 @@ public class VariableTreeItem<T> extends TreeItem<T> {
    * @return The leaf that has a value starting with the given text.
    */
   public VariableTreeItem<T> findLeaf( final String text ) {
+    return findLeaf( text, false );
+  }
+
+  /**
+   * Finds a leaf starting at the current node with text that matches the given
+   * value.
+   *
+   * @param text The text to match against each leaf in the tree.
+   * @param contains Set to true to perform a substring match if starts with
+   * fails.
+   *
+   * @return The leaf that has a value starting with the given text.
+   */
+  public VariableTreeItem<T> findLeaf(
+    final String text,
+    final boolean contains ) {
+
     final Stack<VariableTreeItem<T>> stack = new Stack<>();
     final VariableTreeItem<T> root = this;
 
@@ -83,9 +100,13 @@ public class VariableTreeItem<T> extends TreeItem<T> {
     while( !found && !stack.isEmpty() ) {
       node = stack.pop();
 
-      if( node.valueStartsWith( text ) ) {
+      if( contains && node.valueContains( text ) ) {
         found = true;
-      } else {
+      }
+      else if( !contains && node.valueStartsWith( text ) ) {
+        found = true;
+      }
+      else {
         for( final TreeItem<T> child : node.getChildren() ) {
           stack.push( (VariableTreeItem<T>)child );
         }
@@ -108,6 +129,17 @@ public class VariableTreeItem<T> extends TreeItem<T> {
    */
   private boolean valueStartsWith( final String s ) {
     return isLeaf() && getValue().toString().startsWith( s );
+  }
+
+  /**
+   * Returns true if this node is a leaf and its value contains the given text.
+   *
+   * @param s The text to compare against the node value.
+   *
+   * @return true Node is a leaf and its value contains the given value.
+   */
+  private boolean valueContains( final String s ) {
+    return isLeaf() && getValue().toString().contains( s );
   }
 
   /**
@@ -171,7 +203,8 @@ public class VariableTreeItem<T> extends TreeItem<T> {
         final String value = child.getValue().toString();
 
         map.put( key, value );
-      } else {
+      }
+      else {
         populate( child, map );
       }
     }

@@ -264,7 +264,12 @@ public class VariableNameInjector {
     final int[] boundaries = getWordBoundaries( paragraph );
     final String word = paragraph.substring( boundaries[ 0 ], boundaries[ 1 ] );
 
-    final VariableTreeItem<String> leaf = findLeaf( word );
+    VariableTreeItem<String> leaf = findLeaf( word );
+
+    if( leaf == null ) {
+      // If a leaf doesn't match using "starts with", then try using "contains".
+      leaf = findLeaf( word, true );
+    }
 
     if( leaf != null ) {
       replaceText( boundaries[ 0 ], boundaries[ 1 ], leaf.toPath() );
@@ -656,7 +661,23 @@ public class VariableNameInjector {
    * @return The leaf that starts with the given text, or null if not found.
    */
   private VariableTreeItem<String> findLeaf( final String text ) {
-    return getDefinitionPane().findLeaf( text );
+    return getDefinitionPane().findLeaf( text, false );
+  }
+
+  /**
+   * Finds the first leaf having a value that starts with the given text, or
+   * contains the text if contains is true.
+   *
+   * @param text The text to find in the definition tree.
+   * @param contains Set true to perform a substring match after a starts with
+   * match.
+   *
+   * @return The leaf that starts with the given text, or null if not found.
+   */
+  private VariableTreeItem<String> findLeaf(
+    final String text,
+    final boolean contains ) {
+    return getDefinitionPane().findLeaf( text, contains );
   }
 
   /**

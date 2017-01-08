@@ -71,6 +71,7 @@ import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.Tab;
+import javafx.scene.control.TextField;
 import javafx.scene.control.ToolBar;
 import javafx.scene.control.TreeView;
 import javafx.scene.image.Image;
@@ -283,6 +284,50 @@ public class MainWindow implements Observer {
         error( ex );
       }
     }
+  }
+
+  /**
+   * Used to find text in the active file editor window.
+   */
+  private void find() {
+    final TextField input = new TextField();
+
+    input.setOnKeyPressed( (KeyEvent event) -> {
+      switch( event.getCode() ) {
+        case F3:
+        case ENTER:
+          getActiveFileEditor().searchNext( input.getText() );
+          break;
+        case F:
+          if( !event.isControlDown() ) {
+            break;
+          }
+        case ESCAPE:
+          getStatusBar().setGraphic( null );
+          getActiveFileEditor().getEditorPane().requestFocus();
+          break;
+      }
+    } );
+
+    // Remove when the input field loses focus.
+    input.focusedProperty().addListener(
+      (
+        final ObservableValue<? extends Boolean> focused,
+        final Boolean oFocus,
+        final Boolean nFocus) -> {
+        if( !nFocus ) {
+          getStatusBar().setGraphic( null );
+        }
+      }
+    );
+
+    getStatusBar().setGraphic( input );
+
+    input.requestFocus();
+  }
+
+  public void findNext() {
+    System.out.println( "find next" );
   }
 
   /**
@@ -711,14 +756,14 @@ public class MainWindow implements Observer {
     Action editRedoAction = new Action( get( "Main.menu.edit.redo" ), "Shortcut+Y", REPEAT,
       e -> getActiveEditor().redo(),
       createActiveBooleanProperty( FileEditorTab::canRedoProperty ).not() );
-    Action editFindAction = new Action( Messages.get( "Main.menu.edit.find" ), "Shortcut+F", SEARCH,
-      e -> getActiveEditor().find(),
+    Action editFindAction = new Action( Messages.get( "Main.menu.edit.find" ), "Ctrl+F", SEARCH,
+      e -> find(),
       activeFileEditorIsNull );
     Action editReplaceAction = new Action( Messages.get( "Main.menu.edit.find.replace" ), "Shortcut+H", RETWEET,
       e -> getActiveEditor().replace(),
       activeFileEditorIsNull );
     Action editFindNextAction = new Action( Messages.get( "Main.menu.edit.find.next" ), "F3", null,
-      e -> getActiveEditor().findNext(),
+      e -> findNext(),
       activeFileEditorIsNull );
     Action editFindPreviousAction = new Action( Messages.get( "Main.menu.edit.find.previous" ), "Shift+F3", null,
       e -> getActiveEditor().findPrevious(),

@@ -42,8 +42,8 @@ import org.fxmisc.richtext.StyleClassedTextArea;
 import org.fxmisc.undo.UndoManager;
 import org.fxmisc.wellbehaved.event.EventPattern;
 import org.fxmisc.wellbehaved.event.InputMap;
-import org.fxmisc.wellbehaved.event.Nodes;
 import static org.fxmisc.wellbehaved.event.InputMap.consume;
+import org.fxmisc.wellbehaved.event.Nodes;
 
 /**
  * Represents common editing features for various types of text editors.
@@ -74,18 +74,10 @@ public class EditorPane extends AbstractPane {
     getUndoManager().redo();
   }
   
-  public void find() {
-    System.out.println( "search" );
-  }
-  
   public void replace() {
     System.out.println( "replace" );
   }
   
-  public void findNext() {
-    System.out.println( "find next" );
-  }
-
   public void findPrevious() {
     System.out.println( "find previous" );
   }

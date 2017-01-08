@@ -203,8 +203,26 @@ public class DefinitionPane extends AbstractPane {
    * original value nor the terminally-trimmed value was found.
    */
   public VariableTreeItem<String> findLeaf( final String value ) {
+    return findLeaf( value, false );
+  }
+
+  /**
+   * Returns the leaf that matches the given value. If the value is terminally
+   * punctuated, the punctuation is removed if no match was found.
+   *
+   * @param value The value to find, never null.
+   * @param contains Set to true to perform a substring match if starts with
+   * fails to match.
+   *
+   * @return The leaf that contains the given value, or null if neither the
+   * original value nor the terminally-trimmed value was found.
+   */
+  public VariableTreeItem<String> findLeaf(
+    final String value,
+    final boolean contains ) {
+
     final VariableTreeItem<String> root = getTreeRoot();
-    final VariableTreeItem<String> leaf = root.findLeaf( value );
+    final VariableTreeItem<String> leaf = root.findLeaf( value, contains );
 
     return leaf == null
       ? root.findLeaf( rtrimTerminalPunctuation( value ) )

@@ -180,6 +180,21 @@ public final class FileEditorTab extends Tab {
   }
 
   /**
+   * Searches from the caret position forward for the given string.
+   *
+   * @param needle The text string to match.
+   */
+  public void searchNext( final String needle ) {
+    final String haystack = getEditorText();
+    final int index = haystack.indexOf( needle, getCaretPosition() );
+
+    if( index >= 0 ) {
+      setCaretPosition( index );
+      getEditor().selectRange( index, index + needle.length() );
+    }
+  }
+
+  /**
    * Returns the index into the text where the caret blinks happily away.
    *
    * @return A number from 0 to the editor's document text length.
@@ -189,8 +204,18 @@ public final class FileEditorTab extends Tab {
   }
 
   /**
+   * Moves the caret to a given offset.
+   *
+   * @param offset The new caret offset.
+   */
+  private void setCaretPosition( final int offset ) {
+    getEditor().moveTo( offset );
+    getEditor().requestFollowCaret();
+  }
+
+  /**
    * Returns the caret's current row and column position.
-   * 
+   *
    * @return The caret's offset into the document.
    */
   public Position getCaretOffset() {
