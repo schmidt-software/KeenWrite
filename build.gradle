@@ -1,14 +1,6 @@
-version = '1.1.0'
-
 apply plugin: 'java'
 apply plugin: 'java-library-distribution'
 apply plugin: 'application'
-
-sourceCompatibility = JavaVersion.VERSION_1_8
-
-applicationName = 'scrivenvar'
-
-mainClassName = 'com.scrivenvar.Main'
 
 repositories {
   jcenter()
@@ -39,6 +31,11 @@ dependencies {
   compile 'org.apache.commons:commons-configuration2:2.1'
   compile files('libs/renjin-script-engine-0.8.2309-jar-with-dependencies.jar')
 }
+
+version = '1.1.1'
+applicationName = 'scrivenvar'
+mainClassName = 'com.scrivenvar.Main'
+sourceCompatibility = JavaVersion.VERSION_1_8
 
 jar {
   baseName = applicationName

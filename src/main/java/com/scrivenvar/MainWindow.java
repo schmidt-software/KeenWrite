@@ -104,6 +104,7 @@ public class MainWindow implements Observer {
   private MenuBar menuBar;
   private StatusBar statusBar;
   private Text lineNumberText;
+  private TextField findTextField;
 
   private DefinitionSource definitionSource;
   private DefinitionPane definitionPane;
@@ -117,11 +118,60 @@ public class MainWindow implements Observer {
 
   public MainWindow() {
     initLayout();
+    initFindInput();
     initSnitch();
     initDefinitionListener();
     initTabAddedListener();
     initTabChangedListener();
     initPreferences();
+  }
+
+  /**
+   * Watch for changes to external files. In particular, this awaits
+   * modifications to any XSL files associated with XML files being edited. When
+   * an XSL file is modified (external to the application), the snitch's ears
+   * perk up and the file is reloaded. This keeps the XSL transformation up to
+   * date with what's on the file system.
+   */
+  private void initSnitch() {
+    getSnitch().addObserver( this );
+  }
+
+  /**
+   * Initialize the find input text field to listen on F3, ENTER, and ESCAPE key
+   * presses.
+   */
+  private void initFindInput() {
+    final TextField input = getFindTextField();
+
+    input.setOnKeyPressed( (KeyEvent event) -> {
+      switch( event.getCode() ) {
+        case F3:
+        case ENTER:
+          findNext();
+          break;
+        case F:
+          if( !event.isControlDown() ) {
+            break;
+          }
+        case ESCAPE:
+          getStatusBar().setGraphic( null );
+          getActiveFileEditor().getEditorPane().requestFocus();
+          break;
+      }
+    } );
+
+    // Remove when the input field loses focus.
+    input.focusedProperty().addListener(
+      (
+        final ObservableValue<? extends Boolean> focused,
+        final Boolean oFocus,
+        final Boolean nFocus) -> {
+        if( !nFocus ) {
+          getStatusBar().setGraphic( null );
+        }
+      }
+    );
   }
 
   /**
@@ -239,17 +289,6 @@ public class MainWindow implements Observer {
   }
 
   /**
-   * Watch for changes to external files. In particular, this awaits
-   * modifications to any XSL files associated with XML files being edited. When
-   * an XSL file is modified (external to the application), the snitch's ears
-   * perk up and the file is reloaded. This keeps the XSL transformation up to
-   * date with what's on the file system.
-   */
-  private void initSnitch() {
-    getSnitch().addObserver( this );
-  }
-
-  /**
    * Called whenever the preview pane becomes out of sync with the file editor
    * tab. This can be called when the text changes, the caret paragraph changes,
    * or the file tab changes.
@@ -290,44 +329,13 @@ public class MainWindow implements Observer {
    * Used to find text in the active file editor window.
    */
   private void find() {
-    final TextField input = new TextField();
-
-    input.setOnKeyPressed( (KeyEvent event) -> {
-      switch( event.getCode() ) {
-        case F3:
-        case ENTER:
-          getActiveFileEditor().searchNext( input.getText() );
-          break;
-        case F:
-          if( !event.isControlDown() ) {
-            break;
-          }
-        case ESCAPE:
-          getStatusBar().setGraphic( null );
-          getActiveFileEditor().getEditorPane().requestFocus();
-          break;
-      }
-    } );
-
-    // Remove when the input field loses focus.
-    input.focusedProperty().addListener(
-      (
-        final ObservableValue<? extends Boolean> focused,
-        final Boolean oFocus,
-        final Boolean nFocus) -> {
-        if( !nFocus ) {
-          getStatusBar().setGraphic( null );
-        }
-      }
-    );
-
+    final TextField input = getFindTextField();
     getStatusBar().setGraphic( input );
-
     input.requestFocus();
   }
 
   public void findNext() {
-    System.out.println( "find next" );
+    getActiveFileEditor().searchNext( getFindTextField().getText() );
   }
 
   /**
@@ -542,6 +550,10 @@ public class MainWindow implements Observer {
     return getOptions().getState();
   }
 
+  private TextField createFindTextField() {
+    return new TextField();
+  }
+
   protected Scene getScene() {
     if( this.scene == null ) {
       this.scene = createScene();
@@ -647,6 +659,14 @@ public class MainWindow implements Observer {
     }
 
     return this.statusBar;
+  }
+
+  private TextField getFindTextField() {
+    if( this.findTextField == null ) {
+      this.findTextField = createFindTextField();
+    }
+
+    return this.findTextField;
   }
 
   //---- Member creators ----------------------------------------------------

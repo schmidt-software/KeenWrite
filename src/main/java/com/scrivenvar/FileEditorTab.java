@@ -186,7 +186,12 @@ public final class FileEditorTab extends Tab {
    */
   public void searchNext( final String needle ) {
     final String haystack = getEditorText();
-    final int index = haystack.indexOf( needle, getCaretPosition() );
+    int index = haystack.indexOf( needle, getCaretPosition() );
+
+    // Wrap around.
+    if( index == -1 ) {
+      index = haystack.indexOf( needle, 0 );
+    }
 
     if( index >= 0 ) {
       setCaretPosition( index );
