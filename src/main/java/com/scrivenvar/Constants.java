@@ -74,6 +74,8 @@ public class Constants {
   public static final String FILE_LOGO_256 = get( "file.logo.256" );
   public static final String FILE_LOGO_512 = get( "file.logo.512" );
 
+  public static final String FILE_R_STARTUP = get( "file.r.startup" );
+
   public static final String CARET_POSITION_BASE = get( "caret.token.base" );
   public static final String CARET_POSITION_MD = get( "caret.token.markdown" );
   public static final String CARET_POSITION_HTML = get( "caret.token.html" );
@@ -99,6 +101,6 @@ public class Constants {
   public static final String STATUS_BAR_LINE = "Main.statusbar.line";
   // "OK" text
   public static final String STATUS_BAR_DEFAULT = Messages.get( "Main.statusbar.state.default" );
-
   public static final String STATUS_PARSE_ERROR = "Main.statusbar.parse.error";
+  
 }
