@@ -27,19 +27,16 @@
  */
 package com.scrivenvar.processors;
 
-import static com.scrivenvar.Constants.FILE_R_STARTUP;
 import static com.scrivenvar.Constants.STATUS_PARSE_ERROR;
 import static com.scrivenvar.Messages.get;
 import com.scrivenvar.Services;
 import static com.scrivenvar.decorators.RVariableDecorator.PREFIX;
 import static com.scrivenvar.decorators.RVariableDecorator.SUFFIX;
 import static com.scrivenvar.processors.text.TextReplacementFactory.replace;
+import com.scrivenvar.service.Settings;
 import com.scrivenvar.service.events.Notifier;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import static java.lang.Math.min;
-import static java.nio.charset.StandardCharsets.UTF_8;
 import java.nio.file.Path;
 import java.util.Map;
 import javax.script.ScriptEngine;
@@ -54,6 +51,7 @@ import javax.script.ScriptException;
 public final class InlineRProcessor extends DefaultVariableProcessor {
 
   private final Notifier notifier = Services.load( Notifier.class );
+  private final Settings settings = Services.load( Settings.class );
 
   private ScriptEngine engine;
 
@@ -78,7 +76,6 @@ public final class InlineRProcessor extends DefaultVariableProcessor {
    * @param workingDirectory
    */
   private void init( final Path workingDirectory ) {
-
     try {
       final String dir = workingDirectory.toString().replace( '\\', '/' );
       final Map<String, String> definitions = getDefinitions();
@@ -88,53 +85,13 @@ public final class InlineRProcessor extends DefaultVariableProcessor {
       final String rScript = replace( initScript, getDefinitions() );
 
       eval( rScript );
-    } catch( final Exception e ) {
+    } catch( final IOException | ScriptException e ) {
       throw new RuntimeException( e );
     }
   }
 
-  /**
-   * Reads the R startup script into a string, or the empty string if the file
-   * could not be read (or found). The R startup file must be UTF-8.
-   *
-   * @return The string content for the R startup script, or empty if not found.
-   *
-   * @throws IOException Could not read the file contents.
-   */
-  private String getInitScript() {
-    String result = "";
-
-    try( final InputStream in = openResource( FILE_R_STARTUP ) ) {
-      result = readFully( in );
-    } catch( final Exception ex ) {
-      getNotifier().notify( ex );
-    }
-
-    return result;
-  }
-
-  /**
-   * Opens a resource such that it can be closed using a try/finally block.
-   *
-   * @param path Path to the resource to open.
-   *
-   * @return An open input stream ready to be read.
-   */
-  private InputStream openResource( final String path ) {
-    return InlineRProcessor.class.getResourceAsStream( path );
-  }
-
-  private String readFully( final InputStream inputStream ) throws IOException {
-    final byte[] buffer = new byte[ 8192 ];
-    final ByteArrayOutputStream result = new ByteArrayOutputStream();
-
-    int length;
-
-    while( (length = inputStream.read( buffer )) != -1 ) {
-      result.write( buffer, 0, length );
-    }
-
-    return result.toString( UTF_8.name() );
+  private String getInitScript() throws IOException {
+    return getSettings().loadRStartupScript();
   }
 
   @Override
@@ -220,5 +177,9 @@ public final class InlineRProcessor extends DefaultVariableProcessor {
 
   private Notifier getNotifier() {
     return this.notifier;
+  }
+
+  private Settings getSettings() {
+    return this.settings;
   }
 }

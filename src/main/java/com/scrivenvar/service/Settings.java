@@ -27,6 +27,7 @@
  */
 package com.scrivenvar.service;
 
+import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 
@@ -91,4 +92,22 @@ public interface Settings extends Service {
    * @return The list of properties coerced from objects to strings.
    */
   public List<String> getStringSettingList( String property );
+
+  /**
+   * Reads the R startup script into a string, or the empty string if the file
+   * could not be read (or found). The R startup file must be UTF-8.
+   *
+   * @return The string content for the R startup script, or empty if not found.
+   *
+   * @throws IOException Could not read the R startup script.
+   */
+  public String loadRStartupScript() throws IOException;
+
+  /**
+   * Writes the R startup script into its predefined location.
+   *
+   * @param script The string content for the R startup script.
+   * @throws IOException Could not read the R startup script.
+   */
+  public void saveRStartupScript( final String script ) throws IOException;
 }

@@ -38,6 +38,7 @@ import com.scrivenvar.preview.HTMLPreviewPane;
 import com.scrivenvar.processors.Processor;
 import com.scrivenvar.processors.ProcessorFactory;
 import com.scrivenvar.service.Options;
+import com.scrivenvar.service.Settings;
 import com.scrivenvar.service.Snitch;
 import com.scrivenvar.service.events.Notifier;
 import com.scrivenvar.util.Action;
@@ -50,6 +51,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.prefs.Preferences;
 import javafx.application.Platform;
@@ -62,15 +64,20 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener.Change;
 import javafx.collections.ObservableList;
 import static javafx.event.Event.fireEvent;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.ButtonBar.ButtonData;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Dialog;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.Tab;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToolBar;
 import javafx.scene.control.TreeView;
@@ -81,6 +88,7 @@ import javafx.scene.input.KeyEvent;
 import static javafx.scene.input.KeyEvent.CHAR_UNDEFINED;
 import static javafx.scene.input.KeyEvent.KEY_PRESSED;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Window;
@@ -97,6 +105,7 @@ import org.fxmisc.richtext.model.TwoDimensional.Position;
 public class MainWindow implements Observer {
 
   private final Options options = Services.load( Options.class );
+  private final Settings settings = Services.load( Settings.class );
   private final Snitch snitch = Services.load( Snitch.class );
   private final Notifier notifier = Services.load( Notifier.class );
 
@@ -124,6 +133,10 @@ public class MainWindow implements Observer {
     initTabAddedListener();
     initTabChangedListener();
     initPreferences();
+  }
+
+  public Settings getSettings() {
+    return settings;
   }
 
   /**
@@ -554,6 +567,50 @@ public class MainWindow implements Observer {
     return new TextField();
   }
 
+  private void toolsScript() {
+    try {
+      // Create a custom dialog.
+      Dialog<String> dialog = new Dialog<>();
+      dialog.setTitle( "R Startup Script" );
+
+      final String script = getSettings().loadRStartupScript();
+
+      final ButtonType saveButton = new ButtonType( "Save", ButtonData.OK_DONE );
+      dialog.getDialogPane().getButtonTypes().addAll( saveButton, ButtonType.CANCEL );
+
+      GridPane grid = new GridPane();
+      grid.setHgap( 10 );
+      grid.setVgap( 10 );
+      grid.setPadding( new Insets( 20, 100, 10, 10 ) );
+
+      final TextArea textArea = new TextArea( script );
+      textArea.setEditable( true );
+      textArea.setWrapText( true );
+
+      grid.add( textArea, 0, 0 );
+      dialog.getDialogPane().setContent( grid );
+
+      Platform.runLater( () -> textArea.requestFocus() );
+
+      dialog.setResultConverter( button -> {
+        return (button == saveButton) ? textArea.getText() : "";
+      } );
+
+      final Optional<String> result = dialog.showAndWait();
+
+      result.ifPresent( s -> {
+        try {
+          getSettings().saveRStartupScript( s );
+        } catch( IOException ex ) {
+          getNotifier().notify( ex );
+        }
+      } );
+
+    } catch( final IOException ex ) {
+      getNotifier().notify( ex );
+    }
+  }
+
   protected Scene getScene() {
     if( this.scene == null ) {
       this.scene = createScene();
@@ -759,66 +816,66 @@ public class MainWindow implements Observer {
     final BooleanBinding activeFileEditorIsNull = getFileEditorPane().activeFileEditorProperty().isNull();
 
     // File actions
-    Action fileNewAction = new Action( get( "Main.menu.file.new" ), "Shortcut+N", FILE_ALT, e -> fileNew() );
-    Action fileOpenAction = new Action( get( "Main.menu.file.open" ), "Shortcut+O", FOLDER_OPEN_ALT, e -> fileOpen() );
-    Action fileCloseAction = new Action( get( "Main.menu.file.close" ), "Shortcut+W", null, e -> fileClose(), activeFileEditorIsNull );
-    Action fileCloseAllAction = new Action( get( "Main.menu.file.close_all" ), null, null, e -> fileCloseAll(), activeFileEditorIsNull );
-    Action fileSaveAction = new Action( get( "Main.menu.file.save" ), "Shortcut+S", FLOPPY_ALT, e -> fileSave(),
+    final Action fileNewAction = new Action( get( "Main.menu.file.new" ), "Shortcut+N", FILE_ALT, e -> fileNew() );
+    final Action fileOpenAction = new Action( get( "Main.menu.file.open" ), "Shortcut+O", FOLDER_OPEN_ALT, e -> fileOpen() );
+    final Action fileCloseAction = new Action( get( "Main.menu.file.close" ), "Shortcut+W", null, e -> fileClose(), activeFileEditorIsNull );
+    final Action fileCloseAllAction = new Action( get( "Main.menu.file.close_all" ), null, null, e -> fileCloseAll(), activeFileEditorIsNull );
+    final Action fileSaveAction = new Action( get( "Main.menu.file.save" ), "Shortcut+S", FLOPPY_ALT, e -> fileSave(),
       createActiveBooleanProperty( FileEditorTab::modifiedProperty ).not() );
-    Action fileSaveAllAction = new Action( get( "Main.menu.file.save_all" ), "Shortcut+Shift+S", null, e -> fileSaveAll(),
+    final Action fileSaveAllAction = new Action( get( "Main.menu.file.save_all" ), "Shortcut+Shift+S", null, e -> fileSaveAll(),
       Bindings.not( getFileEditorPane().anyFileEditorModifiedProperty() ) );
-    Action fileExitAction = new Action( get( "Main.menu.file.exit" ), null, null, e -> fileExit() );
+    final Action fileExitAction = new Action( get( "Main.menu.file.exit" ), null, null, e -> fileExit() );
 
     // Edit actions
-    Action editUndoAction = new Action( get( "Main.menu.edit.undo" ), "Shortcut+Z", UNDO,
+    final Action editUndoAction = new Action( get( "Main.menu.edit.undo" ), "Shortcut+Z", UNDO,
       e -> getActiveEditor().undo(),
       createActiveBooleanProperty( FileEditorTab::canUndoProperty ).not() );
-    Action editRedoAction = new Action( get( "Main.menu.edit.redo" ), "Shortcut+Y", REPEAT,
+    final Action editRedoAction = new Action( get( "Main.menu.edit.redo" ), "Shortcut+Y", REPEAT,
       e -> getActiveEditor().redo(),
       createActiveBooleanProperty( FileEditorTab::canRedoProperty ).not() );
-    Action editFindAction = new Action( Messages.get( "Main.menu.edit.find" ), "Ctrl+F", SEARCH,
+    final Action editFindAction = new Action( Messages.get( "Main.menu.edit.find" ), "Ctrl+F", SEARCH,
       e -> find(),
       activeFileEditorIsNull );
-    Action editReplaceAction = new Action( Messages.get( "Main.menu.edit.find.replace" ), "Shortcut+H", RETWEET,
+    final Action editReplaceAction = new Action( Messages.get( "Main.menu.edit.find.replace" ), "Shortcut+H", RETWEET,
       e -> getActiveEditor().replace(),
       activeFileEditorIsNull );
-    Action editFindNextAction = new Action( Messages.get( "Main.menu.edit.find.next" ), "F3", null,
+    final Action editFindNextAction = new Action( Messages.get( "Main.menu.edit.find.next" ), "F3", null,
       e -> findNext(),
       activeFileEditorIsNull );
-    Action editFindPreviousAction = new Action( Messages.get( "Main.menu.edit.find.previous" ), "Shift+F3", null,
+    final Action editFindPreviousAction = new Action( Messages.get( "Main.menu.edit.find.previous" ), "Shift+F3", null,
       e -> getActiveEditor().findPrevious(),
       activeFileEditorIsNull );
 
     // Insert actions
-    Action insertBoldAction = new Action( get( "Main.menu.insert.bold" ), "Shortcut+B", BOLD,
+    final Action insertBoldAction = new Action( get( "Main.menu.insert.bold" ), "Shortcut+B", BOLD,
       e -> getActiveEditor().surroundSelection( "**", "**" ),
       activeFileEditorIsNull );
-    Action insertItalicAction = new Action( get( "Main.menu.insert.italic" ), "Shortcut+I", ITALIC,
+    final Action insertItalicAction = new Action( get( "Main.menu.insert.italic" ), "Shortcut+I", ITALIC,
       e -> getActiveEditor().surroundSelection( "*", "*" ),
       activeFileEditorIsNull );
-    Action insertSuperscriptAction = new Action( get( "Main.menu.insert.superscript" ), "Shortcut+[", SUPERSCRIPT,
+    final Action insertSuperscriptAction = new Action( get( "Main.menu.insert.superscript" ), "Shortcut+[", SUPERSCRIPT,
       e -> getActiveEditor().surroundSelection( "^", "^" ),
       activeFileEditorIsNull );
-    Action insertSubscriptAction = new Action( get( "Main.menu.insert.subscript" ), "Shortcut+]", SUBSCRIPT,
+    final Action insertSubscriptAction = new Action( get( "Main.menu.insert.subscript" ), "Shortcut+]", SUBSCRIPT,
       e -> getActiveEditor().surroundSelection( "~", "~" ),
       activeFileEditorIsNull );
-    Action insertStrikethroughAction = new Action( get( "Main.menu.insert.strikethrough" ), "Shortcut+T", STRIKETHROUGH,
+    final Action insertStrikethroughAction = new Action( get( "Main.menu.insert.strikethrough" ), "Shortcut+T", STRIKETHROUGH,
       e -> getActiveEditor().surroundSelection( "~~", "~~" ),
       activeFileEditorIsNull );
-    Action insertBlockquoteAction = new Action( get( "Main.menu.insert.blockquote" ), "Ctrl+Q", QUOTE_LEFT, // not Shortcut+Q because of conflict on Mac
+    final Action insertBlockquoteAction = new Action( get( "Main.menu.insert.blockquote" ), "Ctrl+Q", QUOTE_LEFT, // not Shortcut+Q because of conflict on Mac
       e -> getActiveEditor().surroundSelection( "\n\n> ", "" ),
       activeFileEditorIsNull );
-    Action insertCodeAction = new Action( get( "Main.menu.insert.code" ), "Shortcut+K", CODE,
+    final Action insertCodeAction = new Action( get( "Main.menu.insert.code" ), "Shortcut+K", CODE,
       e -> getActiveEditor().surroundSelection( "`", "`" ),
       activeFileEditorIsNull );
-    Action insertFencedCodeBlockAction = new Action( get( "Main.menu.insert.fenced_code_block" ), "Shortcut+Shift+K", FILE_CODE_ALT,
+    final Action insertFencedCodeBlockAction = new Action( get( "Main.menu.insert.fenced_code_block" ), "Shortcut+Shift+K", FILE_CODE_ALT,
       e -> getActiveEditor().surroundSelection( "\n\n```\n", "\n```\n\n", get( "Main.menu.insert.fenced_code_block.prompt" ) ),
       activeFileEditorIsNull );
 
-    Action insertLinkAction = new Action( get( "Main.menu.insert.link" ), "Shortcut+L", LINK,
+    final Action insertLinkAction = new Action( get( "Main.menu.insert.link" ), "Shortcut+L", LINK,
       e -> getActiveEditor().insertLink(),
       activeFileEditorIsNull );
-    Action insertImageAction = new Action( get( "Main.menu.insert.image" ), "Shortcut+G", PICTURE_ALT,
+    final Action insertImageAction = new Action( get( "Main.menu.insert.image" ), "Shortcut+G", PICTURE_ALT,
       e -> getActiveEditor().insertImage(),
       activeFileEditorIsNull );
 
@@ -837,21 +894,29 @@ public class MainWindow implements Observer {
         activeFileEditorIsNull );
     }
 
-    Action insertUnorderedListAction = new Action( get( "Main.menu.insert.unordered_list" ), "Shortcut+U", LIST_UL,
+    final Action insertUnorderedListAction = new Action(
+      get( "Main.menu.insert.unordered_list" ), "Shortcut+U", LIST_UL,
       e -> getActiveEditor().surroundSelection( "\n\n* ", "" ),
       activeFileEditorIsNull );
-    Action insertOrderedListAction = new Action( get( "Main.menu.insert.ordered_list" ), "Shortcut+Shift+O", LIST_OL,
+    final Action insertOrderedListAction = new Action(
+      get( "Main.menu.insert.ordered_list" ), "Shortcut+Shift+O", LIST_OL,
       e -> getActiveEditor().surroundSelection( "\n\n1. ", "" ),
       activeFileEditorIsNull );
-    Action insertHorizontalRuleAction = new Action( get( "Main.menu.insert.horizontal_rule" ), "Shortcut+H", null,
+    final Action insertHorizontalRuleAction = new Action(
+      get( "Main.menu.insert.horizontal_rule" ), "Shortcut+H", null,
       e -> getActiveEditor().surroundSelection( "\n\n---\n\n", "" ),
       activeFileEditorIsNull );
 
+    // Tools actions
+    final Action toolsScriptAction = new Action(
+      get( "Main.menu.tools.script" ), null, null, e -> toolsScript() );
+
     // Help actions
-    Action helpAboutAction = new Action( get( "Main.menu.help.about" ), null, null, e -> helpAbout() );
+    final Action helpAboutAction = new Action(
+      get( "Main.menu.help.about" ), null, null, e -> helpAbout() );
 
     //---- MenuBar ----
-    Menu fileMenu = ActionUtils.createMenu( get( "Main.menu.file" ),
+    final Menu fileMenu = ActionUtils.createMenu( get( "Main.menu.file" ),
       fileNewAction,
       fileOpenAction,
       null,
@@ -863,7 +928,7 @@ public class MainWindow implements Observer {
       null,
       fileExitAction );
 
-    Menu editMenu = ActionUtils.createMenu( get( "Main.menu.edit" ),
+    final Menu editMenu = ActionUtils.createMenu( get( "Main.menu.edit" ),
       editUndoAction,
       editRedoAction,
       editFindAction,
@@ -871,7 +936,7 @@ public class MainWindow implements Observer {
       editFindNextAction,
       editFindPreviousAction );
 
-    Menu insertMenu = ActionUtils.createMenu( get( "Main.menu.insert" ),
+    final Menu insertMenu = ActionUtils.createMenu( get( "Main.menu.insert" ),
       insertBoldAction,
       insertItalicAction,
       insertSuperscriptAction,
@@ -895,10 +960,13 @@ public class MainWindow implements Observer {
       insertOrderedListAction,
       insertHorizontalRuleAction );
 
-    Menu helpMenu = ActionUtils.createMenu( get( "Main.menu.help" ),
+    final Menu toolsMenu = ActionUtils.createMenu( get( "Main.menu.tools" ),
+      toolsScriptAction );
+
+    final Menu helpMenu = ActionUtils.createMenu( get( "Main.menu.help" ),
       helpAboutAction );
 
-    menuBar = new MenuBar( fileMenu, editMenu, insertMenu, helpMenu );
+    menuBar = new MenuBar( fileMenu, editMenu, insertMenu, toolsMenu, helpMenu );
 
     //---- ToolBar ----
     ToolBar toolBar = ActionUtils.createToolBar(
@@ -987,72 +1055,4 @@ public class MainWindow implements Observer {
       }
     );
   }
-
-//  private void initSyntaxListener( final FileEditorTab tab ) {
-//    tab.addTextChangeListener(
-//      (ObservableValue<? extends String> observable,
-//        final String oText, final String nText) -> {
-//        tab.getEditorPane().getEditor().setStyleSpans( 0, highlight( nText ) );
-//      }
-//    );
-//  }
-//
-//  private static final Pattern XML_TAG = Pattern.compile( "(?<ELEMENT>(</?\\h*)(\\w+)([^<>]*)(\\h*/?>))"
-//    + "|(?<COMMENT><!--[^<>]+-->)" );
-//
-//  private static final Pattern ATTRIBUTES = Pattern.compile( "(\\w+\\h*)(=)(\\h*\"[^\"]+\")" );
-//
-//  private static final int GROUP_OPEN_BRACKET = 2;
-//  private static final int GROUP_ELEMENT_NAME = 3;
-//  private static final int GROUP_ATTRIBUTES_SECTION = 4;
-//  private static final int GROUP_CLOSE_BRACKET = 5;
-//  private static final int GROUP_ATTRIBUTE_NAME = 1;
-//  private static final int GROUP_EQUAL_SYMBOL = 2;
-//  private static final int GROUP_ATTRIBUTE_VALUE = 3;
-//
-//  private static StyleSpans<Collection<String>> highlight( final String text ) {
-//    final Matcher matcher = XML_TAG.matcher( text );
-//    int lastKwEnd = 0;
-//    final StyleSpansBuilder<Collection<String>> spansBuilder = new StyleSpansBuilder<>();
-//
-//    while( matcher.find() ) {
-//      spansBuilder.add( Collections.emptyList(), matcher.start() - lastKwEnd );
-//
-//      if( matcher.group( "COMMENT" ) != null ) {
-//        spansBuilder.add( Collections.singleton( "comment" ), matcher.end() - matcher.start() );
-//      }
-//      else if( matcher.group( "ELEMENT" ) != null ) {
-//        String attributesText = matcher.group( GROUP_ATTRIBUTES_SECTION );
-//
-//        spansBuilder.add( Collections.singleton( "tagmark" ), matcher.end( GROUP_OPEN_BRACKET ) - matcher.start( GROUP_OPEN_BRACKET ) );
-//        spansBuilder.add( Collections.singleton( "anytag" ), matcher.end( GROUP_ELEMENT_NAME ) - matcher.end( GROUP_OPEN_BRACKET ) );
-//
-//        if( !attributesText.isEmpty() ) {
-//          lastKwEnd = 0;
-//
-//          final Matcher amatcher = ATTRIBUTES.matcher( attributesText );
-//
-//          while( amatcher.find() ) {
-//            spansBuilder.add( Collections.emptyList(), amatcher.start() - lastKwEnd );
-//            spansBuilder.add( Collections.singleton( "attribute" ), amatcher.end( GROUP_ATTRIBUTE_NAME ) - amatcher.start( GROUP_ATTRIBUTE_NAME ) );
-//            spansBuilder.add( Collections.singleton( "tagmark" ), amatcher.end( GROUP_EQUAL_SYMBOL ) - amatcher.end( GROUP_ATTRIBUTE_NAME ) );
-//            spansBuilder.add( Collections.singleton( "avalue" ), amatcher.end( GROUP_ATTRIBUTE_VALUE ) - amatcher.end( GROUP_EQUAL_SYMBOL ) );
-//            lastKwEnd = amatcher.end();
-//          }
-//
-//          if( attributesText.length() > lastKwEnd ) {
-//            spansBuilder.add( Collections.emptyList(), attributesText.length() - lastKwEnd );
-//          }
-//        }
-//
-//        lastKwEnd = matcher.end( GROUP_ATTRIBUTES_SECTION );
-//        spansBuilder.add( Collections.singleton( "tagmark" ), matcher.end( GROUP_CLOSE_BRACKET ) - lastKwEnd );
-//      }
-//
-//      lastKwEnd = matcher.end();
-//    }
-//
-//    spansBuilder.add( Collections.emptyList(), text.length() - lastKwEnd );
-//    return spansBuilder.create();
-//  }
 }
