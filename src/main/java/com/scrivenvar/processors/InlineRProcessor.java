@@ -85,7 +85,6 @@ public final class InlineRProcessor extends DefaultVariableProcessor {
       definitions.put( "$application.r.working.directory$", dir );
 
       final String initScript = getInitScript();
-      System.out.println( "script = '" + initScript + "'" );
 
       if( !initScript.isEmpty() ) {
         final String rScript = replace( initScript, getDefinitions() );

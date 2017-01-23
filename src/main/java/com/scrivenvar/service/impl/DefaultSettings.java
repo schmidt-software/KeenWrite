@@ -93,7 +93,6 @@ public class DefaultSettings implements Settings {
    */
   @Override
   public void putSetting( final String key, final String value ) {
-    System.out.println( "PUT: " + key + " = " + value );
     getSettings().clearProperty( key );
     getSettings().addProperty( key, value );
   }

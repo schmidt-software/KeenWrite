@@ -534,8 +534,6 @@ public class MainWindow implements Observer {
   private void toolsScript() {
     final String script = getStartupScript();
 
-    System.out.println( "script = '" + script + "'" );
-
     final RScriptDialog dialog = new RScriptDialog(
       getWindow(), "Dialog.rScript.title", script );
     final Optional<String> result = dialog.showAndWait();
@@ -557,9 +555,7 @@ public class MainWindow implements Observer {
    */
   private void putStartupScript( final String s ) {
     try {
-      System.out.println( "put startup script = '" + s + "'" );
       getPreferences().put( PERSIST_R_STARTUP, s );
-      getPreferences().sync();
     } catch( final Exception ex ) {
       getNotifier().notify( ex );
     }
