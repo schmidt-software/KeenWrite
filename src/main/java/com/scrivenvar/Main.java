@@ -39,9 +39,6 @@ import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
-import static com.scrivenvar.Messages.get;
-import static com.scrivenvar.Messages.get;
-import static com.scrivenvar.Messages.get;
 
 /**
  * Main application entry point. The application allows users to edit Markdown
