@@ -27,6 +27,7 @@
  */
 package com.scrivenvar.service;
 
+import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
 /**
@@ -37,15 +38,17 @@ import java.util.prefs.Preferences;
 public interface Options extends Service {
 
   public Preferences getState();
-  
+
   /**
    * Stores the key and value into the user preferences to be loaded the next
    * time the application is launched.
    *
    * @param key Name of the key to persist along with its value.
    * @param value Value to associate with the key.
+   *
+   * @throws BackingStoreException Could not persist the change.
    */
-  public void put( String key, String value );
+  public void put( String key, String value ) throws BackingStoreException;
 
   /**
    * Retrieves the value for a key in the user preferences.
@@ -57,4 +60,13 @@ public interface Options extends Service {
    * @return The value associated with the key.
    */
   public String get( String key, String defaultValue );
+  
+  /**
+   * Retrieves the value for a key in the user preferences. This will return
+   * the empty string if the value cannot be found.
+   * 
+   * @param key The key to find in the preferences.
+   * @return A non-null, possibly empty value for the key.
+   */
+  public String get( String key );
 }

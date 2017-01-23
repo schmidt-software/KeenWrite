@@ -27,18 +27,16 @@
  */
 package com.scrivenvar.dialogs;
 
-import com.scrivenvar.Messages;
+import static com.scrivenvar.Messages.get;
 import com.scrivenvar.controls.EscapeTextField;
 import com.scrivenvar.editors.markdown.HyperlinkModel;
-import com.scrivenvar.service.events.impl.ButtonOrderPane;
 import java.nio.file.Path;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.scene.control.ButtonBar.ButtonData;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.Dialog;
+import static javafx.scene.control.ButtonType.OK;
 import javafx.scene.control.DialogPane;
 import javafx.scene.control.Label;
 import javafx.stage.Window;
@@ -49,24 +47,18 @@ import org.tbee.javafx.scene.layout.fxml.MigPane;
  *
  * @author Karl Tauber
  */
-public class LinkDialog extends Dialog<String> {
+public class LinkDialog extends AbstractDialog<String> {
 
   private final StringProperty link = new SimpleStringProperty();
 
-  public LinkDialog( final Window owner, final HyperlinkModel hyperlink, final Path basePath ) {
-    setTitle( Messages.get( "LinkDialog.title" ) );
-    initOwner( owner );
-    setResizable( true );
+  public LinkDialog(
+    final Window owner, final HyperlinkModel hyperlink, final Path basePath ) {
+    super( owner, "Dialog.link.title" );
 
-    initComponents();
+    final DialogPane dialogPane = getDialogPane();
+    dialogPane.setContent( pane );
 
-    setDialogPane( new ButtonOrderPane() );
-
-    final DialogPane dialog = getDialogPane();
-    dialog.setContent( pane );
-    dialog.getButtonTypes().addAll( ButtonType.OK, ButtonType.CANCEL );
-
-    dialog.lookupButton( ButtonType.OK ).disableProperty().bind(
+    dialogPane.lookupButton( OK ).disableProperty().bind(
       urlField.escapedTextProperty().isEmpty() );
 
     textField.setText( hyperlink.getText() );
@@ -90,7 +82,8 @@ public class LinkDialog extends Dialog<String> {
     } );
   }
 
-  private void initComponents() {
+  @Override
+  protected void initComponents() {
     // JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
     pane = new MigPane();
     Label urlLabel = new Label();
@@ -106,7 +99,7 @@ public class LinkDialog extends Dialog<String> {
       pane.setRows( "[][][][]" );
 
       //---- urlLabel ----
-      urlLabel.setText( Messages.get( "LinkDialog.urlLabel.text" ) );
+      urlLabel.setText( get( "Dialog.link.urlLabel.text" ) );
       pane.add( urlLabel, "cell 0 0" );
 
       //---- urlField ----
@@ -114,7 +107,7 @@ public class LinkDialog extends Dialog<String> {
       pane.add( urlField, "cell 1 0" );
 
       //---- textLabel ----
-      textLabel.setText( Messages.get( "LinkDialog.textLabel.text" ) );
+      textLabel.setText( get( "Dialog.link.textLabel.text" ) );
       pane.add( textLabel, "cell 0 1" );
 
       //---- textField ----
@@ -122,7 +115,7 @@ public class LinkDialog extends Dialog<String> {
       pane.add( textField, "cell 1 1 3 1" );
 
       //---- titleLabel ----
-      titleLabel.setText( Messages.get( "LinkDialog.titleLabel.text" ) );
+      titleLabel.setText( get( "Dialog.link.titleLabel.text" ) );
       pane.add( titleLabel, "cell 0 2" );
       pane.add( titleField, "cell 1 2 3 1" );
     }

@@ -27,19 +27,14 @@
  */
 package com.scrivenvar.service.impl;
 
-import static com.scrivenvar.Constants.FILE_R_STARTUP;
 import static com.scrivenvar.Constants.SETTINGS_NAME;
-import com.scrivenvar.processors.InlineRProcessor;
 import com.scrivenvar.service.Settings;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.Charset;
-import static java.nio.charset.StandardCharsets.UTF_8;
 import java.util.Iterator;
 import java.util.List;
 import org.apache.commons.configuration2.PropertiesConfiguration;
@@ -53,6 +48,7 @@ import org.apache.commons.configuration2.ex.ConfigurationException;
  * @author White Magic Software, Ltd.
  */
 public class DefaultSettings implements Settings {
+
   private static final char VALUE_SEPARATOR = ',';
 
   private PropertiesConfiguration properties;
@@ -86,6 +82,20 @@ public class DefaultSettings implements Settings {
   @Override
   public int getSetting( final String property, final int defaultValue ) {
     return getSettings().getInt( property, defaultValue );
+  }
+
+  /**
+   * Changes key's value. This will clear the old value before setting the new
+   * value so that the old value is erased, not changed into a list.
+   *
+   * @param key The property key name to obtain its value.
+   * @param value The new value to set.
+   */
+  @Override
+  public void putSetting( final String key, final String value ) {
+    System.out.println( "PUT: " + key + " = " + value );
+    getSettings().clearProperty( key );
+    getSettings().addProperty( key, value );
   }
 
   /**
@@ -144,11 +154,11 @@ public class DefaultSettings implements Settings {
 
     return configuration;
   }
-  
+
   protected Charset getDefaultEncoding() {
     return Charset.defaultCharset();
   }
-  
+
   protected ListDelimiterHandler createListDelimiterHandler() {
     return new DefaultListDelimiterHandler( VALUE_SEPARATOR );
   }
@@ -168,55 +178,4 @@ public class DefaultSettings implements Settings {
   private PropertiesConfiguration getSettings() {
     return this.properties;
   }
-  
-  /**
-   * 
-   * @param script Script to write file back to the settings.
-   * @throws IOException Couldn't write the string back to the file.
-   */
-  @Override
-  public void saveRStartupScript( final String script ) throws IOException {
-    assert script != null;
-    
-    System.out.println( "Save resource: " + script );
-  }
-
-  /**
-   * Reads the R startup script into a string, or the empty string if the file
-   * could not be read (or found). The R startup file must be UTF-8.
-   *
-   * @return The string content for the R startup script, or empty if not found.
-   * @throws IOException Could not read the R startup script.
-   */
-  @Override
-  public String loadRStartupScript() throws IOException {
-    try( final InputStream in = openResource( FILE_R_STARTUP ) ) {
-      return readFully( in );
-    }
-  }
-
-  /**
-   * Opens a resource such that it can be closed using a try/finally block.
-   *
-   * @param path Path to the resource to open.
-   *
-   * @return An open input stream ready to be read.
-   */
-  private InputStream openResource( final String path ) {
-    return InlineRProcessor.class.getResourceAsStream( path );
-  }
-
-  private String readFully( final InputStream inputStream ) throws IOException {
-    final byte[] buffer = new byte[ 8192 ];
-    final ByteArrayOutputStream result = new ByteArrayOutputStream();
-
-    int length;
-
-    while( (length = inputStream.read( buffer )) != -1 ) {
-      result.write( buffer, 0, length );
-    }
-
-    return result.toString( UTF_8.name() );
-  }
-
 }

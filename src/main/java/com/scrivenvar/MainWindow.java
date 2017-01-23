@@ -30,6 +30,7 @@ package com.scrivenvar;
 import static com.scrivenvar.Constants.*;
 import static com.scrivenvar.Messages.get;
 import com.scrivenvar.definition.*;
+import com.scrivenvar.dialogs.RScriptDialog;
 import com.scrivenvar.editors.EditorPane;
 import com.scrivenvar.editors.VariableNameInjector;
 import com.scrivenvar.editors.markdown.MarkdownEditorPane;
@@ -38,7 +39,6 @@ import com.scrivenvar.preview.HTMLPreviewPane;
 import com.scrivenvar.processors.Processor;
 import com.scrivenvar.processors.ProcessorFactory;
 import com.scrivenvar.service.Options;
-import com.scrivenvar.service.Settings;
 import com.scrivenvar.service.Snitch;
 import com.scrivenvar.service.events.Notifier;
 import com.scrivenvar.util.Action;
@@ -64,20 +64,15 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener.Change;
 import javafx.collections.ObservableList;
 import static javafx.event.Event.fireEvent;
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
-import javafx.scene.control.ButtonBar.ButtonData;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.Dialog;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.Tab;
-import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToolBar;
 import javafx.scene.control.TreeView;
@@ -88,7 +83,6 @@ import javafx.scene.input.KeyEvent;
 import static javafx.scene.input.KeyEvent.CHAR_UNDEFINED;
 import static javafx.scene.input.KeyEvent.KEY_PRESSED;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Window;
@@ -105,7 +99,6 @@ import org.fxmisc.richtext.model.TwoDimensional.Position;
 public class MainWindow implements Observer {
 
   private final Options options = Services.load( Options.class );
-  private final Settings settings = Services.load( Settings.class );
   private final Snitch snitch = Services.load( Snitch.class );
   private final Notifier notifier = Services.load( Notifier.class );
 
@@ -121,7 +114,7 @@ public class MainWindow implements Observer {
   private HTMLPreviewPane previewPane;
 
   /**
-   * Prevent re-instantiation processing classes.
+   * Prevents re-instantiation of processing classes.
    */
   private Map<FileEditorTab, Processor<String>> processors;
 
@@ -133,10 +126,6 @@ public class MainWindow implements Observer {
     initTabAddedListener();
     initTabChangedListener();
     initPreferences();
-  }
-
-  public Settings getSettings() {
-    return settings;
   }
 
   /**
@@ -198,7 +187,6 @@ public class MainWindow implements Observer {
 
         // Indirectly refresh the resolved map.
         setProcessors( null );
-
         updateDefinitionPane();
 
         try {
@@ -245,7 +233,7 @@ public class MainWindow implements Observer {
   }
 
   /**
-   * Reloads the preferences from the previous load.
+   * Reloads the preferences from the previous session.
    */
   private void initPreferences() {
     restoreDefinitionSource();
@@ -399,7 +387,7 @@ public class MainWindow implements Observer {
 
   private void restoreDefinitionSource() {
     final Preferences preferences = getPreferences();
-    final String source = preferences.get( PREFS_DEFINITION_SOURCE, null );
+    final String source = preferences.get( PERSIST_DEFINITION_SOURCE, null );
 
     // If there's no definition source set, don't try to load it.
     if( source != null ) {
@@ -411,7 +399,7 @@ public class MainWindow implements Observer {
     final Preferences preferences = getPreferences();
     final DefinitionSource ds = getDefinitionSource();
 
-    preferences.put( PREFS_DEFINITION_SOURCE, ds.toString() );
+    preferences.put( PERSIST_DEFINITION_SOURCE, ds.toString() );
   }
 
   /**
@@ -542,6 +530,41 @@ public class MainWindow implements Observer {
     fireEvent( window, new WindowEvent( window, WINDOW_CLOSE_REQUEST ) );
   }
 
+  //---- Tools actions
+  private void toolsScript() {
+    final String script = getStartupScript();
+
+    System.out.println( "script = '" + script + "'" );
+
+    final RScriptDialog dialog = new RScriptDialog(
+      getWindow(), "Dialog.rScript.title", script );
+    final Optional<String> result = dialog.showAndWait();
+
+    result.ifPresent( (String s) -> {
+      putStartupScript( s );
+    } );
+  }
+
+  /**
+   * Gets the R startup script from the user preferences.
+   */
+  private String getStartupScript() {
+    return getPreferences().get( PERSIST_R_STARTUP, "" );
+  }
+
+  /**
+   * Puts an R startup script into the user preferences.
+   */
+  private void putStartupScript( final String s ) {
+    try {
+      System.out.println( "put startup script = '" + s + "'" );
+      getPreferences().put( PERSIST_R_STARTUP, s );
+      getPreferences().sync();
+    } catch( final Exception ex ) {
+      getNotifier().notify( ex );
+    }
+  }
+
   //---- Help actions -------------------------------------------------------
   private void helpAbout() {
     Alert alert = new Alert( AlertType.INFORMATION );
@@ -561,54 +584,6 @@ public class MainWindow implements Observer {
 
   private Preferences getPreferences() {
     return getOptions().getState();
-  }
-
-  private TextField createFindTextField() {
-    return new TextField();
-  }
-
-  private void toolsScript() {
-    try {
-      // Create a custom dialog.
-      Dialog<String> dialog = new Dialog<>();
-      dialog.setTitle( "R Startup Script" );
-
-      final String script = getSettings().loadRStartupScript();
-
-      final ButtonType saveButton = new ButtonType( "Save", ButtonData.OK_DONE );
-      dialog.getDialogPane().getButtonTypes().addAll( saveButton, ButtonType.CANCEL );
-
-      GridPane grid = new GridPane();
-      grid.setHgap( 10 );
-      grid.setVgap( 10 );
-      grid.setPadding( new Insets( 20, 100, 10, 10 ) );
-
-      final TextArea textArea = new TextArea( script );
-      textArea.setEditable( true );
-      textArea.setWrapText( true );
-
-      grid.add( textArea, 0, 0 );
-      dialog.getDialogPane().setContent( grid );
-
-      Platform.runLater( () -> textArea.requestFocus() );
-
-      dialog.setResultConverter( button -> {
-        return (button == saveButton) ? textArea.getText() : "";
-      } );
-
-      final Optional<String> result = dialog.showAndWait();
-
-      result.ifPresent( s -> {
-        try {
-          getSettings().saveRStartupScript( s );
-        } catch( IOException ex ) {
-          getNotifier().notify( ex );
-        }
-      } );
-
-    } catch( final IOException ex ) {
-      getNotifier().notify( ex );
-    }
   }
 
   protected Scene getScene() {
@@ -755,6 +730,10 @@ public class MainWindow implements Observer {
     }
 
     return ds;
+  }
+
+  private TextField createFindTextField() {
+    return new TextField();
   }
 
   /**
@@ -1030,8 +1009,9 @@ public class MainWindow implements Observer {
     final Scene appScene = getScene();
 
     appScene.getStylesheets().add( STYLESHEET_SCENE );
-//    appScene.getStylesheets().add( STYLESHEET_XML );
 
+    // TODO: Apply an XML syntax highlighting for XML files.
+//    appScene.getStylesheets().add( STYLESHEET_XML );
     appScene.windowProperty().addListener(
       (observable, oldWindow, newWindow) -> {
         newWindow.setOnCloseRequest( e -> {

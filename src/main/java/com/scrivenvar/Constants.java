@@ -47,7 +47,7 @@ public class Constants {
     return SETTINGS.getSetting( key, "" );
   }
 
-  private static int get( final String key, int defaultValue ) {
+  private static int get( final String key, final int defaultValue ) {
     return SETTINGS.getSetting( key, defaultValue );
   }
 
@@ -74,8 +74,6 @@ public class Constants {
   public static final String FILE_LOGO_256 = get( "file.logo.256" );
   public static final String FILE_LOGO_512 = get( "file.logo.512" );
 
-  public static final String FILE_R_STARTUP = get( "file.r.startup" );
-
   public static final String CARET_POSITION_BASE = get( "caret.token.base" );
   public static final String CARET_POSITION_MD = get( "caret.token.markdown" );
   public static final String CARET_POSITION_HTML = get( "caret.token.html" );
@@ -83,7 +81,6 @@ public class Constants {
   public static final String PREFS_ROOT = get( "preferences.root" );
   public static final String PREFS_STATE = get( "preferences.root.state" );
   public static final String PREFS_OPTIONS = get( "preferences.root.options" );
-  public static final String PREFS_DEFINITION_SOURCE = get( "preferences.root.definitionSource" );
 
   // Refer to filename extension settings in the configuration file. Do not
   // terminate these prefixes with a period.
@@ -100,7 +97,19 @@ public class Constants {
   // Takes two parameters: line number and column number.
   public static final String STATUS_BAR_LINE = "Main.statusbar.line";
   // "OK" text
-  public static final String STATUS_BAR_DEFAULT = Messages.get( "Main.statusbar.state.default" );
+  public static final String STATUS_BAR_DEFAULT = get( "Main.statusbar.state.default" );
   public static final String STATUS_PARSE_ERROR = "Main.statusbar.parse.error";
+
+  // Persistent storage settings.
   
+  /**
+   * Location of the definition source file.
+   */
+  public static final String PERSIST_DEFINITION_SOURCE = "definitionSource";
+  
+  
+  /**
+   * Content of the R startup script.
+   */
+  public static final String PERSIST_R_STARTUP = "rStartup";
 }

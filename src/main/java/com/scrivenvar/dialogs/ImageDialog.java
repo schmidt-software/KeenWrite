@@ -26,18 +26,16 @@
  */
 package com.scrivenvar.dialogs;
 
-import com.scrivenvar.Messages;
+import static com.scrivenvar.Messages.get;
 import com.scrivenvar.controls.BrowseFileButton;
 import com.scrivenvar.controls.EscapeTextField;
-import com.scrivenvar.service.events.impl.ButtonOrderPane;
 import java.nio.file.Path;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.scene.control.ButtonBar.ButtonData;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.Dialog;
+import static javafx.scene.control.ButtonType.OK;
 import javafx.scene.control.DialogPane;
 import javafx.scene.control.Label;
 import javafx.stage.FileChooser.ExtensionFilter;
@@ -49,27 +47,21 @@ import org.tbee.javafx.scene.layout.fxml.MigPane;
  *
  * @author Karl Tauber
  */
-public class ImageDialog extends Dialog<String> {
+public class ImageDialog extends AbstractDialog<String> {
 
   private final StringProperty image = new SimpleStringProperty();
 
-  public ImageDialog( Window owner, Path basePath ) {
-    setTitle( Messages.get( "ImageDialog.title" ) );
-    initOwner( owner );
-    setResizable( true );
-
-    initComponents();
-
-    linkBrowseFileButton.setBasePath( basePath );
-    linkBrowseFileButton.addExtensionFilter( new ExtensionFilter( Messages.get( "ImageDialog.chooser.imagesFilter" ), "*.png", "*.gif", "*.jpg" ) );
-    linkBrowseFileButton.urlProperty().bindBidirectional( urlField.escapedTextProperty() );
-
-    setDialogPane( new ButtonOrderPane() );
+  public ImageDialog( final Window owner, final Path basePath ) {
+    super(owner, "Dialog.image.title" );
+    
     final DialogPane dialogPane = getDialogPane();
     dialogPane.setContent( pane );
-    dialogPane.getButtonTypes().addAll( ButtonType.OK, ButtonType.CANCEL );
 
-    dialogPane.lookupButton( ButtonType.OK ).disableProperty().bind(
+    linkBrowseFileButton.setBasePath( basePath );
+    linkBrowseFileButton.addExtensionFilter( new ExtensionFilter( get( "Dialog.image.chooser.imagesFilter" ), "*.png", "*.gif", "*.jpg" ) );
+    linkBrowseFileButton.urlProperty().bindBidirectional( urlField.escapedTextProperty() );
+
+    dialogPane.lookupButton( OK ).disableProperty().bind(
       urlField.escapedTextProperty().isEmpty()
       .or( textField.escapedTextProperty().isEmpty() ) );
 
@@ -92,7 +84,8 @@ public class ImageDialog extends Dialog<String> {
     } );
   }
 
-  private void initComponents() {
+  @Override
+  protected void initComponents() {
     // JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
     pane = new MigPane();
     Label urlLabel = new Label();
@@ -111,7 +104,7 @@ public class ImageDialog extends Dialog<String> {
       pane.setRows( "[][][][]" );
 
       //---- urlLabel ----
-      urlLabel.setText( Messages.get( "ImageDialog.urlLabel.text" ) );
+      urlLabel.setText( get( "Dialog.image.urlLabel.text" ) );
       pane.add( urlLabel, "cell 0 0" );
 
       //---- urlField ----
@@ -122,7 +115,7 @@ public class ImageDialog extends Dialog<String> {
       pane.add( linkBrowseFileButton, "cell 2 0" );
 
       //---- textLabel ----
-      textLabel.setText( Messages.get( "ImageDialog.textLabel.text" ) );
+      textLabel.setText( get( "Dialog.image.textLabel.text" ) );
       pane.add( textLabel, "cell 0 1" );
 
       //---- textField ----
@@ -130,12 +123,12 @@ public class ImageDialog extends Dialog<String> {
       pane.add( textField, "cell 1 1 2 1" );
 
       //---- titleLabel ----
-      titleLabel.setText( Messages.get( "ImageDialog.titleLabel.text" ) );
+      titleLabel.setText( get( "Dialog.image.titleLabel.text" ) );
       pane.add( titleLabel, "cell 0 2" );
       pane.add( titleField, "cell 1 2 2 1" );
 
       //---- previewLabel ----
-      previewLabel.setText( Messages.get( "ImageDialog.previewLabel.text" ) );
+      previewLabel.setText( get( "Dialog.image.previewLabel.text" ) );
       pane.add( previewLabel, "cell 0 3" );
       pane.add( previewField, "cell 1 3 2 1" );
     }

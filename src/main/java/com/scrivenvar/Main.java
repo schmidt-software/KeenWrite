@@ -28,6 +28,7 @@
 package com.scrivenvar;
 
 import static com.scrivenvar.Constants.*;
+import static com.scrivenvar.Messages.get;
 import com.scrivenvar.preferences.FilePreferencesFactory;
 import com.scrivenvar.service.Options;
 import com.scrivenvar.service.Snitch;
@@ -38,6 +39,9 @@ import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
+import static com.scrivenvar.Messages.get;
+import static com.scrivenvar.Messages.get;
+import static com.scrivenvar.Messages.get;
 
 /**
  * Main application entry point. The application allows users to edit Markdown
@@ -184,7 +188,7 @@ public final class Main extends Application {
   }
 
   private String getApplicationTitle() {
-    return Messages.get( "Main.title" );
+    return get( "Main.title" );
   }
 
   private static Application getApplication() {

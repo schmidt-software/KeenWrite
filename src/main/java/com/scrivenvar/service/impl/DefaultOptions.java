@@ -30,6 +30,7 @@ import static com.scrivenvar.Constants.PREFS_OPTIONS;
 import static com.scrivenvar.Constants.PREFS_ROOT;
 import static com.scrivenvar.Constants.PREFS_STATE;
 import com.scrivenvar.service.Options;
+import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 import static java.util.prefs.Preferences.userRoot;
 
@@ -46,14 +47,30 @@ public class DefaultOptions implements Options {
     setPreferences( getRootPreferences().node( PREFS_OPTIONS ) );
   }
 
+  /**
+   * This will throw IllegalArgumentException if the value exceeds the maximum
+   * preferences value length.
+   *
+   * @param key The name of the key to associate with the value.
+   * @param value The value to persist.
+   *
+   * @throws BackingStoreException New value not persisted.
+   */
   @Override
-  public void put( final String key, final String value ) {
-    getPreferences().put( key, value );
+  public void put( final String key, final String value )
+    throws BackingStoreException {
+    getState().put( key, value );
+    getState().flush();
   }
 
   @Override
-  public String get( final String key, final String defalutValue ) {
-    return getPreferences().get( key, defalutValue );
+  public String get( final String key, final String value ) {
+    return getState().get( key, value );
+  }
+
+  @Override
+  public String get( final String key ) {
+    return get( key, "" );
   }
 
   private void setPreferences( final Preferences preferences ) {

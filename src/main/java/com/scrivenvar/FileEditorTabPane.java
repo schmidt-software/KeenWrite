@@ -67,6 +67,13 @@ import javafx.stage.Window;
 import org.fxmisc.richtext.StyledTextArea;
 import org.fxmisc.wellbehaved.event.EventPattern;
 import org.fxmisc.wellbehaved.event.InputMap;
+import static com.scrivenvar.Messages.get;
+import static com.scrivenvar.Messages.get;
+import static com.scrivenvar.Messages.get;
+import static com.scrivenvar.Messages.get;
+import static com.scrivenvar.Messages.get;
+import static com.scrivenvar.Messages.get;
+import static com.scrivenvar.Messages.get;
 
 /**
  * Tab pane for file editors.

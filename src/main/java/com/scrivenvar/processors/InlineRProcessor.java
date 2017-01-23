@@ -27,17 +27,19 @@
  */
 package com.scrivenvar.processors;
 
+import static com.scrivenvar.Constants.PERSIST_R_STARTUP;
 import static com.scrivenvar.Constants.STATUS_PARSE_ERROR;
 import static com.scrivenvar.Messages.get;
 import com.scrivenvar.Services;
 import static com.scrivenvar.decorators.RVariableDecorator.PREFIX;
 import static com.scrivenvar.decorators.RVariableDecorator.SUFFIX;
 import static com.scrivenvar.processors.text.TextReplacementFactory.replace;
-import com.scrivenvar.service.Settings;
+import com.scrivenvar.service.Options;
 import com.scrivenvar.service.events.Notifier;
 import java.io.IOException;
 import static java.lang.Math.min;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Map;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
@@ -51,7 +53,7 @@ import javax.script.ScriptException;
 public final class InlineRProcessor extends DefaultVariableProcessor {
 
   private final Notifier notifier = Services.load( Notifier.class );
-  private final Settings settings = Services.load( Settings.class );
+  private final Options options = Services.load( Options.class );
 
   private ScriptEngine engine;
 
@@ -72,26 +74,30 @@ public final class InlineRProcessor extends DefaultVariableProcessor {
   }
 
   /**
-   * @see https://github.com/DaveJarvis/scrivenvar/issues/30
+   *
    * @param workingDirectory
    */
   private void init( final Path workingDirectory ) {
     try {
-      final String dir = workingDirectory.toString().replace( '\\', '/' );
+      final Path wd = nullSafe( workingDirectory );
+      final String dir = wd.toString().replace( '\\', '/' );
       final Map<String, String> definitions = getDefinitions();
       definitions.put( "$application.r.working.directory$", dir );
 
       final String initScript = getInitScript();
-      final String rScript = replace( initScript, getDefinitions() );
+      System.out.println( "script = '" + initScript + "'" );
 
-      eval( rScript );
+      if( !initScript.isEmpty() ) {
+        final String rScript = replace( initScript, getDefinitions() );
+        eval( rScript );
+      }
     } catch( final IOException | ScriptException e ) {
       throw new RuntimeException( e );
     }
   }
 
   private String getInitScript() throws IOException {
-    return getSettings().loadRStartupScript();
+    return getOptions().get( PERSIST_R_STARTUP, "" );
   }
 
   @Override
@@ -179,7 +185,19 @@ public final class InlineRProcessor extends DefaultVariableProcessor {
     return this.notifier;
   }
 
-  private Settings getSettings() {
-    return this.settings;
+  private Options getOptions() {
+    return this.options;
+  }
+
+  /**
+   * This will return the given path if not null, otherwise it will return
+   * Paths.get( System.getProperty( "user.dir" ) ).
+   *
+   * @param path The path to make null safe.
+   *
+   * @return A non-null path.
+   */
+  private Path nullSafe( final Path path ) {
+    return path == null ? Paths.get( System.getProperty( "user.dir" ) ) : path;
   }
 }

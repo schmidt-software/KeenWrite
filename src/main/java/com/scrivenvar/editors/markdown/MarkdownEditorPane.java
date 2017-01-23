@@ -47,6 +47,9 @@ import javafx.scene.input.KeyEvent;
 import javafx.stage.Window;
 import org.fxmisc.richtext.StyleClassedTextArea;
 import static org.fxmisc.wellbehaved.event.EventPattern.keyPressed;
+import static org.fxmisc.wellbehaved.event.EventPattern.keyPressed;
+import static org.fxmisc.wellbehaved.event.EventPattern.keyPressed;
+import static org.fxmisc.wellbehaved.event.EventPattern.keyPressed;
 
 /**
  * Markdown editor pane.
