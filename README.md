@@ -29,9 +29,9 @@ Requirements
 
 Download and install [Java 8u40 or greater](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html).
 
-Installation
+Usage
 ---
-1. [Download](https://github.com/DaveJarvis/scrivenvar/releases) the latest zip archive and extract it to any folder.
+1. [Download](https://github.com/DaveJarvis/scrivenvar/releases) the jar file.
 1. Double-click `scrivenvar.jar` to start the application.
 
 License
