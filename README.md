@@ -14,20 +14,20 @@ Features
 * Recursive variable definitions
 * Real-time document preview with variable substitution
 * Platform independent (Windows, Linux, MacOS)
-* Auto-insert variable names pressing `Control+Space`
-* Real-time XSLT2 transformation of XML documents
+* Auto-complete variable names based on variable values
+* Real-time XML document transformation using XSLT2
+* R integration
 
 Future Features
 ---
 * Spell check
-* Search and replace, with or without variables
-* R integration
+* Search and replace text with variables
 * Re-organize variable names
 
 Requirements
 ---
 
-Download and install [Java 8u40](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html).
+Download and install [Java 8u40 or greater](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html).
 
 Installation
 ---
