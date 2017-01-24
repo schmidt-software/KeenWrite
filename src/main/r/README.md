@@ -176,9 +176,9 @@ Here, the `x` function evaluates its parameter as an expression. This allows var
 
 Definition file variables are have the ability to reference other definitions. Try the following:
 
-    `r#x( v$editor$examples$math$x )`
-    `r#x( v$editor$examples$math$y )`
-    `r#x( v$editor$examples$math$z )`
+    x = `r#x( v$editor$examples$math$x )`;
+    y = `r#x( v$editor$examples$math$y )`;
+    z = `r#x( v$editor$examples$math$z )`
 
 The preview pane shows:
 

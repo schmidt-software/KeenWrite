@@ -726,15 +726,21 @@ public class MainWindow implements Observer {
   }
 
   private DefinitionSource createDefinitionSource( final String path ) {
-    final DefinitionSource ds
-      = createDefinitionFactory().createDefinitionSource( path );
+    DefinitionSource ds;
 
-    if( ds instanceof FileDefinitionSource ) {
-      try {
-        getSnitch().listen( ((FileDefinitionSource)ds).getPath() );
-      } catch( final IOException ex ) {
-        error( ex );
+    try {
+       ds = createDefinitionFactory().createDefinitionSource( path );
+
+      if( ds instanceof FileDefinitionSource ) {
+        try {
+          getSnitch().listen( ((FileDefinitionSource)ds).getPath() );
+        } catch( final IOException ex ) {
+          error( ex );
+        }
       }
+    } catch( final Exception ex ) {
+      ds = new EmptyDefinitionSource();
+      error( ex );
     }
 
     return ds;
