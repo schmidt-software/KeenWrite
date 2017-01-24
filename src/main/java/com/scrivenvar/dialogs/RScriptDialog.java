@@ -46,10 +46,12 @@ import javafx.stage.Window;
 public class RScriptDialog extends AbstractDialog<String> {
 
   private TextArea scriptArea;
+  private String originalText = "";
 
   public RScriptDialog(
     final Window parent, final String title, final String script ) {
     super( parent, title );
+    setOriginalText( script );
     getScriptArea().setText( script );
   }
 
@@ -75,7 +77,7 @@ public class RScriptDialog extends AbstractDialog<String> {
     Platform.runLater( () -> textArea.requestFocus() );
 
     setResultConverter( dialogButton -> {
-      return dialogButton == OK ? textArea.getText() : "";
+      return dialogButton == OK ? textArea.getText() : getOriginalText();
     } );
   }
 
@@ -85,5 +87,13 @@ public class RScriptDialog extends AbstractDialog<String> {
     }
 
     return this.scriptArea;
+  }
+
+  private String getOriginalText() {
+    return this.originalText;
+  }
+
+  private void setOriginalText( final String originalText ) {
+    this.originalText = originalText;
   }
 }

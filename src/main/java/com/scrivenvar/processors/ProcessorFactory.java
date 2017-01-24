@@ -71,7 +71,7 @@ public class ProcessorFactory extends AbstractFileFactory {
    */
   public Processor<String> createProcessor( final FileEditorTab tab ) {
     final Path path = tab.getPath();
-    Processor<String> processor = null;
+    final Processor<String> processor;
 
     switch( lookup( path ) ) {
       case RMARKDOWN:
@@ -91,7 +91,7 @@ public class ProcessorFactory extends AbstractFileFactory {
         break;
 
       default:
-        unknownExtension( path );
+        processor = createIdentityProcessor( tab );
         break;
     }
 
@@ -123,6 +123,13 @@ public class ProcessorFactory extends AbstractFileFactory {
     final Processor<String> mpp = new MarkdownProcessor( mcrp );
 
     return mpp;
+  }
+  
+  protected Processor<String> createIdentityProcessor( final FileEditorTab tab ) {
+    final Processor<String> hpp = new HTMLPreviewProcessor( getPreviewPane() );
+    final Processor<String> ip = new IdentityProcessor( hpp );
+    
+    return ip;
   }
 
   protected Processor<String> createMarkdownProcessor( final FileEditorTab tab ) {

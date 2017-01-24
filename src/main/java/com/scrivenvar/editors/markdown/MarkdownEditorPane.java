@@ -47,9 +47,6 @@ import javafx.scene.input.KeyEvent;
 import javafx.stage.Window;
 import org.fxmisc.richtext.StyleClassedTextArea;
 import static org.fxmisc.wellbehaved.event.EventPattern.keyPressed;
-import static org.fxmisc.wellbehaved.event.EventPattern.keyPressed;
-import static org.fxmisc.wellbehaved.event.EventPattern.keyPressed;
-import static org.fxmisc.wellbehaved.event.EventPattern.keyPressed;
 
 /**
  * Markdown editor pane.
@@ -73,9 +70,6 @@ public class MarkdownEditorPane extends EditorPane {
     textArea.getStylesheets().add( STYLESHEET_MARKDOWN );
 
     addEventListener( keyPressed( ENTER ), this::enterPressed );
-
-    // TODO: Wait for implementation that allows cutting lines, not paragraphs.
-//    addEventListener( keyPressed( X, SHORTCUT_DOWN ), this::cutLine );
   }
 
   public ObservableValue<String> markdownProperty() {

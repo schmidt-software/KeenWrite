@@ -31,7 +31,7 @@ Download and install [Java 8u40 or greater](http://www.oracle.com/technetwork/ja
 
 Usage
 ---
-1. [Download](https://github.com/DaveJarvis/scrivenvar/releases) the jar file.
+1. [Download](https://github.com/DaveJarvis/scrivenvar/releases) `scrivenvar.jar`.
 1. Double-click `scrivenvar.jar` to start the application.
 
 License

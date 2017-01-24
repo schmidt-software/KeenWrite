@@ -67,13 +67,6 @@ import javafx.stage.Window;
 import org.fxmisc.richtext.StyledTextArea;
 import org.fxmisc.wellbehaved.event.EventPattern;
 import org.fxmisc.wellbehaved.event.InputMap;
-import static com.scrivenvar.Messages.get;
-import static com.scrivenvar.Messages.get;
-import static com.scrivenvar.Messages.get;
-import static com.scrivenvar.Messages.get;
-import static com.scrivenvar.Messages.get;
-import static com.scrivenvar.Messages.get;
-import static com.scrivenvar.Messages.get;
 
 /**
  * Tab pane for file editors.
@@ -86,7 +79,7 @@ public final class FileEditorTabPane extends TabPane {
 
   private final Options options = Services.load( Options.class );
   private final Settings settings = Services.load( Settings.class );
-  private final Notifier notifyService = Services.load(Notifier.class );
+  private final Notifier notifyService = Services.load( Notifier.class );
 
   private final ReadOnlyObjectWrapper<Path> openDefinition = new ReadOnlyObjectWrapper<>();
   private final ReadOnlyObjectWrapper<FileEditorTab> activeFileEditor = new ReadOnlyObjectWrapper<>();
@@ -127,7 +120,8 @@ public final class FileEditorTabPane extends TabPane {
             change.getAddedSubList().stream().forEach( (tab) -> {
               ((FileEditorTab)tab).modifiedProperty().addListener( modifiedListener );
             } );
-          } else if( change.wasRemoved() ) {
+          }
+          else if( change.wasRemoved() ) {
             change.getRemoved().stream().forEach( (tab) -> {
               ((FileEditorTab)tab).modifiedProperty().removeListener( modifiedListener );
             } );
@@ -337,25 +331,31 @@ public final class FileEditorTabPane extends TabPane {
     getOnOpenDefinitionFile().set( definition.toPath() );
   }
 
-  boolean saveEditor( final FileEditorTab fileEditor ) {
-    if( fileEditor == null || !fileEditor.isModified() ) {
+  boolean saveEditor( final FileEditorTab tab ) {
+    if( tab == null || !tab.isModified() ) {
       return true;
     }
 
-    if( fileEditor.getPath() == null ) {
-      getSelectionModel().select( fileEditor );
+    return tab.getPath() == null ? saveEditorAs( tab ) : tab.save();
+  }
 
-      final FileChooser fileChooser = createFileChooser( Messages.get( "Dialog.file.choose.save.title" ) );
-      final File file = fileChooser.showSaveDialog( getWindow() );
-      if( file == null ) {
-        return false;
-      }
-
-      saveLastDirectory( file );
-      fileEditor.setPath( file.toPath() );
+  boolean saveEditorAs( final FileEditorTab tab ) {
+    if( tab == null ) {
+      return true;
     }
 
-    return fileEditor.save();
+    getSelectionModel().select( tab );
+
+    final FileChooser fileChooser = createFileChooser( get( "Dialog.file.choose.save.title" ) );
+    final File file = fileChooser.showSaveDialog( getWindow() );
+    if( file == null ) {
+      return false;
+    }
+
+    saveLastDirectory( file );
+    tab.setPath( file.toPath() );
+
+    return tab.save();
   }
 
   boolean saveAllEditors() {
@@ -571,7 +571,8 @@ public final class FileEditorTabPane extends TabPane {
 
     if( files.isEmpty() ) {
       newEditor();
-    } else {
+    }
+    else {
       openEditors( files, activeIndex );
     }
   }
@@ -597,7 +598,8 @@ public final class FileEditorTabPane extends TabPane {
 
     if( filePath == null ) {
       preferences.remove( "activeFile" );
-    } else {
+    }
+    else {
       preferences.put( "activeFile", filePath.toString() );
     }
   }

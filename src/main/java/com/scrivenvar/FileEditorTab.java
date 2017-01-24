@@ -30,6 +30,7 @@ import com.scrivenvar.editors.markdown.MarkdownEditorPane;
 import com.scrivenvar.service.events.Notification;
 import com.scrivenvar.service.events.Notifier;
 import java.nio.charset.Charset;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import static java.util.Locale.ENGLISH;
@@ -44,6 +45,7 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.Event;
 import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.control.Tab;
 import javafx.scene.control.Tooltip;
 import javafx.scene.input.InputEvent;
@@ -76,15 +78,12 @@ public final class FileEditorTab extends Tab {
   private final BooleanProperty canUndo = new SimpleBooleanProperty();
   private final BooleanProperty canRedo = new SimpleBooleanProperty();
 
-  // Might be simpler to revert this back to a property and have the main
-  // window listen for changes to it...
   private Path path;
 
   FileEditorTab( final Path path ) {
     setPath( path );
 
     this.modified.addListener( (observable, oldPath, newPath) -> updateTab() );
-    updateTab();
 
     setOnSelectionChanged( e -> {
       if( isSelected() ) {
@@ -311,12 +310,23 @@ public final class FileEditorTab extends Tab {
       e.getMessage()
     );
 
-    service.createError( getWindow(), message ).showAndWait();
+    try {
+      service.createError( getWindow(), message ).showAndWait();
+    } catch( final Exception ex ) {
+      getNotifyService().notify( ex );
+    }
+    
     return false;
   }
 
   private Window getWindow() {
-    return getEditorPane().getScene().getWindow();
+    final Scene scene = getEditorPane().getScene();
+
+    if( scene == null ) {
+      throw new UnsupportedOperationException( "" );
+    }
+
+    return scene.getWindow();
   }
 
   /**
@@ -373,6 +383,8 @@ public final class FileEditorTab extends Tab {
 
   public void setPath( final Path path ) {
     this.path = path;
+
+    updateTab();
   }
 
   /**
@@ -468,7 +480,7 @@ public final class FileEditorTab extends Tab {
    *
    * @return The editor pane, never null.
    */
-  public EditorPane getEditorPane() {
+  public synchronized EditorPane getEditorPane() {
     if( this.editorPane == null ) {
       this.editorPane = new MarkdownEditorPane();
     }
@@ -480,7 +492,17 @@ public final class FileEditorTab extends Tab {
     return this.alertService;
   }
 
+  /**
+   * Returns the encoding for the file, defaulting to UTF-8 if it hasn't been
+   * determined.
+   * 
+   * @return The file encoding or UTF-8 if unknown.
+   */
   private Charset getEncoding() {
+    if( this.encoding == null ) {
+      this.encoding = UTF_8;
+    }
+    
     return this.encoding;
   }
 

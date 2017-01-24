@@ -521,6 +521,18 @@ public class MainWindow implements Observer {
     getFileEditorPane().saveEditor( getActiveFileEditor() );
   }
 
+  private void fileSaveAs() {
+    final FileEditorTab editor = getActiveFileEditor();
+    getFileEditorPane().saveEditorAs( editor );
+    getProcessors().remove( editor );
+
+    try {
+      refreshSelectedTab( editor );
+    } catch( final Exception ex ) {
+      getNotifier().notify( ex );
+    }
+  }
+
   private void fileSaveAll() {
     getFileEditorPane().saveAllEditors();
   }
@@ -797,6 +809,7 @@ public class MainWindow implements Observer {
     final Action fileCloseAllAction = new Action( get( "Main.menu.file.close_all" ), null, null, e -> fileCloseAll(), activeFileEditorIsNull );
     final Action fileSaveAction = new Action( get( "Main.menu.file.save" ), "Shortcut+S", FLOPPY_ALT, e -> fileSave(),
       createActiveBooleanProperty( FileEditorTab::modifiedProperty ).not() );
+    final Action fileSaveAsAction = new Action( Messages.get( "Main.menu.file.save_as" ), null, null, e -> fileSaveAs(), activeFileEditorIsNull );
     final Action fileSaveAllAction = new Action( get( "Main.menu.file.save_all" ), "Shortcut+Shift+S", null, e -> fileSaveAll(),
       Bindings.not( getFileEditorPane().anyFileEditorModifiedProperty() ) );
     final Action fileExitAction = new Action( get( "Main.menu.file.exit" ), null, null, e -> fileExit() );
@@ -899,6 +912,7 @@ public class MainWindow implements Observer {
       fileCloseAllAction,
       null,
       fileSaveAction,
+      fileSaveAsAction,
       fileSaveAllAction,
       null,
       fileExitAction );

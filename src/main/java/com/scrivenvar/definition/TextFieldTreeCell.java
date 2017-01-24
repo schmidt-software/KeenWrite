@@ -63,8 +63,7 @@ public class TextFieldTreeCell extends TreeCell<String> {
 
     removeItem.setOnAction( (ActionEvent e) -> {
       final TreeItem c = getTreeItem();
-      boolean remove = c.getParent().getChildren().remove( c );
-      System.out.println( "Remove" );
+      c.getParent().getChildren().remove( c );
     } );
 
     getEditMenu().getItems().add( addItem );

@@ -170,7 +170,9 @@ public class YamlParser {
    * @param map Container that associates definitions with values.
    */
   private void resolve(
-    final JsonNode rootNode, final String path, final Map<String, String> map ) {
+    final JsonNode rootNode,
+    final String path,
+    final Map<String, String> map ) {
 
     if( rootNode != null ) {
       rootNode.fields().forEachRemaining(

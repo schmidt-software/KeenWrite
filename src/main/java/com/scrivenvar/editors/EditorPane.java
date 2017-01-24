@@ -73,13 +73,17 @@ public class EditorPane extends AbstractPane {
   public void redo() {
     getUndoManager().redo();
   }
-  
+
+  /**
+   * TOD: Implement this.
+   */
   public void replace() {
-    System.out.println( "replace" );
   }
-  
+
+  /**
+   * TOD: Implement this.
+   */
   public void findPrevious() {
-    System.out.println( "find previous" );
   }
 
   public UndoManager getUndoManager() {

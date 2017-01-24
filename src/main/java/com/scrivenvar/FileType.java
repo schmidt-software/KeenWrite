@@ -42,6 +42,7 @@ public enum FileType {
   MARKDOWN( "markdown" ),
   DEFINITION( "definition" ),
   XML( "xml" ),
+  CSV( "csv" ),
   JSON( "json" ),
   TOML( "toml" ),
   YAML( "yaml" ),
