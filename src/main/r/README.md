@@ -116,7 +116,7 @@ Import and display information from a CSV file as follows:
 
        `r# csv2md('data.csv',total=F)`
 
-1. Type the following to sum all numeric columns, use:
+1. Type the following to calculate a total for all numeric columns:
 
        `r# csv2md('data.csv')`
 
