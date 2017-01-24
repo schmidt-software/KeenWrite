@@ -23,17 +23,17 @@ Configure the editor to use the R scripts as follows:
 1. Click **OK**.
 1. Paste the following definitions:
 
-       date:
-         anchor: 2017-01-01
-       editor:
-         examples:
-           season: 2017-09-02
-           math:
-             x: 1
-             y: $editor.examples.math.x$ + 1
-             z: $editor.examples.math.y$ + 1
-           name:
-             given: Josephene
+        date:
+          anchor: 2017-01-01
+        editor:
+          examples:
+            season: 2017-09-02
+            math:
+              x: 1
+              y: $editor.examples.math.x$ + 1
+              z: $editor.examples.math.y$ + 1
+            name:
+              given: Josephene
 
 1. Save and close the file.
 1. Click **File → Open**
