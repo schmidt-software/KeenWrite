@@ -5,36 +5,37 @@ $application.title$
 
 Word processing with variables.
 
-![Screenshot](images/screenshot.png)
+Requirements
+---
+[Java 8u40 or greater](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html).
+
+Quick Start
+---
+Complete the following steps to run the application:
+
+1. [Download](https://github.com/DaveJarvis/scrivenvar/releases) `scrivenvar.jar`.
+1. Double-click `scrivenvar.jar` to start the application.
 
 Features
 ---
-
-* User-defined variables
-* Recursive variable definitions
-* Real-time document preview with variable substitution
-* Platform independent (Windows, Linux, MacOS)
-* Auto-complete variable names based on variable values
-* Real-time XML document transformation using XSLT2
 * R integration
+* User-defined variables, interpolated
+* Real-time preview with variable substitution
+* Auto-complete variable names based on variable values
+* XML document transformation using XSLT2
+* Platform independent (Windows, Linux, MacOS)
 
 Future Features
 ---
 * Spell check
-* Search and replace text with variables
+* Search and replace using variables
 * Re-organize variable names
 
-Requirements
+Screenshot
 ---
 
-Download and install [Java 8u40 or greater](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html).
-
-Usage
----
-1. [Download](https://github.com/DaveJarvis/scrivenvar/releases) `scrivenvar.jar`.
-1. Double-click `scrivenvar.jar` to start the application.
+![Screenshot](images/screenshot.png)
 
 License
 ---
-
 This software is licensed under the [BSD 2-Clause License](LICENSE).
