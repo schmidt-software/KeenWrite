@@ -46,6 +46,7 @@ import javafx.collections.ObservableList;
 import javafx.event.Event;
 import javafx.scene.control.IndexRange;
 import javafx.scene.control.TreeItem;
+import javafx.scene.control.TreeView;
 import javafx.scene.input.InputEvent;
 import javafx.scene.input.KeyCode;
 import static javafx.scene.input.KeyCode.AT;
@@ -56,6 +57,7 @@ import static javafx.scene.input.KeyCode.SPACE;
 import static javafx.scene.input.KeyCombination.CONTROL_DOWN;
 import static javafx.scene.input.KeyCombination.SHIFT_DOWN;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseEvent;
 import org.fxmisc.richtext.StyledTextArea;
 import org.fxmisc.wellbehaved.event.EventPattern;
 import static org.fxmisc.wellbehaved.event.EventPattern.keyPressed;
@@ -90,16 +92,40 @@ public class VariableNameInjector {
    */
   private int initialCaretPosition;
 
+  /**
+   * Empty constructor.
+   */
   private VariableNameInjector() {
   }
 
   public static void listen( final FileEditorTab tab, final DefinitionPane pane ) {
-    VariableNameInjector vni = new VariableNameInjector();
+    final VariableNameInjector vni = new VariableNameInjector();
 
     vni.setFileEditorTab( tab );
     vni.setDefinitionPane( pane );
-
+    vni.initBranchSelectedListener();
     vni.initKeyboardEventListeners();
+  }
+
+  /**
+   * Traps double-click events on the definition pane.
+   */
+  private void initBranchSelectedListener() {
+    getDefinitionPane().addBranchSelectedListener( (final MouseEvent event) -> {
+      final Object source = event.getSource();
+
+      if( source instanceof TreeView ) {
+        final TreeView tree = (TreeView)source;
+        final TreeItem item = (TreeItem)tree.getSelectionModel().getSelectedItem();
+
+        if( item instanceof VariableTreeItem ) {
+          final VariableTreeItem var = (VariableTreeItem)item;
+          final String text = decorate( var.toPath() );
+
+          replaceSelection( text );
+        }
+      }
+    } );
   }
 
   /**
@@ -160,7 +186,7 @@ public class VariableNameInjector {
           vModeStop();
 
           // Decorate the variable upon exiting vMode.
-          decorateVariable();
+          decorate();
         }
         break;
 
@@ -273,7 +299,7 @@ public class VariableNameInjector {
 
     if( leaf != null ) {
       replaceText( boundaries[ 0 ], boundaries[ 1 ], leaf.toPath() );
-      decorateVariable();
+      decorate();
       expand( leaf );
     }
   }
@@ -282,18 +308,37 @@ public class VariableNameInjector {
    * Called when autocomplete finishes on a valid leaf or when the user presses
    * Enter to finish manual autocomplete.
    */
-  private void decorateVariable() {
+  private void decorate() {
     // A little bit of duplication...
     final String paragraph = getCaretParagraph();
     final int[] boundaries = getWordBoundaries( paragraph );
     final String old = paragraph.substring( boundaries[ 0 ], boundaries[ 1 ] );
 
-    final String newVariable = getVariableDecorator().decorate( old );
+    final String newVariable = decorate( old );
 
     final int posEnded = getCurrentCaretPosition();
     final int posBegan = posEnded - old.length();
 
     getEditor().replaceText( posBegan, posEnded, newVariable );
+  }
+
+  /**
+   * Called when user double-clicks on a tree view item.
+   *
+   * @param variable The variable to decorate.
+   */
+  private String decorate( final String variable ) {
+    return getVariableDecorator().decorate( variable );
+  }
+
+  /**
+   * Inserts the given string at the current caret position, or replaces
+   * selected text (if any).
+   *
+   * @param s The string to inject.
+   */
+  private void replaceSelection( final String s ) {
+    getEditor().replaceSelection( s );
   }
 
   /**

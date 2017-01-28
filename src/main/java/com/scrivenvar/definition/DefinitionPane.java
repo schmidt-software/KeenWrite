@@ -35,11 +35,14 @@ import com.scrivenvar.predicates.strings.StringPredicate;
 import static com.scrivenvar.util.Lists.getFirst;
 import java.util.List;
 import javafx.collections.ObservableList;
+import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.control.MultipleSelectionModel;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 
 /**
  * Provides a list of variables that can be referenced in the editor.
@@ -64,6 +67,25 @@ public class DefinitionPane extends AbstractPane {
   public DefinitionPane( final TreeView<String> root ) {
     setTreeView( root );
     initTreeView();
+  }
+
+  /**
+   * Allows observers to receive double-click events on the tree view.
+   *
+   * @param handler The handler that
+   */
+  public void addBranchSelectedListener(
+    final EventHandler<? super MouseEvent> handler ) {
+
+    getTreeView().addEventHandler( MouseEvent.ANY, event -> {
+      if( event.getButton().equals( MouseButton.PRIMARY ) && event.getClickCount() == 2 ) {
+        if( event.getEventType().equals( MouseEvent.MOUSE_CLICKED ) ) {
+          handler.handle( event );
+        }
+
+        event.consume();
+      }
+    } );
   }
 
   /**
