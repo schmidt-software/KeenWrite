@@ -52,10 +52,12 @@ import javax.script.ScriptException;
  */
 public final class InlineRProcessor extends DefaultVariableProcessor {
 
-  private final Notifier notifier = Services.load( Notifier.class );
-  private final Options options = Services.load( Options.class );
+  private static final Notifier NOTIFIER = Services.load( Notifier.class );
+  private static final Options OPTIONS = Services.load( Options.class );
 
-  private ScriptEngine engine;
+  // Only one editor is open at a time.
+  private static final ScriptEngine ENGINE =
+    (new ScriptEngineManager()).getEngineByName( "Renjin" );
 
   /**
    * Constructs a processor capable of evaluating R statements.
@@ -173,19 +175,15 @@ public final class InlineRProcessor extends DefaultVariableProcessor {
   }
 
   private synchronized ScriptEngine getScriptEngine() {
-    if( this.engine == null ) {
-      this.engine = (new ScriptEngineManager()).getEngineByName( "Renjin" );
-    }
-
-    return this.engine;
+    return ENGINE;
   }
 
   private Notifier getNotifier() {
-    return this.notifier;
+    return NOTIFIER;
   }
 
   private Options getOptions() {
-    return this.options;
+    return OPTIONS;
   }
 
   /**

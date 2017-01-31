@@ -37,7 +37,7 @@ import java.util.Map;
  *
  * @author White Magic Software, Ltd.
  */
-class RVariableProcessor extends DefaultVariableProcessor {
+public class RVariableProcessor extends DefaultVariableProcessor {
 
   public RVariableProcessor(
     final Processor<String> rp, final Map<String, String> map ) {

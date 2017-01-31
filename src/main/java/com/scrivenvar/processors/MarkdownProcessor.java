@@ -35,8 +35,7 @@ import com.vladsch.flexmark.html.HtmlRenderer;
 import com.vladsch.flexmark.parser.Parser;
 import com.vladsch.flexmark.superscript.SuperscriptExtension;
 import java.util.ArrayList;
-import java.util.List;
-
+import java.util.Collection;
 
 /**
  * Responsible for parsing a Markdown document and rendering it as HTML.
@@ -45,7 +44,18 @@ import java.util.List;
  */
 public class MarkdownProcessor extends AbstractProcessor<String> {
 
-  private List<Extension> extensions;
+  private final static HtmlRenderer RENDERER;
+  private final static Parser PARSER;
+
+  static {
+    final Collection<Extension> extensions = new ArrayList<>();
+    extensions.add( TablesExtension.create() );
+    extensions.add( SuperscriptExtension.create() );
+    extensions.add( StrikethroughSubscriptExtension.create() );
+
+    RENDERER = HtmlRenderer.builder().extensions( extensions ).build();
+    PARSER = Parser.builder().extensions( extensions ).build();
+  }
 
   /**
    * Constructs a new Markdown processor that can create HTML documents.
@@ -90,7 +100,7 @@ public class MarkdownProcessor extends AbstractProcessor<String> {
    * @return The root node of the markdown tree.
    */
   private Node parse( final String markdown ) {
-    return createParser().parse( markdown );
+    return getParser().parse( markdown );
   }
 
   /**
@@ -101,35 +111,7 @@ public class MarkdownProcessor extends AbstractProcessor<String> {
    * @return The markdown rendered as an HTML document.
    */
   private String toHtml( final String markdown ) {
-    return createRenderer().render( parse( markdown ) );
-  }
-
-  /**
-   * Returns the list of extensions to use when parsing and rendering Markdown
-   * into HTML.
-   *
-   * @return A non-null list of Markdown extensions.
-   */
-  private synchronized List<Extension> getExtensions() {
-    if( this.extensions == null ) {
-      this.extensions = createExtensions();
-    }
-
-    return this.extensions;
-  }
-
-  /**
-   * Creates a list that includes a TablesExtension. Subclasses may override
-   * this method to insert more extensions, or remove the table extension.
-   *
-   * @return A list with an extension for parsing and rendering tables.
-   */
-  protected List<Extension> createExtensions() {
-    final List<Extension> result = new ArrayList<>();
-    result.add( TablesExtension.create() );
-    result.add( SuperscriptExtension.create() );
-    result.add( StrikethroughSubscriptExtension.create() );
-    return result;
+    return getRenderer().render( parse( markdown ) );
   }
 
   /**
@@ -137,16 +119,11 @@ public class MarkdownProcessor extends AbstractProcessor<String> {
    *
    * @return A Parser that can build an abstract syntax tree.
    */
-  private Parser createParser() {
-    return Parser.builder().extensions( getExtensions() ).build();
+  private Parser getParser() {
+    return PARSER;
   }
 
-  /**
-   * Creates the HTML document renderer.
-   *
-   * @return A renderer that can convert a Markdown AST to HTML.
-   */
-  private HtmlRenderer createRenderer() {
-    return HtmlRenderer.builder().extensions( getExtensions() ).build();
+  private HtmlRenderer getRenderer() {
+    return RENDERER;
   }
 }

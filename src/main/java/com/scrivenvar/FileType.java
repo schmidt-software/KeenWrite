@@ -39,7 +39,7 @@ public enum FileType {
   ALL( "all" ),
   RMARKDOWN( "rmarkdown" ),
   RXML( "rxml" ),
-  MARKDOWN( "markdown" ),
+  SOURCE( "source" ),
   DEFINITION( "definition" ),
   XML( "xml" ),
   CSV( "csv" ),

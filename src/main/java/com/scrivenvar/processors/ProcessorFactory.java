@@ -78,7 +78,7 @@ public class ProcessorFactory extends AbstractFileFactory {
         processor = createRProcessor( tab );
         break;
 
-      case MARKDOWN:
+      case SOURCE:
         processor = createMarkdownProcessor( tab );
         break;
 

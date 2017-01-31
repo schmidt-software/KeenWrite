@@ -40,7 +40,8 @@ import com.scrivenvar.preview.HTMLPreviewPane;
  */
 public class HTMLPreviewProcessor extends AbstractProcessor<String> {
 
-  private HTMLPreviewPane htmlPreviewPane;
+  // There is only one preview panel.
+  private static HTMLPreviewPane htmlPreviewPane;
 
   /**
    * Constructs the end of a processing chain.

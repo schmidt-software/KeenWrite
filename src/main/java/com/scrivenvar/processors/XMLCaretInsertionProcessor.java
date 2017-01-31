@@ -41,7 +41,7 @@ import javafx.beans.value.ObservableValue;
  */
 public class XMLCaretInsertionProcessor extends CaretInsertionProcessor {
 
-  private VTDGen parser;
+  private final static VTDGen PARSER = new VTDGen();
 
   /**
    * Constructs a processor capable of inserting a caret marker into XML.
@@ -138,19 +138,6 @@ public class XMLCaretInsertionProcessor extends CaretInsertionProcessor {
   }
 
   private synchronized VTDGen getParser() {
-    if( this.parser == null ) {
-      this.parser = createParser();
-    }
-
-    return this.parser;
-  }
-
-  /**
-   * Creates a high-performance XML document parser.
-   *
-   * @return A new XML parser.
-   */
-  protected VTDGen createParser() {
-    return new VTDGen();
+    return PARSER;
   }
 }
