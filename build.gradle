@@ -12,14 +12,14 @@ compileJava {
 
 dependencies {
   compile 'org.controlsfx:controlsfx:8.40.12'
-  compile 'org.fxmisc.richtext:richtextfx:0.7-M3'
+  compile 'org.fxmisc.richtext:richtextfx:0.7-M4'
   compile 'com.miglayout:miglayout-javafx:5.0'
   compile 'de.jensd:fontawesomefx-fontawesome:4.5.0'
   compile 'org.ahocorasick:ahocorasick:0.3.0'
-  compile 'com.vladsch.flexmark:flexmark:0.9.0'
-  compile 'com.vladsch.flexmark:flexmark-ext-gfm-tables:0.9.0'
-  compile 'com.vladsch.flexmark:flexmark-ext-superscript:0.9.0'
-  compile 'com.vladsch.flexmark:flexmark-ext-gfm-strikethrough:0.9.0'
+  compile 'com.vladsch.flexmark:flexmark:0.18.5'
+  compile 'com.vladsch.flexmark:flexmark-ext-tables:0.18.5'
+  compile 'com.vladsch.flexmark:flexmark-ext-superscript:0.18.5'
+  compile 'com.vladsch.flexmark:flexmark-ext-gfm-strikethrough:0.18.5'
   compile 'com.fasterxml.jackson.core:jackson-core:2.8.4'
   compile 'com.fasterxml.jackson.core:jackson-databind:2.8.4'
   compile 'com.fasterxml.jackson.core:jackson-annotations:2.8.4'
@@ -29,7 +29,7 @@ dependencies {
   compile 'net.sf.saxon:Saxon-HE:9.7.0-14'
   compile 'com.googlecode.juniversalchardet:juniversalchardet:1.0.3'
   compile 'org.apache.commons:commons-configuration2:2.1'
-  compile files('libs/renjin-script-engine-0.8.2324-jar-with-dependencies.jar')
+  compile files('libs/renjin-script-engine-0.8.2350-jar-with-dependencies.jar')
 }
 
 version = '1.2.6'
