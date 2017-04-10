@@ -31,6 +31,7 @@ import com.ximpleware.VTDException;
 import com.ximpleware.VTDGen;
 import static com.ximpleware.VTDGen.TOKEN_CHARACTER_DATA;
 import com.ximpleware.VTDNav;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import java.text.ParseException;
 import javafx.beans.value.ObservableValue;
 
@@ -131,8 +132,11 @@ public class XMLCaretInsertionProcessor extends CaretInsertionProcessor {
   private VTDNav getNavigator( final String xml ) throws VTDException {
     final VTDGen vg = getParser();
 
-    // TODO: Use the document's encoding...
-    vg.setDoc( xml.getBytes() );
+    // XML recommends UTF-8 encoding.
+    // See: http://stackoverflow.com/a/36696214/59087
+    //
+    // The encoding should be derived, not assumed.
+    vg.setDoc( xml.getBytes( UTF_8 ) );
     vg.parse( true );
     return vg.getNav();
   }

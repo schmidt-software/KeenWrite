@@ -27,9 +27,12 @@
  */
 package com.scrivenvar.service.events.impl;
 
+import static com.scrivenvar.Constants.APP_TITLE;
 import static com.scrivenvar.Constants.STATUS_BAR_DEFAULT;
 import com.scrivenvar.service.events.Notification;
 import com.scrivenvar.service.events.Notifier;
+import java.io.File;
+import java.nio.file.Paths;
 import java.util.Observable;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
@@ -108,5 +111,11 @@ public final class DefaultNotifier extends Observable implements Notifier {
   @Override
   public Alert createError( final Window parent, final Notification message ) {
     return createAlertDialog( parent, ERROR, message );
+  }
+
+  @Override
+  public File getLogPath() {
+    return Paths.get(
+      System.getProperty("java.io.tmpdir"), APP_TITLE + ".log").toFile();
   }
 }

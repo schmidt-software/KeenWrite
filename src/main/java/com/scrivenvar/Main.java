@@ -103,7 +103,7 @@ public final class Main extends Application {
   }
 
   private void initApplication() {
-    app = this;
+    Main.app = this;
   }
 
   /**
@@ -189,7 +189,7 @@ public final class Main extends Application {
   }
 
   private static Application getApplication() {
-    return app;
+    return Main.app;
   }
 
   private Image createImage( final String filename ) {

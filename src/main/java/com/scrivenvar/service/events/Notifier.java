@@ -27,6 +27,10 @@
  */
 package com.scrivenvar.service.events;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Observer;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
@@ -56,8 +60,36 @@ public interface Notifier {
    * @param ex The exception containing a message to show to the user.
    */
   default public void notify( final Exception ex ) {
+    log( ex );
     notify( ex.getMessage() );
   }
+  
+  /**
+   * Writes the exception to a log file. The log file should be written
+   * in the System's temporary directory.
+   * 
+   * @param ex The exception to show in the status bar and log to a file.
+   */
+  default public void log( final Exception ex ) {
+    try (
+      final FileWriter fw = new FileWriter( getLogPath(), true );
+      final PrintWriter pw = new PrintWriter( fw )
+      ) {
+
+      ex.printStackTrace( pw );
+    } catch (final IOException ioe) {
+      // The notify method will display the message on the status
+      // bar.
+    }
+  }
+  
+  /**
+   * Returns the fully qualified path to the log file to write to when
+   * an exception occurs.
+   * 
+   * @return Location of the log file for writing unexpected exceptions.
+   */
+  public File getLogPath();
 
   /**
    * Causes any displayed notifications to disappear.
