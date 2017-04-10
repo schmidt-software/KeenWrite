@@ -34,7 +34,7 @@ dependencies {
   compile 'net.sf.saxon:Saxon-HE:9.7.0-14'
   compile 'com.googlecode.juniversalchardet:juniversalchardet:1.0.3'
   compile 'org.apache.commons:commons-configuration2:2.1'
-  compile files('libs/renjin-script-engine-0.8.2350-jar-with-dependencies.jar')
+  compile files('libs/renjin-script-engine-0.8.2354-jar-with-dependencies.jar')
 }
 
 version = '1.2.8'
