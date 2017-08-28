@@ -37,7 +37,7 @@ dependencies {
   compile files('libs/renjin-script-engine-0.8.2414-jar-with-dependencies.jar')
 }
 
-version = '1.2.11'
+version = '1.2.12'
 applicationName = 'scrivenvar'
 mainClassName = 'com.scrivenvar.Main'
 sourceCompatibility = JavaVersion.VERSION_1_8

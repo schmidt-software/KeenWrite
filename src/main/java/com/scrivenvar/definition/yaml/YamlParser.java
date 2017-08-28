@@ -32,6 +32,7 @@ import com.fasterxml.jackson.core.ObjectCodec;
 import com.fasterxml.jackson.core.io.IOContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
@@ -194,9 +195,17 @@ public class YamlParser {
     final JsonNode leafNode = rootNode.getValue();
     final String key = rootNode.getKey();
 
+    
     if( leafNode.isValueNode() ) {
-      final String value = rootNode.getValue().asText();
-
+      final String value;
+      
+      if( leafNode instanceof NullNode ) {
+        value = "";
+      }
+      else {
+        value = rootNode.getValue().asText();
+      }
+      
       map.put( VARIABLE_DECORATOR.decorate( path + key ), substitute( value ) );
     }
 
@@ -363,7 +372,7 @@ public class YamlParser {
    *
    * @param documentRoot The parent node.
    */
-  private void setDocumentRoot( ObjectNode documentRoot ) {
+  private void setDocumentRoot( final ObjectNode documentRoot ) {
     this.documentRoot = documentRoot;
   }
 
