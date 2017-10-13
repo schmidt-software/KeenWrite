@@ -29,6 +29,7 @@ import com.scrivenvar.editors.EditorPane;
 import com.scrivenvar.editors.markdown.MarkdownEditorPane;
 import com.scrivenvar.service.events.Notification;
 import com.scrivenvar.service.events.Notifier;
+import java.io.IOException;
 import java.nio.charset.Charset;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import java.nio.file.Files;
@@ -80,7 +81,7 @@ public final class FileEditorTab extends Tab {
 
   private Path path;
 
-  FileEditorTab( final Path path ) {
+  public FileEditorTab( final Path path ) {
     setPath( path );
 
     this.modified.addListener( (observable, oldPath, newPath) -> updateTab() );
@@ -266,7 +267,8 @@ public final class FileEditorTab extends Tab {
     if( filePath != null ) {
       try {
         getEditorPane().setText( asString( Files.readAllBytes( filePath ) ) );
-      } catch( final Exception ex ) {
+        getEditorPane().scrollToTop();
+      } catch( final IOException ex ) {
         getNotifyService().notify( ex );
       }
     }
@@ -279,10 +281,11 @@ public final class FileEditorTab extends Tab {
    */
   public boolean save() {
     try {
-      Files.write( getPath(), asBytes( getEditorPane().getText() ) );
-      getEditorPane().getUndoManager().mark();
+      final EditorPane editor = getEditorPane();
+      Files.write( getPath(), asBytes( editor.getText() ) );
+      editor.getUndoManager().mark();
       return true;
-    } catch( final Exception ex ) {
+    } catch( final IOException ex ) {
       return alert(
         "FileEditor.saveFailed.title", "FileEditor.saveFailed.message", ex
       );

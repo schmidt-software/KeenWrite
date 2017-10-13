@@ -51,7 +51,7 @@ import org.fxmisc.wellbehaved.event.Nodes;
  * @author White Magic Software, Ltd.
  */
 public class EditorPane extends AbstractPane {
-
+  
   private StyleClassedTextArea editor;
   private VirtualizedScrollPane<StyleClassedTextArea> scrollPane;
   private final ObjectProperty<Path> path = new SimpleObjectProperty<>();
@@ -60,16 +60,16 @@ public class EditorPane extends AbstractPane {
    * Set when entering variable edit mode; retrieved upon exiting.
    */
   private InputMap<InputEvent> nodeMap;
-
+  
   @Override
   public void requestFocus() {
     Platform.runLater( () -> getEditor().requestFocus() );
   }
-
+  
   public void undo() {
     getUndoManager().undo();
   }
-
+  
   public void redo() {
     getUndoManager().redo();
   }
@@ -85,15 +85,15 @@ public class EditorPane extends AbstractPane {
    */
   public void findPrevious() {
   }
-
+  
   public UndoManager getUndoManager() {
     return getEditor().getUndoManager();
   }
-
+  
   public String getText() {
     return getEditor().getText();
   }
-
+  
   public void setText( final String text ) {
     getEditor().deselect();
     getEditor().replaceText( text );
@@ -105,7 +105,8 @@ public class EditorPane extends AbstractPane {
    *
    * @param listener Receives editor text change events.
    */
-  public void addTextChangeListener( final ChangeListener<? super String> listener ) {
+  public void addTextChangeListener(
+    final ChangeListener<? super String> listener ) {
     getEditor().textProperty().addListener( listener );
   }
 
@@ -174,20 +175,24 @@ public class EditorPane extends AbstractPane {
   private String getInputMapKey() {
     return "org.fxmisc.wellbehaved.event.inputmap";
   }
-
+  
+  /**
+   * Repositions the cursor and scroll bar to the top of the file.
+   */
   public void scrollToTop() {
     getEditor().moveTo( 0 );
+    getScrollPane().scrollYToPixel( 0 );
   }
-
-  private void setEditor( StyleClassedTextArea textArea ) {
+  
+  private void setEditor( final StyleClassedTextArea textArea ) {
     this.editor = textArea;
   }
-
+  
   public synchronized StyleClassedTextArea getEditor() {
     if( this.editor == null ) {
       setEditor( createTextArea() );
     }
-
+    
     return this.editor;
   }
 
@@ -200,30 +205,30 @@ public class EditorPane extends AbstractPane {
     if( this.scrollPane == null ) {
       this.scrollPane = createScrollPane();
     }
-
+    
     return this.scrollPane;
   }
-
+  
   protected VirtualizedScrollPane<StyleClassedTextArea> createScrollPane() {
     final VirtualizedScrollPane<StyleClassedTextArea> pane
       = new VirtualizedScrollPane<>( getEditor() );
     pane.setVbarPolicy( ScrollPane.ScrollBarPolicy.ALWAYS );
-
+    
     return pane;
   }
-
+  
   protected StyleClassedTextArea createTextArea() {
     return new StyleClassedTextArea( false );
   }
-
+  
   public Path getPath() {
     return this.path.get();
   }
-
+  
   public void setPath( final Path path ) {
     this.path.set( path );
   }
-
+  
   public ObjectProperty<Path> pathProperty() {
     return this.path;
   }
