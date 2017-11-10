@@ -40,7 +40,7 @@ Use a period to reference nested keys, such as:
 novel:
   author: Author Name
 copyright:
-  owner: $book.author$
+  owner: $novel.author$
 ```
 
 Save the variable definitions in a file having an extension of `.yaml` or `.yml`.
@@ -92,7 +92,7 @@ Let's assume that the variable definitions loaded into the application include:
 
 ```
 novel:
-  title: Diary of $book.author$
+  title: Diary of $novel.author$
   author: Anne Frank
 ```
 
