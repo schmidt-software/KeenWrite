@@ -138,6 +138,7 @@ public class VariableNameInjector {
    * @see createKeyboardMap()
    */
   private void initKeyboardEventListeners() {
+    // Control and space are pressed.
     addEventListener( keyPressed( SPACE, CONTROL_DOWN ), this::autocomplete );
 
     // @ key in Linux?

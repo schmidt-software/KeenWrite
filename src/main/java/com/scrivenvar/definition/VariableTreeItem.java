@@ -31,6 +31,8 @@ import com.scrivenvar.decorators.VariableDecorator;
 import com.scrivenvar.decorators.YamlVariableDecorator;
 import static com.scrivenvar.definition.yaml.YamlParser.SEPARATOR;
 import static com.scrivenvar.editors.VariableNameInjector.DEFAULT_MAX_VAR_LENGTH;
+import java.text.Normalizer;
+import static java.text.Normalizer.Form.NFD;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
@@ -120,6 +122,18 @@ public class VariableTreeItem<T> extends TreeItem<T> {
   }
 
   /**
+   * Returns the value of the string without diacritic marks.
+   * 
+   * @return A non-null, possibly empty string.
+   */
+  private String getDiacriticlessValue() {
+    final String value = getValue().toString();
+    final String normalized = Normalizer.normalize(value, NFD);
+    
+    return normalized.replaceAll("\\p{M}", "");
+  }
+
+  /**
    * Returns true if this node is a leaf and its value starts with the given
    * text.
    *
@@ -128,7 +142,7 @@ public class VariableTreeItem<T> extends TreeItem<T> {
    * @return true Node is a leaf and its value starts with the given value.
    */
   private boolean valueStartsWith( final String s ) {
-    return isLeaf() && getValue().toString().startsWith( s );
+    return isLeaf() && getDiacriticlessValue().startsWith( s );
   }
 
   /**
@@ -139,7 +153,7 @@ public class VariableTreeItem<T> extends TreeItem<T> {
    * @return true Node is a leaf and its value contains the given value.
    */
   private boolean valueContains( final String s ) {
-    return isLeaf() && getValue().toString().contains( s );
+    return isLeaf() && getDiacriticlessValue().contains( s );
   }
 
   /**
