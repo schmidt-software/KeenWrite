@@ -64,27 +64,12 @@ The variable definitions appear in the variable definition pane under the headin
 
 ## Edit Document
 
-Edit the document as normal. Notice how the preview pane updates as new content is added. The toolbar shows various icons that perform different formatting operations. These include:
-
-* Bold
-* Italics
-* Superscript
-* Subscript
-* Quotation
-* Inline code block
-* Fenced code block
-* Hyperlink
-* Image
-* Headers
-* Bullet lists
-* Enumerated lists
-
-Try them to see how they appear in the preview pane. Other operations include:
+Edit the document as normal. Notice how the preview pane updates as new content is added. The toolbar shows various icons that perform different formatting operations. Try them to see how they appear in the preview pane. Other operations not shown on the toolbar include:
 
 * Struck text (enclose the words within `~~` and `~~`)
 * Horizontal rule (use `---` on an otherwise empty line).
 
-Note that the preview pane shows one way to interpret and format the document, but many other presentations are possible.
+The preview pane shows one way to interpret and format the document, but many other presentations are possible.
 
 ## Insert Variable
 
@@ -106,10 +91,10 @@ The preview pane shows:
 
 > The novel "Diary of Anne Frank" is one of the most widely read books in the world.
 
-Since it is time-consuming to type in the variable name each time, it is possible to inject the variable name automatically. Accomplish this as follows:
+As it is laborious to type in variable names, it is possible to inject the variable name using autocomplete. Accomplish this as follows:
 
 1. Create a new file.
-1. Type in a partial value, such as **Dia**.
+1. Type in a partial variable value, such as **Dia**.
 1. Press `Ctrl+Space` (hold down the `Control` key and tap the spacebar).
 
 The editor shows:
@@ -124,4 +109,5 @@ The preview pane shows:
 Diary of Anne Frank
 ```
 
-The key name is inserted into the document.
+The variable name is inserted into the document and the preview pane shows the variable's value.
+
