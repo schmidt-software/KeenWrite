@@ -77,6 +77,11 @@ public class VariableNameInjector {
 
   private static final int NO_DIFFERENCE = -1;
 
+  /**
+   * TODO: Move this into settings.
+   */
+  private static final String PUNCTUATION = "\"#$%&'()*+,-/:;<=>?@[]^_`{|}~";
+
   private final Settings settings = Services.load( Settings.class );
 
   /**
@@ -366,7 +371,7 @@ public class VariableNameInjector {
   }
 
   /**
-   * Returns current word boundary indexes into the current paragraph, including
+   * Returns current word boundary indexes into the current paragraph, excluding
    * punctuation.
    *
    * @param p The paragraph wherein to hunt word boundaries.
@@ -401,11 +406,11 @@ public class VariableNameInjector {
    * <ul>
    * <li>surrounded by space: <code>hello | world!</code> ("");</li>
    * <li>end of word: <code>hello| world!</code> ("hello");</li>
-   * <li>start of a word: <code>hello |world!</code> ("world!");</li>
-   * <li>within a word: <code>hello wo|rld!</code> ("world!");</li>
-   * <li>end of a paragraph: <code>hello world!|</code> ("world!");</li>
-   * <li>start of a paragraph: <code>|hello world!</code> ("hello!"); or</li>
-   * <li>after punctuation: <code>hello world!|</code> ("world!").</li>
+   * <li>start of a word: <code>hello |world!</code> ("world");</li>
+   * <li>within a word: <code>hello wo|rld!</code> ("world");</li>
+   * <li>end of a paragraph: <code>hello world!|</code> ("world");</li>
+   * <li>start of a paragraph: <code>|hello world!</code> ("hello"); or</li>
+   * <li>after punctuation: <code>hello world!|</code> ("world").</li>
    * </ul>
    *
    * @param p The string to scan for a word.
@@ -465,7 +470,19 @@ public class VariableNameInjector {
    * @return false The character is a space character.
    */
   private boolean isBoundary( final char c ) {
-    return !isSpaceChar( c );
+    return !isWhitespace( c ) && !isPunctuation( c );
+  }
+
+  /**
+   * Returns true if the given character is part of the set of Latin (English)
+   * punctuation marks.
+   *
+   * @param c
+   *
+   * @return
+   */
+  private static boolean isPunctuation( final char c ) {
+    return PUNCTUATION.indexOf( c ) != -1;
   }
 
   /**
@@ -675,7 +692,8 @@ public class VariableNameInjector {
 
     try {
       return textArea.getText( textBegan, textEnded );
-    } catch( final Exception e ) {
+    }
+    catch( final Exception e ) {
       return textArea.getText();
     }
   }
