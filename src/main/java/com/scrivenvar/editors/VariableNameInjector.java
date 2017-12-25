@@ -37,13 +37,13 @@ import static com.scrivenvar.definition.yaml.YamlParser.SEPARATOR_CHAR;
 import com.scrivenvar.service.Settings;
 import static com.scrivenvar.util.Lists.getFirst;
 import static com.scrivenvar.util.Lists.getLast;
-import static java.lang.Character.isSpaceChar;
 import static java.lang.Character.isWhitespace;
 import static java.lang.Math.min;
 import java.nio.file.Path;
 import java.util.function.Consumer;
 import javafx.collections.ObservableList;
 import javafx.event.Event;
+import javafx.event.EventHandler;
 import javafx.scene.control.IndexRange;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
@@ -71,7 +71,7 @@ import static org.fxmisc.wellbehaved.event.InputMap.sequence;
  *
  * @author White Magic Software, Ltd.
  */
-public class VariableNameInjector {
+public final class VariableNameInjector {
 
   public static final int DEFAULT_MAX_VAR_LENGTH = 64;
 
@@ -89,48 +89,43 @@ public class VariableNameInjector {
    */
   private InputMap<InputEvent> keyboardMap;
 
-  private FileEditorTab tab;
-  private DefinitionPane definitionPane;
-
   /**
    * Position of the variable in the text when in variable mode (0 by default).
    */
   private int initialCaretPosition;
 
   /**
-   * Empty constructor.
+   * Recipient of name injections.
    */
-  private VariableNameInjector() {
-  }
+  private FileEditorTab tab;
 
-  public static void listen( final FileEditorTab tab, final DefinitionPane pane ) {
-    final VariableNameInjector vni = new VariableNameInjector();
+  /**
+   * Initiates double-click events.
+   */
+  private DefinitionPane definitionPane;
 
-    vni.setFileEditorTab( tab );
-    vni.setDefinitionPane( pane );
-    vni.initBranchSelectedListener();
-    vni.initKeyboardEventListeners();
+  private EventHandler<MouseEvent> panelEventHandler;
+
+  /**
+   * Initializes the variable name injector against the given pane.
+   *
+   * @param tab The tab to inject variable names into.
+   * @param pane The definition panel to listen to for double-click events.
+   */
+  public VariableNameInjector(
+    final FileEditorTab tab, final DefinitionPane pane ) {
+    setFileEditorTab( tab );
+    setDefinitionPane( pane );
+    initBranchSelectedListener();
+    initKeyboardEventListeners();
   }
 
   /**
    * Traps double-click events on the definition pane.
    */
   private void initBranchSelectedListener() {
-    getDefinitionPane().addBranchSelectedListener( (final MouseEvent event) -> {
-      final Object source = event.getSource();
-
-      if( source instanceof TreeView ) {
-        final TreeView tree = (TreeView)source;
-        final TreeItem item = (TreeItem)tree.getSelectionModel().getSelectedItem();
-
-        if( item instanceof VariableTreeItem ) {
-          final VariableTreeItem var = (VariableTreeItem)item;
-          final String text = decorate( var.toPath() );
-
-          replaceSelection( text );
-        }
-      }
-    } );
+    final EventHandler<MouseEvent> eventHandler = getPanelEventHandler();
+    getDefinitionPane().addBranchSelectedListener( eventHandler );
   }
 
   /**
@@ -910,14 +905,14 @@ public class VariableNameInjector {
   }
 
   private StyledTextArea getEditor() {
-    return getFileEditorTab().getEditorPane().getEditor();
+    return getEditorPane().getEditor();
   }
 
   public FileEditorTab getFileEditorTab() {
     return this.tab;
   }
 
-  private void setFileEditorTab( final FileEditorTab editorTab ) {
+  public void setFileEditorTab( final FileEditorTab editorTab ) {
     this.tab = editorTab;
   }
 
@@ -945,5 +940,47 @@ public class VariableNameInjector {
 
   private Settings getSettings() {
     return this.settings;
+  }
+
+  private void setPanelEventHandler( final EventHandler<MouseEvent> eventHandler ) {
+    this.panelEventHandler = eventHandler;
+  }
+
+  private synchronized EventHandler<MouseEvent> getPanelEventHandler() {
+    if( this.panelEventHandler == null ) {
+      this.panelEventHandler = createPanelEventHandler();
+    }
+
+    return this.panelEventHandler;
+  }
+
+  private EventHandler<MouseEvent> createPanelEventHandler() {
+    return new PanelEventHandler();
+  }
+
+  /**
+   * Responsible for handling double-click events on the definition pane.
+   */
+  private class PanelEventHandler implements EventHandler<MouseEvent> {
+
+    public PanelEventHandler() {
+    }
+
+    @Override
+    public void handle( final MouseEvent event ) {
+      final Object source = event.getSource();
+
+      if( source instanceof TreeView ) {
+        final TreeView tree = (TreeView)source;
+        final TreeItem item = (TreeItem)tree.getSelectionModel().getSelectedItem();
+
+        if( item instanceof VariableTreeItem ) {
+          final VariableTreeItem var = (VariableTreeItem)item;
+          final String text = decorate( var.toPath() );
+
+          replaceSelection( text );
+        }
+      }
+    }
   }
 }

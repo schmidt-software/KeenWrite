@@ -121,7 +121,7 @@ public final class HTMLPreviewPane extends Pane {
   private void scrollToCaret() {
     execute( getScrollScript() );
   }
-
+  
   /**
    * Returns the JavaScript used to scroll the WebView pane.
    *

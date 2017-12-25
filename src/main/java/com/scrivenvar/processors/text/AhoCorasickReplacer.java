@@ -52,7 +52,7 @@ public class AhoCorasickReplacer extends AbstractTextReplacer {
 
     // The TrieBuilder should only match whole words and ignore overlaps (there
     // shouldn't be any).
-    final TrieBuilder builder = builder().onlyWholeWords().removeOverlaps();
+    final TrieBuilder builder = builder().onlyWholeWords().ignoreOverlaps();
 
     for( final String key : keys( map ) ) {
       builder.addKeyword( key );

@@ -118,6 +118,11 @@ public class MainWindow implements Observer {
    */
   private Map<FileEditorTab, Processor<String>> processors;
 
+  /**
+   * Listens on the definition pane for double-click events.
+   */
+  private VariableNameInjector variableNameInjector;
+
   public MainWindow() {
     initLayout();
     initFindInput();
@@ -192,7 +197,8 @@ public class MainWindow implements Observer {
         try {
           getSnitch().ignore( oldPath );
           getSnitch().listen( newPath );
-        } catch( final IOException ex ) {
+        }
+        catch( final IOException ex ) {
           error( ex );
         }
 
@@ -223,7 +229,6 @@ public class MainWindow implements Observer {
 
               initTextChangeListener( tab );
               initCaretParagraphListener( tab );
-              initVariableNameInjector( tab );
 //              initSyntaxListener( tab );
             }
           }
@@ -251,6 +256,7 @@ public class MainWindow implements Observer {
     editorPane.addTabSelectionListener(
       (ObservableValue<? extends Tab> tabPane,
         final Tab oldTab, final Tab newTab) -> {
+        updateVariableNameInjector();
 
         // If there was no old tab, then this is a first time load, which
         // can be ignored.
@@ -285,8 +291,37 @@ public class MainWindow implements Observer {
     );
   }
 
-  private void initVariableNameInjector( final FileEditorTab tab ) {
-    VariableNameInjector.listen( tab, getDefinitionPane() );
+  private void updateVariableNameInjector() {
+    getVariableNameInjector().setFileEditorTab( getActiveFileEditor() );
+  }
+
+  private void setVariableNameInjector( final VariableNameInjector injector ) {
+    this.variableNameInjector = injector;
+  }
+
+  private synchronized VariableNameInjector getVariableNameInjector() {
+    if( this.variableNameInjector == null ) {
+      final VariableNameInjector vin = createVariableNameInjector();
+      setVariableNameInjector( vin );
+    }
+
+    return this.variableNameInjector;
+  }
+
+  private VariableNameInjector createVariableNameInjector() {
+    final FileEditorTab tab = getActiveFileEditor();
+    final DefinitionPane pane = getDefinitionPane();
+
+    return new VariableNameInjector( tab, pane );
+  }
+
+  /**
+   * Add a listener for variable name injection the given tab.
+   *
+   * @param tab The tab to inject variable names into upon a double-click.
+   */
+  private void initVariableNameInjector( final Tab tab ) {
+    final FileEditorTab editorTab = (FileEditorTab)tab;
   }
 
   /**
@@ -304,9 +339,9 @@ public class MainWindow implements Observer {
       final Position p = tab.getCaretOffset();
       getLineNumberText().setText(
         get( STATUS_BAR_LINE,
-          p.getMajor() + 1,
-          p.getMinor() + 1,
-          tab.getCaretPosition() + 1
+             p.getMajor() + 1,
+             p.getMinor() + 1,
+             tab.getCaretPosition() + 1
         )
       );
 
@@ -320,7 +355,8 @@ public class MainWindow implements Observer {
       try {
         getNotifier().clear();
         processor.processChain( tab.getEditorText() );
-      } catch( final Exception ex ) {
+      }
+      catch( final Exception ex ) {
         error( ex );
       }
     }
@@ -356,7 +392,8 @@ public class MainWindow implements Observer {
   private TreeView<String> getTreeView() {
     try {
       return getDefinitionSource().asTreeView();
-    } catch( Exception e ) {
+    }
+    catch( Exception e ) {
       error( e );
     }
 
@@ -376,7 +413,8 @@ public class MainWindow implements Observer {
       setDefinitionSource( ds );
       storeDefinitionSource();
       updateDefinitionPane();
-    } catch( final Exception e ) {
+    }
+    catch( final Exception e ) {
       error( e );
     }
   }
@@ -528,7 +566,8 @@ public class MainWindow implements Observer {
 
     try {
       refreshSelectedTab( editor );
-    } catch( final Exception ex ) {
+    }
+    catch( final Exception ex ) {
       getNotifier().notify( ex );
     }
   }
@@ -568,7 +607,8 @@ public class MainWindow implements Observer {
   private void putStartupScript( final String s ) {
     try {
       getPreferences().put( PERSIST_R_STARTUP, s );
-    } catch( final Exception ex ) {
+    }
+    catch( final Exception ex ) {
       getNotifier().notify( ex );
     }
   }
@@ -729,16 +769,18 @@ public class MainWindow implements Observer {
     DefinitionSource ds;
 
     try {
-       ds = createDefinitionFactory().createDefinitionSource( path );
+      ds = createDefinitionFactory().createDefinitionSource( path );
 
       if( ds instanceof FileDefinitionSource ) {
         try {
           getSnitch().listen( ((FileDefinitionSource)ds).getPath() );
-        } catch( final IOException ex ) {
+        }
+        catch( final IOException ex ) {
           error( ex );
         }
       }
-    } catch( final Exception ex ) {
+    }
+    catch( final Exception ex ) {
       ds = new EmptyDefinitionSource();
       error( ex );
     }
@@ -809,69 +851,113 @@ public class MainWindow implements Observer {
     final BooleanBinding activeFileEditorIsNull = getFileEditorPane().activeFileEditorProperty().isNull();
 
     // File actions
-    final Action fileNewAction = new Action( get( "Main.menu.file.new" ), "Shortcut+N", FILE_ALT, e -> fileNew() );
-    final Action fileOpenAction = new Action( get( "Main.menu.file.open" ), "Shortcut+O", FOLDER_OPEN_ALT, e -> fileOpen() );
-    final Action fileCloseAction = new Action( get( "Main.menu.file.close" ), "Shortcut+W", null, e -> fileClose(), activeFileEditorIsNull );
-    final Action fileCloseAllAction = new Action( get( "Main.menu.file.close_all" ), null, null, e -> fileCloseAll(), activeFileEditorIsNull );
-    final Action fileSaveAction = new Action( get( "Main.menu.file.save" ), "Shortcut+S", FLOPPY_ALT, e -> fileSave(),
-      createActiveBooleanProperty( FileEditorTab::modifiedProperty ).not() );
-    final Action fileSaveAsAction = new Action( Messages.get( "Main.menu.file.save_as" ), null, null, e -> fileSaveAs(), activeFileEditorIsNull );
-    final Action fileSaveAllAction = new Action( get( "Main.menu.file.save_all" ), "Shortcut+Shift+S", null, e -> fileSaveAll(),
+    final Action fileNewAction = new Action( get( "Main.menu.file.new" ),
+                                             "Shortcut+N", FILE_ALT,
+                                             e -> fileNew() );
+    final Action fileOpenAction = new Action( get( "Main.menu.file.open" ),
+                                              "Shortcut+O", FOLDER_OPEN_ALT,
+                                              e -> fileOpen() );
+    final Action fileCloseAction = new Action( get( "Main.menu.file.close" ),
+                                               "Shortcut+W", null,
+                                               e -> fileClose(),
+                                               activeFileEditorIsNull );
+    final Action fileCloseAllAction = new Action( get(
+      "Main.menu.file.close_all" ), null, null, e -> fileCloseAll(),
+                                                  activeFileEditorIsNull );
+    final Action fileSaveAction = new Action( get( "Main.menu.file.save" ),
+                                              "Shortcut+S", FLOPPY_ALT,
+                                              e -> fileSave(),
+                                              createActiveBooleanProperty(
+                                                FileEditorTab::modifiedProperty ).not() );
+    final Action fileSaveAsAction = new Action( Messages.get(
+      "Main.menu.file.save_as" ), null, null, e -> fileSaveAs(),
+                                                activeFileEditorIsNull );
+    final Action fileSaveAllAction = new Action(
+      get( "Main.menu.file.save_all" ), "Shortcut+Shift+S", null,
+      e -> fileSaveAll(),
       Bindings.not( getFileEditorPane().anyFileEditorModifiedProperty() ) );
-    final Action fileExitAction = new Action( get( "Main.menu.file.exit" ), null, null, e -> fileExit() );
+    final Action fileExitAction = new Action( get( "Main.menu.file.exit" ), null,
+                                              null, e -> fileExit() );
 
     // Edit actions
-    final Action editUndoAction = new Action( get( "Main.menu.edit.undo" ), "Shortcut+Z", UNDO,
-      e -> getActiveEditor().undo(),
-      createActiveBooleanProperty( FileEditorTab::canUndoProperty ).not() );
-    final Action editRedoAction = new Action( get( "Main.menu.edit.redo" ), "Shortcut+Y", REPEAT,
-      e -> getActiveEditor().redo(),
-      createActiveBooleanProperty( FileEditorTab::canRedoProperty ).not() );
-    final Action editFindAction = new Action( Messages.get( "Main.menu.edit.find" ), "Ctrl+F", SEARCH,
-      e -> find(),
-      activeFileEditorIsNull );
-    final Action editReplaceAction = new Action( Messages.get( "Main.menu.edit.find.replace" ), "Shortcut+H", RETWEET,
-      e -> getActiveEditor().replace(),
-      activeFileEditorIsNull );
-    final Action editFindNextAction = new Action( Messages.get( "Main.menu.edit.find.next" ), "F3", null,
-      e -> findNext(),
-      activeFileEditorIsNull );
-    final Action editFindPreviousAction = new Action( Messages.get( "Main.menu.edit.find.previous" ), "Shift+F3", null,
-      e -> getActiveEditor().findPrevious(),
-      activeFileEditorIsNull );
+    final Action editUndoAction = new Action( get( "Main.menu.edit.undo" ),
+                                              "Shortcut+Z", UNDO,
+                                              e -> getActiveEditor().undo(),
+                                              createActiveBooleanProperty(
+                                                FileEditorTab::canUndoProperty ).not() );
+    final Action editRedoAction = new Action( get( "Main.menu.edit.redo" ),
+                                              "Shortcut+Y", REPEAT,
+                                              e -> getActiveEditor().redo(),
+                                              createActiveBooleanProperty(
+                                                FileEditorTab::canRedoProperty ).not() );
+    final Action editFindAction = new Action( Messages.get(
+      "Main.menu.edit.find" ), "Ctrl+F", SEARCH,
+                                              e -> find(),
+                                              activeFileEditorIsNull );
+    final Action editReplaceAction = new Action( Messages.get(
+      "Main.menu.edit.find.replace" ), "Shortcut+H", RETWEET,
+                                                 e -> getActiveEditor().replace(),
+                                                 activeFileEditorIsNull );
+    final Action editFindNextAction = new Action( Messages.get(
+      "Main.menu.edit.find.next" ), "F3", null,
+                                                  e -> findNext(),
+                                                  activeFileEditorIsNull );
+    final Action editFindPreviousAction = new Action( Messages.get(
+      "Main.menu.edit.find.previous" ), "Shift+F3", null,
+                                                      e -> getActiveEditor().findPrevious(),
+                                                      activeFileEditorIsNull );
 
     // Insert actions
-    final Action insertBoldAction = new Action( get( "Main.menu.insert.bold" ), "Shortcut+B", BOLD,
-      e -> getActiveEditor().surroundSelection( "**", "**" ),
-      activeFileEditorIsNull );
-    final Action insertItalicAction = new Action( get( "Main.menu.insert.italic" ), "Shortcut+I", ITALIC,
+    final Action insertBoldAction = new Action( get( "Main.menu.insert.bold" ),
+                                                "Shortcut+B", BOLD,
+                                                e -> getActiveEditor().surroundSelection(
+                                                  "**", "**" ),
+                                                activeFileEditorIsNull );
+    final Action insertItalicAction = new Action(
+      get( "Main.menu.insert.italic" ), "Shortcut+I", ITALIC,
       e -> getActiveEditor().surroundSelection( "*", "*" ),
       activeFileEditorIsNull );
-    final Action insertSuperscriptAction = new Action( get( "Main.menu.insert.superscript" ), "Shortcut+[", SUPERSCRIPT,
-      e -> getActiveEditor().surroundSelection( "^", "^" ),
-      activeFileEditorIsNull );
-    final Action insertSubscriptAction = new Action( get( "Main.menu.insert.subscript" ), "Shortcut+]", SUBSCRIPT,
-      e -> getActiveEditor().surroundSelection( "~", "~" ),
-      activeFileEditorIsNull );
-    final Action insertStrikethroughAction = new Action( get( "Main.menu.insert.strikethrough" ), "Shortcut+T", STRIKETHROUGH,
-      e -> getActiveEditor().surroundSelection( "~~", "~~" ),
-      activeFileEditorIsNull );
-    final Action insertBlockquoteAction = new Action( get( "Main.menu.insert.blockquote" ), "Ctrl+Q", QUOTE_LEFT, // not Shortcut+Q because of conflict on Mac
-      e -> getActiveEditor().surroundSelection( "\n\n> ", "" ),
-      activeFileEditorIsNull );
-    final Action insertCodeAction = new Action( get( "Main.menu.insert.code" ), "Shortcut+K", CODE,
-      e -> getActiveEditor().surroundSelection( "`", "`" ),
-      activeFileEditorIsNull );
-    final Action insertFencedCodeBlockAction = new Action( get( "Main.menu.insert.fenced_code_block" ), "Shortcut+Shift+K", FILE_CODE_ALT,
-      e -> getActiveEditor().surroundSelection( "\n\n```\n", "\n```\n\n", get( "Main.menu.insert.fenced_code_block.prompt" ) ),
-      activeFileEditorIsNull );
+    final Action insertSuperscriptAction = new Action( get(
+      "Main.menu.insert.superscript" ), "Shortcut+[", SUPERSCRIPT,
+                                                       e -> getActiveEditor().surroundSelection(
+                                                         "^", "^" ),
+                                                       activeFileEditorIsNull );
+    final Action insertSubscriptAction = new Action( get(
+      "Main.menu.insert.subscript" ), "Shortcut+]", SUBSCRIPT,
+                                                     e -> getActiveEditor().surroundSelection(
+                                                       "~", "~" ),
+                                                     activeFileEditorIsNull );
+    final Action insertStrikethroughAction = new Action( get(
+      "Main.menu.insert.strikethrough" ), "Shortcut+T", STRIKETHROUGH,
+                                                         e -> getActiveEditor().surroundSelection(
+                                                           "~~", "~~" ),
+                                                         activeFileEditorIsNull );
+    final Action insertBlockquoteAction = new Action( get(
+      "Main.menu.insert.blockquote" ), "Ctrl+Q", QUOTE_LEFT, // not Shortcut+Q because of conflict on Mac
+                                                      e -> getActiveEditor().surroundSelection(
+                                                        "\n\n> ", "" ),
+                                                      activeFileEditorIsNull );
+    final Action insertCodeAction = new Action( get( "Main.menu.insert.code" ),
+                                                "Shortcut+K", CODE,
+                                                e -> getActiveEditor().surroundSelection(
+                                                  "`", "`" ),
+                                                activeFileEditorIsNull );
+    final Action insertFencedCodeBlockAction = new Action( get(
+      "Main.menu.insert.fenced_code_block" ), "Shortcut+Shift+K", FILE_CODE_ALT,
+                                                           e -> getActiveEditor().surroundSelection(
+                                                             "\n\n```\n",
+                                                             "\n```\n\n", get(
+                                                               "Main.menu.insert.fenced_code_block.prompt" ) ),
+                                                           activeFileEditorIsNull );
 
-    final Action insertLinkAction = new Action( get( "Main.menu.insert.link" ), "Shortcut+L", LINK,
-      e -> getActiveEditor().insertLink(),
-      activeFileEditorIsNull );
-    final Action insertImageAction = new Action( get( "Main.menu.insert.image" ), "Shortcut+G", PICTURE_ALT,
-      e -> getActiveEditor().insertImage(),
-      activeFileEditorIsNull );
+    final Action insertLinkAction = new Action( get( "Main.menu.insert.link" ),
+                                                "Shortcut+L", LINK,
+                                                e -> getActiveEditor().insertLink(),
+                                                activeFileEditorIsNull );
+    final Action insertImageAction = new Action( get( "Main.menu.insert.image" ),
+                                                 "Shortcut+G", PICTURE_ALT,
+                                                 e -> getActiveEditor().insertImage(),
+                                                 activeFileEditorIsNull );
 
     final Action[] headers = new Action[ 6 ];
 
@@ -884,8 +970,9 @@ public class MainWindow implements Observer {
       final String prompt = get( "Main.menu.insert.header_" + i + ".prompt" );
 
       headers[ i - 1 ] = new Action( text, accelerator, HEADER,
-        e -> getActiveEditor().surroundSelection( markup, "", prompt ),
-        activeFileEditorIsNull );
+                                     e -> getActiveEditor().surroundSelection(
+                                       markup, "", prompt ),
+                                     activeFileEditorIsNull );
     }
 
     final Action insertUnorderedListAction = new Action(
@@ -911,55 +998,55 @@ public class MainWindow implements Observer {
 
     //---- MenuBar ----
     final Menu fileMenu = ActionUtils.createMenu( get( "Main.menu.file" ),
-      fileNewAction,
-      fileOpenAction,
-      null,
-      fileCloseAction,
-      fileCloseAllAction,
-      null,
-      fileSaveAction,
-      fileSaveAsAction,
-      fileSaveAllAction,
-      null,
-      fileExitAction );
+                                                  fileNewAction,
+                                                  fileOpenAction,
+                                                  null,
+                                                  fileCloseAction,
+                                                  fileCloseAllAction,
+                                                  null,
+                                                  fileSaveAction,
+                                                  fileSaveAsAction,
+                                                  fileSaveAllAction,
+                                                  null,
+                                                  fileExitAction );
 
     final Menu editMenu = ActionUtils.createMenu( get( "Main.menu.edit" ),
-      editUndoAction,
-      editRedoAction,
-      editFindAction,
-      editReplaceAction,
-      editFindNextAction,
-      editFindPreviousAction );
+                                                  editUndoAction,
+                                                  editRedoAction,
+                                                  editFindAction,
+                                                  editReplaceAction,
+                                                  editFindNextAction,
+                                                  editFindPreviousAction );
 
     final Menu insertMenu = ActionUtils.createMenu( get( "Main.menu.insert" ),
-      insertBoldAction,
-      insertItalicAction,
-      insertSuperscriptAction,
-      insertSubscriptAction,
-      insertStrikethroughAction,
-      insertBlockquoteAction,
-      insertCodeAction,
-      insertFencedCodeBlockAction,
-      null,
-      insertLinkAction,
-      insertImageAction,
-      null,
-      headers[ 0 ],
-      headers[ 1 ],
-      headers[ 2 ],
-      headers[ 3 ],
-      headers[ 4 ],
-      headers[ 5 ],
-      null,
-      insertUnorderedListAction,
-      insertOrderedListAction,
-      insertHorizontalRuleAction );
+                                                    insertBoldAction,
+                                                    insertItalicAction,
+                                                    insertSuperscriptAction,
+                                                    insertSubscriptAction,
+                                                    insertStrikethroughAction,
+                                                    insertBlockquoteAction,
+                                                    insertCodeAction,
+                                                    insertFencedCodeBlockAction,
+                                                    null,
+                                                    insertLinkAction,
+                                                    insertImageAction,
+                                                    null,
+                                                    headers[ 0 ],
+                                                    headers[ 1 ],
+                                                    headers[ 2 ],
+                                                    headers[ 3 ],
+                                                    headers[ 4 ],
+                                                    headers[ 5 ],
+                                                    null,
+                                                    insertUnorderedListAction,
+                                                    insertOrderedListAction,
+                                                    insertHorizontalRuleAction );
 
     final Menu toolsMenu = ActionUtils.createMenu( get( "Main.menu.tools" ),
-      toolsScriptAction );
+                                                   toolsScriptAction );
 
     final Menu helpMenu = ActionUtils.createMenu( get( "Main.menu.help" ),
-      helpAboutAction );
+                                                  helpAboutAction );
 
     menuBar = new MenuBar( fileMenu, editMenu, insertMenu, toolsMenu, helpMenu );
 

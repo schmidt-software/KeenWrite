@@ -36,13 +36,16 @@ import static com.scrivenvar.util.Lists.getFirst;
 import java.util.List;
 import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
+import javafx.event.EventType;
 import javafx.scene.Node;
 import javafx.scene.control.MultipleSelectionModel;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.input.MouseButton;
+import static javafx.scene.input.MouseButton.PRIMARY;
 import javafx.scene.input.MouseEvent;
+import static javafx.scene.input.MouseEvent.MOUSE_CLICKED;
 
 /**
  * Provides a list of variables that can be referenced in the editor.
@@ -72,20 +75,34 @@ public class DefinitionPane extends AbstractPane {
   /**
    * Allows observers to receive double-click events on the tree view.
    *
-   * @param handler The handler that
+   * @param handler The handler that will receive double-click events.
    */
   public void addBranchSelectedListener(
     final EventHandler<? super MouseEvent> handler ) {
+    getTreeView().addEventHandler(
+      MouseEvent.ANY, event -> {
+        final MouseButton button = event.getButton();
+        final int clicks = event.getClickCount();
+        final EventType<? extends MouseEvent> eventType = event.getEventType();
 
-    getTreeView().addEventHandler( MouseEvent.ANY, event -> {
-      if( event.getButton().equals( MouseButton.PRIMARY ) && event.getClickCount() == 2 ) {
-        if( event.getEventType().equals( MouseEvent.MOUSE_CLICKED ) ) {
-          handler.handle( event );
+        if( PRIMARY.equals( button ) && clicks == 2 ) {
+          if( MOUSE_CLICKED.equals( eventType ) ) {
+            handler.handle( event );
+          }
+
+          event.consume();
         }
+      } );
+  }
 
-        event.consume();
-      }
-    } );
+  /**
+   * Allows observers to stop receiving double-click events on the tree view.
+   *
+   * @param handler The handler that will no longer receive double-click events.
+   */
+  public void removeBranchSelectedListener(
+    final EventHandler<? super MouseEvent> handler ) {
+    getTreeView().removeEventHandler( MouseEvent.ANY, handler );
   }
 
   /**
@@ -181,7 +198,10 @@ public class DefinitionPane extends AbstractPane {
   public TreeItem<String> findNode( final String word ) {
     String path = word;
 
+    // Current tree item.
     TreeItem<String> cItem = getTreeRoot();
+
+    // Previous tree item.
     TreeItem<String> pItem = cItem;
 
     int index = path.indexOf( SEPARATOR_CHAR );
