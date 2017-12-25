@@ -229,6 +229,7 @@ public class MainWindow implements Observer {
 
               initTextChangeListener( tab );
               initCaretParagraphListener( tab );
+              initKeyboardEventListeners( tab );
 //              initSyntaxListener( tab );
             }
           }
@@ -271,6 +272,17 @@ public class MainWindow implements Observer {
         }
       }
     );
+  }
+
+  /**
+   * Ensure that the keyboard events are received when a new tab is added
+   * to the user interface.
+   *
+   * @param tab The tab that can trigger keyboard events, such as control+space.
+   */
+  private void initKeyboardEventListeners( final FileEditorTab tab ) {
+    final VariableNameInjector vin = getVariableNameInjector();
+    vin.initKeyboardEventListeners( tab );
   }
 
   private void initTextChangeListener( final FileEditorTab tab ) {

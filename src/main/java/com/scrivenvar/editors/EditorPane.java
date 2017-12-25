@@ -128,7 +128,7 @@ public class EditorPane extends AbstractPane {
    * @param event The event of interest.
    * @param consumer The method to call when the event happens.
    */
-  public <T extends Event, U extends T> void addEventListener(
+  public <T extends Event, U extends T> void addKeyboardListener(
     final EventPattern<? super T, ? extends U> event,
     final Consumer<? super U> consumer ) {
     Nodes.addInputMap( getEditor(), consume( event, consumer ) );

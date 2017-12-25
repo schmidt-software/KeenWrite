@@ -69,7 +69,7 @@ public class MarkdownEditorPane extends EditorPane {
     textArea.getStyleClass().add( "markdown-editor" );
     textArea.getStylesheets().add( STYLESHEET_MARKDOWN );
 
-    addEventListener( keyPressed( ENTER ), this::enterPressed );
+    addKeyboardListener( keyPressed( ENTER ), this::enterPressed );
   }
 
   public ObservableValue<String> markdownProperty() {

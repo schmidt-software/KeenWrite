@@ -129,6 +129,17 @@ public final class VariableNameInjector {
   }
 
   /**
+   * Trap control+space and the @ key.
+   *
+   * @param tab The file editor that sends keyboard events for variable name
+   * injection.
+   */
+  public void initKeyboardEventListeners( final FileEditorTab tab ) {
+    setFileEditorTab( tab );
+    initKeyboardEventListeners();;
+  }
+
+  /**
    * Traps keys for performing various short-cut tasks, such as @-mode variable
    * insertion and control+space for variable autocomplete.
    *
@@ -139,12 +150,12 @@ public final class VariableNameInjector {
    */
   private void initKeyboardEventListeners() {
     // Control and space are pressed.
-    addEventListener( keyPressed( SPACE, CONTROL_DOWN ), this::autocomplete );
+    addKeyboardListener( keyPressed( SPACE, CONTROL_DOWN ), this::autocomplete );
 
     // @ key in Linux?
-    addEventListener( keyPressed( DIGIT2, SHIFT_DOWN ), this::vMode );
+    addKeyboardListener( keyPressed( DIGIT2, SHIFT_DOWN ), this::vMode );
     // @ key in Windows.
-    addEventListener( keyPressed( AT ), this::vMode );
+    addKeyboardListener( keyPressed( AT ), this::vMode );
   }
 
   /**
@@ -865,10 +876,10 @@ public final class VariableNameInjector {
   /**
    * Delegates to the file editor pane, and, ultimately, to its text area.
    */
-  private <T extends Event, U extends T> void addEventListener(
+  private <T extends Event, U extends T> void addKeyboardListener(
     final EventPattern<? super T, ? extends U> event,
     final Consumer<? super U> consumer ) {
-    getEditorPane().addEventListener( event, consumer );
+    getEditorPane().addKeyboardListener( event, consumer );
   }
 
   /**
