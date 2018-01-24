@@ -136,7 +136,7 @@ public final class VariableNameInjector {
    */
   public void initKeyboardEventListeners( final FileEditorTab tab ) {
     setFileEditorTab( tab );
-    initKeyboardEventListeners();;
+    initKeyboardEventListeners();
   }
 
   /**
