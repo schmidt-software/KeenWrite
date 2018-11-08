@@ -1,4 +1,6 @@
-Copyright 2017 White Magic Software, Ltd.
+# License
+
+Copyright 2018 White Magic Software, Ltd.
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without

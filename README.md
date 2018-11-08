@@ -7,7 +7,10 @@ Word processing with variables.
 
 Requirements
 ---
-[Java 8u40 or greater](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html).
+Download and install the following software packages:
+
+* [Java 8u40](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html) (or newer)
+* [Gradle 4.4.1](https://gradle.org/) (or newer)
 
 Quick Start
 ---
@@ -38,4 +41,4 @@ Screenshot
 
 License
 ---
-This software is licensed under the [BSD 2-Clause License](LICENSE).
+This software is licensed under the [BSD 2-Clause License](LICENSE.md).
