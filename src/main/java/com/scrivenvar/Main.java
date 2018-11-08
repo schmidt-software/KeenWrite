@@ -130,6 +130,9 @@ public final class Main extends Application {
     stage.setScene( getScene() );
   }
 
+  /**
+   * Watch for file system changes.
+   */
   private void initSnitch() {
     setSnitchThread( new Thread( getSnitch() ) );
     getSnitchThread().start();

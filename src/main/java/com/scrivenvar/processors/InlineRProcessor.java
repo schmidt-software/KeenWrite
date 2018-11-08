@@ -76,8 +76,9 @@ public final class InlineRProcessor extends DefaultVariableProcessor {
   }
 
   /**
+   * Initialises the R code so that R can find imported libraries.
    *
-   * @param workingDirectory
+   * @param workingDirectory Location where R is to look for imports.
    */
   private void init( final Path workingDirectory ) {
     try {
@@ -97,10 +98,26 @@ public final class InlineRProcessor extends DefaultVariableProcessor {
     }
   }
 
+  /**
+   * Loads the R init script from the applciation's persisted preferences.
+   *
+   * @return A non-null String, possibly empty.
+   * @throws IOException Could not load the init script.
+   */
   private String getInitScript() throws IOException {
     return getOptions().get( PERSIST_R_STARTUP, "" );
   }
 
+  /**
+   * Evaluates all R statements in the source document and inserts the
+   * calculated value into the generated document.
+   *
+   * @param text The document text that includes variables that should be
+   * replaced with values when rendered as HTML.
+   *
+   * @return The generated document with output from all R statements
+   * substituted with value returned from their execution.
+   */
   @Override
   public String processLink( final String text ) {
     final int length = text.length();

@@ -67,6 +67,9 @@ import org.mozilla.universalchardet.UniversalDetector;
  */
 public final class FileEditorTab extends Tab {
 
+  /**
+   * 
+   */
   private final Notifier alertService = Services.load( Notifier.class );
   private EditorPane editorPane;
 

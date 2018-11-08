@@ -31,7 +31,7 @@ import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
 /**
- * Responsible for persistent options.
+ * Responsible for persisting options.
  *
  * @author White Magic Software, Ltd.
  */

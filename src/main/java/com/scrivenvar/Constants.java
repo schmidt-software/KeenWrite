@@ -28,9 +28,12 @@
 package com.scrivenvar;
 
 import com.scrivenvar.service.Settings;
+
 import java.util.Collection;
 
 /**
+ * Defines application-wide default values.
+ *
  * @author White Magic Software, Ltd.
  */
 public class Constants {
@@ -60,6 +63,7 @@ public class Constants {
 
   public static final String APP_TITLE = get( "application.title" );
   public static final String APP_BUNDLE_NAME = get( "application.messages" );
+
   // Prevent double events when updating files on Linux (save and timestamp).
   public static final int APP_WATCHDOG_TIMEOUT = get( "application.watchdog.timeout", 100 );
 
@@ -96,18 +100,16 @@ public class Constants {
 
   // Takes two parameters: line number and column number.
   public static final String STATUS_BAR_LINE = "Main.statusbar.line";
+
   // "OK" text
   public static final String STATUS_BAR_DEFAULT = get( "Main.statusbar.state.default" );
   public static final String STATUS_PARSE_ERROR = "Main.statusbar.parse.error";
 
-  // Persistent storage settings.
-  
   /**
    * Location of the definition source file.
    */
   public static final String PERSIST_DEFINITION_SOURCE = "definitionSource";
-  
-  
+
   /**
    * Content of the R startup script.
    */

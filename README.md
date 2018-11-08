@@ -10,7 +10,7 @@ Requirements
 Download and install the following software packages:
 
 * [Java 8u40](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html) (or newer)
-* [Gradle 4.4.1](https://gradle.org/) (or newer)
+* [Gradle 4.4.1](https://gradle.org/)
 
 Quick Start
 ---

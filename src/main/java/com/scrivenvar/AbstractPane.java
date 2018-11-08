@@ -28,7 +28,9 @@
 package com.scrivenvar;
 
 import com.scrivenvar.service.Options;
+
 import java.util.prefs.Preferences;
+
 import org.tbee.javafx.scene.layout.fxml.MigPane;
 
 /**
@@ -38,12 +40,25 @@ import org.tbee.javafx.scene.layout.fxml.MigPane;
  */
 public abstract class AbstractPane extends MigPane {
 
+  /**
+   * The options loaded from the service.
+   */
   private final Options options = Services.load( Options.class );
 
+  /**
+   * Returns the persistent options for user settings.
+   *
+   * @return A non-null instance.
+   */
   protected Options getOptions() {
     return this.options;
   }
-  
+
+  /**
+   * Returns a hierarchical set of preferences.
+   *
+   * @return A non-null instance.
+   */
   protected Preferences getState() {
     return getOptions().getState();
   }

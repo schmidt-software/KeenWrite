@@ -117,7 +117,7 @@ public class AbstractFileFactory {
   /**
    * Return the singleton Settings instance.
    *
-   * @return The settings for
+   * @return A non-null instance.
    */
   private Settings getSettings() {
     return this.settings;

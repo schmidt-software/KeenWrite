@@ -92,7 +92,6 @@ public interface Settings extends Service {
    */
   public List<String> getStringSettingList( String property );
 
-
   /**
    * Changes key's value. This will clear the old value before setting the
    * new value so that the old value is erased, not changed into a list.

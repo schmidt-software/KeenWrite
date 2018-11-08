@@ -30,14 +30,18 @@ package com.scrivenvar;
 import static com.scrivenvar.Constants.GLOB_PREFIX_FILE;
 import static com.scrivenvar.FileType.*;
 import static com.scrivenvar.Messages.get;
+
 import com.scrivenvar.predicates.files.FileTypePredicate;
 import com.scrivenvar.service.Options;
 import com.scrivenvar.service.Settings;
 import com.scrivenvar.service.events.Notification;
 import com.scrivenvar.service.events.Notifier;
+
 import static com.scrivenvar.service.events.Notifier.NO;
 import static com.scrivenvar.service.events.Notifier.YES;
+
 import com.scrivenvar.util.Utils;
+
 import java.io.File;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -45,6 +49,7 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.prefs.Preferences;
 import java.util.stream.Collectors;
+
 import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.property.ReadOnlyBooleanWrapper;
 import javafx.beans.property.ReadOnlyObjectProperty;
@@ -95,18 +100,18 @@ public final class FileEditorTabPane extends TabPane {
     setTabClosingPolicy( TabClosingPolicy.ALL_TABS );
 
     addTabSelectionListener(
-      (ObservableValue<? extends Tab> tabPane,
-        final Tab oldTab, final Tab newTab) -> {
+      ( ObservableValue<? extends Tab> tabPane,
+        final Tab oldTab, final Tab newTab ) -> {
 
         if( newTab != null ) {
-          activeFileEditor.set( (FileEditorTab)newTab );
+          activeFileEditor.set( (FileEditorTab) newTab );
         }
       }
     );
 
-    final ChangeListener<Boolean> modifiedListener = (observable, oldValue, newValue) -> {
+    final ChangeListener<Boolean> modifiedListener = ( observable, oldValue, newValue ) -> {
       for( final Tab tab : tabs ) {
-        if( ((FileEditorTab)tab).isModified() ) {
+        if( ((FileEditorTab) tab).isModified() ) {
           this.anyFileEditorModified.set( true );
           break;
         }
@@ -114,16 +119,15 @@ public final class FileEditorTabPane extends TabPane {
     };
 
     tabs.addListener(
-      (ListChangeListener<Tab>)change -> {
+      (ListChangeListener<Tab>) change -> {
         while( change.next() ) {
           if( change.wasAdded() ) {
-            change.getAddedSubList().stream().forEach( (tab) -> {
-              ((FileEditorTab)tab).modifiedProperty().addListener( modifiedListener );
+            change.getAddedSubList().stream().forEach( ( tab ) -> {
+              ((FileEditorTab) tab).modifiedProperty().addListener( modifiedListener );
             } );
-          }
-          else if( change.wasRemoved() ) {
-            change.getRemoved().stream().forEach( (tab) -> {
-              ((FileEditorTab)tab).modifiedProperty().removeListener( modifiedListener );
+          } else if( change.wasRemoved() ) {
+            change.getRemoved().stream().forEach( ( tab ) -> {
+              ((FileEditorTab) tab).modifiedProperty().removeListener( modifiedListener );
             } );
           }
         }
@@ -138,9 +142,9 @@ public final class FileEditorTabPane extends TabPane {
   /**
    * Delegates to the active file editor.
    *
-   * @param <T> Event type.
-   * @param <U> Consumer type.
-   * @param event Event to pass to the editor.
+   * @param <T>      Event type.
+   * @param <U>      Consumer type.
+   * @param event    Event to pass to the editor.
    * @param consumer Consumer to pass to the editor.
    */
   public <T extends Event, U extends T> void addEventListener(
@@ -188,18 +192,39 @@ public final class FileEditorTabPane extends TabPane {
     return getActiveFileEditor().getEditorPane().getEditor();
   }
 
+  /**
+   * Returns the tab that has keyboard focus.
+   *
+   * @return A non-null instance.
+   */
   public FileEditorTab getActiveFileEditor() {
     return this.activeFileEditor.get();
   }
 
+  /**
+   * Returns the property corresponding to the tab that has focus.
+   *
+   * @return A non-null instance.
+   */
   public ReadOnlyObjectProperty<FileEditorTab> activeFileEditorProperty() {
     return this.activeFileEditor.getReadOnlyProperty();
   }
 
+  /**
+   * Property that can answer whether the text has been modified.
+   *
+   * @return A non-null instance, true meaning the content has not been saved.
+   */
   ReadOnlyBooleanProperty anyFileEditorModifiedProperty() {
     return this.anyFileEditorModified.getReadOnlyProperty();
   }
 
+  /**
+   * Creates a new editor instance from the given path.
+   *
+   * @param path The file to open.
+   * @return A non-null instance.
+   */
   private FileEditorTab createFileEditor( final Path path ) {
     final FileEditorTab tab = new FileEditorTab( path );
 
@@ -241,8 +266,7 @@ public final class FileEditorTabPane extends TabPane {
    * warning).
    *
    * @param files The list of non-definition files that the were requested to
-   * open.
-   *
+   *              open.
    * @return A list of files that can be opened in text editors.
    */
   private void openFiles( final List<File> files ) {
@@ -280,7 +304,7 @@ public final class FileEditorTabPane extends TabPane {
 
     // Close single unmodified "Untitled" tab.
     if( tabs.size() == 1 ) {
-      final FileEditorTab fileEditor = (FileEditorTab)(tabs.get( 0 ));
+      final FileEditorTab fileEditor = (FileEditorTab) (tabs.get( 0 ));
 
       if( fileEditor.getPath() == null && !fileEditor.isModified() ) {
         closeEditor( fileEditor, false );
@@ -331,7 +355,13 @@ public final class FileEditorTabPane extends TabPane {
     getOnOpenDefinitionFile().set( definition.toPath() );
   }
 
-  boolean saveEditor( final FileEditorTab tab ) {
+  /**
+   * Called when the contents of the editor are to be saved.
+   *
+   * @param tab The tab containing content to save.
+   * @return true The contents were saved (or needn't be saved).
+   */
+  public boolean saveEditor( final FileEditorTab tab ) {
     if( tab == null || !tab.isModified() ) {
       return true;
     }
@@ -339,7 +369,14 @@ public final class FileEditorTabPane extends TabPane {
     return tab.getPath() == null ? saveEditorAs( tab ) : tab.save();
   }
 
-  boolean saveEditorAs( final FileEditorTab tab ) {
+  /**
+   * Opens the Save As dialog for the user to save the content under a new
+   * path.
+   *
+   * @param tab The tab with contents to save.
+   * @return true The contents were saved, or the tab was null.
+   */
+  public boolean saveEditorAs( final FileEditorTab tab ) {
     if( tab == null ) {
       return true;
     }
@@ -374,7 +411,6 @@ public final class FileEditorTabPane extends TabPane {
    * Answers whether the file has had modifications. '
    *
    * @param tab THe tab to check for modifications.
-   *
    * @return false The file is unmodified.
    */
   boolean canCloseEditor( final FileEditorTab tab ) {
@@ -471,7 +507,7 @@ public final class FileEditorTabPane extends TabPane {
     final FileEditorTab[] allEditors = new FileEditorTab[ length ];
 
     for( int i = 0; i < length; i++ ) {
-      allEditors[ i ] = (FileEditorTab)tabs.get( i );
+      allEditors[ i ] = (FileEditorTab) tabs.get( i );
     }
 
     return allEditors;
@@ -484,7 +520,7 @@ public final class FileEditorTabPane extends TabPane {
    */
   private FileEditorTab findEditor( final Path path ) {
     for( final Tab tab : getTabs() ) {
-      final FileEditorTab fileEditor = (FileEditorTab)tab;
+      final FileEditorTab fileEditor = (FileEditorTab) tab;
 
       if( fileEditor.isPath( path ) ) {
         return fileEditor;
@@ -530,7 +566,6 @@ public final class FileEditorTabPane extends TabPane {
    * that can be opened by the user.
    *
    * @param filetype Used to find the globbing pattern for extensions.
-   *
    * @return A filename filter suitable for use by a FileDialog instance.
    */
   private ExtensionFilter createExtensionFilter( final FileType filetype ) {
@@ -571,8 +606,7 @@ public final class FileEditorTabPane extends TabPane {
 
     if( files.isEmpty() ) {
       newEditor();
-    }
-    else {
+    } else {
       openEditors( files, activeIndex );
     }
   }
@@ -582,7 +616,7 @@ public final class FileEditorTabPane extends TabPane {
     final List<String> fileNames = new ArrayList<>( allEditors.size() );
 
     for( final Tab tab : allEditors ) {
-      final FileEditorTab fileEditor = (FileEditorTab)tab;
+      final FileEditorTab fileEditor = (FileEditorTab) tab;
       final Path filePath = fileEditor.getPath();
 
       if( filePath != null ) {
@@ -598,8 +632,7 @@ public final class FileEditorTabPane extends TabPane {
 
     if( filePath == null ) {
       preferences.remove( "activeFile" );
-    }
-    else {
+    } else {
       preferences.put( "activeFile", filePath.toString() );
     }
   }

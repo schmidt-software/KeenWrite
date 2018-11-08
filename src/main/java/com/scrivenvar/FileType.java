@@ -50,6 +50,11 @@ public enum FileType {
 
   private final String type;
 
+  /**
+   * Default constructor for enumerated file type.
+   *
+   * @param type Human-readable name for the file type.
+   */
   private FileType( final String type ) {
     this.type = type;
   }
@@ -85,6 +90,11 @@ public enum FileType {
     return getType().equalsIgnoreCase( type );
   }
 
+  /**
+   * Returns the human-readable name for the file type.
+   *
+   * @return A non-null instance.
+   */
   private String getType() {
     return this.type;
   }
