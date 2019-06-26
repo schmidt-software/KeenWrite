@@ -20,7 +20,6 @@ dependencies {
   compile 'org.fxmisc.wellbehaved:wellbehavedfx:0.3'
   compile 'org.fxmisc.richtext:richtextfx:0.8.1'
   compile 'com.miglayout:miglayout-javafx:5.0'
-  //compile 'de.jensd:fontawesomefx-fontawesome:4.5.0'
   compile 'org.ahocorasick:ahocorasick:0.4.0'
   compile 'com.vladsch.flexmark:flexmark:0.28.34'
   compile 'com.vladsch.flexmark:flexmark-ext-tables:0.28.34'
