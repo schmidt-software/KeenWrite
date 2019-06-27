@@ -9,8 +9,10 @@ Requirements
 ---
 Download and install the following software packages:
 
-* [Java 8u40](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html) to [Java 10.0.2](https://www.oracle.com/technetwork/java/javase/downloads/java-archive-javase10-4425482.html)
+* [Java 8u40](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
 * [Gradle 4.4.1](https://gradle.org/)
+
+Note: Scrivenvar will not work with Java 9 and later due to the removal of JavaFX components from the Java Development Kit.
 
 Quick Start
 ---
