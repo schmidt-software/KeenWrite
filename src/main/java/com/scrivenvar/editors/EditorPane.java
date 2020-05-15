@@ -74,18 +74,6 @@ public class EditorPane extends AbstractPane {
     getUndoManager().redo();
   }
 
-  /**
-   * TOD: Implement this.
-   */
-  public void replace() {
-  }
-
-  /**
-   * TOD: Implement this.
-   */
-  public void findPrevious() {
-  }
-  
   public UndoManager getUndoManager() {
     return getEditor().getUndoManager();
   }

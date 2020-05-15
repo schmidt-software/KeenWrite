@@ -28,9 +28,9 @@
 package com.scrivenvar.editors.markdown;
 
 import com.vladsch.flexmark.ast.Link;
-import com.vladsch.flexmark.ast.Node;
-import com.vladsch.flexmark.ast.NodeVisitor;
-import com.vladsch.flexmark.ast.VisitHandler;
+import com.vladsch.flexmark.util.ast.Node;
+import com.vladsch.flexmark.util.ast.NodeVisitor;
+import com.vladsch.flexmark.util.ast.VisitHandler;
 
 /**
  * @author White Magic Software, Ltd.
@@ -46,7 +46,7 @@ public class LinkVisitor {
    * link node.
    *
    * @param index Index into the paragraph that indicates the hyperlink to
-   * change.
+   *              change.
    */
   public LinkVisitor( final int index ) {
     this.offset = index;
@@ -58,7 +58,6 @@ public class LinkVisitor {
   }
 
   /**
-   *
    * @param link Not null.
    */
   private void visit( final Link link ) {
@@ -81,7 +80,7 @@ public class LinkVisitor {
 
   protected NodeVisitor createVisitor() {
     return new NodeVisitor(
-      new VisitHandler<>( Link.class, LinkVisitor.this::visit ) );
+        new VisitHandler<>( Link.class, LinkVisitor.this::visit ) );
   }
 
   private Link getLink() {

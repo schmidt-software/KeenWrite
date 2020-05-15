@@ -27,13 +27,14 @@
  */
 package com.scrivenvar.processors;
 
-import com.vladsch.flexmark.Extension;
-import com.vladsch.flexmark.ast.Node;
 import com.vladsch.flexmark.ext.gfm.strikethrough.StrikethroughSubscriptExtension;
+import com.vladsch.flexmark.ext.superscript.SuperscriptExtension;
 import com.vladsch.flexmark.ext.tables.TablesExtension;
 import com.vladsch.flexmark.html.HtmlRenderer;
 import com.vladsch.flexmark.parser.Parser;
-import com.vladsch.flexmark.superscript.SuperscriptExtension;
+import com.vladsch.flexmark.util.ast.Node;
+import com.vladsch.flexmark.util.misc.Extension;
+
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -48,7 +49,7 @@ public class MarkdownProcessor extends AbstractProcessor<String> {
   private final static Parser PARSER;
 
   static {
-    final Collection<Extension> extensions = new ArrayList<>();
+    final Collection<Extension> extensions = new ArrayList<Extension>();
     extensions.add( TablesExtension.create() );
     extensions.add( SuperscriptExtension.create() );
     extensions.add( StrikethroughSubscriptExtension.create() );

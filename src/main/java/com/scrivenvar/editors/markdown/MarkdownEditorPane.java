@@ -35,10 +35,11 @@ import com.scrivenvar.processors.MarkdownProcessor;
 import static com.scrivenvar.util.Utils.ltrim;
 import static com.scrivenvar.util.Utils.rtrim;
 import com.vladsch.flexmark.ast.Link;
-import com.vladsch.flexmark.ast.Node;
 import java.nio.file.Path;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import com.vladsch.flexmark.util.ast.Node;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.IndexRange;

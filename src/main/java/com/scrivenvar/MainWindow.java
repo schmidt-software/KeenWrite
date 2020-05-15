@@ -893,18 +893,10 @@ public class MainWindow implements Observer {
       "Main.menu.edit.find" ), "Ctrl+F", SEARCH,
                                               e -> find(),
                                               activeFileEditorIsNull );
-    final Action editReplaceAction = new Action( Messages.get(
-      "Main.menu.edit.find.replace" ), "Shortcut+H", RETWEET,
-                                                 e -> getActiveEditor().replace(),
-                                                 activeFileEditorIsNull );
     final Action editFindNextAction = new Action( Messages.get(
       "Main.menu.edit.find.next" ), "F3", null,
                                                   e -> findNext(),
                                                   activeFileEditorIsNull );
-    final Action editFindPreviousAction = new Action( Messages.get(
-      "Main.menu.edit.find.previous" ), "Shift+F3", null,
-                                                      e -> getActiveEditor().findPrevious(),
-                                                      activeFileEditorIsNull );
 
     // Insert actions
     final Action insertBoldAction = new Action( get( "Main.menu.insert.bold" ),
@@ -1013,9 +1005,7 @@ public class MainWindow implements Observer {
                                                   editUndoAction,
                                                   editRedoAction,
                                                   editFindAction,
-                                                  editReplaceAction,
-                                                  editFindNextAction,
-                                                  editFindPreviousAction );
+                                                  editFindNextAction );
 
     final Menu insertMenu = ActionUtils.createMenu( get( "Main.menu.insert" ),
                                                     insertBoldAction,

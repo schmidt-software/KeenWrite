@@ -2,12 +2,15 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="3dcf7c8f-87b5-4d25-a804-39da40a621b8" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/jarRepositories.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/jarRepositories.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Scrivenvar.jfdproj" beforeDir="false" afterPath="$PROJECT_DIR$/Scrivenvar.jfdproj" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/libs/fontawesomefx-commons-8.12.jar" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/libs/fontawesomefx-fontawesome-4.5.0.jar" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/libs/renjin-script-engine-0.9.2726-jar-with-dependencies.jar" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/MainWindow.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/MainWindow.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/editors/EditorPane.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/editors/EditorPane.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/editors/markdown/LinkVisitor.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/editors/markdown/LinkVisitor.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/editors/markdown/MarkdownEditorPane.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/editors/markdown/MarkdownEditorPane.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/processors/MarkdownProcessor.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/processors/MarkdownProcessor.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -96,22 +99,22 @@
     <servers />
   </component>
   <component name="WindowStateProjectService">
-    <state width="1573" height="321" key="GridCell.Tab.0.bottom" timestamp="1589574236675">
+    <state width="1573" height="321" key="GridCell.Tab.0.bottom" timestamp="1589575627707">
       <screen x="0" y="28" width="2560" height="1529" />
     </state>
-    <state width="1573" height="321" key="GridCell.Tab.0.bottom/0.28.2560.1529@0.28.2560.1529" timestamp="1589574236675" />
-    <state width="1573" height="321" key="GridCell.Tab.0.center" timestamp="1589574236675">
+    <state width="1573" height="321" key="GridCell.Tab.0.bottom/0.28.2560.1529@0.28.2560.1529" timestamp="1589575627707" />
+    <state width="1573" height="321" key="GridCell.Tab.0.center" timestamp="1589575627707">
       <screen x="0" y="28" width="2560" height="1529" />
     </state>
-    <state width="1573" height="321" key="GridCell.Tab.0.center/0.28.2560.1529@0.28.2560.1529" timestamp="1589574236675" />
-    <state width="1573" height="321" key="GridCell.Tab.0.left" timestamp="1589574236674">
+    <state width="1573" height="321" key="GridCell.Tab.0.center/0.28.2560.1529@0.28.2560.1529" timestamp="1589575627707" />
+    <state width="1573" height="321" key="GridCell.Tab.0.left" timestamp="1589575627706">
       <screen x="0" y="28" width="2560" height="1529" />
     </state>
-    <state width="1573" height="321" key="GridCell.Tab.0.left/0.28.2560.1529@0.28.2560.1529" timestamp="1589574236674" />
-    <state width="1573" height="321" key="GridCell.Tab.0.right" timestamp="1589574236675">
+    <state width="1573" height="321" key="GridCell.Tab.0.left/0.28.2560.1529@0.28.2560.1529" timestamp="1589575627706" />
+    <state width="1573" height="321" key="GridCell.Tab.0.right" timestamp="1589575627707">
       <screen x="0" y="28" width="2560" height="1529" />
     </state>
-    <state width="1573" height="321" key="GridCell.Tab.0.right/0.28.2560.1529@0.28.2560.1529" timestamp="1589574236675" />
+    <state width="1573" height="321" key="GridCell.Tab.0.right/0.28.2560.1529@0.28.2560.1529" timestamp="1589575627707" />
     <state x="490" y="327" width="672" height="678" key="search.everywhere.popup" timestamp="1589573707618">
       <screen x="0" y="28" width="2560" height="1529" />
     </state>
