@@ -27,23 +27,24 @@
  */
 package com.scrivenvar.processors;
 
-import static com.scrivenvar.Constants.PERSIST_R_STARTUP;
-import static com.scrivenvar.Constants.STATUS_PARSE_ERROR;
-import static com.scrivenvar.Messages.get;
 import com.scrivenvar.Services;
-import static com.scrivenvar.decorators.RVariableDecorator.PREFIX;
-import static com.scrivenvar.decorators.RVariableDecorator.SUFFIX;
-import static com.scrivenvar.processors.text.TextReplacementFactory.replace;
 import com.scrivenvar.service.Options;
 import com.scrivenvar.service.events.Notifier;
-import java.io.IOException;
-import static java.lang.Math.min;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Map;
+
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Map;
+
+import static com.scrivenvar.Constants.PERSIST_R_STARTUP;
+import static com.scrivenvar.Constants.STATUS_PARSE_ERROR;
+import static com.scrivenvar.Messages.get;
+import static com.scrivenvar.decorators.RVariableDecorator.PREFIX;
+import static com.scrivenvar.decorators.RVariableDecorator.SUFFIX;
+import static com.scrivenvar.processors.text.TextReplacementFactory.replace;
+import static java.lang.Math.min;
 
 /**
  * Transforms a document containing R statements into Markdown.
@@ -57,20 +58,21 @@ public final class InlineRProcessor extends DefaultVariableProcessor {
 
   // Only one editor is open at a time.
   private static final ScriptEngine ENGINE =
-    (new ScriptEngineManager()).getEngineByName( "Renjin" );
+      (new ScriptEngineManager()).getEngineByName( "Renjin" );
 
   /**
    * Constructs a processor capable of evaluating R statements.
    *
    * @param processor Subsequent link in the processing chain.
-   * @param map Resolved definitions map.
-   * @param path Path to the file being edited so that its working directory can
-   * be extracted. Must not be null.
+   * @param map       Resolved definitions map.
+   * @param path      Path to the file being edited so that its working
+   *                  directory can
+   *                  be extracted. Must not be null.
    */
   public InlineRProcessor(
-    final Processor<String> processor,
-    final Map<String, String> map,
-    final Path path ) {
+      final Processor<String> processor,
+      final Map<String, String> map,
+      final Path path ) {
     super( processor, map );
     init( path.getParent() );
   }
@@ -93,7 +95,7 @@ public final class InlineRProcessor extends DefaultVariableProcessor {
         final String rScript = replace( initScript, getDefinitions() );
         eval( rScript );
       }
-    } catch( final IOException | ScriptException e ) {
+    } catch( final ScriptException e ) {
       throw new RuntimeException( e );
     }
   }
@@ -102,9 +104,8 @@ public final class InlineRProcessor extends DefaultVariableProcessor {
    * Loads the R init script from the applciation's persisted preferences.
    *
    * @return A non-null String, possibly empty.
-   * @throws IOException Could not load the init script.
    */
-  private String getInitScript() throws IOException {
+  private String getInitScript() {
     return getOptions().get( PERSIST_R_STARTUP, "" );
   }
 
@@ -113,8 +114,7 @@ public final class InlineRProcessor extends DefaultVariableProcessor {
    * calculated value into the generated document.
    *
    * @param text The document text that includes variables that should be
-   * replaced with values when rendered as HTML.
-   *
+   *             replaced with values when rendered as HTML.
    * @return The generated document with output from all R statements
    * substituted with value returned from their execution.
    */
@@ -132,7 +132,7 @@ public final class InlineRProcessor extends DefaultVariableProcessor {
 
     while( currIndex >= 0 ) {
       // Copy everything up to, but not including, an R statement (`r#).
-      sb.append( text.substring( prevIndex, currIndex ) );
+      sb.append( text, prevIndex, currIndex );
 
       // Jump to the start of the R statement.
       prevIndex = currIndex + prefixLength;
@@ -158,7 +158,7 @@ public final class InlineRProcessor extends DefaultVariableProcessor {
 
           // Tell the user that there was a problem.
           getNotifier().notify( get( STATUS_PARSE_ERROR,
-            e.getMessage(), currIndex )
+                                     e.getMessage(), currIndex )
           );
         }
 
@@ -184,7 +184,6 @@ public final class InlineRProcessor extends DefaultVariableProcessor {
    * Evaluate an R expression and return the resulting object.
    *
    * @param r The expression to evaluate.
-   *
    * @return The object resulting from the evaluation.
    */
   private Object eval( final String r ) throws ScriptException {
@@ -208,7 +207,6 @@ public final class InlineRProcessor extends DefaultVariableProcessor {
    * Paths.get( System.getProperty( "user.dir" ) ).
    *
    * @param path The path to make null safe.
-   *
    * @return A non-null path.
    */
   private Path nullSafe( final Path path ) {
