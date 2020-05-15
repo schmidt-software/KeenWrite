@@ -27,8 +27,6 @@
  */
 package com.scrivenvar;
 
-import static com.scrivenvar.Constants.*;
-import static com.scrivenvar.Messages.get;
 import com.scrivenvar.definition.*;
 import com.scrivenvar.dialogs.RScriptDialog;
 import com.scrivenvar.editors.EditorPane;
@@ -43,17 +41,6 @@ import com.scrivenvar.service.Snitch;
 import com.scrivenvar.service.events.Notifier;
 import com.scrivenvar.util.Action;
 import com.scrivenvar.util.ActionUtils;
-import static com.scrivenvar.util.StageState.*;
-import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.*;
-import java.io.IOException;
-import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Observable;
-import java.util.Observer;
-import java.util.Optional;
-import java.util.function.Function;
-import java.util.prefs.Preferences;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
@@ -63,33 +50,37 @@ import javafx.beans.value.ObservableBooleanValue;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener.Change;
 import javafx.collections.ObservableList;
-import static javafx.event.Event.fireEvent;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
+import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuBar;
-import javafx.scene.control.SplitPane;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TextField;
-import javafx.scene.control.ToolBar;
-import javafx.scene.control.TreeView;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import static javafx.scene.input.KeyCode.ESCAPE;
 import javafx.scene.input.KeyEvent;
-import static javafx.scene.input.KeyEvent.CHAR_UNDEFINED;
-import static javafx.scene.input.KeyEvent.KEY_PRESSED;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Window;
 import javafx.stage.WindowEvent;
-import static javafx.stage.WindowEvent.WINDOW_CLOSE_REQUEST;
 import org.controlsfx.control.StatusBar;
 import org.fxmisc.richtext.model.TwoDimensional.Position;
+
+import java.io.IOException;
+import java.nio.file.Path;
+import java.util.*;
+import java.util.function.Function;
+import java.util.prefs.Preferences;
+
+import static com.scrivenvar.Constants.*;
+import static com.scrivenvar.Messages.get;
+import static com.scrivenvar.util.StageState.*;
+import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.*;
+import static javafx.event.Event.fireEvent;
+import static javafx.scene.input.KeyCode.ESCAPE;
+import static javafx.scene.input.KeyEvent.CHAR_UNDEFINED;
+import static javafx.scene.input.KeyEvent.KEY_PRESSED;
+import static javafx.stage.WindowEvent.WINDOW_CLOSE_REQUEST;
 
 /**
  * Main window containing a tab pane in the center for file editors.
@@ -516,8 +507,6 @@ public class MainWindow implements Observer {
 
   /**
    * Called when a file has been modified.
-   *
-   * @param file Path to the modified file.
    */
   private void updateSelectedTab() {
     Platform.runLater(
@@ -601,9 +590,7 @@ public class MainWindow implements Observer {
       getWindow(), "Dialog.rScript.title", script );
     final Optional<String> result = dialog.showAndWait();
 
-    result.ifPresent( (String s) -> {
-      putStartupScript( s );
-    } );
+    result.ifPresent( this::putStartupScript );
   }
 
   /**

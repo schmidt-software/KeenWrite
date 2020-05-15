@@ -1,6 +1,14 @@
-apply plugin: 'java'
-apply plugin: 'java-library-distribution'
-apply plugin: 'application'
+plugins {
+  id 'application'
+  id 'java'
+  id 'java-library-distribution'
+  id 'org.openjfx.javafxplugin' version '0.0.8'
+}
+
+javafx {
+  version = "14"
+  modules = [ 'javafx.controls', 'javafx.web' ]
+}
 
 repositories {
   jcenter()
@@ -16,9 +24,11 @@ compileJava {
 }
 
 dependencies {
-  compile 'org.controlsfx:controlsfx:8.40.14'
+  //compile 'org.controlsfx:controlsfx:8.40.14'
+  implementation 'org.controlsfx:controlsfx:11.0.0'
   compile 'org.fxmisc.wellbehaved:wellbehavedfx:0.3'
-  compile 'org.fxmisc.richtext:richtextfx:0.8.1'
+  //compile 'org.fxmisc.richtext:richtextfx:0.8.1'
+  compile group: 'org.fxmisc.richtext', name: 'richtextfx', version: '0.10.5'
   compile 'com.miglayout:miglayout-javafx:5.0'
   compile 'org.ahocorasick:ahocorasick:0.4.0'
   compile 'com.vladsch.flexmark:flexmark:0.28.34'
@@ -34,8 +44,10 @@ dependencies {
   compile 'net.sf.saxon:Saxon-HE:9.8.0-7'
   compile 'com.googlecode.juniversalchardet:juniversalchardet:1.0.3'
   compile 'org.apache.commons:commons-configuration2:2.2'
-  compile files('libs/fontawesomefx-commons-8.12.jar')
-  compile files('libs/fontawesomefx-fontawesome-4.5.0.jar')
+  //compile group: 'org.openjfx', name: 'javafx', version: '14.0.1', ext: 'pom'
+  //runtime group: 'de.jensd', name: 'fontawesomefx-commons', version: '11.0'
+  implementation 'de.jensd:fontawesomefx-commons:11.0'
+  implementation 'de.jensd:fontawesomefx-fontawesome:4.7.0-11'
   compile files('libs/renjin-script-engine-0.9.2726-jar-with-dependencies.jar')
 }
 
