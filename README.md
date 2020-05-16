@@ -23,7 +23,7 @@ Complete the following steps to run the application:
 * User-defined variables, interpolated
 * Real-time preview with variable substitution
 * Auto-complete variable names based on variable values
-* XML document transformation using XSLT2
+* XML document transformation using XSLT3 or older
 * Platform independent (Windows, Linux, MacOS)
 
 ## Future Features

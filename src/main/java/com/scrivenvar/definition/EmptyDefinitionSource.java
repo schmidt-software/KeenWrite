@@ -41,7 +41,6 @@ public class EmptyDefinitionSource extends AbstractDefinitionSource {
   public EmptyDefinitionSource() {
   }
 
-
   @Override
   public Map<String, String> getResolvedMap() {
     return new HashMap<>();

@@ -39,6 +39,7 @@ import java.util.ServiceLoader;
  */
 public class Services {
 
+  @SuppressWarnings("rawtypes")
   private static final Map<Class, Object> SINGLETONS = new HashMap<>();
 
   /**
@@ -47,12 +48,10 @@ public class Services {
    *
    * @param <T> The service to load.
    * @param api The interface definition for the service.
-   *
    * @return A class that implements the interface.
    */
   public static <T> T load( final Class<T> api ) {
-    @SuppressWarnings( "unchecked" )
-    final T o = (T)get( api );
+    @SuppressWarnings("unchecked") final T o = (T) get( api );
 
     return o == null ? newInstance( api ) : o;
   }
@@ -71,11 +70,13 @@ public class Services {
     throw new RuntimeException( "No implementation for: " + api );
   }
 
-  private static void put( Class key, Object value ) {
+  @SuppressWarnings("rawtypes")
+  private static void put( final Class key, Object value ) {
     SINGLETONS.put( key, value );
   }
 
-  private static Object get( Class api ) {
+  @SuppressWarnings("rawtypes")
+  private static Object get( final Class api ) {
     return SINGLETONS.get( api );
   }
 }

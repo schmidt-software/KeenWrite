@@ -31,47 +31,70 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.scene.control.TextField;
 import javafx.util.StringConverter;
-import com.scrivenvar.util.Utils;
 
 /**
  * TextField that can escape/unescape characters for markdown.
  *
- * @author Karl Tauber
+ * @author Karl Tauber and White Magic Software, Ltd.
  */
-public class EscapeTextField
-	extends TextField
-{
-	public EscapeTextField() {
-		escapedText.bindBidirectional(textProperty(), new StringConverter<String>() {
-			@Override public String toString(String object) { return escape(object); }
-			@Override public String fromString(String string) { return unescape(string); }
-		});
-		escapeCharacters.addListener(e -> escapedText.set(escape(textProperty().get())));
-	}
+public class EscapeTextField extends TextField {
 
-	// 'escapedText' property
-	private final StringProperty escapedText = new SimpleStringProperty();
-	public String getEscapedText() { return escapedText.get(); }
-	public void setEscapedText(String escapedText) { this.escapedText.set(escapedText); }
-	public StringProperty escapedTextProperty() { return escapedText; }
+  public EscapeTextField() {
+    escapedText.bindBidirectional(
+        textProperty(),
+        new StringConverter<>() {
+          @Override
+          public String toString( String object ) {
+            return escape( object );
+          }
 
-	// 'escapeCharacters' property
-	private final StringProperty escapeCharacters = new SimpleStringProperty();
-	public String getEscapeCharacters() { return escapeCharacters.get(); }
-	public void setEscapeCharacters(String escapeCharacters) { this.escapeCharacters.set(escapeCharacters); }
-	public StringProperty escapeCharactersProperty() { return escapeCharacters; }
+          @Override
+          public String fromString( String string ) {
+            return unescape( string );
+          }
+        }
+    );
+    escapeCharacters.addListener(
+        e -> escapedText.set( escape( textProperty().get() ) )
+    );
+  }
 
-	private String escape(String s) {
-		String escapeChars = getEscapeCharacters();
-		return !Utils.isNullOrEmpty(escapeChars)
-				? s.replaceAll("([" + escapeChars.replaceAll("(.)", "\\\\$1") + "])", "\\\\$1")
-				: s;
-	}
+  // 'escapedText' property
+  private final StringProperty escapedText = new SimpleStringProperty();
 
-	private String unescape(String s) {
-		String escapeChars = getEscapeCharacters();
-		return !Utils.isNullOrEmpty(escapeChars)
-				? s.replaceAll("\\\\([" + escapeChars.replaceAll("(.)", "\\\\$1") + "])", "$1")
-				: s;
-	}
+  public StringProperty escapedTextProperty() {
+    return escapedText;
+  }
+
+  // 'escapeCharacters' property
+  private final StringProperty escapeCharacters = new SimpleStringProperty();
+
+  public String getEscapeCharacters() {
+    return escapeCharacters.get();
+  }
+
+  public void setEscapeCharacters( String escapeCharacters ) {
+    this.escapeCharacters.set( escapeCharacters );
+  }
+
+  private String escape( final String s ) {
+    final String escapeChars = getEscapeCharacters();
+
+    return isEmpty( escapeChars ) ? s :
+        s.replaceAll( "([" + escapeChars.replaceAll(
+            "(.)",
+            "\\\\$1" ) + "])", "\\\\$1" );
+  }
+
+  private String unescape( final String s ) {
+    final String escapeChars = getEscapeCharacters();
+
+    return isEmpty( escapeChars ) ? s :
+        s.replaceAll( "\\\\([" + escapeChars
+            .replaceAll( "(.)", "\\\\$1" ) + "])", "$1" );
+  }
+
+  private static boolean isEmpty( final String s ) {
+    return s == null || s.isEmpty();
+  }
 }

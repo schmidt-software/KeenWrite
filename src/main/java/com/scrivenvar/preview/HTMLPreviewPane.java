@@ -145,8 +145,8 @@ public final class HTMLPreviewPane extends Pane {
     getWebView().setFocusTraversable( false );
   }
 
-  private Object execute( final String script ) {
-    return getEngine().executeScript( script );
+  private void execute( final String script ) {
+    getEngine().executeScript( script );
   }
 
   private WebEngine getEngine() {

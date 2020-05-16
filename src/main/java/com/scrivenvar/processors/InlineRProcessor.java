@@ -167,12 +167,6 @@ public final class InlineRProcessor extends DefaultVariableProcessor {
         // Retain the R statement's ending position in the text.
         prevIndex = currIndex + 1;
       }
-      else {
-        // TODO: Implement this.
-        // There was a starting prefix but no ending suffix. Ignore the
-        // problem, copy to the end, and exit the loop.
-        //sb.append()
-      }
 
       // Find the start of the next inline R statement.
       currIndex = text.indexOf( PREFIX, min( currIndex + 1, length ) );

@@ -48,15 +48,15 @@ public enum FileType {
   YAML( "yaml" ),
   PROPERTIES( "properties" );
 
-  private final String type;
+  private final String mType;
 
   /**
    * Default constructor for enumerated file type.
    *
    * @param type Human-readable name for the file type.
    */
-  private FileType( final String type ) {
-    this.type = type;
+  FileType( final String type ) {
+    mType = type;
   }
 
   /**
@@ -96,7 +96,7 @@ public enum FileType {
    * @return A non-null instance.
    */
   private String getType() {
-    return this.type;
+    return mType;
   }
 
   /**

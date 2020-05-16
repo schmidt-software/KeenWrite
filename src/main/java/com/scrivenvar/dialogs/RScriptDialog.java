@@ -28,9 +28,12 @@
 package com.scrivenvar.dialogs;
 
 import static com.scrivenvar.Messages.get;
+
 import javafx.application.Platform;
 import javafx.geometry.Insets;
+
 import static javafx.scene.control.ButtonType.OK;
+
 import javafx.scene.control.DialogPane;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
@@ -45,13 +48,13 @@ import javafx.stage.Window;
  */
 public class RScriptDialog extends AbstractDialog<String> {
 
-  private TextArea scriptArea;
-  private String originalText = "";
+  private final TextArea mScriptArea = new TextArea();
+  private final String mOriginalText;
 
   public RScriptDialog(
-    final Window parent, final String title, final String script ) {
+      final Window parent, final String title, final String script ) {
     super( parent, title );
-    setOriginalText( script );
+    mOriginalText = script;
     getScriptArea().setText( script );
   }
 
@@ -74,26 +77,20 @@ public class RScriptDialog extends AbstractDialog<String> {
     grid.add( textArea, 0, 1 );
     pane.setContent( grid );
 
-    Platform.runLater( () -> textArea.requestFocus() );
+    Platform.runLater( textArea::requestFocus );
 
-    setResultConverter( dialogButton -> {
-      return dialogButton == OK ? textArea.getText() : getOriginalText();
-    } );
+    setResultConverter(
+        dialogButton -> dialogButton == OK ?
+            textArea.getText() :
+            getOriginalText()
+    );
   }
 
   private TextArea getScriptArea() {
-    if( this.scriptArea == null ) {
-      this.scriptArea = new TextArea();
-    }
-
-    return this.scriptArea;
+    return mScriptArea;
   }
 
   private String getOriginalText() {
-    return this.originalText;
-  }
-
-  private void setOriginalText( final String originalText ) {
-    this.originalText = originalText;
+    return mOriginalText;
   }
 }

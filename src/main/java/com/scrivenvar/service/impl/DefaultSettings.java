@@ -27,8 +27,12 @@
  */
 package com.scrivenvar.service.impl;
 
-import static com.scrivenvar.Constants.SETTINGS_NAME;
 import com.scrivenvar.service.Settings;
+import org.apache.commons.configuration2.PropertiesConfiguration;
+import org.apache.commons.configuration2.convert.DefaultListDelimiterHandler;
+import org.apache.commons.configuration2.convert.ListDelimiterHandler;
+import org.apache.commons.configuration2.ex.ConfigurationException;
+
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -37,10 +41,8 @@ import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.Iterator;
 import java.util.List;
-import org.apache.commons.configuration2.PropertiesConfiguration;
-import org.apache.commons.configuration2.convert.DefaultListDelimiterHandler;
-import org.apache.commons.configuration2.convert.ListDelimiterHandler;
-import org.apache.commons.configuration2.ex.ConfigurationException;
+
+import static com.scrivenvar.Constants.SETTINGS_NAME;
 
 /**
  * Responsible for loading settings that help avoid hard-coded assumptions.
@@ -54,16 +56,15 @@ public class DefaultSettings implements Settings {
   private PropertiesConfiguration properties;
 
   public DefaultSettings()
-    throws ConfigurationException, URISyntaxException, IOException {
+      throws ConfigurationException, URISyntaxException, IOException {
     setProperties( createProperties() );
   }
 
   /**
    * Returns the value of a string property.
    *
-   * @param property The property key.
+   * @param property     The property key.
    * @param defaultValue The value to return if no property key has been set.
-   *
    * @return The property key value, or defaultValue when no key found.
    */
   @Override
@@ -74,9 +75,8 @@ public class DefaultSettings implements Settings {
   /**
    * Returns the value of a string property.
    *
-   * @param property The property key.
+   * @param property     The property key.
    * @param defaultValue The value to return if no property key has been set.
-   *
    * @return The property key value, or defaultValue when no key found.
    */
   @Override
@@ -88,7 +88,7 @@ public class DefaultSettings implements Settings {
    * Changes key's value. This will clear the old value before setting the new
    * value so that the old value is erased, not changed into a list.
    *
-   * @param key The property key name to obtain its value.
+   * @param key   The property key name to obtain its value.
    * @param value The new value to set.
    */
   @Override
@@ -102,12 +102,11 @@ public class DefaultSettings implements Settings {
    *
    * @param property The property value to coerce.
    * @param defaults The defaults values to use should the property be unset.
-   *
    * @return The list of properties coerced from objects to strings.
    */
   @Override
   public List<String> getStringSettingList(
-    final String property, final List<String> defaults ) {
+      final String property, final List<String> defaults ) {
     return getSettings().getList( String.class, property, defaults );
   }
 
@@ -115,7 +114,6 @@ public class DefaultSettings implements Settings {
    * Convert a list of property objects into strings, with no default value.
    *
    * @param property The property value to coerce.
-   *
    * @return The list of properties coerced from objects to strings.
    */
   @Override
@@ -127,7 +125,6 @@ public class DefaultSettings implements Settings {
    * Returns a list of property names that begin with the given prefix.
    *
    * @param prefix The prefix to compare against each property name.
-   *
    * @return The list of property names that have the given prefix.
    */
   @Override
@@ -136,13 +133,14 @@ public class DefaultSettings implements Settings {
   }
 
   private PropertiesConfiguration createProperties()
-    throws ConfigurationException {
+      throws ConfigurationException {
 
     final URL url = getPropertySource();
     final PropertiesConfiguration configuration = new PropertiesConfiguration();
 
     if( url != null ) {
-      try( final Reader r = new InputStreamReader( url.openStream(), getDefaultEncoding() ) ) {
+      try( final Reader r = new InputStreamReader( url.openStream(),
+                                                   getDefaultEncoding() ) ) {
         configuration.setListDelimiterHandler( createListDelimiterHandler() );
         configuration.read( r );
 

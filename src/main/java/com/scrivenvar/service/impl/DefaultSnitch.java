@@ -27,22 +27,18 @@
  */
 package com.scrivenvar.service.impl;
 
-import static com.scrivenvar.Constants.APP_WATCHDOG_TIMEOUT;
 import com.scrivenvar.service.Snitch;
+
 import java.io.IOException;
-import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import static java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY;
-import java.nio.file.WatchEvent;
-import java.nio.file.WatchKey;
-import java.nio.file.WatchService;
+import java.nio.file.*;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Observable;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+
+import static com.scrivenvar.Constants.APP_WATCHDOG_TIMEOUT;
+import static java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY;
 
 /**
  * Listens for file changes. Other classes can register paths to be monitored
@@ -85,7 +81,6 @@ public class DefaultSnitch extends Observable implements Snitch {
    * already in the monitored list, this will return immediately.
    *
    * @param file Path to a file to watch for changes.
-   *
    * @throws IOException The file could not be monitored.
    */
   @Override
@@ -105,15 +100,14 @@ public class DefaultSnitch extends Observable implements Snitch {
    * in the root folder.
    *
    * @param path The file to return as a directory, which should always be the
-   * case.
-   *
+   *             case.
    * @return The given path as a directory, if a file, otherwise the path
    * itself.
    */
   private Path toDirectory( final Path path ) {
     return Files.isDirectory( path )
-      ? path
-      : path.toFile().getParentFile().toPath();
+        ? path
+        : path.toFile().getParentFile().toPath();
   }
 
   /**
@@ -138,7 +132,7 @@ public class DefaultSnitch extends Observable implements Snitch {
    * Loops until stop is called, or the application is terminated.
    */
   @Override
-  @SuppressWarnings( "SleepWhileInLoop" )
+  @SuppressWarnings("BusyWait")
   public void run() {
     setListening( true );
 
@@ -153,7 +147,7 @@ public class DefaultSnitch extends Observable implements Snitch {
         Thread.sleep( APP_WATCHDOG_TIMEOUT );
 
         for( final WatchEvent<?> event : key.pollEvents() ) {
-          final Path changed = path.resolve( (Path)event.context() );
+          final Path changed = path.resolve( (Path) event.context() );
 
           if( event.kind() == ENTRY_MODIFY && isListening( changed ) ) {
             setChanged();
@@ -176,7 +170,6 @@ public class DefaultSnitch extends Observable implements Snitch {
    * the given file.
    *
    * @param file Path to a system file.
-   *
    * @return true The given file is being monitored for changes.
    */
   private boolean isListening( final Path file ) {
@@ -187,7 +180,6 @@ public class DefaultSnitch extends Observable implements Snitch {
    * Returns a path for a given watch key.
    *
    * @param key The key to lookup its corresponding path.
-   *
    * @return The path for the given key.
    */
   private Path get( final WatchKey key ) {
@@ -227,7 +219,6 @@ public class DefaultSnitch extends Observable implements Snitch {
    * The existing watch service, or a new instance if null.
    *
    * @return A valid WatchService instance, never null.
-   *
    * @throws IOException Could not create a new watch service.
    */
   private synchronized WatchService getWatchService() throws IOException {

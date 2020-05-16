@@ -42,9 +42,8 @@ public interface TextReplacer {
    * value.
    *
    * @param text The text that contains zero or more keys.
-   * @param map The set of keys mapped to replacement values.
-   *
+   * @param map  The set of keys mapped to replacement values.
    * @return The given text with all keys replaced with corresponding values.
    */
-  public String replace( String text, Map<String, String> map );
+  String replace( String text, Map<String, String> map );
 }

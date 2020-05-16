@@ -28,10 +28,10 @@
 package com.scrivenvar.service.events.impl;
 
 import com.scrivenvar.service.events.Notification;
+
 import java.text.MessageFormat;
 
 /**
- *
  * @author White Magic Software, Ltd.
  */
 public class DefaultNotification implements Notification {
@@ -41,15 +41,15 @@ public class DefaultNotification implements Notification {
 
   /**
    * Constructs default message text for a notification.
-   * 
-   * @param title The message title.
+   *
+   * @param title   The message title.
    * @param message The message content (needs formatting).
-   * @param args The arguments to the message content that must be formatted.
+   * @param args    The arguments to the message content that must be formatted.
    */
   public DefaultNotification(
-    final String title,
-    final String message,
-    final Object... args ) {
+      final String title,
+      final String message,
+      final Object... args ) {
     this.title = title;
     this.content = MessageFormat.format( message, args );
   }

@@ -27,18 +27,20 @@
  */
 package com.scrivenvar.service.events.impl;
 
-import static com.scrivenvar.Constants.APP_TITLE;
-import static com.scrivenvar.Constants.STATUS_BAR_DEFAULT;
 import com.scrivenvar.service.events.Notification;
 import com.scrivenvar.service.events.Notifier;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
+import javafx.stage.Window;
+
 import java.io.File;
 import java.nio.file.Paths;
 import java.util.Observable;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Alert.AlertType;
+
+import static com.scrivenvar.Constants.APP_TITLE;
+import static com.scrivenvar.Constants.STATUS_BAR_DEFAULT;
 import static javafx.scene.control.Alert.AlertType.CONFIRMATION;
 import static javafx.scene.control.Alert.AlertType.ERROR;
-import javafx.stage.Window;
 
 /**
  * Provides the ability to notify the user of problems.
@@ -57,8 +59,10 @@ public final class DefaultNotifier extends Observable implements Notifier {
    */
   @Override
   public void notify( final String message ) {
-    setChanged();
-    notifyObservers( message );
+    if( message != null && !message.isBlank() ) {
+      setChanged();
+      notifyObservers( message );
+    }
   }
 
   @Override
@@ -69,24 +73,23 @@ public final class DefaultNotifier extends Observable implements Notifier {
   /**
    * Contains all the information that the user needs to know about a problem.
    *
-   * @param title The context for the message.
+   * @param title   The context for the message.
    * @param message The message content (formatted with the given args).
-   * @param args Parameters for the message content.
-   *
+   * @param args    Parameters for the message content.
    * @return A notification instance, never null.
    */
   @Override
   public Notification createNotification(
-    final String title,
-    final String message,
-    final Object... args ) {
+      final String title,
+      final String message,
+      final Object... args ) {
     return new DefaultNotification( title, message, args );
   }
 
   private Alert createAlertDialog(
-    final Window parent,
-    final AlertType alertType,
-    final Notification message ) {
+      final Window parent,
+      final AlertType alertType,
+      final Notification message ) {
 
     final Alert alert = new Alert( alertType );
 
@@ -100,7 +103,8 @@ public final class DefaultNotifier extends Observable implements Notifier {
   }
 
   @Override
-  public Alert createConfirmation( final Window parent, final Notification message ) {
+  public Alert createConfirmation( final Window parent,
+                                   final Notification message ) {
     final Alert alert = createAlertDialog( parent, CONFIRMATION, message );
 
     alert.getButtonTypes().setAll( YES, NO, CANCEL );
@@ -116,6 +120,6 @@ public final class DefaultNotifier extends Observable implements Notifier {
   @Override
   public File getLogPath() {
     return Paths.get(
-      System.getProperty("java.io.tmpdir"), APP_TITLE + ".log").toFile();
+        System.getProperty( "java.io.tmpdir" ), APP_TITLE + ".log" ).toFile();
   }
 }

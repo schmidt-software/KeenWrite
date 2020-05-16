@@ -49,7 +49,7 @@ public class MarkdownProcessor extends AbstractProcessor<String> {
   private final static Parser PARSER;
 
   static {
-    final Collection<Extension> extensions = new ArrayList<Extension>();
+    final Collection<Extension> extensions = new ArrayList<>();
     extensions.add( TablesExtension.create() );
     extensions.add( SuperscriptExtension.create() );
     extensions.add( StrikethroughSubscriptExtension.create() );
@@ -72,7 +72,6 @@ public class MarkdownProcessor extends AbstractProcessor<String> {
    * head, and body tags.
    *
    * @param markdown The string to convert from Markdown to HTML.
-   *
    * @return The HTML representation of the Markdown document.
    */
   @Override
@@ -86,7 +85,6 @@ public class MarkdownProcessor extends AbstractProcessor<String> {
    * paragraph.
    *
    * @param markdown The markdown to convert into an AST.
-   *
    * @return The markdown AST for the given text (usually a paragraph).
    */
   public Node toNode( final String markdown ) {
@@ -97,7 +95,6 @@ public class MarkdownProcessor extends AbstractProcessor<String> {
    * Helper method to create an AST given some markdown.
    *
    * @param markdown The markdown to parse.
-   *
    * @return The root node of the markdown tree.
    */
   private Node parse( final String markdown ) {
@@ -108,7 +105,6 @@ public class MarkdownProcessor extends AbstractProcessor<String> {
    * Converts a string of markdown into HTML.
    *
    * @param markdown The markdown text to convert to HTML, must not be null.
-   *
    * @return The markdown rendered as an HTML document.
    */
   private String toHtml( final String markdown ) {

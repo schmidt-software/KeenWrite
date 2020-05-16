@@ -27,7 +27,6 @@
  */
 package com.scrivenvar.definition.yaml;
 
-import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.ObjectCodec;
 import com.fasterxml.jackson.core.io.IOContext;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -38,6 +37,8 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
 import com.scrivenvar.decorators.VariableDecorator;
 import com.scrivenvar.decorators.YamlVariableDecorator;
+import org.yaml.snakeyaml.DumperOptions;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Writer;
@@ -47,7 +48,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.yaml.snakeyaml.DumperOptions;
 
 /**
  * <p>
@@ -66,7 +66,7 @@ import org.yaml.snakeyaml.DumperOptions;
  *   field:
  *     name: Alan Turing
  * </pre>
- *
+ * <p>
  * The various components of the given YAML are called:
  *
  * <ul>
@@ -91,15 +91,15 @@ public class YamlParser {
   private final static int GROUP_REFERENCE = 2;
 
   private final static VariableDecorator VARIABLE_DECORATOR
-    = new YamlVariableDecorator();
+      = new YamlVariableDecorator();
 
-  private String error;
+  private String mError;
 
   /**
    * Compiled version of DEFAULT_REGEX.
    */
   private final static Pattern REGEX_PATTERN
-    = Pattern.compile( YamlVariableDecorator.REGEX );
+      = Pattern.compile( YamlVariableDecorator.REGEX );
 
   /**
    * Should be JsonPointer.SEPARATOR, but Jackson YAML uses magic values.
@@ -125,8 +125,7 @@ public class YamlParser {
    * their recursively resolved values.
    *
    * @param text The text to parse with zero or more delimited references to
-   * replace.
-   *
+   *             replace.
    * @return The substituted value.
    */
   public String substitute( String text ) {
@@ -168,16 +167,16 @@ public class YamlParser {
    * leaf node.
    *
    * @param rootNode A JSON node (YAML node) to adapt.
-   * @param map Container that associates definitions with values.
+   * @param map      Container that associates definitions with values.
    */
   private void resolve(
-    final JsonNode rootNode,
-    final String path,
-    final Map<String, String> map ) {
+      final JsonNode rootNode,
+      final String path,
+      final Map<String, String> map ) {
 
     if( rootNode != null ) {
       rootNode.fields().forEachRemaining(
-        (Entry<String, JsonNode> leaf) -> resolve( leaf, path, map )
+          ( Entry<String, JsonNode> leaf ) -> resolve( leaf, path, map )
       );
     }
   }
@@ -188,24 +187,24 @@ public class YamlParser {
    * @param rootNode The node to adapt.
    */
   private void resolve(
-    final Entry<String, JsonNode> rootNode,
-    final String path,
-    final Map<String, String> map ) {
+      final Entry<String, JsonNode> rootNode,
+      final String path,
+      final Map<String, String> map ) {
 
     final JsonNode leafNode = rootNode.getValue();
     final String key = rootNode.getKey();
 
-    
+
     if( leafNode.isValueNode() ) {
       final String value;
-      
+
       if( leafNode instanceof NullNode ) {
         value = "";
       }
       else {
         value = rootNode.getValue().asText();
       }
-      
+
       map.put( VARIABLE_DECORATOR.decorate( path + key ), substitute( value ) );
     }
 
@@ -221,16 +220,12 @@ public class YamlParser {
    * <code>JsonNode.fields()</code> to walk through the YAML tree of fields.
    *
    * @param in The input stream containing YAML content.
-   *
-   * @return An object hierarchy to represent the content.
-   *
    * @throws IOException Could not read the stream.
    */
-  private JsonNode process( final InputStream in ) throws IOException {
-    final ObjectNode root = (ObjectNode)getObjectMapper().readTree( in );
+  private void process( final InputStream in ) throws IOException {
+    final ObjectNode root = (ObjectNode) getObjectMapper().readTree( in );
     setDocumentRoot( root );
     process( root );
-    return getDocumentRoot();
   }
 
   /**
@@ -276,9 +271,9 @@ public class YamlParser {
    * overwrite existing references.
    *
    * @param fieldValue YAML field containing zero or more delimited references.
-   * If it contains a delimited reference, the parameter is modified with the
-   * dereferenced value before it is returned.
-   *
+   *                   If it contains a delimited reference, the parameter is
+   *                   modified with the
+   *                   dereferenced value before it is returned.
    * @return fieldValue without delimited references.
    */
   private String resolve( String fieldValue ) {
@@ -304,7 +299,7 @@ public class YamlParser {
    * references and dereferenced values found in the YAML. If the reference
    * already exists, this will overwrite with a new value.
    *
-   * @param delimited The variable name.
+   * @param delimited    The variable name.
    * @param dereferenced The resolved value.
    */
   private void put( String delimited, String dereferenced ) {
@@ -337,7 +332,7 @@ public class YamlParser {
    * Returns a REGEX_PATTERN matcher for the given text.
    *
    * @param text The text that contains zero or more instances of a
-   * REGEX_PATTERN that can be found using the regular expression.
+   *             REGEX_PATTERN that can be found using the regular expression.
    */
   private Matcher patternMatch( String text ) {
     return getPattern().matcher( text );
@@ -347,7 +342,6 @@ public class YamlParser {
    * Finds the YAML value for a reference.
    *
    * @param reference References a value in the YAML document.
-   *
    * @return The dereferenced value.
    */
   private String lookup( final String reference ) {
@@ -359,12 +353,12 @@ public class YamlParser {
    * value that should exist inside the YAML document.
    *
    * @param reference The reference to convert to a YAML document path.
-   *
    * @return The reference with a leading slash and its separator characters
    * converted to slashes.
    */
   private String asPath( final String reference ) {
-    return SEPARATOR_YAML + reference.replace( getDelimitedSeparator(), SEPARATOR_YAML );
+    return SEPARATOR_YAML + reference.replace( getDelimitedSeparator(),
+                                               SEPARATOR_YAML );
   }
 
   /**
@@ -396,9 +390,7 @@ public class YamlParser {
   }
 
   /**
-   * Returns the list of references mapped to dereferenced values.
-   *
-   * @return
+   * @return The list of references mapped to dereferenced values.
    */
   private Map<String, String> getReferences() {
     if( this.references == null ) {
@@ -423,30 +415,29 @@ public class YamlParser {
 
     @Override
     protected YAMLGenerator _createGenerator(
-      final Writer out, final IOContext ctxt ) throws IOException {
+        final Writer out, final IOContext ctxt ) throws IOException {
 
       return new ResolverYAMLGenerator(
-        ctxt, _generatorFeatures, _yamlGeneratorFeatures, _objectCodec,
-        out, _version );
+          ctxt, _generatorFeatures, _yamlGeneratorFeatures, _objectCodec,
+          out, _version );
     }
   }
 
   private class ResolverYAMLGenerator extends YAMLGenerator {
 
     public ResolverYAMLGenerator(
-      final IOContext ctxt,
-      final int jsonFeatures,
-      final int yamlFeatures,
-      final ObjectCodec codec,
-      final Writer out,
-      final DumperOptions.Version version ) throws IOException {
+        final IOContext ctxt,
+        final int jsonFeatures,
+        final int yamlFeatures,
+        final ObjectCodec codec,
+        final Writer out,
+        final DumperOptions.Version version ) throws IOException {
 
       super( ctxt, jsonFeatures, yamlFeatures, codec, out, version );
     }
 
     @Override
-    public void writeString( final String text )
-      throws IOException, JsonGenerationException {
+    public void writeString( final String text ) throws IOException {
       super.writeString( substitute( text ) );
     }
   }
@@ -471,7 +462,7 @@ public class YamlParser {
   }
 
   private void setError( final String error ) {
-    this.error = error;
+    mError = error;
   }
 
   /**
@@ -480,6 +471,6 @@ public class YamlParser {
    * @return The error message or the empty string if no error occurred.
    */
   public String getError() {
-    return this.error == null ? "" : this.error;
+    return mError == null ? "" : mError;
   }
 }

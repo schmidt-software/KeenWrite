@@ -47,8 +47,7 @@ public class CaretReplacementProcessor extends AbstractProcessor<String> {
    * attribute of CARET_POSITION. This should only replace one item.
    *
    * @param t The text that contains
-   *
-   * @return
+   * @return The value of the first instance replaced.
    */
   @Override
   public String processLink( final String t ) {
@@ -61,33 +60,19 @@ public class CaretReplacementProcessor extends AbstractProcessor<String> {
    * which performs a little regex under the hood.
    *
    * @param haystack Search this string for the needle, must not be null.
-   * @param needle The text to find in the haystack.
-   * @param thread Replace the needle with this text, if the needle is found.
-   *
+   * @param needle   The text to find in the haystack.
+   * @param thread   Replace the needle with this text, if the needle is found.
    * @return The haystack with the first instance of needle replaced with
    * thread.
    */
+  @SuppressWarnings("SameParameterValue")
   private static String replace(
-    final String haystack, final String needle, final String thread ) {
+      final String haystack, final String needle, final String thread ) {
+    final int end = haystack.indexOf( needle );
 
-    final int end = haystack.indexOf( needle, 0 );
-
-    if( end == INDEX_NOT_FOUND ) {
-      return haystack;
-    }
-
-    int start = 0;
-    final int needleLength = needle.length();
-
-    int len = thread.length() - needleLength;
-    len = (len < 0 ? 0 : len);
-    final StringBuilder buffer = new StringBuilder( haystack.length() + len );
-
-    if( end != INDEX_NOT_FOUND ) {
-      buffer.append( haystack.substring( start, end ) ).append( thread );
-      start = end + needleLength;
-    }
-
-    return buffer.append( haystack.substring( start ) ).toString();
+    return end == INDEX_NOT_FOUND ?
+        haystack :
+        haystack.substring( 0, end ) + thread +
+            haystack.substring( end + needle.length() );
   }
 }

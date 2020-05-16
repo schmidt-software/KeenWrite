@@ -40,7 +40,7 @@ import java.util.Map;
 public class RVariableProcessor extends DefaultVariableProcessor {
 
   public RVariableProcessor(
-    final Processor<String> rp, final Map<String, String> map ) {
+      final Processor<String> rp, final Map<String, String> map ) {
     super( rp, map );
   }
 
@@ -58,8 +58,7 @@ public class RVariableProcessor extends DefaultVariableProcessor {
    * Converts the given map from regular variables to R variables.
    *
    * @param map Map of variable names to values.
-   *
-   * @return
+   * @return Map of R variables.
    */
   private Map<String, String> toR( final Map<String, String> map ) {
     final Map<String, String> rMap = new HashMap<>( map.size() );
@@ -76,7 +75,6 @@ public class RVariableProcessor extends DefaultVariableProcessor {
    * form.
    *
    * @param key The variable name to transform, can be empty but not null.
-   *
    * @return The transformed variable name.
    */
   private String toRKey( final String key ) {
@@ -104,17 +102,15 @@ public class RVariableProcessor extends DefaultVariableProcessor {
 
   /**
    * TODO: Make generic method for replacing text.
-   * 
-   * @see CaretReplacementProcessor.replace
    *
    * @param haystack Search this string for the needle, must not be null.
-   * @param needle The character to find in the haystack.
-   * @param thread Replace the needle with this text, if the needle is found.
-   *
+   * @param needle   The character to find in the haystack.
+   * @param thread   Replace the needle with this text, if the needle is found.
    * @return The haystack with the all instances of needle replaced with thread.
    */
+  @SuppressWarnings("SameParameterValue")
   private String escape(
-    final String haystack, final char needle, final String thread ) {
+      final String haystack, final char needle, final String thread ) {
     int end = haystack.indexOf( needle );
 
     if( end < 0 ) {
@@ -128,7 +124,7 @@ public class RVariableProcessor extends DefaultVariableProcessor {
     final StringBuilder sb = new StringBuilder( length + 32 );
 
     while( end >= 0 ) {
-      sb.append( haystack.substring( start, end ) ).append( thread );
+      sb.append( haystack, start, end ).append( thread );
       start = end + 1;
       end = haystack.indexOf( needle, start );
     }

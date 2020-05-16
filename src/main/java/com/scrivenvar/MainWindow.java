@@ -422,12 +422,9 @@ public class MainWindow implements Observer {
 
   private void restoreDefinitionSource() {
     final Preferences preferences = getPreferences();
-    final String source = preferences.get( PERSIST_DEFINITION_SOURCE, null );
+    final String source = preferences.get( PERSIST_DEFINITION_SOURCE, "" );
 
-    // If there's no definition source set, don't try to load it.
-    if( source != null ) {
-      setDefinitionSource( createDefinitionSource( source ) );
-    }
+    setDefinitionSource( createDefinitionSource( source ) );
   }
 
   private void storeDefinitionSource() {
@@ -764,8 +761,9 @@ public class MainWindow implements Observer {
 
       if( ds instanceof FileDefinitionSource ) {
         try {
+          getNotifier().notify( ds.getError() );
           getSnitch().listen( ((FileDefinitionSource) ds).getPath() );
-        } catch( final IOException ex ) {
+        } catch( final Exception ex ) {
           error( ex );
         }
       }

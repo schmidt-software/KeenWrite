@@ -41,7 +41,7 @@ public class DefaultVariableProcessor extends AbstractProcessor<String> {
   private Map<String, String> definitions;
 
   /**
-   * Constructs a variable processor for dereferencing variables.
+   * Constructs a variable processor to dereference variables.
    *
    * @param successor Usually the HTML Preview Processor.
    */

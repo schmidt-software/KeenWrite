@@ -28,19 +28,17 @@
 package com.scrivenvar.definition;
 
 import com.scrivenvar.AbstractFileFactory;
-import static com.scrivenvar.Constants.DEFINITION_PROTOCOL_FILE;
-import static com.scrivenvar.Constants.DEFINITION_PROTOCOL_UNKNOWN;
-import static com.scrivenvar.Constants.GLOB_PREFIX_DEFINITION;
 import com.scrivenvar.FileType;
-import static com.scrivenvar.FileType.YAML;
 import com.scrivenvar.definition.yaml.YamlFileDefinitionSource;
+
 import java.io.File;
-import java.net.MalformedURLException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+
+import static com.scrivenvar.Constants.*;
+import static com.scrivenvar.FileType.YAML;
 
 /**
  * Responsible for creating objects that can read and write definition data
@@ -62,23 +60,19 @@ public class DefinitionFactory extends AbstractFileFactory {
    * path.
    *
    * @param path Path to a resource containing definitions.
-   *
    * @return The definition source appropriate for the given path.
    */
   public DefinitionSource createDefinitionSource( final String path ) {
     final String protocol = getProtocol( path );
     DefinitionSource result = null;
 
-    switch( protocol ) {
-      case DEFINITION_PROTOCOL_FILE:
-        final Path file = Paths.get( path );
-        final FileType filetype = lookup( file, GLOB_PREFIX_DEFINITION );
-        result = createFileDefinitionSource( filetype, file );
-        break;
-
-      default:
-        unknownFileType( protocol, path );
-        break;
+    if( DEFINITION_PROTOCOL_FILE.equals( protocol ) ) {
+      final Path file = Paths.get( path );
+      final FileType filetype = lookup( file, GLOB_PREFIX_DEFINITION );
+      result = createFileDefinitionSource( filetype, file );
+    }
+    else {
+      unknownFileType( protocol, path );
     }
 
     return result;
@@ -88,23 +82,19 @@ public class DefinitionFactory extends AbstractFileFactory {
    * Creates a definition source based on the file type.
    *
    * @param filetype Property key name suffix from settings.properties file.
-   * @param path Path to the file that corresponds to the extension.
-   *
+   * @param path     Path to the file that corresponds to the extension.
    * @return A DefinitionSource capable of parsing the data stored at the path.
    */
   private DefinitionSource createFileDefinitionSource(
-    final FileType filetype, final Path path ) {
+      final FileType filetype, final Path path ) {
 
     DefinitionSource result = null;
 
-    switch( filetype ) {
-      case YAML:
-        result = new YamlFileDefinitionSource( path );
-        break;
-
-      default:
-        unknownFileType( filetype.toString(), path.toString() );
-        break;
+    if( filetype == YAML ) {
+      result = new YamlFileDefinitionSource( path );
+    }
+    else {
+      unknownFileType( filetype, path );
     }
 
     return result;
@@ -114,11 +104,10 @@ public class DefinitionFactory extends AbstractFileFactory {
    * Returns the protocol for a given URI or filename.
    *
    * @param source Determine the protocol for this URI or filename.
-   *
    * @return The protocol for the given source.
    */
   private String getProtocol( final String source ) {
-    String protocol = null;
+    String protocol;
 
     try {
       final URI uri = new URI( source );
@@ -130,7 +119,7 @@ public class DefinitionFactory extends AbstractFileFactory {
         final URL url = new URL( source );
         protocol = url.getProtocol();
       }
-    } catch( final URISyntaxException | MalformedURLException e ) {
+    } catch( final Exception e ) {
       // Could be HTTP, HTTPS?
       if( source.startsWith( "//" ) ) {
         throw new IllegalArgumentException( "Relative context: " + source );
@@ -148,7 +137,6 @@ public class DefinitionFactory extends AbstractFileFactory {
    * Returns the protocol for a given file.
    *
    * @param file Determine the protocol for this file.
-   *
    * @return The protocol for the given file.
    */
   private String getProtocol( final File file ) {

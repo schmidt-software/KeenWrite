@@ -272,7 +272,7 @@ public final class FileEditorTab extends Tab {
       try {
         getEditorPane().setText( asString( Files.readAllBytes( filePath ) ) );
         getEditorPane().scrollToTop();
-      } catch( final IOException ex ) {
+      } catch( final Exception ex ) {
         getNotifyService().notify( ex );
       }
     }

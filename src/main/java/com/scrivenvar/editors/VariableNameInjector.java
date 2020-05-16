@@ -32,15 +32,7 @@ import com.scrivenvar.Services;
 import com.scrivenvar.decorators.VariableDecorator;
 import com.scrivenvar.definition.DefinitionPane;
 import com.scrivenvar.definition.VariableTreeItem;
-import static com.scrivenvar.definition.yaml.YamlParser.SEPARATOR;
-import static com.scrivenvar.definition.yaml.YamlParser.SEPARATOR_CHAR;
 import com.scrivenvar.service.Settings;
-import static com.scrivenvar.util.Lists.getFirst;
-import static com.scrivenvar.util.Lists.getLast;
-import static java.lang.Character.isWhitespace;
-import static java.lang.Math.min;
-import java.nio.file.Path;
-import java.util.function.Consumer;
 import javafx.collections.ObservableList;
 import javafx.event.Event;
 import javafx.event.EventHandler;
@@ -49,20 +41,26 @@ import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.input.InputEvent;
 import javafx.scene.input.KeyCode;
-import static javafx.scene.input.KeyCode.AT;
-import static javafx.scene.input.KeyCode.DIGIT2;
-import static javafx.scene.input.KeyCode.ENTER;
-import static javafx.scene.input.KeyCode.MINUS;
-import static javafx.scene.input.KeyCode.SPACE;
-import static javafx.scene.input.KeyCombination.CONTROL_DOWN;
-import static javafx.scene.input.KeyCombination.SHIFT_DOWN;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import org.fxmisc.richtext.StyledTextArea;
 import org.fxmisc.wellbehaved.event.EventPattern;
+import org.fxmisc.wellbehaved.event.InputMap;
+
+import java.nio.file.Path;
+import java.util.function.Consumer;
+
+import static com.scrivenvar.definition.yaml.YamlParser.SEPARATOR;
+import static com.scrivenvar.definition.yaml.YamlParser.SEPARATOR_CHAR;
+import static com.scrivenvar.util.Lists.getFirst;
+import static com.scrivenvar.util.Lists.getLast;
+import static java.lang.Character.isWhitespace;
+import static java.lang.Math.min;
+import static javafx.scene.input.KeyCode.*;
+import static javafx.scene.input.KeyCombination.CONTROL_DOWN;
+import static javafx.scene.input.KeyCombination.SHIFT_DOWN;
 import static org.fxmisc.wellbehaved.event.EventPattern.keyPressed;
 import static org.fxmisc.wellbehaved.event.EventPattern.keyTyped;
-import org.fxmisc.wellbehaved.event.InputMap;
 import static org.fxmisc.wellbehaved.event.InputMap.consume;
 import static org.fxmisc.wellbehaved.event.InputMap.sequence;
 
@@ -109,11 +107,11 @@ public final class VariableNameInjector {
   /**
    * Initializes the variable name injector against the given pane.
    *
-   * @param tab The tab to inject variable names into.
+   * @param tab  The tab to inject variable names into.
    * @param pane The definition panel to listen to for double-click events.
    */
   public VariableNameInjector(
-    final FileEditorTab tab, final DefinitionPane pane ) {
+      final FileEditorTab tab, final DefinitionPane pane ) {
     setFileEditorTab( tab );
     setDefinitionPane( pane );
     initBranchSelectedListener();
@@ -132,7 +130,7 @@ public final class VariableNameInjector {
    * Trap control+space and the @ key.
    *
    * @param tab The file editor that sends keyboard events for variable name
-   * injection.
+   *            injection.
    */
   public void initKeyboardEventListeners( final FileEditorTab tab ) {
     setFileEditorTab( tab );
@@ -145,12 +143,11 @@ public final class VariableNameInjector {
    *
    * @ key is pressed, a new keyboard map is inserted in place of the current
    * map -- this class goes into "variable edit mode" (a.k.a. vMode).
-   *
-   * @see createKeyboardMap()
    */
   private void initKeyboardEventListeners() {
     // Control and space are pressed.
-    addKeyboardListener( keyPressed( SPACE, CONTROL_DOWN ), this::autocomplete );
+    addKeyboardListener( keyPressed( SPACE, CONTROL_DOWN ),
+                         this::autocomplete );
 
     // @ key in Linux?
     addKeyboardListener( keyPressed( DIGIT2, SHIFT_DOWN ), this::vMode );
@@ -241,10 +238,10 @@ public final class VariableNameInjector {
       final String label = node.getValue();
       final int delta = difference( label, word );
       final String remainder = delta == NO_DIFFERENCE
-        ? label
-        : label.substring( delta );
+          ? label
+          : label.substring( delta );
 
-      final StyledTextArea textArea = getEditor();
+      final StyledTextArea<?, ?> textArea = getEditor();
       final int posBegan = getCurrentCaretPosition();
       final int posEnded = posBegan + remainder.length();
 
@@ -358,10 +355,10 @@ public final class VariableNameInjector {
    *
    * @param posBegan The starting index in the paragraph text to replace.
    * @param posEnded The ending index in the paragraph text to replace.
-   * @param text Overwrite the paragraph substring with this text.
+   * @param text     Overwrite the paragraph substring with this text.
    */
   private void replaceText(
-    final int posBegan, final int posEnded, final String text ) {
+      final int posBegan, final int posEnded, final String text ) {
     final int p = getCurrentParagraph();
 
     getEditor().replaceText( p, posBegan, p, posEnded, text );
@@ -380,10 +377,9 @@ public final class VariableNameInjector {
    * Returns current word boundary indexes into the current paragraph, excluding
    * punctuation.
    *
-   * @param p The paragraph wherein to hunt word boundaries.
+   * @param p      The paragraph wherein to hunt word boundaries.
    * @param offset The offset into the paragraph to begin scanning left and
-   * right.
-   *
+   *               right.
    * @return The starting and ending index of the word closest to the caret.
    */
   private int[] getWordBoundaries( final String p, final int offset ) {
@@ -397,9 +393,8 @@ public final class VariableNameInjector {
   /**
    * Helper method to get the word boundaries for the current paragraph.
    *
-   * @param paragraph
-   *
-   * @return
+   * @param paragraph The paragraph to search for word boundaries.
+   * @return The word boundary indexes into the paragraph.
    */
   private int[] getWordBoundaries( final String paragraph ) {
     return getWordBoundaries( paragraph, getCurrentCaretColumn() );
@@ -419,26 +414,21 @@ public final class VariableNameInjector {
    * <li>after punctuation: <code>hello world!|</code> ("world").</li>
    * </ul>
    *
-   * @param p The string to scan for a word.
+   * @param p      The string to scan for a word.
    * @param offset The offset within s to begin searching for the nearest word
-   * boundary, must not be out of bounds of s.
-   *
+   *               boundary, must not be out of bounds of s.
    * @return The word in s at the offset.
-   *
-   * @see getWordBegan( String, int )
-   * @see getWordEnded( String, int )
    */
   private int[] getWordAt( final String p, final int offset ) {
-    return new int[]{ getWordBegan( p, offset ), getWordEnded( p, offset ) };
+    return new int[]{getWordBegan( p, offset ), getWordEnded( p, offset )};
   }
 
   /**
    * Returns the index into s where a word begins.
    *
-   * @param s Never null.
+   * @param s      Never null.
    * @param offset Index into s to begin searching backwards for a word
-   * boundary.
-   *
+   *               boundary.
    * @return The index where a word begins.
    */
   private int getWordBegan( final String s, int offset ) {
@@ -452,9 +442,8 @@ public final class VariableNameInjector {
   /**
    * Returns the index into s where a word ends.
    *
-   * @param s Never null.
+   * @param s      Never null.
    * @param offset Index into s to begin searching forwards for a word boundary.
-   *
    * @return The index where a word ends.
    */
   private int getWordEnded( final String s, int offset ) {
@@ -472,7 +461,6 @@ public final class VariableNameInjector {
    * of a word, including punctuation marks.
    *
    * @param c The character to compare.
-   *
    * @return false The character is a space character.
    */
   private boolean isBoundary( final char c ) {
@@ -483,9 +471,9 @@ public final class VariableNameInjector {
    * Returns true if the given character is part of the set of Latin (English)
    * punctuation marks.
    *
-   * @param c
-   *
-   * @return
+   * @param c The character to determine whether it is punctuation.
+   * @return {@code true} when the given character is in the set of
+   * {@link #PUNCTUATION}.
    */
   private static boolean isPunctuation( final char c ) {
     return PUNCTUATION.indexOf( c ) != -1;
@@ -504,9 +492,8 @@ public final class VariableNameInjector {
    * Returns true if the node has children that can be selected (i.e., any
    * non-leaves).
    *
-   * @param <T> The type that the TreeItem contains.
+   * @param <T>  The type that the TreeItem contains.
    * @param node The node to test for terminality.
-   *
    * @return true The node has one branch and its a leaf.
    */
   private <T> boolean isTerminal( final TreeItem<T> node ) {
@@ -534,7 +521,7 @@ public final class VariableNameInjector {
 
     if( range != null ) {
       final int rangeEnd = range.getEnd();
-      final StyledTextArea textArea = getEditor();
+      final StyledTextArea<?, ?> textArea = getEditor();
       textArea.deselect();
       textArea.moveTo( rangeEnd );
     }
@@ -548,7 +535,7 @@ public final class VariableNameInjector {
    * @param newPath The replacement path.
    */
   private void replacePath( final String oldPath, final String newPath ) {
-    final StyledTextArea textArea = getEditor();
+    final StyledTextArea<?, ?> textArea = getEditor();
     final int posBegan = getInitialCaretPosition();
     final int posEnded = posBegan + oldPath.length();
 
@@ -560,7 +547,7 @@ public final class VariableNameInjector {
    * Called when the user presses the Backspace key.
    */
   private void deleteSelection() {
-    final StyledTextArea textArea = getEditor();
+    final StyledTextArea<?, ?> textArea = getEditor();
     textArea.replaceSelection( "" );
     textArea.deletePreviousChar();
   }
@@ -575,9 +562,9 @@ public final class VariableNameInjector {
 
     // Find the sibling for the current selection and replace the current
     // selection with the sibling's value
-    TreeItem< String> cycled = direction
-      ? node.nextSibling()
-      : node.previousSibling();
+    TreeItem<String> cycled = direction
+        ? node.nextSibling()
+        : node.previousSibling();
 
     // When cycling at the end (or beginning) of the list, jump to the first
     // (or last) sibling depending on the cycle direction.
@@ -631,7 +618,7 @@ public final class VariableNameInjector {
   }
 
   private <T> ObservableList<TreeItem<T>> getSiblings(
-    final TreeItem<T> item ) {
+      final TreeItem<T> item ) {
     final TreeItem<T> parent = item.getParent();
     return parent == null ? item.getChildren() : parent.getChildren();
   }
@@ -691,15 +678,14 @@ public final class VariableNameInjector {
    * and then some.
    */
   private String extractTextChunk() {
-    final StyledTextArea textArea = getEditor();
+    final StyledTextArea<?, ?> textArea = getEditor();
     final int textBegan = getInitialCaretPosition();
     final int remaining = textArea.getLength() - textBegan;
     final int textEnded = min( remaining, getMaxVarLength() );
 
     try {
       return textArea.getText( textBegan, textEnded );
-    }
-    catch( final Exception e ) {
+    } catch( final Exception e ) {
       return textArea.getText();
     }
   }
@@ -715,7 +701,6 @@ public final class VariableNameInjector {
    * Finds the node that most closely matches the given path.
    *
    * @param path The path that represents a node.
-   *
    * @return The node for the path, or the root node if the path could not be
    * found, but never null.
    */
@@ -727,7 +712,6 @@ public final class VariableNameInjector {
    * Finds the first leaf having a value that starts with the given text.
    *
    * @param text The text to find in the definition tree.
-   *
    * @return The leaf that starts with the given text, or null if not found.
    */
   private VariableTreeItem<String> findLeaf( final String text ) {
@@ -738,15 +722,14 @@ public final class VariableNameInjector {
    * Finds the first leaf having a value that starts with the given text, or
    * contains the text if contains is true.
    *
-   * @param text The text to find in the definition tree.
+   * @param text     The text to find in the definition tree.
    * @param contains Set true to perform a substring match after a starts with
-   * match.
-   *
+   *                 match.
    * @return The leaf that starts with the given text, or null if not found.
    */
+  @SuppressWarnings("SameParameterValue")
   private VariableTreeItem<String> findLeaf(
-    final String text,
-    final boolean contains ) {
+      final String text, final boolean contains ) {
     return getDefinitionPane().findLeaf( text, contains );
   }
 
@@ -766,8 +749,8 @@ public final class VariableNameInjector {
    */
   protected InputMap<InputEvent> createKeyboardMap() {
     return sequence(
-      consume( keyTyped(), this::vModeKeyTyped ),
-      consume( keyPressed(), this::vModeKeyPressed )
+        consume( keyTyped(), this::vModeKeyTyped ),
+        consume( keyPressed(), this::vModeKeyPressed )
     );
   }
 
@@ -796,16 +779,15 @@ public final class VariableNameInjector {
    * variable name.
    *
    * @param keyEvent Keyboard key press event information.
-   *
    * @return true The key is a value that can be inserted into the text.
    */
   private boolean isVariableNameKey( final KeyEvent keyEvent ) {
     final KeyCode kc = keyEvent.getCode();
 
     return (kc.isLetterKey()
-      || kc.isDigitKey()
-      || (keyEvent.isShiftDown() && kc == MINUS))
-      && !keyEvent.isControlDown();
+        || kc.isDigitKey()
+        || (keyEvent.isShiftDown() && kc == MINUS))
+        && !keyEvent.isControlDown();
   }
 
   /**
@@ -827,9 +809,7 @@ public final class VariableNameInjector {
   }
 
   /**
-   * Returns a variable decorator that corresponds to the given file type.
-   *
-   * @return
+   * @return A variable decorator that corresponds to the given file type.
    */
   private VariableDecorator getVariableDecorator() {
     return VariableNameDecoratorFactory.newInstance( getFilename() );
@@ -844,11 +824,9 @@ public final class VariableNameInjector {
    *
    * @param s1 The string that could be a substring of s2, null allowed.
    * @param s2 The string that could be a substring of s1, null allowed.
-   *
    * @return NO_DIFFERENCE if the strings are the same, otherwise the index
    * where they differ.
    */
-  @SuppressWarnings( "StringEquality" )
   private int difference( final CharSequence s1, final CharSequence s2 ) {
     if( s1 == s2 ) {
       return NO_DIFFERENCE;
@@ -877,8 +855,8 @@ public final class VariableNameInjector {
    * Delegates to the file editor pane, and, ultimately, to its text area.
    */
   private <T extends Event, U extends T> void addKeyboardListener(
-    final EventPattern<? super T, ? extends U> event,
-    final Consumer<? super U> consumer ) {
+      final EventPattern<? super T, ? extends U> event,
+      final Consumer<? super U> consumer ) {
     getEditorPane().addKeyboardListener( event, consumer );
   }
 
@@ -908,14 +886,12 @@ public final class VariableNameInjector {
    * Sets the position of the caret when variable mode editing was requested.
    * Stores the current position because only the text that comes afterwards is
    * a suitable variable reference.
-   *
-   * @return The variable mode caret position.
    */
   private void setInitialCaretPosition() {
     this.initialCaretPosition = getEditor().getCaretPosition();
   }
 
-  private StyledTextArea getEditor() {
+  private StyledTextArea<?, ?> getEditor() {
     return getEditorPane().getEditor();
   }
 
@@ -946,15 +922,11 @@ public final class VariableNameInjector {
    */
   private int getMaxVarLength() {
     return getSettings().getSetting(
-      "editor.variable.maxLength", DEFAULT_MAX_VAR_LENGTH );
+        "editor.variable.maxLength", DEFAULT_MAX_VAR_LENGTH );
   }
 
   private Settings getSettings() {
     return this.settings;
-  }
-
-  private void setPanelEventHandler( final EventHandler<MouseEvent> eventHandler ) {
-    this.panelEventHandler = eventHandler;
   }
 
   private synchronized EventHandler<MouseEvent> getPanelEventHandler() {
@@ -982,11 +954,11 @@ public final class VariableNameInjector {
       final Object source = event.getSource();
 
       if( source instanceof TreeView ) {
-        final TreeView tree = (TreeView)source;
-        final TreeItem item = (TreeItem)tree.getSelectionModel().getSelectedItem();
+        final TreeView<?> tree = (TreeView<?>) source;
+        final TreeItem<?> item = tree.getSelectionModel().getSelectedItem();
 
         if( item instanceof VariableTreeItem ) {
-          final VariableTreeItem var = (VariableTreeItem)item;
+          final VariableTreeItem<?> var = (VariableTreeItem<?>) item;
           final String text = decorate( var.toPath() );
 
           replaceSelection( text );

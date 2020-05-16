@@ -102,4 +102,9 @@ public class YamlFileDefinitionSource extends FileDefinitionSource {
       get( "Pane.defintion.node.root.title" )
     );
   }
+
+  @Override
+  public String getError() {
+    return getYamlParser().getError();
+  }
 }

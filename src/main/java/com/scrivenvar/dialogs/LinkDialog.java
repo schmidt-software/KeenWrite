@@ -27,20 +27,20 @@
  */
 package com.scrivenvar.dialogs;
 
-import static com.scrivenvar.Messages.get;
 import com.scrivenvar.controls.EscapeTextField;
 import com.scrivenvar.editors.markdown.HyperlinkModel;
-import java.nio.file.Path;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.scene.control.ButtonBar.ButtonData;
-import static javafx.scene.control.ButtonType.OK;
 import javafx.scene.control.DialogPane;
 import javafx.scene.control.Label;
 import javafx.stage.Window;
 import org.tbee.javafx.scene.layout.fxml.MigPane;
+
+import static com.scrivenvar.Messages.get;
+import static javafx.scene.control.ButtonType.OK;
 
 /**
  * Dialog to enter a markdown link.
@@ -52,7 +52,7 @@ public class LinkDialog extends AbstractDialog<String> {
   private final StringProperty link = new SimpleStringProperty();
 
   public LinkDialog(
-    final Window owner, final HyperlinkModel hyperlink, final Path basePath ) {
+    final Window owner, final HyperlinkModel hyperlink ) {
     super( owner, "Dialog.link.title" );
 
     final DialogPane dialogPane = getDialogPane();

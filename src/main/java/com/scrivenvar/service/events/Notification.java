@@ -39,12 +39,12 @@ public interface Notification {
    *
    * @return A non-null string to use as alert message title.
    */
-  public String getTitle();
+  String getTitle();
 
   /**
    * Alert message content.
    *
    * @return A non-null string that contains information for the user.
    */
-  public String getContent();
+  String getContent();
 }

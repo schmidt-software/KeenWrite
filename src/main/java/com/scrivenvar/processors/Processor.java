@@ -30,19 +30,19 @@ package com.scrivenvar.processors;
 /**
  * Responsible for processing documents from one known format to another.
  *
- * @author White Magic Software, Ltd.
  * @param <T> The type of processor to create.
+ * @author White Magic Software, Ltd.
  */
 public interface Processor<T> {
-  
+
   /**
    * Provided so that the chain can be invoked from any link using a given
    * value. This should be called automatically by a superclass so that
    * the links in the chain need only implement the processLink method.
-   * 
+   *
    * @param t The value to pass along to each link in the chain.
    */
-  public void processChain( T t );
+  void processChain( T t );
 
   /**
    * Processes the given content providing a transformation from one document
@@ -50,10 +50,9 @@ public interface Processor<T> {
    * an XSLT processor, or from markdown to HTML.
    *
    * @param t The type of object to process.
-   *
    * @return The post-processed document, or null if processing should stop.
    */
-  public T processLink( T t );
+  T processLink( T t );
 
   /**
    * Adds a document processor to call after this processor finishes processing
@@ -62,5 +61,5 @@ public interface Processor<T> {
    * @return The processor that should transform the document after this
    * instance has finished processing.
    */
-  public Processor<T> next();
+  Processor<T> next();
 }

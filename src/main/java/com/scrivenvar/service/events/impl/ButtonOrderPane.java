@@ -53,6 +53,7 @@ public class ButtonOrderPane extends DialogPane {
     return getSetting( "dialog.alert.button.order.windows", BUTTON_ORDER_WINDOWS );
   }
 
+  @SuppressWarnings("SameParameterValue")
   private String getSetting( final String key, final String defaultValue ) {
     return getSettings().getSetting( key, defaultValue );
   }

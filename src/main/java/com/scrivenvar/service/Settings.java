@@ -40,24 +40,22 @@ public interface Settings extends Service {
   /**
    * Returns a setting property or its default value.
    *
-   * @param property The property key name to obtain its value.
+   * @param property     The property key name to obtain its value.
    * @param defaultValue The default value to return iff the property cannot be
-   * found.
-   *
+   *                     found.
    * @return The property value for the given property key.
    */
-  public String getSetting( String property, String defaultValue );
+  String getSetting( String property, String defaultValue );
 
   /**
    * Returns a setting property or its default value.
    *
-   * @param property The property key name to obtain its value.
+   * @param property     The property key name to obtain its value.
    * @param defaultValue The default value to return iff the property cannot be
-   * found.
-   *
+   *                     found.
    * @return The property value for the given property key.
    */
-  public int getSetting( String property, int defaultValue );
+  int getSetting( String property, int defaultValue );
 
   /**
    * Returns a list of property names that begin with the given prefix. The
@@ -68,36 +66,33 @@ public interface Settings extends Service {
    * extraneous period) will probably not.
    *
    * @param prefix The prefix to compare against each property name.
-   *
    * @return The list of property names that have the given prefix.
    */
-  public Iterator<String> getKeys( final String prefix );
+  Iterator<String> getKeys( final String prefix );
 
   /**
    * Convert the generic list of property objects into strings.
    *
    * @param property The property value to coerce.
    * @param defaults The defaults values to use should the property be unset.
-   *
    * @return The list of properties coerced from objects to strings.
    */
-  public List<String> getStringSettingList( String property, List<String> defaults );
+  List<String> getStringSettingList( String property, List<String> defaults );
 
   /**
    * Converts the generic list of property objects into strings.
    *
    * @param property The property value to coerce.
-   *
    * @return The list of properties coerced from objects to strings.
    */
-  public List<String> getStringSettingList( String property );
+  List<String> getStringSettingList( String property );
 
   /**
    * Changes key's value. This will clear the old value before setting the
    * new value so that the old value is erased, not changed into a list.
    *
-   * @param key The property key name to obtain its value.
+   * @param key   The property key name to obtain its value.
    * @param value The new value to set.
    */
-  public void putSetting( String key, String value );
+  void putSetting( String key, String value );
 }

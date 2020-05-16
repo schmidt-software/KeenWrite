@@ -27,11 +27,12 @@
  */
 package com.scrivenvar.preferences;
 
-import static com.scrivenvar.Constants.APP_TITLE;
 import java.io.File;
 import java.nio.file.FileSystems;
 import java.util.prefs.Preferences;
 import java.util.prefs.PreferencesFactory;
+
+import static com.scrivenvar.Constants.APP_TITLE;
 
 /**
  * PreferencesFactory implementation that stores the preferences in a

@@ -50,10 +50,12 @@ public class Constants {
     return SETTINGS.getSetting( key, "" );
   }
 
+  @SuppressWarnings("SameParameterValue")
   private static int get( final String key, final int defaultValue ) {
     return SETTINGS.getSetting( key, defaultValue );
   }
 
+  @SuppressWarnings("SameParameterValue")
   private static Collection<String> getStringSettingList( final String key ) {
     return SETTINGS.getStringSettingList( key );
   }
@@ -70,7 +72,6 @@ public class Constants {
   public static final String STYLESHEET_SCENE = get( "file.stylesheet.scene" );
   public static final String STYLESHEET_MARKDOWN = get( "file.stylesheet.markdown" );
   public static final String STYLESHEET_PREVIEW = get( "file.stylesheet.preview" );
-  public static final String STYLESHEET_XML = get( "file.stylesheet.xml" );
 
   public static final String FILE_LOGO_16 = get( "file.logo.16" );
   public static final String FILE_LOGO_32 = get( "file.logo.32" );

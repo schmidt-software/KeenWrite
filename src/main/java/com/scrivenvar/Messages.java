@@ -27,6 +27,7 @@
 package com.scrivenvar;
 
 import static com.scrivenvar.Constants.APP_BUNDLE_NAME;
+
 import java.text.MessageFormat;
 import java.util.ResourceBundle;
 import java.util.Stack;
@@ -39,7 +40,9 @@ import java.util.Stack;
  */
 public class Messages {
 
-  private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle(APP_BUNDLE_NAME );
+  private static final ResourceBundle RESOURCE_BUNDLE =
+      ResourceBundle.getBundle(
+      APP_BUNDLE_NAME );
 
   private Messages() {
   }
@@ -49,11 +52,11 @@ public class Messages {
    * references to other bundle variables.
    *
    * @param props The bundle containing resolvable properties.
-   * @param s The value for a key to resolve.
-   *
+   * @param s     The value for a key to resolve.
    * @return The value of the key with all references recursively dereferenced.
    */
-  private static String resolve( ResourceBundle props, String s ) {
+  @SuppressWarnings("SameParameterValue")
+  private static String resolve( final ResourceBundle props, final String s ) {
     final int len = s.length();
     final Stack<StringBuilder> stack = new Stack<>();
 
@@ -104,7 +107,6 @@ public class Messages {
    * Returns the value for a key from the message bundle.
    *
    * @param key Retrieve the value for this key.
-   *
    * @return The value for the key.
    */
   public static String get( String key ) {
@@ -123,9 +125,8 @@ public class Messages {
    * Returns the value for a key from the message bundle with the arguments
    * replacing <code>{#}</code> place holders.
    *
-   * @param key Retrieve the value for this key.
+   * @param key  Retrieve the value for this key.
    * @param args The values to substitute for place holders.
-   *
    * @return The value for the key.
    */
   public static String get( String key, Object... args ) {

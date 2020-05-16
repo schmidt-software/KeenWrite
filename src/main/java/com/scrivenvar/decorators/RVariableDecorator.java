@@ -46,15 +46,10 @@ public class RVariableDecorator implements VariableDecorator {
    */
   @Override
   public String decorate( final String variableName ) {
-    // 12 = PREFIX + x(...) + SUFFIX + 1 for good measure
-    final StringBuilder sb = new StringBuilder( variableName.length() + 12 );
-    
-    sb.append( PREFIX );
-    sb.append( "x( v$" );
-    sb.append( variableName.replace( '.', '$' ) );
-    sb.append( " )" );
-    sb.append( SUFFIX );
-    
-    return sb.toString();
+    return PREFIX +
+        "x( v$" +
+        variableName.replace( '.', '$' ) +
+        " )" +
+        SUFFIX;
   }
 }

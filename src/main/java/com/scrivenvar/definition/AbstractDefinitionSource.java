@@ -36,7 +36,7 @@ import javafx.scene.control.TreeView;
  */
 public abstract class AbstractDefinitionSource implements DefinitionSource {
 
-  private TreeView<String> treeView;
+  private TreeView<String> mTreeView;
 
   /**
    * Returns this definition source as an editable graphical user interface
@@ -47,15 +47,15 @@ public abstract class AbstractDefinitionSource implements DefinitionSource {
   @Override
   public TreeView<String> asTreeView() {
 
-    if( this.treeView == null ) {
-      this.treeView = createTreeView();
-      this.treeView.setEditable( true );
-      this.treeView.setCellFactory(
-        (TreeView<String> t) -> new TextFieldTreeCell()
+    if( mTreeView == null ) {
+      mTreeView = createTreeView();
+      mTreeView.setEditable( true );
+      mTreeView.setCellFactory(
+          ( TreeView<String> t ) -> new TextFieldTreeCell()
       );
     }
 
-    return this.treeView;
+    return mTreeView;
   }
 
   /**
@@ -65,4 +65,16 @@ public abstract class AbstractDefinitionSource implements DefinitionSource {
    * @return A new tree view instance, never null.
    */
   protected abstract TreeView<String> createTreeView();
+
+  /**
+   * Ensures that when preferences are saved that an
+   * {@link EmptyDefinitionSource} does not get saved literally as its
+   * memory reference (the default value returned by {@link Object#toString()}).
+   *
+   * @return Empty string.
+   */
+  @Override
+  public String toString() {
+    return "";
+  }
 }

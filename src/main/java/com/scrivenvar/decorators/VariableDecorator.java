@@ -38,9 +38,9 @@ public interface VariableDecorator {
    * factory that creates implementations of this interface.
    *
    * @param variableName The text to decorate as per the filename extension
-   * would indicate (e.g., ".md" goes to $VAR$ while ".Rmd" goes to `r#VAR`).
-   *
+   *                     would indicate (e.g., ".md" goes to $VAR$ while "
+   *                     .Rmd" goes to `r#VAR`).
    * @return The given variable name modified with its requisite delimiters.
    */
-  public String decorate( String variableName );
+  String decorate( String variableName );
 }

@@ -52,7 +52,7 @@ public final class TextReplacementFactory {
     // After about 1,500 characters, the StringUtils implementation is less
     // performant than the Aho-Corsick implementation.
     //
-    // Ssee http://stackoverflow.com/a/40836618/59087
+    // See http://stackoverflow.com/a/40836618/59087
     return length < 1500 ? APACHE : AHO_CORASICK;
   }
 

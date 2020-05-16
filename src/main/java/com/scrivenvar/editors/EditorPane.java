@@ -78,7 +78,7 @@ public class EditorPane extends AbstractPane {
     getUndoManager().redo();
   }
 
-  public UndoManager getUndoManager() {
+  public UndoManager<?> getUndoManager() {
     return getEditor().getUndoManager();
   }
 
@@ -219,9 +219,5 @@ public class EditorPane extends AbstractPane {
 
   public void setPath( final Path path ) {
     this.path.set( path );
-  }
-
-  public ObjectProperty<Path> pathProperty() {
-    return this.path;
   }
 }

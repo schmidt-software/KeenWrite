@@ -27,8 +27,9 @@
  */
 package com.scrivenvar.definition;
 
-import java.util.Map;
 import javafx.scene.control.TreeView;
+
+import java.util.Map;
 
 /**
  * Represents behaviours for reading and writing variable definitions.
@@ -44,7 +45,7 @@ public interface DefinitionSource {
    *
    * @return A hierarchical tree suitable for displaying in the definition pane.
    */
-  public TreeView<String> asTreeView();
+  TreeView<String> asTreeView();
 
   /**
    * Returns all the strings with their values resolved in a flat hierarchy.
@@ -53,7 +54,17 @@ public interface DefinitionSource {
    * @return The new map created with all values having been resolved,
    * recursively.
    */
-  public Map<String, String> getResolvedMap();
+  Map<String, String> getResolvedMap();
+
+  /**
+   * Returns the error message, if any, that occurred while loading the
+   * definition source.
+   *
+   * @return The empty string if no error occurred, otherwise the error message.
+   */
+  default String getError() {
+    return "";
+  }
 
   /**
    * Must return a re-loadable path to the data source. For a file, this is the
@@ -63,5 +74,5 @@ public interface DefinitionSource {
    * @return A non-null, non-empty string.
    */
   @Override
-  public String toString();
+  String toString();
 }

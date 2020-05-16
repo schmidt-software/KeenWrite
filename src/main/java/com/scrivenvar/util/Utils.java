@@ -30,23 +30,9 @@ import java.util.ArrayList;
 import java.util.prefs.Preferences;
 
 /**
- * @author Karl Tauber
+ * @author Karl Tauber and White Magic Software, Ltd.
  */
 public class Utils {
-
-  public static boolean safeEquals( final Object o1, final Object o2 ) {
-    if( o1 == o2 ) {
-      return true;
-    }
-    if( o1 == null || o2 == null ) {
-      return false;
-    }
-    return o1.equals( o2 );
-  }
-
-  public static boolean isNullOrEmpty( final String s ) {
-    return s == null || s.isEmpty();
-  }
 
   public static String ltrim( final String s ) {
     int i = 0;
@@ -68,31 +54,8 @@ public class Utils {
     return s.substring( 0, i + 1 );
   }
 
-  public static void putPrefs( Preferences prefs, String key, String value, String def ) {
-    if( value != def && !value.equals( def ) ) {
-      prefs.put( key, value );
-    } else {
-      prefs.remove( key );
-    }
-  }
-
-  public static void putPrefsInt( Preferences prefs, String key, int value, int def ) {
-    if( value != def ) {
-      prefs.putInt( key, value );
-    } else {
-      prefs.remove( key );
-    }
-  }
-
-  public static void putPrefsBoolean( Preferences prefs, String key, boolean value, boolean def ) {
-    if( value != def ) {
-      prefs.putBoolean( key, value );
-    } else {
-      prefs.remove( key );
-    }
-  }
-
-  public static String[] getPrefsStrings( final Preferences prefs, String key ) {
+  public static String[] getPrefsStrings( final Preferences prefs,
+                                          String key ) {
     final ArrayList<String> arr = new ArrayList<>( 256 );
 
     for( int i = 0; i < 10000; i++ ) {
@@ -105,15 +68,17 @@ public class Utils {
       arr.add( s );
     }
 
-    return arr.toArray( new String[ arr.size() ] );
+    return arr.toArray( new String[ 0 ] );
   }
 
-  public static void putPrefsStrings( Preferences prefs, String key, String[] strings ) {
+  public static void putPrefsStrings( Preferences prefs, String key,
+                                      String[] strings ) {
     for( int i = 0; i < strings.length; i++ ) {
       prefs.put( key + (i + 1), strings[ i ] );
     }
 
-    for( int i = strings.length; prefs.get( key + (i + 1), null ) != null; i++ ) {
+    for( int i = strings.length; prefs.get( key + (i + 1),
+                                            null ) != null; i++ ) {
       prefs.remove( key + (i + 1) );
     }
   }

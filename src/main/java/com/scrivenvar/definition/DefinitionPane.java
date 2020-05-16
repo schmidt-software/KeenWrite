@@ -28,12 +28,17 @@
 package com.scrivenvar.definition;
 
 import com.scrivenvar.AbstractPane;
+
 import static com.scrivenvar.definition.yaml.YamlParser.SEPARATOR_CHAR;
+
 import com.scrivenvar.predicates.strings.ContainsPredicate;
 import com.scrivenvar.predicates.strings.StartsPredicate;
 import com.scrivenvar.predicates.strings.StringPredicate;
+
 import static com.scrivenvar.util.Lists.getFirst;
+
 import java.util.List;
+
 import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
 import javafx.event.EventType;
@@ -43,8 +48,11 @@ import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.input.MouseButton;
+
 import static javafx.scene.input.MouseButton.PRIMARY;
+
 import javafx.scene.input.MouseEvent;
+
 import static javafx.scene.input.MouseEvent.MOUSE_CLICKED;
 
 /**
@@ -59,16 +67,19 @@ public class DefinitionPane extends AbstractPane {
    */
   private final static String TERMINALS = ":;,.!?-/\\¡¿";
 
-  private TreeView<String> treeView;
+  private final TreeView<String> mTreeView;
 
   /**
    * Constructs a definition pane with a given tree view root.
+   * See {@link com.scrivenvar.definition.yaml.YamlTreeAdapter#adapt(String)}
+   * for details.
    *
-   * @see YamlTreeAdapter.adapt
    * @param root The root of the variable definition tree.
    */
   public DefinitionPane( final TreeView<String> root ) {
-    setTreeView( root );
+    assert root != null;
+
+    mTreeView = root;
     initTreeView();
   }
 
@@ -78,21 +89,22 @@ public class DefinitionPane extends AbstractPane {
    * @param handler The handler that will receive double-click events.
    */
   public void addBranchSelectedListener(
-    final EventHandler<? super MouseEvent> handler ) {
+      final EventHandler<? super MouseEvent> handler ) {
     getTreeView().addEventHandler(
-      MouseEvent.ANY, event -> {
-        final MouseButton button = event.getButton();
-        final int clicks = event.getClickCount();
-        final EventType<? extends MouseEvent> eventType = event.getEventType();
+        MouseEvent.ANY, event -> {
+          final MouseButton button = event.getButton();
+          final int clicks = event.getClickCount();
+          final EventType<? extends MouseEvent> eventType =
+              event.getEventType();
 
-        if( PRIMARY.equals( button ) && clicks == 2 ) {
-          if( MOUSE_CLICKED.equals( eventType ) ) {
-            handler.handle( event );
+          if( PRIMARY.equals( button ) && clicks == 2 ) {
+            if( MOUSE_CLICKED.equals( eventType ) ) {
+              handler.handle( event );
+            }
+
+            event.consume();
           }
-
-          event.consume();
-        }
-      } );
+        } );
   }
 
   /**
@@ -101,7 +113,7 @@ public class DefinitionPane extends AbstractPane {
    * @param handler The handler that will no longer receive double-click events.
    */
   public void removeBranchSelectedListener(
-    final EventHandler<? super MouseEvent> handler ) {
+      final EventHandler<? super MouseEvent> handler ) {
     getTreeView().removeEventHandler( MouseEvent.ANY, handler );
   }
 
@@ -110,7 +122,7 @@ public class DefinitionPane extends AbstractPane {
    * root node of the given
    *
    * @param treeView The tree view containing a new root node; if the parameter
-   * is null, the tree is cleared.
+   *                 is null, the tree is cleared.
    */
   public void setRoot( final TreeView<String> treeView ) {
     getTreeView().setRoot( treeView == null ? null : treeView.getRoot() );
@@ -126,15 +138,13 @@ public class DefinitionPane extends AbstractPane {
   /**
    * Finds a tree item with a value that exactly matches the given word.
    *
-   * @param trunk The root item containing a list of nodes to search.
-   * @param word The value of the item to find.
+   * @param trunk     The root item containing a list of nodes to search.
    * @param predicate Helps determine whether the node value matches the word.
-   *
    * @return The item that matches the given word, or null if not found.
    */
   private TreeItem<String> findNode(
-    final TreeItem<String> trunk,
-    final StringPredicate predicate ) {
+      final TreeItem<String> trunk,
+      final StringPredicate predicate ) {
     TreeItem<String> result = null;
 
     if( trunk != null ) {
@@ -152,26 +162,26 @@ public class DefinitionPane extends AbstractPane {
   }
 
   /**
-   * Calls findNode with the EqualsPredicate.
+   * Calls findNode with the EqualsPredicate. See
+   * {@link #findNode(TreeItem, StringPredicate)} for details.
    *
-   * @see findNode( TreeItem, String, Predicate )
    * @return The result from findNode.
    */
   private TreeItem<String> findStartsNode(
-    final TreeItem<String> trunk,
-    final String word ) {
+      final TreeItem<String> trunk,
+      final String word ) {
     return findNode( trunk, new StartsPredicate( word ) );
   }
 
   /**
-   * Calls findNode with the ContainsPredicate.
+   * Calls findNode with the ContainsPredicate. See
+   * {@link #findNode(TreeItem, StringPredicate)} for details.
    *
-   * @see findNode( TreeItem, String, Predicate )
    * @return The result from findNode.
    */
   private TreeItem<String> findSubstringNode(
-    final TreeItem<String> trunk,
-    final String word ) {
+      final TreeItem<String> trunk,
+      final String word ) {
     return findNode( trunk, new ContainsPredicate( word ) );
   }
 
@@ -189,9 +199,9 @@ public class DefinitionPane extends AbstractPane {
    * </ol>
    *
    * @param word The word typed by the user, which contains dot-separated node
-   * names that represent a path within the YAML tree plus a partial variable
-   * name match (for a node).
-   *
+   *             names that represent a path within the YAML tree plus a
+   *             partial variable
+   *             name match (for a node).
    * @return The node value that starts with the suffix portion of the given
    * path, never null.
    */
@@ -240,7 +250,6 @@ public class DefinitionPane extends AbstractPane {
    * punctuated, the punctuation is removed if no match was found.
    *
    * @param value The value to find, never null.
-   *
    * @return The leaf that contains the given value, or null if neither the
    * original value nor the terminally-trimmed value was found.
    */
@@ -252,23 +261,22 @@ public class DefinitionPane extends AbstractPane {
    * Returns the leaf that matches the given value. If the value is terminally
    * punctuated, the punctuation is removed if no match was found.
    *
-   * @param value The value to find, never null.
+   * @param value    The value to find, never null.
    * @param contains Set to true to perform a substring match if starts with
-   * fails to match.
-   *
+   *                 fails to match.
    * @return The leaf that contains the given value, or null if neither the
    * original value nor the terminally-trimmed value was found.
    */
   public VariableTreeItem<String> findLeaf(
-    final String value,
-    final boolean contains ) {
+      final String value,
+      final boolean contains ) {
 
     final VariableTreeItem<String> root = getTreeRoot();
     final VariableTreeItem<String> leaf = root.findLeaf( value, contains );
 
     return leaf == null
-      ? root.findLeaf( rtrimTerminalPunctuation( value ) )
-      : leaf;
+        ? root.findLeaf( rtrimTerminalPunctuation( value ) )
+        : leaf;
   }
 
   /**
@@ -276,7 +284,6 @@ public class DefinitionPane extends AbstractPane {
    * <code>:;,.!?-/\¡¿</code>.
    *
    * @param s The string to trim, never null.
-   *
    * @return The string trimmed of all terminal characters from the end
    */
   private String rtrimTerminalPunctuation( final String s ) {
@@ -293,7 +300,6 @@ public class DefinitionPane extends AbstractPane {
    * Returns the tree root if either item or its first child are null.
    *
    * @param item The item to make null safe.
-   *
    * @return A non-null TreeItem, possibly the root item (to avoid null).
    */
   private TreeItem<String> sanitize( final TreeItem<String> item ) {
@@ -304,8 +310,8 @@ public class DefinitionPane extends AbstractPane {
     }
     else {
       result = item == getTreeRoot()
-        ? getFirst( item.getChildren() )
-        : item;
+          ? getFirst( item.getChildren() )
+          : item;
     }
 
     return result;
@@ -314,7 +320,7 @@ public class DefinitionPane extends AbstractPane {
   /**
    * Expands the node to the root, recursively.
    *
-   * @param <T> The type of tree item to expand (usually String).
+   * @param <T>  The type of tree item to expand (usually String).
    * @param node The node to expand.
    */
   public <T> void expand( final TreeItem<T> node ) {
@@ -350,8 +356,8 @@ public class DefinitionPane extends AbstractPane {
   /**
    * Collapses the tree, recursively.
    *
-   * @param <T> The type of tree item to expand (usually String).
-   * @param node The nodes to collapse.
+   * @param <T>   The type of tree item to expand (usually String).
+   * @param nodes The nodes to collapse.
    */
   private <T> void collapse( ObservableList<TreeItem<T>> nodes ) {
     for( final TreeItem<T> node : nodes ) {
@@ -383,7 +389,7 @@ public class DefinitionPane extends AbstractPane {
    * @return A non-null instance.
    */
   private TreeView<String> getTreeView() {
-    return this.treeView;
+    return mTreeView;
   }
 
   /**
@@ -394,21 +400,11 @@ public class DefinitionPane extends AbstractPane {
   private VariableTreeItem<String> getTreeRoot() {
     final TreeItem<String> root = getTreeView().getRoot();
 
-    return root instanceof VariableTreeItem ? (VariableTreeItem<String>)root : null;
+    return root instanceof VariableTreeItem ?
+        (VariableTreeItem<String>) root : null;
   }
 
   public <T> boolean isRoot( final TreeItem<T> item ) {
     return getTreeRoot().equals( item );
-  }
-
-  /**
-   * Sets the tree view (called by the constructor).
-   *
-   * @param treeView
-   */
-  private void setTreeView( final TreeView<String> treeView ) {
-    if( treeView != null ) {
-      this.treeView = treeView;
-    }
   }
 }

@@ -61,6 +61,8 @@ public interface Notifier {
    * @param ex The exception containing a message to show to the user.
    */
   default void notify( final Exception ex ) {
+    assert ex != null;
+
     log( ex );
     notify( ex.getMessage() );
   }

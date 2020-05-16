@@ -37,7 +37,7 @@ public class IdentityProcessor extends AbstractProcessor<String> {
 
   /**
    * Passes the link to the super constructor.
-   * 
+   *
    * @param link The next processor in the chain to use for text processing.
    */
   public IdentityProcessor( final Processor<String> link ) {
@@ -48,13 +48,10 @@ public class IdentityProcessor extends AbstractProcessor<String> {
    * Returns the given string, modified with "pre" tags.
    *
    * @param t The string to return, enclosed in "pre" tags.
-   *
    * @return The value of t wrapped in "pre" tags.
    */
   @Override
   public String processLink( final String t ) {
-    final StringBuilder result = new StringBuilder( t.length() + 16 );
-    
-    return result.append( "<pre>" ).append( t ).append( "</pre>" ).toString();
+    return "<pre>" + t + "</pre>";
   }
 }

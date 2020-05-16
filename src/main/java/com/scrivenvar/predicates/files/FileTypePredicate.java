@@ -37,8 +37,6 @@ import java.util.function.Predicate;
  * Responsible for testing whether a given path (to a file) matches one of the
  * filename extension patterns provided during construction.
  *
- * @see http://docs.oracle.com/javase/tutorial/essential/io/find.html
- *
  * @author White Magic Software, Ltd.
  */
 public class FileTypePredicate implements Predicate<File> {

@@ -233,7 +233,7 @@ public class MarkdownEditorPane extends EditorPane {
   }
 
   private Dialog<String> createLinkDialog() {
-    return new LinkDialog( getWindow(), getHyperlink(), getParentPath() );
+    return new LinkDialog( getWindow(), getHyperlink() );
   }
 
   private Dialog<String> createImageDialog() {

@@ -30,6 +30,7 @@ package com.scrivenvar.processors;
 import static com.scrivenvar.decorators.RVariableDecorator.PREFIX;
 import static com.scrivenvar.decorators.RVariableDecorator.SUFFIX;
 import static java.lang.Integer.max;
+
 import javafx.beans.value.ObservableValue;
 
 /**
@@ -38,17 +39,17 @@ import javafx.beans.value.ObservableValue;
  * @author White Magic Software, Ltd.
  */
 public class RMarkdownCaretInsertionProcessor
-  extends MarkdownCaretInsertionProcessor {
+    extends MarkdownCaretInsertionProcessor {
 
   /**
    * Constructs a processor capable of inserting a caret marker into Markdown.
    *
    * @param processor The next processor in the chain.
-   * @param position The caret's current position in the text.
+   * @param position  The caret's current position in the text.
    */
   public RMarkdownCaretInsertionProcessor(
-    final Processor<String> processor,
-    final ObservableValue<Integer> position ) {
+      final Processor<String> processor,
+      final ObservableValue<Integer> position ) {
     super( processor, position );
   }
 
@@ -57,7 +58,6 @@ public class RMarkdownCaretInsertionProcessor
    * insert the unique key of Constants.MD_CARET_POSITION into the document.
    *
    * @param text The text document to process.
-   *
    * @return The text with the caret position token inserted at the caret
    * position.
    */
@@ -101,7 +101,7 @@ public class RMarkdownCaretInsertionProcessor
       // If the caret falls between the rPrefix and rSuffix, then change the
       // insertion point.
       final boolean between = isBetween( offset, rPrefix, rSuffix );
-      
+
       // Insert the caret marker at the start of the R statement.
       if( between ) {
         offset = rPrefix - 1;

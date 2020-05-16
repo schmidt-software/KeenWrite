@@ -27,16 +27,11 @@
  */
 package com.scrivenvar.definition;
 
-import static com.scrivenvar.Messages.get;
 import javafx.event.ActionEvent;
-import javafx.scene.control.ContextMenu;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.TextField;
-import javafx.scene.control.TreeCell;
-import javafx.scene.control.TreeItem;
-import static javafx.scene.input.KeyCode.ENTER;
-import static javafx.scene.input.KeyCode.ESCAPE;
+import javafx.scene.control.*;
 import javafx.scene.input.KeyEvent;
+
+import static com.scrivenvar.Messages.get;
 
 /**
  * Provides behaviour of adding, removing, and editing tree view items.
@@ -56,13 +51,14 @@ public class TextFieldTreeCell extends TreeCell<String> {
     final MenuItem addItem = createMenuItem( "Definition.menu.add" );
     final MenuItem removeItem = createMenuItem( "Definition.menu.remove" );
 
-    addItem.setOnAction( (ActionEvent e) -> {
-      final VariableTreeItem<String> treeItem = new VariableTreeItem<>( "Undefined" );
+    addItem.setOnAction( ( ActionEvent e ) -> {
+      final VariableTreeItem<String> treeItem = new VariableTreeItem<>(
+          "Undefined" );
       getTreeItem().getChildren().add( treeItem );
     } );
 
-    removeItem.setOnAction( (ActionEvent e) -> {
-      final TreeItem c = getTreeItem();
+    removeItem.setOnAction( ( ActionEvent e ) -> {
+      final TreeItem<?> c = getTreeItem();
       c.getParent().getChildren().remove( c );
     } );
 
@@ -96,7 +92,7 @@ public class TextFieldTreeCell extends TreeCell<String> {
   public void cancelEdit() {
     super.cancelEdit();
 
-    setText( (String)getItem() );
+    setText( getItem() );
     setGraphic( getTreeItem().getGraphic() );
   }
 
@@ -128,7 +124,7 @@ public class TextFieldTreeCell extends TreeCell<String> {
   private TextField createTextField() {
     final TextField tf = new TextField( getItemValue() );
 
-    tf.setOnKeyReleased( (KeyEvent t) -> {
+    tf.setOnKeyReleased( ( KeyEvent t ) -> {
       switch( t.getCode() ) {
         case ENTER:
           commitEdit( tf.getText() );

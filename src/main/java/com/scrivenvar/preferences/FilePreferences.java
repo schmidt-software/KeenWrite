@@ -47,14 +47,12 @@ import java.util.prefs.BackingStoreException;
  * implementation will try to write to the registry and fail due to permissions
  * problems. This class sidesteps the issue entirely by writing to the user's
  * home directory, where permissions should be a bit more lax.
- * 
- * @see http://stackoverflow.com/q/208231/59087
  */
 public class FilePreferences extends AbstractPreferences {
 
-  private Map<String, String> root = new TreeMap<>();
-  private Map<String, FilePreferences> children = new TreeMap<>();
-  private boolean isRemoved;
+  private final Map<String, String> mRoot = new TreeMap<>();
+  private final Map<String, FilePreferences> mChildren = new TreeMap<>();
+  private boolean mRemoved;
 
   public FilePreferences( final AbstractPreferences parent, final String name ) {
     super( parent, name );
@@ -68,7 +66,7 @@ public class FilePreferences extends AbstractPreferences {
 
   @Override
   protected void putSpi( final String key, final String value ) {
-    root.put( key, value );
+    mRoot.put( key, value );
 
     try {
       flush();
@@ -79,12 +77,12 @@ public class FilePreferences extends AbstractPreferences {
 
   @Override
   protected String getSpi( final String key ) {
-    return root.get( key );
+    return mRoot.get( key );
   }
 
   @Override
   protected void removeSpi( final String key ) {
-    root.remove( key );
+    mRoot.remove( key );
 
     try {
       flush();
@@ -95,34 +93,34 @@ public class FilePreferences extends AbstractPreferences {
 
   @Override
   protected void removeNodeSpi() throws BackingStoreException {
-    isRemoved = true;
+    mRemoved = true;
     flush();
   }
 
   @Override
-  protected String[] keysSpi() throws BackingStoreException {
-    return root.keySet().toArray( new String[ root.keySet().size() ] );
+  protected String[] keysSpi() {
+    return mRoot.keySet().toArray( new String[ 0 ] );
   }
 
   @Override
-  protected String[] childrenNamesSpi() throws BackingStoreException {
-    return children.keySet().toArray( new String[ children.keySet().size() ] );
+  protected String[] childrenNamesSpi() {
+    return mChildren.keySet().toArray( new String[ 0 ] );
   }
 
   @Override
   protected FilePreferences childSpi( final String name ) {
-    FilePreferences child = children.get( name );
+    FilePreferences child = mChildren.get( name );
 
     if( child == null || child.isRemoved() ) {
       child = new FilePreferences( this, name );
-      children.put( name, child );
+      mChildren.put( name, child );
     }
 
     return child;
   }
 
   @Override
-  protected void syncSpi() throws BackingStoreException {
+  protected void syncSpi() {
     if( isRemoved() ) {
       return;
     }
@@ -150,11 +148,11 @@ public class FilePreferences extends AbstractPreferences {
 
             // Only load immediate descendants
             if( subKey.indexOf( '.' ) == -1 ) {
-              root.put( subKey, p.getProperty( propKey ) );
+              mRoot.put( subKey, p.getProperty( propKey ) );
             }
           }
         }
-      } catch( final IOException ex ) {
+      } catch( final Exception ex ) {
         error( new BackingStoreException( ex ) );
       }
     }
@@ -167,7 +165,7 @@ public class FilePreferences extends AbstractPreferences {
   }
 
   @Override
-  protected void flushSpi() throws BackingStoreException {
+  protected void flushSpi() {
     final File file = FilePreferencesFactory.getPreferencesFile();
 
     synchronized( file ) {
@@ -203,14 +201,14 @@ public class FilePreferences extends AbstractPreferences {
         }
 
         // If this node hasn't been removed, add back in any values
-        if( !isRemoved ) {
-          for( final String s : root.keySet() ) {
-            p.setProperty( path + s, root.get( s ) );
+        if( !mRemoved ) {
+          for( final String s : mRoot.keySet() ) {
+            p.setProperty( path + s, mRoot.get( s ) );
           }
         }
 
         p.store( new FileOutputStream( file ), "FilePreferences" );
-      } catch( final IOException ex ) {
+      } catch( final Exception ex ) {
         error( new BackingStoreException( ex ) );
       }
     }

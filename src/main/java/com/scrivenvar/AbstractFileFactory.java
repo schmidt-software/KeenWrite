@@ -27,12 +27,15 @@
  */
 package com.scrivenvar;
 
-import static com.scrivenvar.Constants.GLOB_PREFIX_FILE;
 import com.scrivenvar.predicates.files.FileTypePredicate;
 import com.scrivenvar.service.Settings;
+
 import java.nio.file.Path;
 import java.util.Iterator;
 import java.util.List;
+
+import static com.scrivenvar.Constants.GLOB_PREFIX_FILE;
+import static java.lang.String.format;
 
 /**
  * Provides common behaviours for factories that instantiate classes based on
@@ -42,7 +45,10 @@ import java.util.List;
  */
 public class AbstractFileFactory {
 
-  private final Settings settings = Services.load( Settings.class );
+  private static final String MSG_UNKNOWN_FILE_TYPE = "Unknown type '%s' for " +
+      "file '%s'.";
+
+  private final Settings mSettings = Services.load( Settings.class );
 
   /**
    * Determines the file type from the path extension. This should only be
@@ -51,7 +57,6 @@ public class AbstractFileFactory {
    * (e.g., Markdown, XML, etc.).
    *
    * @param path The path with a file name extension.
-   *
    * @return The FileType for the given path.
    */
   public FileType lookup( final Path path ) {
@@ -61,12 +66,14 @@ public class AbstractFileFactory {
   /**
    * Creates a file type that corresponds to the given path.
    *
-   * @param path Reference to a variable definition file.
+   * @param path   Reference to a variable definition file.
    * @param prefix One of GLOB_PREFIX_DEFINITION or GLOB_PREFIX_FILE.
-   *
    * @return The file type that corresponds to the given path.
    */
   protected FileType lookup( final Path path, final String prefix ) {
+    assert path != null;
+    assert prefix != null;
+
     final Settings properties = getSettings();
     final Iterator<String> keys = properties.getKeys( prefix );
 
@@ -86,6 +93,10 @@ public class AbstractFileFactory {
       }
     }
 
+    if( fileType == null ) {
+      unknownFileType( fileType, path );
+    }
+
     return fileType;
   }
 
@@ -96,22 +107,21 @@ public class AbstractFileFactory {
    * @param type The detected path type (protocol, file extension, etc.).
    * @param path The path to a source of definitions.
    */
-  protected void unknownFileType( final String type, final String path ) {
-    throw new IllegalArgumentException(
-      "Unknown type '" + type + "' for '" + path + "'."
-    );
+  protected void unknownFileType( final FileType type, final Path path ) {
+    final String msg = format( MSG_UNKNOWN_FILE_TYPE, type, path );
+    throw new IllegalArgumentException( msg );
   }
 
   /**
-   * Throws IllegalArgumentException because the extension for the given path
-   * could not be recognized.
+   * Throws IllegalArgumentException because the given path could not be
+   * recognized. This exists because
    *
-   * @param path The path to a file that could not be loaded.
+   * @param type The detected path type (protocol, file extension, etc.).
+   * @param path The path to a source of definitions.
    */
-  protected void unknownExtension( final Path path ) {
-    throw new IllegalArgumentException(
-      "Unknown extension for '" + path + "'."
-    );
+  protected void unknownFileType( final String type, final String path ) {
+    final String msg = format( MSG_UNKNOWN_FILE_TYPE, type, path );
+    throw new IllegalArgumentException( msg );
   }
 
   /**
@@ -120,6 +130,6 @@ public class AbstractFileFactory {
    * @return A non-null instance.
    */
   private Settings getSettings() {
-    return this.settings;
+    return this.mSettings;
   }
 }

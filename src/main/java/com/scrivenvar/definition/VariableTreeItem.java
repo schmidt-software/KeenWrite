@@ -118,7 +118,7 @@ public class VariableTreeItem<T> extends TreeItem<T> {
       }
     }
 
-    return (VariableTreeItem<T>)node;
+    return node;
   }
 
   /**

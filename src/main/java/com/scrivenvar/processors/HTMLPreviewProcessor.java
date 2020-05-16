@@ -41,7 +41,7 @@ import com.scrivenvar.preview.HTMLPreviewPane;
 public class HTMLPreviewProcessor extends AbstractProcessor<String> {
 
   // There is only one preview panel.
-  private static HTMLPreviewPane htmlPreviewPane;
+  private static HTMLPreviewPane sHtmlPreviewPane;
 
   /**
    * Constructs the end of a processing chain.
@@ -49,8 +49,7 @@ public class HTMLPreviewProcessor extends AbstractProcessor<String> {
    * @param htmlPreviewPane The pane to update with the post-processed document.
    */
   public HTMLPreviewProcessor( final HTMLPreviewPane htmlPreviewPane ) {
-    super( null );
-    setHtmlPreviewPane( htmlPreviewPane );
+    sHtmlPreviewPane = htmlPreviewPane;
   }
 
   /**
@@ -71,10 +70,6 @@ public class HTMLPreviewProcessor extends AbstractProcessor<String> {
   }
 
   private HTMLPreviewPane getHtmlPreviewPane() {
-    return this.htmlPreviewPane;
-  }
-
-  private void setHtmlPreviewPane( final HTMLPreviewPane htmlPreviewPane ) {
-    this.htmlPreviewPane = htmlPreviewPane;
+    return sHtmlPreviewPane;
   }
 }

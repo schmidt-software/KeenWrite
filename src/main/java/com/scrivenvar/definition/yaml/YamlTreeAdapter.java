@@ -29,9 +29,10 @@ package com.scrivenvar.definition.yaml;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.scrivenvar.definition.VariableTreeItem;
-import java.util.Map.Entry;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
+
+import java.util.Map.Entry;
 
 /**
  * Transforms a JsonNode hierarchy into a tree that can be displayed in a user
@@ -52,10 +53,9 @@ public class YamlTreeAdapter {
    * first document in the stream is adapted.
    *
    * @param name Root TreeItem node name.
-   *
    * @return A TreeView populated with all the keys in the YAML document.
    */
-  public TreeView<String> adapt( final String name ){
+  public TreeView<String> adapt( final String name ) {
     final JsonNode rootNode = getYamlParser().getDocumentRoot();
     final TreeItem<String> rootItem = createTreeItem( name );
 
@@ -72,10 +72,10 @@ public class YamlTreeAdapter {
    * @param rootItem The tree item to use as the root when processing the node.
    */
   private void adapt(
-    final JsonNode rootNode, final TreeItem<String> rootItem ) {
+      final JsonNode rootNode, final TreeItem<String> rootItem ) {
 
     rootNode.fields().forEachRemaining(
-      (Entry<String, JsonNode> leaf) -> adapt( leaf, rootItem )
+        ( Entry<String, JsonNode> leaf ) -> adapt( leaf, rootItem )
     );
   }
 
@@ -86,7 +86,8 @@ public class YamlTreeAdapter {
    * @param rootItem The item to adapt using the node's key.
    */
   private void adapt(
-    final Entry<String, JsonNode> rootNode, final TreeItem<String> rootItem ) {
+      final Entry<String, JsonNode> rootNode,
+      final TreeItem<String> rootItem ) {
 
     final JsonNode leafNode = rootNode.getValue();
     final String key = rootNode.getKey();
@@ -107,7 +108,6 @@ public class YamlTreeAdapter {
    * Creates a new tree item that can be added to the tree view.
    *
    * @param value The node's value.
-   *
    * @return A new tree item node, never null.
    */
   private TreeItem<String> createTreeItem( final String value ) {
