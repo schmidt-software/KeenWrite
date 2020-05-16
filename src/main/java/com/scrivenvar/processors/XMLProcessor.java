@@ -29,28 +29,24 @@ package com.scrivenvar.processors;
 
 import com.scrivenvar.Services;
 import com.scrivenvar.service.Snitch;
-import java.io.File;
-import java.io.IOException;
-import java.io.Reader;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.text.ParseException;
+import net.sf.saxon.TransformerFactoryImpl;
+import net.sf.saxon.trans.XPathException;
+
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.ProcessingInstruction;
 import javax.xml.stream.events.XMLEvent;
-import javax.xml.transform.ErrorListener;
-import javax.xml.transform.Source;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.*;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
-import net.sf.saxon.TransformerFactoryImpl;
+import java.io.File;
+import java.io.Reader;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 import static net.sf.saxon.tree.util.ProcInstParser.getPseudoAttribute;
 
 /**
@@ -58,14 +54,14 @@ import static net.sf.saxon.tree.util.ProcInstParser.getPseudoAttribute;
  * as part of its processing instructions, such as:
  *
  * <code>xml-stylesheet type="text/xsl" href="markdown.xsl"</code>
- *
+ * <p>
  * The XSL must transform the XML document into Markdown, or another format
  * recognized by the next link on the chain.
  *
  * @author White Magic Software, Ltd.
  */
 public class XMLProcessor extends AbstractProcessor<String>
-  implements ErrorListener {
+    implements ErrorListener {
 
   private final Snitch snitch = Services.load( Snitch.class );
 
@@ -82,7 +78,7 @@ public class XMLProcessor extends AbstractProcessor<String>
    * that they must be in the same directory.
    *
    * @param processor Next link in the processing chain.
-   * @param path The path to the XML file content to be processed.
+   * @param path      The path to the XML file content to be processed.
    */
   public XMLProcessor( final Processor<String> processor, final Path path ) {
     super( processor );
@@ -93,7 +89,6 @@ public class XMLProcessor extends AbstractProcessor<String>
    * Transforms the given XML text into another form (typically Markdown).
    *
    * @param text The text to transform, can be empty, cannot be null.
-   *
    * @return The transformed text, or empty if text is empty.
    */
   @Override
@@ -111,7 +106,6 @@ public class XMLProcessor extends AbstractProcessor<String>
    * for the transformation.
    *
    * @param text The text to transform.
-   *
    * @return The transformed text.
    */
   private String transform( final String text ) throws Exception {
@@ -120,15 +114,15 @@ public class XMLProcessor extends AbstractProcessor<String>
     final Path xsl = getXslPath( template );
 
     try(
-      final StringWriter output = new StringWriter( text.length() );
-      final StringReader input = new StringReader( text ) ) {
+        final StringWriter output = new StringWriter( text.length() );
+        final StringReader input = new StringReader( text ) ) {
 
       // Listen for external file modification events.
       getSnitch().listen( xsl );
 
       getTransformer( xsl ).transform(
-        new StreamSource( input ),
-        new StreamResult( output )
+          new StreamSource( input ),
+          new StreamResult( output )
       );
 
       return output.toString();
@@ -141,15 +135,13 @@ public class XMLProcessor extends AbstractProcessor<String>
    * this will return the associated transformer.
    *
    * @param xsl The path to an XSLT file.
-   *
    * @return A transformer that will transform XML documents using the given
    * XSLT file.
-   *
    * @throws TransformerConfigurationException Could not instantiate the
-   * transformer.
+   *                                           transformer.
    */
   private Transformer getTransformer( final Path xsl )
-    throws TransformerConfigurationException, IOException {
+      throws TransformerConfigurationException {
     if( this.transformer == null ) {
       this.transformer = createTransformer( xsl );
     }
@@ -161,14 +153,12 @@ public class XMLProcessor extends AbstractProcessor<String>
    * Creates a configured transformer ready to run.
    *
    * @param xsl The stylesheet to use for transforming XML documents.
-   *
    * @return The edited XML document transformed into another format (usually
    * markdown).
-   *
    * @throws TransformerConfigurationException Could not create the transformer.
    */
   protected Transformer createTransformer( final Path xsl )
-    throws TransformerConfigurationException {
+      throws TransformerConfigurationException {
     final Source xslt = new StreamSource( xsl.toFile() );
 
     return getTransformerFactory().newTransformer( xslt );
@@ -187,14 +177,11 @@ public class XMLProcessor extends AbstractProcessor<String>
    * href pseudo-attribute filename value cannot be found.
    *
    * @param xml The XML containing an xml-stylesheet processing instruction.
-   *
    * @return The href pseudo-attribute value.
-   *
    * @throws XMLStreamException Could not parse the XML file.
-   * @throws ParseException Could not find a non-empty HREF attribute value.
    */
   private String getXsltFilename( final String xml )
-    throws XMLStreamException, ParseException {
+      throws XMLStreamException, XPathException {
 
     String result = "";
 
@@ -209,7 +196,7 @@ public class XMLProcessor extends AbstractProcessor<String>
         final XMLEvent event = reader.nextEvent();
 
         if( event.isProcessingInstruction() ) {
-          final ProcessingInstruction pi = (ProcessingInstruction)event;
+          final ProcessingInstruction pi = (ProcessingInstruction) event;
           final String target = pi.getTarget();
 
           if( "xml-stylesheet".equalsIgnoreCase( target ) ) {
@@ -224,7 +211,7 @@ public class XMLProcessor extends AbstractProcessor<String>
   }
 
   private XMLEventReader createXMLEventReader( final Reader reader )
-    throws XMLStreamException {
+      throws XMLStreamException {
     return getXMLInputFactory().createXMLEventReader( reader );
   }
 

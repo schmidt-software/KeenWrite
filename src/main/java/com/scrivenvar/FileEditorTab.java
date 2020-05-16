@@ -29,13 +29,6 @@ import com.scrivenvar.editors.EditorPane;
 import com.scrivenvar.editors.markdown.MarkdownEditorPane;
 import com.scrivenvar.service.events.Notification;
 import com.scrivenvar.service.events.Notifier;
-import java.io.IOException;
-import java.nio.charset.Charset;
-import static java.nio.charset.StandardCharsets.UTF_8;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import static java.util.Locale.ENGLISH;
-import java.util.function.Consumer;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
@@ -53,12 +46,21 @@ import javafx.scene.input.InputEvent;
 import javafx.scene.text.Text;
 import javafx.stage.Window;
 import org.fxmisc.richtext.StyleClassedTextArea;
-import static org.fxmisc.richtext.model.TwoDimensional.Bias.Forward;
 import org.fxmisc.richtext.model.TwoDimensional.Position;
 import org.fxmisc.undo.UndoManager;
 import org.fxmisc.wellbehaved.event.EventPattern;
 import org.fxmisc.wellbehaved.event.InputMap;
 import org.mozilla.universalchardet.UniversalDetector;
+
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.function.Consumer;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.Locale.ENGLISH;
+import static org.fxmisc.richtext.model.TwoDimensional.Bias.Forward;
 
 /**
  * Editor for a single file.
@@ -68,7 +70,7 @@ import org.mozilla.universalchardet.UniversalDetector;
 public final class FileEditorTab extends Tab {
 
   /**
-   * 
+   *
    */
   private final Notifier alertService = Services.load( Notifier.class );
   private EditorPane editorPane;
@@ -87,11 +89,11 @@ public final class FileEditorTab extends Tab {
   public FileEditorTab( final Path path ) {
     setPath( path );
 
-    this.modified.addListener( (observable, oldPath, newPath) -> updateTab() );
+    this.modified.addListener( ( observable, oldPath, newPath ) -> updateTab() );
 
     setOnSelectionChanged( e -> {
       if( isSelected() ) {
-        Platform.runLater( () -> activated() );
+        Platform.runLater( this::activated );
       }
     } );
   }
@@ -111,8 +113,8 @@ public final class FileEditorTab extends Tab {
     final Path filePath = getPath();
 
     return (filePath == null)
-      ? Messages.get( "FileEditor.untitled" )
-      : filePath.getFileName().toString();
+        ? Messages.get( "FileEditor.untitled" )
+        : filePath.getFileName().toString();
   }
 
   /**
@@ -252,13 +254,12 @@ public final class FileEditorTab extends Tab {
    * Returns true if the given path exactly matches this tab's path.
    *
    * @param check The path to compare against.
-   *
    * @return true The paths are the same.
    */
   public boolean isPath( final Path check ) {
     final Path filePath = getPath();
 
-    return filePath == null ? false : filePath.equals( check );
+    return filePath != null && filePath.equals( check );
   }
 
   /**
@@ -290,7 +291,7 @@ public final class FileEditorTab extends Tab {
       return true;
     } catch( final IOException ex ) {
       return alert(
-        "FileEditor.saveFailed.title", "FileEditor.saveFailed.message", ex
+          "FileEditor.saveFailed.title", "FileEditor.saveFailed.message", ex
       );
     }
   }
@@ -298,22 +299,21 @@ public final class FileEditorTab extends Tab {
   /**
    * Creates an alert dialog and waits for it to close.
    *
-   * @param titleKey Resource bundle key for the alert dialog title.
+   * @param titleKey   Resource bundle key for the alert dialog title.
    * @param messageKey Resource bundle key for the alert dialog message.
-   * @param e The unexpected happening.
-   *
+   * @param e          The unexpected happening.
    * @return false
    */
   private boolean alert(
-    final String titleKey, final String messageKey, final Exception e ) {
+      final String titleKey, final String messageKey, final Exception e ) {
     final Notifier service = getNotifyService();
     final Path filePath = getPath();
 
     final Notification message = service.createNotification(
-      Messages.get( titleKey ),
-      Messages.get( messageKey ),
-      filePath == null ? "" : filePath,
-      e.getMessage()
+        Messages.get( titleKey ),
+        Messages.get( messageKey ),
+        filePath == null ? "" : filePath,
+        e.getMessage()
     );
 
     try {
@@ -321,7 +321,7 @@ public final class FileEditorTab extends Tab {
     } catch( final Exception ex ) {
       getNotifyService().notify( ex );
     }
-    
+
     return false;
   }
 
@@ -340,7 +340,6 @@ public final class FileEditorTab extends Tab {
    * detected, this will return the default charset for the JVM.
    *
    * @param bytes The bytes to perform character encoding detection.
-   *
    * @return The character encoding.
    */
   private Charset detectEncoding( final byte[] bytes ) {
@@ -350,8 +349,8 @@ public final class FileEditorTab extends Tab {
 
     final String charset = detector.getDetectedCharset();
     final Charset charEncoding = charset == null
-      ? Charset.defaultCharset()
-      : Charset.forName( charset.toUpperCase( ENGLISH ) );
+        ? Charset.defaultCharset()
+        : Charset.forName( charset.toUpperCase( ENGLISH ) );
 
     detector.reset();
 
@@ -363,7 +362,6 @@ public final class FileEditorTab extends Tab {
    * originally detected (if any) and associated with this file.
    *
    * @param text The text to convert into the original file encoding.
-   *
    * @return A series of bytes ready for writing to a file.
    */
   private byte[] asBytes( final String text ) {
@@ -375,7 +373,6 @@ public final class FileEditorTab extends Tab {
    * with the encoding detected by the CharsetDetector.
    *
    * @param text The text of unknown character encoding.
-   *
    * @return The text, in its auto-detected encoding, as a String.
    */
   private String asString( final byte[] text ) {
@@ -425,14 +422,14 @@ public final class FileEditorTab extends Tab {
   /**
    * Forwards the request to the editor pane.
    *
-   * @param <T> The type of event listener to add.
-   * @param <U> The type of consumer to add.
-   * @param event The event that should trigger updates to the listener.
+   * @param <T>      The type of event listener to add.
+   * @param <U>      The type of consumer to add.
+   * @param event    The event that should trigger updates to the listener.
    * @param consumer The listener to receive update events.
    */
   public <T extends Event, U extends T> void addEventListener(
-    final EventPattern<? super T, ? extends U> event,
-    final Consumer<? super U> consumer ) {
+      final EventPattern<? super T, ? extends U> event,
+      final Consumer<? super U> consumer ) {
     getEditorPane().addKeyboardListener( event, consumer );
   }
 
@@ -468,7 +465,8 @@ public final class FileEditorTab extends Tab {
    *
    * @param listener The listener to notify when the caret changes paragraphs.
    */
-  public void addCaretParagraphListener( final ChangeListener<Integer> listener ) {
+  public void addCaretParagraphListener(
+      final ChangeListener<Integer> listener ) {
     getEditorPane().addCaretParagraphListener( listener );
   }
 
@@ -501,14 +499,14 @@ public final class FileEditorTab extends Tab {
   /**
    * Returns the encoding for the file, defaulting to UTF-8 if it hasn't been
    * determined.
-   * 
+   *
    * @return The file encoding or UTF-8 if unknown.
    */
   private Charset getEncoding() {
     if( this.encoding == null ) {
       this.encoding = UTF_8;
     }
-    
+
     return this.encoding;
   }
 

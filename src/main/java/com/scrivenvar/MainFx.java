@@ -1,0 +1,200 @@
+/*
+ * Copyright 2016 Karl Tauber and White Magic Software, Ltd.
+ *
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *  o Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ *
+ *  o Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+package com.scrivenvar;
+
+import com.scrivenvar.preferences.FilePreferencesFactory;
+import com.scrivenvar.service.Options;
+import com.scrivenvar.service.Snitch;
+import com.scrivenvar.service.events.Notifier;
+import com.scrivenvar.util.StageState;
+import javafx.application.Application;
+import javafx.scene.Scene;
+import javafx.scene.image.Image;
+import javafx.stage.Stage;
+
+import static com.scrivenvar.Constants.*;
+import static com.scrivenvar.Messages.get;
+
+/**
+ * Application entry point. The application allows users to edit Markdown
+ * files and see a real-time preview of the edits.
+ *
+ * @author Karl Tauber and White Magic Software, Ltd.
+ */
+public final class MainFx extends Application {
+
+  private static Application sApplication;
+
+  private Options mOptions;
+  private Snitch mSnitch;
+  private Thread mSnitchThread;
+  private StageState mStageState;
+
+  private final MainWindow mainWindow = new MainWindow();
+
+  public static void main( final String[] args ) {
+    initLogger();
+    initPreferences();
+    launch( args );
+  }
+
+  /**
+   * Prevent
+   * <a href="http://stackoverflow.com/a/41476462/59087">standard error logging</a>.
+   */
+  private static void initLogger() {
+    //LogManager.getLogManager().reset();
+  }
+
+  /**
+   * Sets the factory used for reading user preferences.
+   */
+  private static void initPreferences() {
+    System.setProperty(
+        "java.util.prefs.PreferencesFactory",
+        FilePreferencesFactory.class.getName()
+    );
+  }
+
+  /**
+   * Application entry point.
+   *
+   * @param stage The primary application stage.
+   */
+  @Override
+  public void start( final Stage stage ) {
+    initApplication();
+    initNotifyService();
+    initState( stage );
+    initStage( stage );
+    initSnitch();
+
+    stage.show();
+  }
+
+  public static void showDocument( final String uri ) {
+    getApplication().getHostServices().showDocument( uri );
+  }
+
+  private void initApplication() {
+    sApplication = this;
+  }
+
+  /**
+   * Constructs the notify service and appends the main window to the list of
+   * notification observers.
+   */
+  private void initNotifyService() {
+    final Notifier notifier = Services.load( Notifier.class );
+    notifier.addObserver( getMainWindow() );
+  }
+
+  private void initState( final Stage stage ) {
+    mStageState = new StageState( stage, getmOptions().getState() );
+  }
+
+  private void initStage( final Stage stage ) {
+    stage.getIcons().addAll(
+        createImage( FILE_LOGO_16 ),
+        createImage( FILE_LOGO_32 ),
+        createImage( FILE_LOGO_128 ),
+        createImage( FILE_LOGO_256 ),
+        createImage( FILE_LOGO_512 ) );
+    stage.setTitle( getApplicationTitle() );
+    stage.setScene( getScene() );
+  }
+
+  /**
+   * Watch for file system changes.
+   */
+  private void initSnitch() {
+    setmSnitchThread( new Thread( getmSnitch() ) );
+    getmSnitchThread().start();
+  }
+
+  /**
+   * Stops the snitch service, if its running.
+   *
+   * @throws InterruptedException Couldn't stop the snitch thread.
+   */
+  @Override
+  public void stop() throws InterruptedException {
+    getmSnitch().stop();
+
+    final Thread thread = getmSnitchThread();
+
+    if( thread != null ) {
+      thread.interrupt();
+      thread.join();
+    }
+  }
+
+  private synchronized Snitch getmSnitch() {
+    if( this.mSnitch == null ) {
+      this.mSnitch = Services.load( Snitch.class );
+    }
+
+    return this.mSnitch;
+  }
+
+  private Thread getmSnitchThread() {
+    return this.mSnitchThread;
+  }
+
+  private void setmSnitchThread( final Thread thread ) {
+    this.mSnitchThread = thread;
+  }
+
+  private synchronized Options getmOptions() {
+    if( this.mOptions == null ) {
+      this.mOptions = Services.load( Options.class );
+    }
+
+    return this.mOptions;
+  }
+
+  private Scene getScene() {
+    return getMainWindow().getScene();
+  }
+
+  private MainWindow getMainWindow() {
+    return this.mainWindow;
+  }
+
+  private String getApplicationTitle() {
+    return get( "Main.title" );
+  }
+
+  private static Application getApplication() {
+    return sApplication;
+  }
+
+  private Image createImage( final String filename ) {
+    return new Image( filename );
+  }
+}

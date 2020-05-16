@@ -27,26 +27,26 @@
  */
 package com.scrivenvar.editors.markdown;
 
-import static com.scrivenvar.Constants.STYLESHEET_MARKDOWN;
 import com.scrivenvar.dialogs.ImageDialog;
 import com.scrivenvar.dialogs.LinkDialog;
 import com.scrivenvar.editors.EditorPane;
 import com.scrivenvar.processors.MarkdownProcessor;
-import static com.scrivenvar.util.Utils.ltrim;
-import static com.scrivenvar.util.Utils.rtrim;
 import com.vladsch.flexmark.ast.Link;
+import com.vladsch.flexmark.util.ast.Node;
+import javafx.scene.control.Dialog;
+import javafx.scene.control.IndexRange;
+import javafx.scene.input.KeyEvent;
+import javafx.stage.Window;
+import org.fxmisc.richtext.StyleClassedTextArea;
+
 import java.nio.file.Path;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.vladsch.flexmark.util.ast.Node;
-import javafx.beans.value.ObservableValue;
-import javafx.scene.control.Dialog;
-import javafx.scene.control.IndexRange;
+import static com.scrivenvar.Constants.STYLESHEET_MARKDOWN;
+import static com.scrivenvar.util.Utils.ltrim;
+import static com.scrivenvar.util.Utils.rtrim;
 import static javafx.scene.input.KeyCode.ENTER;
-import javafx.scene.input.KeyEvent;
-import javafx.stage.Window;
-import org.fxmisc.richtext.StyleClassedTextArea;
 import static org.fxmisc.wellbehaved.event.EventPattern.keyPressed;
 
 /**
@@ -57,7 +57,7 @@ import static org.fxmisc.wellbehaved.event.EventPattern.keyPressed;
 public class MarkdownEditorPane extends EditorPane {
 
   private static final Pattern AUTO_INDENT_PATTERN = Pattern.compile(
-    "(\\s*[*+-]\\s+|\\s*[0-9]+\\.\\s+|\\s+)(.*)" );
+      "(\\s*[*+-]\\s+|\\s*[0-9]+\\.\\s+|\\s+)(.*)" );
 
   public MarkdownEditorPane() {
     initEditor();
@@ -73,27 +73,26 @@ public class MarkdownEditorPane extends EditorPane {
     addKeyboardListener( keyPressed( ENTER ), this::enterPressed );
   }
 
-  public ObservableValue<String> markdownProperty() {
-    return getEditor().textProperty();
-  }
-
   private void enterPressed( final KeyEvent e ) {
     final StyleClassedTextArea textArea = getEditor();
-    final String currentLine = textArea.getText( textArea.getCurrentParagraph() );
+    final String currentLine =
+        textArea.getText( textArea.getCurrentParagraph() );
     final Matcher matcher = AUTO_INDENT_PATTERN.matcher( currentLine );
 
     String newText = "\n";
 
     if( matcher.matches() ) {
       if( !matcher.group( 2 ).isEmpty() ) {
-        // indent new line with same whitespace characters and list markers as current line
+        // indent new line with same whitespace characters and list markers
+        // as current line
         newText = newText.concat( matcher.group( 1 ) );
       }
       else {
         // current line contains only whitespace characters and list markers
         // --> empty current line
         final int caretPosition = textArea.getCaretPosition();
-        textArea.selectRange( caretPosition - currentLine.length(), caretPosition );
+        textArea.selectRange( caretPosition - currentLine.length(),
+                              caretPosition );
       }
     }
 
@@ -108,7 +107,8 @@ public class MarkdownEditorPane extends EditorPane {
     surroundSelection( leading, trailing, null );
   }
 
-  public void surroundSelection( String leading, String trailing, final String hint ) {
+  public void surroundSelection( String leading, String trailing,
+                                 final String hint ) {
     final StyleClassedTextArea textArea = getEditor();
 
     // Note: not using textArea.insertText() to insert leading and trailing
@@ -131,7 +131,8 @@ public class MarkdownEditorPane extends EditorPane {
       leading = ltrim( leading );
     }
 
-    // remove trailing whitespaces from trailing text if selection ends at text end
+    // remove trailing whitespaces from trailing text if selection ends at
+    // text end
     if( end == textArea.getLength() ) {
       trailing = rtrim( trailing );
     }
@@ -184,7 +185,9 @@ public class MarkdownEditorPane extends EditorPane {
     getUndoManager().preventMerge();
 
     // replace text and update selection
-    textArea.replaceText( start, end, leading + trimmedSelectedText + trailing );
+    textArea.replaceText( start,
+                          end,
+                          leading + trimmedSelectedText + trailing );
     textArea.selectRange( selStart, selEnd );
   }
 
@@ -192,7 +195,7 @@ public class MarkdownEditorPane extends EditorPane {
    * Returns one of: selected text, word under cursor, or parsed hyperlink from
    * the markdown AST.
    *
-   * @return
+   * @return An instance containing the link URL and display text.
    */
   private HyperlinkModel getHyperlink() {
     final StyleClassedTextArea textArea = getEditor();
@@ -210,19 +213,18 @@ public class MarkdownEditorPane extends EditorPane {
       textArea.selectRange( p, link.getStartOffset(), p, link.getEndOffset() );
     }
 
-    final HyperlinkModel model = createHyperlinkModel(
-      link, selectedText, "https://website.com"
+    return createHyperlinkModel(
+        link, selectedText, "https://localhost"
     );
-
-    return model;
   }
 
+  @SuppressWarnings("SameParameterValue")
   private HyperlinkModel createHyperlinkModel(
-    final Link link, final String selection, final String url ) {
+      final Link link, final String selection, final String url ) {
 
     return link == null
-      ? new HyperlinkModel( selection, url )
-      : new HyperlinkModel( link );
+        ? new HyperlinkModel( selection, url )
+        : new HyperlinkModel( link );
   }
 
   private Path getParentPath() {
@@ -239,9 +241,9 @@ public class MarkdownEditorPane extends EditorPane {
   }
 
   private void insertObject( final Dialog<String> dialog ) {
-    dialog.showAndWait().ifPresent( result -> {
-      getEditor().replaceSelection( result );
-    } );
+    dialog.showAndWait().ifPresent(
+        result -> getEditor().replaceSelection( result )
+    );
   }
 
   public void insertLink() {

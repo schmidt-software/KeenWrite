@@ -13,7 +13,7 @@ Download and install the following software packages:
 
 Build the application as follows:
 
-    gradle build
+    gradle jar
 
 The application is built.
 

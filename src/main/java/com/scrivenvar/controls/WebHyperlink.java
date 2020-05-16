@@ -26,7 +26,7 @@
  */
 package com.scrivenvar.controls;
 
-import com.scrivenvar.Main;
+import com.scrivenvar.MainFx;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.scene.control.Hyperlink;
@@ -47,7 +47,7 @@ public class WebHyperlink extends Hyperlink {
 
   @Override
   public void fire() {
-    Main.showDocument( getUri() );
+    MainFx.showDocument( getUri() );
   }
 
   public String getUri() {
