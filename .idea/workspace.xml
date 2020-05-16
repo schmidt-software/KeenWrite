@@ -2,70 +2,16 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="3dcf7c8f-87b5-4d25-a804-39da40a621b8" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/rGraphicsSettings.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/rpackages.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/AbstractFileFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/AbstractFileFactory.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/Constants.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/Constants.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/FileEditorTab.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/FileEditorTab.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/FileEditorTabPane.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/FileEditorTabPane.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/FileType.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/FileType.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/MainWindow.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/MainWindow.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/Messages.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/Messages.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/Services.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/Services.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/controls/BrowseDirectoryButton.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/controls/BrowseDirectoryButton.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/controls/EscapeTextField.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/controls/EscapeTextField.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/decorators/RVariableDecorator.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/decorators/RVariableDecorator.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/decorators/VariableDecorator.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/decorators/VariableDecorator.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/definition/AbstractDefinitionSource.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/definition/AbstractDefinitionSource.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/definition/DefinitionFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/definition/DefinitionFactory.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/definition/DefinitionPane.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/definition/DefinitionPane.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/definition/DefinitionSource.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/definition/DefinitionSource.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/definition/EmptyDefinitionSource.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/definition/EmptyDefinitionSource.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/definition/FileDefinitionSource.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/definition/FileDefinitionSource.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/definition/TextFieldTreeCell.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/definition/TextFieldTreeCell.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/definition/VariableTreeItem.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/definition/VariableTreeItem.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/definition/yaml/YamlFileDefinitionSource.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/definition/yaml/YamlFileDefinitionSource.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/definition/yaml/YamlParser.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/definition/yaml/YamlParser.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/definition/yaml/YamlTreeAdapter.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/definition/yaml/YamlTreeAdapter.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/dialogs/LinkDialog.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/dialogs/LinkDialog.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/dialogs/RScriptDialog.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/dialogs/RScriptDialog.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/editors/EditorPane.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/editors/EditorPane.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/editors/VariableNameInjector.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/editors/VariableNameInjector.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/editors/markdown/MarkdownEditorPane.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/editors/markdown/MarkdownEditorPane.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/predicates/files/FileTypePredicate.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/predicates/files/FileTypePredicate.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/predicates/strings/EqualPredicate.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/preferences/FilePreferences.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/preferences/FilePreferences.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/preferences/FilePreferencesFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/preferences/FilePreferencesFactory.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/preview/HTMLPreviewPane.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/preview/HTMLPreviewPane.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/processors/CaretReplacementProcessor.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/processors/CaretReplacementProcessor.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/processors/DefaultVariableProcessor.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/processors/DefaultVariableProcessor.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/processors/HTMLPreviewProcessor.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/processors/HTMLPreviewProcessor.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/processors/IdentityProcessor.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/processors/IdentityProcessor.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/processors/InlineRProcessor.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/processors/InlineRProcessor.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/processors/MarkdownProcessor.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/processors/MarkdownProcessor.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/processors/Processor.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/processors/Processor.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/processors/ProcessorFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/processors/ProcessorFactory.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/processors/RMarkdownCaretInsertionProcessor.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/processors/RMarkdownCaretInsertionProcessor.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/processors/RVariableProcessor.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/processors/RVariableProcessor.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/processors/text/AbstractTextReplacer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/processors/text/AbstractTextReplacer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/processors/text/AhoCorasickReplacer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/processors/text/AhoCorasickReplacer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/processors/text/StringUtilsReplacer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/processors/text/StringUtilsReplacer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/processors/text/TextReplacementFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/processors/text/TextReplacementFactory.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/processors/text/TextReplacer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/processors/text/TextReplacer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/service/Options.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/service/Options.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/service/Settings.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/service/Settings.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/service/events/Notification.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/service/events/Notification.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/service/events/Notifier.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/service/events/Notifier.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/service/events/impl/ButtonOrderPane.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/service/events/impl/ButtonOrderPane.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/service/events/impl/DefaultNotification.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/service/events/impl/DefaultNotification.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/service/events/impl/DefaultNotifier.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/service/events/impl/DefaultNotifier.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/service/events/impl/FileType.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/service/impl/DefaultOptions.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/service/impl/DefaultOptions.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/service/impl/DefaultSettings.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/service/impl/DefaultSettings.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/service/impl/DefaultSnitch.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/service/impl/DefaultSnitch.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/test/TestProperties.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/util/Item.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/util/Utils.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/util/Utils.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/com/scrivenvar/messages.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/com/scrivenvar/messages.properties" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -234,38 +180,38 @@
       <screen x="0" y="28" width="2560" height="1529" />
     </state>
     <state x="610" y="411" width="426" height="481" key="FileChooserDialogImpl/0.28.2560.1529@0.28.2560.1529" timestamp="1589659107517" />
-    <state width="1573" height="396" key="GridCell.Tab.0.bottom" timestamp="1589664524456">
+    <state width="1573" height="321" key="GridCell.Tab.0.bottom" timestamp="1589671859570">
       <screen x="0" y="28" width="2560" height="1529" />
     </state>
-    <state width="1573" height="396" key="GridCell.Tab.0.bottom/0.28.2560.1529@0.28.2560.1529" timestamp="1589664524456" />
-    <state width="1573" height="396" key="GridCell.Tab.0.center" timestamp="1589664524455">
+    <state width="1573" height="321" key="GridCell.Tab.0.bottom/0.28.2560.1529@0.28.2560.1529" timestamp="1589671859570" />
+    <state width="1573" height="321" key="GridCell.Tab.0.center" timestamp="1589671859569">
       <screen x="0" y="28" width="2560" height="1529" />
     </state>
-    <state width="1573" height="396" key="GridCell.Tab.0.center/0.28.2560.1529@0.28.2560.1529" timestamp="1589664524455" />
-    <state width="1573" height="396" key="GridCell.Tab.0.left" timestamp="1589664524455">
+    <state width="1573" height="321" key="GridCell.Tab.0.center/0.28.2560.1529@0.28.2560.1529" timestamp="1589671859569" />
+    <state width="1573" height="321" key="GridCell.Tab.0.left" timestamp="1589671859569">
       <screen x="0" y="28" width="2560" height="1529" />
     </state>
-    <state width="1573" height="396" key="GridCell.Tab.0.left/0.28.2560.1529@0.28.2560.1529" timestamp="1589664524455" />
-    <state width="1573" height="396" key="GridCell.Tab.0.right" timestamp="1589664524456">
+    <state width="1573" height="321" key="GridCell.Tab.0.left/0.28.2560.1529@0.28.2560.1529" timestamp="1589671859569" />
+    <state width="1573" height="321" key="GridCell.Tab.0.right" timestamp="1589671859570">
       <screen x="0" y="28" width="2560" height="1529" />
     </state>
-    <state width="1573" height="396" key="GridCell.Tab.0.right/0.28.2560.1529@0.28.2560.1529" timestamp="1589664524456" />
-    <state width="1573" height="396" key="GridCell.Tab.1.bottom" timestamp="1589664524457">
+    <state width="1573" height="321" key="GridCell.Tab.0.right/0.28.2560.1529@0.28.2560.1529" timestamp="1589671859570" />
+    <state width="1573" height="396" key="GridCell.Tab.1.bottom" timestamp="1589671859555">
       <screen x="0" y="28" width="2560" height="1529" />
     </state>
-    <state width="1573" height="396" key="GridCell.Tab.1.bottom/0.28.2560.1529@0.28.2560.1529" timestamp="1589664524457" />
-    <state width="1573" height="396" key="GridCell.Tab.1.center" timestamp="1589664524456">
+    <state width="1573" height="396" key="GridCell.Tab.1.bottom/0.28.2560.1529@0.28.2560.1529" timestamp="1589671859555" />
+    <state width="1573" height="396" key="GridCell.Tab.1.center" timestamp="1589671859555">
       <screen x="0" y="28" width="2560" height="1529" />
     </state>
-    <state width="1573" height="396" key="GridCell.Tab.1.center/0.28.2560.1529@0.28.2560.1529" timestamp="1589664524456" />
-    <state width="1573" height="396" key="GridCell.Tab.1.left" timestamp="1589664524456">
+    <state width="1573" height="396" key="GridCell.Tab.1.center/0.28.2560.1529@0.28.2560.1529" timestamp="1589671859555" />
+    <state width="1573" height="396" key="GridCell.Tab.1.left" timestamp="1589671859554">
       <screen x="0" y="28" width="2560" height="1529" />
     </state>
-    <state width="1573" height="396" key="GridCell.Tab.1.left/0.28.2560.1529@0.28.2560.1529" timestamp="1589664524456" />
-    <state width="1573" height="396" key="GridCell.Tab.1.right" timestamp="1589664524457">
+    <state width="1573" height="396" key="GridCell.Tab.1.left/0.28.2560.1529@0.28.2560.1529" timestamp="1589671859554" />
+    <state width="1573" height="396" key="GridCell.Tab.1.right" timestamp="1589671859555">
       <screen x="0" y="28" width="2560" height="1529" />
     </state>
-    <state width="1573" height="396" key="GridCell.Tab.1.right/0.28.2560.1529@0.28.2560.1529" timestamp="1589664524457" />
+    <state width="1573" height="396" key="GridCell.Tab.1.right/0.28.2560.1529@0.28.2560.1529" timestamp="1589671859555" />
     <state x="324" y="288" key="SettingsEditor" timestamp="1589576619807">
       <screen x="0" y="28" width="2560" height="1529" />
     </state>
@@ -274,6 +220,10 @@
       <screen x="0" y="28" width="2560" height="1529" />
     </state>
     <state x="1071" y="397" width="1417" height="979" key="com.intellij.history.integration.ui.views.FileHistoryDialog/0.28.2560.1529@0.28.2560.1529" timestamp="1589661186060" />
+    <state x="531" y="261" width="586" height="753" key="find.popup" timestamp="1589669468040">
+      <screen x="0" y="28" width="2560" height="1529" />
+    </state>
+    <state x="531" y="261" width="586" height="753" key="find.popup/0.28.2560.1529@0.28.2560.1529" timestamp="1589669468040" />
     <state x="533" y="414" width="581" height="476" key="refactoring.ChangeSignatureDialog" timestamp="1589663937037">
       <screen x="0" y="28" width="2560" height="1529" />
     </state>
@@ -282,33 +232,18 @@
       <screen x="0" y="28" width="2560" height="1529" />
     </state>
     <state x="490" y="304" key="run.anything.popup/0.28.2560.1529@0.28.2560.1529" timestamp="1589657324666" />
-    <state x="490" y="327" width="672" height="678" key="search.everywhere.popup" timestamp="1589664407017">
+    <state x="490" y="327" width="672" height="678" key="search.everywhere.popup" timestamp="1589669442714">
       <screen x="0" y="28" width="2560" height="1529" />
     </state>
-    <state x="490" y="327" width="672" height="678" key="search.everywhere.popup/0.28.2560.1529@0.28.2560.1529" timestamp="1589664407017" />
+    <state x="490" y="327" width="672" height="678" key="search.everywhere.popup/0.28.2560.1529@0.28.2560.1529" timestamp="1589669442714" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/main/java/com/scrivenvar/MainWindow.java</url>
-          <line>409</line>
+          <line>410</line>
           <option name="timeStamp" value="4" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/com/scrivenvar/MainWindow.java</url>
-          <line>759</line>
-          <option name="timeStamp" value="5" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/com/scrivenvar/definition/FileDefinitionSource.java</url>
-          <line>48</line>
-          <option name="timeStamp" value="14" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/com/scrivenvar/definition/yaml/YamlFileDefinitionSource.java</url>
-          <line>53</line>
-          <option name="timeStamp" value="15" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

@@ -153,8 +153,7 @@ public class ProcessorFactory extends AbstractFileFactory {
   protected Processor<String> createRProcessor( final FileEditorTab tab ) {
     final ObservableValue<Integer> caret = tab.caretPositionProperty();
     final Processor<String> tpc = getCommonProcessor();
-    final Processor<String> rp = new InlineRProcessor(
-        tpc, getResolvedMap(), tab.getPath() );
+    final Processor<String> rp = new InlineRProcessor( tpc, getResolvedMap() );
     final Processor<String> rvp = new RVariableProcessor(
         rp, getResolvedMap() );
 
@@ -165,8 +164,7 @@ public class ProcessorFactory extends AbstractFileFactory {
     final ObservableValue<Integer> caret = tab.caretPositionProperty();
     final Processor<String> tpc = getCommonProcessor();
     final Processor<String> xmlp = new XMLProcessor( tpc, tab.getPath() );
-    final Processor<String> rp = new InlineRProcessor(
-        xmlp, getResolvedMap(), tab.getPath() );
+    final Processor<String> rp = new InlineRProcessor( xmlp, getResolvedMap() );
     final Processor<String> rvp = new RVariableProcessor(
         rp, getResolvedMap() );
 

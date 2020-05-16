@@ -36,11 +36,9 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Map;
 
-import static com.scrivenvar.Constants.PERSIST_R_STARTUP;
-import static com.scrivenvar.Constants.STATUS_PARSE_ERROR;
+import static com.scrivenvar.Constants.*;
 import static com.scrivenvar.Messages.get;
 import static com.scrivenvar.decorators.RVariableDecorator.PREFIX;
 import static com.scrivenvar.decorators.RVariableDecorator.SUFFIX;
@@ -66,26 +64,20 @@ public final class InlineRProcessor extends DefaultVariableProcessor {
    *
    * @param processor Subsequent link in the processing chain.
    * @param map       Resolved definitions map.
-   * @param path      Path to the file being edited so that its working
-   *                  directory can
-   *                  be extracted. Must not be null.
    */
   public InlineRProcessor(
       final Processor<String> processor,
-      final Map<String, String> map,
-      final Path path ) {
+      final Map<String, String> map ) {
     super( processor, map );
-    init( path.getParent() );
+    init();
   }
 
   /**
    * Initialises the R code so that R can find imported libraries.
-   *
-   * @param workingDirectory Location where R is to look for imports.
    */
-  private void init( final Path workingDirectory ) {
+  private void init() {
     try {
-      final Path wd = nullSafe( workingDirectory );
+      final Path wd = getWorkingDirectory();
       final String dir = wd.toString().replace( '\\', '/' );
       final Map<String, String> definitions = getDefinitions();
       definitions.put( "$application.r.working.directory$", dir );
@@ -103,7 +95,7 @@ public final class InlineRProcessor extends DefaultVariableProcessor {
   }
 
   /**
-   * Loads the R init script from the applciation's persisted preferences.
+   * Loads the R init script from the application's persisted preferences.
    *
    * @return A non-null String, possibly empty.
    */
@@ -200,12 +192,23 @@ public final class InlineRProcessor extends DefaultVariableProcessor {
 
   /**
    * This will return the given path if not null, otherwise it will return
-   * Paths.get( System.getProperty( "user.dir" ) ).
+   * the path to the user's directory.
    *
-   * @param path The path to make null safe.
    * @return A non-null path.
    */
-  private Path nullSafe( final Path path ) {
-    return path == null ? Paths.get( System.getProperty( "user.dir" ) ) : path;
+  private Path getWorkingDirectory() {
+    return Path.of( getPreference( PERSIST_R_DIRECTORY, USER_DIRECTORY ) );
+  }
+
+  /**
+   * Returns the user-defined preference value for the given key.
+   *
+   * @param key          The key to find in the user's preferences.
+   * @param defaultValue The default value to return if no preference is set.
+   * @return The value for the preference, or {@code defaultValue} if not found.
+   */
+  @SuppressWarnings("SameParameterValue")
+  private String getPreference( final String key, final String defaultValue ) {
+    return OPTIONS.get( key, defaultValue );
   }
 }

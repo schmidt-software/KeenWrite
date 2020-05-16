@@ -27,18 +27,15 @@
  */
 package com.scrivenvar.dialogs;
 
-import static com.scrivenvar.Messages.get;
-
 import javafx.application.Platform;
 import javafx.geometry.Insets;
-
-import static javafx.scene.control.ButtonType.OK;
-
-import javafx.scene.control.DialogPane;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Window;
+
+import static com.scrivenvar.Messages.get;
+import static javafx.scene.control.ButtonType.OK;
 
 /**
  * Responsible for managing the R startup script that is run when an R source
@@ -48,7 +45,7 @@ import javafx.stage.Window;
  */
 public class RScriptDialog extends AbstractDialog<String> {
 
-  private final TextArea mScriptArea = new TextArea();
+  private TextArea mScriptArea;
   private final String mOriginalText;
 
   public RScriptDialog(
@@ -60,14 +57,12 @@ public class RScriptDialog extends AbstractDialog<String> {
 
   @Override
   protected void initComponents() {
-    final DialogPane pane = getDialogPane();
-
     final GridPane grid = new GridPane();
     grid.setHgap( 10 );
     grid.setVgap( 10 );
     grid.setPadding( new Insets( 10, 10, 10, 10 ) );
 
-    final Label label = new Label( get( "Dialog.rScript.content" ) );
+    final Label label = new Label( get( "Dialog.r.script.content" ) );
 
     final TextArea textArea = getScriptArea();
     textArea.setEditable( true );
@@ -75,7 +70,8 @@ public class RScriptDialog extends AbstractDialog<String> {
 
     grid.add( label, 0, 0 );
     grid.add( textArea, 0, 1 );
-    pane.setContent( grid );
+
+    getDialogPane().setContent( grid );
 
     Platform.runLater( textArea::requestFocus );
 
@@ -87,6 +83,10 @@ public class RScriptDialog extends AbstractDialog<String> {
   }
 
   private TextArea getScriptArea() {
+    if( mScriptArea == null ) {
+      mScriptArea = new TextArea();
+    }
+
     return mScriptArea;
   }
 

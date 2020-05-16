@@ -115,4 +115,14 @@ public class Constants {
    * Content of the R startup script.
    */
   public static final String PERSIST_R_STARTUP = "rStartup";
+
+  /**
+   * Bootstrap directory for R startup script.
+   */
+  public static final String PERSIST_R_DIRECTORY = "rDirectory";
+
+  /**
+   * Default working directory to use for R startup script.
+   */
+  public static final String USER_DIRECTORY = System.getProperty( "user.dir" );
 }

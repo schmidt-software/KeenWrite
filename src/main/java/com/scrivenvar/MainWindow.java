@@ -74,6 +74,7 @@ import java.util.prefs.Preferences;
 
 import static com.scrivenvar.Constants.*;
 import static com.scrivenvar.Messages.get;
+import static com.scrivenvar.Messages.getLiteral;
 import static com.scrivenvar.util.StageState.*;
 import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.*;
 import static javafx.event.Event.fireEvent;
@@ -570,33 +571,42 @@ public class MainWindow implements Observer {
     fireEvent( window, new WindowEvent( window, WINDOW_CLOSE_REQUEST ) );
   }
 
-  //---- Tools actions
-  private void toolsScript() {
-    final String script = getStartupScript();
-
+  //---- R menu actions
+  private void rScript() {
+    final String script = getPreferences().get( PERSIST_R_STARTUP, "" );
     final RScriptDialog dialog = new RScriptDialog(
-        getWindow(), "Dialog.rScript.title", script );
+        getWindow(), "Dialog.r.script.title", script );
     final Optional<String> result = dialog.showAndWait();
 
     result.ifPresent( this::putStartupScript );
   }
 
-  /**
-   * Gets the R startup script from the user preferences.
-   */
-  private String getStartupScript() {
-    return getPreferences().get( PERSIST_R_STARTUP, "" );
+  private void rDirectory() {
+    final TextInputDialog dialog = new TextInputDialog(
+        getPreferences().get( PERSIST_R_DIRECTORY, USER_DIRECTORY )
+    );
+
+    dialog.setTitle( get( "Dialog.r.directory.title" ) );
+    dialog.setHeaderText( getLiteral( "Dialog.r.directory.header" ) );
+    dialog.setContentText( "Directory" );
+
+    final Optional<String> result = dialog.showAndWait();
+
+    result.ifPresent( this::putStartupDirectory );
   }
 
   /**
-   * Puts an R startup script into the user preferences.
+   * Stores the R startup script into the user preferences.
    */
-  private void putStartupScript( final String s ) {
-    try {
-      getPreferences().put( PERSIST_R_STARTUP, s );
-    } catch( final Exception ex ) {
-      getNotifier().notify( ex );
-    }
+  private void putStartupScript( final String script ) {
+    putPreference( PERSIST_R_STARTUP, script );
+  }
+
+  /**
+   * Stores the R bootstrap script directory into the user preferences.
+   */
+  private void putStartupDirectory( final String directory ) {
+    putPreference( PERSIST_R_DIRECTORY, directory );
   }
 
   //---- Help actions -------------------------------------------------------
@@ -985,68 +995,77 @@ public class MainWindow implements Observer {
         e -> getActiveEditor().surroundSelection( "\n\n---\n\n", "" ),
         activeFileEditorIsNull );
 
-    // Tools actions
-    final Action toolsScriptAction = new Action(
-        get( "Main.menu.tools.script" ), null, null, e -> toolsScript() );
+    // R actions
+    final Action mRScriptAction = new Action(
+        get( "Main.menu.r.script" ), null, null, e -> rScript() );
+
+    final Action mRDirectoryAction = new Action(
+        get( "Main.menu.r.directory" ), null, null, e -> rDirectory() );
 
     // Help actions
     final Action helpAboutAction = new Action(
         get( "Main.menu.help.about" ), null, null, e -> helpAbout() );
 
     //---- MenuBar ----
-    final Menu fileMenu = ActionUtils.createMenu( get( "Main.menu.file" ),
-                                                  fileNewAction,
-                                                  fileOpenAction,
-                                                  null,
-                                                  fileCloseAction,
-                                                  fileCloseAllAction,
-                                                  null,
-                                                  fileSaveAction,
-                                                  fileSaveAsAction,
-                                                  fileSaveAllAction,
-                                                  null,
-                                                  fileExitAction );
+    final Menu fileMenu = ActionUtils.createMenu(
+        get( "Main.menu.file" ),
+        fileNewAction,
+        fileOpenAction,
+        null,
+        fileCloseAction,
+        fileCloseAllAction,
+        null,
+        fileSaveAction,
+        fileSaveAsAction,
+        fileSaveAllAction,
+        null,
+        fileExitAction );
 
-    final Menu editMenu = ActionUtils.createMenu( get( "Main.menu.edit" ),
-                                                  editUndoAction,
-                                                  editRedoAction,
-                                                  editFindAction,
-                                                  editFindNextAction );
+    final Menu editMenu = ActionUtils.createMenu(
+        get( "Main.menu.edit" ),
+        editUndoAction,
+        editRedoAction,
+        editFindAction,
+        editFindNextAction );
 
-    final Menu insertMenu = ActionUtils.createMenu( get( "Main.menu.insert" ),
-                                                    insertBoldAction,
-                                                    insertItalicAction,
-                                                    insertSuperscriptAction,
-                                                    insertSubscriptAction,
-                                                    insertStrikethroughAction,
-                                                    insertBlockquoteAction,
-                                                    insertCodeAction,
-                                                    insertFencedCodeBlockAction,
-                                                    null,
-                                                    insertLinkAction,
-                                                    insertImageAction,
-                                                    null,
-                                                    headers[ 0 ],
-                                                    headers[ 1 ],
-                                                    headers[ 2 ],
-                                                    headers[ 3 ],
-                                                    headers[ 4 ],
-                                                    headers[ 5 ],
-                                                    null,
-                                                    insertUnorderedListAction,
-                                                    insertOrderedListAction,
-                                                    insertHorizontalRuleAction );
+    final Menu insertMenu = ActionUtils.createMenu(
+        get( "Main.menu.insert" ),
+        insertBoldAction,
+        insertItalicAction,
+        insertSuperscriptAction,
+        insertSubscriptAction,
+        insertStrikethroughAction,
+        insertBlockquoteAction,
+        insertCodeAction,
+        insertFencedCodeBlockAction,
+        null,
+        insertLinkAction,
+        insertImageAction,
+        null,
+        headers[ 0 ],
+        headers[ 1 ],
+        headers[ 2 ],
+        headers[ 3 ],
+        headers[ 4 ],
+        headers[ 5 ],
+        null,
+        insertUnorderedListAction,
+        insertOrderedListAction,
+        insertHorizontalRuleAction );
 
-    final Menu toolsMenu = ActionUtils.createMenu( get( "Main.menu.tools" ),
-                                                   toolsScriptAction );
+    final Menu rMenu = ActionUtils.createMenu(
+        get( "Main.menu.r" ),
+        mRScriptAction,
+        mRDirectoryAction );
 
-    final Menu helpMenu = ActionUtils.createMenu( get( "Main.menu.help" ),
-                                                  helpAboutAction );
+    final Menu helpMenu = ActionUtils.createMenu(
+        get( "Main.menu.help" ),
+        helpAboutAction );
 
     menuBar = new MenuBar( fileMenu,
                            editMenu,
                            insertMenu,
-                           toolsMenu,
+                           rMenu,
                            helpMenu );
 
     //---- ToolBar ----
@@ -1136,5 +1155,13 @@ public class MainWindow implements Observer {
           );
         }
     );
+  }
+
+  private void putPreference( final String key, final String value ) {
+    try {
+      getPreferences().put( key, value );
+    } catch( final Exception ex ) {
+      getNotifier().notify( ex );
+    }
   }
 }

@@ -42,7 +42,7 @@ public class Messages {
 
   private static final ResourceBundle RESOURCE_BUNDLE =
       ResourceBundle.getBundle(
-      APP_BUNDLE_NAME );
+          APP_BUNDLE_NAME );
 
   private Messages() {
   }
@@ -119,6 +119,10 @@ public class Messages {
     }
 
     return result;
+  }
+
+  public static String getLiteral( final String key ) {
+    return RESOURCE_BUNDLE.getString( key );
   }
 
   /**
