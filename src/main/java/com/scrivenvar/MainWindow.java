@@ -89,9 +89,9 @@ import static javafx.stage.WindowEvent.WINDOW_CLOSE_REQUEST;
  */
 public class MainWindow implements Observer {
 
-  private final Options options = Services.load( Options.class );
-  private final Snitch snitch = Services.load( Snitch.class );
-  private final Notifier notifier = Services.load( Notifier.class );
+  private final Options mOptions = Services.load( Options.class );
+  private final Snitch mSnitch = Services.load( Snitch.class );
+  private final Notifier mNotifier = Services.load( Notifier.class );
 
   private Scene scene;
   private MenuBar menuBar;
@@ -142,7 +142,7 @@ public class MainWindow implements Observer {
   private void initFindInput() {
     final TextField input = getFindTextField();
 
-    input.setOnKeyPressed( (KeyEvent event) -> {
+    input.setOnKeyPressed( ( KeyEvent event ) -> {
       switch( event.getCode() ) {
         case F3:
         case ENTER:
@@ -161,14 +161,14 @@ public class MainWindow implements Observer {
 
     // Remove when the input field loses focus.
     input.focusedProperty().addListener(
-      (
-        final ObservableValue<? extends Boolean> focused,
-        final Boolean oFocus,
-        final Boolean nFocus) -> {
-        if( !nFocus ) {
-          getStatusBar().setGraphic( null );
+        (
+            final ObservableValue<? extends Boolean> focused,
+            final Boolean oFocus,
+            final Boolean nFocus ) -> {
+          if( !nFocus ) {
+            getStatusBar().setGraphic( null );
+          }
         }
-      }
     );
   }
 
@@ -177,25 +177,24 @@ public class MainWindow implements Observer {
    */
   private void initDefinitionListener() {
     getFileEditorPane().onOpenDefinitionFileProperty().addListener(
-      (ObservableValue<? extends Path> definitionFile,
-        final Path oldPath, final Path newPath) -> {
-        openDefinition( newPath );
+        ( ObservableValue<? extends Path> definitionFile,
+          final Path oldPath, final Path newPath ) -> {
+          openDefinition( newPath );
 
-        // Indirectly refresh the resolved map.
-        setProcessors( null );
-        updateDefinitionPane();
+          // Indirectly refresh the resolved map.
+          setProcessors( null );
+          updateDefinitionPane();
 
-        try {
-          getSnitch().ignore( oldPath );
-          getSnitch().listen( newPath );
+          try {
+            getSnitch().ignore( oldPath );
+            getSnitch().listen( newPath );
+          } catch( final IOException ex ) {
+            error( ex );
+          }
+
+          // Will create new processors and therefore a new resolved map.
+          refreshSelectedTab( getActiveFileEditor() );
         }
-        catch( final IOException ex ) {
-          error( ex );
-        }
-
-        // Will create new processors and therefore a new resolved map.
-        refreshSelectedTab( getActiveFileEditor() );
-      }
     );
   }
 
@@ -211,21 +210,21 @@ public class MainWindow implements Observer {
 
     // Update the preview pane on tab changes.
     tabs.addListener(
-      (final Change<? extends Tab> change) -> {
-        while( change.next() ) {
-          if( change.wasAdded() ) {
-            // Multiple tabs can be added simultaneously.
-            for( final Tab newTab : change.getAddedSubList() ) {
-              final FileEditorTab tab = (FileEditorTab)newTab;
+        ( final Change<? extends Tab> change ) -> {
+          while( change.next() ) {
+            if( change.wasAdded() ) {
+              // Multiple tabs can be added simultaneously.
+              for( final Tab newTab : change.getAddedSubList() ) {
+                final FileEditorTab tab = (FileEditorTab) newTab;
 
-              initTextChangeListener( tab );
-              initCaretParagraphListener( tab );
-              initKeyboardEventListeners( tab );
+                initTextChangeListener( tab );
+                initCaretParagraphListener( tab );
+                initKeyboardEventListeners( tab );
 //              initSyntaxListener( tab );
+              }
             }
           }
         }
-      }
     );
   }
 
@@ -246,22 +245,22 @@ public class MainWindow implements Observer {
 
     // Update the preview pane changing tabs.
     editorPane.addTabSelectionListener(
-      (ObservableValue<? extends Tab> tabPane,
-        final Tab oldTab, final Tab newTab) -> {
-        updateVariableNameInjector();
+        ( ObservableValue<? extends Tab> tabPane,
+          final Tab oldTab, final Tab newTab ) -> {
+          updateVariableNameInjector();
 
-        // If there was no old tab, then this is a first time load, which
-        // can be ignored.
-        if( oldTab != null ) {
-          if( newTab == null ) {
-            closeRemainingTab();
-          }
-          else {
-            // Update the preview with the edited text.
-            refreshSelectedTab( (FileEditorTab)newTab );
+          // If there was no old tab, then this is a first time load, which
+          // can be ignored.
+          if( oldTab != null ) {
+            if( newTab == null ) {
+              closeRemainingTab();
+            }
+            else {
+              // Update the preview with the edited text.
+              refreshSelectedTab( (FileEditorTab) newTab );
+            }
           }
         }
-      }
     );
   }
 
@@ -278,19 +277,17 @@ public class MainWindow implements Observer {
 
   private void initTextChangeListener( final FileEditorTab tab ) {
     tab.addTextChangeListener(
-      (ObservableValue<? extends String> editor,
-        final String oldValue, final String newValue) -> {
-        refreshSelectedTab( tab );
-      }
+        ( ObservableValue<? extends String> editor,
+          final String oldValue, final String newValue ) ->
+            refreshSelectedTab( tab )
     );
   }
 
   private void initCaretParagraphListener( final FileEditorTab tab ) {
     tab.addCaretParagraphListener(
-      (ObservableValue<? extends Integer> editor,
-        final Integer oldValue, final Integer newValue) -> {
-        refreshSelectedTab( tab );
-      }
+        ( ObservableValue<? extends Integer> editor,
+          final Integer oldValue, final Integer newValue ) ->
+            refreshSelectedTab( tab )
     );
   }
 
@@ -324,7 +321,7 @@ public class MainWindow implements Observer {
    * @param tab The tab to inject variable names into upon a double-click.
    */
   private void initVariableNameInjector( final Tab tab ) {
-    final FileEditorTab editorTab = (FileEditorTab)tab;
+    final FileEditorTab editorTab = (FileEditorTab) tab;
   }
 
   /**
@@ -341,11 +338,11 @@ public class MainWindow implements Observer {
       // TODO: https://github.com/DaveJarvis/scrivenvar/issues/29
       final Position p = tab.getCaretOffset();
       getLineNumberText().setText(
-        get( STATUS_BAR_LINE,
-             p.getMajor() + 1,
-             p.getMinor() + 1,
-             tab.getCaretPosition() + 1
-        )
+          get( STATUS_BAR_LINE,
+               p.getMajor() + 1,
+               p.getMinor() + 1,
+               tab.getCaretPosition() + 1
+          )
       );
 
       Processor<String> processor = getProcessors().get( tab );
@@ -358,8 +355,7 @@ public class MainWindow implements Observer {
       try {
         getNotifier().clear();
         processor.processChain( tab.getEditorText() );
-      }
-      catch( final Exception ex ) {
+      } catch( final Exception ex ) {
         error( ex );
       }
     }
@@ -395,8 +391,7 @@ public class MainWindow implements Observer {
   private TreeView<String> getTreeView() {
     try {
       return getDefinitionSource().asTreeView();
-    }
-    catch( Exception e ) {
+    } catch( Exception e ) {
       error( e );
     }
 
@@ -416,8 +411,7 @@ public class MainWindow implements Observer {
       setDefinitionSource( ds );
       storeDefinitionSource();
       updateDefinitionPane();
-    }
-    catch( final Exception e ) {
+    } catch( final Exception e ) {
       error( e );
     }
   }
@@ -460,21 +454,22 @@ public class MainWindow implements Observer {
   }
 
   //---- File actions -------------------------------------------------------
+
   /**
    * Called when an observable instance has changed. This is called by both the
    * snitch service and the notify service. The snitch service can be called for
    * different file types, including definition sources.
    *
    * @param observable The observed instance.
-   * @param value The noteworthy item.
+   * @param value      The noteworthy item.
    */
   @Override
   public void update( final Observable observable, final Object value ) {
     if( value != null ) {
       if( observable instanceof Snitch && value instanceof Path ) {
-        final Path path = (Path)value;
+        final Path path = (Path) value;
         final FileTypePredicate predicate
-          = new FileTypePredicate( GLOB_DEFINITION_EXTENSIONS );
+            = new FileTypePredicate( GLOB_DEFINITION_EXTENSIONS );
 
         // Reload definitions.
         if( predicate.test( path.toFile() ) ) {
@@ -484,7 +479,7 @@ public class MainWindow implements Observer {
         updateSelectedTab();
       }
       else if( observable instanceof Notifier && value instanceof String ) {
-        updateStatusBar( (String)value );
+        updateStatusBar( (String) value );
       }
     }
   }
@@ -496,12 +491,13 @@ public class MainWindow implements Observer {
    */
   private void updateStatusBar( final String s ) {
     Platform.runLater(
-      () -> {
-        final int index = s.indexOf( '\n' );
-        final String message = s.substring( 0, index > 0 ? index : s.length() );
+        () -> {
+          final int index = s.indexOf( '\n' );
+          final String message = s.substring( 0,
+                                              index > 0 ? index : s.length() );
 
-        getStatusBar().setText( message );
-      }
+          getStatusBar().setText( message );
+        }
     );
   }
 
@@ -510,11 +506,11 @@ public class MainWindow implements Observer {
    */
   private void updateSelectedTab() {
     Platform.runLater(
-      () -> {
-        // Brute-force XSLT file reload by re-instantiating all processors.
-        resetProcessors();
-        refreshSelectedTab( getActiveFileEditor() );
-      }
+        () -> {
+          // Brute-force XSLT file reload by re-instantiating all processors.
+          resetProcessors();
+          refreshSelectedTab( getActiveFileEditor() );
+        }
     );
   }
 
@@ -524,11 +520,7 @@ public class MainWindow implements Observer {
    * @param path The path containing new definition information.
    */
   private void updateDefinitionSource( final Path path ) {
-    Platform.runLater(
-      () -> {
-        openDefinition( path );
-      }
-    );
+    Platform.runLater( () -> openDefinition( path ) );
   }
 
   /**
@@ -567,8 +559,7 @@ public class MainWindow implements Observer {
 
     try {
       refreshSelectedTab( editor );
-    }
-    catch( final Exception ex ) {
+    } catch( final Exception ex ) {
       getNotifier().notify( ex );
     }
   }
@@ -587,7 +578,7 @@ public class MainWindow implements Observer {
     final String script = getStartupScript();
 
     final RScriptDialog dialog = new RScriptDialog(
-      getWindow(), "Dialog.rScript.title", script );
+        getWindow(), "Dialog.rScript.title", script );
     final Optional<String> result = dialog.showAndWait();
 
     result.ifPresent( this::putStartupScript );
@@ -606,8 +597,7 @@ public class MainWindow implements Observer {
   private void putStartupScript( final String s ) {
     try {
       getPreferences().put( PERSIST_R_STARTUP, s );
-    }
-    catch( final Exception ex ) {
+    } catch( final Exception ex ) {
       getNotifier().notify( ex );
     }
   }
@@ -648,7 +638,8 @@ public class MainWindow implements Observer {
   private MarkdownEditorPane getActiveEditor() {
     final EditorPane pane = getActiveFileEditor().getEditorPane();
 
-    return pane instanceof MarkdownEditorPane ? (MarkdownEditorPane)pane : null;
+    return pane instanceof MarkdownEditorPane ? (MarkdownEditorPane) pane :
+        null;
   }
 
   private FileEditorTab getActiveFileEditor() {
@@ -656,7 +647,8 @@ public class MainWindow implements Observer {
   }
 
   //---- Member accessors ---------------------------------------------------
-  private void setProcessors( final Map<FileEditorTab, Processor<String>> map ) {
+  private void setProcessors(
+      final Map<FileEditorTab, Processor<String>> map ) {
     this.processors = map;
   }
 
@@ -705,15 +697,15 @@ public class MainWindow implements Observer {
   }
 
   private Options getOptions() {
-    return this.options;
+    return mOptions;
   }
 
   private Snitch getSnitch() {
-    return this.snitch;
+    return mSnitch;
   }
 
   private Notifier getNotifier() {
-    return this.notifier;
+    return mNotifier;
   }
 
   public void setMenuBar( final MenuBar menuBar ) {
@@ -749,11 +741,11 @@ public class MainWindow implements Observer {
   }
 
   //---- Member creators ----------------------------------------------------
+
   /**
    * Factory to create processors that are suited to different file types.
    *
    * @param tab The tab that is subjected to processing.
-   *
    * @return A processor suited to the file type specified by the tab's path.
    */
   private Processor<String> createProcessor( final FileEditorTab tab ) {
@@ -772,14 +764,12 @@ public class MainWindow implements Observer {
 
       if( ds instanceof FileDefinitionSource ) {
         try {
-          getSnitch().listen( ((FileDefinitionSource)ds).getPath() );
-        }
-        catch( final IOException ex ) {
+          getSnitch().listen( ((FileDefinitionSource) ds).getPath() );
+        } catch( final IOException ex ) {
           error( ex );
         }
       }
-    }
-    catch( final Exception ex ) {
+    } catch( final Exception ex ) {
       ds = new EmptyDefinitionSource();
       error( ex );
     }
@@ -818,16 +808,17 @@ public class MainWindow implements Observer {
 
   private Scene createScene() {
     final SplitPane splitPane = new SplitPane(
-      getDefinitionPane().getNode(),
-      getFileEditorPane().getNode(),
-      getPreviewPane().getNode() );
+        getDefinitionPane().getNode(),
+        getFileEditorPane().getNode(),
+        getPreviewPane().getNode() );
 
     splitPane.setDividerPositions(
-      getFloat( K_PANE_SPLIT_DEFINITION, .10f ),
-      getFloat( K_PANE_SPLIT_EDITOR, .45f ),
-      getFloat( K_PANE_SPLIT_PREVIEW, .45f ) );
+        getFloat( K_PANE_SPLIT_DEFINITION, .10f ),
+        getFloat( K_PANE_SPLIT_EDITOR, .45f ),
+        getFloat( K_PANE_SPLIT_PREVIEW, .45f ) );
 
-    // See: http://broadlyapplicable.blogspot.ca/2015/03/javafx-capture-restorePreferences-splitpane.html
+    // See: http://broadlyapplicable.blogspot
+    // .ca/2015/03/javafx-capture-restorePreferences-splitpane.html
     final BorderPane borderPane = new BorderPane();
     borderPane.setPrefSize( 1024, 800 );
     borderPane.setTop( createMenuBar() );
@@ -847,7 +838,9 @@ public class MainWindow implements Observer {
   }
 
   private Node createMenuBar() {
-    final BooleanBinding activeFileEditorIsNull = getFileEditorPane().activeFileEditorProperty().isNull();
+    final BooleanBinding activeFileEditorIsNull =
+        getFileEditorPane().activeFileEditorProperty()
+                           .isNull();
 
     // File actions
     final Action fileNewAction = new Action( get( "Main.menu.file.new" ),
@@ -861,40 +854,45 @@ public class MainWindow implements Observer {
                                                e -> fileClose(),
                                                activeFileEditorIsNull );
     final Action fileCloseAllAction = new Action( get(
-      "Main.menu.file.close_all" ), null, null, e -> fileCloseAll(),
+        "Main.menu.file.close_all" ), null, null, e -> fileCloseAll(),
                                                   activeFileEditorIsNull );
     final Action fileSaveAction = new Action( get( "Main.menu.file.save" ),
                                               "Shortcut+S", FLOPPY_ALT,
                                               e -> fileSave(),
                                               createActiveBooleanProperty(
-                                                FileEditorTab::modifiedProperty ).not() );
+                                                  FileEditorTab::modifiedProperty )
+                                                  .not() );
     final Action fileSaveAsAction = new Action( Messages.get(
-      "Main.menu.file.save_as" ), null, null, e -> fileSaveAs(),
+        "Main.menu.file.save_as" ), null, null, e -> fileSaveAs(),
                                                 activeFileEditorIsNull );
     final Action fileSaveAllAction = new Action(
-      get( "Main.menu.file.save_all" ), "Shortcut+Shift+S", null,
-      e -> fileSaveAll(),
-      Bindings.not( getFileEditorPane().anyFileEditorModifiedProperty() ) );
-    final Action fileExitAction = new Action( get( "Main.menu.file.exit" ), null,
-                                              null, e -> fileExit() );
+        get( "Main.menu.file.save_all" ), "Shortcut+Shift+S", null,
+        e -> fileSaveAll(),
+        Bindings.not( getFileEditorPane().anyFileEditorModifiedProperty() ) );
+    final Action fileExitAction = new Action( get( "Main.menu.file.exit" ),
+                                              null,
+                                              null,
+                                              e -> fileExit() );
 
     // Edit actions
     final Action editUndoAction = new Action( get( "Main.menu.edit.undo" ),
                                               "Shortcut+Z", UNDO,
                                               e -> getActiveEditor().undo(),
                                               createActiveBooleanProperty(
-                                                FileEditorTab::canUndoProperty ).not() );
+                                                  FileEditorTab::canUndoProperty )
+                                                  .not() );
     final Action editRedoAction = new Action( get( "Main.menu.edit.redo" ),
                                               "Shortcut+Y", REPEAT,
                                               e -> getActiveEditor().redo(),
                                               createActiveBooleanProperty(
-                                                FileEditorTab::canRedoProperty ).not() );
+                                                  FileEditorTab::canRedoProperty )
+                                                  .not() );
     final Action editFindAction = new Action( Messages.get(
-      "Main.menu.edit.find" ), "Ctrl+F", SEARCH,
+        "Main.menu.edit.find" ), "Ctrl+F", SEARCH,
                                               e -> find(),
                                               activeFileEditorIsNull );
     final Action editFindNextAction = new Action( Messages.get(
-      "Main.menu.edit.find.next" ), "F3", null,
+        "Main.menu.edit.find.next" ), "F3", null,
                                                   e -> findNext(),
                                                   activeFileEditorIsNull );
 
@@ -902,50 +900,60 @@ public class MainWindow implements Observer {
     final Action insertBoldAction = new Action( get( "Main.menu.insert.bold" ),
                                                 "Shortcut+B", BOLD,
                                                 e -> getActiveEditor().surroundSelection(
-                                                  "**", "**" ),
+                                                    "**", "**" ),
                                                 activeFileEditorIsNull );
     final Action insertItalicAction = new Action(
-      get( "Main.menu.insert.italic" ), "Shortcut+I", ITALIC,
-      e -> getActiveEditor().surroundSelection( "*", "*" ),
-      activeFileEditorIsNull );
+        get( "Main.menu.insert.italic" ), "Shortcut+I", ITALIC,
+        e -> getActiveEditor().surroundSelection( "*", "*" ),
+        activeFileEditorIsNull );
     final Action insertSuperscriptAction = new Action( get(
-      "Main.menu.insert.superscript" ), "Shortcut+[", SUPERSCRIPT,
+        "Main.menu.insert.superscript" ), "Shortcut+[", SUPERSCRIPT,
                                                        e -> getActiveEditor().surroundSelection(
-                                                         "^", "^" ),
+                                                           "^", "^" ),
                                                        activeFileEditorIsNull );
     final Action insertSubscriptAction = new Action( get(
-      "Main.menu.insert.subscript" ), "Shortcut+]", SUBSCRIPT,
+        "Main.menu.insert.subscript" ), "Shortcut+]", SUBSCRIPT,
                                                      e -> getActiveEditor().surroundSelection(
-                                                       "~", "~" ),
+                                                         "~", "~" ),
                                                      activeFileEditorIsNull );
     final Action insertStrikethroughAction = new Action( get(
-      "Main.menu.insert.strikethrough" ), "Shortcut+T", STRIKETHROUGH,
+        "Main.menu.insert.strikethrough" ), "Shortcut+T", STRIKETHROUGH,
                                                          e -> getActiveEditor().surroundSelection(
-                                                           "~~", "~~" ),
+                                                             "~~", "~~" ),
                                                          activeFileEditorIsNull );
     final Action insertBlockquoteAction = new Action( get(
-      "Main.menu.insert.blockquote" ), "Ctrl+Q", QUOTE_LEFT, // not Shortcut+Q because of conflict on Mac
+        "Main.menu.insert.blockquote" ),
+                                                      "Ctrl+Q",
+                                                      QUOTE_LEFT,
+                                                      // not Shortcut+Q
+                                                      // because of conflict
+                                                      // on Mac
                                                       e -> getActiveEditor().surroundSelection(
-                                                        "\n\n> ", "" ),
+                                                          "\n\n> ", "" ),
                                                       activeFileEditorIsNull );
     final Action insertCodeAction = new Action( get( "Main.menu.insert.code" ),
                                                 "Shortcut+K", CODE,
                                                 e -> getActiveEditor().surroundSelection(
-                                                  "`", "`" ),
+                                                    "`", "`" ),
                                                 activeFileEditorIsNull );
     final Action insertFencedCodeBlockAction = new Action( get(
-      "Main.menu.insert.fenced_code_block" ), "Shortcut+Shift+K", FILE_CODE_ALT,
-                                                           e -> getActiveEditor().surroundSelection(
-                                                             "\n\n```\n",
-                                                             "\n```\n\n", get(
-                                                               "Main.menu.insert.fenced_code_block.prompt" ) ),
+        "Main.menu.insert.fenced_code_block" ),
+                                                           "Shortcut+Shift+K",
+                                                           FILE_CODE_ALT,
+                                                           e -> getActiveEditor()
+                                                               .surroundSelection(
+                                                                   "\n\n```\n",
+                                                                   "\n```\n\n",
+                                                                   get(
+                                                                       "Main.menu.insert.fenced_code_block.prompt" ) ),
                                                            activeFileEditorIsNull );
 
     final Action insertLinkAction = new Action( get( "Main.menu.insert.link" ),
                                                 "Shortcut+L", LINK,
                                                 e -> getActiveEditor().insertLink(),
                                                 activeFileEditorIsNull );
-    final Action insertImageAction = new Action( get( "Main.menu.insert.image" ),
+    final Action insertImageAction = new Action( get( "Main.menu.insert" +
+                                                          ".image" ),
                                                  "Shortcut+G", PICTURE_ALT,
                                                  e -> getActiveEditor().insertImage(),
                                                  activeFileEditorIsNull );
@@ -962,30 +970,30 @@ public class MainWindow implements Observer {
 
       headers[ i - 1 ] = new Action( text, accelerator, HEADER,
                                      e -> getActiveEditor().surroundSelection(
-                                       markup, "", prompt ),
+                                         markup, "", prompt ),
                                      activeFileEditorIsNull );
     }
 
     final Action insertUnorderedListAction = new Action(
-      get( "Main.menu.insert.unordered_list" ), "Shortcut+U", LIST_UL,
-      e -> getActiveEditor().surroundSelection( "\n\n* ", "" ),
-      activeFileEditorIsNull );
+        get( "Main.menu.insert.unordered_list" ), "Shortcut+U", LIST_UL,
+        e -> getActiveEditor().surroundSelection( "\n\n* ", "" ),
+        activeFileEditorIsNull );
     final Action insertOrderedListAction = new Action(
-      get( "Main.menu.insert.ordered_list" ), "Shortcut+Shift+O", LIST_OL,
-      e -> getActiveEditor().surroundSelection( "\n\n1. ", "" ),
-      activeFileEditorIsNull );
+        get( "Main.menu.insert.ordered_list" ), "Shortcut+Shift+O", LIST_OL,
+        e -> getActiveEditor().surroundSelection( "\n\n1. ", "" ),
+        activeFileEditorIsNull );
     final Action insertHorizontalRuleAction = new Action(
-      get( "Main.menu.insert.horizontal_rule" ), "Shortcut+H", null,
-      e -> getActiveEditor().surroundSelection( "\n\n---\n\n", "" ),
-      activeFileEditorIsNull );
+        get( "Main.menu.insert.horizontal_rule" ), "Shortcut+H", null,
+        e -> getActiveEditor().surroundSelection( "\n\n---\n\n", "" ),
+        activeFileEditorIsNull );
 
     // Tools actions
     final Action toolsScriptAction = new Action(
-      get( "Main.menu.tools.script" ), null, null, e -> toolsScript() );
+        get( "Main.menu.tools.script" ), null, null, e -> toolsScript() );
 
     // Help actions
     final Action helpAboutAction = new Action(
-      get( "Main.menu.help.about" ), null, null, e -> helpAbout() );
+        get( "Main.menu.help.about" ), null, null, e -> helpAbout() );
 
     //---- MenuBar ----
     final Menu fileMenu = ActionUtils.createMenu( get( "Main.menu.file" ),
@@ -1037,32 +1045,36 @@ public class MainWindow implements Observer {
     final Menu helpMenu = ActionUtils.createMenu( get( "Main.menu.help" ),
                                                   helpAboutAction );
 
-    menuBar = new MenuBar( fileMenu, editMenu, insertMenu, toolsMenu, helpMenu );
+    menuBar = new MenuBar( fileMenu,
+                           editMenu,
+                           insertMenu,
+                           toolsMenu,
+                           helpMenu );
 
     //---- ToolBar ----
     ToolBar toolBar = ActionUtils.createToolBar(
-      fileNewAction,
-      fileOpenAction,
-      fileSaveAction,
-      null,
-      editUndoAction,
-      editRedoAction,
-      null,
-      insertBoldAction,
-      insertItalicAction,
-      insertSuperscriptAction,
-      insertSubscriptAction,
-      insertBlockquoteAction,
-      insertCodeAction,
-      insertFencedCodeBlockAction,
-      null,
-      insertLinkAction,
-      insertImageAction,
-      null,
-      headers[ 0 ],
-      null,
-      insertUnorderedListAction,
-      insertOrderedListAction );
+        fileNewAction,
+        fileOpenAction,
+        fileSaveAction,
+        null,
+        editUndoAction,
+        editRedoAction,
+        null,
+        insertBoldAction,
+        insertItalicAction,
+        insertSuperscriptAction,
+        insertSubscriptAction,
+        insertBlockquoteAction,
+        insertCodeAction,
+        insertFencedCodeBlockAction,
+        null,
+        insertLinkAction,
+        insertImageAction,
+        null,
+        headers[ 0 ],
+        null,
+        insertUnorderedListAction,
+        insertOrderedListAction );
 
     return new VBox( menuBar, toolBar );
   }
@@ -1072,7 +1084,7 @@ public class MainWindow implements Observer {
    * active editor.
    */
   private BooleanProperty createActiveBooleanProperty(
-    final Function<FileEditorTab, ObservableBooleanValue> func ) {
+      final Function<FileEditorTab, ObservableBooleanValue> func ) {
 
     final BooleanProperty b = new SimpleBooleanProperty();
     final FileEditorTab tab = getActiveFileEditor();
@@ -1082,16 +1094,16 @@ public class MainWindow implements Observer {
     }
 
     getFileEditorPane().activeFileEditorProperty().addListener(
-      (observable, oldFileEditor, newFileEditor) -> {
-        b.unbind();
+        ( observable, oldFileEditor, newFileEditor ) -> {
+          b.unbind();
 
-        if( newFileEditor != null ) {
-          b.bind( func.apply( newFileEditor ) );
+          if( newFileEditor != null ) {
+            b.bind( func.apply( newFileEditor ) );
+          }
+          else {
+            b.set( false );
+          }
         }
-        else {
-          b.set( false );
-        }
-      }
     );
 
     return b;
@@ -1105,26 +1117,26 @@ public class MainWindow implements Observer {
     // TODO: Apply an XML syntax highlighting for XML files.
 //    appScene.getStylesheets().add( STYLESHEET_XML );
     appScene.windowProperty().addListener(
-      (observable, oldWindow, newWindow) -> {
-        newWindow.setOnCloseRequest( e -> {
-          if( !getFileEditorPane().closeAllEditors() ) {
-            e.consume();
-          }
-        } );
-
-        // Workaround JavaFX bug: deselect menubar if window loses focus.
-        newWindow.focusedProperty().addListener(
-          (obs, oldFocused, newFocused) -> {
-            if( !newFocused ) {
-              // Send an ESC key event to the menubar
-              this.menuBar.fireEvent(
-                new KeyEvent(
-                  KEY_PRESSED, CHAR_UNDEFINED, "", ESCAPE,
-                  false, false, false, false ) );
+        ( observable, oldWindow, newWindow ) -> {
+          newWindow.setOnCloseRequest( e -> {
+            if( !getFileEditorPane().closeAllEditors() ) {
+              e.consume();
             }
-          }
-        );
-      }
+          } );
+
+          // Workaround JavaFX bug: deselect menubar if window loses focus.
+          newWindow.focusedProperty().addListener(
+              ( obs, oldFocused, newFocused ) -> {
+                if( !newFocused ) {
+                  // Send an ESC key event to the menubar
+                  this.menuBar.fireEvent(
+                      new KeyEvent(
+                          KEY_PRESSED, CHAR_UNDEFINED, "", ESCAPE,
+                          false, false, false, false ) );
+                }
+              }
+          );
+        }
     );
   }
 }

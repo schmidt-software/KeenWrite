@@ -58,11 +58,11 @@ compileJava {
   options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
 }
 
+sourceCompatibility = JavaVersion.VERSION_11
 version = '1.4.0'
 applicationName = 'scrivenvar'
-mainClassName = 'com.scrivenvar.MainFx'
-def launcherClassName = 'com.scrivenvar.Main'
-sourceCompatibility = JavaVersion.VERSION_11
+mainClassName = 'com.scrivenvar.Main'
+def launcherClassName = 'com.scrivenvar.Launcher'
 
 jar {
   manifest {

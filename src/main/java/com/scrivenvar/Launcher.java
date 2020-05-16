@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2015 Karl Tauber <karl at jformdesigner dot com>
+ * Copyright 2020 White Magic Software, Ltd.
+ *
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -24,41 +25,18 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.scrivenvar.controls;
-
-import com.scrivenvar.Main;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
-import javafx.scene.control.Hyperlink;
+package com.scrivenvar;
 
 /**
- * Opens a web site in the default web browser.
+ * Launches the application using the {@link Main} class.
  *
- * @author Karl Tauber
+ * <p>
+ * This is required until modules are implemented, which may never happen
+ * because the application should be ported away from Java and JavaFX.
+ * </p>
  */
-public class WebHyperlink extends Hyperlink {
-
-  // 'uri' property
-  private final StringProperty uri = new SimpleStringProperty();
-
-  public WebHyperlink() {
-    setStyle( "-fx-padding: 0; -fx-border-width: 0" );
-  }
-
-  @Override
-  public void fire() {
-    Main.showDocument( getUri() );
-  }
-
-  public String getUri() {
-    return uri.get();
-  }
-
-  public void setUri( String uri ) {
-    this.uri.set( uri );
-  }
-
-  public StringProperty uriProperty() {
-    return uri;
+public class Launcher {
+  public static void main( final String[] args ) {
+    Main.main( args );
   }
 }

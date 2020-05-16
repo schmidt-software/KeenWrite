@@ -30,6 +30,7 @@ package com.scrivenvar.processors;
 import com.scrivenvar.Services;
 import com.scrivenvar.service.Options;
 import com.scrivenvar.service.events.Notifier;
+import org.renjin.eval.EvalException;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
@@ -95,8 +96,9 @@ public final class InlineRProcessor extends DefaultVariableProcessor {
         final String rScript = replace( initScript, getDefinitions() );
         eval( rScript );
       }
-    } catch( final ScriptException e ) {
-      throw new RuntimeException( e );
+    } catch( final Exception e ) {
+      // Tell the user that there was a problem.
+      getNotifier().notify( e.getMessage() );
     }
   }
 
@@ -186,7 +188,7 @@ public final class InlineRProcessor extends DefaultVariableProcessor {
    * @param r The expression to evaluate.
    * @return The object resulting from the evaluation.
    */
-  private Object eval( final String r ) throws ScriptException {
+  private Object eval( final String r ) throws ScriptException, EvalException {
     return getScriptEngine().eval( r );
   }
 

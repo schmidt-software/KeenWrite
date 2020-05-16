@@ -27,14 +27,15 @@
  */
 package com.scrivenvar.service.events;
 
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
+import javafx.stage.Window;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Observer;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
-import javafx.stage.Window;
 
 /**
  * Provides the application with a uniform way to notify the user of events.
@@ -43,93 +44,89 @@ import javafx.stage.Window;
  */
 public interface Notifier {
 
-  public static final ButtonType YES = ButtonType.YES;
-  public static final ButtonType NO = ButtonType.NO;
-  public static final ButtonType CANCEL = ButtonType.CANCEL;
+  ButtonType YES = ButtonType.YES;
+  ButtonType NO = ButtonType.NO;
+  ButtonType CANCEL = ButtonType.CANCEL;
 
   /**
    * Notifies the user of a problem.
    *
    * @param message The problem description.
    */
-  public void notify( final String message );
+  void notify( final String message );
 
   /**
    * Notifies the user about the exception.
    *
    * @param ex The exception containing a message to show to the user.
    */
-  default public void notify( final Exception ex ) {
+  default void notify( final Exception ex ) {
     log( ex );
     notify( ex.getMessage() );
   }
-  
+
   /**
    * Writes the exception to a log file. The log file should be written
    * in the System's temporary directory.
-   * 
+   *
    * @param ex The exception to show in the status bar and log to a file.
    */
-  default public void log( final Exception ex ) {
-    try (
-      final FileWriter fw = new FileWriter( getLogPath(), true );
-      final PrintWriter pw = new PrintWriter( fw )
-      ) {
-
+  default void log( final Exception ex ) {
+    try(
+        final FileWriter fw = new FileWriter( getLogPath(), true );
+        final PrintWriter pw = new PrintWriter( fw )
+    ) {
       ex.printStackTrace( pw );
-    } catch (final IOException ioe) {
+    } catch( final IOException ioe ) {
       // The notify method will display the message on the status
       // bar.
     }
   }
-  
+
   /**
    * Returns the fully qualified path to the log file to write to when
    * an exception occurs.
-   * 
+   *
    * @return Location of the log file for writing unexpected exceptions.
    */
-  public File getLogPath();
+  File getLogPath();
 
   /**
    * Causes any displayed notifications to disappear.
    */
-  public void clear();
+  void clear();
 
   /**
    * Constructs a default alert message text for a modal alert dialog.
    *
-   * @param title The dialog box message title.
+   * @param title   The dialog box message title.
    * @param message The dialog box message content (needs formatting).
-   * @param args The arguments to the message content that must be formatted.
-   *
+   * @param args    The arguments to the message content that must be formatted.
    * @return The message suitable for building a modal alert dialog.
    */
-  public Notification createNotification(
-    String title,
-    String message,
-    Object... args );
+  Notification createNotification(
+      String title,
+      String message,
+      Object... args );
 
   /**
    * Creates an alert of alert type error with a message showing the cause of
    * the error.
    *
-   * @param parent Dialog box owner (for modal purposes).
+   * @param parent  Dialog box owner (for modal purposes).
    * @param message The error message, title, and possibly more details.
-   *
    * @return A modal alert dialog box ready to display using showAndWait.
    */
-  public Alert createError( Window parent, Notification message );
+  Alert createError( Window parent, Notification message );
 
   /**
    * Creates an alert of alert type confirmation with Yes/No/Cancel buttons.
    *
-   * @param parent Dialog box owner (for modal purposes).
+   * @param parent  Dialog box owner (for modal purposes).
    * @param message The message, title, and possibly more details.
-   *
    * @return A modal alert dialog box ready to display using showAndWait.
    */
-  public Alert createConfirmation( Window parent, Notification message );
+  Alert createConfirmation( Window parent, Notification message );
 
   /**
    * Adds an observer to the list of objects that receive notifications about
@@ -137,7 +134,7 @@ public interface Notifier {
    *
    * @param observer The observer instance to notify.
    */
-  public void addObserver( Observer observer );
+  void addObserver( Observer observer );
 
   /**
    * Removes an observer from the list of objects that receive notifications
@@ -145,5 +142,5 @@ public interface Notifier {
    *
    * @param observer The observer instance to no longer notify.
    */
-  public void deleteObserver( Observer observer );
+  void deleteObserver( Observer observer );
 }

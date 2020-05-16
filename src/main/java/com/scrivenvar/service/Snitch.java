@@ -44,9 +44,9 @@ public interface Snitch extends Service, Runnable {
    * notifications will be delivered to multiple observers is not specified.
    *
    * @param o The object to receive changed events for when monitored files
-   * are changed.
+   *          are changed.
    */
-  public void addObserver( Observer o );
+  void addObserver( Observer o );
 
   /**
    * Listens for changes to the path. If the path specifies a file, then only
@@ -56,20 +56,19 @@ public interface Snitch extends Service, Runnable {
    * or events.
    *
    * @param file Send notifications when this file changes, can be null.
-   *
    * @throws IOException Couldn't create a watcher for the given file.
    */
-  public void listen( Path file ) throws IOException;
+  void listen( Path file ) throws IOException;
 
   /**
    * Removes the given file from the notifications list.
    *
    * @param file The file to stop monitoring for any changes, can be null.
    */
-  public void ignore( Path file );
+  void ignore( Path file );
 
   /**
    * Stop listening for events.
    */
-  public void stop();
+  void stop();
 }

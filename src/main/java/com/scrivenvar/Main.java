@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 White Magic Software, Ltd.
+ * Copyright 2016 Karl Tauber and White Magic Software, Ltd.
  *
  * All rights reserved.
  *
@@ -27,11 +27,156 @@
  */
 package com.scrivenvar;
 
+import com.scrivenvar.preferences.FilePreferencesFactory;
+import com.scrivenvar.service.Options;
+import com.scrivenvar.service.Snitch;
+import com.scrivenvar.service.events.Notifier;
+import com.scrivenvar.util.StageState;
+import javafx.application.Application;
+import javafx.scene.Scene;
+import javafx.scene.image.Image;
+import javafx.stage.Stage;
+
+import java.util.logging.LogManager;
+
+import static com.scrivenvar.Constants.*;
+import static com.scrivenvar.Messages.get;
+
 /**
- * Delegates to launching the application using the {@link MainFx} class.
+ * Application entry point. The application allows users to edit Markdown
+ * files and see a real-time preview of the edits.
+ *
+ * @author Karl Tauber and White Magic Software, Ltd.
  */
-public class Main {
+public final class Main extends Application {
+
+  // Suppress logging errors to standard output.
+  static {
+    LogManager.getLogManager().reset();
+  }
+
+  private static Application sApplication;
+
+  private final Options mOptions = Services.load( Options.class );
+  private final Notifier mNotifier = Services.load( Notifier.class );
+  private final Snitch mSnitch = Services.load( Snitch.class );
+  private final Thread mSnitchThread = new Thread( getSnitch() );
+  private final MainWindow mMainWindow = new MainWindow();
+
+  private StageState mStageState;
+
   public static void main( final String[] args ) {
-    MainFx.main( args );
+    initPreferences();
+    launch( args );
+  }
+
+  /**
+   * Sets the factory used for reading user preferences.
+   */
+  private static void initPreferences() {
+    System.setProperty(
+        "java.util.prefs.PreferencesFactory",
+        FilePreferencesFactory.class.getName()
+    );
+  }
+
+  /**
+   * Application entry point.
+   *
+   * @param stage The primary application stage.
+   */
+  @Override
+  public void start( final Stage stage ) {
+    initApplication();
+    initNotifyService();
+    initState( stage );
+    initStage( stage );
+    initSnitch();
+
+    stage.show();
+  }
+
+  public static void showDocument( final String uri ) {
+    getApplication().getHostServices().showDocument( uri );
+  }
+
+  private void initApplication() {
+    sApplication = this;
+  }
+
+  /**
+   * Constructs the notify service and appends the main window to the list of
+   * notification observers.
+   */
+  private void initNotifyService() {
+    mNotifier.addObserver( getMainWindow() );
+  }
+
+  private void initState( final Stage stage ) {
+    mStageState = new StageState( stage, getOptions().getState() );
+  }
+
+  private void initStage( final Stage stage ) {
+    stage.getIcons().addAll(
+        createImage( FILE_LOGO_16 ),
+        createImage( FILE_LOGO_32 ),
+        createImage( FILE_LOGO_128 ),
+        createImage( FILE_LOGO_256 ),
+        createImage( FILE_LOGO_512 ) );
+    stage.setTitle( getApplicationTitle() );
+    stage.setScene( getScene() );
+  }
+
+  /**
+   * Watch for file system changes.
+   */
+  private void initSnitch() {
+    getSnitchThread().start();
+  }
+
+  /**
+   * Stops the snitch service, if its running.
+   *
+   * @throws InterruptedException Couldn't stop the snitch thread.
+   */
+  @Override
+  public void stop() throws InterruptedException {
+    getSnitch().stop();
+
+    final Thread thread = getSnitchThread();
+    thread.interrupt();
+    thread.join();
+  }
+
+  private synchronized Snitch getSnitch() {
+    return mSnitch;
+  }
+
+  private Thread getSnitchThread() {
+    return mSnitchThread;
+  }
+
+  private synchronized Options getOptions() {
+    return mOptions;
+  }
+
+  private Scene getScene() {
+    return getMainWindow().getScene();
+  }
+
+  private MainWindow getMainWindow() {
+    return mMainWindow;
+  }
+
+  private static Application getApplication() {
+    return sApplication;
+  }
+
+  private String getApplicationTitle() {
+    return get( "Main.title" );
+  }
+
+  private Image createImage( final String filename ) {
+    return new Image( filename );
   }
 }
