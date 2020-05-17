@@ -150,16 +150,15 @@ Continue as follows:
 1. Click **R → Script**.
 1. Append the following:
     ``` r
-    x <- function( s ) {
-      tryCatch({
-        r = eval( parse( text = s ) )
+		x <- function( s ) {
+			tryCatch( {
+				r = eval( parse( text = s ) )
 
-        if( is.atomic( r ) ) { r }
-        else { s }
-      },
-      warning = function( w ) { s },
-      error = function( e ) { s })
-    }
+				ifelse( is.atomic( r ), r, s );
+			},
+			warning = function( w ) { s },
+			error = function( e ) { s } )
+		}
     ```
 1. Click **OK**.
 1. Close and re-open `sum.Rmd`.
