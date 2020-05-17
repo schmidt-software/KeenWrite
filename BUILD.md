@@ -13,7 +13,17 @@ Download and install the following software packages:
 
 Build the application as follows:
 
-    gradle jar
+    gradle clean jar
 
 The application is built.
+
+# Run
+
+After the application is compiled, run it as follows:
+
+    java -jar build/libs/scrivenvar.jar
+
+On Windows:
+
+    java -jar build\libs\scrivenvar.jar
 

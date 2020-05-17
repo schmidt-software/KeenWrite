@@ -65,6 +65,8 @@ mainClassName = 'com.scrivenvar.Main'
 def launcherClassName = 'com.scrivenvar.Launcher'
 
 jar {
+  duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
   manifest {
     attributes 'Main-Class': launcherClassName
   }

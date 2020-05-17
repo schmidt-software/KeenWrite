@@ -1,6 +1,6 @@
 # License
 
-Copyright 2018 White Magic Software, Ltd.
+Copyright 2020 White Magic Software, Ltd.
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without

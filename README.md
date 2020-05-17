@@ -2,7 +2,7 @@
 
 # $application.title$
 
-Word processing with variables.
+Text editing using interpolated strings.
 
 ## Requirements
 
@@ -14,8 +14,17 @@ Download and install the following software packages:
 
 Complete the following steps to run the application:
 
-1. [Download](https://github.com/DaveJarvis/scrivenvar/releases) `scrivenvar.jar`.
+1. [Download](https://github.com/DaveJarvis/scrivenvar/releases)
+`scrivenvar.jar`.
 1. Double-click `scrivenvar.jar` to start the application.
+
+## Command Line Start
+
+If the quick start fails, run the application as follows:
+
+1. Open a command prompt.
+1. Change to the download directory containing the archive file.
+1. Run: `java -jar scrivenvar.jar`
 
 ## Features
 
