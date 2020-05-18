@@ -2,7 +2,7 @@
 
 # $application.title$
 
-A text editor that offers [interpolated strings](https://en.wikipedia.org/wiki/String_interpolation).
+A text editor that uses [interpolated strings](https://en.wikipedia.org/wiki/String_interpolation) to reference externally defined values.
 
 ## Requirements
 
