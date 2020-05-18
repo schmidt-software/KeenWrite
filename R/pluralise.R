@@ -1,6 +1,5 @@
-# ######################################################################
-#
-# Copyright 2016, White Magic Software, Ltd.
+# -----------------------------------------------------------------------------
+# Copyright 2020, White Magic Software, Ltd.
 # 
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,19 +19,15 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-# ######################################################################
+# -----------------------------------------------------------------------------
 
-# ######################################################################
-#
+# -----------------------------------------------------------------------------
 # See Damian Conway's "An Algorithmic Approach to English Pluralization":
 #   http://goo.gl/oRL4MP
 # See Oliver Glerke's Evo Inflector: https://github.com/atteo/evo-inflector/
 # See Shevek's Pluralizer: https://github.com/shevek/linguistics/
 # See also: http://www.freevectors.net/assets/files/plural.txt
-#
-# ######################################################################
-
+# -----------------------------------------------------------------------------
 pluralise <- function( s, n ) {
   result <- s
 
@@ -120,17 +115,23 @@ pluralise <- function( s, n ) {
   result
 }
 
+# -----------------------------------------------------------------------------
 # Returns the given string (s) with its suffix replaced by r.
+# -----------------------------------------------------------------------------
 pl.inflect <- function( s, suffix, r ) {
   gsub( paste( suffix, "$", sep="" ), r, s )
 }
 
+# -----------------------------------------------------------------------------
 # Answers whether the given string (s) has the given ending.
+# -----------------------------------------------------------------------------
 pl.suffix <- function( ending, s ) {
   grepl( paste( ending, "$", sep="" ), s )
 }
 
+# -----------------------------------------------------------------------------
 # Answers whether the given string (s) is a noninflective noun.
+# -----------------------------------------------------------------------------
 pl.noninflective <- function( s ) {
   v <- c(
     "aircraft",
@@ -190,7 +191,9 @@ pl.noninflective <- function( s ) {
   is.element( s, v )
 }
 
+# -----------------------------------------------------------------------------
 # Answers whether the given string (s) is an irregular plural.
+# -----------------------------------------------------------------------------
 pl.is.irregular.pl <- function( s ) {
   # Could be refactored with pl.irregular.pl...
   v <- c(
@@ -201,8 +204,10 @@ pl.is.irregular.pl <- function( s ) {
   is.element( s, v )
 }
 
+# -----------------------------------------------------------------------------
 # Call to pluralise an irregular noun. Only call after confirming
 # the noun is irregular via pl.is.irregular.pl.
+# -----------------------------------------------------------------------------
 pl.irregular.pl <- function( s ) {
   v <- list(
     "beef" = "beefs",
@@ -224,7 +229,9 @@ pl.irregular.pl <- function( s ) {
   .subset2( v, s )
 }
 
+# -----------------------------------------------------------------------------
 # Answers whether the given string (s) pluralises with -es.
+# -----------------------------------------------------------------------------
 pl.is.irregular.es <- function( s ) {
   v <- c(
     "acropolis", "aegis", "alias", "asbestos", "bathos", "bias", "bronchitis",

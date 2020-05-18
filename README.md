@@ -2,7 +2,7 @@
 
 # $application.title$
 
-Text editing using interpolated strings.
+A text editors that offers [interpolated strings](https://en.wikipedia.org/wiki/String_interpolation).
 
 ## Requirements
 
@@ -34,6 +34,13 @@ If the quick start fails, run the application as follows:
 * Auto-complete variable names based on variable values
 * XML document transformation using XSLT3 or older
 * Platform independent (Windows, Linux, MacOS)
+
+## Usage
+
+See the following documents for more information:
+
+* [USAGE.md](USAGE.md) - how variable definitions and string interpolation work.
+* [USAGE-R.md](USAGE-R.md) - how to call R functions in R Markdown documents.
 
 ## Future Features
 

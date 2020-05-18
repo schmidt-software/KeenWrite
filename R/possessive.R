@@ -1,6 +1,5 @@
-# ######################################################################
-#
-# Copyright 2017, White Magic Software, Ltd.
+# -----------------------------------------------------------------------------
+# Copyright 2020, White Magic Software, Ltd.
 # 
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -20,40 +19,27 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-# ######################################################################
+# -----------------------------------------------------------------------------
 
-# ######################################################################
-#
-# Changes a word into its possessive form.
-#
-# ######################################################################
-
+# -----------------------------------------------------------------------------
 # Returns leftmost n characters of s.
+# -----------------------------------------------------------------------------
 lstr <- function( s, n = 1 ) {
   substr( s, 0, n )
 }
 
+# -----------------------------------------------------------------------------
 # Returns rightmost n characters of s.
+# -----------------------------------------------------------------------------
 rstr <- function( s, n = 1 ) {
   l = nchar( s )
   substr( s, l - n + 1, l )
 }
 
-# Returns the possessive form of the given word.
+# -----------------------------------------------------------------------------
+# Returns the possessive form of the given word, s.
+# -----------------------------------------------------------------------------
 pos <- function( s ) {
-  result <- s
-
-  # Check to see if the last character is an s.
-  ch <- rstr( s, 1 )
-
-  if( ch != "s" ) {
-    result <- concat( result, "'s" )
-  }
-  else {
-    result <- concat( result, "'" )
-  }
-
-  result
+  paste0( s, ifelse( rstr( s, 1 ) == 's', "'" ,"'s" ) )
 }
 
