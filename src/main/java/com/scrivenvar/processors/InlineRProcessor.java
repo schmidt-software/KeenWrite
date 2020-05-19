@@ -151,8 +151,8 @@ public final class InlineRProcessor extends DefaultVariableProcessor {
           sb.append( PREFIX ).append( r ).append( SUFFIX );
 
           // Tell the user that there was a problem.
-          getNotifier().notify( get( STATUS_PARSE_ERROR,
-                                     e.getMessage(), currIndex )
+          getNotifier().notify(
+              get( STATUS_PARSE_ERROR, e.getMessage(), currIndex )
           );
         }
 

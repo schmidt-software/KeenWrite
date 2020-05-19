@@ -2,16 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="3dcf7c8f-87b5-4d25-a804-39da40a621b8" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/rGraphicsSettings.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/rpackages.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/Constants.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/Constants.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/MainWindow.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/MainWindow.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/Messages.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/Messages.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/dialogs/RScriptDialog.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/dialogs/RScriptDialog.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/processors/InlineRProcessor.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/processors/InlineRProcessor.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/processors/ProcessorFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/processors/ProcessorFactory.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/com/scrivenvar/messages.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/com/scrivenvar/messages.properties" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -71,6 +64,8 @@
   </component>
   <component name="PropertiesComponent">
     <property name="ASKED_ADD_EXTERNAL_FILES" value="true" />
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1541653415064" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
@@ -180,38 +175,38 @@
       <screen x="0" y="28" width="2560" height="1529" />
     </state>
     <state x="610" y="411" width="426" height="481" key="FileChooserDialogImpl/0.28.2560.1529@0.28.2560.1529" timestamp="1589659107517" />
-    <state width="1573" height="321" key="GridCell.Tab.0.bottom" timestamp="1589671859570">
+    <state width="1573" height="396" key="GridCell.Tab.0.bottom" timestamp="1589845568950">
       <screen x="0" y="28" width="2560" height="1529" />
     </state>
-    <state width="1573" height="321" key="GridCell.Tab.0.bottom/0.28.2560.1529@0.28.2560.1529" timestamp="1589671859570" />
-    <state width="1573" height="321" key="GridCell.Tab.0.center" timestamp="1589671859569">
+    <state width="1573" height="396" key="GridCell.Tab.0.bottom/0.28.2560.1529@0.28.2560.1529" timestamp="1589845568950" />
+    <state width="1573" height="396" key="GridCell.Tab.0.center" timestamp="1589845568949">
       <screen x="0" y="28" width="2560" height="1529" />
     </state>
-    <state width="1573" height="321" key="GridCell.Tab.0.center/0.28.2560.1529@0.28.2560.1529" timestamp="1589671859569" />
-    <state width="1573" height="321" key="GridCell.Tab.0.left" timestamp="1589671859569">
+    <state width="1573" height="396" key="GridCell.Tab.0.center/0.28.2560.1529@0.28.2560.1529" timestamp="1589845568949" />
+    <state width="1573" height="396" key="GridCell.Tab.0.left" timestamp="1589845568949">
       <screen x="0" y="28" width="2560" height="1529" />
     </state>
-    <state width="1573" height="321" key="GridCell.Tab.0.left/0.28.2560.1529@0.28.2560.1529" timestamp="1589671859569" />
-    <state width="1573" height="321" key="GridCell.Tab.0.right" timestamp="1589671859570">
+    <state width="1573" height="396" key="GridCell.Tab.0.left/0.28.2560.1529@0.28.2560.1529" timestamp="1589845568949" />
+    <state width="1573" height="396" key="GridCell.Tab.0.right" timestamp="1589845568949">
       <screen x="0" y="28" width="2560" height="1529" />
     </state>
-    <state width="1573" height="321" key="GridCell.Tab.0.right/0.28.2560.1529@0.28.2560.1529" timestamp="1589671859570" />
-    <state width="1573" height="396" key="GridCell.Tab.1.bottom" timestamp="1589671859555">
+    <state width="1573" height="396" key="GridCell.Tab.0.right/0.28.2560.1529@0.28.2560.1529" timestamp="1589845568949" />
+    <state width="1573" height="396" key="GridCell.Tab.1.bottom" timestamp="1589845568954">
       <screen x="0" y="28" width="2560" height="1529" />
     </state>
-    <state width="1573" height="396" key="GridCell.Tab.1.bottom/0.28.2560.1529@0.28.2560.1529" timestamp="1589671859555" />
-    <state width="1573" height="396" key="GridCell.Tab.1.center" timestamp="1589671859555">
+    <state width="1573" height="396" key="GridCell.Tab.1.bottom/0.28.2560.1529@0.28.2560.1529" timestamp="1589845568954" />
+    <state width="1573" height="396" key="GridCell.Tab.1.center" timestamp="1589845568954">
       <screen x="0" y="28" width="2560" height="1529" />
     </state>
-    <state width="1573" height="396" key="GridCell.Tab.1.center/0.28.2560.1529@0.28.2560.1529" timestamp="1589671859555" />
-    <state width="1573" height="396" key="GridCell.Tab.1.left" timestamp="1589671859554">
+    <state width="1573" height="396" key="GridCell.Tab.1.center/0.28.2560.1529@0.28.2560.1529" timestamp="1589845568954" />
+    <state width="1573" height="396" key="GridCell.Tab.1.left" timestamp="1589845568950">
       <screen x="0" y="28" width="2560" height="1529" />
     </state>
-    <state width="1573" height="396" key="GridCell.Tab.1.left/0.28.2560.1529@0.28.2560.1529" timestamp="1589671859554" />
-    <state width="1573" height="396" key="GridCell.Tab.1.right" timestamp="1589671859555">
+    <state width="1573" height="396" key="GridCell.Tab.1.left/0.28.2560.1529@0.28.2560.1529" timestamp="1589845568950" />
+    <state width="1573" height="396" key="GridCell.Tab.1.right" timestamp="1589845568954">
       <screen x="0" y="28" width="2560" height="1529" />
     </state>
-    <state width="1573" height="396" key="GridCell.Tab.1.right/0.28.2560.1529@0.28.2560.1529" timestamp="1589671859555" />
+    <state width="1573" height="396" key="GridCell.Tab.1.right/0.28.2560.1529@0.28.2560.1529" timestamp="1589845568954" />
     <state x="324" y="288" key="SettingsEditor" timestamp="1589576619807">
       <screen x="0" y="28" width="2560" height="1529" />
     </state>

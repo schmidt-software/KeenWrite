@@ -32,7 +32,7 @@ lstr <- function( s, n = 1 ) {
 # Returns rightmost n characters of s.
 # -----------------------------------------------------------------------------
 rstr <- function( s, n = 1 ) {
-  l = nchar( s )
+  l <- nchar( s )
   substr( s, l - n + 1, l )
 }
 
@@ -40,6 +40,22 @@ rstr <- function( s, n = 1 ) {
 # Returns the possessive form of the given word, s.
 # -----------------------------------------------------------------------------
 pos <- function( s ) {
-  paste0( s, ifelse( rstr( s, 1 ) == 's', "'" ,"'s" ) )
+  lcs <- tolower( s )
+  pronouns <- c( 'your', 'our', 'her', 'it', 'their' )
+
+  if( lcs == 'my' ) {
+    # Change "[Mm]y" to "[Mm]ine".
+    s <- paste0( lstr( s, 1 ), "ine" )
+  }
+  else if( lcs %in% pronouns ) {
+    # Append an s to most pronouns.
+    s <- paste0( s, 's' )
+  }
+  else if( lcs != 'his' ) {
+    # Possessive for all other words except 'his'.
+    s <- paste0( s, ifelse( rstr( s, 1 ) == 's', "'" ,"'s" ) )
+  }
+
+  s
 }
 
