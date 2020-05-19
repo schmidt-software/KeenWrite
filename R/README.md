@@ -28,4 +28,6 @@ Example usages of the possessive function include:
     `r#pos( 'Ross' )` - Ross'
     `r#pos( 'Ruby' )` - Ruby's
     `r#pos( 'Lois' )` - Lois'
+    `r#pos( 'my' )` - mine'
+    `r#pos( 'Your' )` - Yours'
 
