@@ -59,7 +59,7 @@ compileJava {
 }
 
 sourceCompatibility = JavaVersion.VERSION_11
-version = '1.4.0'
+version = '1.4.1'
 applicationName = 'scrivenvar'
 mainClassName = 'com.scrivenvar.Main'
 def launcherClassName = 'com.scrivenvar.Launcher'
