@@ -78,9 +78,6 @@ import static com.scrivenvar.Messages.getLiteral;
 import static com.scrivenvar.util.StageState.*;
 import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.*;
 import static javafx.event.Event.fireEvent;
-import static javafx.scene.input.KeyCode.ESCAPE;
-import static javafx.scene.input.KeyEvent.CHAR_UNDEFINED;
-import static javafx.scene.input.KeyEvent.KEY_PRESSED;
 import static javafx.stage.WindowEvent.WINDOW_CLOSE_REQUEST;
 
 /**
@@ -95,7 +92,6 @@ public class MainWindow implements Observer {
   private final Notifier mNotifier = Services.load( Notifier.class );
 
   private Scene scene;
-  private MenuBar menuBar;
   private StatusBar statusBar;
   private Text lineNumberText;
   private TextField findTextField;
@@ -314,15 +310,6 @@ public class MainWindow implements Observer {
     final DefinitionPane pane = getDefinitionPane();
 
     return new VariableNameInjector( tab, pane );
-  }
-
-  /**
-   * Add a listener for variable name injection the given tab.
-   *
-   * @param tab The tab to inject variable names into upon a double-click.
-   */
-  private void initVariableNameInjector( final Tab tab ) {
-    final FileEditorTab editorTab = (FileEditorTab) tab;
   }
 
   /**
@@ -715,14 +702,6 @@ public class MainWindow implements Observer {
     return mNotifier;
   }
 
-  public void setMenuBar( final MenuBar menuBar ) {
-    this.menuBar = menuBar;
-  }
-
-  public MenuBar getMenuBar() {
-    return this.menuBar;
-  }
-
   private Text getLineNumberText() {
     if( this.lineNumberText == null ) {
       this.lineNumberText = createLineNumberText();
@@ -1062,14 +1041,15 @@ public class MainWindow implements Observer {
         get( "Main.menu.help" ),
         helpAboutAction );
 
-    menuBar = new MenuBar( fileMenu,
-                           editMenu,
-                           insertMenu,
-                           rMenu,
-                           helpMenu );
+    final MenuBar menuBar = new MenuBar(
+        fileMenu,
+        editMenu,
+        insertMenu,
+        rMenu,
+        helpMenu );
 
     //---- ToolBar ----
-    ToolBar toolBar = ActionUtils.createToolBar(
+    final ToolBar toolBar = ActionUtils.createToolBar(
         fileNewAction,
         fileOpenAction,
         fileSaveAction,
@@ -1140,19 +1120,6 @@ public class MainWindow implements Observer {
               e.consume();
             }
           } );
-
-          // Workaround JavaFX bug: deselect menubar if window loses focus.
-          newWindow.focusedProperty().addListener(
-              ( obs, oldFocused, newFocused ) -> {
-                if( !newFocused ) {
-                  // Send an ESC key event to the menubar
-                  this.menuBar.fireEvent(
-                      new KeyEvent(
-                          KEY_PRESSED, CHAR_UNDEFINED, "", ESCAPE,
-                          false, false, false, false ) );
-                }
-              }
-          );
         }
     );
   }

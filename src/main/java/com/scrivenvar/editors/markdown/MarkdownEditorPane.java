@@ -228,8 +228,8 @@ public class MarkdownEditorPane extends EditorPane {
   }
 
   private Path getParentPath() {
-    final Path parentPath = getPath();
-    return (parentPath != null) ? parentPath.getParent() : null;
+    final Path path = getPath();
+    return (path != null) ? path.getParent() : null;
   }
 
   private Dialog<String> createLinkDialog() {

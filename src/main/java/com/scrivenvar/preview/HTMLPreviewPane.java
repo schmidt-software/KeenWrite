@@ -29,10 +29,14 @@ package com.scrivenvar.preview;
 
 import static com.scrivenvar.Constants.CARET_POSITION_BASE;
 import static com.scrivenvar.Constants.STYLESHEET_PREVIEW;
+
 import java.nio.file.Path;
+
 import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Worker.State;
+
 import static javafx.concurrent.Worker.State.SUCCEEDED;
+
 import javafx.scene.Node;
 import javafx.scene.layout.Pane;
 import javafx.scene.web.WebEngine;
@@ -66,12 +70,12 @@ public final class HTMLPreviewPane extends Pane {
   private void initListeners() {
     // Scrolls to the caret after the content has been loaded.
     getEngine().getLoadWorker().stateProperty().addListener(
-      (ObservableValue<? extends State> observable,
-        final State oldValue, final State newValue) -> {
-        if( newValue == SUCCEEDED ) {
-          scrollToCaret();
-        }
-      } );
+        ( ObservableValue<? extends State> observable,
+          final State oldValue, final State newValue ) -> {
+          if( newValue == SUCCEEDED ) {
+            scrollToCaret();
+          }
+        } );
   }
 
   /**
@@ -82,10 +86,11 @@ public final class HTMLPreviewPane extends Pane {
    */
   private String getBase() {
     final Path basePath = getPath();
+    final Path parent = basePath.getParent();
 
-    return basePath == null
-      ? ""
-      : ("<base href='" + basePath.getParent().toUri().toString() + "'>");
+    return parent == null
+        ? ""
+        : ("<base href='" + parent.toUri().toString() + "'>");
   }
 
   /**
@@ -96,16 +101,17 @@ public final class HTMLPreviewPane extends Pane {
    */
   public void update( final String html ) {
     getEngine().loadContent(
-      "<!DOCTYPE html>"
-      + "<html>"
-      + "<head>"
-      + "<link rel='stylesheet' href='" + getClass().getResource( STYLESHEET_PREVIEW ) + "'>"
-      + getBase()
-      + "</head>"
-      + "<body>"
-      + html
-      + "</body>"
-      + "</html>" );
+        "<!DOCTYPE html>"
+            + "<html>"
+            + "<head>"
+            + "<link rel='stylesheet' href='" + getClass().getResource(
+            STYLESHEET_PREVIEW ) + "'>"
+            + getBase()
+            + "</head>"
+            + "<body>"
+            + html
+            + "</body>"
+            + "</html>" );
   }
 
   /**
@@ -121,7 +127,7 @@ public final class HTMLPreviewPane extends Pane {
   private void scrollToCaret() {
     execute( getScrollScript() );
   }
-  
+
   /**
    * Returns the JavaScript used to scroll the WebView pane.
    *
@@ -129,13 +135,14 @@ public final class HTMLPreviewPane extends Pane {
    */
   private String getScrollScript() {
     return ""
-      + "var e = document.getElementById('" + CARET_POSITION_BASE + "');"
-      + "if( e != null ) { "
-      + "  Element.prototype.topOffset = function () {"
-      + "    return this.offsetTop + (this.offsetParent ? this.offsetParent.topOffset() : 0);"
-      + "  };"
-      + "  window.scrollTo( 0, e.topOffset() - (window.innerHeight / 2 ) );"
-      + "}";
+        + "var e = document.getElementById('" + CARET_POSITION_BASE + "');"
+        + "if( e != null ) { "
+        + "  Element.prototype.topOffset = function () {"
+        + "    return this.offsetTop + (this.offsetParent ? this.offsetParent" +
+        ".topOffset() : 0);"
+        + "  };"
+        + "  window.scrollTo( 0, e.topOffset() - (window.innerHeight / 2 ) );"
+        + "}";
   }
 
   /**
@@ -162,6 +169,8 @@ public final class HTMLPreviewPane extends Pane {
   }
 
   public void setPath( final Path path ) {
+    assert path != null;
+
     this.path = path;
   }
 

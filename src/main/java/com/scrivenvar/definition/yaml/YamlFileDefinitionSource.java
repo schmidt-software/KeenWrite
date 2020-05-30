@@ -27,13 +27,15 @@
  */
 package com.scrivenvar.definition.yaml;
 
-import static com.scrivenvar.Messages.get;
 import com.scrivenvar.definition.FileDefinitionSource;
+import javafx.scene.control.TreeView;
+
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
-import javafx.scene.control.TreeView;
+
+import static com.scrivenvar.Messages.get;
 
 /**
  * Represents a definition data source for YAML files.
@@ -54,7 +56,7 @@ public class YamlFileDefinitionSource extends FileDefinitionSource {
     super( path );
     init();
   }
-  
+
   private void init() {
     setYamlParser( createYamlParser() );
   }
@@ -99,7 +101,7 @@ public class YamlFileDefinitionSource extends FileDefinitionSource {
   @Override
   protected TreeView<String> createTreeView() {
     return getYamlTreeAdapter().adapt(
-      get( "Pane.defintion.node.root.title" )
+        get( "Pane.definition.node.root.title" )
     );
   }
 

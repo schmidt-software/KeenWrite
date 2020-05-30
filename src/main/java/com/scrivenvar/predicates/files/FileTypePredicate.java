@@ -41,7 +41,7 @@ import java.util.function.Predicate;
  */
 public class FileTypePredicate implements Predicate<File> {
 
-  private final PathMatcher matcher;
+  private final PathMatcher mMatcher;
 
   /**
    * Constructs a new instance given a set of file extension globs.
@@ -50,8 +50,8 @@ public class FileTypePredicate implements Predicate<File> {
    * Kleene star (e.g., <code>*.md,*.markdown,*.txt</code>).
    */
   public FileTypePredicate( final String patterns ) {
-    this.matcher = FileSystems.getDefault().getPathMatcher(
-      "glob:**/{" + patterns + "}"
+    mMatcher = FileSystems.getDefault().getPathMatcher(
+      "glob:**{" + patterns + "}"
     );
   }
 
@@ -78,6 +78,6 @@ public class FileTypePredicate implements Predicate<File> {
   }
 
   private PathMatcher getMatcher() {
-    return this.matcher;
+    return mMatcher;
   }
 }

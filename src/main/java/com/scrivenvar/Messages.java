@@ -26,11 +26,12 @@
  */
 package com.scrivenvar;
 
-import static com.scrivenvar.Constants.APP_BUNDLE_NAME;
-
 import java.text.MessageFormat;
 import java.util.ResourceBundle;
 import java.util.Stack;
+
+import static com.scrivenvar.Constants.APP_BUNDLE_NAME;
+import static java.util.ResourceBundle.getBundle;
 
 /**
  * Recursively resolves message properties. Property values can refer to other
@@ -41,8 +42,7 @@ import java.util.Stack;
 public class Messages {
 
   private static final ResourceBundle RESOURCE_BUNDLE =
-      ResourceBundle.getBundle(
-          APP_BUNDLE_NAME );
+      getBundle( APP_BUNDLE_NAME );
 
   private Messages() {
   }
@@ -110,15 +110,11 @@ public class Messages {
    * @return The value for the key.
    */
   public static String get( String key ) {
-    String result;
-
     try {
-      result = resolve( RESOURCE_BUNDLE, RESOURCE_BUNDLE.getString( key ) );
+      return resolve( RESOURCE_BUNDLE, RESOURCE_BUNDLE.getString( key ) );
     } catch( final Exception ex ) {
-      result = key;
+      return key;
     }
-
-    return result;
   }
 
   public static String getLiteral( final String key ) {

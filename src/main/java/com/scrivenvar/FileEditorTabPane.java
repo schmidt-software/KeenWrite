@@ -229,6 +229,8 @@ public final class FileEditorTabPane extends TabPane {
    * @return A non-null instance.
    */
   private FileEditorTab createFileEditor( final Path path ) {
+    assert path != null;
+
     final FileEditorTab tab = new FileEditorTab( path );
 
     tab.setOnCloseRequest( e -> {
@@ -240,11 +242,21 @@ public final class FileEditorTabPane extends TabPane {
     return tab;
   }
 
+  private Path getDefaultPath() {
+    final String filename = getDefaultFilename();
+    return (new File( filename )).toPath();
+  }
+
+  private String getDefaultFilename() {
+    return getSettings().getSetting( "file.default", "untitled.md" );
+  }
+
   /**
    * Called when the user selects New from the File menu.
    */
   void newEditor() {
-    final FileEditorTab tab = createFileEditor( null );
+    final Path defaultPath = getDefaultPath();
+    final FileEditorTab tab = createFileEditor( defaultPath );
 
     getTabs().add( tab );
     getSelectionModel().select( tab );
@@ -270,9 +282,10 @@ public final class FileEditorTabPane extends TabPane {
    *              open.
    */
   private void openFiles( final List<File> files ) {
-    final FileTypePredicate predicate
-        =
-        new FileTypePredicate( createExtensionFilter( DEFINITION ).getExtensions() );
+    final List<String> extensions =
+        createExtensionFilter( DEFINITION ).getExtensions();
+    final FileTypePredicate predicate =
+        new FileTypePredicate( extensions );
 
     // The user might have opened multiple definitions files. These will
     // be discarded from the text editable files.
@@ -283,18 +296,18 @@ public final class FileEditorTabPane extends TabPane {
     // opened.
     final List<File> editors = new ArrayList<>( files );
 
-    if( editors.size() > 0 ) {
+    if( !editors.isEmpty() ) {
       saveLastDirectory( editors.get( 0 ) );
     }
 
     editors.removeAll( definitions );
 
     // Open editor-friendly files (e.g,. Markdown, XML) in new tabs.
-    if( editors.size() > 0 ) {
+    if( !editors.isEmpty() ) {
       openEditors( editors, 0 );
     }
 
-    if( definitions.size() > 0 ) {
+    if( !definitions.isEmpty() ) {
       openDefinition( definitions.get( 0 ) );
     }
   }
