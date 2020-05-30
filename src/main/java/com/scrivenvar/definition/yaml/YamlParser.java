@@ -314,6 +314,7 @@ public class YamlParser {
   /**
    * Writes the modified YAML document to standard output.
    */
+  @SuppressWarnings("unused")
   private void writeDocument() throws IOException {
     getObjectMapper().writeValue( System.out, getDocumentRoot() );
   }

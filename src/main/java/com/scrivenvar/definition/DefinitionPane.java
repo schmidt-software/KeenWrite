@@ -28,17 +28,9 @@
 package com.scrivenvar.definition;
 
 import com.scrivenvar.AbstractPane;
-
-import static com.scrivenvar.definition.yaml.YamlParser.SEPARATOR_CHAR;
-
 import com.scrivenvar.predicates.strings.ContainsPredicate;
 import com.scrivenvar.predicates.strings.StartsPredicate;
 import com.scrivenvar.predicates.strings.StringPredicate;
-
-import static com.scrivenvar.util.Lists.getFirst;
-
-import java.util.List;
-
 import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
 import javafx.event.EventType;
@@ -48,11 +40,13 @@ import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.input.MouseButton;
-
-import static javafx.scene.input.MouseButton.PRIMARY;
-
 import javafx.scene.input.MouseEvent;
 
+import java.util.List;
+
+import static com.scrivenvar.definition.yaml.YamlParser.SEPARATOR_CHAR;
+import static com.scrivenvar.util.Lists.getFirst;
+import static javafx.scene.input.MouseButton.PRIMARY;
 import static javafx.scene.input.MouseEvent.MOUSE_CLICKED;
 
 /**
@@ -108,16 +102,6 @@ public class DefinitionPane extends AbstractPane {
   }
 
   /**
-   * Allows observers to stop receiving double-click events on the tree view.
-   *
-   * @param handler The handler that will no longer receive double-click events.
-   */
-  public void removeBranchSelectedListener(
-      final EventHandler<? super MouseEvent> handler ) {
-    getTreeView().removeEventHandler( MouseEvent.ANY, handler );
-  }
-
-  /**
    * Changes the root node of the tree view. Swaps the current root node for the
    * root node of the given
    *
@@ -126,13 +110,6 @@ public class DefinitionPane extends AbstractPane {
    */
   public void setRoot( final TreeView<String> treeView ) {
     getTreeView().setRoot( treeView == null ? null : treeView.getRoot() );
-  }
-
-  /**
-   * Clears the tree view by setting the root node to null.
-   */
-  public void clear() {
-    setRoot( null );
   }
 
   /**
@@ -243,18 +220,6 @@ public class DefinitionPane extends AbstractPane {
     }
 
     return sanitize( cItem );
-  }
-
-  /**
-   * Returns the leaf that matches the given value. If the value is terminally
-   * punctuated, the punctuation is removed if no match was found.
-   *
-   * @param value The value to find, never null.
-   * @return The leaf that contains the given value, or null if neither the
-   * original value nor the terminally-trimmed value was found.
-   */
-  public VariableTreeItem<String> findLeaf( final String value ) {
-    return findLeaf( value, false );
   }
 
   /**
@@ -379,7 +344,7 @@ public class DefinitionPane extends AbstractPane {
     return getTreeView();
   }
 
-  private MultipleSelectionModel getSelectionModel() {
+  private MultipleSelectionModel<TreeItem<String>> getSelectionModel() {
     return getTreeView().getSelectionModel();
   }
 
@@ -395,16 +360,13 @@ public class DefinitionPane extends AbstractPane {
   /**
    * Returns the root of the tree.
    *
-   * @return The first node added to the YAML definition tree.
+   * @return The first node added to the YAML definition tree, or a new root
+   * if no first node could be found.
    */
   private VariableTreeItem<String> getTreeRoot() {
     final TreeItem<String> root = getTreeView().getRoot();
 
     return root instanceof VariableTreeItem ?
-        (VariableTreeItem<String>) root : null;
-  }
-
-  public <T> boolean isRoot( final TreeItem<T> item ) {
-    return getTreeRoot().equals( item );
+        (VariableTreeItem<String>) root : new VariableTreeItem<>( "root" );
   }
 }

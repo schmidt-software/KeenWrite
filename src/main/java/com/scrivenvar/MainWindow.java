@@ -320,32 +320,30 @@ public class MainWindow implements Observer {
    * @param tab The file editor tab that has been changed in some fashion.
    */
   private void refreshSelectedTab( final FileEditorTab tab ) {
-    if( tab.isFileOpen() ) {
-      getPreviewPane().setPath( tab.getPath() );
+    getPreviewPane().setPath( tab.getPath() );
 
-      // TODO: https://github.com/DaveJarvis/scrivenvar/issues/29
-      final Position p = tab.getCaretOffset();
-      getLineNumberText().setText(
-          get( STATUS_BAR_LINE,
-               p.getMajor() + 1,
-               p.getMinor() + 1,
-               tab.getCaretPosition() + 1
-          )
-      );
+    // TODO: https://github.com/DaveJarvis/scrivenvar/issues/29
+    final Position p = tab.getCaretOffset();
+    getLineNumberText().setText(
+        get( STATUS_BAR_LINE,
+             p.getMajor() + 1,
+             p.getMinor() + 1,
+             tab.getCaretPosition() + 1
+        )
+    );
 
-      Processor<String> processor = getProcessors().get( tab );
+    Processor<String> processor = getProcessors().get( tab );
 
-      if( processor == null ) {
-        processor = createProcessor( tab );
-        getProcessors().put( tab, processor );
-      }
+    if( processor == null ) {
+      processor = createProcessor( tab );
+      getProcessors().put( tab, processor );
+    }
 
-      try {
-        getNotifier().clear();
-        processor.processChain( tab.getEditorText() );
-      } catch( final Exception ex ) {
-        error( ex );
-      }
+    try {
+      getNotifier().clear();
+      processor.processChain( tab.getEditorText() );
+    } catch( final Exception ex ) {
+      error( ex );
     }
   }
 
@@ -478,8 +476,8 @@ public class MainWindow implements Observer {
     Platform.runLater(
         () -> {
           final int index = s.indexOf( '\n' );
-          final String message = s.substring( 0,
-                                              index > 0 ? index : s.length() );
+          final String message = s.substring(
+              0, index > 0 ? index : s.length() );
 
           getStatusBar().setText( message );
         }
@@ -632,8 +630,9 @@ public class MainWindow implements Observer {
   private MarkdownEditorPane getActiveEditor() {
     final EditorPane pane = getActiveFileEditor().getEditorPane();
 
-    return pane instanceof MarkdownEditorPane ? (MarkdownEditorPane) pane :
-        null;
+    return pane instanceof MarkdownEditorPane
+        ? (MarkdownEditorPane) pane
+        : null;
   }
 
   private FileEditorTab getActiveFileEditor() {

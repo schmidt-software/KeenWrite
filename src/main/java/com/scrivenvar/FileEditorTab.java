@@ -78,18 +78,18 @@ public final class FileEditorTab extends Tab {
   /**
    * Character encoding used by the file (or default encoding if none found).
    */
-  private Charset encoding;
+  private Charset mEncoding = UTF_8;
 
-  private final ReadOnlyBooleanWrapper modified = new ReadOnlyBooleanWrapper();
+  private final ReadOnlyBooleanWrapper mModified = new ReadOnlyBooleanWrapper();
   private final BooleanProperty canUndo = new SimpleBooleanProperty();
   private final BooleanProperty canRedo = new SimpleBooleanProperty();
 
-  private Path path;
+  private Path mPath;
 
   public FileEditorTab( final Path path ) {
     setPath( path );
 
-    this.modified.addListener( ( observable, oldPath, newPath ) -> updateTab() );
+    mModified.addListener( ( observable, oldPath, newPath ) -> updateTab() );
 
     setOnSelectionChanged( e -> {
       if( isSelected() ) {
@@ -174,12 +174,10 @@ public final class FileEditorTab extends Tab {
 
   private void initUndoManager() {
     final UndoManager undoManager = getUndoManager();
-
-    // Clear undo history after first load.
     undoManager.forgetHistory();
 
     // Bind the editor undo manager to the properties.
-    modified.bind( Bindings.not( undoManager.atMarkedPositionProperty() ) );
+    mModified.bind( Bindings.not( undoManager.atMarkedPositionProperty() ) );
     canUndo.bind( undoManager.undoAvailableProperty() );
     canRedo.bind( undoManager.redoAvailableProperty() );
   }
@@ -304,6 +302,7 @@ public final class FileEditorTab extends Tab {
    * @param e          The unexpected happening.
    * @return false
    */
+  @SuppressWarnings("SameParameterValue")
   private boolean alert(
       final String titleKey, final String messageKey, final Exception e ) {
     final Notifier service = getNotifyService();
@@ -329,7 +328,7 @@ public final class FileEditorTab extends Tab {
     final Scene scene = getEditorPane().getScene();
 
     if( scene == null ) {
-      throw new UnsupportedOperationException( "" );
+      throw new UnsupportedOperationException( "No scene window available" );
     }
 
     return scene.getWindow();
@@ -380,31 +379,35 @@ public final class FileEditorTab extends Tab {
     return new String( text, getEncoding() );
   }
 
+  /**
+   * Returns the path to the file being edited in this tab.
+   *
+   * @return A non-null instance.
+   */
   public Path getPath() {
-    return this.path;
+    return mPath;
   }
 
+  /**
+   * Sets the path to a file for editing and then updates the tab with the
+   * file contents.
+   *
+   * @param path A non-null instance.
+   */
   public void setPath( final Path path ) {
-    this.path = path;
+    assert path != null;
+
+    mPath = path;
 
     updateTab();
   }
 
-  /**
-   * Answers whether this tab has an initialized path reference.
-   *
-   * @return false This tab has no path.
-   */
-  public boolean isFileOpen() {
-    return this.path != null;
-  }
-
   public boolean isModified() {
-    return this.modified.get();
+    return mModified.get();
   }
 
   ReadOnlyBooleanProperty modifiedProperty() {
-    return this.modified.getReadOnlyProperty();
+    return mModified.getReadOnlyProperty();
   }
 
   BooleanProperty canUndoProperty() {
@@ -503,15 +506,13 @@ public final class FileEditorTab extends Tab {
    * @return The file encoding or UTF-8 if unknown.
    */
   private Charset getEncoding() {
-    if( this.encoding == null ) {
-      this.encoding = UTF_8;
-    }
-
-    return this.encoding;
+    return mEncoding;
   }
 
   private void setEncoding( final Charset encoding ) {
-    this.encoding = encoding;
+    assert encoding != null;
+
+    mEncoding = encoding;
   }
 
   /**

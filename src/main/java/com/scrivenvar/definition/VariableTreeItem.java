@@ -212,7 +212,6 @@ public class VariableTreeItem<T> extends TreeItem<T> {
   private void populate( final TreeItem<T> parent, final Map<String, String> map ) {
     for( final TreeItem<T> child : parent.getChildren() ) {
       if( child.isLeaf() ) {
-        @SuppressWarnings( "unchecked" )
         final String key = toVariable( ((VariableTreeItem<String>)child).toPath() );
         final String value = child.getValue().toString();
 

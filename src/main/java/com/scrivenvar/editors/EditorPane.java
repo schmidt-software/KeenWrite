@@ -60,12 +60,12 @@ public class EditorPane extends AbstractPane {
       new StyleClassedTextArea( false );
   private final VirtualizedScrollPane<StyleClassedTextArea> mScrollPane =
       new VirtualizedScrollPane<>( mEditor );
-  private final ObjectProperty<Path> path = new SimpleObjectProperty<>();
+  private final ObjectProperty<Path> mPath = new SimpleObjectProperty<>();
 
   /**
    * Set when entering variable edit mode; retrieved upon exiting.
    */
-  private InputMap<InputEvent> nodeMap;
+  private InputMap<InputEvent> mNodeMap;
 
   public EditorPane() {
     getScrollPane().setVbarPolicy( ScrollPane.ScrollBarPolicy.ALWAYS );
@@ -141,7 +141,7 @@ public class EditorPane extends AbstractPane {
    */
   @SuppressWarnings("unchecked")
   public void addEventListener( final InputMap<InputEvent> map ) {
-    this.nodeMap = (InputMap<InputEvent>) getInputMap();
+    mNodeMap = (InputMap<InputEvent>) getInputMap();
     Nodes.addInputMap( getEditor(), map );
   }
 
@@ -153,7 +153,7 @@ public class EditorPane extends AbstractPane {
    */
   public void removeEventListener( final InputMap<InputEvent> map ) {
     Nodes.removeInputMap( getEditor(), map );
-    Nodes.addInputMap( getEditor(), this.nodeMap );
+    Nodes.addInputMap( getEditor(), mNodeMap );
   }
 
   /**
@@ -196,10 +196,10 @@ public class EditorPane extends AbstractPane {
   }
 
   public Path getPath() {
-    return this.path.get();
+    return mPath.get();
   }
 
   public void setPath( final Path path ) {
-    this.path.set( path );
+    mPath.set( path );
   }
 }

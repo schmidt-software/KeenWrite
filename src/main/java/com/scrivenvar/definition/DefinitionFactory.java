@@ -88,16 +88,9 @@ public class DefinitionFactory extends AbstractFileFactory {
   private DefinitionSource createFileDefinitionSource(
       final FileType filetype, final Path path ) {
 
-    DefinitionSource result = null;
-
-    if( filetype == YAML ) {
-      result = new YamlFileDefinitionSource( path );
-    }
-    else {
-      unknownFileType( filetype, path );
-    }
-
-    return result;
+    return filetype == YAML
+        ? new YamlFileDefinitionSource( path )
+        : new EmptyDefinitionSource();
   }
 
   /**

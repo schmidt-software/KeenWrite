@@ -30,8 +30,8 @@ import com.scrivenvar.definition.yaml.YamlParser;
 import java.io.IOException;
 import java.io.Writer;
 
-
 /**
+ * Responsible for producing YAML generators.
  *
  * @author White Magic Software, Ltd.
  */

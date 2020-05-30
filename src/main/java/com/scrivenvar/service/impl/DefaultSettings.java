@@ -36,7 +36,6 @@ import org.apache.commons.configuration2.ex.ConfigurationException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.Iterator;
@@ -55,8 +54,7 @@ public class DefaultSettings implements Settings {
 
   private PropertiesConfiguration properties;
 
-  public DefaultSettings()
-      throws ConfigurationException, URISyntaxException, IOException {
+  public DefaultSettings() throws ConfigurationException {
     setProperties( createProperties() );
   }
 

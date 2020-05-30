@@ -86,7 +86,7 @@ public final class HTMLPreviewPane extends Pane {
    */
   private String getBase() {
     final Path basePath = getPath();
-    final Path parent = basePath.getParent();
+    final Path parent = basePath == null ? null : basePath.getParent();
 
     return parent == null
         ? ""

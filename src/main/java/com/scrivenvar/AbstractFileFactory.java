@@ -93,23 +93,7 @@ public class AbstractFileFactory {
       }
     }
 
-    if( fileType == null ) {
-      unknownFileType( fileType, path );
-    }
-
     return fileType;
-  }
-
-  /**
-   * Throws IllegalArgumentException because the given path could not be
-   * recognized.
-   *
-   * @param type The detected path type (protocol, file extension, etc.).
-   * @param path The path to a source of definitions.
-   */
-  protected void unknownFileType( final FileType type, final Path path ) {
-    final String msg = format( MSG_UNKNOWN_FILE_TYPE, type, path );
-    throw new IllegalArgumentException( msg );
   }
 
   /**

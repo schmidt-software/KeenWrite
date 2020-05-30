@@ -47,26 +47,23 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
-import javafx.scene.input.InputEvent;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Window;
 import org.fxmisc.richtext.StyledTextArea;
-import org.fxmisc.wellbehaved.event.EventPattern;
-import org.fxmisc.wellbehaved.event.InputMap;
 
 import java.io.File;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.prefs.Preferences;
 import java.util.stream.Collectors;
 
 import static com.scrivenvar.Constants.GLOB_PREFIX_FILE;
 import static com.scrivenvar.FileType.*;
 import static com.scrivenvar.Messages.get;
-import static com.scrivenvar.service.events.Notifier.NO;
 import static com.scrivenvar.service.events.Notifier.YES;
 
 /**
@@ -85,7 +82,7 @@ public final class FileEditorTabPane extends TabPane {
 
   private final ReadOnlyObjectWrapper<Path> openDefinition =
       new ReadOnlyObjectWrapper<>();
-  private final ReadOnlyObjectWrapper<FileEditorTab> activeFileEditor =
+  private final ReadOnlyObjectWrapper<FileEditorTab> mActiveFileEditor =
       new ReadOnlyObjectWrapper<>();
   private final ReadOnlyBooleanWrapper anyFileEditorModified =
       new ReadOnlyBooleanWrapper();
@@ -104,7 +101,7 @@ public final class FileEditorTabPane extends TabPane {
           final Tab oldTab, final Tab newTab ) -> {
 
           if( newTab != null ) {
-            activeFileEditor.set( (FileEditorTab) newTab );
+            mActiveFileEditor.set( (FileEditorTab) newTab );
           }
         }
     );
@@ -143,39 +140,6 @@ public final class FileEditorTabPane extends TabPane {
   }
 
   /**
-   * Delegates to the active file editor.
-   *
-   * @param <T>      Event type.
-   * @param <U>      Consumer type.
-   * @param event    Event to pass to the editor.
-   * @param consumer Consumer to pass to the editor.
-   */
-  public <T extends Event, U extends T> void addEventListener(
-      final EventPattern<? super T, ? extends U> event,
-      final Consumer<? super U> consumer ) {
-    getActiveFileEditor().addEventListener( event, consumer );
-  }
-
-  /**
-   * Delegates to the active file editor pane, and, ultimately, to its text
-   * area.
-   *
-   * @param map The map of methods to events.
-   */
-  public void addEventListener( final InputMap<InputEvent> map ) {
-    getActiveFileEditor().addEventListener( map );
-  }
-
-  /**
-   * Remove a keyboard event listener from the active file editor.
-   *
-   * @param map The keyboard events to remove.
-   */
-  public void removeEventListener( final InputMap<InputEvent> map ) {
-    getActiveFileEditor().removeEventListener( map );
-  }
-
-  /**
    * Allows observers to be notified when the current file editor tab changes.
    *
    * @param listener The listener to notify of tab change events.
@@ -201,7 +165,7 @@ public final class FileEditorTabPane extends TabPane {
    * @return A non-null instance.
    */
   public FileEditorTab getActiveFileEditor() {
-    return this.activeFileEditor.get();
+    return mActiveFileEditor.get();
   }
 
   /**
@@ -210,7 +174,7 @@ public final class FileEditorTabPane extends TabPane {
    * @return A non-null instance.
    */
   public ReadOnlyObjectProperty<FileEditorTab> activeFileEditorProperty() {
-    return this.activeFileEditor.getReadOnlyProperty();
+    return mActiveFileEditor.getReadOnlyProperty();
   }
 
   /**
@@ -237,9 +201,18 @@ public final class FileEditorTabPane extends TabPane {
       if( !canCloseEditor( tab ) ) {
         e.consume();
       }
+      else if( isActiveFileEditor( tab ) ) {
+        // Prevent prompting the user to save when there are no file editor
+        // tabs open.
+        mActiveFileEditor.set( null );
+      }
     } );
 
     return tab;
+  }
+
+  private boolean isActiveFileEditor( final FileEditorTab tab ) {
+    return getActiveFileEditor() == tab;
   }
 
   private Path getDefaultPath() {
@@ -423,21 +396,29 @@ public final class FileEditorTabPane extends TabPane {
    * @return false The file is unmodified.
    */
   boolean canCloseEditor( final FileEditorTab tab ) {
-    if( !tab.isModified() ) {
-      return true;
+    final AtomicReference<Boolean> canClose = new AtomicReference<>();
+    canClose.set( true );
+
+    if( tab.isModified() ) {
+      final Notification message = getNotifyService().createNotification(
+          Messages.get( "Alert.file.close.title" ),
+          Messages.get( "Alert.file.close.text" ),
+          tab.getText()
+      );
+
+      final Alert confirmSave = getNotifyService().createConfirmation(
+          getWindow(), message );
+
+      final Optional<ButtonType> buttonType = confirmSave.showAndWait();
+
+      buttonType.ifPresent(
+          save -> canClose.set(
+              save == YES ? saveEditor( tab ) : save == ButtonType.NO
+          )
+      );
     }
 
-    final Notification message = getNotifyService().createNotification(
-        Messages.get( "Alert.file.close.title" ),
-        Messages.get( "Alert.file.close.text" ),
-        tab.getText()
-    );
-
-    final Alert alert = getNotifyService().createConfirmation(
-        getWindow(), message );
-    final ButtonType response = alert.showAndWait().get();
-
-    return response == YES ? saveEditor( tab ) : response == NO;
+    return canClose.get();
   }
 
   private Notifier getNotifyService() {

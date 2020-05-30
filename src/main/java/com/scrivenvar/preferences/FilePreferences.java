@@ -30,13 +30,7 @@ package com.scrivenvar.preferences;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.prefs.AbstractPreferences;
 import java.util.prefs.BackingStoreException;
 
@@ -54,7 +48,10 @@ public class FilePreferences extends AbstractPreferences {
   private final Map<String, FilePreferences> mChildren = new TreeMap<>();
   private boolean mRemoved;
 
-  public FilePreferences( final AbstractPreferences parent, final String name ) {
+  private final Object mMutex = new Object();
+
+  public FilePreferences( final AbstractPreferences parent,
+                          final String name ) {
     super( parent, name );
 
     try {
@@ -131,7 +128,7 @@ public class FilePreferences extends AbstractPreferences {
       return;
     }
 
-    synchronized( file ) {
+    synchronized( mMutex ) {
       final Properties p = new Properties();
 
       try {
@@ -141,7 +138,7 @@ public class FilePreferences extends AbstractPreferences {
         final Enumeration<?> pnen = p.propertyNames();
 
         while( pnen.hasMoreElements() ) {
-          final String propKey = (String)pnen.nextElement();
+          final String propKey = (String) pnen.nextElement();
 
           if( propKey.startsWith( path ) ) {
             final String subKey = propKey.substring( path.length() );
@@ -159,7 +156,7 @@ public class FilePreferences extends AbstractPreferences {
   }
 
   private String getPath() {
-    final FilePreferences parent = (FilePreferences)parent();
+    final FilePreferences parent = (FilePreferences) parent();
 
     return parent == null ? "" : parent.getPath() + name() + '.';
   }
@@ -168,7 +165,7 @@ public class FilePreferences extends AbstractPreferences {
   protected void flushSpi() {
     final File file = FilePreferencesFactory.getPreferencesFile();
 
-    synchronized( file ) {
+    synchronized( mMutex ) {
       final Properties p = new Properties();
 
       try {
@@ -183,7 +180,7 @@ public class FilePreferences extends AbstractPreferences {
           final Enumeration<?> pnen = p.propertyNames();
 
           while( pnen.hasMoreElements() ) {
-            String propKey = (String)pnen.nextElement();
+            String propKey = (String) pnen.nextElement();
             if( propKey.startsWith( path ) ) {
               final String subKey = propKey.substring( path.length() );
 
