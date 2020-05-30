@@ -64,21 +64,21 @@ import static org.fxmisc.richtext.model.TwoDimensional.Bias.Forward;
  */
 public final class FileEditorTab extends Tab {
 
-  /**
-   *
-   */
-  private final Notifier alertService = Services.load( Notifier.class );
-  private EditorPane editorPane;
+  private final Notifier mAlertService = Services.load( Notifier.class );
+  private final EditorPane mEditorPane = new MarkdownEditorPane();
+
+  private final ReadOnlyBooleanWrapper mModified = new ReadOnlyBooleanWrapper();
+  private final BooleanProperty canUndo = new SimpleBooleanProperty();
+  private final BooleanProperty canRedo = new SimpleBooleanProperty();
 
   /**
    * Character encoding used by the file (or default encoding if none found).
    */
   private Charset mEncoding = UTF_8;
 
-  private final ReadOnlyBooleanWrapper mModified = new ReadOnlyBooleanWrapper();
-  private final BooleanProperty canUndo = new SimpleBooleanProperty();
-  private final BooleanProperty canRedo = new SimpleBooleanProperty();
-
+  /**
+   * File to load into the editor.
+   */
   private Path mPath;
 
   public FileEditorTab( final Path path ) {
@@ -450,16 +450,12 @@ public final class FileEditorTab extends Tab {
    *
    * @return The editor pane, never null.
    */
-  public synchronized EditorPane getEditorPane() {
-    if( this.editorPane == null ) {
-      this.editorPane = new MarkdownEditorPane();
-    }
-
-    return this.editorPane;
+  public EditorPane getEditorPane() {
+    return mEditorPane;
   }
 
   private Notifier getNotifyService() {
-    return this.alertService;
+    return mAlertService;
   }
 
   /**
