@@ -56,14 +56,20 @@ import org.fxmisc.wellbehaved.event.Nodes;
  */
 public class EditorPane extends AbstractPane {
 
-  private StyleClassedTextArea editor;
-  private VirtualizedScrollPane<StyleClassedTextArea> scrollPane;
+  private final StyleClassedTextArea mEditor =
+      new StyleClassedTextArea( false );
+  private final VirtualizedScrollPane<StyleClassedTextArea> mScrollPane =
+      new VirtualizedScrollPane<>( mEditor );
   private final ObjectProperty<Path> path = new SimpleObjectProperty<>();
 
   /**
    * Set when entering variable edit mode; retrieved upon exiting.
    */
   private InputMap<InputEvent> nodeMap;
+
+  public EditorPane() {
+    getScrollPane().setVbarPolicy( ScrollPane.ScrollBarPolicy.ALWAYS );
+  }
 
   @Override
   public void requestFocus() {
@@ -176,16 +182,8 @@ public class EditorPane extends AbstractPane {
     getScrollPane().scrollYToPixel( 0 );
   }
 
-  private void setEditor( final StyleClassedTextArea textArea ) {
-    this.editor = textArea;
-  }
-
-  public synchronized StyleClassedTextArea getEditor() {
-    if( this.editor == null ) {
-      setEditor( createTextArea() );
-    }
-
-    return this.editor;
+  public StyleClassedTextArea getEditor() {
+    return mEditor;
   }
 
   /**
@@ -193,24 +191,8 @@ public class EditorPane extends AbstractPane {
    *
    * @return The scroll pane that contains the content to edit.
    */
-  public synchronized VirtualizedScrollPane<StyleClassedTextArea> getScrollPane() {
-    if( this.scrollPane == null ) {
-      this.scrollPane = createScrollPane();
-    }
-
-    return this.scrollPane;
-  }
-
-  protected VirtualizedScrollPane<StyleClassedTextArea> createScrollPane() {
-    final VirtualizedScrollPane<StyleClassedTextArea> pane
-        = new VirtualizedScrollPane<>( getEditor() );
-    pane.setVbarPolicy( ScrollPane.ScrollBarPolicy.ALWAYS );
-
-    return pane;
-  }
-
-  protected StyleClassedTextArea createTextArea() {
-    return new StyleClassedTextArea( false );
+  public VirtualizedScrollPane<StyleClassedTextArea> getScrollPane() {
+    return mScrollPane;
   }
 
   public Path getPath() {

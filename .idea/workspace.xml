@@ -2,16 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="3dcf7c8f-87b5-4d25-a804-39da40a621b8" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/FileEditorTabPane.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/FileEditorTabPane.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/MainWindow.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/MainWindow.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/Messages.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/Messages.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/definition/yaml/YamlFileDefinitionSource.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/definition/yaml/YamlFileDefinitionSource.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/editors/markdown/MarkdownEditorPane.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/editors/markdown/MarkdownEditorPane.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/predicates/files/FileTypePredicate.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/predicates/files/FileTypePredicate.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/preview/HTMLPreviewPane.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/preview/HTMLPreviewPane.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/com/scrivenvar/messages.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/com/scrivenvar/messages.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/com/scrivenvar/settings.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/com/scrivenvar/settings.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/editors/EditorPane.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/editors/EditorPane.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -182,22 +173,22 @@
       <screen x="0" y="28" width="2560" height="1529" />
     </state>
     <state x="610" y="411" width="426" height="481" key="FileChooserDialogImpl/0.28.2560.1529@0.28.2560.1529" timestamp="1589659107517" />
-    <state width="1573" height="321" key="GridCell.Tab.0.bottom" timestamp="1590854422007">
+    <state width="1573" height="321" key="GridCell.Tab.0.bottom" timestamp="1590855340611">
       <screen x="0" y="28" width="2560" height="1529" />
     </state>
-    <state width="1573" height="321" key="GridCell.Tab.0.bottom/0.28.2560.1529@0.28.2560.1529" timestamp="1590854422007" />
-    <state width="1573" height="321" key="GridCell.Tab.0.center" timestamp="1590854422007">
+    <state width="1573" height="321" key="GridCell.Tab.0.bottom/0.28.2560.1529@0.28.2560.1529" timestamp="1590855340611" />
+    <state width="1573" height="321" key="GridCell.Tab.0.center" timestamp="1590855340610">
       <screen x="0" y="28" width="2560" height="1529" />
     </state>
-    <state width="1573" height="321" key="GridCell.Tab.0.center/0.28.2560.1529@0.28.2560.1529" timestamp="1590854422007" />
-    <state width="1573" height="321" key="GridCell.Tab.0.left" timestamp="1590854422006">
+    <state width="1573" height="321" key="GridCell.Tab.0.center/0.28.2560.1529@0.28.2560.1529" timestamp="1590855340610" />
+    <state width="1573" height="321" key="GridCell.Tab.0.left" timestamp="1590855340610">
       <screen x="0" y="28" width="2560" height="1529" />
     </state>
-    <state width="1573" height="321" key="GridCell.Tab.0.left/0.28.2560.1529@0.28.2560.1529" timestamp="1590854422006" />
-    <state width="1573" height="321" key="GridCell.Tab.0.right" timestamp="1590854422007">
+    <state width="1573" height="321" key="GridCell.Tab.0.left/0.28.2560.1529@0.28.2560.1529" timestamp="1590855340610" />
+    <state width="1573" height="321" key="GridCell.Tab.0.right" timestamp="1590855340610">
       <screen x="0" y="28" width="2560" height="1529" />
     </state>
-    <state width="1573" height="321" key="GridCell.Tab.0.right/0.28.2560.1529@0.28.2560.1529" timestamp="1590854422007" />
+    <state width="1573" height="321" key="GridCell.Tab.0.right/0.28.2560.1529@0.28.2560.1529" timestamp="1590855340610" />
     <state width="1573" height="396" key="GridCell.Tab.1.bottom" timestamp="1590853741746">
       <screen x="0" y="28" width="2560" height="1529" />
     </state>
