@@ -37,26 +37,21 @@ import javafx.beans.property.ReadOnlyBooleanWrapper;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.event.Event;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Tab;
 import javafx.scene.control.Tooltip;
-import javafx.scene.input.InputEvent;
 import javafx.scene.text.Text;
 import javafx.stage.Window;
 import org.fxmisc.richtext.StyleClassedTextArea;
 import org.fxmisc.richtext.model.TwoDimensional.Position;
 import org.fxmisc.undo.UndoManager;
-import org.fxmisc.wellbehaved.event.EventPattern;
-import org.fxmisc.wellbehaved.event.InputMap;
 import org.mozilla.universalchardet.UniversalDetector;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.function.Consumer;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Locale.ENGLISH;
@@ -173,7 +168,7 @@ public final class FileEditorTab extends Tab {
   }
 
   private void initUndoManager() {
-    final UndoManager undoManager = getUndoManager();
+    final UndoManager<?> undoManager = getUndoManager();
     undoManager.forgetHistory();
 
     // Bind the editor undo manager to the properties.
@@ -193,7 +188,7 @@ public final class FileEditorTab extends Tab {
 
     // Wrap around.
     if( index == -1 ) {
-      index = haystack.indexOf( needle, 0 );
+      index = haystack.indexOf( needle );
     }
 
     if( index >= 0 ) {
@@ -418,40 +413,8 @@ public final class FileEditorTab extends Tab {
     return this.canRedo;
   }
 
-  private UndoManager getUndoManager() {
+  private UndoManager<?> getUndoManager() {
     return getEditorPane().getUndoManager();
-  }
-
-  /**
-   * Forwards the request to the editor pane.
-   *
-   * @param <T>      The type of event listener to add.
-   * @param <U>      The type of consumer to add.
-   * @param event    The event that should trigger updates to the listener.
-   * @param consumer The listener to receive update events.
-   */
-  public <T extends Event, U extends T> void addEventListener(
-      final EventPattern<? super T, ? extends U> event,
-      final Consumer<? super U> consumer ) {
-    getEditorPane().addKeyboardListener( event, consumer );
-  }
-
-  /**
-   * Forwards to the editor pane's listeners for keyboard events.
-   *
-   * @param map The new input map to replace the existing keyboard listener.
-   */
-  public void addEventListener( final InputMap<InputEvent> map ) {
-    getEditorPane().addEventListener( map );
-  }
-
-  /**
-   * Forwards to the editor pane's listeners for keyboard events.
-   *
-   * @param map The existing input map to remove from the keyboard listeners.
-   */
-  public void removeEventListener( final InputMap<InputEvent> map ) {
-    getEditorPane().removeEventListener( map );
   }
 
   /**
