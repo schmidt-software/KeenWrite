@@ -32,6 +32,7 @@ import javafx.scene.control.TreeItem;
 import java.text.Normalizer;
 import java.util.Stack;
 
+import static com.scrivenvar.definition.FindMode.*;
 import static com.scrivenvar.definition.yaml.YamlParser.SEPARATOR;
 import static com.scrivenvar.editors.VariableNameInjector.DEFAULT_MAX_VAR_LENGTH;
 import static java.text.Normalizer.Form.NFD;
@@ -61,7 +62,7 @@ public class VariableTreeItem<T> extends TreeItem<T> {
    * @return The leaf that has a value starting with the given text.
    */
   public VariableTreeItem<T> findLeaf( final String text ) {
-    return findLeaf( text, false );
+    return findLeaf( text, STARTS_WITH );
   }
 
   /**
@@ -69,12 +70,11 @@ public class VariableTreeItem<T> extends TreeItem<T> {
    * value.
    *
    * @param text     The text to match against each leaf in the tree.
-   * @param contains Set to true to perform a substring match if starts with
-   *                 fails.
+   * @param findMode What algorithm is used to match the given text.
    * @return The leaf that has a value starting with the given text.
    */
   public VariableTreeItem<T> findLeaf(
-      final String text, final boolean contains ) {
+      final String text, final FindMode findMode ) {
     final Stack<VariableTreeItem<T>> stack = new Stack<>();
     final VariableTreeItem<T> root = this;
 
@@ -86,10 +86,10 @@ public class VariableTreeItem<T> extends TreeItem<T> {
     while( !found && !stack.isEmpty() ) {
       node = stack.pop();
 
-      if( contains && node.valueContains( text ) ) {
+      if( findMode == CONTAINS && node.valueContains( text ) ) {
         found = true;
       }
-      else if( !contains && node.valueStartsWith( text ) ) {
+      else if( findMode == STARTS_WITH && node.valueStartsWith( text ) ) {
         found = true;
       }
       else {

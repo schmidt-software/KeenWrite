@@ -204,10 +204,10 @@ public class DefinitionPane extends AbstractPane {
    */
   public VariableTreeItem<String> findLeaf(
       final String value,
-      final boolean contains ) {
+      final FindMode findMode ) {
 
     final VariableTreeItem<String> root = getTreeRoot();
-    final VariableTreeItem<String> leaf = root.findLeaf( value, contains );
+    final VariableTreeItem<String> leaf = root.findLeaf( value, findMode );
 
     return leaf == null
         ? root.findLeaf( rtrimTerminalPunctuation( value ) )
