@@ -27,34 +27,22 @@
  */
 package com.scrivenvar.definition;
 
-import com.scrivenvar.decorators.VariableDecorator;
-import com.scrivenvar.decorators.YamlVariableDecorator;
+import javafx.scene.control.TreeItem;
+
+import java.text.Normalizer;
+import java.util.Stack;
+
 import static com.scrivenvar.definition.yaml.YamlParser.SEPARATOR;
 import static com.scrivenvar.editors.VariableNameInjector.DEFAULT_MAX_VAR_LENGTH;
-import java.text.Normalizer;
 import static java.text.Normalizer.Form.NFD;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Stack;
-import javafx.scene.control.TreeItem;
 
 /**
  * Provides behaviour afforded to variable names and their corresponding value.
  *
- * @author White Magic Software, Ltd.
  * @param <T> The type of TreeItem (usually String).
+ * @author White Magic Software, Ltd.
  */
 public class VariableTreeItem<T> extends TreeItem<T> {
-
-  private final static int DEFAULT_MAP_SIZE = 1000;
-
-  private final static VariableDecorator VARIABLE_DECORATOR
-    = new YamlVariableDecorator();
-
-  /**
-   * Flattened tree.
-   */
-  private Map<String, String> map;
 
   /**
    * Constructs a new item with a default value.
@@ -70,7 +58,6 @@ public class VariableTreeItem<T> extends TreeItem<T> {
    * value.
    *
    * @param text The text to match against each leaf in the tree.
-   *
    * @return The leaf that has a value starting with the given text.
    */
   public VariableTreeItem<T> findLeaf( final String text ) {
@@ -81,16 +68,13 @@ public class VariableTreeItem<T> extends TreeItem<T> {
    * Finds a leaf starting at the current node with text that matches the given
    * value.
    *
-   * @param text The text to match against each leaf in the tree.
+   * @param text     The text to match against each leaf in the tree.
    * @param contains Set to true to perform a substring match if starts with
-   * fails.
-   *
+   *                 fails.
    * @return The leaf that has a value starting with the given text.
    */
   public VariableTreeItem<T> findLeaf(
-    final String text,
-    final boolean contains ) {
-
+      final String text, final boolean contains ) {
     final Stack<VariableTreeItem<T>> stack = new Stack<>();
     final VariableTreeItem<T> root = this;
 
@@ -110,7 +94,7 @@ public class VariableTreeItem<T> extends TreeItem<T> {
       }
       else {
         for( final TreeItem<T> child : node.getChildren() ) {
-          stack.push( (VariableTreeItem<T>)child );
+          stack.push( (VariableTreeItem<T>) child );
         }
 
         // No match found, yet.
@@ -123,14 +107,14 @@ public class VariableTreeItem<T> extends TreeItem<T> {
 
   /**
    * Returns the value of the string without diacritic marks.
-   * 
+   *
    * @return A non-null, possibly empty string.
    */
   private String getDiacriticlessValue() {
     final String value = getValue().toString();
-    final String normalized = Normalizer.normalize(value, NFD);
-    
-    return normalized.replaceAll("\\p{M}", "");
+    final String normalized = Normalizer.normalize( value, NFD );
+
+    return normalized.replaceAll( "\\p{M}", "" );
   }
 
   /**
@@ -138,7 +122,6 @@ public class VariableTreeItem<T> extends TreeItem<T> {
    * text.
    *
    * @param s The text to compare against the node value.
-   *
    * @return true Node is a leaf and its value starts with the given value.
    */
   private boolean valueStartsWith( final String s ) {
@@ -149,7 +132,6 @@ public class VariableTreeItem<T> extends TreeItem<T> {
    * Returns true if this node is a leaf and its value contains the given text.
    *
    * @param s The text to compare against the node value.
-   *
    * @return true Node is a leaf and its value contains the given value.
    */
   private boolean valueContains( final String s ) {
@@ -193,45 +175,5 @@ public class VariableTreeItem<T> extends TreeItem<T> {
     }
 
     return sb.toString();
-  }
-
-  /**
-   * Returns the hierarchy, flattened to key-value pairs.
-   *
-   * @return A map of this tree's key-value pairs.
-   */
-  public Map<String, String> getMap() {
-    if( this.map == null ) {
-      this.map = new HashMap<>( DEFAULT_MAP_SIZE );
-      populate( this, this.map );
-    }
-
-    return this.map;
-  }
-
-  private void populate( final TreeItem<T> parent, final Map<String, String> map ) {
-    for( final TreeItem<T> child : parent.getChildren() ) {
-      if( child.isLeaf() ) {
-        final String key = toVariable( ((VariableTreeItem<String>)child).toPath() );
-        final String value = child.getValue().toString();
-
-        map.put( key, value );
-      }
-      else {
-        populate( child, map );
-      }
-    }
-  }
-
-  /**
-   * Converts the name of the key to a simple variable by enclosing it with
-   * dollar symbols.
-   *
-   * @param key The key name to change to a variable.
-   *
-   * @return $key$
-   */
-  public String toVariable( final String key ) {
-    return VARIABLE_DECORATOR.decorate( key );
   }
 }

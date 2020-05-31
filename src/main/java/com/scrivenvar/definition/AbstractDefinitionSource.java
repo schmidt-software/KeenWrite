@@ -27,7 +27,14 @@
  */
 package com.scrivenvar.definition;
 
-import javafx.scene.control.TreeView;
+import javafx.collections.ObservableList;
+import javafx.scene.control.*;
+import javafx.scene.control.cell.TextFieldTreeCell;
+import javafx.util.StringConverter;
+
+import java.util.List;
+
+import static com.scrivenvar.Messages.get;
 
 /**
  * Implements common behaviour for definition sources.
@@ -46,13 +53,11 @@ public abstract class AbstractDefinitionSource implements DefinitionSource {
    */
   @Override
   public TreeView<String> asTreeView() {
-
     if( mTreeView == null ) {
       mTreeView = createTreeView();
+      mTreeView.setContextMenu( createContextMenu( mTreeView ) );
       mTreeView.setEditable( true );
-      mTreeView.setCellFactory(
-          ( TreeView<String> t ) -> new TextFieldTreeCell()
-      );
+      mTreeView.setCellFactory( treeView -> createTreeCell() );
     }
 
     return mTreeView;
@@ -66,9 +71,79 @@ public abstract class AbstractDefinitionSource implements DefinitionSource {
    */
   protected abstract TreeView<String> createTreeView();
 
+  private ContextMenu createContextMenu( final TreeView<String> treeView ) {
+    final ContextMenu menu = new ContextMenu();
+    final ObservableList<MenuItem> items = menu.getItems();
+
+    addMenuItem( items, "Definition.menu.create" ).setOnAction(
+        e -> getSiblings( getSelectedItem() ).add( createTreeItem() )
+    );
+
+    addMenuItem( items, "Definition.menu.rename" ).setOnAction(
+        e -> treeView.edit( getSelectedItem() )
+    );
+
+    addMenuItem( items, "Definition.menu.remove" ).setOnAction(
+        e -> {
+          final TreeItem<String> c = getSelectedItem();
+          getSiblings( c ).remove( c );
+        }
+    );
+
+    return menu;
+  }
+
+  private ObservableList<TreeItem<String>> getSiblings(
+      final TreeItem<String> item ) {
+    final TreeItem<String> root = getTreeView().getRoot();
+    final TreeItem<String> parent = item == root ? item : item.getParent();
+
+    return parent.getChildren();
+  }
+
+  private MenuItem addMenuItem(
+      final List<MenuItem> items, final String labelKey ) {
+    final MenuItem menuItem = createMenuItem( labelKey );
+    items.add( menuItem );
+    return menuItem;
+  }
+
+  private MenuItem createMenuItem( final String labelKey ) {
+    return new MenuItem( get( labelKey ) );
+  }
+
+  private VariableTreeItem<String> createTreeItem() {
+    return new VariableTreeItem<>( get( "Definition.menu.add.default" ) );
+  }
+
+  private TreeCell<String> createTreeCell() {
+    return new TextFieldTreeCell<>( createStringConverter() );
+  }
+
+  private StringConverter<String> createStringConverter() {
+    return new StringConverter<>() {
+      @Override
+      public String toString( final String object ) {
+        return object == null ? "" : object;
+      }
+
+      @Override
+      public String fromString( final String string ) {
+        return string == null ? "" : string;
+      }
+    };
+  }
+
+  private TreeView<String> getTreeView() {
+    return mTreeView;
+  }
+
+  private TreeItem<String> getSelectedItem() {
+    return getTreeView().getSelectionModel().getSelectedItem();
+  }
+
   /**
-   * Ensures that when preferences are saved that an
-   * {@link EmptyDefinitionSource} does not get saved literally as its
+   * Prevent an {@link EmptyDefinitionSource} from being saved literally as its
    * memory reference (the default value returned by {@link Object#toString()}).
    *
    * @return Empty string.
@@ -77,4 +152,5 @@ public abstract class AbstractDefinitionSource implements DefinitionSource {
   public String toString() {
     return "";
   }
+
 }

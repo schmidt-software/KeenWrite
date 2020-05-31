@@ -91,12 +91,15 @@ public class MainWindow implements Observer {
   private final Snitch mSnitch = Services.load( Snitch.class );
   private final Notifier mNotifier = Services.load( Notifier.class );
 
-  private Scene scene;
-  private StatusBar statusBar;
-  private Text lineNumberText;
-  private TextField findTextField;
+  private final Scene mScene;
+  private final StatusBar mStatusBar;
+  private final Text mLineNumberText;
+  private final TextField mFindTextField;
 
-  private DefinitionSource definitionSource;
+  /**
+   * Default definition source is empty.
+   */
+  private DefinitionSource mDefinitionSource = new EmptyDefinitionSource();
   private DefinitionPane definitionPane;
   private FileEditorTabPane fileEditorPane;
   private HTMLPreviewPane previewPane;
@@ -112,6 +115,11 @@ public class MainWindow implements Observer {
   private VariableNameInjector variableNameInjector;
 
   public MainWindow() {
+    mStatusBar = createStatusBar();
+    mLineNumberText = createLineNumberText();
+    mFindTextField = createFindTextField();
+    mScene = createScene();
+
     initLayout();
     initFindInput();
     initSnitch();
@@ -174,13 +182,12 @@ public class MainWindow implements Observer {
    */
   private void initDefinitionListener() {
     getFileEditorPane().onOpenDefinitionFileProperty().addListener(
-        ( ObservableValue<? extends Path> definitionFile,
+        ( final ObservableValue<? extends Path> file,
           final Path oldPath, final Path newPath ) -> {
-          openDefinition( newPath );
 
           // Indirectly refresh the resolved map.
           setProcessors( null );
-          updateDefinitionPane();
+          openDefinition( newPath );
 
           try {
             getSnitch().ignore( oldPath );
@@ -375,15 +382,7 @@ public class MainWindow implements Observer {
    * @return Data to display in the definition pane.
    */
   private TreeView<String> getTreeView() {
-    try {
-      return getDefinitionSource().asTreeView();
-    } catch( Exception e ) {
-      error( e );
-    }
-
-    // Slightly redundant as getDefinitionSource() might have returned an
-    // empty definition source.
-    return (new EmptyDefinitionSource()).asTreeView();
+    return getDefinitionSource().asTreeView();
   }
 
   /**
@@ -403,7 +402,7 @@ public class MainWindow implements Observer {
   }
 
   private void updateDefinitionPane() {
-    getDefinitionPane().setRoot( getDefinitionSource().asTreeView() );
+    getDefinitionPane().setRoot( getTreeView() );
   }
 
   private void restoreDefinitionSource() {
@@ -616,11 +615,7 @@ public class MainWindow implements Observer {
   }
 
   protected Scene getScene() {
-    if( this.scene == null ) {
-      this.scene = createScene();
-    }
-
-    return this.scene;
+    return mScene;
   }
 
   public Window getWindow() {
@@ -670,15 +665,12 @@ public class MainWindow implements Observer {
   }
 
   private void setDefinitionSource( final DefinitionSource definitionSource ) {
-    this.definitionSource = definitionSource;
+    assert definitionSource != null;
+    mDefinitionSource = definitionSource;
   }
 
   private DefinitionSource getDefinitionSource() {
-    if( this.definitionSource == null ) {
-      this.definitionSource = new EmptyDefinitionSource();
-    }
-
-    return this.definitionSource;
+    return mDefinitionSource;
   }
 
   private DefinitionPane getDefinitionPane() {
@@ -702,27 +694,15 @@ public class MainWindow implements Observer {
   }
 
   private Text getLineNumberText() {
-    if( this.lineNumberText == null ) {
-      this.lineNumberText = createLineNumberText();
-    }
-
-    return this.lineNumberText;
+    return mLineNumberText;
   }
 
-  private synchronized StatusBar getStatusBar() {
-    if( this.statusBar == null ) {
-      this.statusBar = createStatusBar();
-    }
-
-    return this.statusBar;
+  private StatusBar getStatusBar() {
+    return mStatusBar;
   }
 
   private TextField getFindTextField() {
-    if( this.findTextField == null ) {
-      this.findTextField = createFindTextField();
-    }
-
-    return this.findTextField;
+    return this.mFindTextField;
   }
 
   //---- Member creators ----------------------------------------------------
@@ -1113,13 +1093,14 @@ public class MainWindow implements Observer {
     // TODO: Apply an XML syntax highlighting for XML files.
 //    appScene.getStylesheets().add( STYLESHEET_XML );
     appScene.windowProperty().addListener(
-        ( observable, oldWindow, newWindow ) -> {
-          newWindow.setOnCloseRequest( e -> {
-            if( !getFileEditorPane().closeAllEditors() ) {
-              e.consume();
-            }
-          } );
-        }
+        ( observable, oldWindow, newWindow ) ->
+            newWindow.setOnCloseRequest(
+                e -> {
+                  if( !getFileEditorPane().closeAllEditors() ) {
+                    e.consume();
+                  }
+                }
+            )
     );
   }
 
