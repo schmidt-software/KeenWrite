@@ -50,8 +50,9 @@ public class Services {
    * @param api The interface definition for the service.
    * @return A class that implements the interface.
    */
+  @SuppressWarnings("unchecked")
   public static <T> T load( final Class<T> api ) {
-    @SuppressWarnings("unchecked") final T o = (T) get( api );
+    final T o = (T) get( api );
 
     return o == null ? newInstance( api ) : o;
   }

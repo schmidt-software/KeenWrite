@@ -32,22 +32,16 @@ import com.scrivenvar.predicates.strings.ContainsPredicate;
 import com.scrivenvar.predicates.strings.StartsPredicate;
 import com.scrivenvar.predicates.strings.StringPredicate;
 import javafx.collections.ObservableList;
-import javafx.event.EventHandler;
-import javafx.event.EventType;
 import javafx.scene.Node;
 import javafx.scene.control.MultipleSelectionModel;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
-import javafx.scene.input.MouseButton;
-import javafx.scene.input.MouseEvent;
 
 import java.util.List;
 
 import static com.scrivenvar.definition.yaml.YamlParser.SEPARATOR_CHAR;
 import static com.scrivenvar.util.Lists.getFirst;
-import static javafx.scene.input.MouseButton.PRIMARY;
-import static javafx.scene.input.MouseEvent.MOUSE_CLICKED;
 
 /**
  * Provides a list of variables that can be referenced in the editor.
@@ -75,30 +69,6 @@ public class DefinitionPane extends AbstractPane {
 
     mTreeView = root;
     initTreeView();
-  }
-
-  /**
-   * Allows observers to receive double-click events on the tree view.
-   *
-   * @param handler The handler that will receive double-click events.
-   */
-  public void addBranchSelectedListener(
-      final EventHandler<? super MouseEvent> handler ) {
-    getTreeView().addEventHandler(
-        MouseEvent.ANY, event -> {
-          final MouseButton button = event.getButton();
-          final int clicks = event.getClickCount();
-          final EventType<? extends MouseEvent> eventType =
-              event.getEventType();
-
-          if( PRIMARY.equals( button ) && clicks == 2 ) {
-            if( MOUSE_CLICKED.equals( eventType ) ) {
-              handler.handle( event );
-            }
-
-            event.consume();
-          }
-        } );
   }
 
   /**
@@ -360,13 +330,12 @@ public class DefinitionPane extends AbstractPane {
   /**
    * Returns the root of the tree.
    *
-   * @return The first node added to the YAML definition tree, or a new root
-   * if no first node could be found.
+   * @return The first node added to the YAML definition tree.
    */
   private VariableTreeItem<String> getTreeRoot() {
     final TreeItem<String> root = getTreeView().getRoot();
 
     return root instanceof VariableTreeItem ?
-        (VariableTreeItem<String>) root : new VariableTreeItem<>( "root" );
+        (VariableTreeItem<String>) root : new VariableTreeItem<>("root");
   }
 }

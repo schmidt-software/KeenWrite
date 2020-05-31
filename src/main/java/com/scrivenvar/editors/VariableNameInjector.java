@@ -35,14 +35,11 @@ import com.scrivenvar.definition.VariableTreeItem;
 import com.scrivenvar.service.Settings;
 import javafx.collections.ObservableList;
 import javafx.event.Event;
-import javafx.event.EventHandler;
 import javafx.scene.control.IndexRange;
 import javafx.scene.control.TreeItem;
-import javafx.scene.control.TreeView;
 import javafx.scene.input.InputEvent;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.input.MouseEvent;
 import org.fxmisc.richtext.StyledTextArea;
 import org.fxmisc.wellbehaved.event.EventPattern;
 import org.fxmisc.wellbehaved.event.InputMap;
@@ -102,8 +99,6 @@ public final class VariableNameInjector {
    */
   private DefinitionPane definitionPane;
 
-  private EventHandler<MouseEvent> panelEventHandler;
-
   /**
    * Initializes the variable name injector against the given pane.
    *
@@ -114,16 +109,7 @@ public final class VariableNameInjector {
       final FileEditorTab tab, final DefinitionPane pane ) {
     setFileEditorTab( tab );
     setDefinitionPane( pane );
-    initBranchSelectedListener();
     initKeyboardEventListeners();
-  }
-
-  /**
-   * Traps double-click events on the definition pane.
-   */
-  private void initBranchSelectedListener() {
-    final EventHandler<MouseEvent> eventHandler = getPanelEventHandler();
-    getDefinitionPane().addBranchSelectedListener( eventHandler );
   }
 
   /**
@@ -299,11 +285,11 @@ public final class VariableNameInjector {
     final int[] boundaries = getWordBoundaries( paragraph );
     final String word = paragraph.substring( boundaries[ 0 ], boundaries[ 1 ] );
 
-    VariableTreeItem<String> leaf = findLeaf( word );
+    VariableTreeItem<String> leaf = findLeafStartsWith( word );
 
     if( leaf == null ) {
       // If a leaf doesn't match using "starts with", then try using "contains".
-      leaf = findLeaf( word, true );
+      leaf = findLeafContains( word );
     }
 
     if( leaf != null ) {
@@ -338,16 +324,6 @@ public final class VariableNameInjector {
    */
   private String decorate( final String variable ) {
     return getVariableDecorator().decorate( variable );
-  }
-
-  /**
-   * Inserts the given string at the current caret position, or replaces
-   * selected text (if any).
-   *
-   * @param s The string to inject.
-   */
-  private void replaceSelection( final String s ) {
-    getEditor().replaceSelection( s );
   }
 
   /**
@@ -708,14 +684,12 @@ public final class VariableNameInjector {
     return getDefinitionPane().findNode( path );
   }
 
-  /**
-   * Finds the first leaf having a value that starts with the given text.
-   *
-   * @param text The text to find in the definition tree.
-   * @return The leaf that starts with the given text, or null if not found.
-   */
-  private VariableTreeItem<String> findLeaf( final String text ) {
-    return getDefinitionPane().findLeaf( text, false );
+  private VariableTreeItem<String> findLeafContains( final String text ) {
+    return findLeaf( text, true );
+  }
+
+  private VariableTreeItem<String> findLeafStartsWith( final String text ) {
+    return findLeaf( text, false );
   }
 
   /**
@@ -727,7 +701,6 @@ public final class VariableNameInjector {
    *                 match.
    * @return The leaf that starts with the given text, or null if not found.
    */
-  @SuppressWarnings("SameParameterValue")
   private VariableTreeItem<String> findLeaf(
       final String text, final boolean contains ) {
     return getDefinitionPane().findLeaf( text, contains );
@@ -929,41 +902,4 @@ public final class VariableNameInjector {
     return this.settings;
   }
 
-  private synchronized EventHandler<MouseEvent> getPanelEventHandler() {
-    if( this.panelEventHandler == null ) {
-      this.panelEventHandler = createPanelEventHandler();
-    }
-
-    return this.panelEventHandler;
-  }
-
-  private EventHandler<MouseEvent> createPanelEventHandler() {
-    return new PanelEventHandler();
-  }
-
-  /**
-   * Responsible for handling double-click events on the definition pane.
-   */
-  private class PanelEventHandler implements EventHandler<MouseEvent> {
-
-    public PanelEventHandler() {
-    }
-
-    @Override
-    public void handle( final MouseEvent event ) {
-      final Object source = event.getSource();
-
-      if( source instanceof TreeView ) {
-        final TreeView<?> tree = (TreeView<?>) source;
-        final TreeItem<?> item = tree.getSelectionModel().getSelectedItem();
-
-        if( item instanceof VariableTreeItem ) {
-          final VariableTreeItem<?> var = (VariableTreeItem<?>) item;
-          final String text = decorate( var.toPath() );
-
-          replaceSelection( text );
-        }
-      }
-    }
-  }
 }
