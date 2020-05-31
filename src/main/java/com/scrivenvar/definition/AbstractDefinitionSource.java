@@ -28,7 +28,6 @@
 package com.scrivenvar.definition;
 
 import javafx.collections.ObservableList;
-import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.TextFieldTreeCell;
 import javafx.util.StringConverter;
@@ -56,7 +55,7 @@ public abstract class AbstractDefinitionSource implements DefinitionSource {
   public TreeView<String> asTreeView() {
     if( mTreeView == null ) {
       mTreeView = createTreeView();
-      mTreeView.setContextMenu( createContextMenu( mTreeView ) );
+      mTreeView.setContextMenu( createContextMenu() );
       mTreeView.setEditable( true );
       mTreeView.setCellFactory( treeView -> createTreeCell() );
     }
@@ -72,7 +71,7 @@ public abstract class AbstractDefinitionSource implements DefinitionSource {
    */
   protected abstract TreeView<String> createTreeView();
 
-  private ContextMenu createContextMenu( final TreeView<String> treeView ) {
+  private ContextMenu createContextMenu() {
     final ContextMenu menu = new ContextMenu();
     final ObservableList<MenuItem> items = menu.getItems();
 
@@ -81,7 +80,7 @@ public abstract class AbstractDefinitionSource implements DefinitionSource {
     );
 
     addMenuItem( items, "Definition.menu.rename" ).setOnAction(
-        e -> treeView.edit( getSelectedItem() )
+        e -> getTreeView().edit( getSelectedItem() )
     );
 
     addMenuItem( items, "Definition.menu.remove" ).setOnAction(
@@ -102,6 +101,13 @@ public abstract class AbstractDefinitionSource implements DefinitionSource {
     return parent.getChildren();
   }
 
+  /**
+   * Adds a menu item to a list of menu items.
+   *
+   * @param items    The list of menu items to append to.
+   * @param labelKey The resource bundle key name for the menu item's label.
+   * @return The menu item added to the list of menu items.
+   */
   private MenuItem addMenuItem(
       final List<MenuItem> items, final String labelKey ) {
     final MenuItem menuItem = createMenuItem( labelKey );
