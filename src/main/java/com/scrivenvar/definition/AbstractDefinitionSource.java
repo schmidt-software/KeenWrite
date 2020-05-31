@@ -28,6 +28,7 @@
 package com.scrivenvar.definition;
 
 import javafx.collections.ObservableList;
+import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.TextFieldTreeCell;
 import javafx.util.StringConverter;
@@ -117,7 +118,13 @@ public abstract class AbstractDefinitionSource implements DefinitionSource {
   }
 
   private TreeCell<String> createTreeCell() {
-    return new TextFieldTreeCell<>( createStringConverter() );
+    return new TextFieldTreeCell<>( createStringConverter() ) {
+      @Override
+      public void commitEdit( final String newValue ) {
+        super.commitEdit( newValue );
+        requestFocus();
+      }
+    };
   }
 
   private StringConverter<String> createStringConverter() {
