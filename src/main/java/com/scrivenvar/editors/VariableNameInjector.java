@@ -43,7 +43,6 @@ import java.text.BreakIterator;
 import java.util.function.Consumer;
 
 import static com.scrivenvar.definition.FindMode.*;
-import static java.lang.Character.isWhitespace;
 import static javafx.scene.input.KeyCode.SPACE;
 import static javafx.scene.input.KeyCombination.CONTROL_DOWN;
 import static org.fxmisc.wellbehaved.event.EventPattern.keyPressed;
@@ -58,19 +57,14 @@ public final class VariableNameInjector {
   public static final int DEFAULT_MAX_VAR_LENGTH = 64;
 
   /**
-   * TODO: Move this into settings.
-   */
-  private static final String PUNCTUATION = "\"#$%&'()*+,-/:;<=>?@[]^_`{|}~";
-
-  /**
    * Recipient of name injections.
    */
-  private FileEditorTab tab;
+  private FileEditorTab mTab;
 
   /**
    * Initiates double-click events.
    */
-  private DefinitionPane definitionPane;
+  private DefinitionPane mDefinitionPane;
 
   /**
    * Initializes the variable name injector against the given pane.
@@ -97,55 +91,48 @@ public final class VariableNameInjector {
   }
 
   /**
-   * Traps keys for performing various short-cut tasks, such as @-mode variable
-   * insertion and control+space for variable autocomplete.
-   *
-   * @ key is pressed, a new keyboard map is inserted in place of the current
-   * map -- this class goes into "variable edit mode" (a.k.a. vMode).
+   * Traps Control+SPACE to auto-insert definition key names.
    */
   private void initKeyboardEventListeners() {
-    // Control and space are pressed.
-    addKeyboardListener( keyPressed( SPACE, CONTROL_DOWN ),
-                         this::autocomplete );
+    addKeyboardListener(
+        keyPressed( SPACE, CONTROL_DOWN ),
+        this::autoinsert );
   }
 
   /**
-   * Pressing control+space will find a node that matches the current word and
-   * substitute the YAML variable reference. This is called when the user is not
-   * editing in vMode.
+   * Pressing Control+SPACE will find a node that matches the current word and
+   * substitute the YAML variable reference.
    *
-   * @param e Ignored -- it can only be Ctrl+Space.
+   * @param e Ignored -- it can only be Control+SPACE.
    */
-  private void autocomplete( final KeyEvent e ) {
+  private void autoinsert( final KeyEvent e ) {
     final String paragraph = getCaretParagraph();
     final int[] boundaries = getWordBoundariesAtCaret();
     final String word = paragraph.substring( boundaries[ 0 ], boundaries[ 1 ] );
-
-    VariableTreeItem<String> leaf = findLeafStartsWith( word );
-
-    if( leaf == null ) {
-      // If a leaf doesn't match using "starts with", then try using "contains".
-      leaf = findLeafContains( word );
-    }
-
-    if( leaf == null ) {
-      leaf = findLeafLevenshtein( word );
-    }
+    final VariableTreeItem<String> leaf = findLeaf( word );
 
     if( leaf != null ) {
-      replaceText( boundaries[ 0 ], boundaries[ 1 ], leaf.toPath() );
-      decorate();
+      replaceText(
+          boundaries[ 0 ],
+          boundaries[ 1 ],
+          decorate( leaf.toPath() )
+      );
+
       expand( leaf );
     }
   }
 
   private int[] getWordBoundariesAtCaret() {
     final String paragraph = getCaretParagraph();
-    final int column = getCurrentCaretColumn();
-    final int offset = column - (column == paragraph.length() ? 1 : 0);
+    int offset = getCurrentCaretColumn();
 
     final BreakIterator wordBreaks = BreakIterator.getWordInstance();
     wordBreaks.setText( paragraph );
+
+    // Scan back until the first word is found.
+    while( offset > 0 && wordBreaks.isBoundary( offset ) ) {
+      offset--;
+    }
 
     final int[] boundaries = new int[ 2 ];
     boundaries[ 1 ] = wordBreaks.following( offset );
@@ -155,27 +142,11 @@ public final class VariableNameInjector {
   }
 
   /**
-   * Called when autocomplete finishes on a valid leaf or when the user presses
-   * Enter to finish manual autocomplete.
-   */
-  private void decorate() {
-    // A little bit of duplication...
-    final String paragraph = getCaretParagraph();
-    final int[] boundaries = getWordBoundaries( paragraph );
-    final String old = paragraph.substring( boundaries[ 0 ], boundaries[ 1 ] );
-
-    final String newVariable = decorate( old );
-
-    final int posEnded = getCurrentCaretPosition();
-    final int posBegan = posEnded - old.length();
-
-    getEditor().replaceText( posBegan, posEnded, newVariable );
-  }
-
-  /**
-   * Called when user double-clicks on a tree view item.
+   * Injects a variable using the syntax specific to the type of document
+   * being edited.
    *
-   * @param variable The variable to decorate.
+   * @param variable The variable to decorate in dot-notation without any
+   *                 start or end tokens present.
    */
   private String decorate( final String variable ) {
     return getVariableDecorator().decorate( variable );
@@ -205,112 +176,6 @@ public final class VariableNameInjector {
   }
 
   /**
-   * Returns current word boundary indexes into the current paragraph, excluding
-   * punctuation.
-   *
-   * @param p      The paragraph wherein to hunt word boundaries.
-   * @param offset The offset into the paragraph to begin scanning left and
-   *               right.
-   * @return The starting and ending index of the word closest to the caret.
-   */
-  private int[] getWordBoundaries( final String p, final int offset ) {
-    // Remove dashes, but retain hyphens. Retain same number of characters
-    // to preserve relative indexes.
-    final String paragraph = p.replace( "---", "   " ).replace( "--", "  " );
-
-    return getWordAt( paragraph, offset );
-  }
-
-  /**
-   * Helper method to get the word boundaries for the current paragraph.
-   *
-   * @param paragraph The paragraph to search for word boundaries.
-   * @return The word boundary indexes into the paragraph.
-   */
-  private int[] getWordBoundaries( final String paragraph ) {
-    return getWordBoundaries( paragraph, getCurrentCaretColumn() );
-  }
-
-  /**
-   * Given an arbitrary offset into a string, this returns the word at that
-   * index. The inputs and outputs include:
-   *
-   * <ul>
-   * <li>surrounded by space: <code>hello | world!</code> ("");</li>
-   * <li>end of word: <code>hello| world!</code> ("hello");</li>
-   * <li>start of a word: <code>hello |world!</code> ("world");</li>
-   * <li>within a word: <code>hello wo|rld!</code> ("world");</li>
-   * <li>end of a paragraph: <code>hello world!|</code> ("world");</li>
-   * <li>start of a paragraph: <code>|hello world!</code> ("hello"); or</li>
-   * <li>after punctuation: <code>hello world!|</code> ("world").</li>
-   * </ul>
-   *
-   * @param p      The string to scan for a word.
-   * @param offset The offset within s to begin searching for the nearest word
-   *               boundary, must not be out of bounds of s.
-   * @return The word in s at the offset.
-   */
-  private int[] getWordAt( final String p, final int offset ) {
-    return new int[]{getWordBegan( p, offset ), getWordEnded( p, offset )};
-  }
-
-  /**
-   * Returns the index into s where a word begins.
-   *
-   * @param s      Never null.
-   * @param offset Index into s to begin searching backwards for a word
-   *               boundary.
-   * @return The index where a word begins.
-   */
-  private int getWordBegan( final String s, int offset ) {
-    while( offset > 0 && isBoundary( s.charAt( offset - 1 ) ) ) {
-      offset--;
-    }
-
-    return offset;
-  }
-
-  /**
-   * Returns the index into s where a word ends.
-   *
-   * @param s      Never null.
-   * @param offset Index into s to begin searching forwards for a word boundary.
-   * @return The index where a word ends.
-   */
-  private int getWordEnded( final String s, int offset ) {
-    final int length = s.length();
-
-    while( offset < length && isBoundary( s.charAt( offset ) ) ) {
-      offset++;
-    }
-
-    return offset;
-  }
-
-  /**
-   * Returns true if the given character can be reasonably expected to be part
-   * of a word, including punctuation marks.
-   *
-   * @param c The character to compare.
-   * @return false The character is a space character.
-   */
-  private boolean isBoundary( final char c ) {
-    return !isWhitespace( c ) && !isPunctuation( c );
-  }
-
-  /**
-   * Returns true if the given character is part of the set of Latin (English)
-   * punctuation marks.
-   *
-   * @param c The character to determine whether it is punctuation.
-   * @return {@code true} when the given character is in the set of
-   * {@link #PUNCTUATION}.
-   */
-  private static boolean isPunctuation( final char c ) {
-    return PUNCTUATION.indexOf( c ) != -1;
-  }
-
-  /**
    * Returns the text for the paragraph that contains the caret.
    *
    * @return A non-null string, possibly empty.
@@ -320,21 +185,24 @@ public final class VariableNameInjector {
   }
 
   /**
-   * Returns the caret position as an offset into the text.
-   *
-   * @return A value from 0 to the length of the text (minus one).
-   */
-  private int getCurrentCaretPosition() {
-    return getEditor().getCaretPosition();
-  }
-
-  /**
    * Returns the caret position within the current paragraph.
    *
    * @return A value from 0 to the length of the current paragraph.
    */
   private int getCurrentCaretColumn() {
     return getEditor().getCaretColumn();
+  }
+
+  private VariableTreeItem<String> findLeaf( final String word ) {
+    assert word != null;
+
+    VariableTreeItem<String> leaf;
+
+    leaf = findLeafStartsWith( word );
+    leaf = leaf == null ? findLeafContains( word ) : leaf;
+    leaf = leaf == null ? findLeafLevenshtein( word ) : leaf;
+
+    return leaf;
   }
 
   private VariableTreeItem<String> findLeafContains( final String text ) {
@@ -403,19 +271,18 @@ public final class VariableNameInjector {
   }
 
   public FileEditorTab getFileEditorTab() {
-    return this.tab;
+    return mTab;
   }
 
-  public void setFileEditorTab( final FileEditorTab editorTab ) {
-    this.tab = editorTab;
+  public void setFileEditorTab( final FileEditorTab tab ) {
+    mTab = tab;
   }
 
   private DefinitionPane getDefinitionPane() {
-    return this.definitionPane;
+    return mDefinitionPane;
   }
 
   private void setDefinitionPane( final DefinitionPane definitionPane ) {
-    this.definitionPane = definitionPane;
+    mDefinitionPane = definitionPane;
   }
-
 }

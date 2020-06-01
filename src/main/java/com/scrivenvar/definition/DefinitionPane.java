@@ -28,20 +28,12 @@
 package com.scrivenvar.definition;
 
 import com.scrivenvar.AbstractPane;
-import com.scrivenvar.predicates.strings.ContainsPredicate;
-import com.scrivenvar.predicates.strings.StartsPredicate;
-import com.scrivenvar.predicates.strings.StringPredicate;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.control.MultipleSelectionModel;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
-
-import java.util.List;
-
-import static com.scrivenvar.definition.yaml.YamlParser.SEPARATOR_CHAR;
-import static com.scrivenvar.util.Lists.getFirst;
 
 /**
  * Provides a list of variables that can be referenced in the editor.
@@ -83,129 +75,16 @@ public class DefinitionPane extends AbstractPane {
   }
 
   /**
-   * Finds a tree item with a value that exactly matches the given word.
-   *
-   * @param trunk     The root item containing a list of nodes to search.
-   * @param predicate Helps determine whether the node value matches the word.
-   * @return The item that matches the given word, or null if not found.
-   */
-  private TreeItem<String> findNode(
-      final TreeItem<String> trunk,
-      final StringPredicate predicate ) {
-    TreeItem<String> result = null;
-
-    if( trunk != null ) {
-      final List<TreeItem<String>> branches = trunk.getChildren();
-
-      for( final TreeItem<String> leaf : branches ) {
-        if( predicate.test( leaf.getValue() ) ) {
-          result = leaf;
-          break;
-        }
-      }
-    }
-
-    return result;
-  }
-
-  /**
-   * Calls findNode with the EqualsPredicate. See
-   * {@link #findNode(TreeItem, StringPredicate)} for details.
-   *
-   * @return The result from findNode.
-   */
-  private TreeItem<String> findStartsNode(
-      final TreeItem<String> trunk,
-      final String word ) {
-    return findNode( trunk, new StartsPredicate( word ) );
-  }
-
-  /**
-   * Calls findNode with the ContainsPredicate. See
-   * {@link #findNode(TreeItem, StringPredicate)} for details.
-   *
-   * @return The result from findNode.
-   */
-  private TreeItem<String> findSubstringNode(
-      final TreeItem<String> trunk,
-      final String word ) {
-    return findNode( trunk, new ContainsPredicate( word ) );
-  }
-
-  /**
-   * Finds a node that matches a prefix and suffix specified by the given path
-   * variable. The prefix must match a valid node value. The suffix refers to
-   * the start of a string that matches zero or more children of the node
-   * specified by the prefix. The algorithm has the following cases:
-   *
-   * <ol>
-   * <li>Path is empty, return first child.</li>
-   * <li>Path contains a complete match, return corresponding node.</li>
-   * <li>Path contains a partial match, return nearest node.</li>
-   * <li>Path contains a complete and partial match, return nearest node.</li>
-   * </ol>
-   *
-   * @param word The word typed by the user, which contains dot-separated node
-   *             names that represent a path within the YAML tree plus a
-   *             partial variable
-   *             name match (for a node).
-   * @return The node value that starts with the suffix portion of the given
-   * path, never null.
-   */
-  public TreeItem<String> findNode( final String word ) {
-    String path = word;
-
-    // Current tree item.
-    TreeItem<String> cItem = getTreeRoot();
-
-    // Previous tree item.
-    TreeItem<String> pItem = cItem;
-
-    int index = path.indexOf( SEPARATOR_CHAR );
-
-    while( index >= 0 ) {
-      final String node = path.substring( 0, index );
-      path = path.substring( index + 1 );
-
-      if( (cItem = findStartsNode( cItem, node )) == null ) {
-        break;
-      }
-
-      index = path.indexOf( SEPARATOR_CHAR );
-      pItem = cItem;
-    }
-
-    // Find the node that starts with whatever the user typed.
-    cItem = findStartsNode( pItem, path );
-
-    // If there was no matching node, then find a substring match.
-    if( cItem == null ) {
-      cItem = findSubstringNode( pItem, path );
-    }
-
-    // If neither starts with nor substring matched a node, revert to the last
-    // known valid node.
-    if( cItem == null ) {
-      cItem = pItem;
-    }
-
-    return sanitize( cItem );
-  }
-
-  /**
    * Returns the leaf that matches the given value. If the value is terminally
    * punctuated, the punctuation is removed if no match was found.
    *
    * @param value    The value to find, never null.
-   * @param contains Set to true to perform a substring match if starts with
-   *                 fails to match.
+   * @param findMode Defines how to match words.
    * @return The leaf that contains the given value, or null if neither the
    * original value nor the terminally-trimmed value was found.
    */
   public VariableTreeItem<String> findLeaf(
-      final String value,
-      final FindMode findMode ) {
-
+      final String value, final FindMode findMode ) {
     final VariableTreeItem<String> root = getTreeRoot();
     final VariableTreeItem<String> leaf = root.findLeaf( value, findMode );
 
@@ -215,41 +94,20 @@ public class DefinitionPane extends AbstractPane {
   }
 
   /**
-   * Removes punctuation from the end of a string. The character set includes:
-   * <code>:;,.!?-/\¡¿</code>.
+   * Removes punctuation from the end of a string.
    *
    * @param s The string to trim, never null.
    * @return The string trimmed of all terminal characters from the end
    */
   private String rtrimTerminalPunctuation( final String s ) {
-    final StringBuilder result = new StringBuilder( s.trim() );
+    assert s != null;
+    int index = s.length() - 1;
 
-    while( TERMINALS.contains( "" + result.charAt( result.length() - 1 ) ) ) {
-      result.setLength( result.length() - 1 );
+    while( index > 0 && (TERMINALS.indexOf( s.charAt( index ) ) >= 0) ) {
+      index--;
     }
 
-    return result.toString();
-  }
-
-  /**
-   * Returns the tree root if either item or its first child are null.
-   *
-   * @param item The item to make null safe.
-   * @return A non-null TreeItem, possibly the root item (to avoid null).
-   */
-  private TreeItem<String> sanitize( final TreeItem<String> item ) {
-    TreeItem<String> result;
-
-    if( item == null ) {
-      result = getTreeRoot();
-    }
-    else {
-      result = item == getTreeRoot()
-          ? getFirst( item.getChildren() )
-          : item;
-    }
-
-    return result;
+    return s.substring( 0, index );
   }
 
   /**
@@ -336,6 +194,6 @@ public class DefinitionPane extends AbstractPane {
     final TreeItem<String> root = getTreeView().getRoot();
 
     return root instanceof VariableTreeItem ?
-        (VariableTreeItem<String>) root : new VariableTreeItem<>("root");
+        (VariableTreeItem<String>) root : new VariableTreeItem<>( "root" );
   }
 }

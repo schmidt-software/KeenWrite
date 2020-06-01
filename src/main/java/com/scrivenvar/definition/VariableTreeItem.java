@@ -80,7 +80,8 @@ public class VariableTreeItem<T> extends TreeItem<T> {
 
     stack.push( root );
 
-    boolean found = false;
+    // Don't try to find keys for blank/empty variable values.
+    boolean found = text.isBlank();
     VariableTreeItem<T> node = null;
 
     while( !found && !stack.isEmpty() ) {
