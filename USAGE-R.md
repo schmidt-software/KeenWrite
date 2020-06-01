@@ -81,11 +81,11 @@ directory. Accomplish this as follows:
 1. Create the directory if it does not exist.
 1. Move `library.R` into the directory.
 1. Append a new function to `library.R` as follows:
-``` r
-mul <- function( a, b ) {
-  a * b
-}
-```
+    ``` r
+    mul <- function( a, b ) {
+      a * b
+    }
+    ```
 1. Click **R → Script**.
 1. Set the **R Startup Script** contents to:
     ``` r
