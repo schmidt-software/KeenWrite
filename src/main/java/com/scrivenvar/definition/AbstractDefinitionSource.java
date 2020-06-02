@@ -76,7 +76,7 @@ public abstract class AbstractDefinitionSource implements DefinitionSource {
     final ObservableList<MenuItem> items = menu.getItems();
 
     addMenuItem( items, "Definition.menu.create" ).setOnAction(
-        e -> getSiblings( getSelectedItem() ).add( createTreeItem() )
+        e -> getSelectedItem().getChildren().add( createTreeItem() )
     );
 
     addMenuItem( items, "Definition.menu.rename" ).setOnAction(
@@ -96,7 +96,8 @@ public abstract class AbstractDefinitionSource implements DefinitionSource {
   private ObservableList<TreeItem<String>> getSiblings(
       final TreeItem<String> item ) {
     final TreeItem<String> root = getTreeView().getRoot();
-    final TreeItem<String> parent = item == root ? item : item.getParent();
+    final TreeItem<String> parent =
+        (item == null || item == root) ? root : item.getParent();
 
     return parent.getChildren();
   }
@@ -152,7 +153,9 @@ public abstract class AbstractDefinitionSource implements DefinitionSource {
   }
 
   private TreeItem<String> getSelectedItem() {
-    return getTreeView().getSelectionModel().getSelectedItem();
+    final TreeItem<String> item =
+        getTreeView().getSelectionModel().getSelectedItem();
+    return item == null ? getTreeView().getRoot() : item;
   }
 
   /**

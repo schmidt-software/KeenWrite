@@ -3,9 +3,8 @@
   <component name="ChangeListManager">
     <list default="true" id="3dcf7c8f-87b5-4d25-a804-39da40a621b8" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/definition/DefinitionPane.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/definition/DefinitionPane.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/definition/VariableTreeItem.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/definition/VariableTreeItem.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/editors/VariableNameInjector.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/editors/VariableNameInjector.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/MainWindow.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/MainWindow.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/definition/AbstractDefinitionSource.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/definition/AbstractDefinitionSource.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -144,38 +143,38 @@
       <screen x="0" y="28" width="2560" height="1529" />
     </state>
     <state x="610" y="411" width="426" height="481" key="FileChooserDialogImpl/0.28.2560.1529@0.28.2560.1529" timestamp="1589659107517" />
-    <state width="1573" height="396" key="GridCell.Tab.0.bottom" timestamp="1590985505428">
+    <state width="1573" height="396" key="GridCell.Tab.0.bottom" timestamp="1591118047938">
       <screen x="0" y="28" width="2560" height="1529" />
     </state>
-    <state width="1573" height="396" key="GridCell.Tab.0.bottom/0.28.2560.1529@0.28.2560.1529" timestamp="1590985505428" />
-    <state width="1573" height="396" key="GridCell.Tab.0.center" timestamp="1590985505427">
+    <state width="1573" height="396" key="GridCell.Tab.0.bottom/0.28.2560.1529@0.28.2560.1529" timestamp="1591118047938" />
+    <state width="1573" height="396" key="GridCell.Tab.0.center" timestamp="1591118047937">
       <screen x="0" y="28" width="2560" height="1529" />
     </state>
-    <state width="1573" height="396" key="GridCell.Tab.0.center/0.28.2560.1529@0.28.2560.1529" timestamp="1590985505427" />
-    <state width="1573" height="396" key="GridCell.Tab.0.left" timestamp="1590985505427">
+    <state width="1573" height="396" key="GridCell.Tab.0.center/0.28.2560.1529@0.28.2560.1529" timestamp="1591118047937" />
+    <state width="1573" height="396" key="GridCell.Tab.0.left" timestamp="1591118047937">
       <screen x="0" y="28" width="2560" height="1529" />
     </state>
-    <state width="1573" height="396" key="GridCell.Tab.0.left/0.28.2560.1529@0.28.2560.1529" timestamp="1590985505427" />
-    <state width="1573" height="396" key="GridCell.Tab.0.right" timestamp="1590985505427">
+    <state width="1573" height="396" key="GridCell.Tab.0.left/0.28.2560.1529@0.28.2560.1529" timestamp="1591118047937" />
+    <state width="1573" height="396" key="GridCell.Tab.0.right" timestamp="1591118047937">
       <screen x="0" y="28" width="2560" height="1529" />
     </state>
-    <state width="1573" height="396" key="GridCell.Tab.0.right/0.28.2560.1529@0.28.2560.1529" timestamp="1590985505427" />
-    <state width="1573" height="396" key="GridCell.Tab.1.bottom" timestamp="1590985505429">
+    <state width="1573" height="396" key="GridCell.Tab.0.right/0.28.2560.1529@0.28.2560.1529" timestamp="1591118047937" />
+    <state width="1573" height="396" key="GridCell.Tab.1.bottom" timestamp="1591118047938">
       <screen x="0" y="28" width="2560" height="1529" />
     </state>
-    <state width="1573" height="396" key="GridCell.Tab.1.bottom/0.28.2560.1529@0.28.2560.1529" timestamp="1590985505429" />
-    <state width="1573" height="396" key="GridCell.Tab.1.center" timestamp="1590985505428">
+    <state width="1573" height="396" key="GridCell.Tab.1.bottom/0.28.2560.1529@0.28.2560.1529" timestamp="1591118047938" />
+    <state width="1573" height="396" key="GridCell.Tab.1.center" timestamp="1591118047938">
       <screen x="0" y="28" width="2560" height="1529" />
     </state>
-    <state width="1573" height="396" key="GridCell.Tab.1.center/0.28.2560.1529@0.28.2560.1529" timestamp="1590985505428" />
-    <state width="1573" height="396" key="GridCell.Tab.1.left" timestamp="1590985505428">
+    <state width="1573" height="396" key="GridCell.Tab.1.center/0.28.2560.1529@0.28.2560.1529" timestamp="1591118047938" />
+    <state width="1573" height="396" key="GridCell.Tab.1.left" timestamp="1591118047938">
       <screen x="0" y="28" width="2560" height="1529" />
     </state>
-    <state width="1573" height="396" key="GridCell.Tab.1.left/0.28.2560.1529@0.28.2560.1529" timestamp="1590985505428" />
-    <state width="1573" height="396" key="GridCell.Tab.1.right" timestamp="1590985505428">
+    <state width="1573" height="396" key="GridCell.Tab.1.left/0.28.2560.1529@0.28.2560.1529" timestamp="1591118047938" />
+    <state width="1573" height="396" key="GridCell.Tab.1.right" timestamp="1591118047938">
       <screen x="0" y="28" width="2560" height="1529" />
     </state>
-    <state width="1573" height="396" key="GridCell.Tab.1.right/0.28.2560.1529@0.28.2560.1529" timestamp="1590985505428" />
+    <state width="1573" height="396" key="GridCell.Tab.1.right/0.28.2560.1529@0.28.2560.1529" timestamp="1591118047938" />
     <state x="324" y="288" key="SettingsEditor" timestamp="1589576619807">
       <screen x="0" y="28" width="2560" height="1529" />
     </state>
@@ -200,17 +199,27 @@
       <screen x="0" y="28" width="2560" height="1529" />
     </state>
     <state x="490" y="304" key="run.anything.popup/0.28.2560.1529@0.28.2560.1529" timestamp="1589657324666" />
-    <state x="490" y="327" width="672" height="678" key="search.everywhere.popup" timestamp="1590959025690">
+    <state x="490" y="327" width="672" height="678" key="search.everywhere.popup" timestamp="1591117499888">
       <screen x="0" y="28" width="2560" height="1529" />
     </state>
-    <state x="490" y="327" width="672" height="678" key="search.everywhere.popup/0.28.2560.1529@0.28.2560.1529" timestamp="1590959025690" />
+    <state x="490" y="327" width="672" height="678" key="search.everywhere.popup/0.28.2560.1529@0.28.2560.1529" timestamp="1591117499888" />
   </component>
   <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/com/scrivenvar/definition/AbstractDefinitionSource.java</url>
+          <line>97</line>
+          <option name="timeStamp" value="34" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
     <watches-manager>
       <configuration name="Remote">
         <watch expression="wordBreaks.next()" language="JAVA" />
         <watch expression="wordBreaks.current()" language="JAVA" />
         <watch expression="wordBreaks.isBoundary(offset)" language="JAVA" />
+        <watch expression="getSelectedItem()" language="JAVA" />
       </configuration>
     </watches-manager>
   </component>

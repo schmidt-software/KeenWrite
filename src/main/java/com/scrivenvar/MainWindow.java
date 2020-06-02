@@ -327,6 +327,10 @@ public class MainWindow implements Observer {
    * @param tab The file editor tab that has been changed in some fashion.
    */
   private void refreshSelectedTab( final FileEditorTab tab ) {
+    if( tab == null ) {
+      return;
+    }
+
     getPreviewPane().setPath( tab.getPath() );
 
     // TODO: https://github.com/DaveJarvis/scrivenvar/issues/29
