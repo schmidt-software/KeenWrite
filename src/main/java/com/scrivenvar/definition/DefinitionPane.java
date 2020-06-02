@@ -36,42 +36,38 @@ import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 
 /**
- * Provides a list of variables that can be referenced in the editor.
+ * Provides key/value pairs that can be referenced from within the editor.
  *
  * @author White Magic Software, Ltd.
  */
-public class DefinitionPane extends AbstractPane {
+public final class DefinitionPane extends AbstractPane {
 
   /**
    * Trimmed off the end of a word to match a variable name.
    */
   private final static String TERMINALS = ":;,.!?-/\\¡¿";
 
-  private final TreeView<String> mTreeView;
+  private final TreeView<String> mTreeView = new TreeView<>();
 
   /**
    * Constructs a definition pane with a given tree view root.
    * See {@link com.scrivenvar.definition.yaml.YamlTreeAdapter#adapt(String)}
    * for details.
-   *
-   * @param root The root of the variable definition tree.
    */
-  public DefinitionPane( final TreeView<String> root ) {
-    assert root != null;
-
-    mTreeView = root;
+  public DefinitionPane() {
     initTreeView();
   }
 
   /**
-   * Changes the root node of the tree view. Swaps the current root node for the
-   * root node of the given
+   * Changes the root of the {@link TreeView} to the root of the given
+   * {@link TreeView}.
    *
-   * @param treeView The tree view containing a new root node; if the parameter
-   *                 is null, the tree is cleared.
+   * @param treeView The new hierarchy of key/value pairs to replace the
+   *                 existing hierarchy.
    */
-  public void setRoot( final TreeView<String> treeView ) {
-    getTreeView().setRoot( treeView == null ? null : treeView.getRoot() );
+  public void update( final TreeView<String> treeView ) {
+    assert treeView != null;
+    mTreeView.setRoot( treeView.getRoot() );
   }
 
   /**
@@ -108,6 +104,10 @@ public class DefinitionPane extends AbstractPane {
     }
 
     return s.substring( 0, index );
+  }
+
+  private void initTreeView() {
+    getSelectionModel().setSelectionMode( SelectionMode.MULTIPLE );
   }
 
   /**
@@ -157,10 +157,6 @@ public class DefinitionPane extends AbstractPane {
       node.setExpanded( false );
       collapse( node.getChildren() );
     }
-  }
-
-  private void initTreeView() {
-    getSelectionModel().setSelectionMode( SelectionMode.MULTIPLE );
   }
 
   /**

@@ -35,6 +35,7 @@ import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
+import com.scrivenvar.Messages;
 import com.scrivenvar.decorators.VariableDecorator;
 import com.scrivenvar.decorators.YamlVariableDecorator;
 import org.yaml.snakeyaml.DumperOptions;
@@ -42,7 +43,6 @@ import org.yaml.snakeyaml.DumperOptions;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Writer;
-import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -85,7 +85,6 @@ public class YamlParser {
    * <code>$root.node.var$</code>).
    */
   public static final String SEPARATOR = ".";
-  public static final char SEPARATOR_CHAR = SEPARATOR.charAt( 0 );
 
   private final static int GROUP_DELIMITED = 1;
   private final static int GROUP_REFERENCE = 2;
@@ -116,7 +115,7 @@ public class YamlParser {
    */
   private Map<String, String> references;
 
-  public YamlParser( final InputStream in ) throws IOException {
+  public YamlParser( final InputStream in ) {
     process( in );
   }
 
@@ -220,12 +219,18 @@ public class YamlParser {
    * <code>JsonNode.fields()</code> to walk through the YAML tree of fields.
    *
    * @param in The input stream containing YAML content.
-   * @throws IOException Could not read the stream.
    */
-  private void process( final InputStream in ) throws IOException {
-    final ObjectNode root = (ObjectNode) getObjectMapper().readTree( in );
-    setDocumentRoot( root );
-    process( root );
+  private void process( final InputStream in ) {
+    setError( Messages.get( "Main.statusbar.state.default" ) );
+
+    try {
+      final ObjectNode root = (ObjectNode) getObjectMapper().readTree( in );
+      setDocumentRoot( root );
+      process( root );
+    } catch( final Exception e ) {
+      setDocumentRoot( new ObjectMapper().createObjectNode() );
+      setError( Messages.get( "yaml.error.open" ) );
+    }
   }
 
   /**
@@ -260,7 +265,9 @@ public class YamlParser {
         try {
           resolve( fieldValue.asText() );
         } catch( StackOverflowError e ) {
-          setError( "Unresolvable: " + node.textValue() + " = " + fieldValue );
+          final String msg = Messages.get(
+              "yaml.error.unresolvable", node.textValue(), fieldValue );
+          setError( msg );
         }
       }
     }
@@ -326,7 +333,7 @@ public class YamlParser {
    * @param delimited Delimited reference with no derived value.
    */
   private void missing( final String delimited ) {
-    setError( MessageFormat.format( "Missing value for '{0}'.", delimited ) );
+    setError( Messages.get( "yaml.error.missing", delimited ) );
   }
 
   /**

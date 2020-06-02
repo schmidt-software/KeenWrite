@@ -44,8 +44,8 @@ import static com.scrivenvar.Messages.get;
  */
 public class YamlFileDefinitionSource extends FileDefinitionSource {
 
-  private YamlTreeAdapter yamlTreeAdapter;
-  private YamlParser yamlParser;
+  private final YamlTreeAdapter mYamlTreeAdapter;
+  private final YamlParser mYamlParser;
 
   /**
    * Constructs a new YAML definition source, populated from the given file.
@@ -54,11 +54,9 @@ public class YamlFileDefinitionSource extends FileDefinitionSource {
    */
   public YamlFileDefinitionSource( final Path path ) {
     super( path );
-    init();
-  }
 
-  private void init() {
-    setYamlParser( createYamlParser() );
+    mYamlParser = createYamlParser( path );
+    mYamlTreeAdapter = createYamlTreeAdapter( mYamlParser );
   }
 
   @Override
@@ -67,35 +65,23 @@ public class YamlFileDefinitionSource extends FileDefinitionSource {
   }
 
   private YamlTreeAdapter getYamlTreeAdapter() {
-    if( this.yamlTreeAdapter == null ) {
-      setYamlTreeAdapter( new YamlTreeAdapter( getYamlParser() ) );
-    }
-
-    return this.yamlTreeAdapter;
-  }
-
-  private void setYamlTreeAdapter( final YamlTreeAdapter yamlTreeAdapter ) {
-    this.yamlTreeAdapter = yamlTreeAdapter;
+    return mYamlTreeAdapter;
   }
 
   private YamlParser getYamlParser() {
-    if( this.yamlParser == null ) {
-      setYamlParser( createYamlParser() );
-    }
-
-    return this.yamlParser;
+    return mYamlParser;
   }
 
-  private void setYamlParser( final YamlParser yamlParser ) {
-    this.yamlParser = yamlParser;
-  }
-
-  private YamlParser createYamlParser() {
-    try( final InputStream in = Files.newInputStream( getPath() ) ) {
+  private YamlParser createYamlParser( final Path path ) {
+    try( final InputStream in = Files.newInputStream( path ) ) {
       return new YamlParser( in );
     } catch( final Exception ex ) {
       throw new RuntimeException( ex );
     }
+  }
+
+  private YamlTreeAdapter createYamlTreeAdapter( final YamlParser yamlParser ) {
+    return new YamlTreeAdapter( yamlParser );
   }
 
   @Override

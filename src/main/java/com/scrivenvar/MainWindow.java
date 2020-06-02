@@ -66,6 +66,7 @@ import javafx.stage.WindowEvent;
 import org.controlsfx.control.StatusBar;
 import org.fxmisc.richtext.model.TwoDimensional.Position;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.*;
@@ -100,9 +101,9 @@ public class MainWindow implements Observer {
    * Default definition source is empty.
    */
   private DefinitionSource mDefinitionSource = new EmptyDefinitionSource();
-  private DefinitionPane definitionPane;
+  private final DefinitionPane mDefinitionPane = new DefinitionPane();
+  private final HTMLPreviewPane mPreviewPane = new HTMLPreviewPane();
   private FileEditorTabPane fileEditorPane;
-  private HTMLPreviewPane previewPane;
 
   /**
    * Prevents re-instantiation of processing classes.
@@ -238,7 +239,6 @@ public class MainWindow implements Observer {
   private void initPreferences() {
     restoreDefinitionSource();
     getFileEditorPane().restorePreferences();
-    updateDefinitionPane();
   }
 
   /**
@@ -381,15 +381,6 @@ public class MainWindow implements Observer {
   }
 
   /**
-   * Returns the root node for the hierarchical definition source.
-   *
-   * @return Data to display in the definition pane.
-   */
-  private TreeView<String> getTreeView() {
-    return getDefinitionSource().asTreeView();
-  }
-
-  /**
    * Called when a definition source is opened.
    *
    * @param path Path to the definition source that was opened.
@@ -399,21 +390,17 @@ public class MainWindow implements Observer {
       final DefinitionSource ds = createDefinitionSource( path.toString() );
       setDefinitionSource( ds );
       storeDefinitionSource();
-      updateDefinitionPane();
+      getDefinitionPane().update( getDefinitionSource().asTreeView() );
     } catch( final Exception e ) {
       error( e );
     }
-  }
-
-  private void updateDefinitionPane() {
-    getDefinitionPane().setRoot( getTreeView() );
   }
 
   private void restoreDefinitionSource() {
     final Preferences preferences = getPreferences();
     final String source = preferences.get( PERSIST_DEFINITION_SOURCE, "" );
 
-    setDefinitionSource( createDefinitionSource( source ) );
+    openDefinition( new File( source ).toPath() );
   }
 
   private void storeDefinitionSource() {
@@ -661,11 +648,7 @@ public class MainWindow implements Observer {
   }
 
   private HTMLPreviewPane getPreviewPane() {
-    if( this.previewPane == null ) {
-      this.previewPane = createPreviewPane();
-    }
-
-    return this.previewPane;
+    return mPreviewPane;
   }
 
   private void setDefinitionSource( final DefinitionSource definitionSource ) {
@@ -678,11 +661,7 @@ public class MainWindow implements Observer {
   }
 
   private DefinitionPane getDefinitionPane() {
-    if( this.definitionPane == null ) {
-      this.definitionPane = createDefinitionPane();
-    }
-
-    return this.definitionPane;
+    return mDefinitionPane;
   }
 
   private Options getOptions() {
@@ -762,10 +741,6 @@ public class MainWindow implements Observer {
 
   private HTMLPreviewPane createPreviewPane() {
     return new HTMLPreviewPane();
-  }
-
-  private DefinitionPane createDefinitionPane() {
-    return new DefinitionPane( getTreeView() );
   }
 
   private DefinitionFactory createDefinitionFactory() {

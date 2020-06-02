@@ -30,6 +30,8 @@ package com.scrivenvar.definition;
 import javafx.collections.ObservableList;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.TextFieldTreeCell;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.util.StringConverter;
 
 import java.util.List;
@@ -58,6 +60,7 @@ public abstract class AbstractDefinitionSource implements DefinitionSource {
       mTreeView.setContextMenu( createContextMenu() );
       mTreeView.setEditable( true );
       mTreeView.setCellFactory( treeView -> createTreeCell() );
+      mTreeView.addEventFilter( KeyEvent.KEY_PRESSED, this::keyEventFilter );
     }
 
     return mTreeView;
@@ -125,7 +128,8 @@ public abstract class AbstractDefinitionSource implements DefinitionSource {
   }
 
   private TreeCell<String> createTreeCell() {
-    return new TextFieldTreeCell<>( createStringConverter() ) {
+    return new TextFieldTreeCell<>(
+        createStringConverter() ) {
       @Override
       public void commitEdit( final String newValue ) {
         super.commitEdit( newValue );
@@ -148,6 +152,13 @@ public abstract class AbstractDefinitionSource implements DefinitionSource {
     };
   }
 
+  private void keyEventFilter( final KeyEvent event ) {
+    if( event.getCode() == KeyCode.ENTER ) {
+
+      event.consume();
+    }
+  }
+
   private TreeView<String> getTreeView() {
     return mTreeView;
   }
@@ -168,5 +179,4 @@ public abstract class AbstractDefinitionSource implements DefinitionSource {
   public String toString() {
     return "";
   }
-
 }

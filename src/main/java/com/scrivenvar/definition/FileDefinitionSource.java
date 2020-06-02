@@ -36,7 +36,7 @@ import java.nio.file.Path;
  */
 public abstract class FileDefinitionSource extends AbstractDefinitionSource {
 
-  private Path mPath;
+  private final Path mPath;
 
   /**
    * Constructs a new file definition source that can read and write data in the
@@ -46,10 +46,6 @@ public abstract class FileDefinitionSource extends AbstractDefinitionSource {
    * @param path Must not be null.
    */
   public FileDefinitionSource( final Path path ) {
-    setPath( path );
-  }
-
-  private void setPath( final Path path ) {
     mPath = path;
   }
 
