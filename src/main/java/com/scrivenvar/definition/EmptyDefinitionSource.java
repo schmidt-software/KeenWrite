@@ -29,16 +29,20 @@ package com.scrivenvar.definition;
 
 import java.util.HashMap;
 import java.util.Map;
-import javafx.scene.control.TreeView;
 
 /**
  * Creates a definition source that has no information to load or save.
  *
  * @author White Magic Software, Ltd.
  */
-public class EmptyDefinitionSource extends AbstractDefinitionSource {
+public class EmptyDefinitionSource implements DefinitionSource {
 
   public EmptyDefinitionSource() {
+  }
+
+  @Override
+  public TreeAdapter getTreeAdapter() {
+    return new EmptyTreeAdapter();
   }
 
   @Override
@@ -46,8 +50,14 @@ public class EmptyDefinitionSource extends AbstractDefinitionSource {
     return new HashMap<>();
   }
 
+  /**
+   * Prevent an {@link EmptyDefinitionSource} from being saved literally as its
+   * memory reference (the default value returned by {@link Object#toString()}).
+   *
+   * @return Empty string.
+   */
   @Override
-  protected TreeView<String> createTreeView() {
-    return new TreeView<>();
+  public String toString() {
+    return "";
   }
 }

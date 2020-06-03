@@ -28,14 +28,12 @@
 package com.scrivenvar.definition.yaml;
 
 import com.scrivenvar.definition.FileDefinitionSource;
-import javafx.scene.control.TreeView;
+import com.scrivenvar.definition.TreeAdapter;
 
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
-
-import static com.scrivenvar.Messages.get;
 
 /**
  * Represents a definition data source for YAML files.
@@ -44,8 +42,8 @@ import static com.scrivenvar.Messages.get;
  */
 public class YamlFileDefinitionSource extends FileDefinitionSource {
 
-  private final YamlTreeAdapter mYamlTreeAdapter;
   private final YamlParser mYamlParser;
+  private final YamlTreeAdapter mYamlTreeAdapter;
 
   /**
    * Constructs a new YAML definition source, populated from the given file.
@@ -54,9 +52,13 @@ public class YamlFileDefinitionSource extends FileDefinitionSource {
    */
   public YamlFileDefinitionSource( final Path path ) {
     super( path );
-
     mYamlParser = createYamlParser( path );
-    mYamlTreeAdapter = createYamlTreeAdapter( mYamlParser );
+    mYamlTreeAdapter = createTreeAdapter( mYamlParser );
+  }
+
+  @Override
+  public TreeAdapter getTreeAdapter() {
+    return mYamlTreeAdapter;
   }
 
   @Override
@@ -64,12 +66,9 @@ public class YamlFileDefinitionSource extends FileDefinitionSource {
     return getYamlParser().createResolvedMap();
   }
 
-  private YamlTreeAdapter getYamlTreeAdapter() {
-    return mYamlTreeAdapter;
-  }
-
-  private YamlParser getYamlParser() {
-    return mYamlParser;
+  @Override
+  public String getError() {
+    return getYamlParser().getError();
   }
 
   private YamlParser createYamlParser( final Path path ) {
@@ -80,19 +79,11 @@ public class YamlFileDefinitionSource extends FileDefinitionSource {
     }
   }
 
-  private YamlTreeAdapter createYamlTreeAdapter( final YamlParser yamlParser ) {
-    return new YamlTreeAdapter( yamlParser );
+  private YamlParser getYamlParser() {
+    return mYamlParser;
   }
 
-  @Override
-  protected TreeView<String> createTreeView() {
-    return getYamlTreeAdapter().adapt(
-        get( "Pane.definition.node.root.title" )
-    );
-  }
-
-  @Override
-  public String getError() {
-    return getYamlParser().getError();
+  private YamlTreeAdapter createTreeAdapter( final YamlParser parser ) {
+    return new YamlTreeAdapter( parser );
   }
 }

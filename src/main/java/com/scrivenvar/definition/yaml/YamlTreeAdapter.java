@@ -28,9 +28,10 @@
 package com.scrivenvar.definition.yaml;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.scrivenvar.definition.DocumentParser;
+import com.scrivenvar.definition.TreeAdapter;
 import com.scrivenvar.definition.VariableTreeItem;
 import javafx.scene.control.TreeItem;
-import javafx.scene.control.TreeView;
 
 import java.util.Map.Entry;
 
@@ -40,28 +41,29 @@ import java.util.Map.Entry;
  *
  * @author White Magic Software, Ltd.
  */
-public class YamlTreeAdapter {
+public class YamlTreeAdapter implements TreeAdapter {
+  private final DocumentParser<JsonNode> mParser;
 
-  private YamlParser yamlParser;
-
-  public YamlTreeAdapter( final YamlParser parser ) {
-    setYamlParser( parser );
+  public YamlTreeAdapter( final DocumentParser<JsonNode> parser ) {
+    mParser = parser;
   }
 
   /**
-   * Converts a YAML document to a TreeView based on the document keys. Only the
-   * first document in the stream is adapted.
+   * Converts a YAML document to a {@link TreeItem} based on the document
+   * keys. Only the first document in the stream is adapted.
    *
-   * @param name Root TreeItem node name.
-   * @return A TreeView populated with all the keys in the YAML document.
+   * @param root Root {@link TreeItem} node name.
+   * @return A {@link TreeItem} populated with all the keys in the YAML
+   * document.
    */
-  public TreeView<String> adapt( final String name ) {
-    final JsonNode rootNode = getYamlParser().getDocumentRoot();
-    final TreeItem<String> rootItem = createTreeItem( name );
+  public TreeItem<String> adapt(
+      final String root ) {
+    final JsonNode rootNode = getParser().parse();
+    final TreeItem<String> rootItem = createTreeItem( root );
 
     rootItem.setExpanded( true );
     adapt( rootNode, rootItem );
-    return new TreeView<>( rootItem );
+    return rootItem;
   }
 
   /**
@@ -114,11 +116,7 @@ public class YamlTreeAdapter {
     return new VariableTreeItem<>( value );
   }
 
-  private YamlParser getYamlParser() {
-    return this.yamlParser;
-  }
-
-  private void setYamlParser( final YamlParser yamlParser ) {
-    this.yamlParser = yamlParser;
+  private DocumentParser<JsonNode> getParser() {
+    return mParser;
   }
 }

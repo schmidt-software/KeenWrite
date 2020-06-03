@@ -34,7 +34,7 @@ import java.nio.file.Path;
  *
  * @author White Magic Software, Ltd.
  */
-public abstract class FileDefinitionSource extends AbstractDefinitionSource {
+public abstract class FileDefinitionSource implements DefinitionSource {
 
   private final Path mPath;
 
@@ -49,6 +49,11 @@ public abstract class FileDefinitionSource extends AbstractDefinitionSource {
     mPath = path;
   }
 
+  /**
+   * Returns the path to the file that is to be loaded as a definition source.
+   *
+   * @return A fully qualified {@link Path} to a file.
+   */
   public Path getPath() {
     return mPath;
   }

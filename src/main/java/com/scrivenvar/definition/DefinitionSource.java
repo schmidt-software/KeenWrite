@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 White Magic Software, Ltd.
+ * Copyright 2020 White Magic Software, Ltd.
  *
  * All rights reserved.
  *
@@ -27,25 +27,24 @@
  */
 package com.scrivenvar.definition;
 
-import javafx.scene.control.TreeView;
-
 import java.util.Map;
 
 /**
- * Represents behaviours for reading and writing variable definitions.
- *
- * @author White Magic Software, Ltd.
+ * Represents behaviours for reading and writing variable definitions. This
+ * class cannot have any direct hooks into the user interface, as it defines
+ * entry points into the definition data model loaded into an object
+ * hierarchy. That hierarchy is converted to a UI model using an adapter
+ * pattern.
  */
 public interface DefinitionSource {
 
   /**
-   * Creates a TreeView from this definition source. The definition source is
-   * responsible for observing the TreeView instance for changes and persisting
-   * them, if needed.
+   * Creates an object capable of producing view-based objects from this
+   * definition source.
    *
    * @return A hierarchical tree suitable for displaying in the definition pane.
    */
-  TreeView<String> asTreeView();
+  TreeAdapter getTreeAdapter();
 
   /**
    * Returns all the strings with their values resolved in a flat hierarchy.

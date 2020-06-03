@@ -28,15 +28,23 @@
 package com.scrivenvar.definition;
 
 import com.scrivenvar.AbstractPane;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
-import javafx.scene.control.MultipleSelectionModel;
-import javafx.scene.control.SelectionMode;
-import javafx.scene.control.TreeItem;
-import javafx.scene.control.TreeView;
+import javafx.scene.control.*;
+import javafx.scene.control.cell.TextFieldTreeCell;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
+import javafx.util.StringConverter;
+
+import java.util.List;
+
+import static com.scrivenvar.Messages.get;
 
 /**
- * Provides key/value pairs that can be referenced from within the editor.
+ * Provides the user interface that holdsa {@link TreeView}, which
+ * allows users to interact with key/value pairs loaded from the
+ * {@link DocumentParser} and adapted using a {@link TreeAdapter}.
  *
  * @author White Magic Software, Ltd.
  */
@@ -51,23 +59,40 @@ public final class DefinitionPane extends AbstractPane {
 
   /**
    * Constructs a definition pane with a given tree view root.
-   * See {@link com.scrivenvar.definition.yaml.YamlTreeAdapter#adapt(String)}
-   * for details.
    */
   public DefinitionPane() {
     initTreeView();
   }
 
   /**
+   * Changes the root of the {@link TreeView} to the root of the
+   * {@link TreeView} from the {@link DefinitionSource}.
+   *
+   * @param definitionSource Container for the hierarchy of key/value pairs
+   *                         to replace the existing hierarchy.
+   */
+  public void update( final DefinitionSource definitionSource ) {
+    assert definitionSource != null;
+
+    final TreeAdapter treeAdapter = definitionSource.getTreeAdapter();
+    final TreeItem<String> treeItem = treeAdapter.adapt(
+        get( "Pane.definition.node.root.title" )
+    );
+
+    update( treeItem );
+  }
+
+  /**
    * Changes the root of the {@link TreeView} to the root of the given
    * {@link TreeView}.
    *
-   * @param treeView The new hierarchy of key/value pairs to replace the
+   * @param treeItem The new hierarchy of key/value pairs to replace the
    *                 existing hierarchy.
    */
-  public void update( final TreeView<String> treeView ) {
-    assert treeView != null;
-    mTreeView.setRoot( treeView.getRoot() );
+  private void update( final TreeItem<String> treeItem ) {
+    assert treeItem != null;
+
+    getTreeView().setRoot( treeItem );
   }
 
   /**
@@ -104,10 +129,6 @@ public final class DefinitionPane extends AbstractPane {
     }
 
     return s.substring( 0, index );
-  }
-
-  private void initTreeView() {
-    getSelectionModel().setSelectionMode( SelectionMode.MULTIPLE );
   }
 
   /**
@@ -172,13 +193,14 @@ public final class DefinitionPane extends AbstractPane {
     return getTreeView().getSelectionModel();
   }
 
-  /**
-   * Returns the tree view that contains the YAML definition hierarchy.
-   *
-   * @return A non-null instance.
-   */
-  private TreeView<String> getTreeView() {
-    return mTreeView;
+  private void initTreeView() {
+    final TreeView<String> treeView = getTreeView();
+
+    treeView.setContextMenu( createContextMenu() );
+    treeView.setEditable( true );
+    treeView.setCellFactory( cell -> createTreeCell() );
+    treeView.addEventFilter( KeyEvent.KEY_PRESSED, this::keyEventFilter );
+    setSelectionMode( SelectionMode.MULTIPLE );
   }
 
   /**
@@ -191,5 +213,120 @@ public final class DefinitionPane extends AbstractPane {
 
     return root instanceof VariableTreeItem ?
         (VariableTreeItem<String>) root : new VariableTreeItem<>( "root" );
+  }
+
+  private ContextMenu createContextMenu() {
+    final ContextMenu menu = new ContextMenu();
+    final ObservableList<MenuItem> items = menu.getItems();
+
+    addMenuItem( items, "Definition.menu.create" ).setOnAction(
+        e -> getSelectedItem().getChildren().add( createTreeItem() )
+    );
+
+    addMenuItem( items, "Definition.menu.rename" ).setOnAction(
+        e -> getTreeView().edit( getSelectedItem() )
+    );
+
+    addMenuItem( items, "Definition.menu.remove" ).setOnAction(
+        e -> {
+          final TreeItem<String> c = getSelectedItem();
+          getSiblings( c ).remove( c );
+        }
+    );
+
+    return menu;
+  }
+
+  private ObservableList<TreeItem<String>> getSiblings(
+      final TreeItem<String> item ) {
+    final TreeItem<String> root = getTreeView().getRoot();
+    final TreeItem<String> parent =
+        (item == null || item == root) ? root : item.getParent();
+
+    return parent.getChildren();
+  }
+
+  /**
+   * Adds a menu item to a list of menu items.
+   *
+   * @param items    The list of menu items to append to.
+   * @param labelKey The resource bundle key name for the menu item's label.
+   * @return The menu item added to the list of menu items.
+   */
+  private MenuItem addMenuItem(
+      final List<MenuItem> items, final String labelKey ) {
+    final MenuItem menuItem = createMenuItem( labelKey );
+    items.add( menuItem );
+    return menuItem;
+  }
+
+  private MenuItem createMenuItem( final String labelKey ) {
+    return new MenuItem( get( labelKey ) );
+  }
+
+  private VariableTreeItem<String> createTreeItem() {
+    return new VariableTreeItem<>( get( "Definition.menu.add.default" ) );
+  }
+
+  private TreeCell<String> createTreeCell() {
+    return new TextFieldTreeCell<>(
+        createStringConverter() ) {
+      @Override
+      public void commitEdit( final String newValue ) {
+        super.commitEdit( newValue );
+        requestFocus();
+      }
+    };
+  }
+
+  private StringConverter<String> createStringConverter() {
+    return new StringConverter<>() {
+      @Override
+      public String toString( final String object ) {
+        return object == null ? "" : object;
+      }
+
+      @Override
+      public String fromString( final String string ) {
+        return string == null ? "" : string;
+      }
+    };
+  }
+
+  private void keyEventFilter( final KeyEvent event ) {
+    if( event.getCode() == KeyCode.ENTER ) {
+      final ObservableValue<TreeItem<String>> property =
+          getTreeView().editingItemProperty();
+
+      // Consume ENTER presses when not editing a definition value.
+      if( property.getValue() == null ) {
+        event.consume();
+      }
+    }
+  }
+
+  private TreeItem<String> getSelectedItem() {
+    final TreeItem<String> item =
+        getTreeView().getSelectionModel().getSelectedItem();
+    return item == null ? getTreeView().getRoot() : item;
+  }
+
+  /**
+   * Delegates to {@link #getSelectionModel()}.
+   *
+   * @param mode The new selection mode (to enable multiple select).
+   */
+  @SuppressWarnings("SameParameterValue")
+  private void setSelectionMode( final SelectionMode mode ) {
+    getSelectionModel().setSelectionMode( mode );
+  }
+
+  /**
+   * Returns the tree view that contains the YAML definition hierarchy.
+   *
+   * @return A non-null instance.
+   */
+  private TreeView<String> getTreeView() {
+    return mTreeView;
   }
 }

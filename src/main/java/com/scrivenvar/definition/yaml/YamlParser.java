@@ -38,6 +38,7 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
 import com.scrivenvar.Messages;
 import com.scrivenvar.decorators.VariableDecorator;
 import com.scrivenvar.decorators.YamlVariableDecorator;
+import com.scrivenvar.definition.DocumentParser;
 import org.yaml.snakeyaml.DumperOptions;
 
 import java.io.IOException;
@@ -78,7 +79,7 @@ import java.util.regex.Pattern;
  *
  * @author White Magic Software, Ltd.
  */
-public class YamlParser {
+public class YamlParser implements DocumentParser<JsonNode> {
 
   /**
    * Separates YAML variable nodes (e.g., the dots in
@@ -156,7 +157,7 @@ public class YamlParser {
   public Map<String, String> createResolvedMap() {
     final Map<String, String> map = new HashMap<>( 1024 );
 
-    resolve( getDocumentRoot(), "", map );
+    resolve( parse(), "", map );
 
     return map;
   }
@@ -323,7 +324,7 @@ public class YamlParser {
    */
   @SuppressWarnings("unused")
   private void writeDocument() throws IOException {
-    getObjectMapper().writeValue( System.out, getDocumentRoot() );
+    getObjectMapper().writeValue( System.out, parse() );
   }
 
   /**
@@ -353,7 +354,7 @@ public class YamlParser {
    * @return The dereferenced value.
    */
   private String lookup( final String reference ) {
-    return getDocumentRoot().at( asPath( reference ) ).asText();
+    return parse().at( asPath( reference ) ).asText();
   }
 
   /**
@@ -365,8 +366,8 @@ public class YamlParser {
    * converted to slashes.
    */
   private String asPath( final String reference ) {
-    return SEPARATOR_YAML + reference.replace( getDelimitedSeparator(),
-                                               SEPARATOR_YAML );
+    return SEPARATOR_YAML + reference.replace(
+        getDelimitedSeparator(), SEPARATOR_YAML );
   }
 
   /**
@@ -383,7 +384,8 @@ public class YamlParser {
    *
    * @return The parent node.
    */
-  protected JsonNode getDocumentRoot() {
+  @Override
+  public JsonNode parse() {
     return this.documentRoot;
   }
 
@@ -417,7 +419,7 @@ public class YamlParser {
     return new HashMap<>();
   }
 
-  private final class ResolverYAMLFactory extends YAMLFactory {
+  private final class ResolverYamlFactory extends YAMLFactory {
 
     private static final long serialVersionUID = 1L;
 
@@ -425,22 +427,21 @@ public class YamlParser {
     protected YAMLGenerator _createGenerator(
         final Writer out, final IOContext ctxt ) throws IOException {
 
-      return new ResolverYAMLGenerator(
+      return new ResolverYamlGenerator(
           ctxt, _generatorFeatures, _yamlGeneratorFeatures, _objectCodec,
           out, _version );
     }
   }
 
-  private class ResolverYAMLGenerator extends YAMLGenerator {
+  private class ResolverYamlGenerator extends YAMLGenerator {
 
-    public ResolverYAMLGenerator(
+    public ResolverYamlGenerator(
         final IOContext ctxt,
         final int jsonFeatures,
         final int yamlFeatures,
         final ObjectCodec codec,
         final Writer out,
         final DumperOptions.Version version ) throws IOException {
-
       super( ctxt, jsonFeatures, yamlFeatures, codec, out, version );
     }
 
@@ -450,12 +451,12 @@ public class YamlParser {
     }
   }
 
-  private YAMLFactory getYAMLFactory() {
-    return new ResolverYAMLFactory();
+  private YAMLFactory getYamlFactory() {
+    return new ResolverYamlFactory();
   }
 
   private ObjectMapper getObjectMapper() {
-    return new ObjectMapper( getYAMLFactory() );
+    return new ObjectMapper( getYamlFactory() );
   }
 
   /**

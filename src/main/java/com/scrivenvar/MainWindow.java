@@ -390,7 +390,7 @@ public class MainWindow implements Observer {
       final DefinitionSource ds = createDefinitionSource( path.toString() );
       setDefinitionSource( ds );
       storeDefinitionSource();
-      getDefinitionPane().update( getDefinitionSource().asTreeView() );
+      getDefinitionPane().update( getDefinitionSource() );
     } catch( final Exception e ) {
       error( e );
     }
@@ -737,10 +737,6 @@ public class MainWindow implements Observer {
    */
   private FileEditorTabPane createFileEditorPane() {
     return new FileEditorTabPane();
-  }
-
-  private HTMLPreviewPane createPreviewPane() {
-    return new HTMLPreviewPane();
   }
 
   private DefinitionFactory createDefinitionFactory() {
