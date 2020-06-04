@@ -27,7 +27,6 @@
  */
 package com.scrivenvar.definition;
 
-import java.nio.file.Path;
 import java.util.Map;
 
 /**
@@ -55,15 +54,6 @@ public interface DefinitionSource {
    * recursively.
    */
   Map<String, String> getResolvedMap();
-
-  /**
-   * Exports the data source to the given path. Performs no operation by
-   * default.
-   *
-   * @param path The path to write the interpolated string definitions.
-   */
-  default void export( final Path path ) {
-  }
 
   /**
    * Returns the error message, if any, that occurred while loading the

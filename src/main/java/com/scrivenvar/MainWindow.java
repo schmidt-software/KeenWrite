@@ -27,7 +27,10 @@
  */
 package com.scrivenvar;
 
-import com.scrivenvar.definition.*;
+import com.scrivenvar.definition.DefinitionFactory;
+import com.scrivenvar.definition.DefinitionPane;
+import com.scrivenvar.definition.DefinitionSource;
+import com.scrivenvar.definition.FileDefinitionSource;
 import com.scrivenvar.definition.yaml.YamlDefinitionSource;
 import com.scrivenvar.dialogs.RScriptDialog;
 import com.scrivenvar.editors.EditorPane;
@@ -406,7 +409,8 @@ public class MainWindow implements Observer {
   }
 
   private void exportDefinitionData( final Path path ) {
-    getDefinitionSource().export( path );
+    final TreeItem<String> root = getDefinitionPane().getTreeView().getRoot();
+    getDefinitionSource().getTreeAdapter().export( root, path );
   }
 
   private Path getDefinitionFilename() {

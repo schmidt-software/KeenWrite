@@ -33,11 +33,12 @@ import com.scrivenvar.definition.TreeAdapter;
 import com.scrivenvar.definition.VariableTreeItem;
 import javafx.scene.control.TreeItem;
 
+import java.nio.file.Path;
 import java.util.Map.Entry;
 
 /**
  * Transforms a JsonNode hierarchy into a tree that can be displayed in a user
- * interface.
+ * interface and vice-versa.
  *
  * @author White Magic Software, Ltd.
  */
@@ -46,6 +47,11 @@ public class YamlTreeAdapter implements TreeAdapter {
 
   public YamlTreeAdapter( final DocumentParser<JsonNode> parser ) {
     mParser = parser;
+  }
+
+  @Override
+  public void export( final TreeItem<String> root, final Path path ) {
+    System.out.println( "Export root to path" );
   }
 
   /**

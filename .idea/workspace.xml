@@ -3,23 +3,11 @@
   <component name="ChangeListManager">
     <list default="true" id="3dcf7c8f-87b5-4d25-a804-39da40a621b8" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/FileEditorTab.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/FileEditorTab.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/FileEditorTabPane.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/FileEditorTabPane.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/MainWindow.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/MainWindow.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/definition/DefinitionFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/definition/DefinitionFactory.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/definition/DefinitionPane.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/definition/DefinitionPane.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/definition/DefinitionSource.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/definition/DefinitionSource.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/definition/EmptyDefinitionSource.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/definition/EmptyTreeAdapter.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/definition/VariableTreeItem.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/definition/VariableTreeItem.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/definition/yaml/YamlFileDefinitionSource.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/definition/yaml/YamlDefinitionSource.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/definition/yaml/YamlParser.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/definition/yaml/YamlParser.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/definition/yaml/resolvers/ResolverYAMLFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/definition/yaml/resolvers/ResolverYamlFactory.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/definition/yaml/resolvers/ResolverYAMLGenerator.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/definition/yaml/resolvers/ResolverYamlGenerator.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/editors/VariableNameInjector.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/editors/VariableNameInjector.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/util/StageState.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/util/StageState.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/com/scrivenvar/messages.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/com/scrivenvar/messages.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/com/scrivenvar/settings.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/com/scrivenvar/settings.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/definition/TreeAdapter.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/definition/TreeAdapter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/definition/yaml/YamlDefinitionSource.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/definition/yaml/YamlDefinitionSource.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/definition/yaml/YamlTreeAdapter.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/definition/yaml/YamlTreeAdapter.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -168,38 +156,38 @@
       <screen x="0" y="28" width="2560" height="1529" />
     </state>
     <state x="610" y="411" width="426" height="481" key="FileChooserDialogImpl/0.28.2560.1529@0.28.2560.1529" timestamp="1591159062898" />
-    <state width="1573" height="396" key="GridCell.Tab.0.bottom" timestamp="1591242203228">
+    <state width="1573" height="321" key="GridCell.Tab.0.bottom" timestamp="1591243143277">
       <screen x="0" y="28" width="2560" height="1529" />
     </state>
-    <state width="1573" height="396" key="GridCell.Tab.0.bottom/0.28.2560.1529@0.28.2560.1529" timestamp="1591242203228" />
-    <state width="1573" height="396" key="GridCell.Tab.0.center" timestamp="1591242203228">
+    <state width="1573" height="321" key="GridCell.Tab.0.bottom/0.28.2560.1529@0.28.2560.1529" timestamp="1591243143277" />
+    <state width="1573" height="321" key="GridCell.Tab.0.center" timestamp="1591243143277">
       <screen x="0" y="28" width="2560" height="1529" />
     </state>
-    <state width="1573" height="396" key="GridCell.Tab.0.center/0.28.2560.1529@0.28.2560.1529" timestamp="1591242203228" />
-    <state width="1573" height="396" key="GridCell.Tab.0.left" timestamp="1591242203227">
+    <state width="1573" height="321" key="GridCell.Tab.0.center/0.28.2560.1529@0.28.2560.1529" timestamp="1591243143277" />
+    <state width="1573" height="321" key="GridCell.Tab.0.left" timestamp="1591243143277">
       <screen x="0" y="28" width="2560" height="1529" />
     </state>
-    <state width="1573" height="396" key="GridCell.Tab.0.left/0.28.2560.1529@0.28.2560.1529" timestamp="1591242203227" />
-    <state width="1573" height="396" key="GridCell.Tab.0.right" timestamp="1591242203314">
+    <state width="1573" height="321" key="GridCell.Tab.0.left/0.28.2560.1529@0.28.2560.1529" timestamp="1591243143277" />
+    <state width="1573" height="321" key="GridCell.Tab.0.right" timestamp="1591243143277">
       <screen x="0" y="28" width="2560" height="1529" />
     </state>
-    <state width="1573" height="396" key="GridCell.Tab.0.right/0.28.2560.1529@0.28.2560.1529" timestamp="1591242203314" />
-    <state width="1573" height="396" key="GridCell.Tab.1.bottom" timestamp="1591242203229">
+    <state width="1573" height="321" key="GridCell.Tab.0.right/0.28.2560.1529@0.28.2560.1529" timestamp="1591243143277" />
+    <state width="1573" height="396" key="GridCell.Tab.1.bottom" timestamp="1591242924678">
       <screen x="0" y="28" width="2560" height="1529" />
     </state>
-    <state width="1573" height="396" key="GridCell.Tab.1.bottom/0.28.2560.1529@0.28.2560.1529" timestamp="1591242203229" />
-    <state width="1573" height="396" key="GridCell.Tab.1.center" timestamp="1591242203229">
+    <state width="1573" height="396" key="GridCell.Tab.1.bottom/0.28.2560.1529@0.28.2560.1529" timestamp="1591242924678" />
+    <state width="1573" height="396" key="GridCell.Tab.1.center" timestamp="1591242924677">
       <screen x="0" y="28" width="2560" height="1529" />
     </state>
-    <state width="1573" height="396" key="GridCell.Tab.1.center/0.28.2560.1529@0.28.2560.1529" timestamp="1591242203229" />
-    <state width="1573" height="396" key="GridCell.Tab.1.left" timestamp="1591242203229">
+    <state width="1573" height="396" key="GridCell.Tab.1.center/0.28.2560.1529@0.28.2560.1529" timestamp="1591242924677" />
+    <state width="1573" height="396" key="GridCell.Tab.1.left" timestamp="1591242924677">
       <screen x="0" y="28" width="2560" height="1529" />
     </state>
-    <state width="1573" height="396" key="GridCell.Tab.1.left/0.28.2560.1529@0.28.2560.1529" timestamp="1591242203229" />
-    <state width="1573" height="396" key="GridCell.Tab.1.right" timestamp="1591242203229">
+    <state width="1573" height="396" key="GridCell.Tab.1.left/0.28.2560.1529@0.28.2560.1529" timestamp="1591242924677" />
+    <state width="1573" height="396" key="GridCell.Tab.1.right" timestamp="1591242924677">
       <screen x="0" y="28" width="2560" height="1529" />
     </state>
-    <state width="1573" height="396" key="GridCell.Tab.1.right/0.28.2560.1529@0.28.2560.1529" timestamp="1591242203229" />
+    <state width="1573" height="396" key="GridCell.Tab.1.right/0.28.2560.1529@0.28.2560.1529" timestamp="1591242924677" />
     <state x="324" y="288" key="SettingsEditor" timestamp="1589576619807">
       <screen x="0" y="28" width="2560" height="1529" />
     </state>
@@ -224,17 +212,17 @@
       <screen x="0" y="28" width="2560" height="1529" />
     </state>
     <state x="490" y="304" key="run.anything.popup/0.28.2560.1529@0.28.2560.1529" timestamp="1591240533110" />
-    <state x="490" y="327" width="672" height="678" key="search.everywhere.popup" timestamp="1591240272617">
+    <state x="490" y="327" width="672" height="678" key="search.everywhere.popup" timestamp="1591242996184">
       <screen x="0" y="28" width="2560" height="1529" />
     </state>
-    <state x="490" y="327" width="672" height="678" key="search.everywhere.popup/0.28.2560.1529@0.28.2560.1529" timestamp="1591240272617" />
+    <state x="490" y="327" width="672" height="678" key="search.everywhere.popup/0.28.2560.1529@0.28.2560.1529" timestamp="1591242996184" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/main/java/com/scrivenvar/MainWindow.java</url>
-          <line>732</line>
+          <line>733</line>
           <option name="timeStamp" value="49" />
         </line-breakpoint>
       </breakpoints>

@@ -30,9 +30,6 @@ package com.scrivenvar.definition.yaml;
 import com.scrivenvar.definition.FileDefinitionSource;
 import com.scrivenvar.definition.TreeAdapter;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
 
@@ -65,11 +62,6 @@ public class YamlDefinitionSource extends FileDefinitionSource {
   @Override
   public Map<String, String> getResolvedMap() {
     return getYamlParser().createResolvedMap();
-  }
-
-  @Override
-  public void export( final Path path ) {
-    System.out.println( "Export YAML definitions to: " + path.toString() );
   }
 
   @Override
