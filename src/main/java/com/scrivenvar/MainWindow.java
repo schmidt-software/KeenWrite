@@ -28,6 +28,7 @@
 package com.scrivenvar;
 
 import com.scrivenvar.definition.*;
+import com.scrivenvar.definition.yaml.YamlDefinitionSource;
 import com.scrivenvar.dialogs.RScriptDialog;
 import com.scrivenvar.editors.EditorPane;
 import com.scrivenvar.editors.VariableNameInjector;
@@ -37,6 +38,7 @@ import com.scrivenvar.preview.HTMLPreviewPane;
 import com.scrivenvar.processors.Processor;
 import com.scrivenvar.processors.ProcessorFactory;
 import com.scrivenvar.service.Options;
+import com.scrivenvar.service.Settings;
 import com.scrivenvar.service.Snitch;
 import com.scrivenvar.service.events.Notifier;
 import com.scrivenvar.util.Action;
@@ -50,6 +52,8 @@ import javafx.beans.value.ObservableBooleanValue;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener.Change;
 import javafx.collections.ObservableList;
+import javafx.event.Event;
+import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -90,6 +94,7 @@ public class MainWindow implements Observer {
 
   private final Options mOptions = Services.load( Options.class );
   private final Snitch mSnitch = Services.load( Snitch.class );
+  private final Settings mSettings = Services.load( Settings.class );
   private final Notifier mNotifier = Services.load( Notifier.class );
 
   private final Scene mScene;
@@ -97,13 +102,11 @@ public class MainWindow implements Observer {
   private final Text mLineNumberText;
   private final TextField mFindTextField;
 
-  /**
-   * Default definition source is empty.
-   */
-  private DefinitionSource mDefinitionSource = new EmptyDefinitionSource();
+  private DefinitionSource mDefinitionSource = createDefaultDefinitionSource();
   private final DefinitionPane mDefinitionPane = new DefinitionPane();
   private final HTMLPreviewPane mPreviewPane = new HTMLPreviewPane();
   private FileEditorTabPane fileEditorPane;
+
 
   /**
    * Prevents re-instantiation of processing classes.
@@ -114,6 +117,7 @@ public class MainWindow implements Observer {
    * Listens on the definition pane for double-click events.
    */
   private VariableNameInjector variableNameInjector;
+
 
   public MainWindow() {
     mStatusBar = createStatusBar();
@@ -179,7 +183,7 @@ public class MainWindow implements Observer {
   }
 
   /**
-   * Listen for file editor tab pane to receive an open definition source event.
+   * Listen for {@link FileEditorTabPane} to receive open definition file event.
    */
   private void initDefinitionListener() {
     getFileEditorPane().onOpenDefinitionFileProperty().addListener(
@@ -237,7 +241,7 @@ public class MainWindow implements Observer {
    * Reloads the preferences from the previous session.
    */
   private void initPreferences() {
-    restoreDefinitionSource();
+    restoreDefinitionPane();
     getFileEditorPane().restorePreferences();
   }
 
@@ -380,6 +384,9 @@ public class MainWindow implements Observer {
     return getDefinitionSource().getResolvedMap();
   }
 
+  final EventHandler<TreeItem.TreeModificationEvent<Event>> mHandler =
+      event -> exportDefinitionData( getDefinitionFilename() );
+
   /**
    * Called when a definition source is opened.
    *
@@ -387,27 +394,45 @@ public class MainWindow implements Observer {
    */
   private void openDefinition( final Path path ) {
     try {
+
       final DefinitionSource ds = createDefinitionSource( path.toString() );
       setDefinitionSource( ds );
-      storeDefinitionSource();
+      storeDefinitionSourceFilename();
       getDefinitionPane().update( getDefinitionSource() );
+      getDefinitionPane().addTreeChangeHandler( mHandler );
     } catch( final Exception e ) {
       error( e );
     }
   }
 
-  private void restoreDefinitionSource() {
-    final Preferences preferences = getPreferences();
-    final String source = preferences.get( PERSIST_DEFINITION_SOURCE, "" );
-
-    openDefinition( new File( source ).toPath() );
+  private void exportDefinitionData( final Path path ) {
+    getDefinitionSource().export( path );
   }
 
-  private void storeDefinitionSource() {
+  private Path getDefinitionFilename() {
+    final Preferences preferences = getPreferences();
+    final String defaultFilename = getSetting(
+        "file.definition.default", "variables.yaml" );
+    String source = preferences.get(
+        PERSIST_DEFINITION_SOURCE, defaultFilename );
+
+    if( source.isBlank() ) {
+      source = defaultFilename;
+    }
+
+    return new File( source ).toPath();
+  }
+
+  private void restoreDefinitionPane() {
+    openDefinition( getDefinitionFilename() );
+  }
+
+  private void storeDefinitionSourceFilename() {
     final Preferences preferences = getPreferences();
     final DefinitionSource ds = getDefinitionSource();
+    final String source = ds.toString();
 
-    preferences.put( PERSIST_DEFINITION_SOURCE, ds.toString() );
+    preferences.put( PERSIST_DEFINITION_SOURCE, source );
   }
 
   /**
@@ -704,6 +729,10 @@ public class MainWindow implements Observer {
     return new ProcessorFactory( getPreviewPane(), getResolvedMap() );
   }
 
+  private DefinitionSource createDefaultDefinitionSource() {
+    return new YamlDefinitionSource( getDefinitionFilename() );
+  }
+
   private DefinitionSource createDefinitionSource( final String path ) {
     DefinitionSource ds;
 
@@ -719,7 +748,7 @@ public class MainWindow implements Observer {
         }
       }
     } catch( final Exception ex ) {
-      ds = new EmptyDefinitionSource();
+      ds = createDefaultDefinitionSource();
       error( ex );
     }
 
@@ -1085,5 +1114,17 @@ public class MainWindow implements Observer {
     } catch( final Exception ex ) {
       getNotifier().notify( ex );
     }
+  }
+
+  /**
+   * Returns the value for a key from the settings properties file.
+   *
+   * @param key   Key within the settings properties file to find.
+   * @param value Default value to return if the key is not found.
+   * @return The value for the given key from the settings file, or the
+   * given {@code value} if no key found.
+   */
+  private String getSetting( final String key, final String value ) {
+    return mSettings.getSetting( key, value );
   }
 }

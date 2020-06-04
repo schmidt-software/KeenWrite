@@ -2,19 +2,24 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="3dcf7c8f-87b5-4d25-a804-39da40a621b8" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/definition/DocumentParser.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/definition/EmptyTreeAdapter.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/definition/TreeAdapter.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/FileEditorTab.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/FileEditorTab.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/FileEditorTabPane.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/FileEditorTabPane.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/MainWindow.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/MainWindow.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/definition/AbstractDefinitionSource.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/definition/DefinitionFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/definition/DefinitionFactory.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/definition/DefinitionPane.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/definition/DefinitionPane.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/definition/DefinitionSource.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/definition/DefinitionSource.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/definition/EmptyDefinitionSource.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/definition/EmptyDefinitionSource.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/definition/FileDefinitionSource.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/definition/FileDefinitionSource.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/definition/yaml/YamlFileDefinitionSource.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/definition/yaml/YamlFileDefinitionSource.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/definition/EmptyDefinitionSource.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/definition/EmptyTreeAdapter.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/definition/VariableTreeItem.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/definition/VariableTreeItem.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/definition/yaml/YamlFileDefinitionSource.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/definition/yaml/YamlDefinitionSource.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/definition/yaml/YamlParser.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/definition/yaml/YamlParser.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/definition/yaml/YamlTreeAdapter.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/definition/yaml/YamlTreeAdapter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/definition/yaml/resolvers/ResolverYAMLFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/definition/yaml/resolvers/ResolverYamlFactory.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/definition/yaml/resolvers/ResolverYAMLGenerator.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/definition/yaml/resolvers/ResolverYamlGenerator.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/editors/VariableNameInjector.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/editors/VariableNameInjector.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/scrivenvar/util/StageState.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/scrivenvar/util/StageState.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/com/scrivenvar/messages.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/com/scrivenvar/messages.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/com/scrivenvar/settings.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/com/scrivenvar/settings.properties" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -147,50 +152,54 @@
       <screen x="0" y="28" width="2560" height="1529" />
     </state>
     <state x="285" y="311" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.28.2560.1529@0.28.2560.1529" timestamp="1590982613111" />
-    <state x="635" y="363" width="376" height="578" key="#com.intellij.ide.util.MemberChooser" timestamp="1591152784217">
+    <state x="635" y="363" width="376" height="578" key="#com.intellij.ide.util.MemberChooser" timestamp="1591238705460">
       <screen x="0" y="28" width="2560" height="1529" />
     </state>
-    <state x="635" y="363" width="376" height="578" key="#com.intellij.ide.util.MemberChooser/0.28.2560.1529@0.28.2560.1529" timestamp="1591152784217" />
-    <state x="468" y="28" width="711" height="1526" key="#com.intellij.refactoring.rename.AutomaticRenamingDialog" timestamp="1591145866446">
+    <state x="635" y="363" width="376" height="578" key="#com.intellij.ide.util.MemberChooser/0.28.2560.1529@0.28.2560.1529" timestamp="1591238705460" />
+    <state x="468" y="28" width="711" height="1526" key="#com.intellij.refactoring.rename.AutomaticRenamingDialog" timestamp="1591156855857">
       <screen x="0" y="28" width="2560" height="1529" />
     </state>
-    <state x="468" y="28" width="711" height="1526" key="#com.intellij.refactoring.rename.AutomaticRenamingDialog/0.28.2560.1529@0.28.2560.1529" timestamp="1591145866446" />
-    <state x="610" y="411" width="426" height="481" key="FileChooserDialogImpl" timestamp="1589659107517">
+    <state x="468" y="28" width="711" height="1526" key="#com.intellij.refactoring.rename.AutomaticRenamingDialog/0.28.2560.1529@0.28.2560.1529" timestamp="1591156855857" />
+    <state x="599" y="448" key="#xdebugger.evaluate" timestamp="1591240535031">
       <screen x="0" y="28" width="2560" height="1529" />
     </state>
-    <state x="610" y="411" width="426" height="481" key="FileChooserDialogImpl/0.28.2560.1529@0.28.2560.1529" timestamp="1589659107517" />
-    <state width="1573" height="321" key="GridCell.Tab.0.bottom" timestamp="1591153745029">
+    <state x="599" y="448" key="#xdebugger.evaluate/0.28.2560.1529@0.28.2560.1529" timestamp="1591240535031" />
+    <state x="610" y="411" width="426" height="481" key="FileChooserDialogImpl" timestamp="1591159062898">
       <screen x="0" y="28" width="2560" height="1529" />
     </state>
-    <state width="1573" height="321" key="GridCell.Tab.0.bottom/0.28.2560.1529@0.28.2560.1529" timestamp="1591153745029" />
-    <state width="1573" height="321" key="GridCell.Tab.0.center" timestamp="1591153745028">
+    <state x="610" y="411" width="426" height="481" key="FileChooserDialogImpl/0.28.2560.1529@0.28.2560.1529" timestamp="1591159062898" />
+    <state width="1573" height="396" key="GridCell.Tab.0.bottom" timestamp="1591242203228">
       <screen x="0" y="28" width="2560" height="1529" />
     </state>
-    <state width="1573" height="321" key="GridCell.Tab.0.center/0.28.2560.1529@0.28.2560.1529" timestamp="1591153745028" />
-    <state width="1573" height="321" key="GridCell.Tab.0.left" timestamp="1591153745028">
+    <state width="1573" height="396" key="GridCell.Tab.0.bottom/0.28.2560.1529@0.28.2560.1529" timestamp="1591242203228" />
+    <state width="1573" height="396" key="GridCell.Tab.0.center" timestamp="1591242203228">
       <screen x="0" y="28" width="2560" height="1529" />
     </state>
-    <state width="1573" height="321" key="GridCell.Tab.0.left/0.28.2560.1529@0.28.2560.1529" timestamp="1591153745028" />
-    <state width="1573" height="321" key="GridCell.Tab.0.right" timestamp="1591153745029">
+    <state width="1573" height="396" key="GridCell.Tab.0.center/0.28.2560.1529@0.28.2560.1529" timestamp="1591242203228" />
+    <state width="1573" height="396" key="GridCell.Tab.0.left" timestamp="1591242203227">
       <screen x="0" y="28" width="2560" height="1529" />
     </state>
-    <state width="1573" height="321" key="GridCell.Tab.0.right/0.28.2560.1529@0.28.2560.1529" timestamp="1591153745029" />
-    <state width="1573" height="396" key="GridCell.Tab.1.bottom" timestamp="1591138237719">
+    <state width="1573" height="396" key="GridCell.Tab.0.left/0.28.2560.1529@0.28.2560.1529" timestamp="1591242203227" />
+    <state width="1573" height="396" key="GridCell.Tab.0.right" timestamp="1591242203314">
       <screen x="0" y="28" width="2560" height="1529" />
     </state>
-    <state width="1573" height="396" key="GridCell.Tab.1.bottom/0.28.2560.1529@0.28.2560.1529" timestamp="1591138237719" />
-    <state width="1573" height="396" key="GridCell.Tab.1.center" timestamp="1591138237718">
+    <state width="1573" height="396" key="GridCell.Tab.0.right/0.28.2560.1529@0.28.2560.1529" timestamp="1591242203314" />
+    <state width="1573" height="396" key="GridCell.Tab.1.bottom" timestamp="1591242203229">
       <screen x="0" y="28" width="2560" height="1529" />
     </state>
-    <state width="1573" height="396" key="GridCell.Tab.1.center/0.28.2560.1529@0.28.2560.1529" timestamp="1591138237718" />
-    <state width="1573" height="396" key="GridCell.Tab.1.left" timestamp="1591138237718">
+    <state width="1573" height="396" key="GridCell.Tab.1.bottom/0.28.2560.1529@0.28.2560.1529" timestamp="1591242203229" />
+    <state width="1573" height="396" key="GridCell.Tab.1.center" timestamp="1591242203229">
       <screen x="0" y="28" width="2560" height="1529" />
     </state>
-    <state width="1573" height="396" key="GridCell.Tab.1.left/0.28.2560.1529@0.28.2560.1529" timestamp="1591138237718" />
-    <state width="1573" height="396" key="GridCell.Tab.1.right" timestamp="1591138237719">
+    <state width="1573" height="396" key="GridCell.Tab.1.center/0.28.2560.1529@0.28.2560.1529" timestamp="1591242203229" />
+    <state width="1573" height="396" key="GridCell.Tab.1.left" timestamp="1591242203229">
       <screen x="0" y="28" width="2560" height="1529" />
     </state>
-    <state width="1573" height="396" key="GridCell.Tab.1.right/0.28.2560.1529@0.28.2560.1529" timestamp="1591138237719" />
+    <state width="1573" height="396" key="GridCell.Tab.1.left/0.28.2560.1529@0.28.2560.1529" timestamp="1591242203229" />
+    <state width="1573" height="396" key="GridCell.Tab.1.right" timestamp="1591242203229">
+      <screen x="0" y="28" width="2560" height="1529" />
+    </state>
+    <state width="1573" height="396" key="GridCell.Tab.1.right/0.28.2560.1529@0.28.2560.1529" timestamp="1591242203229" />
     <state x="324" y="288" key="SettingsEditor" timestamp="1589576619807">
       <screen x="0" y="28" width="2560" height="1529" />
     </state>
@@ -203,22 +212,33 @@
       <screen x="0" y="28" width="2560" height="1529" />
     </state>
     <state x="714" y="633" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2/0.28.2560.1529@0.28.2560.1529" timestamp="1590804130551" />
-    <state x="531" y="261" width="586" height="753" key="find.popup" timestamp="1591153463483">
+    <state x="1776" y="397" width="586" height="753" key="find.popup" timestamp="1591240407704">
       <screen x="0" y="28" width="2560" height="1529" />
     </state>
-    <state x="531" y="261" width="586" height="753" key="find.popup/0.28.2560.1529@0.28.2560.1529" timestamp="1591153463483" />
+    <state x="1776" y="397" width="586" height="753" key="find.popup/0.28.2560.1529@0.28.2560.1529" timestamp="1591240407704" />
     <state x="533" y="414" width="581" height="476" key="refactoring.ChangeSignatureDialog" timestamp="1589663937037">
       <screen x="0" y="28" width="2560" height="1529" />
     </state>
     <state x="533" y="414" width="581" height="476" key="refactoring.ChangeSignatureDialog/0.28.2560.1529@0.28.2560.1529" timestamp="1589663937037" />
-    <state x="490" y="304" key="run.anything.popup" timestamp="1591139048305">
+    <state x="490" y="304" key="run.anything.popup" timestamp="1591240533110">
       <screen x="0" y="28" width="2560" height="1529" />
     </state>
-    <state x="490" y="304" key="run.anything.popup/0.28.2560.1529@0.28.2560.1529" timestamp="1591139048305" />
-    <state x="490" y="327" width="672" height="678" key="search.everywhere.popup" timestamp="1591146276788">
+    <state x="490" y="304" key="run.anything.popup/0.28.2560.1529@0.28.2560.1529" timestamp="1591240533110" />
+    <state x="490" y="327" width="672" height="678" key="search.everywhere.popup" timestamp="1591240272617">
       <screen x="0" y="28" width="2560" height="1529" />
     </state>
-    <state x="490" y="327" width="672" height="678" key="search.everywhere.popup/0.28.2560.1529@0.28.2560.1529" timestamp="1591146276788" />
+    <state x="490" y="327" width="672" height="678" key="search.everywhere.popup/0.28.2560.1529@0.28.2560.1529" timestamp="1591240272617" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/com/scrivenvar/MainWindow.java</url>
+          <line>732</line>
+          <option name="timeStamp" value="49" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
   <component name="masterDetails">
     <states>

@@ -30,6 +30,7 @@ package com.scrivenvar.definition.yaml;
 import com.scrivenvar.definition.FileDefinitionSource;
 import com.scrivenvar.definition.TreeAdapter;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -40,7 +41,7 @@ import java.util.Map;
  *
  * @author White Magic Software, Ltd.
  */
-public class YamlFileDefinitionSource extends FileDefinitionSource {
+public class YamlDefinitionSource extends FileDefinitionSource {
 
   private final YamlParser mYamlParser;
   private final YamlTreeAdapter mYamlTreeAdapter;
@@ -50,7 +51,7 @@ public class YamlFileDefinitionSource extends FileDefinitionSource {
    *
    * @param path Path to the YAML definition file.
    */
-  public YamlFileDefinitionSource( final Path path ) {
+  public YamlDefinitionSource( final Path path ) {
     super( path );
     mYamlParser = createYamlParser( path );
     mYamlTreeAdapter = createTreeAdapter( mYamlParser );
@@ -67,16 +68,17 @@ public class YamlFileDefinitionSource extends FileDefinitionSource {
   }
 
   @Override
+  public void export( final Path path ) {
+    System.out.println( "Export YAML definitions to: " + path.toString() );
+  }
+
+  @Override
   public String getError() {
     return getYamlParser().getError();
   }
 
   private YamlParser createYamlParser( final Path path ) {
-    try( final InputStream in = Files.newInputStream( path ) ) {
-      return new YamlParser( in );
-    } catch( final Exception ex ) {
-      throw new RuntimeException( ex );
-    }
+    return YamlParser.parse(path);
   }
 
   private YamlParser getYamlParser() {

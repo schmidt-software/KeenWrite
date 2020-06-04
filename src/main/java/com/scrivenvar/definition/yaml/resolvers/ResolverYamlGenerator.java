@@ -40,11 +40,11 @@ import java.io.Writer;
  * Intercepts the string writing functionality to resolve the definition
  * value.
  */
-public class ResolverYAMLGenerator extends YAMLGenerator {
+public class ResolverYamlGenerator extends YAMLGenerator {
 
   private YamlParser yamlParser;
 
-  public ResolverYAMLGenerator(
+  public ResolverYamlGenerator(
       final YamlParser yamlParser,
       final IOContext ctxt,
       final int jsonFeatures,

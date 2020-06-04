@@ -27,6 +27,7 @@
 package com.scrivenvar.util;
 
 import java.util.prefs.Preferences;
+
 import javafx.application.Platform;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
@@ -43,64 +44,64 @@ public class StageState {
   public static final String K_PANE_SPLIT_EDITOR = "pane.split.editor";
   public static final String K_PANE_SPLIT_PREVIEW = "pane.split.preview";
 
-  private final Stage stage;
-  private final Preferences state;
+  private final Stage mStage;
+  private final Preferences mState;
 
   private Rectangle normalBounds;
   private boolean runLaterPending;
 
   public StageState( final Stage stage, final Preferences state ) {
-    this.stage = stage;
-    this.state = state;
+    mStage = stage;
+    mState = state;
 
     restore();
 
     stage.addEventHandler( WindowEvent.WINDOW_HIDING, e -> save() );
 
-    stage.xProperty().addListener( (ob, o, n) -> boundsChanged() );
-    stage.yProperty().addListener( (ob, o, n) -> boundsChanged() );
-    stage.widthProperty().addListener( (ob, o, n) -> boundsChanged() );
-    stage.heightProperty().addListener( (ob, o, n) -> boundsChanged() );
+    stage.xProperty().addListener( ( ob, o, n ) -> boundsChanged() );
+    stage.yProperty().addListener( ( ob, o, n ) -> boundsChanged() );
+    stage.widthProperty().addListener( ( ob, o, n ) -> boundsChanged() );
+    stage.heightProperty().addListener( ( ob, o, n ) -> boundsChanged() );
   }
 
   private void save() {
     final Rectangle bounds = isNormalState() ? getStageBounds() : normalBounds;
-    
+
     if( bounds != null ) {
-      state.putDouble( "windowX", bounds.getX() );
-      state.putDouble( "windowY", bounds.getY() );
-      state.putDouble( "windowWidth", bounds.getWidth() );
-      state.putDouble( "windowHeight", bounds.getHeight() );
+      mState.putDouble( "windowX", bounds.getX() );
+      mState.putDouble( "windowY", bounds.getY() );
+      mState.putDouble( "windowWidth", bounds.getWidth() );
+      mState.putDouble( "windowHeight", bounds.getHeight() );
     }
-    
-    state.putBoolean( "windowMaximized", stage.isMaximized() );
-    state.putBoolean( "windowFullScreen", stage.isFullScreen() );
+
+    mState.putBoolean( "windowMaximized", mStage.isMaximized() );
+    mState.putBoolean( "windowFullScreen", mStage.isFullScreen() );
   }
 
   private void restore() {
-    final double x = state.getDouble( "windowX", Double.NaN );
-    final double y = state.getDouble( "windowY", Double.NaN );
-    final double w = state.getDouble( "windowWidth", Double.NaN );
-    final double h = state.getDouble( "windowHeight", Double.NaN );
-    final boolean maximized = state.getBoolean( "windowMaximized", false );
-    final boolean fullScreen = state.getBoolean( "windowFullScreen", false );
+    final double x = mState.getDouble( "windowX", Double.NaN );
+    final double y = mState.getDouble( "windowY", Double.NaN );
+    final double w = mState.getDouble( "windowWidth", Double.NaN );
+    final double h = mState.getDouble( "windowHeight", Double.NaN );
+    final boolean maximized = mState.getBoolean( "windowMaximized", false );
+    final boolean fullScreen = mState.getBoolean( "windowFullScreen", false );
 
     if( !Double.isNaN( x ) && !Double.isNaN( y ) ) {
-      stage.setX( x );
-      stage.setY( y );
+      mStage.setX( x );
+      mStage.setY( y );
     } // else: default behavior is center on screen
 
     if( !Double.isNaN( w ) && !Double.isNaN( h ) ) {
-      stage.setWidth( w );
-      stage.setHeight( h );
+      mStage.setWidth( w );
+      mStage.setHeight( h );
     } // else: default behavior is use scene size
 
-    if( fullScreen != stage.isFullScreen() ) {
-      stage.setFullScreen( fullScreen );
+    if( fullScreen != mStage.isFullScreen() ) {
+      mStage.setFullScreen( fullScreen );
     }
-    
-    if( maximized != stage.isMaximized() ) {
-      stage.setMaximized( maximized );
+
+    if( maximized != mStage.isMaximized() ) {
+      mStage.setMaximized( maximized );
     }
   }
 
@@ -113,7 +114,7 @@ public class StageState {
     if( runLaterPending ) {
       return;
     }
-    
+
     runLaterPending = true;
 
     // must use runLater() to ensure that change of all properties
@@ -129,10 +130,17 @@ public class StageState {
   }
 
   private boolean isNormalState() {
-    return !stage.isIconified() && !stage.isMaximized() && !stage.isFullScreen();
+    return !mStage.isIconified() &&
+        !mStage.isMaximized() &&
+        !mStage.isFullScreen();
   }
 
   private Rectangle getStageBounds() {
-    return new Rectangle( stage.getX(), stage.getY(), stage.getWidth(), stage.getHeight() );
+    return new Rectangle(
+        mStage.getX(),
+        mStage.getY(),
+        mStage.getWidth(),
+        mStage.getHeight()
+    );
   }
 }

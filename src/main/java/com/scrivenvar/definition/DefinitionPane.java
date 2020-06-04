@@ -28,18 +28,20 @@
 package com.scrivenvar.definition;
 
 import com.scrivenvar.AbstractPane;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
+import javafx.event.Event;
+import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.TextFieldTreeCell;
-import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.util.StringConverter;
 
+import java.util.LinkedList;
 import java.util.List;
 
 import static com.scrivenvar.Messages.get;
+import static javafx.scene.input.KeyEvent.KEY_PRESSED;
 
 /**
  * Provides the user interface that holdsa {@link TreeView}, which
@@ -55,13 +57,20 @@ public final class DefinitionPane extends AbstractPane {
    */
   private final static String TERMINALS = ":;,.!?-/\\¡¿";
 
+  /**
+   * Contains a view of the definitions.
+   */
   private final TreeView<String> mTreeView = new TreeView<>();
 
   /**
    * Constructs a definition pane with a given tree view root.
    */
   public DefinitionPane() {
-    initTreeView();
+    getTreeView().setEditable( true );
+    getTreeView().setCellFactory( cell -> createTreeCell() );
+    getTreeView().setContextMenu( createContextMenu() );
+    getTreeView().addEventFilter( KEY_PRESSED, this::keyEventFilter );
+    getSelectionModel().setSelectionMode( SelectionMode.MULTIPLE );
   }
 
   /**
@@ -75,24 +84,25 @@ public final class DefinitionPane extends AbstractPane {
     assert definitionSource != null;
 
     final TreeAdapter treeAdapter = definitionSource.getTreeAdapter();
-    final TreeItem<String> treeItem = treeAdapter.adapt(
+    final TreeItem<String> root = treeAdapter.adapt(
         get( "Pane.definition.node.root.title" )
     );
 
-    update( treeItem );
+    getTreeView().setRoot( root );
   }
 
   /**
-   * Changes the root of the {@link TreeView} to the root of the given
-   * {@link TreeView}.
+   * Informs the caller of whenever any {@link TreeItem} in the {@link TreeView}
+   * is modified. The modifications include: item value changes, item additions,
+   * and item removals.
    *
-   * @param treeItem The new hierarchy of key/value pairs to replace the
-   *                 existing hierarchy.
+   * @param handler The handler to call whenever any {@link TreeItem} changes.
    */
-  private void update( final TreeItem<String> treeItem ) {
-    assert treeItem != null;
-
-    getTreeView().setRoot( treeItem );
+  public void addTreeChangeHandler(
+      final EventHandler<TreeItem.TreeModificationEvent<Event>> handler ) {
+    final TreeItem<String> root = getTreeView().getRoot();
+    root.addEventHandler( TreeItem.valueChangedEvent(), handler );
+    root.addEventHandler( TreeItem.childrenModificationEvent(), handler );
   }
 
   /**
@@ -148,16 +158,8 @@ public final class DefinitionPane extends AbstractPane {
   }
 
   public void select( final TreeItem<String> item ) {
-    clearSelection();
-    selectItem( getTreeView().getRow( item ) );
-  }
-
-  private void clearSelection() {
     getSelectionModel().clearSelection();
-  }
-
-  private void selectItem( final int row ) {
-    getSelectionModel().select( row );
+    getSelectionModel().select( getTreeView().getRow( item ) );
   }
 
   /**
@@ -173,7 +175,7 @@ public final class DefinitionPane extends AbstractPane {
    * @param <T>   The type of tree item to expand (usually String).
    * @param nodes The nodes to collapse.
    */
-  private <T> void collapse( ObservableList<TreeItem<T>> nodes ) {
+  private <T> void collapse( final ObservableList<TreeItem<T>> nodes ) {
     for( final TreeItem<T> node : nodes ) {
       node.setExpanded( false );
       collapse( node.getChildren() );
@@ -181,69 +183,87 @@ public final class DefinitionPane extends AbstractPane {
   }
 
   /**
-   * Returns the root node to the tree view.
-   *
-   * @return getTreeView()
+   * @return {@code true} when the user is editing a {@link TreeItem}.
    */
-  public Node getNode() {
-    return getTreeView();
-  }
-
-  private MultipleSelectionModel<TreeItem<String>> getSelectionModel() {
-    return getTreeView().getSelectionModel();
-  }
-
-  private void initTreeView() {
-    final TreeView<String> treeView = getTreeView();
-
-    treeView.setContextMenu( createContextMenu() );
-    treeView.setEditable( true );
-    treeView.setCellFactory( cell -> createTreeCell() );
-    treeView.addEventFilter( KeyEvent.KEY_PRESSED, this::keyEventFilter );
-    setSelectionMode( SelectionMode.MULTIPLE );
+  private boolean isEditingTreeItem() {
+    return getTreeView().editingItemProperty().getValue() != null;
   }
 
   /**
-   * Returns the root of the tree.
-   *
-   * @return The first node added to the YAML definition tree.
+   * Changes to edit mode for the selected item.
    */
-  private VariableTreeItem<String> getTreeRoot() {
-    final TreeItem<String> root = getTreeView().getRoot();
+  private void editSelectedItem() {
+    getTreeView().edit( getSelectedItem() );
+  }
 
-    return root instanceof VariableTreeItem ?
-        (VariableTreeItem<String>) root : new VariableTreeItem<>( "root" );
+  /**
+   * Removes all selected items from the {@link TreeView}.
+   */
+  private void deleteSelectedItems() {
+    for( final TreeItem<String> ti : getSelectedItems() ) {
+      ti.getParent().getChildren().remove( ti );
+    }
+  }
+
+  /**
+   * Deletes the selected item.
+   */
+  private void deleteSelectedItem() {
+    final TreeItem<String> c = getSelectedItem();
+    getSiblings( c ).remove( c );
+  }
+
+  /**
+   * Adds a new item under the selected item (or root if nothing is selected).
+   */
+  private void addItem() {
+    final TreeItem<String> treeItem = createTreeItem();
+    getSelectedItem().getChildren().add( treeItem );
+    expand( treeItem );
+    select( treeItem );
   }
 
   private ContextMenu createContextMenu() {
     final ContextMenu menu = new ContextMenu();
     final ObservableList<MenuItem> items = menu.getItems();
 
-    addMenuItem( items, "Definition.menu.create" ).setOnAction(
-        e -> getSelectedItem().getChildren().add( createTreeItem() )
-    );
+    addMenuItem( items, "Definition.menu.create" )
+        .setOnAction( e -> addItem() );
 
-    addMenuItem( items, "Definition.menu.rename" ).setOnAction(
-        e -> getTreeView().edit( getSelectedItem() )
-    );
+    addMenuItem( items, "Definition.menu.rename" )
+        .setOnAction( e -> editSelectedItem() );
 
-    addMenuItem( items, "Definition.menu.remove" ).setOnAction(
-        e -> {
-          final TreeItem<String> c = getSelectedItem();
-          getSiblings( c ).remove( c );
-        }
-    );
+    addMenuItem( items, "Definition.menu.remove" )
+        .setOnAction( e -> deleteSelectedItem() );
 
     return menu;
   }
 
-  private ObservableList<TreeItem<String>> getSiblings(
-      final TreeItem<String> item ) {
-    final TreeItem<String> root = getTreeView().getRoot();
-    final TreeItem<String> parent =
-        (item == null || item == root) ? root : item.getParent();
+  private void keyEventFilter( final KeyEvent event ) {
+    switch( event.getCode() ) {
+      case ENTER:
+        if( !isEditingTreeItem() ) {
+          expand( getSelectedItem() );
+          event.consume();
+        }
 
-    return parent.getChildren();
+        break;
+
+      case DELETE:
+        deleteSelectedItems();
+        break;
+
+      case INSERT:
+        addItem();
+        break;
+
+      case R:
+        if( event.isControlDown() ) {
+          editSelectedItem();
+        }
+
+        break;
+    }
   }
 
   /**
@@ -275,6 +295,7 @@ public final class DefinitionPane extends AbstractPane {
       public void commitEdit( final String newValue ) {
         super.commitEdit( newValue );
         requestFocus();
+        select( getTreeItem() );
       }
     };
   }
@@ -293,40 +314,62 @@ public final class DefinitionPane extends AbstractPane {
     };
   }
 
-  private void keyEventFilter( final KeyEvent event ) {
-    if( event.getCode() == KeyCode.ENTER ) {
-      final ObservableValue<TreeItem<String>> property =
-          getTreeView().editingItemProperty();
-
-      // Consume ENTER presses when not editing a definition value.
-      if( property.getValue() == null ) {
-        event.consume();
-      }
-    }
-  }
-
-  private TreeItem<String> getSelectedItem() {
-    final TreeItem<String> item =
-        getTreeView().getSelectionModel().getSelectedItem();
-    return item == null ? getTreeView().getRoot() : item;
-  }
-
-  /**
-   * Delegates to {@link #getSelectionModel()}.
-   *
-   * @param mode The new selection mode (to enable multiple select).
-   */
-  @SuppressWarnings("SameParameterValue")
-  private void setSelectionMode( final SelectionMode mode ) {
-    getSelectionModel().setSelectionMode( mode );
-  }
-
   /**
    * Returns the tree view that contains the YAML definition hierarchy.
    *
    * @return A non-null instance.
    */
-  private TreeView<String> getTreeView() {
+  public TreeView<String> getTreeView() {
     return mTreeView;
   }
+
+  /**
+   * Returns the root node to the tree view.
+   *
+   * @return getTreeView()
+   */
+  public Node getNode() {
+    return getTreeView();
+  }
+
+  /**
+   * Returns the root of the tree.
+   *
+   * @return The first node added to the YAML definition tree.
+   */
+  private VariableTreeItem<String> getTreeRoot() {
+    final TreeItem<String> root = getTreeView().getRoot();
+
+    return root instanceof VariableTreeItem ?
+        (VariableTreeItem<String>) root : new VariableTreeItem<>( "root" );
+  }
+
+  private ObservableList<TreeItem<String>> getSiblings(
+      final TreeItem<String> item ) {
+    final TreeItem<String> root = getTreeView().getRoot();
+    final TreeItem<String> parent =
+        (item == null || item == root) ? root : item.getParent();
+
+    return parent.getChildren();
+  }
+
+  private MultipleSelectionModel<TreeItem<String>> getSelectionModel() {
+    return getTreeView().getSelectionModel();
+  }
+
+  /**
+   * Returns a copy of all the selected items.
+   *
+   * @return A list, possibly empty, containing all selected items in the
+   * {@link TreeView}.
+   */
+  private List<TreeItem<String>> getSelectedItems() {
+    return new LinkedList<>( getSelectionModel().getSelectedItems() );
+  }
+
+  private TreeItem<String> getSelectedItem() {
+    final TreeItem<String> item = getSelectionModel().getSelectedItem();
+    return item == null ? getTreeView().getRoot() : item;
+  }
+
 }

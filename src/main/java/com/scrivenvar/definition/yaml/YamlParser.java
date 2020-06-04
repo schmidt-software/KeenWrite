@@ -41,9 +41,12 @@ import com.scrivenvar.decorators.YamlVariableDecorator;
 import com.scrivenvar.definition.DocumentParser;
 import org.yaml.snakeyaml.DumperOptions;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Writer;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -116,8 +119,33 @@ public class YamlParser implements DocumentParser<JsonNode> {
    */
   private Map<String, String> references;
 
-  public YamlParser( final InputStream in ) {
-    process( in );
+  /**
+   * Creates a new YamlParser instance that attempts to parse the given
+   * YAML document input stream.
+   *
+   * @param path Path to a file containing YAML data to parse. The file does
+   *             not have to exist.
+   * @return A new instance of this class.
+   */
+  public static YamlParser parse( final Path path ) {
+    final YamlParser parser = new YamlParser();
+
+    try( final InputStream in = Files.newInputStream( path ) ) {
+      parser.process( in );
+    } catch( final Exception e ) {
+      // Ensure that a document root node exists by relying on the
+      // default failure condition when processing. This is required
+      // because the input stream could not be read.
+      parser.process( new ByteArrayInputStream( new byte[]{} ) );
+    }
+
+    return parser;
+  }
+
+  /**
+   * Prevent instantiation.
+   */
+  private YamlParser() {
   }
 
   /**

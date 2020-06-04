@@ -29,7 +29,7 @@ package com.scrivenvar.definition;
 
 import com.scrivenvar.AbstractFileFactory;
 import com.scrivenvar.FileType;
-import com.scrivenvar.definition.yaml.YamlFileDefinitionSource;
+import com.scrivenvar.definition.yaml.YamlDefinitionSource;
 
 import java.io.File;
 import java.net.URI;
@@ -87,10 +87,14 @@ public class DefinitionFactory extends AbstractFileFactory {
    */
   private DefinitionSource createFileDefinitionSource(
       final FileType filetype, final Path path ) {
+    assert filetype != null;
+    assert path !=null;
 
-    return filetype == YAML
-        ? new YamlFileDefinitionSource( path )
-        : new EmptyDefinitionSource();
+    if( filetype == YAML ) {
+      return new YamlDefinitionSource( path );
+    }
+
+    throw new IllegalArgumentException( filetype.toString() );
   }
 
   /**

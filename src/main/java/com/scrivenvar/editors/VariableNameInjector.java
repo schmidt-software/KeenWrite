@@ -54,8 +54,6 @@ import static org.fxmisc.wellbehaved.event.EventPattern.keyPressed;
  */
 public final class VariableNameInjector {
 
-  public static final int DEFAULT_MAX_VAR_LENGTH = 64;
-
   /**
    * Recipient of name injections.
    */
@@ -96,7 +94,8 @@ public final class VariableNameInjector {
   private void initKeyboardEventListeners() {
     addKeyboardListener(
         keyPressed( SPACE, CONTROL_DOWN ),
-        this::autoinsert );
+        this::autoinsert
+    );
   }
 
   /**

@@ -32,9 +32,9 @@ import javafx.scene.control.TreeItem;
 import java.text.Normalizer;
 import java.util.Stack;
 
-import static com.scrivenvar.definition.FindMode.*;
+import static com.scrivenvar.definition.FindMode.CONTAINS;
+import static com.scrivenvar.definition.FindMode.STARTS_WITH;
 import static com.scrivenvar.definition.yaml.YamlParser.SEPARATOR;
-import static com.scrivenvar.editors.VariableNameInjector.DEFAULT_MAX_VAR_LENGTH;
 import static java.text.Normalizer.Form.NFD;
 
 /**
@@ -44,6 +44,7 @@ import static java.text.Normalizer.Form.NFD;
  * @author White Magic Software, Ltd.
  */
 public class VariableTreeItem<T> extends TreeItem<T> {
+  public static final int DEFAULT_MAX_VAR_LENGTH = 64;
 
   /**
    * Constructs a new item with a default value.

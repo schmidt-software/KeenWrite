@@ -105,11 +105,7 @@ public final class FileEditorTab extends Tab {
    * @return The untitled text if the path hasn't been set.
    */
   private String getTabTitle() {
-    final Path filePath = getPath();
-
-    return (filePath == null)
-        ? Messages.get( "FileEditor.untitled" )
-        : filePath.getFileName().toString();
+    return getPath().getFileName().toString();
   }
 
   /**

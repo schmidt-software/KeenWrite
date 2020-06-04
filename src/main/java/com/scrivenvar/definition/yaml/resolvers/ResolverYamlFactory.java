@@ -27,6 +27,7 @@ import com.fasterxml.jackson.core.io.IOContext;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
 import com.scrivenvar.definition.yaml.YamlParser;
+
 import java.io.IOException;
 import java.io.Writer;
 
@@ -35,29 +36,29 @@ import java.io.Writer;
  *
  * @author White Magic Software, Ltd.
  */
-public final class ResolverYAMLFactory extends YAMLFactory {
+public final class ResolverYamlFactory extends YAMLFactory {
 
   private static final long serialVersionUID = 1L;
 
   private YamlParser yamlParser;
 
-  public ResolverYAMLFactory( final YamlParser yamlParser ) {
+  public ResolverYamlFactory( final YamlParser yamlParser ) {
     setYamlParser( yamlParser );
   }
 
   @Override
   protected YAMLGenerator _createGenerator(
-    final Writer out, final IOContext ctxt ) throws IOException {
+      final Writer out, final IOContext ctxt ) throws IOException {
 
-    return new ResolverYAMLGenerator(
-      getYamlParser(),
-      ctxt, _generatorFeatures, _yamlGeneratorFeatures, _objectCodec,
-      out, _version );
+    return new ResolverYamlGenerator(
+        getYamlParser(),
+        ctxt, _generatorFeatures, _yamlGeneratorFeatures, _objectCodec,
+        out, _version );
   }
 
   /**
    * Returns the YAML parser used when constructing this instance.
-   * 
+   *
    * @return A non-null instance.
    */
   private YamlParser getYamlParser() {
@@ -66,7 +67,7 @@ public final class ResolverYAMLFactory extends YAMLFactory {
 
   /**
    * Sets the YAML parser used when constructing this instance.
-   * 
+   *
    * @param yamlParser A non-null instance.
    */
   private void setYamlParser( final YamlParser yamlParser ) {

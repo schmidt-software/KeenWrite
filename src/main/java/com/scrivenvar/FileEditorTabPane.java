@@ -76,9 +76,9 @@ public final class FileEditorTabPane extends TabPane {
   private final static String FILTER_EXTENSION_TITLES = "Dialog.file.choose" +
       ".filter";
 
-  private final Options options = Services.load( Options.class );
-  private final Settings settings = Services.load( Settings.class );
-  private final Notifier notifyService = Services.load( Notifier.class );
+  private final Options mOptions = Services.load( Options.class );
+  private final Settings mSettings = Services.load( Settings.class );
+  private final Notifier mNotifyService = Services.load( Notifier.class );
 
   private final ReadOnlyObjectWrapper<Path> openDefinition =
       new ReadOnlyObjectWrapper<>();
@@ -422,7 +422,7 @@ public final class FileEditorTabPane extends TabPane {
   }
 
   private Notifier getNotifyService() {
-    return this.notifyService;
+    return this.mNotifyService;
   }
 
   boolean closeEditor( final FileEditorTab tab, final boolean save ) {
@@ -633,11 +633,11 @@ public final class FileEditorTabPane extends TabPane {
   }
 
   private Settings getSettings() {
-    return this.settings;
+    return mSettings;
   }
 
   protected Options getOptions() {
-    return this.options;
+    return mOptions;
   }
 
   private Window getWindow() {
