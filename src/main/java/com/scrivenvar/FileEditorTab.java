@@ -292,9 +292,11 @@ public final class FileEditorTab extends Tab {
       Files.write( getPath(), asBytes( editor.getText() ) );
       editor.getUndoManager().mark();
       return true;
-    } catch( final IOException ex ) {
+    } catch( final Exception ex ) {
       return alert(
-          "FileEditor.saveFailed.title", "FileEditor.saveFailed.message", ex
+          "FileEditor.saveFailed.title",
+          "FileEditor.saveFailed.message",
+          ex
       );
     }
   }

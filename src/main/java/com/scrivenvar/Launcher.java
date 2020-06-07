@@ -36,6 +36,11 @@ package com.scrivenvar;
  * </p>
  */
 public class Launcher {
+  /**
+   * Delegates to the application entry point.
+   *
+   * @param args Command-line arguments.
+   */
   public static void main( final String[] args ) {
     Main.main( args );
   }

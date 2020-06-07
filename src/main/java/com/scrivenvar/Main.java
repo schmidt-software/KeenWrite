@@ -63,25 +63,21 @@ public final class Main extends Application {
   private final Thread mSnitchThread = new Thread( getSnitch() );
   private final MainWindow mMainWindow = new MainWindow();
 
+  @SuppressWarnings({"FieldCanBeLocal", "unused"})
   private StageState mStageState;
 
+  /**
+   * Application entry point.
+   *
+   * @param args Command-line arguments.
+   */
   public static void main( final String[] args ) {
     initPreferences();
     launch( args );
   }
 
   /**
-   * Sets the factory used for reading user preferences.
-   */
-  private static void initPreferences() {
-    System.setProperty(
-        "java.util.prefs.PreferencesFactory",
-        FilePreferencesFactory.class.getName()
-    );
-  }
-
-  /**
-   * Application entry point.
+   * JavaFX entry point.
    *
    * @param stage The primary application stage.
    */
@@ -94,6 +90,16 @@ public final class Main extends Application {
     initSnitch();
 
     stage.show();
+  }
+
+  /**
+   * Sets the factory used for reading user preferences.
+   */
+  private static void initPreferences() {
+    System.setProperty(
+        "java.util.prefs.PreferencesFactory",
+        FilePreferencesFactory.class.getName()
+    );
   }
 
   public static void showDocument( final String uri ) {

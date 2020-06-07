@@ -50,7 +50,7 @@ import static java.lang.Math.min;
  *
  * @author White Magic Software, Ltd.
  */
-public final class InlineRProcessor extends DefaultVariableProcessor {
+public final class InlineRProcessor extends DefinitionProcessor {
 
   private static final Notifier NOTIFIER = Services.load( Notifier.class );
   private static final Options OPTIONS = Services.load( Options.class );

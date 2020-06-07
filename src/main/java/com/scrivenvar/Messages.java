@@ -109,7 +109,7 @@ public class Messages {
    * @param key Retrieve the value for this key.
    * @return The value for the key.
    */
-  public static String get( String key ) {
+  public static String get( final String key ) {
     try {
       return resolve( RESOURCE_BUNDLE, RESOURCE_BUNDLE.getString( key ) );
     } catch( final Exception ex ) {
@@ -129,7 +129,7 @@ public class Messages {
    * @param args The values to substitute for place holders.
    * @return The value for the key.
    */
-  public static String get( String key, Object... args ) {
+  public static String get( final String key, final Object... args ) {
     return MessageFormat.format( get( key ), args );
   }
 }

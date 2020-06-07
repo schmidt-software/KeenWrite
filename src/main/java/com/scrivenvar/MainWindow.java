@@ -108,17 +108,24 @@ public class MainWindow implements Observer {
   private final HTMLPreviewPane mPreviewPane = new HTMLPreviewPane();
   private FileEditorTabPane fileEditorPane;
 
-
   /**
    * Prevents re-instantiation of processing classes.
    */
-  private Map<FileEditorTab, Processor<String>> processors;
+  private final Map<FileEditorTab, Processor<String>> mProcessors =
+      new HashMap<>();
 
   /**
    * Listens on the definition pane for double-click events.
    */
   private VariableNameInjector variableNameInjector;
 
+  /**
+   * Called when the definition data is exported.
+   */
+  final EventHandler<TreeItem.TreeModificationEvent<Event>> mHandler =
+      event -> {
+        exportDefinitions( getDefinitionPath() );
+      };
 
   public MainWindow() {
     mStatusBar = createStatusBar();
@@ -190,13 +197,13 @@ public class MainWindow implements Observer {
     getFileEditorPane().onOpenDefinitionFileProperty().addListener(
         ( final ObservableValue<? extends Path> file,
           final Path oldPath, final Path newPath ) -> {
-
           // Indirectly refresh the resolved map.
-          setProcessors( null );
-          openDefinition( newPath );
+          resetProcessors();
+
+          openDefinitions( newPath );
 
           // Will create new processors and therefore a new resolved map.
-          refreshSelectedTab( getActiveFileEditor() );
+          refreshActiveTab();
         }
     );
   }
@@ -356,6 +363,10 @@ public class MainWindow implements Observer {
     }
   }
 
+  private void refreshActiveTab() {
+    refreshSelectedTab( getActiveFileEditor() );
+  }
+
   /**
    * Used to find text in the active file editor window.
    */
@@ -378,15 +389,12 @@ public class MainWindow implements Observer {
     return getDefinitionSource().getResolvedMap();
   }
 
-  final EventHandler<TreeItem.TreeModificationEvent<Event>> mHandler =
-      event -> exportDefinitionData( getDefinitionFilename() );
-
   /**
    * Called when a definition source is opened.
    *
    * @param path Path to the definition source that was opened.
    */
-  private void openDefinition( final Path path ) {
+  private void openDefinitions( final Path path ) {
     try {
       final DefinitionSource ds = createDefinitionSource( path.toString() );
       setDefinitionSource( ds );
@@ -398,7 +406,7 @@ public class MainWindow implements Observer {
     }
   }
 
-  private void exportDefinitionData( final Path path ) {
+  private void exportDefinitions( final Path path ) {
     try {
       final DefinitionPane pane = getDefinitionPane();
       final TreeItem<String> root = pane.getTreeView().getRoot();
@@ -418,7 +426,7 @@ public class MainWindow implements Observer {
     }
   }
 
-  private Path getDefinitionFilename() {
+  private Path getDefinitionPath() {
     final Preferences preferences = getPreferences();
     final String defaultFilename = getSetting(
         "file.definition.default", "variables.yaml" );
@@ -433,7 +441,7 @@ public class MainWindow implements Observer {
   }
 
   private void restoreDefinitionPane() {
-    openDefinition( getDefinitionFilename() );
+    openDefinitions( getDefinitionPath() );
   }
 
   private void storeDefinitionSourceFilename() {
@@ -642,17 +650,9 @@ public class MainWindow implements Observer {
   }
 
   //---- Member accessors ---------------------------------------------------
-  private void setProcessors(
-      final Map<FileEditorTab, Processor<String>> map ) {
-    this.processors = map;
-  }
 
   private Map<FileEditorTab, Processor<String>> getProcessors() {
-    if( this.processors == null ) {
-      setProcessors( new HashMap<>() );
-    }
-
-    return this.processors;
+    return mProcessors;
   }
 
   private FileEditorTabPane getFileEditorPane() {
@@ -721,7 +721,7 @@ public class MainWindow implements Observer {
   }
 
   private DefinitionSource createDefaultDefinitionSource() {
-    return new YamlDefinitionSource( getDefinitionFilename() );
+    return new YamlDefinitionSource( getDefinitionPath() );
   }
 
   private DefinitionSource createDefinitionSource( final String path ) {

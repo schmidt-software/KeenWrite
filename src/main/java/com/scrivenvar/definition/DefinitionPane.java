@@ -95,6 +95,10 @@ public final class DefinitionPane extends AbstractPane {
    * Informs the caller of whenever any {@link TreeItem} in the {@link TreeView}
    * is modified. The modifications include: item value changes, item additions,
    * and item removals.
+   * <p>
+   * Safe to call multiple times; if a handler is already registered, the
+   * old handler is used.
+   * </p>
    *
    * @param handler The handler to call whenever any {@link TreeItem} changes.
    */
@@ -300,6 +304,11 @@ public final class DefinitionPane extends AbstractPane {
     return menu;
   }
 
+  /**
+   * Executes hot-keys for edits to the definition tree.
+   *
+   * @param event Contains the key code of the key that was pressed.
+   */
   private void keyEventFilter( final KeyEvent event ) {
     if( !isEditingTreeItem() ) {
       switch( event.getCode() ) {
@@ -376,7 +385,7 @@ public final class DefinitionPane extends AbstractPane {
   }
 
   /**
-   * Returns the tree view that contains the YAML definition hierarchy.
+   * Returns the tree view that contains the definition hierarchy.
    *
    * @return A non-null instance.
    */
@@ -396,7 +405,7 @@ public final class DefinitionPane extends AbstractPane {
   /**
    * Returns the root of the tree.
    *
-   * @return The first node added to the YAML definition tree.
+   * @return The first node added to the definition tree.
    */
   private VariableTreeItem<String> getTreeRoot() {
     final TreeItem<String> root = getTreeView().getRoot();
@@ -432,5 +441,4 @@ public final class DefinitionPane extends AbstractPane {
     final TreeItem<String> item = getSelectionModel().getSelectedItem();
     return item == null ? getTreeView().getRoot() : item;
   }
-
 }

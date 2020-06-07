@@ -28,39 +28,31 @@
 package com.scrivenvar.processors;
 
 import static com.scrivenvar.processors.text.TextReplacementFactory.replace;
+
 import java.util.Map;
 
 /**
- * Processes variables in the document and inserts their values into the
- * post-processed text. The default variable syntax is <code>$variable$</code>.
+ * Processes interpolated string definitions in the document and inserts
+ * their values into the post-processed text. The default variable syntax is
+ * {@code $variable$}.
  *
  * @author White Magic Software, Ltd.
  */
-public class DefaultVariableProcessor extends AbstractProcessor<String> {
+public class DefinitionProcessor extends AbstractProcessor<String> {
 
-  private Map<String, String> definitions;
+  private final Map<String, String> mDefinitions;
 
-  /**
-   * Constructs a variable processor to dereference variables.
-   *
-   * @param successor Usually the HTML Preview Processor.
-   */
-  private DefaultVariableProcessor( final Processor<String> successor ) {
+  public DefinitionProcessor(
+      final Processor<String> successor, final Map<String, String> map ) {
     super( successor );
-  }
-
-  public DefaultVariableProcessor(
-    final Processor<String> successor, final Map<String, String> map ) {
-    this( successor );
-    setDefinitions( map );
+    mDefinitions = map;
   }
 
   /**
    * Processes the given text document by replacing variables with their values.
    *
    * @param text The document text that includes variables that should be
-   * replaced with values when rendered as HTML.
-   *
+   *             replaced with values when rendered as HTML.
    * @return The text with all variables replaced.
    */
   @Override
@@ -74,10 +66,7 @@ public class DefaultVariableProcessor extends AbstractProcessor<String> {
    * @return A map of variable names to values.
    */
   protected Map<String, String> getDefinitions() {
-    return this.definitions;
+    return mDefinitions;
   }
 
-  private void setDefinitions( final Map<String, String> definitions ) {
-    this.definitions = definitions;
-  }
 }

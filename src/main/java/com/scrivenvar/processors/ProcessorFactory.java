@@ -137,17 +137,17 @@ public class ProcessorFactory extends AbstractFileFactory {
     final Processor<String> cip = createMarkdownInsertionProcessor(
         tpc, caret );
 
-    return new DefaultVariableProcessor( cip, getResolvedMap() );
+    return new DefinitionProcessor( cip, getResolvedMap() );
   }
 
   protected Processor<String> createXMLProcessor( final FileEditorTab tab ) {
     final ObservableValue<Integer> caret = tab.caretPositionProperty();
     final Processor<String> tpc = getCommonProcessor();
     final Processor<String> xmlp = new XMLProcessor( tpc, tab.getPath() );
-    final Processor<String> dvp = new DefaultVariableProcessor(
+    final Processor<String> dp = new DefinitionProcessor(
         xmlp, getResolvedMap() );
 
-    return createXMLInsertionProcessor( dvp, caret );
+    return createXMLInsertionProcessor( dp, caret );
   }
 
   protected Processor<String> createRProcessor( final FileEditorTab tab ) {

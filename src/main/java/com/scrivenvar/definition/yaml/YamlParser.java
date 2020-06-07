@@ -83,30 +83,43 @@ import java.util.regex.Pattern;
  */
 public class YamlParser implements DocumentParser<JsonNode> {
 
+  private final static VariableDecorator VARIABLE_DECORATOR
+      = new YamlVariableDecorator();
+
   /**
    * Separates YAML variable nodes (e.g., the dots in
    * <code>$root.node.var$</code>).
    */
   public static final String SEPARATOR = ".";
 
+  /**
+   * Should be JsonPointer.SEPARATOR, but Jackson YAML uses magic values.
+   */
+  private final static char SEPARATOR_YAML = '/';
+
   private final static int GROUP_DELIMITED = 1;
   private final static int GROUP_REFERENCE = 2;
 
-  private final static VariableDecorator VARIABLE_DECORATOR
-      = new YamlVariableDecorator();
-
-  private String mError;
-
   /**
-   * Compiled version of DEFAULT_REGEX.
+   * Compiled regular expression for matching delimited references.
    */
   private final static Pattern REGEX_PATTERN
       = Pattern.compile( YamlVariableDecorator.REGEX );
 
   /**
-   * Should be JsonPointer.SEPARATOR, but Jackson YAML uses magic values.
+   * Map of references to dereferenced field values.
    */
-  private final static char SEPARATOR_YAML = '/';
+  private final Map<String, String> mReferences = new HashMap<>( 64 );
+
+  /**
+   * Path to the YAML resource to parse.
+   */
+  private final Path mPath;
+
+  /**
+   * Error that occurred while parsing.
+   */
+  private String mError;
 
   /**
    * Start of the Universe (the YAML document node that contains all others).
@@ -114,39 +127,36 @@ public class YamlParser implements DocumentParser<JsonNode> {
   private JsonNode mDocumentRoot;
 
   /**
-   * Map of references to dereferenced field values.
-   */
-  private Map<String, String> references;
-
-  /**
-   * Prevent instantiation.
+   * Creates a new YamlParser instance that attempts to parse the contents
+   * of the YAML document given from a path.  The file does not have to exist
+   * and can be empty.
    *
-   * @see #parse(Path)
+   * @param path Path to a file containing YAML data to parse.
    */
-  private YamlParser() {
+  public YamlParser( final Path path ) {
+    assert path != null;
+    mPath = path;
   }
 
   /**
-   * Creates a new YamlParser instance that attempts to parse the given
-   * YAML document input stream.
+   * Returns the parent node for the entire YAML document tree.
    *
-   * @param path Path to a file containing YAML data to parse. The file does
-   *             not have to exist.
-   * @return A new instance of this class.
+   * @return The parent node.
    */
-  public static YamlParser parse( final Path path ) {
-    final YamlParser parser = new YamlParser();
+  @Override
+  public JsonNode parse() {
+    final var path = getPath();
 
     try( final InputStream in = Files.newInputStream( path ) ) {
-      parser.process( in );
+      process( in );
     } catch( final Exception e ) {
       // Ensure that a document root node exists by relying on the
       // default failure condition when processing. This is required
       // because the input stream could not be read.
-      parser.process( new ByteArrayInputStream( new byte[]{} ) );
+      process( new ByteArrayInputStream( new byte[]{} ) );
     }
 
-    return parser;
+    return getDocumentRoot();
   }
 
   /**
@@ -181,7 +191,7 @@ public class YamlParser implements DocumentParser<JsonNode> {
   public Map<String, String> createResolvedMap() {
     final Map<String, String> map = new HashMap<>( 1024 );
 
-    resolve( parse(), "", map );
+    resolve( getDocumentRoot(), "", map );
 
     return map;
   }
@@ -357,7 +367,7 @@ public class YamlParser implements DocumentParser<JsonNode> {
    *             REGEX_PATTERN that can be found using the regular expression.
    */
   private Matcher patternMatch( final String text ) {
-    return getPattern().matcher( text );
+    return REGEX_PATTERN.matcher( text );
   }
 
   /**
@@ -367,7 +377,7 @@ public class YamlParser implements DocumentParser<JsonNode> {
    * @return The dereferenced value.
    */
   private String lookup( final String reference ) {
-    return parse().at( asPath( reference ) ).asText();
+    return getDocumentRoot().at( asPath( reference ) ).asText();
   }
 
   /**
@@ -392,44 +402,15 @@ public class YamlParser implements DocumentParser<JsonNode> {
     mDocumentRoot = documentRoot;
   }
 
-  /**
-   * Returns the parent node for the entire YAML document tree.
-   *
-   * @return The parent node.
-   */
-  @Override
-  public JsonNode parse() {
+  private JsonNode getDocumentRoot() {
     return mDocumentRoot;
-  }
-
-  /**
-   * Returns the compiled regular expression REGEX_PATTERN used to match
-   * delimited references.
-   *
-   * @return A compiled regex for use with the Matcher.
-   */
-  private Pattern getPattern() {
-    return REGEX_PATTERN;
   }
 
   /**
    * @return The list of references mapped to dereferenced values.
    */
   private Map<String, String> getReferences() {
-    if( this.references == null ) {
-      this.references = createReferences();
-    }
-
-    return this.references;
-  }
-
-  /**
-   * Subclasses can override this method to insert their own map.
-   *
-   * @return An empty HashMap, never null.
-   */
-  protected Map<String, String> createReferences() {
-    return new HashMap<>();
+    return mReferences;
   }
 
   private final class ResolverYamlFactory extends YAMLFactory {
@@ -462,6 +443,15 @@ public class YamlParser implements DocumentParser<JsonNode> {
     public void writeString( final String text ) throws IOException {
       super.writeString( substitute( text ) );
     }
+  }
+
+  /**
+   * Returns the {@link Path} to the YAML contents to parse.
+   *
+   * @return A resource path.
+   */
+  private Path getPath() {
+    return mPath;
   }
 
   /**

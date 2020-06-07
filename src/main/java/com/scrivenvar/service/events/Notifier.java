@@ -137,12 +137,4 @@ public interface Notifier {
    * @param observer The observer instance to notify.
    */
   void addObserver( Observer observer );
-
-  /**
-   * Removes an observer from the list of objects that receive notifications
-   * about error messages to be presented to the user.
-   *
-   * @param observer The observer instance to no longer notify.
-   */
-  void deleteObserver( Observer observer );
 }

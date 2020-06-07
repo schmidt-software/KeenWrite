@@ -50,10 +50,7 @@ import static javafx.scene.control.Alert.AlertType.ERROR;
  */
 public final class DefaultNotifier extends Observable implements Notifier {
 
-  private final static String OK = get( STATUS_BAR_OK );
-
-  public DefaultNotifier() {
-  }
+  private final static String OK = get( STATUS_BAR_OK, "OK" );
 
   /**
    * Notifies all observer instances of the given message.

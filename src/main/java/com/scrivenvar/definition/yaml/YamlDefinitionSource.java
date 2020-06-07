@@ -70,7 +70,7 @@ public class YamlDefinitionSource extends FileDefinitionSource {
   }
 
   private YamlParser createYamlParser( final Path path ) {
-    return YamlParser.parse(path);
+    return new YamlParser( path );
   }
 
   private YamlParser getYamlParser() {
