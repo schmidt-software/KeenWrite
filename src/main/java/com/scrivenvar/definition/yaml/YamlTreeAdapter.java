@@ -30,7 +30,6 @@ package com.scrivenvar.definition.yaml;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
-import com.scrivenvar.definition.DocumentParser;
 import com.scrivenvar.definition.TreeAdapter;
 import com.scrivenvar.definition.VariableTreeItem;
 import javafx.scene.control.TreeItem;
@@ -46,35 +45,43 @@ import java.util.Map.Entry;
  * @author White Magic Software, Ltd.
  */
 public class YamlTreeAdapter implements TreeAdapter {
-  private final DocumentParser<JsonNode> mParser;
+  private final YamlParser mParser;
 
   /**
-   * Constructs a new instance that will use the given parser to read
+   * Constructs a new instance that will use the given path to read
    * the object hierarchy from a data source.
    *
-   * @param parser Provides the ability to read data into an object hierarchy.
+   * @param path Path to YAML contents to parse.
    */
-  public YamlTreeAdapter( final DocumentParser<JsonNode> parser ) {
-    mParser = parser;
+  public YamlTreeAdapter( final Path path ) {
+    mParser = new YamlParser( path );
   }
 
   @Override
-  public void export( final TreeItem<String> root, final Path path )
+  public void export( final TreeItem<String> treeItem, final Path path )
       throws IOException {
-
     final YAMLMapper mapper = new YAMLMapper();
-    final ObjectNode node = mapper.createObjectNode();
+    final ObjectNode root = mapper.createObjectNode();
 
     // Iterate over the root item's children. The root item is used by the
-    // application to ensure definitions can always be added to a tree.
-    for( final TreeItem<String> child : root.getChildren() ) {
-      export( child, node );
+    // application to ensure definitions can always be added to a tree, as
+    // such it is not meant to be exported, only its children.
+    for( final TreeItem<String> child : treeItem.getChildren() ) {
+      export( child, root );
     }
 
     // Writes as UTF8 by default.
-    mapper.writeValue( path.toFile(), node );
+    mapper.writeValue( path.toFile(), root );
   }
 
+  /**
+   * Recursive method to generate an object hierarchy that represents the
+   * given {@link TreeItem} hierarchy.
+   *
+   * @param item The {@link TreeItem} to reproduce as an object hierarchy.
+   * @param node The {@link ObjectNode} to update to reflect the
+   *             {@link TreeItem} hierarchy.
+   */
   private void export( final TreeItem<String> item, ObjectNode node ) {
     final var children = item.getChildren();
 
@@ -103,7 +110,7 @@ public class YamlTreeAdapter implements TreeAdapter {
    * document.
    */
   public TreeItem<String> adapt( final String root ) {
-    final JsonNode rootNode = getParser().parse();
+    final JsonNode rootNode = getYamlParser().getDocumentRoot();
     final TreeItem<String> rootItem = createTreeItem( root );
 
     rootItem.setExpanded( true );
@@ -159,7 +166,7 @@ public class YamlTreeAdapter implements TreeAdapter {
     return new VariableTreeItem<>( value );
   }
 
-  private DocumentParser<JsonNode> getParser() {
+  public YamlParser getYamlParser() {
     return mParser;
   }
 }

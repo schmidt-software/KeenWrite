@@ -40,7 +40,6 @@ import com.scrivenvar.decorators.YamlVariableDecorator;
 import com.scrivenvar.definition.DocumentParser;
 import org.yaml.snakeyaml.DumperOptions;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Writer;
@@ -112,11 +111,6 @@ public class YamlParser implements DocumentParser<JsonNode> {
   private final Map<String, String> mReferences = new HashMap<>( 64 );
 
   /**
-   * Path to the YAML resource to parse.
-   */
-  private final Path mPath;
-
-  /**
    * Error that occurred while parsing.
    */
   private String mError;
@@ -124,39 +118,48 @@ public class YamlParser implements DocumentParser<JsonNode> {
   /**
    * Start of the Universe (the YAML document node that contains all others).
    */
-  private JsonNode mDocumentRoot;
+  private final JsonNode mDocumentRoot;
 
   /**
    * Creates a new YamlParser instance that attempts to parse the contents
-   * of the YAML document given from a path.  The file does not have to exist
-   * and can be empty.
+   * of the YAML document given from a path. In the event that the file either
+   * does not exist or is empty, a fake
    *
    * @param path Path to a file containing YAML data to parse.
    */
   public YamlParser( final Path path ) {
     assert path != null;
-    mPath = path;
+    mDocumentRoot = parse( path );
+    interpolate( mDocumentRoot );
+  }
+
+  /**
+   * Parses the given path containing YAML data into an object hierarchy.
+   *
+   * @param path {@link Path} to the YAML resource to parse.
+   * @return The parsed contents, or an empty object hierarchy.
+   */
+  private JsonNode parse( final Path path ) {
+    try( final InputStream in = Files.newInputStream( path ) ) {
+      return parse( in );
+    } catch( final Exception e ) {
+      setError( Messages.get( "yaml.error.open" ) );
+
+      // Ensure that a document root node exists by relying on the
+      // default failure condition when processing. This is required
+      // because the input stream could not be read.
+      return new ObjectMapper().createObjectNode();
+    }
   }
 
   /**
    * Returns the parent node for the entire YAML document tree.
    *
-   * @return The parent node.
+   * @return The document root, never {@code null}.
    */
   @Override
-  public JsonNode parse() {
-    final var path = getPath();
-
-    try( final InputStream in = Files.newInputStream( path ) ) {
-      process( in );
-    } catch( final Exception e ) {
-      // Ensure that a document root node exists by relying on the
-      // default failure condition when processing. This is required
-      // because the input stream could not be read.
-      process( new ByteArrayInputStream( new byte[]{} ) );
-    }
-
-    return getDocumentRoot();
+  public JsonNode getDocumentRoot() {
+    return mDocumentRoot;
   }
 
   /**
@@ -250,19 +253,12 @@ public class YamlParser implements DocumentParser<JsonNode> {
    *
    * @param in The input stream containing YAML content.
    */
-  private void process( final InputStream in ) {
+  private JsonNode parse( final InputStream in ) throws IOException {
     setError( Messages.get( "Main.statusbar.state.default" ) );
 
-    try {
-      final YAMLFactory factory = new ResolverYamlFactory();
-      final ObjectMapper mapper = new ObjectMapper( factory );
-      final JsonNode root = mapper.readTree( in );
-      setDocumentRoot( root );
-      process( root );
-    } catch( final Exception e ) {
-      setDocumentRoot( new ObjectMapper().createObjectNode() );
-      setError( Messages.get( "yaml.error.open" ) );
-    }
+    final YAMLFactory factory = new ResolverYamlFactory();
+    final ObjectMapper mapper = new ObjectMapper( factory );
+    return mapper.readTree( in );
   }
 
   /**
@@ -271,8 +267,8 @@ public class YamlParser implements DocumentParser<JsonNode> {
    *
    * @param root A node to process.
    */
-  private void process( final JsonNode root ) {
-    root.fields().forEachRemaining( this::process );
+  private void interpolate( final JsonNode root ) {
+    root.fields().forEachRemaining( this::interpolate );
   }
 
   /**
@@ -282,11 +278,11 @@ public class YamlParser implements DocumentParser<JsonNode> {
    *
    * @param field The named node.
    */
-  private void process( final Entry<String, JsonNode> field ) {
+  private void interpolate( final Entry<String, JsonNode> field ) {
     final JsonNode node = field.getValue();
 
     if( node.isObject() ) {
-      process( node );
+      interpolate( node );
     }
     else {
       final JsonNode fieldValue = field.getValue();
@@ -296,7 +292,7 @@ public class YamlParser implements DocumentParser<JsonNode> {
       if( fieldValue.isValueNode() ) {
         try {
           resolve( fieldValue.asText() );
-        } catch( StackOverflowError e ) {
+        } catch( final StackOverflowError e ) {
           final String msg = Messages.get(
               "yaml.error.unresolvable", node.textValue(), fieldValue );
           setError( msg );
@@ -394,19 +390,6 @@ public class YamlParser implements DocumentParser<JsonNode> {
   }
 
   /**
-   * Sets the parent node for the entire YAML document tree.
-   *
-   * @param documentRoot The parent node.
-   */
-  private void setDocumentRoot( final JsonNode documentRoot ) {
-    mDocumentRoot = documentRoot;
-  }
-
-  private JsonNode getDocumentRoot() {
-    return mDocumentRoot;
-  }
-
-  /**
    * @return The list of references mapped to dereferenced values.
    */
   private Map<String, String> getReferences() {
@@ -443,15 +426,6 @@ public class YamlParser implements DocumentParser<JsonNode> {
     public void writeString( final String text ) throws IOException {
       super.writeString( substitute( text ) );
     }
-  }
-
-  /**
-   * Returns the {@link Path} to the YAML contents to parse.
-   *
-   * @return A resource path.
-   */
-  private Path getPath() {
-    return mPath;
   }
 
   /**

@@ -40,7 +40,6 @@ import java.util.Map;
  */
 public class YamlDefinitionSource extends FileDefinitionSource {
 
-  private final YamlParser mYamlParser;
   private final YamlTreeAdapter mYamlTreeAdapter;
 
   /**
@@ -50,8 +49,7 @@ public class YamlDefinitionSource extends FileDefinitionSource {
    */
   public YamlDefinitionSource( final Path path ) {
     super( path );
-    mYamlParser = createYamlParser( path );
-    mYamlTreeAdapter = createTreeAdapter( mYamlParser );
+    mYamlTreeAdapter = new YamlTreeAdapter( path );
   }
 
   @Override
@@ -69,15 +67,7 @@ public class YamlDefinitionSource extends FileDefinitionSource {
     return getYamlParser().getError();
   }
 
-  private YamlParser createYamlParser( final Path path ) {
-    return new YamlParser( path );
-  }
-
   private YamlParser getYamlParser() {
-    return mYamlParser;
-  }
-
-  private YamlTreeAdapter createTreeAdapter( final YamlParser parser ) {
-    return new YamlTreeAdapter( parser );
+    return mYamlTreeAdapter.getYamlParser();
   }
 }

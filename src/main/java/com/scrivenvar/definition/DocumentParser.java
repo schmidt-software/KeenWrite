@@ -13,5 +13,5 @@ public interface DocumentParser<T> {
    *
    * @return The document's root node, which may be empty but never null.
    */
-  T parse();
+  T getDocumentRoot();
 }
