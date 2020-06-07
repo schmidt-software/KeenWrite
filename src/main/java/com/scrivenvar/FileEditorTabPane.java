@@ -544,10 +544,10 @@ public final class FileEditorTabPane extends TabPane {
     // TODO: Return a list of all properties that match the filter prefix.
     // This will allow dynamic filters to be added and removed just by
     // updating the properties file.
+    list.add( createExtensionFilter( ALL ) );
     list.add( createExtensionFilter( SOURCE ) );
     list.add( createExtensionFilter( DEFINITION ) );
     list.add( createExtensionFilter( XML ) );
-    list.add( createExtensionFilter( ALL ) );
     return list;
   }
 
