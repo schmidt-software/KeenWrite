@@ -27,9 +27,9 @@
  */
 package com.scrivenvar.processors;
 
-import static com.scrivenvar.processors.text.TextReplacementFactory.replace;
-
 import java.util.Map;
+
+import static com.scrivenvar.processors.text.TextReplacementFactory.replace;
 
 /**
  * Processes interpolated string definitions in the document and inserts
@@ -68,5 +68,4 @@ public class DefinitionProcessor extends AbstractProcessor<String> {
   protected Map<String, String> getDefinitions() {
     return mDefinitions;
   }
-
 }

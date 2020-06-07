@@ -53,7 +53,7 @@ public interface DefinitionSource {
    * @return The new map created with all values having been resolved,
    * recursively.
    */
-  Map<String, String> getResolvedMap();
+  Map<String, String> createResolvedMap();
 
   /**
    * Returns the error message, if any, that occurred while loading the

@@ -29,8 +29,6 @@ package com.scrivenvar;
 
 import com.scrivenvar.service.Settings;
 
-import java.util.Collection;
-
 /**
  * Defines application-wide default values.
  *
@@ -41,7 +39,7 @@ public class Constants {
   private static final Settings SETTINGS = Services.load( Settings.class );
 
   /**
-   * Prevent instantiation, deliberately.
+   * Prevent instantiation.
    */
   private Constants() {
   }
@@ -53,11 +51,6 @@ public class Constants {
   @SuppressWarnings("SameParameterValue")
   private static int get( final String key, final int defaultValue ) {
     return SETTINGS.getSetting( key, defaultValue );
-  }
-
-  @SuppressWarnings("SameParameterValue")
-  private static Collection<String> getStringSettingList( final String key ) {
-    return SETTINGS.getStringSettingList( key );
   }
 
   // Bootstrapping...
@@ -108,6 +101,11 @@ public class Constants {
   // "OK" text
   public static final String STATUS_BAR_OK = "Main.statusbar.state.default";
   public static final String STATUS_PARSE_ERROR = "Main.statusbar.parse.error";
+
+  /**
+   * Used when creating flat maps relating to resolved variables.
+   */
+  public static final int DEFAULT_MAP_SIZE = 64;
 
   /**
    * Location of the definition source file.

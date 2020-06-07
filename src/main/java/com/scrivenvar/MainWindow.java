@@ -30,7 +30,6 @@ package com.scrivenvar;
 import com.scrivenvar.definition.DefinitionFactory;
 import com.scrivenvar.definition.DefinitionPane;
 import com.scrivenvar.definition.DefinitionSource;
-import com.scrivenvar.definition.FileDefinitionSource;
 import com.scrivenvar.definition.yaml.YamlDefinitionSource;
 import com.scrivenvar.dialogs.RScriptDialog;
 import com.scrivenvar.editors.EditorPane;
@@ -114,6 +113,9 @@ public class MainWindow implements Observer {
   private final Map<FileEditorTab, Processor<String>> mProcessors =
       new HashMap<>();
 
+  private final Map<String, String> mResolvedMap =
+      new HashMap<>( DEFAULT_MAP_SIZE );
+
   /**
    * Listens on the definition pane for double-click events.
    */
@@ -125,6 +127,8 @@ public class MainWindow implements Observer {
   final EventHandler<TreeItem.TreeModificationEvent<Event>> mHandler =
       event -> {
         exportDefinitions( getDefinitionPath() );
+        getResolvedMap().clear();
+        getResolvedMap().putAll( getDefinitionSource().createResolvedMap() );
       };
 
   public MainWindow() {
@@ -386,7 +390,7 @@ public class MainWindow implements Observer {
    * @return A map to help dereference variables.
    */
   private Map<String, String> getResolvedMap() {
-    return getDefinitionSource().getResolvedMap();
+    return mResolvedMap;
   }
 
   /**
@@ -396,7 +400,7 @@ public class MainWindow implements Observer {
    */
   private void openDefinitions( final Path path ) {
     try {
-      final DefinitionSource ds = createDefinitionSource( path.toString() );
+      final DefinitionSource ds = createDefinitionSource( path );
       setDefinitionSource( ds );
       storeDefinitionSourceFilename();
       getDefinitionPane().update( getDefinitionSource() );
@@ -724,20 +728,11 @@ public class MainWindow implements Observer {
     return new YamlDefinitionSource( getDefinitionPath() );
   }
 
-  private DefinitionSource createDefinitionSource( final String path ) {
+  private DefinitionSource createDefinitionSource( final Path path ) {
     DefinitionSource ds;
 
     try {
       ds = createDefinitionFactory().createDefinitionSource( path );
-
-      if( ds instanceof FileDefinitionSource ) {
-        try {
-          getNotifier().notify( ds.getError() );
-          getSnitch().listen( ((FileDefinitionSource) ds).getPath() );
-        } catch( final Exception ex ) {
-          error( ex );
-        }
-      }
     } catch( final Exception ex ) {
       ds = createDefaultDefinitionSource();
       error( ex );

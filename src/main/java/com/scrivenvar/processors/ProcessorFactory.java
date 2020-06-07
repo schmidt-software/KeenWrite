@@ -43,23 +43,23 @@ import java.util.Map;
  */
 public class ProcessorFactory extends AbstractFileFactory {
 
-  private final HTMLPreviewPane previewPane;
-  private final Map<String, String> resolvedMap;
-
-  private Processor<String> terminalProcessChain;
+  private final HTMLPreviewPane mPreviewPane;
+  private final Map<String, String> mResolvedMap;
+  private final Processor<String> mCommonProcessor;
 
   /**
    * Constructs a factory with the ability to create processors that can perform
    * text and caret processing to generate a final preview.
    *
    * @param previewPane Where the final output is rendered.
-   * @param resolvedMap Map of definitions to replace before final render.
+   * @param resolvedMap Flat map of definitions to replace before final render.
    */
   public ProcessorFactory(
       final HTMLPreviewPane previewPane,
       final Map<String, String> resolvedMap ) {
-    this.previewPane = previewPane;
-    this.resolvedMap = resolvedMap;
+    mPreviewPane = previewPane;
+    mResolvedMap = resolvedMap;
+    mCommonProcessor = createCommonProcessor();
   }
 
   /**
@@ -96,20 +96,6 @@ public class ProcessorFactory extends AbstractFileFactory {
     }
 
     return processor;
-  }
-
-  /**
-   * Returns a processor common to all processors: markdown, caret position
-   * token replacer, and an HTML preview renderer.
-   *
-   * @return Processors at the end of the processing chain.
-   */
-  private Processor<String> getCommonProcessor() {
-    if( this.terminalProcessChain == null ) {
-      this.terminalProcessChain = createCommonProcessor();
-    }
-
-    return this.terminalProcessChain;
   }
 
   /**
@@ -197,7 +183,7 @@ public class ProcessorFactory extends AbstractFileFactory {
   }
 
   private HTMLPreviewPane getPreviewPane() {
-    return this.previewPane;
+    return mPreviewPane;
   }
 
   /**
@@ -206,6 +192,16 @@ public class ProcessorFactory extends AbstractFileFactory {
    * @return A map to help dereference variables.
    */
   private Map<String, String> getResolvedMap() {
-    return this.resolvedMap;
+    return mResolvedMap;
+  }
+
+  /**
+   * Returns a processor common to all processors: markdown, caret position
+   * token replacer, and an HTML preview renderer.
+   *
+   * @return Processors at the end of the processing chain.
+   */
+  private Processor<String> getCommonProcessor() {
+    return mCommonProcessor;
   }
 }

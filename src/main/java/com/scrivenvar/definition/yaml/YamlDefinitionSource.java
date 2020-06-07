@@ -58,7 +58,7 @@ public class YamlDefinitionSource extends FileDefinitionSource {
   }
 
   @Override
-  public Map<String, String> getResolvedMap() {
+  public Map<String, String> createResolvedMap() {
     return getYamlParser().createResolvedMap();
   }
 

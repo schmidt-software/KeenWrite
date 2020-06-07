@@ -51,6 +51,9 @@ import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.scrivenvar.Constants.DEFAULT_MAP_SIZE;
+import static com.scrivenvar.Constants.STATUS_BAR_OK;
+
 /**
  * <p>
  * This program loads a YAML document into memory, scans for variable
@@ -106,9 +109,10 @@ public class YamlParser implements DocumentParser<JsonNode> {
       = Pattern.compile( YamlVariableDecorator.REGEX );
 
   /**
-   * Map of references to dereferenced field values.
+   * Flat map of references to dereferenced field values.
    */
-  private final Map<String, String> mReferences = new HashMap<>( 64 );
+  private final Map<String, String> mReferences =
+      new HashMap<>( DEFAULT_MAP_SIZE );
 
   /**
    * Error that occurred while parsing.
@@ -192,7 +196,7 @@ public class YamlParser implements DocumentParser<JsonNode> {
    * recursively.
    */
   public Map<String, String> createResolvedMap() {
-    final Map<String, String> map = new HashMap<>( 1024 );
+    final Map<String, String> map = new HashMap<>( DEFAULT_MAP_SIZE );
 
     resolve( getDocumentRoot(), "", map );
 
@@ -254,7 +258,7 @@ public class YamlParser implements DocumentParser<JsonNode> {
    * @param in The input stream containing YAML content.
    */
   private JsonNode parse( final InputStream in ) throws IOException {
-    setError( Messages.get( "Main.statusbar.state.default" ) );
+    setError( Messages.get( STATUS_BAR_OK ) );
 
     final YAMLFactory factory = new ResolverYamlFactory();
     final ObjectMapper mapper = new ObjectMapper( factory );

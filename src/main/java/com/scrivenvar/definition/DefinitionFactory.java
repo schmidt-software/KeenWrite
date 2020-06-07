@@ -35,7 +35,6 @@ import java.io.File;
 import java.net.URI;
 import java.net.URL;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import static com.scrivenvar.Constants.*;
 import static com.scrivenvar.FileType.YAML;
@@ -62,17 +61,18 @@ public class DefinitionFactory extends AbstractFileFactory {
    * @param path Path to a resource containing definitions.
    * @return The definition source appropriate for the given path.
    */
-  public DefinitionSource createDefinitionSource( final String path ) {
-    final String protocol = getProtocol( path );
+  public DefinitionSource createDefinitionSource( final Path path ) {
+    assert path != null;
+
+    final String protocol = getProtocol( path.toString() );
     DefinitionSource result = null;
 
     if( DEFINITION_PROTOCOL_FILE.equals( protocol ) ) {
-      final Path file = Paths.get( path );
-      final FileType filetype = lookup( file, GLOB_PREFIX_DEFINITION );
-      result = createFileDefinitionSource( filetype, file );
+      final FileType filetype = lookup( path, GLOB_PREFIX_DEFINITION );
+      result = createFileDefinitionSource( filetype, path );
     }
     else {
-      unknownFileType( protocol, path );
+      unknownFileType( protocol, path.toString() );
     }
 
     return result;
@@ -88,7 +88,7 @@ public class DefinitionFactory extends AbstractFileFactory {
   private DefinitionSource createFileDefinitionSource(
       final FileType filetype, final Path path ) {
     assert filetype != null;
-    assert path !=null;
+    assert path != null;
 
     if( filetype == YAML ) {
       return new YamlDefinitionSource( path );

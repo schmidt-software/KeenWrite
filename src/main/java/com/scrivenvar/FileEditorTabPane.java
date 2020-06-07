@@ -395,6 +395,7 @@ public final class FileEditorTabPane extends TabPane {
    * @param tab THe tab to check for modifications.
    * @return false The file is unmodified.
    */
+  @SuppressWarnings("BooleanMethodIsAlwaysInverted")
   boolean canCloseEditor( final FileEditorTab tab ) {
     final AtomicReference<Boolean> canClose = new AtomicReference<>();
     canClose.set( true );

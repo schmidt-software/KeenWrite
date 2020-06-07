@@ -49,7 +49,7 @@ public abstract class AbstractProcessor<T> implements Processor<T> {
   /**
    * Used while processing the entire chain; null to signify no more links.
    */
-  private final Processor<T> next;
+  private final Processor<T> mNext;
 
   /**
    * Constructs a succession without a successor (i.e., next is null).
@@ -64,7 +64,7 @@ public abstract class AbstractProcessor<T> implements Processor<T> {
    * @param successor Use null to indicate last link in the chain.
    */
   public AbstractProcessor( final Processor<T> successor ) {
-    this.next = successor;
+    mNext = successor;
   }
 
   /**
@@ -85,6 +85,6 @@ public abstract class AbstractProcessor<T> implements Processor<T> {
 
   @Override
   public Processor<T> next() {
-    return this.next;
+    return mNext;
   }
 }
