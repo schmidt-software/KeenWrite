@@ -115,21 +115,32 @@ public final class DefinitionPane extends AbstractPane {
    *   <li>There are no leaf nodes with sibling leaf nodes.</li>
    * </ul>
    *
-   * @return {@code true} the tree is suitable for exporting.
+   * @return {@code null} if the document is well-formed, otherwise the
+   * problematic child tree item.
    */
-  public boolean isTreeWellFormed() {
+  public TreeItem<String> isTreeWellFormed() {
     final var root = getTreeView().getRoot();
 
     for( final var child : root.getChildren() ) {
-      if( child.isLeaf() || !isWellFormed( child ) ) {
-        return false;
+      final var problemChild = isWellFormed( child );
+
+      if( child.isLeaf() || problemChild != null ) {
+        return problemChild;
       }
     }
 
-    return true;
+    return null;
   }
 
-  private boolean isWellFormed( final TreeItem<String> item ) {
+  /**
+   * Determines whether the document is well-formed by ensuring that
+   * child branches do not contain multiple leaves.
+   *
+   * @param item The sub-tree to check for well-formedness.
+   * @return {@code null} when the tree is well-formed, otherwise the
+   * problematic node.
+   */
+  private TreeItem<String> isWellFormed( final TreeItem<String> item ) {
     int childLeafs = 0;
     int childBranches = 0;
 
@@ -141,13 +152,15 @@ public final class DefinitionPane extends AbstractPane {
         childBranches++;
       }
 
-      if( !isWellFormed( child ) ) {
-        return false;
+      final var problemChild = isWellFormed( child );
+
+      if( problemChild != null ) {
+        return problemChild;
       }
     }
 
-    return (childBranches > 0 && childLeafs == 0) ||
-        (childBranches == 0 && childLeafs <= 1);
+    return ((childBranches > 0 && childLeafs == 0) ||
+        (childBranches == 0 && childLeafs <= 1)) ? null : item;
   }
 
   /**

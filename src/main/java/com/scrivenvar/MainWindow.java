@@ -402,13 +402,16 @@ public class MainWindow implements Observer {
     try {
       final DefinitionPane pane = getDefinitionPane();
       final TreeItem<String> root = pane.getTreeView().getRoot();
+      final TreeItem<String> problemChild = pane.isTreeWellFormed();
 
-      if( pane.isTreeWellFormed() ) {
+      if( problemChild == null ) {
         getDefinitionSource().getTreeAdapter().export( root, path );
         getNotifier().clear();
       }
       else {
-        getNotifier().notify( get( "yaml.error.tree.form", "Definitions" ) );
+        final String msg = get( "yaml.error.tree.form",
+                                problemChild.getValue() );
+        getNotifier().notify( msg );
       }
     } catch( final Exception e ) {
       error( e );
