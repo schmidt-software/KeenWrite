@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 White Magic Software, Ltd.
+ * Copyright 2020 White Magic Software, Ltd.
  *
  * All rights reserved.
  *
@@ -45,8 +45,8 @@ import static java.lang.String.format;
  */
 public class AbstractFileFactory {
 
-  private static final String MSG_UNKNOWN_FILE_TYPE = "Unknown type '%s' for " +
-      "file '%s'.";
+  private static final String MSG_UNKNOWN_FILE_TYPE =
+      "Unknown type '%s' for file '%s'.";
 
   private final Settings mSettings = Services.load( Settings.class );
 

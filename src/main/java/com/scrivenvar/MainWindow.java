@@ -122,13 +122,11 @@ public class MainWindow implements Observer {
   private VariableNameInjector variableNameInjector;
 
   /**
-   * Called when the definition data is exported.
+   * Called when the definition data is changed.
    */
   final EventHandler<TreeItem.TreeModificationEvent<Event>> mHandler =
       event -> {
         exportDefinitions( getDefinitionPath() );
-        getResolvedMap().clear();
-        getResolvedMap().putAll( getDefinitionSource().createResolvedMap() );
       };
 
   public MainWindow() {
@@ -402,8 +400,10 @@ public class MainWindow implements Observer {
     try {
       final DefinitionSource ds = createDefinitionSource( path );
       setDefinitionSource( ds );
-      storeDefinitionSourceFilename();
-      getDefinitionPane().update( getDefinitionSource() );
+      storeDefinitionSourceFilename( path );
+      getResolvedMap().clear();
+      getResolvedMap().putAll( ds.createResolvedMap() );
+      getDefinitionPane().update( ds );
       getDefinitionPane().addTreeChangeHandler( mHandler );
     } catch( final Exception e ) {
       error( e );
@@ -431,29 +431,22 @@ public class MainWindow implements Observer {
   }
 
   private Path getDefinitionPath() {
-    final Preferences preferences = getPreferences();
-    final String defaultFilename = getSetting(
-        "file.definition.default", "variables.yaml" );
-    String source = preferences.get(
-        PERSIST_DEFINITION_SOURCE, defaultFilename );
+    final String source = getPreferences().get(
+        PERSIST_DEFINITION_SOURCE, "" );
 
-    if( source.isBlank() ) {
-      source = defaultFilename;
-    }
-
-    return new File( source ).toPath();
+    return new File(
+        source.isBlank()
+            ? getSetting( "file.definition.default", "variables.yaml" )
+            : source
+    ).toPath();
   }
 
   private void restoreDefinitionPane() {
     openDefinitions( getDefinitionPath() );
   }
 
-  private void storeDefinitionSourceFilename() {
-    final Preferences preferences = getPreferences();
-    final DefinitionSource ds = getDefinitionSource();
-    final String source = ds.toString();
-
-    preferences.put( PERSIST_DEFINITION_SOURCE, source );
+  private void storeDefinitionSourceFilename( final Path path ) {
+    getPreferences().put( PERSIST_DEFINITION_SOURCE, path.toString() );
   }
 
   /**
@@ -519,7 +512,7 @@ public class MainWindow implements Observer {
         () -> {
           // Brute-force XSLT file reload by re-instantiating all processors.
           resetProcessors();
-          refreshSelectedTab( getActiveFileEditor() );
+          refreshActiveTab();
         }
     );
   }
@@ -729,16 +722,12 @@ public class MainWindow implements Observer {
   }
 
   private DefinitionSource createDefinitionSource( final Path path ) {
-    DefinitionSource ds;
-
     try {
-      ds = createDefinitionFactory().createDefinitionSource( path );
+      return createDefinitionFactory().createDefinitionSource( path );
     } catch( final Exception ex ) {
-      ds = createDefaultDefinitionSource();
       error( ex );
+      return createDefaultDefinitionSource();
     }
-
-    return ds;
   }
 
   private TextField createFindTextField() {

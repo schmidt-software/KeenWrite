@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 White Magic Software, Ltd.
+ * Copyright 2020 White Magic Software, Ltd.
  *
  * All rights reserved.
  *
@@ -27,7 +27,7 @@
  */
 package com.scrivenvar.definition.yaml;
 
-import com.scrivenvar.definition.FileDefinitionSource;
+import com.scrivenvar.definition.DefinitionSource;
 import com.scrivenvar.definition.TreeAdapter;
 
 import java.nio.file.Path;
@@ -38,7 +38,7 @@ import java.util.Map;
  *
  * @author White Magic Software, Ltd.
  */
-public class YamlDefinitionSource extends FileDefinitionSource {
+public class YamlDefinitionSource implements DefinitionSource {
 
   private final YamlTreeAdapter mYamlTreeAdapter;
 
@@ -48,7 +48,8 @@ public class YamlDefinitionSource extends FileDefinitionSource {
    * @param path Path to the YAML definition file.
    */
   public YamlDefinitionSource( final Path path ) {
-    super( path );
+    assert path != null;
+
     mYamlTreeAdapter = new YamlTreeAdapter( path );
   }
 

@@ -65,13 +65,4 @@ public interface DefinitionSource {
     return "";
   }
 
-  /**
-   * Must return a re-loadable path to the data source. For a file, this is the
-   * absolute file path. For a database, this could be the JDBC connection. For
-   * a web site, this might be the GET URL.
-   *
-   * @return A non-null, non-empty string.
-   */
-  @Override
-  String toString();
 }
