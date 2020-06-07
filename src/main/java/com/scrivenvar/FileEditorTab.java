@@ -48,11 +48,13 @@ import org.fxmisc.richtext.model.TwoDimensional.Position;
 import org.fxmisc.undo.UndoManager;
 import org.mozilla.universalchardet.UniversalDetector;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import static com.scrivenvar.Messages.get;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Locale.ENGLISH;
 import static org.fxmisc.richtext.model.TwoDimensional.Bias.Forward;
@@ -64,7 +66,7 @@ import static org.fxmisc.richtext.model.TwoDimensional.Bias.Forward;
  */
 public final class FileEditorTab extends Tab {
 
-  private final Notifier mAlertService = Services.load( Notifier.class );
+  private final Notifier mNotifier = Services.load( Notifier.class );
   private final EditorPane mEditorPane = new MarkdownEditorPane();
 
   private final ReadOnlyBooleanWrapper mModified = new ReadOnlyBooleanWrapper();
@@ -255,15 +257,27 @@ public final class FileEditorTab extends Tab {
    * Reads the entire file contents from the path associated with this tab.
    */
   private void load() {
-    final Path filePath = getPath();
+    final Path path = getPath();
+    final File file = path.toFile();
 
-    if( filePath != null ) {
-      try {
-        getEditorPane().setText( asString( Files.readAllBytes( filePath ) ) );
-        getEditorPane().scrollToTop();
-      } catch( final Exception ex ) {
-        getNotifyService().notify( ex );
+    try {
+      if( file.exists() ) {
+        if( file.canWrite() && file.canRead() ) {
+          final EditorPane pane = getEditorPane();
+          pane.setText( asString( Files.readAllBytes( path ) ) );
+          pane.scrollToTop();
+        }
+        else {
+          final String msg = get(
+              "FileEditor.loadFailed.message",
+              file.toString(),
+              get( "FileEditor.loadFailed.reason.permissions" )
+          );
+          getNotifier().notify( msg );
+        }
       }
+    } catch( final Exception ex ) {
+      getNotifier().notify( ex );
     }
   }
 
@@ -296,12 +310,12 @@ public final class FileEditorTab extends Tab {
   @SuppressWarnings("SameParameterValue")
   private boolean alert(
       final String titleKey, final String messageKey, final Exception e ) {
-    final Notifier service = getNotifyService();
+    final Notifier service = getNotifier();
     final Path filePath = getPath();
 
     final Notification message = service.createNotification(
-        Messages.get( titleKey ),
-        Messages.get( messageKey ),
+        get( titleKey ),
+        get( messageKey ),
         filePath == null ? "" : filePath,
         e.getMessage()
     );
@@ -309,7 +323,7 @@ public final class FileEditorTab extends Tab {
     try {
       service.createError( getWindow(), message ).showAndWait();
     } catch( final Exception ex ) {
-      getNotifyService().notify( ex );
+      getNotifier().notify( ex );
     }
 
     return false;
@@ -450,10 +464,6 @@ public final class FileEditorTab extends Tab {
     return mEditorPane;
   }
 
-  private Notifier getNotifyService() {
-    return mAlertService;
-  }
-
   /**
    * Returns the encoding for the file, defaulting to UTF-8 if it hasn't been
    * determined.
@@ -468,6 +478,10 @@ public final class FileEditorTab extends Tab {
     assert encoding != null;
 
     mEncoding = encoding;
+  }
+
+  private Notifier getNotifier() {
+    return mNotifier;
   }
 
   /**

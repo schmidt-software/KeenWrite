@@ -106,6 +106,51 @@ public final class DefinitionPane extends AbstractPane {
   }
 
   /**
+   * Answers whether the {@link TreeItem}s in the {@link TreeView} are suitably
+   * well-formed for export. A tree is considered well-formed if the following
+   * conditions are met:
+   *
+   * <ul>
+   *   <li>The root node contains at least one child node having a leaf.</li>
+   *   <li>There are no leaf nodes with sibling leaf nodes.</li>
+   * </ul>
+   *
+   * @return {@code true} the tree is suitable for exporting.
+   */
+  public boolean isTreeWellFormed() {
+    final var root = getTreeView().getRoot();
+
+    for( final var child : root.getChildren() ) {
+      if( child.isLeaf() || !isWellFormed( child ) ) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  private boolean isWellFormed( final TreeItem<String> item ) {
+    int childLeafs = 0;
+    int childBranches = 0;
+
+    for( final TreeItem<String> child : item.getChildren() ) {
+      if( child.isLeaf() ) {
+        childLeafs++;
+      }
+      else {
+        childBranches++;
+      }
+
+      if( !isWellFormed( child ) ) {
+        return false;
+      }
+    }
+
+    return (childBranches > 0 && childLeafs == 0) ||
+        (childBranches == 0 && childLeafs <= 1);
+  }
+
+  /**
    * Returns the leaf that matches the given value. If the value is terminally
    * punctuated, the punctuation is removed if no match was found.
    *
@@ -215,12 +260,15 @@ public final class DefinitionPane extends AbstractPane {
 
   /**
    * Adds a new item under the selected item (or root if nothing is selected).
+   * There are a few conditions to consider: when adding to the root,
+   * when adding to a leaf, and when adding to a non-leaf. Items added to the
+   * root must contain two items: a key and a value.
    */
   private void addItem() {
-    final TreeItem<String> treeItem = createTreeItem();
-    getSelectedItem().getChildren().add( treeItem );
-    expand( treeItem );
-    select( treeItem );
+    final TreeItem<String> value = createTreeItem();
+    getSelectedItem().getChildren().add( value );
+    expand( value );
+    select( value );
   }
 
   private ContextMenu createContextMenu() {
@@ -240,29 +288,29 @@ public final class DefinitionPane extends AbstractPane {
   }
 
   private void keyEventFilter( final KeyEvent event ) {
-    switch( event.getCode() ) {
-      case ENTER:
-        if( !isEditingTreeItem() ) {
+    if( !isEditingTreeItem() ) {
+      switch( event.getCode() ) {
+        case ENTER:
           expand( getSelectedItem() );
           event.consume();
-        }
 
-        break;
+          break;
 
-      case DELETE:
-        deleteSelectedItems();
-        break;
+        case DELETE:
+          deleteSelectedItems();
+          break;
 
-      case INSERT:
-        addItem();
-        break;
+        case INSERT:
+          addItem();
+          break;
 
-      case R:
-        if( event.isControlDown() ) {
-          editSelectedItem();
-        }
+        case R:
+          if( event.isControlDown() ) {
+            editSelectedItem();
+          }
 
-        break;
+          break;
+      }
     }
   }
 

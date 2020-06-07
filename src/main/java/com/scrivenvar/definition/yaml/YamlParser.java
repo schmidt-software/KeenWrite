@@ -32,7 +32,6 @@ import com.fasterxml.jackson.core.io.IOContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.NullNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
 import com.scrivenvar.Messages;
@@ -112,12 +111,20 @@ public class YamlParser implements DocumentParser<JsonNode> {
   /**
    * Start of the Universe (the YAML document node that contains all others).
    */
-  private JsonNode documentRoot;
+  private JsonNode mDocumentRoot;
 
   /**
    * Map of references to dereferenced field values.
    */
   private Map<String, String> references;
+
+  /**
+   * Prevent instantiation.
+   *
+   * @see #parse(Path)
+   */
+  private YamlParser() {
+  }
 
   /**
    * Creates a new YamlParser instance that attempts to parse the given
@@ -143,12 +150,6 @@ public class YamlParser implements DocumentParser<JsonNode> {
   }
 
   /**
-   * Prevent instantiation.
-   */
-  private YamlParser() {
-  }
-
-  /**
    * Returns the given string with all the delimited references swapped with
    * their recursively resolved values.
    *
@@ -162,14 +163,9 @@ public class YamlParser implements DocumentParser<JsonNode> {
 
     while( matcher.find() ) {
       final String key = matcher.group( GROUP_DELIMITED );
-      final String value = map.get( key );
+      final String value = map.getOrDefault( key, key );
 
-      if( value == null ) {
-        missing( text );
-      }
-      else {
-        text = text.replace( key, value );
-      }
+      text = text.replace( key, value );
     }
 
     return text;
@@ -210,34 +206,29 @@ public class YamlParser implements DocumentParser<JsonNode> {
   }
 
   /**
-   * Recursively adapt each rootNode to a corresponding rootItem.
+   * Look up the value for a given node.
    *
-   * @param rootNode The node to adapt.
+   * @param root The node to resolve (contains a key to find).
+   * @param path The path to the node.
+   * @param map  Flat map of existing key/value pairs.
    */
   private void resolve(
-      final Entry<String, JsonNode> rootNode,
+      final Entry<String, JsonNode> root,
       final String path,
       final Map<String, String> map ) {
+    final JsonNode leaf = root.getValue();
+    final String key = root.getKey();
 
-    final JsonNode leafNode = rootNode.getValue();
-    final String key = rootNode.getKey();
-
-
-    if( leafNode.isValueNode() ) {
-      final String value;
-
-      if( leafNode instanceof NullNode ) {
-        value = "";
-      }
-      else {
-        value = rootNode.getValue().asText();
-      }
-
-      map.put( VARIABLE_DECORATOR.decorate( path + key ), substitute( value ) );
+    if( leaf.isValueNode() ) {
+      map.put(
+          VARIABLE_DECORATOR.decorate( path + key ),
+          substitute(
+              leaf instanceof NullNode ? "" : leaf.asText()
+          )
+      );
     }
-
-    if( leafNode.isObject() ) {
-      resolve( leafNode, path + key + SEPARATOR, map );
+    else if( leaf.isObject() ) {
+      resolve( leaf, path + key + SEPARATOR, map );
     }
   }
 
@@ -253,7 +244,9 @@ public class YamlParser implements DocumentParser<JsonNode> {
     setError( Messages.get( "Main.statusbar.state.default" ) );
 
     try {
-      final ObjectNode root = (ObjectNode) getObjectMapper().readTree( in );
+      final YAMLFactory factory = new ResolverYamlFactory();
+      final ObjectMapper mapper = new ObjectMapper( factory );
+      final JsonNode root = mapper.readTree( in );
       setDocumentRoot( root );
       process( root );
     } catch( final Exception e ) {
@@ -338,21 +331,13 @@ public class YamlParser implements DocumentParser<JsonNode> {
    * @param delimited    The variable name.
    * @param dereferenced The resolved value.
    */
-  private void put( String delimited, String dereferenced ) {
+  private void put( final String delimited, final String dereferenced ) {
     if( dereferenced.isEmpty() ) {
       missing( delimited );
     }
     else {
       getReferences().put( delimited, dereferenced );
     }
-  }
-
-  /**
-   * Writes the modified YAML document to standard output.
-   */
-  @SuppressWarnings("unused")
-  private void writeDocument() throws IOException {
-    getObjectMapper().writeValue( System.out, parse() );
   }
 
   /**
@@ -371,7 +356,7 @@ public class YamlParser implements DocumentParser<JsonNode> {
    * @param text The text that contains zero or more instances of a
    *             REGEX_PATTERN that can be found using the regular expression.
    */
-  private Matcher patternMatch( String text ) {
+  private Matcher patternMatch( final String text ) {
     return getPattern().matcher( text );
   }
 
@@ -403,8 +388,8 @@ public class YamlParser implements DocumentParser<JsonNode> {
    *
    * @param documentRoot The parent node.
    */
-  private void setDocumentRoot( final ObjectNode documentRoot ) {
-    this.documentRoot = documentRoot;
+  private void setDocumentRoot( final JsonNode documentRoot ) {
+    mDocumentRoot = documentRoot;
   }
 
   /**
@@ -414,7 +399,7 @@ public class YamlParser implements DocumentParser<JsonNode> {
    */
   @Override
   public JsonNode parse() {
-    return this.documentRoot;
+    return mDocumentRoot;
   }
 
   /**
@@ -477,14 +462,6 @@ public class YamlParser implements DocumentParser<JsonNode> {
     public void writeString( final String text ) throws IOException {
       super.writeString( substitute( text ) );
     }
-  }
-
-  private YAMLFactory getYamlFactory() {
-    return new ResolverYamlFactory();
-  }
-
-  private ObjectMapper getObjectMapper() {
-    return new ObjectMapper( getYamlFactory() );
   }
 
   /**

@@ -28,11 +28,14 @@
 package com.scrivenvar.definition.yaml;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import com.scrivenvar.definition.DocumentParser;
 import com.scrivenvar.definition.TreeAdapter;
 import com.scrivenvar.definition.VariableTreeItem;
 import javafx.scene.control.TreeItem;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Map.Entry;
 
@@ -45,13 +48,50 @@ import java.util.Map.Entry;
 public class YamlTreeAdapter implements TreeAdapter {
   private final DocumentParser<JsonNode> mParser;
 
+  /**
+   * Constructs a new instance that will use the given parser to read
+   * the object hierarchy from a data source.
+   *
+   * @param parser Provides the ability to read data into an object hierarchy.
+   */
   public YamlTreeAdapter( final DocumentParser<JsonNode> parser ) {
     mParser = parser;
   }
 
   @Override
-  public void export( final TreeItem<String> root, final Path path ) {
-    System.out.println( "Export root to path" );
+  public void export( final TreeItem<String> root, final Path path )
+      throws IOException {
+
+    final YAMLMapper mapper = new YAMLMapper();
+    final ObjectNode node = mapper.createObjectNode();
+
+    // Iterate over the root item's children. The root item is used by the
+    // application to ensure definitions can always be added to a tree.
+    for( final TreeItem<String> child : root.getChildren() ) {
+      export( child, node );
+    }
+
+    // Writes as UTF8 by default.
+    mapper.writeValue( path.toFile(), node );
+  }
+
+  private void export( final TreeItem<String> item, ObjectNode node ) {
+    final var children = item.getChildren();
+
+    // If the current item has more than one non-leaf child, it's an
+    // object node and must become a new nested object.
+    if( !(children.size() == 1 && children.get( 0 ).isLeaf()) ) {
+      node = node.putObject( item.getValue() );
+    }
+
+    for( final TreeItem<String> child : children ) {
+      if( child.isLeaf() ) {
+        node.put( item.getValue(), child.getValue() );
+      }
+      else {
+        export( child, node );
+      }
+    }
   }
 
   /**
@@ -62,8 +102,7 @@ public class YamlTreeAdapter implements TreeAdapter {
    * @return A {@link TreeItem} populated with all the keys in the YAML
    * document.
    */
-  public TreeItem<String> adapt(
-      final String root ) {
+  public TreeItem<String> adapt( final String root ) {
     final JsonNode rootNode = getParser().parse();
     final TreeItem<String> rootItem = createTreeItem( root );
 
@@ -81,7 +120,6 @@ public class YamlTreeAdapter implements TreeAdapter {
    */
   private void adapt(
       final JsonNode rootNode, final TreeItem<String> rootItem ) {
-
     rootNode.fields().forEachRemaining(
         ( Entry<String, JsonNode> leaf ) -> adapt( leaf, rootItem )
     );
@@ -96,7 +134,6 @@ public class YamlTreeAdapter implements TreeAdapter {
   private void adapt(
       final Entry<String, JsonNode> rootNode,
       final TreeItem<String> rootItem ) {
-
     final JsonNode leafNode = rootNode.getValue();
     final String key = rootNode.getKey();
     final TreeItem<String> leaf = createTreeItem( key );

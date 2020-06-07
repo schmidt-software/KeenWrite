@@ -2,6 +2,7 @@ package com.scrivenvar.definition;
 
 import javafx.scene.control.TreeItem;
 
+import java.io.IOException;
 import java.nio.file.Path;
 
 public interface TreeAdapter {
@@ -20,7 +21,7 @@ public interface TreeAdapter {
    *
    * @param root The root node to export.
    * @param path Where to persist the data.
+   * @throws IOException Could not write the data to the given path.
    */
-  void export( TreeItem<String> root, Path path );
-
+  void export( TreeItem<String> root, Path path ) throws IOException;
 }

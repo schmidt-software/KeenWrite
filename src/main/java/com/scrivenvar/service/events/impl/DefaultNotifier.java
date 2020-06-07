@@ -38,7 +38,8 @@ import java.nio.file.Paths;
 import java.util.Observable;
 
 import static com.scrivenvar.Constants.APP_TITLE;
-import static com.scrivenvar.Constants.STATUS_BAR_DEFAULT;
+import static com.scrivenvar.Constants.STATUS_BAR_OK;
+import static com.scrivenvar.Messages.get;
 import static javafx.scene.control.Alert.AlertType.CONFIRMATION;
 import static javafx.scene.control.Alert.AlertType.ERROR;
 
@@ -48,6 +49,8 @@ import static javafx.scene.control.Alert.AlertType.ERROR;
  * @author White Magic Software, Ltd.
  */
 public final class DefaultNotifier extends Observable implements Notifier {
+
+  private final static String OK = get( STATUS_BAR_OK );
 
   public DefaultNotifier() {
   }
@@ -67,7 +70,7 @@ public final class DefaultNotifier extends Observable implements Notifier {
 
   @Override
   public void clear() {
-    notify( STATUS_BAR_DEFAULT );
+    notify( OK );
   }
 
   /**

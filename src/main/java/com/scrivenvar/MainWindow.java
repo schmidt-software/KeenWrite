@@ -36,7 +36,6 @@ import com.scrivenvar.dialogs.RScriptDialog;
 import com.scrivenvar.editors.EditorPane;
 import com.scrivenvar.editors.VariableNameInjector;
 import com.scrivenvar.editors.markdown.MarkdownEditorPane;
-import com.scrivenvar.predicates.files.FileTypePredicate;
 import com.scrivenvar.preview.HTMLPreviewPane;
 import com.scrivenvar.processors.Processor;
 import com.scrivenvar.processors.ProcessorFactory;
@@ -74,7 +73,6 @@ import org.controlsfx.control.StatusBar;
 import org.fxmisc.richtext.model.TwoDimensional.Position;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.function.Function;
@@ -196,13 +194,6 @@ public class MainWindow implements Observer {
           // Indirectly refresh the resolved map.
           setProcessors( null );
           openDefinition( newPath );
-
-          try {
-            getSnitch().ignore( oldPath );
-            getSnitch().listen( newPath );
-          } catch( final IOException ex ) {
-            error( ex );
-          }
 
           // Will create new processors and therefore a new resolved map.
           refreshSelectedTab( getActiveFileEditor() );
@@ -397,7 +388,6 @@ public class MainWindow implements Observer {
    */
   private void openDefinition( final Path path ) {
     try {
-
       final DefinitionSource ds = createDefinitionSource( path.toString() );
       setDefinitionSource( ds );
       storeDefinitionSourceFilename();
@@ -409,8 +399,20 @@ public class MainWindow implements Observer {
   }
 
   private void exportDefinitionData( final Path path ) {
-    final TreeItem<String> root = getDefinitionPane().getTreeView().getRoot();
-    getDefinitionSource().getTreeAdapter().export( root, path );
+    try {
+      final DefinitionPane pane = getDefinitionPane();
+      final TreeItem<String> root = pane.getTreeView().getRoot();
+
+      if( pane.isTreeWellFormed() ) {
+        getDefinitionSource().getTreeAdapter().export( root, path );
+        getNotifier().clear();
+      }
+      else {
+        getNotifier().notify( get( "yaml.error.tree.form", "Definitions" ) );
+      }
+    } catch( final Exception e ) {
+      error( e );
+    }
   }
 
   private Path getDefinitionFilename() {
@@ -469,15 +471,6 @@ public class MainWindow implements Observer {
   public void update( final Observable observable, final Object value ) {
     if( value != null ) {
       if( observable instanceof Snitch && value instanceof Path ) {
-        final Path path = (Path) value;
-        final FileTypePredicate predicate
-            = new FileTypePredicate( GLOB_DEFINITION_EXTENSIONS );
-
-        // Reload definitions.
-        if( predicate.test( path.toFile() ) ) {
-          updateDefinitionSource( path );
-        }
-
         updateSelectedTab();
       }
       else if( observable instanceof Notifier && value instanceof String ) {
@@ -514,15 +507,6 @@ public class MainWindow implements Observer {
           refreshSelectedTab( getActiveFileEditor() );
         }
     );
-  }
-
-  /**
-   * Reloads the definition source from the given path.
-   *
-   * @param path The path containing new definition information.
-   */
-  private void updateDefinitionSource( final Path path ) {
-    Platform.runLater( () -> openDefinition( path ) );
   }
 
   /**
@@ -615,7 +599,7 @@ public class MainWindow implements Observer {
 
   //---- Help actions -------------------------------------------------------
   private void helpAbout() {
-    Alert alert = new Alert( AlertType.INFORMATION );
+    final Alert alert = new Alert( AlertType.INFORMATION );
     alert.setTitle( get( "Dialog.about.title" ) );
     alert.setHeaderText( get( "Dialog.about.header" ) );
     alert.setContentText( get( "Dialog.about.content" ) );
@@ -714,7 +698,7 @@ public class MainWindow implements Observer {
   }
 
   private TextField getFindTextField() {
-    return this.mFindTextField;
+    return mFindTextField;
   }
 
   //---- Member creators ----------------------------------------------------
@@ -1128,6 +1112,7 @@ public class MainWindow implements Observer {
    * @return The value for the given key from the settings file, or the
    * given {@code value} if no key found.
    */
+  @SuppressWarnings("SameParameterValue")
   private String getSetting( final String key, final String value ) {
     return mSettings.getSetting( key, value );
   }
