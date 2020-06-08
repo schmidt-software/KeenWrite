@@ -127,6 +127,9 @@ public class MainWindow implements Observer {
   final EventHandler<TreeItem.TreeModificationEvent<Event>> mHandler =
       event -> {
         exportDefinitions( getDefinitionPath() );
+        getResolvedMap().clear();
+        getResolvedMap().putAll( getDefinitionPane().toMap() );
+        refreshActiveTab();
       };
 
   public MainWindow() {
@@ -399,16 +402,16 @@ public class MainWindow implements Observer {
   private void openDefinitions( final Path path ) {
     try {
       final DefinitionSource ds = createDefinitionSource( path );
-      final DefinitionPane pane = getDefinitionPane();
       setDefinitionSource( ds );
       storeDefinitionSourceFilename( path );
 
+      final DefinitionPane pane = getDefinitionPane();
       pane.update( ds );
       pane.addTreeChangeHandler( mHandler );
-      final Map<String, String> map = pane.toMap();
 
-      getResolvedMap().clear();
-      getResolvedMap().putAll( map );
+      final Map<String, String> map = getResolvedMap();
+      map.clear();
+      map.putAll( pane.toMap() );
     } catch( final Exception e ) {
       error( e );
     }
