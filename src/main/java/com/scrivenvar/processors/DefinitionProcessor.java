@@ -27,9 +27,6 @@
  */
 package com.scrivenvar.processors;
 
-import com.scrivenvar.definition.MapInterpolator;
-
-import java.util.HashMap;
 import java.util.Map;
 
 import static com.scrivenvar.processors.text.TextReplacementFactory.replace;
@@ -69,8 +66,6 @@ public class DefinitionProcessor extends AbstractProcessor<String> {
    * @return A map of variable names to values.
    */
   protected Map<String, String> getDefinitions() {
-    final Map<String, String> map = new HashMap<>( mDefinitions );
-    MapInterpolator.interpolate( map );
-    return map;
+    return mDefinitions;
   }
 }

@@ -79,18 +79,16 @@ public final class InlineRProcessor extends DefinitionProcessor {
     try {
       final Path wd = getWorkingDirectory();
       final String dir = wd.toString().replace( '\\', '/' );
-      final Map<String, String> definitions = getDefinitions();
-      definitions.put( "$application.r.working.directory$", dir );
+      final Map<String, String> map = getDefinitions();
+      map.put( "$application.r.working.directory$", dir );
 
       final String initScript = getInitScript();
 
-      if( !initScript.isEmpty() ) {
-        final String rScript = replace( initScript, getDefinitions() );
-        eval( rScript );
+      if( !initScript.isBlank() ) {
+        eval( replace( initScript, map ) );
       }
     } catch( final Exception e ) {
-      // Tell the user that there was a problem.
-      getNotifier().notify( e.getMessage() );
+      getNotifier().notify( e );
     }
   }
 

@@ -30,6 +30,7 @@ package com.scrivenvar;
 import com.scrivenvar.definition.DefinitionFactory;
 import com.scrivenvar.definition.DefinitionPane;
 import com.scrivenvar.definition.DefinitionSource;
+import com.scrivenvar.definition.MapInterpolator;
 import com.scrivenvar.definition.yaml.YamlDefinitionSource;
 import com.scrivenvar.dialogs.RScriptDialog;
 import com.scrivenvar.editors.EditorPane;
@@ -127,8 +128,7 @@ public class MainWindow implements Observer {
   final EventHandler<TreeItem.TreeModificationEvent<Event>> mHandler =
       event -> {
         exportDefinitions( getDefinitionPath() );
-        getResolvedMap().clear();
-        getResolvedMap().putAll( getDefinitionPane().toMap() );
+        interpolateResolvedMap();
         refreshActiveTab();
       };
 
@@ -361,7 +361,6 @@ public class MainWindow implements Observer {
     }
 
     try {
-      getNotifier().clear();
       processor.processChain( tab.getEditorText() );
     } catch( final Exception ex ) {
       error( ex );
@@ -394,6 +393,15 @@ public class MainWindow implements Observer {
     return mResolvedMap;
   }
 
+  private void interpolateResolvedMap() {
+    final Map<String, String> treeMap = getDefinitionPane().toMap();
+    final Map<String, String> map = new HashMap<>( treeMap );
+    MapInterpolator.interpolate( map );
+
+    getResolvedMap().clear();
+    getResolvedMap().putAll( map );
+  }
+
   /**
    * Called when a definition source is opened.
    *
@@ -409,9 +417,7 @@ public class MainWindow implements Observer {
       pane.update( ds );
       pane.addTreeChangeHandler( mHandler );
 
-      final Map<String, String> map = getResolvedMap();
-      map.clear();
-      map.putAll( pane.toMap() );
+      interpolateResolvedMap();
     } catch( final Exception e ) {
       error( e );
     }
@@ -910,10 +916,11 @@ public class MainWindow implements Observer {
                                                  e -> getActiveEditor().insertImage(),
                                                  activeFileEditorIsNull );
 
-    final Action[] headers = new Action[ 6 ];
+    // Number of header actions (H1 ... H3)
+    final int HEADERS = 3;
+    final Action[] headers = new Action[ HEADERS ];
 
-    // Insert header actions (H1 ... H6)
-    for( int i = 1; i <= 6; i++ ) {
+    for( int i = 1; i <= HEADERS; i++ ) {
       final String hashes = new String( new char[ i ] ).replace( "\0", "#" );
       final String markup = String.format( "%n%n%s ", hashes );
       final String text = get( "Main.menu.insert.header_" + i );
@@ -989,9 +996,6 @@ public class MainWindow implements Observer {
         headers[ 0 ],
         headers[ 1 ],
         headers[ 2 ],
-        headers[ 3 ],
-        headers[ 4 ],
-        headers[ 5 ],
         null,
         insertUnorderedListAction,
         insertOrderedListAction,
