@@ -33,7 +33,7 @@ import java.util.Map;
 /**
  * Converts the keys of the resolved map from default form to R form, then
  * performs a substitution on the text. The default R variable syntax is
- * <code>v$tree$leaf</code>.
+ * {@code v$tree$leaf}.
  *
  * @author White Magic Software, Ltd.
  */

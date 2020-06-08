@@ -63,13 +63,13 @@ public class TreeItemInterpolatorTest {
     last.getChildren().add( authorLast );
     full.getChildren().add( expr );
 
-    final var map = TreeItemInterpolator.toMap( root );
+    final var map = TreeItemAdapter.toMap( root );
 
     var actualAuthor = map.get( "$root.name.full$" );
     var expectedAuthor = AUTHOR_ALL;
     assertEquals( expectedAuthor, actualAuthor );
 
-    TreeItemInterpolator.interpolate( map );
+    MapInterpolator.interpolate( map );
     actualAuthor = map.get( "$root.name.full$" );
 
     expectedAuthor = format( "%s %s", AUTHOR_FIRST, AUTHOR_LAST );

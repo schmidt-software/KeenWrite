@@ -95,7 +95,7 @@ public final class DefinitionPane extends AbstractPane {
   }
 
   public Map<String, String> toMap() {
-    return TreeItemInterpolator.toMap( getTreeView().getRoot() );
+    return TreeItemAdapter.toMap( getTreeView().getRoot() );
   }
 
   /**

@@ -146,6 +146,6 @@ public class VariableTreeItem<T> extends TreeItem<T> {
    * @return A non-null string, possibly empty.
    */
   public String toPath() {
-    return TreeItemInterpolator.toPath( getParent() );
+    return TreeItemAdapter.toPath( getParent() );
   }
 }

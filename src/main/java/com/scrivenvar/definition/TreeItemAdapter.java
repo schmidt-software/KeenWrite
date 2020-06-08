@@ -37,10 +37,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Stack;
-import java.util.regex.Matcher;
 
 import static com.scrivenvar.Constants.DEFAULT_MAP_SIZE;
-import static com.scrivenvar.decorators.YamlVariableDecorator.REGEX_PATTERN;
 
 /**
  * Given a {@link TreeItem}, this will generate a flat map with all the
@@ -62,13 +60,11 @@ import static com.scrivenvar.decorators.YamlVariableDecorator.REGEX_PATTERN;
  *
  * @author White Magic Software, Ltd.
  */
-public class TreeItemInterpolator {
+public class TreeItemAdapter {
   /**
    * Separates YAML variable nodes (e.g., the dots in {@code $root.node.var$]).
    */
   public static final String SEPARATOR = ".";
-
-  private final static int GROUP_DELIMITED = 1;
 
   /**
    * Default buffer length for keys ({@link StringBuilder} has 16 character
@@ -105,7 +101,7 @@ public class TreeItemInterpolator {
     }
   }
 
-  private TreeItemInterpolator() {
+  private TreeItemAdapter() {
   }
 
   /**
@@ -125,42 +121,6 @@ public class TreeItemInterpolator {
     return map;
   }
 
-  /**
-   * Performs string interpolation on the values in the given map. This will
-   * change any value in the map that contains a variable that matches
-   * {@link YamlVariableDecorator#REGEX_PATTERN}.
-   *
-   * @param map Contains values that represent references to keys.
-   */
-  public static void interpolate( final Map<String, String> map ) {
-    map.replaceAll( ( k, v ) -> resolve( map, v ) );
-  }
-
-  /**
-   * Given a value with zero or more key references, this will resolve all
-   * the values, recursively. If a key cannot be dereferenced, the value will
-   * contain the key name.
-   *
-   * @param map   Map to search for keys when resolving key references.
-   * @param value Value containing zero or more key references
-   * @return The given value with all embedded key references interpolated.
-   */
-  private static String resolve(
-      final Map<String, String> map, String value ) {
-    final Matcher matcher = REGEX_PATTERN.matcher( value );
-
-    while( matcher.find() ) {
-      final String keyName = matcher.group( GROUP_DELIMITED );
-
-      final String keyValue = resolve(
-          map, map.getOrDefault( keyName, keyName )
-      );
-
-      value = value.replace( keyName, keyValue );
-    }
-
-    return value;
-  }
 
   /**
    * For a given node, this will ascend the tree to generate a key name

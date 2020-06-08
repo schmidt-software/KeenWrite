@@ -32,7 +32,7 @@ import javafx.scene.control.TreeView;
 
 /**
  * Indicates that this is the top-most {@link TreeItem}. This class allows
- * the {@link TreeItemInterpolator} to ignore the topmost definition. Such
+ * the {@link TreeItemAdapter} to ignore the topmost definition. Such
  * contortions are necessary because {@link TreeView} requires a root item
  * that isn't part of the user's definition file.
  * <p>
@@ -49,7 +49,7 @@ public class RootTreeItem<T> extends VariableTreeItem<T> {
    * Default constructor, calls the superclass, no other behaviour.
    *
    * @param value The {@link TreeItem} node name to construct the superclass.
-   * @see TreeItemInterpolator#toMap(TreeItem) for details on how this
+   * @see TreeItemAdapter#toMap(TreeItem) for details on how this
    * class is used.
    */
   public RootTreeItem( final T value ) {

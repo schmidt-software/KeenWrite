@@ -116,20 +116,25 @@ public class ProcessorFactory extends AbstractFileFactory {
     return new IdentityProcessor( hpp );
   }
 
+  protected Processor<String> createDefinitionProcessor(
+      final Processor<String> p ) {
+    return new DefinitionProcessor( p, getResolvedMap() );
+  }
+
   protected Processor<String> createMarkdownProcessor(
       final FileEditorTab tab ) {
     final var caret = tab.caretPositionProperty();
     final var tpc = getCommonProcessor();
     final var cip = createMarkdownInsertionProcessor( tpc, caret );
 
-    return new DefinitionProcessor( cip, getResolvedMap() );
+    return createDefinitionProcessor( cip );
   }
 
   protected Processor<String> createXMLProcessor( final FileEditorTab tab ) {
     final var caret = tab.caretPositionProperty();
     final var tpc = getCommonProcessor();
     final var xmlp = new XMLProcessor( tpc, tab.getPath() );
-    final var dp = new DefinitionProcessor( xmlp, getResolvedMap() );
+    final var dp = createDefinitionProcessor( xmlp );
 
     return createXMLInsertionProcessor( dp, caret );
   }
