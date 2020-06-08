@@ -30,9 +30,11 @@ package com.scrivenvar.definition.yaml;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
+import com.scrivenvar.definition.RootTreeItem;
 import com.scrivenvar.definition.TreeAdapter;
 import com.scrivenvar.definition.VariableTreeItem;
 import javafx.scene.control.TreeItem;
+import javafx.scene.control.TreeView;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -111,7 +113,7 @@ public class YamlTreeAdapter implements TreeAdapter {
    */
   public TreeItem<String> adapt( final String root ) {
     final JsonNode rootNode = getYamlParser().getDocumentRoot();
-    final TreeItem<String> rootItem = createTreeItem( root );
+    final TreeItem<String> rootItem = createRootTreeItem( root );
 
     rootItem.setExpanded( true );
     adapt( rootNode, rootItem );
@@ -157,13 +159,26 @@ public class YamlTreeAdapter implements TreeAdapter {
   }
 
   /**
-   * Creates a new tree item that can be added to the tree view.
+   * Creates a new {@link TreeItem} that can be added to the {@link TreeView}.
    *
    * @param value The node's value.
-   * @return A new tree item node, never null.
+   * @return A new {@link TreeItem}, never {@code null}.
    */
   private TreeItem<String> createTreeItem( final String value ) {
     return new VariableTreeItem<>( value );
+  }
+
+  /**
+   * Creates a new {@link TreeItem} that is intended to be the root-level item
+   * added to the {@link TreeView}. This allows the root item to be
+   * distinguished from the other items so that reference keys do not include
+   * "Definition" as part of their name.
+   *
+   * @param value The node's value.
+   * @return A new {@link TreeItem}, never {@code null}.
+   */
+  private TreeItem<String> createRootTreeItem( final String value ) {
+    return new RootTreeItem<>( value );
   }
 
   public YamlParser getYamlParser() {

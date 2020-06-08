@@ -25,40 +25,34 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.scrivenvar.editors;
+package com.scrivenvar.definition;
 
-import com.scrivenvar.AbstractFileFactory;
-import com.scrivenvar.decorators.RVariableDecorator;
-import com.scrivenvar.decorators.VariableDecorator;
-import com.scrivenvar.decorators.YamlVariableDecorator;
-import java.nio.file.Path;
+import javafx.scene.control.TreeItem;
+import javafx.scene.control.TreeView;
 
 /**
- * Responsible for creating a variable name decorator suited to a particular
- * file type.
+ * Indicates that this is the top-most {@link TreeItem}. This class allows
+ * the {@link TreeItemInterpolator} to ignore the topmost definition. Such
+ * contortions are necessary because {@link TreeView} requires a root item
+ * that isn't part of the user's definition file.
+ * <p>
+ * Another approach would be to associate object pairs per {@link TreeItem},
+ * but that would be a waste of memory since the only "exception" case is
+ * the root {@link TreeItem}.
+ * </p>
  *
+ * @param <T> The type of {@link TreeItem} to store in the {@link TreeView}.
  * @author White Magic Software, Ltd.
  */
-public class VariableNameDecoratorFactory extends AbstractFileFactory {
-
-  private VariableNameDecoratorFactory() {
-  }
-
-  public static VariableDecorator newInstance( final Path path ) {
-    final var factory = new VariableNameDecoratorFactory();
-    final VariableDecorator result;
-
-    switch( factory.lookup( path ) ) {
-      case RMARKDOWN:
-      case RXML:
-        result = new RVariableDecorator();
-        break;
-
-      default:
-        result = new YamlVariableDecorator();
-        break;
-    }
-
-    return result;
+public class RootTreeItem<T> extends VariableTreeItem<T> {
+  /**
+   * Default constructor, calls the superclass, no other behaviour.
+   *
+   * @param value The {@link TreeItem} node name to construct the superclass.
+   * @see TreeItemInterpolator#toMap(TreeItem) for details on how this
+   * class is used.
+   */
+  public RootTreeItem( final T value ) {
+    super( value );
   }
 }

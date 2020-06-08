@@ -34,7 +34,6 @@ import java.util.Stack;
 
 import static com.scrivenvar.definition.FindMode.CONTAINS;
 import static com.scrivenvar.definition.FindMode.STARTS_WITH;
-import static com.scrivenvar.definition.yaml.YamlParser.SEPARATOR;
 import static java.text.Normalizer.Form.NFD;
 
 /**
@@ -44,7 +43,6 @@ import static java.text.Normalizer.Form.NFD;
  * @author White Magic Software, Ltd.
  */
 public class VariableTreeItem<T> extends TreeItem<T> {
-  public static final int DEFAULT_MAX_VAR_LENGTH = 64;
 
   /**
    * Constructs a new item with a default value.
@@ -148,34 +146,6 @@ public class VariableTreeItem<T> extends TreeItem<T> {
    * @return A non-null string, possibly empty.
    */
   public String toPath() {
-    final Stack<TreeItem<T>> stack = new Stack<>();
-    TreeItem<T> node = this;
-
-    while( node.getParent() != null ) {
-      stack.push( node );
-      node = node.getParent();
-    }
-
-    final StringBuilder sb = new StringBuilder( DEFAULT_MAX_VAR_LENGTH );
-
-    while( !stack.isEmpty() ) {
-      node = stack.pop();
-
-      if( !node.isLeaf() ) {
-        sb.append( node.getValue() );
-
-        // This will add a superfluous separator, but instead of peeking at
-        // the stack all the time, the last separator will be removed outside
-        // the loop (one operation executed once).
-        sb.append( SEPARATOR );
-      }
-    }
-
-    // Remove the trailing SEPARATOR.
-    if( sb.length() > 0 ) {
-      sb.setLength( sb.length() - 1 );
-    }
-
-    return sb.toString();
+    return TreeItemInterpolator.toPath( getParent() );
   }
 }

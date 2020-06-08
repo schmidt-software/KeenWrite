@@ -41,11 +41,17 @@ public class RVariableDecorator implements VariableDecorator {
    * is not null safe. Do not pass null into this method.
    *
    * @param variableName The string to decorate.
-   *
    * @return "`r#" + variableName + "`".
    */
   @Override
-  public String decorate( final String variableName ) {
+  public String decorate( String variableName ) {
+    assert variableName != null;
+
+    // Delete the $ $ sigils from Markdown variables.
+    if( variableName.length() > 1 ) {
+      variableName = variableName.substring( 1, variableName.length() - 1 );
+    }
+
     return PREFIX +
         "x( v$" +
         variableName.replace( '.', '$' ) +

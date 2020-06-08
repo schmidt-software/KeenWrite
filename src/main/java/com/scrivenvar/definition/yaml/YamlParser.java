@@ -27,92 +27,24 @@
  */
 package com.scrivenvar.definition.yaml;
 
-import com.fasterxml.jackson.core.ObjectCodec;
-import com.fasterxml.jackson.core.io.IOContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
 import com.scrivenvar.Messages;
-import com.scrivenvar.decorators.VariableDecorator;
-import com.scrivenvar.decorators.YamlVariableDecorator;
 import com.scrivenvar.definition.DocumentParser;
-import org.yaml.snakeyaml.DumperOptions;
 
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-import static com.scrivenvar.Constants.DEFAULT_MAP_SIZE;
 import static com.scrivenvar.Constants.STATUS_BAR_OK;
 
 /**
- * <p>
- * This program loads a YAML document into memory, scans for variable
- * declarations, then substitutes any self-referential values back into the
- * document. Its output is the given YAML document without any variables.
- * Variables in the YAML document are denoted using a bracketed dollar symbol
- * syntax. For example: $field.name$. Some nomenclature to keep from going
- * squirrely, consider:
- * </p>
- *
- * <pre>
- *   root:
- *     node:
- *       name: $field.name$
- *   field:
- *     name: Alan Turing
- * </pre>
- * <p>
- * The various components of the given YAML are called:
- *
- * <ul>
- * <li><code>$field.name$</code> - delimited reference</li>
- * <li><code>field.name</code> - reference</li>
- * <li><code>name</code> - YAML field</li>
- * <li><code>Alan Turing</code> - (dereferenced) field value</li>
- * </ul>
+ * Responsible for reading a YAML document into an object hierarchy.
  *
  * @author White Magic Software, Ltd.
  */
 public class YamlParser implements DocumentParser<JsonNode> {
-
-  private final static VariableDecorator VARIABLE_DECORATOR
-      = new YamlVariableDecorator();
-
-  /**
-   * Separates YAML variable nodes (e.g., the dots in
-   * <code>$root.node.var$</code>).
-   */
-  public static final String SEPARATOR = ".";
-
-  /**
-   * Should be JsonPointer.SEPARATOR, but Jackson YAML uses magic values.
-   */
-  private final static char SEPARATOR_YAML = '/';
-
-  private final static int GROUP_DELIMITED = 1;
-  private final static int GROUP_REFERENCE = 2;
-
-  /**
-   * Compiled regular expression for matching delimited references.
-   */
-  private final static Pattern REGEX_PATTERN
-      = Pattern.compile( YamlVariableDecorator.REGEX );
-
-  /**
-   * Flat map of references to dereferenced field values.
-   */
-  private final Map<String, String> mReferences =
-      new HashMap<>( DEFAULT_MAP_SIZE );
 
   /**
    * Error that occurred while parsing.
@@ -134,26 +66,6 @@ public class YamlParser implements DocumentParser<JsonNode> {
   public YamlParser( final Path path ) {
     assert path != null;
     mDocumentRoot = parse( path );
-    interpolate( mDocumentRoot );
-  }
-
-  /**
-   * Parses the given path containing YAML data into an object hierarchy.
-   *
-   * @param path {@link Path} to the YAML resource to parse.
-   * @return The parsed contents, or an empty object hierarchy.
-   */
-  private JsonNode parse( final Path path ) {
-    try( final InputStream in = Files.newInputStream( path ) ) {
-      return parse( in );
-    } catch( final Exception e ) {
-      setError( Messages.get( "yaml.error.open" ) );
-
-      // Ensure that a document root node exists by relying on the
-      // default failure condition when processing. This is required
-      // because the input stream could not be read.
-      return new ObjectMapper().createObjectNode();
-    }
   }
 
   /**
@@ -167,280 +79,24 @@ public class YamlParser implements DocumentParser<JsonNode> {
   }
 
   /**
-   * Returns the given string with all the delimited references swapped with
-   * their recursively resolved values.
+   * Parses the given path containing YAML data into an object hierarchy.
    *
-   * @param text The text to parse with zero or more delimited references to
-   *             replace.
-   * @return The substituted value.
+   * @param path {@link Path} to the YAML resource to parse.
+   * @return The parsed contents, or an empty object hierarchy.
    */
-  public String substitute( String text ) {
-    final Matcher matcher = patternMatch( text );
-    final Map<String, String> map = getReferences();
+  private JsonNode parse( final Path path ) {
+    try( final InputStream in = Files.newInputStream( path ) ) {
+      setError( Messages.get( STATUS_BAR_OK ) );
 
-    while( matcher.find() ) {
-      final String key = matcher.group( GROUP_DELIMITED );
-      final String value = map.getOrDefault( key, key );
+      return new ObjectMapper( new YAMLFactory() ).readTree( in );
+    } catch( final Exception e ) {
+      setError( Messages.get( "yaml.error.open" ) );
 
-      text = text.replace( key, value );
+      // Ensure that a document root node exists by relying on the
+      // default failure condition when processing. This is required
+      // because the input stream could not be read.
+      return new ObjectMapper().createObjectNode();
     }
-
-    return text;
-  }
-
-  /**
-   * Returns all the strings with their values resolved in a flat hierarchy.
-   * This copies all the keys and resolved values into a new map.
-   *
-   * @return The new map created with all values having been resolved,
-   * recursively.
-   */
-  public Map<String, String> createResolvedMap() {
-    final Map<String, String> map = new HashMap<>( DEFAULT_MAP_SIZE );
-
-    resolve( getDocumentRoot(), "", map );
-
-    return map;
-  }
-
-  /**
-   * Iterate over a given root node (at any level of the tree) and adapt each
-   * leaf node.
-   *
-   * @param rootNode A JSON node (YAML node) to adapt.
-   * @param map      Container that associates definitions with values.
-   */
-  private void resolve(
-      final JsonNode rootNode,
-      final String path,
-      final Map<String, String> map ) {
-
-    if( rootNode != null ) {
-      rootNode.fields().forEachRemaining(
-          ( Entry<String, JsonNode> leaf ) -> resolve( leaf, path, map )
-      );
-    }
-  }
-
-  /**
-   * Look up the value for a given node.
-   *
-   * @param root The node to resolve (contains a key to find).
-   * @param path The path to the node.
-   * @param map  Flat map of existing key/value pairs.
-   */
-  private void resolve(
-      final Entry<String, JsonNode> root,
-      final String path,
-      final Map<String, String> map ) {
-    final JsonNode leaf = root.getValue();
-    final String key = root.getKey();
-
-    if( leaf.isValueNode() ) {
-      map.put(
-          VARIABLE_DECORATOR.decorate( path + key ),
-          substitute(
-              leaf instanceof NullNode ? "" : leaf.asText()
-          )
-      );
-    }
-    else if( leaf.isObject() ) {
-      resolve( leaf, path + key + SEPARATOR, map );
-    }
-  }
-
-  /**
-   * Reads the first document from the given stream of YAML data and returns a
-   * corresponding object that represents the YAML hierarchy. The calling class
-   * is responsible for closing the stream. Calling classes should use
-   * <code>JsonNode.fields()</code> to walk through the YAML tree of fields.
-   *
-   * @param in The input stream containing YAML content.
-   */
-  private JsonNode parse( final InputStream in ) throws IOException {
-    setError( Messages.get( STATUS_BAR_OK ) );
-
-    final YAMLFactory factory = new ResolverYamlFactory();
-    final ObjectMapper mapper = new ObjectMapper( factory );
-    return mapper.readTree( in );
-  }
-
-  /**
-   * Iterate over a given root node (at any level of the tree) and process each
-   * leaf node.
-   *
-   * @param root A node to process.
-   */
-  private void interpolate( final JsonNode root ) {
-    root.fields().forEachRemaining( this::interpolate );
-  }
-
-  /**
-   * Process the given field, which is a named node. This is where the
-   * application does the up-front work of mapping references to their fully
-   * recursively dereferenced values.
-   *
-   * @param field The named node.
-   */
-  private void interpolate( final Entry<String, JsonNode> field ) {
-    final JsonNode node = field.getValue();
-
-    if( node.isObject() ) {
-      interpolate( node );
-    }
-    else {
-      final JsonNode fieldValue = field.getValue();
-
-      // Only basic data types can be parsed into variable values. For
-      // node structures, YAML has a built-in mechanism.
-      if( fieldValue.isValueNode() ) {
-        try {
-          resolve( fieldValue.asText() );
-        } catch( final StackOverflowError e ) {
-          final String msg = Messages.get(
-              "yaml.error.unresolvable", node.textValue(), fieldValue );
-          setError( msg );
-        }
-      }
-    }
-  }
-
-  /**
-   * Inserts the delimited references and field values into the cache. This will
-   * overwrite existing references.
-   *
-   * @param fieldValue YAML field containing zero or more delimited references.
-   *                   If it contains a delimited reference, the parameter is
-   *                   modified with the
-   *                   dereferenced value before it is returned.
-   * @return fieldValue without delimited references.
-   */
-  private String resolve( String fieldValue ) {
-    final Matcher matcher = patternMatch( fieldValue );
-
-    while( matcher.find() ) {
-      final String delimited = matcher.group( GROUP_DELIMITED );
-      final String reference = matcher.group( GROUP_REFERENCE );
-      final String dereference = resolve( lookup( reference ) );
-
-      fieldValue = fieldValue.replace( delimited, dereference );
-
-      // This will perform some superfluous calls by overwriting existing
-      // items in the delimited reference map.
-      put( delimited, dereference );
-    }
-
-    return fieldValue;
-  }
-
-  /**
-   * Inserts a key/value pair into the references map. The map retains
-   * references and dereferenced values found in the YAML. If the reference
-   * already exists, this will overwrite with a new value.
-   *
-   * @param delimited    The variable name.
-   * @param dereferenced The resolved value.
-   */
-  private void put( final String delimited, final String dereferenced ) {
-    if( dereferenced.isEmpty() ) {
-      missing( delimited );
-    }
-    else {
-      getReferences().put( delimited, dereferenced );
-    }
-  }
-
-  /**
-   * Called when a delimited reference is dereferenced to an empty string. This
-   * should produce a warning for the user.
-   *
-   * @param delimited Delimited reference with no derived value.
-   */
-  private void missing( final String delimited ) {
-    setError( Messages.get( "yaml.error.missing", delimited ) );
-  }
-
-  /**
-   * Returns a REGEX_PATTERN matcher for the given text.
-   *
-   * @param text The text that contains zero or more instances of a
-   *             REGEX_PATTERN that can be found using the regular expression.
-   */
-  private Matcher patternMatch( final String text ) {
-    return REGEX_PATTERN.matcher( text );
-  }
-
-  /**
-   * Finds the YAML value for a reference.
-   *
-   * @param reference References a value in the YAML document.
-   * @return The dereferenced value.
-   */
-  private String lookup( final String reference ) {
-    return getDocumentRoot().at( asPath( reference ) ).asText();
-  }
-
-  /**
-   * Converts a reference (not delimited) to a path that can be used to find a
-   * value that should exist inside the YAML document.
-   *
-   * @param reference The reference to convert to a YAML document path.
-   * @return The reference with a leading slash and its separator characters
-   * converted to slashes.
-   */
-  private String asPath( final String reference ) {
-    return SEPARATOR_YAML + reference.replace(
-        getDelimitedSeparator(), SEPARATOR_YAML );
-  }
-
-  /**
-   * @return The list of references mapped to dereferenced values.
-   */
-  private Map<String, String> getReferences() {
-    return mReferences;
-  }
-
-  private final class ResolverYamlFactory extends YAMLFactory {
-
-    private static final long serialVersionUID = 1L;
-
-    @Override
-    protected YAMLGenerator _createGenerator(
-        final Writer out, final IOContext ctxt ) throws IOException {
-
-      return new ResolverYamlGenerator(
-          ctxt, _generatorFeatures, _yamlGeneratorFeatures, _objectCodec,
-          out, _version );
-    }
-  }
-
-  private class ResolverYamlGenerator extends YAMLGenerator {
-
-    public ResolverYamlGenerator(
-        final IOContext ctxt,
-        final int jsonFeatures,
-        final int yamlFeatures,
-        final ObjectCodec codec,
-        final Writer out,
-        final DumperOptions.Version version ) throws IOException {
-      super( ctxt, jsonFeatures, yamlFeatures, codec, out, version );
-    }
-
-    @Override
-    public void writeString( final String text ) throws IOException {
-      super.writeString( substitute( text ) );
-    }
-  }
-
-  /**
-   * Returns the character used to separate YAML paths within delimited
-   * references. This will return only the first character of the command line
-   * parameter, if the default is overridden.
-   *
-   * @return A period by default.
-   */
-  private char getDelimitedSeparator() {
-    return SEPARATOR.charAt( 0 );
   }
 
   private void setError( final String error ) {
@@ -453,6 +109,6 @@ public class YamlParser implements DocumentParser<JsonNode> {
    * @return The error message or the empty string if no error occurred.
    */
   public String getError() {
-    return mError == null ? "" : mError;
+    return mError;
   }
 }

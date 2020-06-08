@@ -399,12 +399,16 @@ public class MainWindow implements Observer {
   private void openDefinitions( final Path path ) {
     try {
       final DefinitionSource ds = createDefinitionSource( path );
+      final DefinitionPane pane = getDefinitionPane();
       setDefinitionSource( ds );
       storeDefinitionSourceFilename( path );
+
+      pane.update( ds );
+      pane.addTreeChangeHandler( mHandler );
+      final Map<String, String> map = pane.toMap();
+
       getResolvedMap().clear();
-      getResolvedMap().putAll( ds.createResolvedMap() );
-      getDefinitionPane().update( ds );
-      getDefinitionPane().addTreeChangeHandler( mHandler );
+      getResolvedMap().putAll( map );
     } catch( final Exception e ) {
       error( e );
     }

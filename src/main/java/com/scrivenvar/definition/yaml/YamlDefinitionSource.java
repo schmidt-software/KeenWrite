@@ -31,7 +31,6 @@ import com.scrivenvar.definition.DefinitionSource;
 import com.scrivenvar.definition.TreeAdapter;
 
 import java.nio.file.Path;
-import java.util.Map;
 
 /**
  * Represents a definition data source for YAML files.
@@ -56,11 +55,6 @@ public class YamlDefinitionSource implements DefinitionSource {
   @Override
   public TreeAdapter getTreeAdapter() {
     return mYamlTreeAdapter;
-  }
-
-  @Override
-  public Map<String, String> createResolvedMap() {
-    return getYamlParser().createResolvedMap();
   }
 
   @Override

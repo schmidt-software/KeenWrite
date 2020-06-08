@@ -27,6 +27,8 @@
  */
 package com.scrivenvar.decorators;
 
+import java.util.regex.Pattern;
+
 /**
  * Brackets variable names with dollar symbols.
  *
@@ -41,15 +43,31 @@ public class YamlVariableDecorator implements VariableDecorator {
   public final static String REGEX = "(\\$(.*?)\\$)";
 
   /**
-   * Returns the given string with a $ symbol prepended and appended. This is
-   * not null safe. Do not pass null into this method.
+   * Compiled regular expression for matching delimited references.
+   */
+  public final static Pattern REGEX_PATTERN = Pattern.compile( REGEX );
+
+  /**
+   * Returns the given {@link String} verbatim because variables in YAML
+   * documents and plain Markdown documents already have the appropriate
+   * tokenizable syntax wrapped around the text.
    *
-   * @param variableName The string to decorate.
-   *
-   * @return '$' + variableName + '$';
+   * @param variableName Returned verbatim.
    */
   @Override
   public String decorate( final String variableName ) {
-    return '$' + variableName + '$';
+    assert variableName != null;
+    return variableName;
+  }
+
+  /**
+   * Sigilifies the given key.
+   *
+   * @param key The key to adorn with YAML variable sigil characters.
+   * @return The given key bracketed by dollar symbols.
+   */
+  public static String entoken( final String key ) {
+    assert key != null;
+    return '$' + key + '$';
   }
 }

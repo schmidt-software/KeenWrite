@@ -27,8 +27,6 @@
  */
 package com.scrivenvar.definition;
 
-import java.util.Map;
-
 /**
  * Represents behaviours for reading and writing string definitions. This
  * class cannot have any direct hooks into the user interface, as it defines
@@ -47,15 +45,6 @@ public interface DefinitionSource {
   TreeAdapter getTreeAdapter();
 
   /**
-   * Returns all the strings with their values resolved in a flat hierarchy.
-   * This copies all the keys and resolved values into a new map.
-   *
-   * @return The new map created with all values having been resolved,
-   * recursively.
-   */
-  Map<String, String> createResolvedMap();
-
-  /**
    * Returns the error message, if any, that occurred while loading the
    * definition source.
    *
@@ -64,5 +53,4 @@ public interface DefinitionSource {
   default String getError() {
     return "";
   }
-
 }

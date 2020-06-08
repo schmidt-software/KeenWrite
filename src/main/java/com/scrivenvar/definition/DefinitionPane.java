@@ -39,6 +39,7 @@ import javafx.util.StringConverter;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import static com.scrivenvar.Messages.get;
 import static javafx.scene.input.KeyEvent.KEY_PRESSED;
@@ -66,10 +67,12 @@ public final class DefinitionPane extends AbstractPane {
    * Constructs a definition pane with a given tree view root.
    */
   public DefinitionPane() {
-    getTreeView().setEditable( true );
-    getTreeView().setCellFactory( cell -> createTreeCell() );
-    getTreeView().setContextMenu( createContextMenu() );
-    getTreeView().addEventFilter( KEY_PRESSED, this::keyEventFilter );
+    final var treeView = getTreeView();
+    treeView.setEditable( true );
+    treeView.setCellFactory( cell -> createTreeCell() );
+    treeView.setContextMenu( createContextMenu() );
+    treeView.addEventFilter( KEY_PRESSED, this::keyEventFilter );
+    treeView.setShowRoot( false );
     getSelectionModel().setSelectionMode( SelectionMode.MULTIPLE );
   }
 
@@ -89,6 +92,10 @@ public final class DefinitionPane extends AbstractPane {
     );
 
     getTreeView().setRoot( root );
+  }
+
+  public Map<String, String> toMap() {
+    return TreeItemInterpolator.toMap( getTreeView().getRoot() );
   }
 
   /**
@@ -120,7 +127,7 @@ public final class DefinitionPane extends AbstractPane {
    * </ul>
    *
    * @return {@code null} if the document is well-formed, otherwise the
-   * problematic child tree item.
+   * problematic child {@link TreeItem}.
    */
   public TreeItem<String> isTreeWellFormed() {
     final var root = getTreeView().getRoot();
@@ -142,7 +149,7 @@ public final class DefinitionPane extends AbstractPane {
    *
    * @param item The sub-tree to check for well-formedness.
    * @return {@code null} when the tree is well-formed, otherwise the
-   * problematic node.
+   * problematic {@link TreeItem}.
    */
   private TreeItem<String> isWellFormed( final TreeItem<String> item ) {
     int childLeafs = 0;
@@ -262,8 +269,12 @@ public final class DefinitionPane extends AbstractPane {
    * Removes all selected items from the {@link TreeView}.
    */
   private void deleteSelectedItems() {
-    for( final TreeItem<String> ti : getSelectedItems() ) {
-      ti.getParent().getChildren().remove( ti );
+    for( final TreeItem<String> item : getSelectedItems() ) {
+      final TreeItem<String> parent = item.getParent();
+
+      if( parent != null ) {
+        parent.getChildren().remove( item );
+      }
     }
   }
 
