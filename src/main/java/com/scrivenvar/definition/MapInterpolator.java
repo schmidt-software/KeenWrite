@@ -27,12 +27,9 @@
  */
 package com.scrivenvar.definition;
 
-import com.scrivenvar.decorators.YamlVariableDecorator;
-
 import java.util.Map;
 import java.util.regex.Matcher;
-
-import static com.scrivenvar.decorators.YamlVariableDecorator.REGEX_PATTERN;
+import java.util.regex.Pattern;
 
 /**
  * Responsible for performing string interpolation on key/value pairs stored
@@ -42,6 +39,17 @@ import static com.scrivenvar.decorators.YamlVariableDecorator.REGEX_PATTERN;
  * @author White Magic Software, Ltd.
  */
 public class MapInterpolator {
+
+  /**
+   * Matches variables delimited by dollar symbols.
+   */
+  private final static String REGEX = "(\\$.*?\\$)";
+
+  /**
+   * Compiled regular expression for matching delimited references.
+   */
+  private final static Pattern REGEX_PATTERN = Pattern.compile( REGEX );
+
   private final static int GROUP_DELIMITED = 1;
 
   /**
@@ -53,7 +61,7 @@ public class MapInterpolator {
   /**
    * Performs string interpolation on the values in the given map. This will
    * change any value in the map that contains a variable that matches
-   * {@link YamlVariableDecorator#REGEX_PATTERN}.
+   * {@link #REGEX_PATTERN}.
    *
    * @param map Contains values that represent references to keys.
    */
@@ -76,7 +84,6 @@ public class MapInterpolator {
 
     while( matcher.find() ) {
       final String keyName = matcher.group( GROUP_DELIMITED );
-
       final String keyValue = resolve(
           map, map.getOrDefault( keyName, keyName )
       );

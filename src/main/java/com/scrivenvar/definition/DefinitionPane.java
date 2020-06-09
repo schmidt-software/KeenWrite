@@ -37,9 +37,7 @@ import javafx.scene.control.cell.TextFieldTreeCell;
 import javafx.scene.input.KeyEvent;
 import javafx.util.StringConverter;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.scrivenvar.Messages.get;
 import static javafx.scene.input.KeyEvent.KEY_PRESSED;
@@ -62,6 +60,12 @@ public final class DefinitionPane extends AbstractPane {
    * Contains a view of the definitions.
    */
   private final TreeView<String> mTreeView = new TreeView<>();
+
+  /**
+   * Handlers for key press events.
+   */
+  private final Set<EventHandler<? super KeyEvent>> mKeyEventHandlers
+      = new HashSet<>();
 
   /**
    * Constructs a definition pane with a given tree view root.
@@ -114,6 +118,11 @@ public final class DefinitionPane extends AbstractPane {
     final TreeItem<String> root = getTreeView().getRoot();
     root.addEventHandler( TreeItem.valueChangedEvent(), handler );
     root.addEventHandler( TreeItem.childrenModificationEvent(), handler );
+  }
+
+  public void addKeyEventHandler(
+      final EventHandler<? super KeyEvent> handler ) {
+    getKeyEventHandlers().add( handler );
   }
 
   /**
@@ -326,7 +335,6 @@ public final class DefinitionPane extends AbstractPane {
         case ENTER:
           expand( getSelectedItem() );
           event.consume();
-
           break;
 
         case DELETE:
@@ -343,6 +351,10 @@ public final class DefinitionPane extends AbstractPane {
           }
 
           break;
+      }
+
+      for( final var handler : getKeyEventHandlers() ) {
+        handler.handle( event );
       }
     }
   }
@@ -448,8 +460,12 @@ public final class DefinitionPane extends AbstractPane {
     return new LinkedList<>( getSelectionModel().getSelectedItems() );
   }
 
-  private TreeItem<String> getSelectedItem() {
+  public TreeItem<String> getSelectedItem() {
     final TreeItem<String> item = getSelectionModel().getSelectedItem();
     return item == null ? getTreeView().getRoot() : item;
+  }
+
+  private Set<EventHandler<? super KeyEvent>> getKeyEventHandlers() {
+    return mKeyEventHandlers;
   }
 }

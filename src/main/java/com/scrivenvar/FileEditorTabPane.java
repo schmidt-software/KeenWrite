@@ -50,7 +50,6 @@ import javafx.scene.control.TabPane;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Window;
-import org.fxmisc.richtext.StyledTextArea;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -73,8 +72,8 @@ import static com.scrivenvar.service.events.Notifier.YES;
  */
 public final class FileEditorTabPane extends TabPane {
 
-  private final static String FILTER_EXTENSION_TITLES = "Dialog.file.choose" +
-      ".filter";
+  private final static String FILTER_EXTENSION_TITLES =
+      "Dialog.file.choose.filter";
 
   private final Options mOptions = Services.load( Options.class );
   private final Settings mSettings = Services.load( Settings.class );
@@ -148,15 +147,6 @@ public final class FileEditorTabPane extends TabPane {
     // Observe the tab so that when a new tab is opened or selected,
     // a notification is kicked off.
     getSelectionModel().selectedItemProperty().addListener( listener );
-  }
-
-  /**
-   * Allows clients to manipulate the editor content directly.
-   *
-   * @return The text area for the active file editor.
-   */
-  public StyledTextArea getEditor() {
-    return getActiveFileEditor().getEditorPane().getEditor();
   }
 
   /**

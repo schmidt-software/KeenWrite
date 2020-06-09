@@ -54,22 +54,21 @@ public class Constants {
   }
 
   // Bootstrapping...
-  public static final String SETTINGS_NAME = "/com/scrivenvar/settings" +
-      ".properties";
+  public static final String SETTINGS_NAME =
+      "/com/scrivenvar/settings.properties";
 
   public static final String APP_TITLE = get( "application.title" );
   public static final String APP_BUNDLE_NAME = get( "application.messages" );
 
   // Prevent double events when updating files on Linux (save and timestamp).
   public static final int APP_WATCHDOG_TIMEOUT = get(
-      "application.watchdog.timeout",
-      100 );
+      "application.watchdog.timeout", 100 );
 
   public static final String STYLESHEET_SCENE = get( "file.stylesheet.scene" );
   public static final String STYLESHEET_MARKDOWN = get(
       "file.stylesheet.markdown" );
-  public static final String STYLESHEET_PREVIEW = get( "file.stylesheet" +
-                                                           ".preview" );
+  public static final String STYLESHEET_PREVIEW = get(
+      "file.stylesheet.preview" );
 
   public static final String FILE_LOGO_16 = get( "file.logo.16" );
   public static final String FILE_LOGO_32 = get( "file.logo.32" );

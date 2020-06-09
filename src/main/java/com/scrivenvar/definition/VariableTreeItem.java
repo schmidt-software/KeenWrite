@@ -32,8 +32,7 @@ import javafx.scene.control.TreeItem;
 import java.text.Normalizer;
 import java.util.Stack;
 
-import static com.scrivenvar.definition.FindMode.CONTAINS;
-import static com.scrivenvar.definition.FindMode.STARTS_WITH;
+import static com.scrivenvar.definition.FindMode.*;
 import static java.text.Normalizer.Form.NFD;
 
 /**
@@ -86,7 +85,10 @@ public class VariableTreeItem<T> extends TreeItem<T> {
     while( !found && !stack.isEmpty() ) {
       node = stack.pop();
 
-      if( findMode == CONTAINS && node.valueContains( text ) ) {
+      if( findMode == EXACT && node.valueEquals( text ) ) {
+        found = true;
+      }
+      else if( findMode == CONTAINS && node.valueContains( text ) ) {
         found = true;
       }
       else if( findMode == STARTS_WITH && node.valueStartsWith( text ) ) {
@@ -136,6 +138,16 @@ public class VariableTreeItem<T> extends TreeItem<T> {
    */
   private boolean valueContains( final String s ) {
     return isLeaf() && getDiacriticlessValue().contains( s );
+  }
+
+  /**
+   * Returns true if this node is a leaf and its value equals the given text.
+   *
+   * @param s The text to compare against the node value.
+   * @return true Node is a leaf and its value equals the given value.
+   */
+  private boolean valueEquals( final String s ) {
+    return isLeaf() && getValue().equals( s );
   }
 
   /**

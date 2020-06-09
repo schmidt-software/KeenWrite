@@ -89,6 +89,21 @@ public final class VariableNameInjector {
   }
 
   /**
+   * Inserts the variable
+   */
+  public void injectSelectedItem() {
+    final TreeItem<String> item = getDefinitionPane().getSelectedItem();
+
+    if( item.isLeaf() ) {
+      final VariableTreeItem<String> leaf = getDefinitionPane().findLeaf(
+          item.getValue(), FindMode.EXACT );
+      final StyledTextArea<?, ?> editor = getEditor();
+
+      editor.insertText( editor.getCaretPosition(), decorate( leaf ) );
+    }
+  }
+
+  /**
    * Traps Control+SPACE to auto-insert definition key names.
    */
   private void initKeyboardEventListeners() {
@@ -111,12 +126,7 @@ public final class VariableNameInjector {
     final VariableTreeItem<String> leaf = findLeaf( word );
 
     if( leaf != null ) {
-      replaceText(
-          boundaries[ 0 ],
-          boundaries[ 1 ],
-          decorate( leaf.toPath() )
-      );
-
+      replaceText( boundaries[ 0 ], boundaries[ 1 ], decorate( leaf ) );
       expand( leaf );
     }
   }
@@ -141,11 +151,21 @@ public final class VariableNameInjector {
   }
 
   /**
-   * Injects a variable using the syntax specific to the type of document
+   * Decorates a {@link TreeItem} using the syntax specific to the type of
+   * document being edited.
+   *
+   * @param leaf The path to the leaf (the definition key) to be decorated.
+   */
+  private String decorate( final VariableTreeItem<String> leaf ) {
+    return decorate( leaf.toPath() );
+  }
+
+  /**
+   * Decorates a variable using the syntax specific to the type of document
    * being edited.
    *
    * @param variable The variable to decorate in dot-notation without any
-   *                 start or end tokens present.
+   *                 start or end sigils present.
    */
   private String decorate( final String variable ) {
     return getVariableDecorator().decorate( variable );
@@ -195,13 +215,17 @@ public final class VariableNameInjector {
   private VariableTreeItem<String> findLeaf( final String word ) {
     assert word != null;
 
-    VariableTreeItem<String> leaf;
+    VariableTreeItem<String> leaf = findLeafExact( word );
 
-    leaf = findLeafStartsWith( word );
+    leaf = leaf == null ? findLeafStartsWith( word ) : leaf;
     leaf = leaf == null ? findLeafContains( word ) : leaf;
     leaf = leaf == null ? findLeafLevenshtein( word ) : leaf;
 
     return leaf;
+  }
+
+  private VariableTreeItem<String> findLeafExact( final String text ) {
+    return findLeaf( text, EXACT );
   }
 
   private VariableTreeItem<String> findLeafContains( final String text ) {

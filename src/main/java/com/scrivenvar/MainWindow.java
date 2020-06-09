@@ -70,6 +70,7 @@ import javafx.scene.text.Text;
 import javafx.stage.Window;
 import javafx.stage.WindowEvent;
 import org.controlsfx.control.StatusBar;
+import org.fxmisc.richtext.StyleClassedTextArea;
 import org.fxmisc.richtext.model.TwoDimensional.Position;
 
 import java.io.File;
@@ -84,6 +85,7 @@ import static com.scrivenvar.Messages.getLiteral;
 import static com.scrivenvar.util.StageState.*;
 import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.*;
 import static javafx.event.Event.fireEvent;
+import static javafx.scene.input.KeyCode.ENTER;
 import static javafx.stage.WindowEvent.WINDOW_CLOSE_REQUEST;
 
 /**
@@ -125,11 +127,18 @@ public class MainWindow implements Observer {
   /**
    * Called when the definition data is changed.
    */
-  final EventHandler<TreeItem.TreeModificationEvent<Event>> mHandler =
+  final EventHandler<TreeItem.TreeModificationEvent<Event>> mTreeHandler =
       event -> {
         exportDefinitions( getDefinitionPath() );
         interpolateResolvedMap();
         refreshActiveTab();
+      };
+
+  final EventHandler<? super KeyEvent> mKeyHandler =
+      event -> {
+        if( event.getCode() == ENTER ) {
+          getVariableNameInjector().injectSelectedItem();
+        }
       };
 
   public MainWindow() {
@@ -415,7 +424,8 @@ public class MainWindow implements Observer {
 
       final DefinitionPane pane = getDefinitionPane();
       pane.update( ds );
-      pane.addTreeChangeHandler( mHandler );
+      pane.addTreeChangeHandler( mTreeHandler );
+      pane.addKeyEventHandler( mKeyHandler );
 
       interpolateResolvedMap();
     } catch( final Exception e ) {

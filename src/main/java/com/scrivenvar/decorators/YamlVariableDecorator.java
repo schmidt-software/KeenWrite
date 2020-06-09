@@ -27,25 +27,12 @@
  */
 package com.scrivenvar.decorators;
 
-import java.util.regex.Pattern;
-
 /**
  * Brackets variable names with dollar symbols.
  *
  * @author White Magic Software, Ltd.
  */
 public class YamlVariableDecorator implements VariableDecorator {
-
-  /**
-   * Matches variables delimited by dollar symbols. The outer group is necessary
-   * for substring replacement of delimited references.
-   */
-  public final static String REGEX = "(\\$(.*?)\\$)";
-
-  /**
-   * Compiled regular expression for matching delimited references.
-   */
-  public final static Pattern REGEX_PATTERN = Pattern.compile( REGEX );
 
   /**
    * Returns the given {@link String} verbatim because variables in YAML
