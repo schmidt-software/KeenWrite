@@ -70,7 +70,6 @@ import javafx.scene.text.Text;
 import javafx.stage.Window;
 import javafx.stage.WindowEvent;
 import org.controlsfx.control.StatusBar;
-import org.fxmisc.richtext.StyleClassedTextArea;
 import org.fxmisc.richtext.model.TwoDimensional.Position;
 
 import java.io.File;
@@ -86,6 +85,7 @@ import static com.scrivenvar.util.StageState.*;
 import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.*;
 import static javafx.event.Event.fireEvent;
 import static javafx.scene.input.KeyCode.ENTER;
+import static javafx.scene.input.KeyCode.TAB;
 import static javafx.stage.WindowEvent.WINDOW_CLOSE_REQUEST;
 
 /**
@@ -134,10 +134,18 @@ public class MainWindow implements Observer {
         refreshActiveTab();
       };
 
-  final EventHandler<? super KeyEvent> mKeyHandler =
+  final EventHandler<? super KeyEvent> mDefinitionKeyHandler =
       event -> {
         if( event.getCode() == ENTER ) {
           getVariableNameInjector().injectSelectedItem();
+        }
+      };
+
+  final EventHandler<? super KeyEvent> mEditorKeyHandler =
+      (EventHandler<KeyEvent>) event -> {
+        if( event.getCode() == TAB ) {
+          getDefinitionPane().requestFocus();
+          event.consume();
         }
       };
 
@@ -296,6 +304,8 @@ public class MainWindow implements Observer {
   private void initKeyboardEventListeners( final FileEditorTab tab ) {
     final VariableNameInjector vin = getVariableNameInjector();
     vin.initKeyboardEventListeners( tab );
+
+    tab.addEventFilter( KeyEvent.KEY_PRESSED, mEditorKeyHandler );
   }
 
   private void initTextChangeListener( final FileEditorTab tab ) {
@@ -425,7 +435,7 @@ public class MainWindow implements Observer {
       final DefinitionPane pane = getDefinitionPane();
       pane.update( ds );
       pane.addTreeChangeHandler( mTreeHandler );
-      pane.addKeyEventHandler( mKeyHandler );
+      pane.addKeyEventHandler( mDefinitionKeyHandler );
 
       interpolateResolvedMap();
     } catch( final Exception e ) {

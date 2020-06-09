@@ -95,6 +95,7 @@ public final class VariableNameInjector {
     final TreeItem<String> item = getDefinitionPane().getSelectedItem();
 
     if( item.isLeaf() ) {
+      // This avoids a direct typecast.
       final VariableTreeItem<String> leaf = getDefinitionPane().findLeaf(
           item.getValue(), FindMode.EXACT );
       final StyledTextArea<?, ?> editor = getEditor();

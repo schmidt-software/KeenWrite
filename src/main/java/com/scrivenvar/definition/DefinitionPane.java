@@ -387,10 +387,16 @@ public final class DefinitionPane extends AbstractPane {
       @Override
       public void commitEdit( final String newValue ) {
         super.commitEdit( newValue );
-        requestFocus();
         select( getTreeItem() );
+        requestFocus();
       }
     };
+  }
+
+  @Override
+  public void requestFocus() {
+    super.requestFocus();
+    getTreeView().requestFocus();
   }
 
   private StringConverter<String> createStringConverter() {

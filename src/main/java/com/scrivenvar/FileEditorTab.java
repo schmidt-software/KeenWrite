@@ -37,6 +37,9 @@ import javafx.beans.property.ReadOnlyBooleanWrapper;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.event.Event;
+import javafx.event.EventHandler;
+import javafx.event.EventType;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Tab;
@@ -445,6 +448,12 @@ public final class FileEditorTab extends Tab {
   public void addCaretParagraphListener(
       final ChangeListener<Integer> listener ) {
     getEditorPane().addCaretParagraphListener( listener );
+  }
+
+  public <T extends Event> void addEventFilter(
+      final EventType<T> eventType,
+      final EventHandler<? super T> eventFilter ) {
+    getEditorPane().getEditor().addEventFilter( eventType, eventFilter );
   }
 
   /**
