@@ -27,6 +27,13 @@
  */
 package com.scrivenvar;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Calendar;
+import java.util.Properties;
+
+import static java.lang.String.format;
+
 /**
  * Launches the application using the {@link Main} class.
  *
@@ -41,7 +48,52 @@ public class Launcher {
    *
    * @param args Command-line arguments.
    */
-  public static void main( final String[] args ) {
+  public static void main( final String[] args ) throws IOException {
+    showAppInfo();
     Main.main( args );
+  }
+
+  private static void showAppInfo() throws IOException {
+    out( format( "%s version %s%n", getTitle(), getVersion() ) );
+    out( format( "Copyright %s by White Magic Software, Ltd.%n", getYear() ) );
+    out( "Portions copyright 2020 Karl Tauber.\n" );
+  }
+
+  private static void out( final String s ) {
+    System.out.print( s );
+  }
+
+  private static String getTitle() throws IOException {
+    final Properties properties = loadProperties( "messages.properties" );
+    return properties.getProperty( "Main.title" );
+  }
+
+  private static String getVersion() throws IOException {
+    final Properties properties = loadProperties( "app.properties" );
+    return properties.getProperty( "application.version" );
+  }
+
+  private static String getYear() {
+    return Integer.toString( Calendar.getInstance().get( Calendar.YEAR ) );
+  }
+
+  @SuppressWarnings("SameParameterValue")
+  private static Properties loadProperties( final String resource )
+      throws IOException {
+    final Properties properties = new Properties();
+    properties.load( getResourceAsStream( getResourceName( resource ) ) );
+    return properties;
+  }
+
+  private static String getResourceName( final String resource ) {
+    return format( "%s/%s", getPackagePath(), resource );
+  }
+
+  private static String getPackagePath() {
+    return Launcher.class.getPackageName().replace( '.', '/' );
+  }
+
+  private static InputStream getResourceAsStream( final String resource ) {
+    return Launcher.class.getClassLoader().getResourceAsStream( resource );
   }
 }

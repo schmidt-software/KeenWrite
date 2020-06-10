@@ -1,6 +1,7 @@
 plugins {
   id 'application'
   id 'org.openjfx.javafxplugin' version '0.0.8'
+  id 'com.palantir.git-version' version '0.12.3'
 }
 
 repositories {
@@ -62,10 +63,13 @@ compileJava {
 }
 
 sourceCompatibility = JavaVersion.VERSION_11
-version = '1.5.0'
 applicationName = 'scrivenvar'
+version gitVersion()
 mainClassName = 'com.scrivenvar.Main'
 def launcherClassName = 'com.scrivenvar.Launcher'
+
+def propertiesFile = new File("src/main/resources/com/$applicationName/app.properties")
+propertiesFile.write("application.version=${version}")
 
 jar {
   duplicatesStrategy = DuplicatesStrategy.EXCLUDE
