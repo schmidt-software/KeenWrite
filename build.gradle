@@ -65,8 +65,8 @@ compileJava {
 sourceCompatibility = JavaVersion.VERSION_11
 applicationName = 'scrivenvar'
 version gitVersion()
-mainClassName = 'com.scrivenvar.Main'
-def launcherClassName = 'com.scrivenvar.Launcher'
+mainClassName = "com.${applicationName}.Main"
+def launcherClassName = "com.${applicationName}.Launcher"
 
 def propertiesFile = new File("src/main/resources/com/$applicationName/app.properties")
 propertiesFile.write("application.version=${version}")
@@ -84,7 +84,7 @@ jar {
     }
   }
 
-  archiveFileName = 'scrivenvar.jar'
+  archiveFileName = "${applicationName}.jar"
 
   exclude 'META-INF/*.RSA', 'META-INF/*.SF', 'META-INF/*.DSA'
 }
