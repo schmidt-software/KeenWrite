@@ -27,7 +27,8 @@
  */
 package com.scrivenvar.definition;
 
-import com.scrivenvar.AbstractPane;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.collections.ObservableList;
 import javafx.event.Event;
 import javafx.event.EventHandler;
@@ -49,7 +50,7 @@ import static javafx.scene.input.KeyEvent.KEY_PRESSED;
  *
  * @author White Magic Software, Ltd.
  */
-public final class DefinitionPane extends AbstractPane {
+public final class DefinitionPane extends TitledPane {
 
   /**
    * Trimmed off the end of a word to match a variable name.
@@ -68,6 +69,11 @@ public final class DefinitionPane extends AbstractPane {
       = new HashSet<>();
 
   /**
+   * Definition file name shown in the title of the pane.
+   */
+  private final StringProperty mFilename = new SimpleStringProperty();
+
+  /**
    * Constructs a definition pane with a given tree view root.
    */
   public DefinitionPane() {
@@ -78,6 +84,11 @@ public final class DefinitionPane extends AbstractPane {
     treeView.addEventFilter( KEY_PRESSED, this::keyEventFilter );
     treeView.setShowRoot( false );
     getSelectionModel().setSelectionMode( SelectionMode.MULTIPLE );
+
+    textProperty().bind( mFilename );
+
+    setContent( treeView );
+    setCollapsible( false );
   }
 
   /**
@@ -423,12 +434,21 @@ public final class DefinitionPane extends AbstractPane {
   }
 
   /**
-   * Returns the root node to the tree view.
+   * Returns this pane.
    *
-   * @return getTreeView()
+   * @return this
    */
   public Node getNode() {
-    return getTreeView();
+    return this;
+  }
+
+  /**
+   * Returns the property used to set the title of the pane: the file name.
+   *
+   * @return A non-null property used for showing the definition file name.
+   */
+  public StringProperty filenameProperty() {
+    return mFilename;
   }
 
   /**

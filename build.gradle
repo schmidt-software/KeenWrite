@@ -68,7 +68,7 @@ version gitVersion()
 mainClassName = "com.${applicationName}.Main"
 def launcherClassName = "com.${applicationName}.Launcher"
 
-def propertiesFile = new File("src/main/resources/com/$applicationName/app.properties")
+def propertiesFile = new File("src/main/resources/com/${applicationName}/app.properties")
 propertiesFile.write("application.version=${version}")
 
 jar {

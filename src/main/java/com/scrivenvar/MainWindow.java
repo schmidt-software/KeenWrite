@@ -69,6 +69,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Window;
 import javafx.stage.WindowEvent;
+import javafx.util.Duration;
 import org.controlsfx.control.StatusBar;
 import org.fxmisc.richtext.model.TwoDimensional.Position;
 
@@ -432,10 +433,15 @@ public class MainWindow implements Observer {
       setDefinitionSource( ds );
       storeDefinitionSourceFilename( path );
 
+      final Tooltip tooltipPath = new Tooltip( path.toString() );
+      tooltipPath.setShowDelay( Duration.millis( 200 ) );
+
       final DefinitionPane pane = getDefinitionPane();
       pane.update( ds );
       pane.addTreeChangeHandler( mTreeHandler );
       pane.addKeyEventHandler( mDefinitionKeyHandler );
+      pane.filenameProperty().setValue( path.getFileName().toString() );
+      pane.setTooltip( tooltipPath );
 
       interpolateResolvedMap();
     } catch( final Exception e ) {
@@ -795,18 +801,18 @@ public class MainWindow implements Observer {
         getFloat( K_PANE_SPLIT_EDITOR, .45f ),
         getFloat( K_PANE_SPLIT_PREVIEW, .45f ) );
 
-    // See: http://broadlyapplicable.blogspot
-    // .ca/2015/03/javafx-capture-restorePreferences-splitpane.html
+    getDefinitionPane().prefHeightProperty().bind( splitPane.heightProperty() );
+
     final BorderPane borderPane = new BorderPane();
     borderPane.setPrefSize( 1024, 800 );
     borderPane.setTop( createMenuBar() );
     borderPane.setBottom( getStatusBar() );
     borderPane.setCenter( splitPane );
 
-    final VBox box = new VBox();
-    box.setAlignment( Pos.BASELINE_CENTER );
-    box.getChildren().add( getLineNumberText() );
-    getStatusBar().getRightItems().add( box );
+    final VBox statusBar = new VBox();
+    statusBar.setAlignment( Pos.BASELINE_CENTER );
+    statusBar.getChildren().add( getLineNumberText() );
+    getStatusBar().getRightItems().add( statusBar );
 
     return new Scene( borderPane );
   }

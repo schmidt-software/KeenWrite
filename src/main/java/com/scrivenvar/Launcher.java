@@ -54,13 +54,13 @@ public class Launcher {
   }
 
   private static void showAppInfo() throws IOException {
-    out( format( "%s version %s%n", getTitle(), getVersion() ) );
-    out( format( "Copyright %s by White Magic Software, Ltd.%n", getYear() ) );
-    out( "Portions copyright 2020 Karl Tauber.\n" );
+    out( format( "%s version %s", getTitle(), getVersion() ) );
+    out( format( "Copyright %s by White Magic Software, Ltd.", getYear() ) );
+    out( format( "Portions copyright 2020 Karl Tauber." ) );
   }
 
   private static void out( final String s ) {
-    System.out.print( s );
+    System.out.println( s );
   }
 
   private static String getTitle() throws IOException {
