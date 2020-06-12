@@ -44,7 +44,7 @@ import static com.scrivenvar.Messages.get;
 import static javafx.scene.input.KeyEvent.KEY_PRESSED;
 
 /**
- * Provides the user interface that holdsa {@link TreeView}, which
+ * Provides the user interface that holds a {@link TreeView}, which
  * allows users to interact with key/value pairs loaded from the
  * {@link DocumentParser} and adapted using a {@link TreeAdapter}.
  *

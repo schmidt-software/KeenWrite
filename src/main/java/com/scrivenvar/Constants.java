@@ -122,6 +122,11 @@ public class Constants {
   public static final String PERSIST_R_DIRECTORY = "rDirectory";
 
   /**
+   * Directory to search for images.
+   */
+  public static final String PERSIST_IMAGES_DIRECTORY = "imagesDirectory";
+
+  /**
    * Default working directory to use for R startup script.
    */
   public static final String USER_DIRECTORY = System.getProperty( "user.dir" );

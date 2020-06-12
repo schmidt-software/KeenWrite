@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2015 Karl Tauber and White Magic Software, Ltd.
+ * Copyright 2016 White Magic Software, Ltd.
+ *
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -24,39 +25,30 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.scrivenvar.util;
+package com.scrivenvar.processors.markdown;
 
-import de.jensd.fx.glyphs.GlyphIcons;
-import javafx.beans.value.ObservableBooleanValue;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
-import javafx.scene.input.KeyCombination;
+import com.vladsch.flexmark.ast.Image;
+import com.vladsch.flexmark.html.LinkResolver;
+import com.vladsch.flexmark.html.renderer.LinkResolverBasicContext;
+import com.vladsch.flexmark.html.renderer.ResolvedLink;
+import com.vladsch.flexmark.util.ast.Node;
 
 /**
- * Simple action class
+ * Responsible for ensuring that images can be rendered relative to a path.
+ * This allows images to be located virtually anywhere.
  *
- * @author Karl Tauber
  * @author White Magic Software, Ltd.
  */
-public class Action {
-  public final String text;
-  public final KeyCombination accelerator;
-  public final GlyphIcons icon;
-  public final EventHandler<ActionEvent> action;
-  public final ObservableBooleanValue disable;
+public class ImageLinkResolver implements LinkResolver {
 
-  public Action(
-      final String text,
-      final String accelerator,
-      final GlyphIcons icon,
-      final EventHandler<ActionEvent> action,
-      final ObservableBooleanValue disable ) {
+  @Override
+  public ResolvedLink resolveLink( final Node node,
+                                   final LinkResolverBasicContext context,
+                                   final ResolvedLink link ) {
+    if( node instanceof Image ) {
+      final String url = link.getUrl();
+    }
 
-    this.text = text;
-    this.accelerator = accelerator == null ?
-        null : KeyCombination.valueOf( accelerator );
-    this.icon = icon;
-    this.action = action;
-    this.disable = disable;
+    return null;
   }
 }

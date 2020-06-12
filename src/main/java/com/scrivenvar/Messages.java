@@ -121,6 +121,10 @@ public class Messages {
     return RESOURCE_BUNDLE.getString( key );
   }
 
+  public static String get( final String key, final boolean interpolate ) {
+    return interpolate ? get( key ) : getLiteral( key );
+  }
+
   /**
    * Returns the value for a key from the message bundle with the arguments
    * replacing <code>{#}</code> place holders.

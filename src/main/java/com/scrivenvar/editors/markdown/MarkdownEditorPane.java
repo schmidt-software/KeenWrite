@@ -30,7 +30,7 @@ package com.scrivenvar.editors.markdown;
 import com.scrivenvar.dialogs.ImageDialog;
 import com.scrivenvar.dialogs.LinkDialog;
 import com.scrivenvar.editors.EditorPane;
-import com.scrivenvar.processors.MarkdownProcessor;
+import com.scrivenvar.processors.markdown.MarkdownProcessor;
 import com.vladsch.flexmark.ast.Link;
 import com.vladsch.flexmark.util.ast.Node;
 import javafx.scene.control.Dialog;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Karl Tauber <karl at jformdesigner dot com>
+ * Copyright (c) 2015 Karl Tauber
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,6 +40,7 @@ import javafx.scene.control.Tooltip;
  * Action utilities
  *
  * @author Karl Tauber
+ * @author White Magic Software, Ltd.
  */
 public class ActionUtils {
 
@@ -47,24 +48,28 @@ public class ActionUtils {
     return new Menu( text, null, createMenuItems( actions ) );
   }
 
-  public static MenuItem[] createMenuItems( Action... actions ) {
-    MenuItem[] menuItems = new MenuItem[ actions.length ];
+  public static MenuItem[] createMenuItems( final Action... actions ) {
+    final MenuItem[] menuItems = new MenuItem[ actions.length ];
+
     for( int i = 0; i < actions.length; i++ ) {
       menuItems[ i ] = (actions[ i ] != null)
-        ? createMenuItem( actions[ i ] )
-        : new SeparatorMenuItem();
+          ? createMenuItem( actions[ i ] )
+          : new SeparatorMenuItem();
     }
+
     return menuItems;
   }
 
-  public static MenuItem createMenuItem( Action action ) {
-    MenuItem menuItem = new MenuItem( action.text );
+  public static MenuItem createMenuItem( final Action action ) {
+    final MenuItem menuItem = new MenuItem( action.text );
+
     if( action.accelerator != null ) {
       menuItem.setAccelerator( action.accelerator );
     }
 
     if( action.icon != null ) {
-      menuItem.setGraphic( FontAwesomeIconFactory.get().createIcon( action.icon ) );
+      menuItem.setGraphic(
+          FontAwesomeIconFactory.get().createIcon( action.icon ) );
     }
 
     menuItem.setOnAction( action.action );
@@ -78,36 +83,45 @@ public class ActionUtils {
     return menuItem;
   }
 
-  public static ToolBar createToolBar( Action... actions ) {
+  public static ToolBar createToolBar( final Action... actions ) {
     return new ToolBar( createToolBarButtons( actions ) );
   }
 
-  public static Node[] createToolBarButtons( Action... actions ) {
+  public static Node[] createToolBarButtons( final Action... actions ) {
     Node[] buttons = new Node[ actions.length ];
     for( int i = 0; i < actions.length; i++ ) {
       buttons[ i ] = (actions[ i ] != null)
-        ? createToolBarButton( actions[ i ] )
-        : new Separator();
+          ? createToolBarButton( actions[ i ] )
+          : new Separator();
     }
     return buttons;
   }
 
-  public static Button createToolBarButton( Action action ) {
-    Button button = new Button();
-    button.setGraphic( FontAwesomeIconFactory.get().createIcon( action.icon, "1.2em" ) );
+  public static Button createToolBarButton( final Action action ) {
+    final Button button = new Button();
+    button.setGraphic(
+        FontAwesomeIconFactory
+            .get()
+            .createIcon( action.icon, "1.2em" ) );
+
     String tooltip = action.text;
+
     if( tooltip.endsWith( "..." ) ) {
       tooltip = tooltip.substring( 0, tooltip.length() - 3 );
     }
+
     if( action.accelerator != null ) {
       tooltip += " (" + action.accelerator.getDisplayText() + ')';
     }
+
     button.setTooltip( new Tooltip( tooltip ) );
     button.setFocusTraversable( false );
     button.setOnAction( action.action );
+
     if( action.disable != null ) {
       button.disableProperty().bind( action.disable );
     }
+
     return button;
   }
 }

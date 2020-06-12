@@ -30,6 +30,8 @@ package com.scrivenvar.processors;
 import com.scrivenvar.AbstractFileFactory;
 import com.scrivenvar.FileEditorTab;
 import com.scrivenvar.preview.HTMLPreviewPane;
+import com.scrivenvar.processors.markdown.MarkdownCaretInsertionProcessor;
+import com.scrivenvar.processors.markdown.MarkdownProcessor;
 import javafx.beans.value.ObservableValue;
 
 import java.nio.file.Path;

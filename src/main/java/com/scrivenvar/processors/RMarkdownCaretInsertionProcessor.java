@@ -31,6 +31,7 @@ import static com.scrivenvar.decorators.RVariableDecorator.PREFIX;
 import static com.scrivenvar.decorators.RVariableDecorator.SUFFIX;
 import static java.lang.Integer.max;
 
+import com.scrivenvar.processors.markdown.MarkdownCaretInsertionProcessor;
 import javafx.beans.value.ObservableValue;
 
 /**

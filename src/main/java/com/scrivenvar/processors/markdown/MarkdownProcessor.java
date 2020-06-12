@@ -25,13 +25,16 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.scrivenvar.processors;
+package com.scrivenvar.processors.markdown;
 
+import com.scrivenvar.processors.AbstractProcessor;
+import com.scrivenvar.processors.Processor;
 import com.vladsch.flexmark.ext.gfm.strikethrough.StrikethroughSubscriptExtension;
 import com.vladsch.flexmark.ext.superscript.SuperscriptExtension;
 import com.vladsch.flexmark.ext.tables.TablesExtension;
 import com.vladsch.flexmark.html.HtmlRenderer;
 import com.vladsch.flexmark.parser.Parser;
+import com.vladsch.flexmark.util.ast.IParse;
 import com.vladsch.flexmark.util.ast.Node;
 import com.vladsch.flexmark.util.misc.Extension;
 
@@ -46,7 +49,7 @@ import java.util.Collection;
 public class MarkdownProcessor extends AbstractProcessor<String> {
 
   private final static HtmlRenderer RENDERER;
-  private final static Parser PARSER;
+  private final static IParse PARSER;
 
   static {
     final Collection<Extension> extensions = new ArrayList<>();
@@ -116,7 +119,7 @@ public class MarkdownProcessor extends AbstractProcessor<String> {
    *
    * @return A Parser that can build an abstract syntax tree.
    */
-  private Parser getParser() {
+  private IParse getParser() {
     return PARSER;
   }
 

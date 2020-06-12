@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2015 Karl Tauber and White Magic Software, Ltd.
+ * Copyright 2020 White Magic Software, Ltd.
+ *
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -26,37 +27,55 @@
  */
 package com.scrivenvar.util;
 
+import com.scrivenvar.Messages;
 import de.jensd.fx.glyphs.GlyphIcons;
 import javafx.beans.value.ObservableBooleanValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.scene.input.KeyCombination;
 
 /**
- * Simple action class
- *
- * @author Karl Tauber
- * @author White Magic Software, Ltd.
+ * Provides a fluent interface around constructing actions so that duplication
+ * can be avoided.
  */
-public class Action {
-  public final String text;
-  public final KeyCombination accelerator;
-  public final GlyphIcons icon;
-  public final EventHandler<ActionEvent> action;
-  public final ObservableBooleanValue disable;
+public class ActionBuilder {
+  private String mText;
+  private String mAccelerator;
+  private GlyphIcons mIcon;
+  private EventHandler<ActionEvent> mAction;
+  private ObservableBooleanValue mDisable;
 
-  public Action(
-      final String text,
-      final String accelerator,
-      final GlyphIcons icon,
-      final EventHandler<ActionEvent> action,
-      final ObservableBooleanValue disable ) {
+  /**
+   * Sets the action text based on a resource bundle key.
+   *
+   * @param key The key to look up in the {@link Messages}.
+   * @return The corresponding value, or the key name if none found.
+   */
+  public ActionBuilder setText( final String key ) {
+    mText = Messages.get( key, key );
+    return this;
+  }
 
-    this.text = text;
-    this.accelerator = accelerator == null ?
-        null : KeyCombination.valueOf( accelerator );
-    this.icon = icon;
-    this.action = action;
-    this.disable = disable;
+  public ActionBuilder setAccelerator( final String accelerator ) {
+    mAccelerator = accelerator;
+    return this;
+  }
+
+  public ActionBuilder setIcon( final GlyphIcons icon ) {
+    mIcon = icon;
+    return this;
+  }
+
+  public ActionBuilder setAction( final EventHandler<ActionEvent> action ) {
+    mAction = action;
+    return this;
+  }
+
+  public ActionBuilder setDisable( final ObservableBooleanValue disable ) {
+    mDisable = disable;
+    return this;
+  }
+
+  public Action build() {
+    return new Action( mText, mAccelerator, mIcon, mAction, mDisable );
   }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 White Magic Software, Ltd.
+ * Copyright 2020 White Magic Software, Ltd.
  *
  * All rights reserved.
  *
@@ -25,11 +25,13 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.scrivenvar.processors;
+package com.scrivenvar.processors.markdown;
 
 import static java.lang.Character.isLetter;
 import static java.lang.Math.min;
 
+import com.scrivenvar.processors.CaretInsertionProcessor;
+import com.scrivenvar.processors.Processor;
 import javafx.beans.value.ObservableValue;
 
 /**
