@@ -127,6 +127,11 @@ public class Constants {
   public static final String PERSIST_IMAGES_DIRECTORY = "imagesDirectory";
 
   /**
+   * Order of image extensions to try loading for embedded files.
+   */
+  public static final String PERSIST_IMAGES_EXTENSIONS = "imagesExtensions";
+
+  /**
    * Default working directory to use for R startup script.
    */
   public static final String USER_DIRECTORY = System.getProperty( "user.dir" );

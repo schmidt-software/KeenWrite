@@ -143,6 +143,10 @@ public class MainWindow implements Observer {
         refreshActiveTab();
       };
 
+  /**
+   * Called to inject the selected item when the user presses ENTER in the
+   * definition pane.
+   */
   final EventHandler<? super KeyEvent> mDefinitionKeyHandler =
       event -> {
         if( event.getCode() == ENTER ) {
@@ -150,6 +154,9 @@ public class MainWindow implements Observer {
         }
       };
 
+  /**
+   * Called to switch to the definition pane when the user presses TAB.
+   */
   final EventHandler<? super KeyEvent> mEditorKeyHandler =
       (EventHandler<KeyEvent>) event -> {
         if( event.getCode() == TAB ) {
@@ -174,110 +181,23 @@ public class MainWindow implements Observer {
     restorePreferences();
   }
 
-  private File getRDirectory() {
-    final String filename =
-        getPreferences().get( PERSIST_R_DIRECTORY, USER_DIRECTORY );
-    return new File( filename );
-  }
+  private void initLayout() {
+    final Scene appScene = getScene();
 
-  private String getRScript() {
-    return getPreferences().get( PERSIST_R_STARTUP, "" );
-  }
+    appScene.getStylesheets().add( STYLESHEET_SCENE );
 
-  private File getImagesDirectory() {
-    final String filename =
-        getPreferences().get( PERSIST_IMAGES_DIRECTORY, USER_DIRECTORY );
-    return new File( filename );
-  }
-
-  private String getImagesOrder() {
-    return "svg pdf png jpg tif";
-  }
-
-  /**
-   * Creates the preferences dialog.
-   *
-   * @return A new instance of preferences for users to edit.
-   */
-  private PreferencesFx createPreferences() {
-    final ObjectProperty<File> rDirectory =
-        new SimpleObjectProperty<>( getRDirectory() );
-    final StringProperty rScript =
-        new SimpleStringProperty( getRScript() );
-
-    final ObjectProperty<File> imagesDirectory =
-        new SimpleObjectProperty<>( getImagesDirectory() );
-    final StringProperty imageOrder =
-        new SimpleStringProperty( getImagesOrder() );
-
-    final Setting<StringField, StringProperty> scriptSetting =
-        Setting.of( "Script", rScript );
-    final StringField field = scriptSetting.getElement();
-    field.multiline( true );
-
-    return PreferencesFx.of(
-        FilePreferences.class,
-        Category.of(
-            get( "Preferences.r" ),
-            Group.of(
-                get( "Preferences.r.directory" ),
-                Setting.of( label( "Preferences.r.directory.desc", false ) ),
-                Setting.of( "Directory", rDirectory, true )
-            ),
-            Group.of(
-                get( "Preferences.r.script" ),
-                Setting.of( label( "Preferences.r.script.desc" ) ),
-                scriptSetting
-            ) ),
-        Category.of(
-            get( "Preferences.images" ),
-            Group.of(
-                get( "Preferences.images.directory" ),
-                Setting.of( label( "Preferences.images.directory.desc" ) ),
-                Setting.of( "Directory", imagesDirectory, true )
-            ),
-            Group.of(
-                get( "Preferences.images.suffixes" ),
-                Setting.of( label( "Preferences.images.suffixes.desc" ) ),
-                Setting.of( "Script", imageOrder )
+    // TODO: Apply an XML syntax highlighting for XML files.
+//    appScene.getStylesheets().add( STYLESHEET_XML );
+    appScene.windowProperty().addListener(
+        ( observable, oldWindow, newWindow ) ->
+            newWindow.setOnCloseRequest(
+                e -> {
+                  if( !getFileEditorPane().closeAllEditors() ) {
+                    e.consume();
+                  }
+                }
             )
-        )
     );
-
-    /*
-      private void rDirectory() {
-        final TextInputDialog dialog = new TextInputDialog(
-            getPreferences().get( PERSIST_R_DIRECTORY, USER_DIRECTORY )
-        );
-
-        dialog.setTitle( get( "Dialog.r.directory.title" ) );
-        dialog.setHeaderText( getLiteral( "Dialog.r.directory.header" ) );
-        dialog.setContentText( "Directory" );
-
-        final Optional<String> result = dialog.showAndWait();
-
-        result.ifPresent( this::putStartupDirectory );
-      }
-
-        private void putStartupScript( final String script ) {
-          putPreference( PERSIST_R_STARTUP, script );
-        }
-
-        private void putStartupDirectory( final String directory ) {
-          putPreference( PERSIST_R_DIRECTORY, directory );
-        }
-     */
-  }
-
-  /**
-   * Watch for changes to external files. In particular, this awaits
-   * modifications to any XSL files associated with XML files being edited. When
-   * an XSL file is modified (external to the application), the snitch's ears
-   * perk up and the file is reloaded. This keeps the XSL transformation up to
-   * date with what's on the file system.
-   */
-  private void initSnitch() {
-    getSnitch().addObserver( this );
   }
 
   /**
@@ -291,7 +211,7 @@ public class MainWindow implements Observer {
       switch( event.getCode() ) {
         case F3:
         case ENTER:
-          findNext();
+          editFindNext();
           break;
         case F:
           if( !event.isControlDown() ) {
@@ -315,6 +235,17 @@ public class MainWindow implements Observer {
           }
         }
     );
+  }
+
+  /**
+   * Watch for changes to external files. In particular, this awaits
+   * modifications to any XSL files associated with XML files being edited. When
+   * an XSL file is modified (external to the application), the snitch's ears
+   * perk up and the file is reloaded. This keeps the XSL transformation up to
+   * date with what's on the file system.
+   */
+  private void initSnitch() {
+    getSnitch().addObserver( this );
   }
 
   /**
@@ -366,14 +297,6 @@ public class MainWindow implements Observer {
   }
 
   /**
-   * Reloads the preferences from the previous session.
-   */
-  private void restorePreferences() {
-    restoreDefinitionPane();
-    getFileEditorPane().restorePreferences();
-  }
-
-  /**
    * Listen for new tab selection events.
    */
   private void initTabChangedListener() {
@@ -398,6 +321,14 @@ public class MainWindow implements Observer {
           }
         }
     );
+  }
+
+  /**
+   * Reloads the preferences from the previous session.
+   */
+  private void restorePreferences() {
+    restoreDefinitionPane();
+    getFileEditorPane().restorePreferences();
   }
 
   /**
@@ -496,41 +427,6 @@ public class MainWindow implements Observer {
   }
 
   /**
-   * Used to find text in the active file editor window.
-   */
-  private void find() {
-    final TextField input = getFindTextField();
-    getStatusBar().setGraphic( input );
-    input.requestFocus();
-  }
-
-  public void findNext() {
-    getActiveFileEditor().searchNext( getFindTextField().getText() );
-  }
-
-  public void preferences() {
-    mPreferences.show( false );
-  }
-
-  /**
-   * Returns the variable map of interpolated definitions.
-   *
-   * @return A map to help dereference variables.
-   */
-  private Map<String, String> getResolvedMap() {
-    return mResolvedMap;
-  }
-
-  private void interpolateResolvedMap() {
-    final Map<String, String> treeMap = getDefinitionPane().toMap();
-    final Map<String, String> map = new HashMap<>( treeMap );
-    MapInterpolator.interpolate( map );
-
-    getResolvedMap().clear();
-    getResolvedMap().putAll( map );
-  }
-
-  /**
    * Called when a definition source is opened.
    *
    * @param path Path to the definition source that was opened.
@@ -577,15 +473,13 @@ public class MainWindow implements Observer {
     }
   }
 
-  private Path getDefinitionPath() {
-    final String source = getPreferences().get(
-        PERSIST_DEFINITION_SOURCE, "" );
+  private void interpolateResolvedMap() {
+    final Map<String, String> treeMap = getDefinitionPane().toMap();
+    final Map<String, String> map = new HashMap<>( treeMap );
+    MapInterpolator.interpolate( map );
 
-    return new File(
-        source.isBlank()
-            ? getSetting( "file.definition.default", "variables.yaml" )
-            : source
-    ).toPath();
+    getResolvedMap().clear();
+    getResolvedMap().putAll( map );
   }
 
   private void restoreDefinitionPane() {
@@ -673,6 +567,7 @@ public class MainWindow implements Observer {
   }
 
   //---- File actions -------------------------------------------------------
+
   private void fileNew() {
     getFileEditorPane().newEditor();
   }
@@ -714,7 +609,46 @@ public class MainWindow implements Observer {
     fireEvent( window, new WindowEvent( window, WINDOW_CLOSE_REQUEST ) );
   }
 
+  //---- Edit actions -------------------------------------------------------
+
+  /**
+   * Used to find text in the active file editor window.
+   */
+  private void editFind() {
+    final TextField input = getFindTextField();
+    getStatusBar().setGraphic( input );
+    input.requestFocus();
+  }
+
+  public void editFindNext() {
+    getActiveFileEditor().searchNext( getFindTextField().getText() );
+  }
+
+  public void editPreferences() {
+    mPreferences.show( false );
+  }
+
+  //---- Insert actions -----------------------------------------------------
+
+  /**
+   * Delegates to the active editor to handle wrapping the current text
+   * selection with leading and trailing strings.
+   *
+   * @param leading  The string to put before the selection.
+   * @param trailing The string to put after the selection.
+   */
+  private void insertMarkdown(
+      final String leading, final String trailing ) {
+    getActiveEditor().surroundSelection( leading, trailing );
+  }
+
+  private void insertMarkdown(
+      final String leading, final String trailing, final String hint ) {
+    getActiveEditor().surroundSelection( leading, trailing, hint );
+  }
+
   //---- Help actions -------------------------------------------------------
+
   private void helpAbout() {
     final Alert alert = new Alert( AlertType.INFORMATION );
     alert.setTitle( get( "Dialog.about.title" ) );
@@ -724,90 +658,6 @@ public class MainWindow implements Observer {
     alert.initOwner( getWindow() );
 
     alert.showAndWait();
-  }
-
-  //---- Convenience accessors ----------------------------------------------
-  private float getFloat( final String key, final float defaultValue ) {
-    return getPreferences().getFloat( key, defaultValue );
-  }
-
-  private Preferences getPreferences() {
-    return getOptions().getState();
-  }
-
-  protected Scene getScene() {
-    return mScene;
-  }
-
-  public Window getWindow() {
-    return getScene().getWindow();
-  }
-
-  private MarkdownEditorPane getActiveEditor() {
-    final EditorPane pane = getActiveFileEditor().getEditorPane();
-
-    return pane instanceof MarkdownEditorPane
-        ? (MarkdownEditorPane) pane
-        : new MarkdownEditorPane();
-  }
-
-  private FileEditorTab getActiveFileEditor() {
-    return getFileEditorPane().getActiveFileEditor();
-  }
-
-  //---- Member accessors ---------------------------------------------------
-
-  private Map<FileEditorTab, Processor<String>> getProcessors() {
-    return mProcessors;
-  }
-
-  private FileEditorTabPane getFileEditorPane() {
-    if( this.fileEditorPane == null ) {
-      this.fileEditorPane = createFileEditorPane();
-    }
-
-    return this.fileEditorPane;
-  }
-
-  private HTMLPreviewPane getPreviewPane() {
-    return mPreviewPane;
-  }
-
-  private void setDefinitionSource( final DefinitionSource definitionSource ) {
-    assert definitionSource != null;
-    mDefinitionSource = definitionSource;
-  }
-
-  private DefinitionSource getDefinitionSource() {
-    return mDefinitionSource;
-  }
-
-  private DefinitionPane getDefinitionPane() {
-    return mDefinitionPane;
-  }
-
-  private Options getOptions() {
-    return mOptions;
-  }
-
-  private Snitch getSnitch() {
-    return mSnitch;
-  }
-
-  private Notifier getNotifier() {
-    return mNotifier;
-  }
-
-  private Text getLineNumberText() {
-    return mLineNumberText;
-  }
-
-  private StatusBar getStatusBar() {
-    return mStatusBar;
-  }
-
-  private TextField getFindTextField() {
-    return mFindTextField;
   }
 
   //---- Member creators ----------------------------------------------------
@@ -965,20 +815,20 @@ public class MainWindow implements Observer {
         .setText( "Main.menu.edit.find" )
         .setAccelerator( "Ctrl+F" )
         .setIcon( SEARCH )
-        .setAction( e -> find() )
+        .setAction( e -> editFind() )
         .setDisable( activeFileEditorIsNull )
         .build();
     final Action editFindNextAction = new ActionBuilder()
         .setText( "Main.menu.edit.find.next" )
         .setAccelerator( "F3" )
         .setIcon( null )
-        .setAction( e -> findNext() )
+        .setAction( e -> editFindNext() )
         .setDisable( activeFileEditorIsNull )
         .build();
     final Action editPreferencesAction = new ActionBuilder()
         .setText( "Main.menu.edit.preferences" )
         .setAccelerator( "Ctrl+Alt+S" )
-        .setAction( e -> preferences() )
+        .setAction( e -> editPreferences() )
         .build();
 
     // Insert actions
@@ -986,56 +836,49 @@ public class MainWindow implements Observer {
         .setText( "Main.menu.insert.bold" )
         .setAccelerator( "Shortcut+B" )
         .setIcon( BOLD )
-        .setAction( e -> getActiveEditor().surroundSelection(
-            "**", "**" ) )
+        .setAction( e -> insertMarkdown( "**", "**" ) )
         .setDisable( activeFileEditorIsNull )
         .build();
     final Action insertItalicAction = new ActionBuilder()
         .setText( "Main.menu.insert.italic" )
         .setAccelerator( "Shortcut+I" )
         .setIcon( ITALIC )
-        .setAction( e -> getActiveEditor().surroundSelection(
-            "*", "*" ) )
+        .setAction( e -> insertMarkdown( "*", "*" ) )
         .setDisable( activeFileEditorIsNull )
         .build();
     final Action insertSuperscriptAction = new ActionBuilder()
         .setText( "Main.menu.insert.superscript" )
         .setAccelerator( "Shortcut+[" )
         .setIcon( SUPERSCRIPT )
-        .setAction( e -> getActiveEditor().surroundSelection(
-            "^", "^" ) )
+        .setAction( e -> insertMarkdown( "^", "^" ) )
         .setDisable( activeFileEditorIsNull )
         .build();
     final Action insertSubscriptAction = new ActionBuilder()
         .setText( "Main.menu.insert.subscript" )
         .setAccelerator( "Shortcut+]" )
         .setIcon( SUBSCRIPT )
-        .setAction( e -> getActiveEditor().surroundSelection(
-            "~", "~" ) )
+        .setAction( e -> insertMarkdown( "~", "~" ) )
         .setDisable( activeFileEditorIsNull )
         .build();
     final Action insertStrikethroughAction = new ActionBuilder()
         .setText( "Main.menu.insert.strikethrough" )
         .setAccelerator( "Shortcut+T" )
         .setIcon( STRIKETHROUGH )
-        .setAction( e -> getActiveEditor().surroundSelection(
-            "~~", "~~" ) )
+        .setAction( e -> insertMarkdown( "~~", "~~" ) )
         .setDisable( activeFileEditorIsNull )
         .build();
     final Action insertBlockquoteAction = new ActionBuilder()
         .setText( "Main.menu.insert.blockquote" )
         .setAccelerator( "Ctrl+Q" )
         .setIcon( QUOTE_LEFT )
-        .setAction( e -> getActiveEditor().surroundSelection(
-            "\n\n> ", "" ) )
+        .setAction( e -> insertMarkdown( "\n\n> ", "" ) )
         .setDisable( activeFileEditorIsNull )
         .build();
     final Action insertCodeAction = new ActionBuilder()
         .setText( "Main.menu.insert.code" )
         .setAccelerator( "Shortcut+K" )
         .setIcon( CODE )
-        .setAction( e -> getActiveEditor().surroundSelection(
-            "`", "`" ) )
+        .setAction( e -> insertMarkdown( "`", "`" ) )
         .setDisable( activeFileEditorIsNull )
         .build();
     final Action insertFencedCodeBlockAction = new ActionBuilder()
@@ -1078,8 +921,7 @@ public class MainWindow implements Observer {
           .setText( text )
           .setAccelerator( accelerator )
           .setIcon( HEADER )
-          .setAction( e -> getActiveEditor().surroundSelection(
-              markup, "", prompt ) )
+          .setAction( e -> insertMarkdown( markup, "", prompt ) )
           .setDisable( activeFileEditorIsNull )
           .build();
     }
@@ -1096,14 +938,14 @@ public class MainWindow implements Observer {
         .setText( "Main.menu.insert.ordered_list" )
         .setAccelerator( "Shortcut+Shift+O" )
         .setIcon( LIST_OL )
-        .setAction( e -> getActiveEditor().surroundSelection(
+        .setAction( e -> insertMarkdown(
             "\n\n1. ", "" ) )
         .setDisable( activeFileEditorIsNull )
         .build();
     final Action insertHorizontalRuleAction = new ActionBuilder()
         .setText( "Main.menu.insert.horizontal_rule" )
         .setAccelerator( "Shortcut+H" )
-        .setAction( e -> getActiveEditor().surroundSelection(
+        .setAction( e -> insertMarkdown(
             "\n\n---\n\n", "" ) )
         .setDisable( activeFileEditorIsNull )
         .build();
@@ -1198,6 +1040,59 @@ public class MainWindow implements Observer {
     return new VBox( menuBar, toolBar );
   }
 
+
+  /**
+   * Creates the preferences dialog.
+   *
+   * @return A new instance of preferences for users to edit.
+   */
+  @SuppressWarnings("unchecked")
+  private PreferencesFx createPreferences() {
+    final ObjectProperty<File> rDirectory =
+        new SimpleObjectProperty<>( getRDirectory() );
+    final StringProperty rScript =
+        new SimpleStringProperty( getRScript() );
+
+    final ObjectProperty<File> imagesDirectory =
+        new SimpleObjectProperty<>( getImagesDirectory() );
+    final StringProperty imageOrder =
+        new SimpleStringProperty( getImagesOrder() );
+
+    final Setting<StringField, StringProperty> scriptSetting =
+        Setting.of( "Script", rScript );
+    final StringField field = scriptSetting.getElement();
+    field.multiline( true );
+
+    return PreferencesFx.of(
+        FilePreferences.class,
+        Category.of(
+            get( "Preferences.r" ),
+            Group.of(
+                get( "Preferences.r.directory" ),
+                Setting.of( label( "Preferences.r.directory.desc", false ) ),
+                Setting.of( "Directory", rDirectory, true )
+            ),
+            Group.of(
+                get( "Preferences.r.script" ),
+                Setting.of( label( "Preferences.r.script.desc" ) ),
+                scriptSetting
+            ) ),
+        Category.of(
+            get( "Preferences.images" ),
+            Group.of(
+                get( "Preferences.images.directory" ),
+                Setting.of( label( "Preferences.images.directory.desc" ) ),
+                Setting.of( "Directory", imagesDirectory, true )
+            ),
+            Group.of(
+                get( "Preferences.images.suffixes" ),
+                Setting.of( label( "Preferences.images.suffixes.desc" ) ),
+                Setting.of( "Extensions", imageOrder )
+            )
+        )
+    );
+  }
+
   /**
    * Creates a boolean property that is bound to another boolean value of the
    * active editor.
@@ -1228,25 +1123,6 @@ public class MainWindow implements Observer {
     return b;
   }
 
-  private void initLayout() {
-    final Scene appScene = getScene();
-
-    appScene.getStylesheets().add( STYLESHEET_SCENE );
-
-    // TODO: Apply an XML syntax highlighting for XML files.
-//    appScene.getStylesheets().add( STYLESHEET_XML );
-    appScene.windowProperty().addListener(
-        ( observable, oldWindow, newWindow ) ->
-            newWindow.setOnCloseRequest(
-                e -> {
-                  if( !getFileEditorPane().closeAllEditors() ) {
-                    e.consume();
-                  }
-                }
-            )
-    );
-  }
-
   /**
    * Creates a label for the given key after interpolating its value.
    *
@@ -1269,12 +1145,30 @@ public class MainWindow implements Observer {
     return new Label( get( key, interpolate ) );
   }
 
-  private void putPreference( final String key, final String value ) {
-    try {
-      getPreferences().put( key, value );
-    } catch( final Exception ex ) {
-      getNotifier().notify( ex );
-    }
+  //---- Convenience accessors ----------------------------------------------
+
+  private Preferences getPreferences() {
+    return getOptions().getState();
+  }
+
+  private float getFloat( final String key, final float defaultValue ) {
+    return getPreferences().getFloat( key, defaultValue );
+  }
+
+  public Window getWindow() {
+    return getScene().getWindow();
+  }
+
+  private MarkdownEditorPane getActiveEditor() {
+    final EditorPane pane = getActiveFileEditor().getEditorPane();
+
+    return pane instanceof MarkdownEditorPane
+        ? (MarkdownEditorPane) pane
+        : new MarkdownEditorPane();
+  }
+
+  private FileEditorTab getActiveFileEditor() {
+    return getFileEditorPane().getActiveFileEditor();
   }
 
   /**
@@ -1288,5 +1182,109 @@ public class MainWindow implements Observer {
   @SuppressWarnings("SameParameterValue")
   private String getSetting( final String key, final String value ) {
     return mSettings.getSetting( key, value );
+  }
+
+  //---- Member accessors ---------------------------------------------------
+
+  protected Scene getScene() {
+    return mScene;
+  }
+
+  private Map<FileEditorTab, Processor<String>> getProcessors() {
+    return mProcessors;
+  }
+
+  private FileEditorTabPane getFileEditorPane() {
+    if( this.fileEditorPane == null ) {
+      this.fileEditorPane = createFileEditorPane();
+    }
+
+    return this.fileEditorPane;
+  }
+
+  private HTMLPreviewPane getPreviewPane() {
+    return mPreviewPane;
+  }
+
+  private void setDefinitionSource( final DefinitionSource definitionSource ) {
+    assert definitionSource != null;
+    mDefinitionSource = definitionSource;
+  }
+
+  private DefinitionSource getDefinitionSource() {
+    return mDefinitionSource;
+  }
+
+  private DefinitionPane getDefinitionPane() {
+    return mDefinitionPane;
+  }
+
+  private Options getOptions() {
+    return mOptions;
+  }
+
+  private Snitch getSnitch() {
+    return mSnitch;
+  }
+
+  private Notifier getNotifier() {
+    return mNotifier;
+  }
+
+  private Text getLineNumberText() {
+    return mLineNumberText;
+  }
+
+  private StatusBar getStatusBar() {
+    return mStatusBar;
+  }
+
+  private TextField getFindTextField() {
+    return mFindTextField;
+  }
+
+  /**
+   * Returns the variable map of interpolated definitions.
+   *
+   * @return A map to help dereference variables.
+   */
+  private Map<String, String> getResolvedMap() {
+    return mResolvedMap;
+  }
+
+  //---- Persistence accessors ----------------------------------------------
+  private Path getDefinitionPath() {
+    final String source = getPreference( PERSIST_DEFINITION_SOURCE, "" );
+
+    return new File(
+        source.isBlank()
+            ? getSetting( "file.definition.default", "variables.yaml" )
+            : source
+    ).toPath();
+  }
+
+  private File getRDirectory() {
+    final String filename =
+        getPreference( PERSIST_R_DIRECTORY, USER_DIRECTORY );
+    return new File( filename );
+  }
+
+  private String getRScript() {
+    return getPreference( PERSIST_R_STARTUP, "" );
+  }
+
+  private File getImagesDirectory() {
+    final String filename =
+        getPreference( PERSIST_IMAGES_DIRECTORY, USER_DIRECTORY );
+    return new File( filename );
+  }
+
+  private String getImagesOrder() {
+    return getPreference(
+        PERSIST_IMAGES_EXTENSIONS, "svg pdf png jpg tiff" );
+  }
+
+  private String getPreference( final String key, final String defaultValue ) {
+    return getPreferences().get( key, defaultValue );
   }
 }

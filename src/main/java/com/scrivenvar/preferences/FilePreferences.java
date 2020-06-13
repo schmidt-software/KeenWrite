@@ -50,8 +50,8 @@ public class FilePreferences extends AbstractPreferences {
 
   private final Object mMutex = new Object();
 
-  public FilePreferences( final AbstractPreferences parent,
-                          final String name ) {
+  public FilePreferences(
+      final AbstractPreferences parent, final String name ) {
     super( parent, name );
 
     try {
@@ -135,10 +135,10 @@ public class FilePreferences extends AbstractPreferences {
         p.load( new FileInputStream( file ) );
 
         final String path = getPath();
-        final Enumeration<?> pnen = p.propertyNames();
+        final Enumeration<?> propertyNames = p.propertyNames();
 
-        while( pnen.hasMoreElements() ) {
-          final String propKey = (String) pnen.nextElement();
+        while( propertyNames.hasMoreElements() ) {
+          final String propKey = (String) propertyNames.nextElement();
 
           if( propKey.startsWith( path ) ) {
             final String subKey = propKey.substring( path.length() );
@@ -177,10 +177,10 @@ public class FilePreferences extends AbstractPreferences {
           final List<String> toRemove = new ArrayList<>();
 
           // Make a list of all direct children of this node to be removed
-          final Enumeration<?> pnen = p.propertyNames();
+          final Enumeration<?> propertyNames = p.propertyNames();
 
-          while( pnen.hasMoreElements() ) {
-            String propKey = (String) pnen.nextElement();
+          while( propertyNames.hasMoreElements() ) {
+            final String propKey = (String) propertyNames.nextElement();
             if( propKey.startsWith( path ) ) {
               final String subKey = propKey.substring( path.length() );
 
