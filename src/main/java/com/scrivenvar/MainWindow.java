@@ -642,6 +642,7 @@ public class MainWindow implements Observer {
     getActiveEditor().surroundSelection( leading, trailing );
   }
 
+  @SuppressWarnings("SameParameterValue")
   private void insertMarkdown(
       final String leading, final String trailing, final String hint ) {
     getActiveEditor().surroundSelection( leading, trailing, hint );
@@ -888,7 +889,7 @@ public class MainWindow implements Observer {
         .setAction( e -> getActiveEditor().surroundSelection(
             "\n\n```\n",
             "\n```\n\n",
-            "Main.menu.insert.fenced_code_block.prompt" ) )
+            get( "Main.menu.insert.fenced_code_block.prompt" ) ) )
         .setDisable( activeFileEditorIsNull )
         .build();
     final Action insertLinkAction = new ActionBuilder()
@@ -921,7 +922,7 @@ public class MainWindow implements Observer {
           .setText( text )
           .setAccelerator( accelerator )
           .setIcon( HEADER )
-          .setAction( e -> insertMarkdown( markup, "", prompt ) )
+          .setAction( e -> insertMarkdown( markup, "", get( prompt ) ) )
           .setDisable( activeFileEditorIsNull )
           .build();
     }
@@ -1040,9 +1041,12 @@ public class MainWindow implements Observer {
     return new VBox( menuBar, toolBar );
   }
 
-
   /**
    * Creates the preferences dialog.
+   * <p>
+   * TODO: Make this dynamic by iterating over all "Preferences.*" values
+   * that follow a particular naming pattern.
+   * </p>
    *
    * @return A new instance of preferences for users to edit.
    */
@@ -1111,11 +1115,11 @@ public class MainWindow implements Observer {
         ( observable, oldFileEditor, newFileEditor ) -> {
           b.unbind();
 
-          if( newFileEditor != null ) {
-            b.bind( func.apply( newFileEditor ) );
+          if( newFileEditor == null ) {
+            b.set( false );
           }
           else {
-            b.set( false );
+            b.bind( func.apply( newFileEditor ) );
           }
         }
     );
@@ -1141,6 +1145,7 @@ public class MainWindow implements Observer {
    * @return The value of the key, interpolated if {@code interpolate} is
    * {@code true}.
    */
+  @SuppressWarnings("SameParameterValue")
   private Node label( final String key, final boolean interpolate ) {
     return new Label( get( key, interpolate ) );
   }
