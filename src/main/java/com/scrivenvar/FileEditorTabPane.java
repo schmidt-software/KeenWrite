@@ -57,6 +57,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 import java.util.prefs.Preferences;
 import java.util.stream.Collectors;
 
@@ -85,11 +86,12 @@ public final class FileEditorTabPane extends TabPane {
       new ReadOnlyObjectWrapper<>();
   private final ReadOnlyBooleanWrapper anyFileEditorModified =
       new ReadOnlyBooleanWrapper();
+  private final Consumer<Double> mScrollEventObserver;
 
   /**
    * Constructs a new file editor tab pane.
    */
-  public FileEditorTabPane() {
+  public FileEditorTabPane( final Consumer<Double> scrollEventObserver ) {
     final ObservableList<Tab> tabs = getTabs();
 
     setFocusTraversable( false );
@@ -136,6 +138,8 @@ public final class FileEditorTabPane extends TabPane {
           modifiedListener.changed( null, null, null );
         }
     );
+
+    mScrollEventObserver = scrollEventObserver;
   }
 
   /**
@@ -186,6 +190,10 @@ public final class FileEditorTabPane extends TabPane {
     assert path != null;
 
     final FileEditorTab tab = new FileEditorTab( path );
+
+    tab.getEditorPane().getScrollPane().estimatedScrollYProperty().addObserver(
+        mScrollEventObserver
+    );
 
     tab.setOnCloseRequest( e -> {
       if( !canCloseEditor( tab ) ) {
@@ -572,7 +580,7 @@ public final class FileEditorTabPane extends TabPane {
     final String[] fileNames = Utils.getPrefsStrings( preferences, "file" );
     final String activeFileName = preferences.get( "activeFile", null );
 
-    final ArrayList<File> files = new ArrayList<>( fileNames.length );
+    final List<File> files = new ArrayList<>( fileNames.length );
 
     for( final String fileName : fileNames ) {
       final File file = new File( fileName );

@@ -483,7 +483,7 @@ public final class DefinitionPane extends TitledPane {
    * {@link TreeView}.
    */
   private List<TreeItem<String>> getSelectedItems() {
-    return new LinkedList<>( getSelectionModel().getSelectedItems() );
+    return new ArrayList<>( getSelectionModel().getSelectedItems() );
   }
 
   public TreeItem<String> getSelectedItem() {

@@ -93,8 +93,9 @@ public class EditorPane extends AbstractPane {
   }
 
   public void setText( final String text ) {
-    getEditor().deselect();
-    getEditor().replaceText( text );
+    final var editor = getEditor();
+    editor.deselect();
+    editor.replaceText( text );
     getUndoManager().mark();
   }
 

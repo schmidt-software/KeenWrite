@@ -40,9 +40,11 @@ dependencies {
   implementation 'de.jensd:fontawesomefx-commons:11.0'
   implementation 'de.jensd:fontawesomefx-fontawesome:4.7.0-11'
   implementation 'org.renjin:renjin-script-engine:3.5-beta76'
+  implementation 'org.xhtmlrenderer:flying-saucer-core:9.1.20'
+  implementation 'org.jsoup:jsoup:1.13.1'
 
   def os = ['win', 'linux', 'mac']
-  def fx = ['controls', 'graphics', 'web', 'fxml']
+  def fx = ['controls', 'graphics', 'web', 'fxml', 'swing']
 
   fx.each { fxitem ->
     os.each { ositem ->
@@ -56,7 +58,7 @@ dependencies {
 
 javafx {
   version = "14"
-  modules = ['javafx.controls', 'javafx.graphics', 'javafx.web']
+  modules = ['javafx.controls', 'javafx.graphics', 'javafx.web', 'javafx.swing']
 }
 
 compileJava {

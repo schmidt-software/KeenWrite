@@ -56,6 +56,7 @@ public class MarkdownProcessor extends AbstractProcessor<String> {
     extensions.add( TablesExtension.create() );
     extensions.add( SuperscriptExtension.create() );
     extensions.add( StrikethroughSubscriptExtension.create() );
+    extensions.add( ImageLinkExtension.create() );
 
     RENDERER = HtmlRenderer.builder().extensions( extensions ).build();
     PARSER = Parser.builder().extensions( extensions ).build();

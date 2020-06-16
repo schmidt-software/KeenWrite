@@ -77,6 +77,7 @@ import javafx.stage.WindowEvent;
 import javafx.util.Duration;
 import org.controlsfx.control.StatusBar;
 import org.fxmisc.richtext.model.TwoDimensional.Position;
+import org.renjin.repackaged.guava.util.concurrent.AtomicDouble;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -84,6 +85,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.prefs.Preferences;
 
@@ -115,7 +117,7 @@ public class MainWindow implements Observer {
 
   private DefinitionSource mDefinitionSource = createDefaultDefinitionSource();
   private final DefinitionPane mDefinitionPane = new DefinitionPane();
-  private final HTMLPreviewPane mPreviewPane = new HTMLPreviewPane();
+  private final HTMLPreviewPane mPreviewPane = createHTMLPreviewPane();
   private final PreferencesFx mPreferences;
   private FileEditorTabPane fileEditorPane;
 
@@ -164,6 +166,30 @@ public class MainWindow implements Observer {
           event.consume();
         }
       };
+
+  /**
+   * Called to synchronize the scrolling areas.
+   */
+  private final Consumer<Double> mScrollEventObserver = o -> {
+    final var eScrollPane = getActiveEditor().getScrollPane();
+    final var eScrollY = eScrollPane.estimatedScrollYProperty().getValue();
+    final var eHeight = eScrollPane
+        .totalHeightEstimateProperty()
+        .getOrElse( 0. ) - eScrollPane.getHeight();
+    final double eRatio =
+        (eHeight > 0) ? Math.min( Math.max( eScrollY / eHeight, 0 ), 1 ) : 0;
+
+    final var pPreviewPane = getPreviewPane();
+    final var pScrollBar = pPreviewPane.getVerticalScrollBar();
+    final var pHeight = pScrollBar.getMaximum() - pScrollBar.getHeight();
+    final var pScrollY = (int) (pHeight * eRatio);
+    final var pScrollPane = pPreviewPane.getScrollPane();
+
+    Platform.runLater( () -> {
+      pScrollBar.setValue( pScrollY );
+      pScrollPane.repaint();
+    } );
+  };
 
   public MainWindow() {
     mStatusBar = createStatusBar();
@@ -286,7 +312,7 @@ public class MainWindow implements Observer {
                 final FileEditorTab tab = (FileEditorTab) newTab;
 
                 initTextChangeListener( tab );
-                initCaretParagraphListener( tab );
+                //initCaretParagraphListener( tab );
                 initKeyboardEventListeners( tab );
 //              initSyntaxListener( tab );
               }
@@ -580,6 +606,10 @@ public class MainWindow implements Observer {
     getFileEditorPane().closeEditor( getActiveFileEditor(), true );
   }
 
+  /**
+   * TODO: Upon closing, first remove the tab change listeners. (There's no
+   * need to re-render each tab when all are being closed.)
+   */
   private void fileCloseAll() {
     getFileEditorPane().closeAllEditors();
   }
@@ -677,6 +707,10 @@ public class MainWindow implements Observer {
     return new ProcessorFactory( getPreviewPane(), getResolvedMap() );
   }
 
+  private HTMLPreviewPane createHTMLPreviewPane() {
+    return new HTMLPreviewPane();
+  }
+
   private DefinitionSource createDefaultDefinitionSource() {
     return new YamlDefinitionSource( getDefinitionPath() );
   }
@@ -700,7 +734,7 @@ public class MainWindow implements Observer {
    * @return A new instance, never null.
    */
   private FileEditorTabPane createFileEditorPane() {
-    return new FileEditorTabPane();
+    return new FileEditorTabPane( mScrollEventObserver );
   }
 
   private DefinitionFactory createDefinitionFactory() {

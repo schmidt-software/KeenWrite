@@ -42,7 +42,7 @@ ruby, section, summary, time, mark, audio, video {
 =============================================================================*/
 
 body {
-  font-family: Helvetica, arial, freesans, clean, sans-serif;
+  font-family: serif;
   font-size: 14px;
   line-height: 1.6;
   color: #333;
@@ -311,27 +311,4 @@ table tr:nth-child(2n) {
 
 img {
   max-width: 100%
-}
-
-/* CARET 
-=============================================================================*/
-
-#CARETPOSITION {
-  border-top: 2px solid #333;
-  border-bottom: 2px solid #333;
-  border-right: 1px solid #333;
-  margin-right:-1px;
-  animation: blink 1s linear infinite;
-}
-
-@keyframes blink {
-  from {
-    visibility:hidden;
-  }
-  50% {
-    visibility:hidden;
-  }
-  to {
-    visibility:visible;
-  }
 }

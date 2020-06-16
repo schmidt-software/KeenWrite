@@ -351,18 +351,15 @@ public final class FileEditorTab extends Tab {
    * @return The character encoding.
    */
   private Charset detectEncoding( final byte[] bytes ) {
-    final UniversalDetector detector = new UniversalDetector( null );
+    final var detector = new UniversalDetector( null );
     detector.handleData( bytes, 0, bytes.length );
     detector.dataEnd();
 
     final String charset = detector.getDetectedCharset();
-    final Charset charEncoding = charset == null
+
+    return charset == null
         ? Charset.defaultCharset()
         : Charset.forName( charset.toUpperCase( ENGLISH ) );
-
-    detector.reset();
-
-    return charEncoding;
   }
 
   /**
