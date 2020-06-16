@@ -30,9 +30,7 @@ package com.scrivenvar.processors;
 import com.scrivenvar.AbstractFileFactory;
 import com.scrivenvar.FileEditorTab;
 import com.scrivenvar.preview.HTMLPreviewPane;
-import com.scrivenvar.processors.markdown.MarkdownCaretInsertionProcessor;
 import com.scrivenvar.processors.markdown.MarkdownProcessor;
-import javafx.beans.value.ObservableValue;
 
 import java.nio.file.Path;
 import java.util.Map;
@@ -47,7 +45,7 @@ public class ProcessorFactory extends AbstractFileFactory {
 
   private final HTMLPreviewPane mPreviewPane;
   private final Map<String, String> mResolvedMap;
-  private final Processor<String> mCommonProcessor;
+  private final Processor<String> mMarkdownProcessor;
 
   /**
    * Constructs a factory with the ability to create processors that can perform
@@ -61,7 +59,7 @@ public class ProcessorFactory extends AbstractFileFactory {
       final Map<String, String> resolvedMap ) {
     mPreviewPane = previewPane;
     mResolvedMap = resolvedMap;
-    mCommonProcessor = createCommonProcessor();
+    mMarkdownProcessor = createMarkdownProcessor();
   }
 
   /**
@@ -77,11 +75,11 @@ public class ProcessorFactory extends AbstractFileFactory {
 
     switch( lookup( path ) ) {
       case RMARKDOWN:
-        processor = createRProcessor( tab );
+        processor = createRProcessor();
         break;
 
       case SOURCE:
-        processor = createMarkdownProcessor( tab );
+        processor = createMarkdownDefinitionProcessor();
         break;
 
       case XML:
@@ -100,21 +98,22 @@ public class ProcessorFactory extends AbstractFileFactory {
     return processor;
   }
 
+  private Processor<String> createHTMLPreviewProcessor() {
+    return new HTMLPreviewProcessor( getPreviewPane() );
+  }
+
   /**
    * Creates and links the processors at the end of the processing chain.
    *
    * @return A markdown, caret replacement, and preview pane processor chain.
    */
-  private Processor<String> createCommonProcessor() {
-    final var hpp = new HTMLPreviewProcessor( getPreviewPane() );
-    final var mcrp = new CaretReplacementProcessor( hpp );
-
-    return new MarkdownProcessor( mcrp );
+  private Processor<String> createMarkdownProcessor() {
+    final var hpp = createHTMLPreviewProcessor();
+    return new MarkdownProcessor( hpp );
   }
 
   protected Processor<String> createIdentityProcessor() {
-    final var hpp = new HTMLPreviewProcessor( getPreviewPane() );
-
+    final var hpp = createHTMLPreviewProcessor();
     return new IdentityProcessor( hpp );
   }
 
@@ -123,66 +122,28 @@ public class ProcessorFactory extends AbstractFileFactory {
     return new DefinitionProcessor( p, getResolvedMap() );
   }
 
-  protected Processor<String> createMarkdownProcessor(
-      final FileEditorTab tab ) {
-    final var caret = tab.caretPositionProperty();
+  protected Processor<String> createMarkdownDefinitionProcessor() {
     final var tpc = getCommonProcessor();
-    final var cip = createMarkdownInsertionProcessor( tpc, caret );
-
-    return createDefinitionProcessor( cip );
+    return createDefinitionProcessor( tpc );
   }
 
   protected Processor<String> createXMLProcessor( final FileEditorTab tab ) {
-    final var caret = tab.caretPositionProperty();
     final var tpc = getCommonProcessor();
     final var xmlp = new XMLProcessor( tpc, tab.getPath() );
-    final var dp = createDefinitionProcessor( xmlp );
-
-    return createXMLInsertionProcessor( dp, caret );
+    return createDefinitionProcessor( xmlp );
   }
 
-  protected Processor<String> createRProcessor( final FileEditorTab tab ) {
-    final var caret = tab.caretPositionProperty();
+  protected Processor<String> createRProcessor() {
     final var tpc = getCommonProcessor();
     final var rp = new InlineRProcessor( tpc, getResolvedMap() );
-    final var rvp = new RVariableProcessor( rp, getResolvedMap() );
-
-    return createRInsertionProcessor( rvp, caret );
+    return new RVariableProcessor( rp, getResolvedMap() );
   }
 
   protected Processor<String> createRXMLProcessor( final FileEditorTab tab ) {
-    final var caret = tab.caretPositionProperty();
     final var tpc = getCommonProcessor();
     final var xmlp = new XMLProcessor( tpc, tab.getPath() );
     final var rp = new InlineRProcessor( xmlp, getResolvedMap() );
-    final var rvp = new RVariableProcessor( rp, getResolvedMap() );
-
-    return createXMLInsertionProcessor( rvp, caret );
-  }
-
-  private Processor<String> createMarkdownInsertionProcessor(
-      final Processor<String> tpc, final ObservableValue<Integer> caret ) {
-    return new MarkdownCaretInsertionProcessor( tpc, caret );
-  }
-
-  /**
-   * Create an insertion processor that is aware of R statements and will insert
-   * a caret outside of any statement the caret falls within.
-   *
-   * @param processor Another link in the processor chain.
-   * @param caret     The caret insertion point.
-   * @return A processor that can insert a caret token without disturbing any R
-   * code.
-   */
-  private Processor<String> createRInsertionProcessor(
-      final Processor<String> processor,
-      final ObservableValue<Integer> caret ) {
-    return new RMarkdownCaretInsertionProcessor( processor, caret );
-  }
-
-  private Processor<String> createXMLInsertionProcessor(
-      final Processor<String> tpc, final ObservableValue<Integer> caret ) {
-    return new XMLCaretInsertionProcessor( tpc, caret );
+    return new RVariableProcessor( rp, getResolvedMap() );
   }
 
   private HTMLPreviewPane getPreviewPane() {
@@ -205,6 +166,6 @@ public class ProcessorFactory extends AbstractFileFactory {
    * @return Processors at the end of the processing chain.
    */
   private Processor<String> getCommonProcessor() {
-    return mCommonProcessor;
+    return mMarkdownProcessor;
   }
 }

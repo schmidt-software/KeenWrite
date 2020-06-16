@@ -76,10 +76,6 @@ public class Constants {
   public static final String FILE_LOGO_256 = get( "file.logo.256" );
   public static final String FILE_LOGO_512 = get( "file.logo.512" );
 
-  public static final String CARET_POSITION_BASE = get( "caret.token.base" );
-  public static final String CARET_POSITION_MD = get( "caret.token.markdown" );
-  public static final String CARET_POSITION_HTML = get( "caret.token.html" );
-
   public static final String PREFS_ROOT = get( "preferences.root" );
   public static final String PREFS_STATE = get( "preferences.root.state" );
   public static final String PREFS_OPTIONS = get( "preferences.root.options" );

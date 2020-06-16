@@ -39,7 +39,6 @@ import org.xhtmlrenderer.simple.extend.XhtmlNamespaceHandler;
 import javax.swing.*;
 import java.nio.file.Path;
 
-import static com.scrivenvar.Constants.CARET_POSITION_BASE;
 import static com.scrivenvar.Constants.STYLESHEET_PREVIEW;
 
 /**
@@ -48,13 +47,12 @@ import static com.scrivenvar.Constants.STYLESHEET_PREVIEW;
  * @author Karl Tauber and White Magic Software, Ltd.
  */
 public final class HTMLPreviewPane extends Pane {
-  final W3CDom mW3cDom = new W3CDom();
-  final XhtmlNamespaceHandler mNamespaceHandler = new XhtmlNamespaceHandler();
-  final XHTMLPanel mRenderer = new XHTMLPanel();
-  final SwingNode mSwingNode = new SwingNode();
-  final JScrollPane mScrollPane = new JScrollPane( mRenderer );
+  private final W3CDom mW3cDom = new W3CDom();
+  private final XhtmlNamespaceHandler mNamespaceHandler = new XhtmlNamespaceHandler();
+  private final XHTMLPanel mRenderer = new XHTMLPanel();
+  private final SwingNode mSwingNode = new SwingNode();
+  private final JScrollPane mScrollPane = new JScrollPane( mRenderer );
 
-  //private final WebView mWebView = new WebView();
   private Path mPath;
 
   /**
@@ -64,42 +62,6 @@ public final class HTMLPreviewPane extends Pane {
   public HTMLPreviewPane() {
     mSwingNode.setContent( mScrollPane );
     mRenderer.getSharedContext().getTextRenderer().setSmoothingThreshold( 0 );
-    initListeners();
-    //initTraversal();
-  }
-
-  /**
-   * Initializes observers for document changes. When the document is reloaded
-   * with new HTML, this triggers a scroll event that repositions the document
-   * to the injected caret (that corresponds with the position in the text
-   * editor).
-   */
-  private void initListeners() {
-    // Scrolls to the caret after the content has been loaded.
-//    getEngine().getLoadWorker().stateProperty().addListener(
-//        ( ObservableValue<? extends State> observable,
-//          final State oldValue, final State newValue ) -> {
-//          if( newValue == SUCCEEDED ) {
-//            scrollToCaret();
-//          }
-//        } );
-  }
-
-  private String getBaseUrl() {
-    final Path basePath = getPath();
-    final Path parent = basePath == null ? null : basePath.getParent();
-
-    return parent == null ? "" : parent.toUri().toString();
-  }
-
-  /**
-   * Ensures images can be found relative to the document.
-   *
-   * @return The base path element to use for the document, or the empty string
-   * if no path has been set, yet.
-   */
-  private String getBaseElement() {
-    return "<base href='" + getBaseUrl() + "'/>";
   }
 
   /**
@@ -120,7 +82,6 @@ public final class HTMLPreviewPane extends Pane {
       + "<head>"
       + "<link rel='stylesheet' href='" +
       HTMLPreviewPane.class.getResource( STYLESHEET_PREVIEW ) + "'/>"
-//            + getBase()
       + "</head>"
       + "<body>";
   private final static String HTML_FOOTER = "</body></html>";
@@ -142,56 +103,20 @@ public final class HTMLPreviewPane extends Pane {
     update( "" );
   }
 
-  /**
-   * Scrolls to the caret position in the document.
-   */
-//  private void scrollToCaret() {
-//    execute( getScrollScript() );
-//  }
+  private String getBaseUrl() {
+    final Path basePath = getPath();
+    final Path parent = basePath == null ? null : basePath.getParent();
 
-  /**
-   * Returns the JavaScript used to scroll the WebView pane.
-   *
-   * @return A script that tries to center the view port on the CARET POSITION.
-   */
-  private String getScrollScript() {
-    return ""
-        + "var e = document.getElementById('" + CARET_POSITION_BASE + "');"
-        + "if( e != null ) { "
-        + "  Element.prototype.topOffset = function () {"
-        + "    return this.offsetTop + (this.offsetParent ? this.offsetParent" +
-        ".topOffset() : 0);"
-        + "  };"
-        + "  window.scrollTo( 0, e.topOffset() - (window.innerHeight / 2 ) );"
-        + "}";
+    return parent == null ? "" : parent.toUri().toString();
   }
 
-  /**
-   * Prevent tabbing into the preview pane.
-   */
-//  private void initTraversal() {
-//    getWebView().setFocusTraversable( false );
-//  }
-//
-//  private void execute( final String script ) {
-//    getEngine().executeScript( script );
-//  }
-
-//  private WebEngine getEngine() {
-//    return getWebView().getEngine();
-//  }
-//
-//  private WebView getWebView() {
-//    return mWebView;
-//  }
   private Path getPath() {
-    return this.mPath;
+    return mPath;
   }
 
   public void setPath( final Path path ) {
     assert path != null;
-
-    this.mPath = path;
+    mPath = path;
   }
 
   /**
@@ -201,7 +126,6 @@ public final class HTMLPreviewPane extends Pane {
    */
   public Node getNode() {
     return mSwingNode;
-    //return getWebView();
   }
 
   public JScrollPane getScrollPane() {
