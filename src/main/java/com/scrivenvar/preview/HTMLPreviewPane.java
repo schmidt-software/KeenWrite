@@ -47,9 +47,19 @@ import static com.scrivenvar.Constants.STYLESHEET_PREVIEW;
  * @author Karl Tauber and White Magic Software, Ltd.
  */
 public final class HTMLPreviewPane extends Pane {
+  private static class HTMLPanel extends XHTMLPanel {
+    /**
+     * Prevent scrolling to the top.
+     */
+    @Override
+    public void resetScrollPosition() {
+    }
+  }
+
   private final W3CDom mW3cDom = new W3CDom();
-  private final XhtmlNamespaceHandler mNamespaceHandler = new XhtmlNamespaceHandler();
-  private final XHTMLPanel mRenderer = new XHTMLPanel();
+  private final XhtmlNamespaceHandler mNamespaceHandler =
+      new XhtmlNamespaceHandler();
+  private final HTMLPanel mRenderer = new HTMLPanel();
   private final SwingNode mSwingNode = new SwingNode();
   private final JScrollPane mScrollPane = new JScrollPane( mRenderer );
 

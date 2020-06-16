@@ -44,7 +44,7 @@ dependencies {
   implementation 'org.jsoup:jsoup:1.13.1'
 
   def os = ['win', 'linux', 'mac']
-  def fx = ['controls', 'graphics', 'web', 'fxml', 'swing']
+  def fx = ['controls', 'graphics', 'fxml', 'swing']
 
   fx.each { fxitem ->
     os.each { ositem ->
@@ -58,7 +58,7 @@ dependencies {
 
 javafx {
   version = "14"
-  modules = ['javafx.controls', 'javafx.graphics', 'javafx.web', 'javafx.swing']
+  modules = ['javafx.controls', 'javafx.graphics', 'javafx.swing']
 }
 
 compileJava {

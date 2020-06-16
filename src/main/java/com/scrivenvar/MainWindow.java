@@ -77,7 +77,6 @@ import javafx.stage.WindowEvent;
 import javafx.util.Duration;
 import org.controlsfx.control.StatusBar;
 import org.fxmisc.richtext.model.TwoDimensional.Position;
-import org.renjin.repackaged.guava.util.concurrent.AtomicDouble;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -85,6 +84,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.prefs.Preferences;
@@ -138,18 +139,18 @@ public class MainWindow implements Observer {
   /**
    * Called when the definition data is changed.
    */
-  final EventHandler<TreeItem.TreeModificationEvent<Event>> mTreeHandler =
-      event -> {
-        exportDefinitions( getDefinitionPath() );
-        interpolateResolvedMap();
-        refreshActiveTab();
-      };
+  private final EventHandler<TreeItem.TreeModificationEvent<Event>>
+      mTreeHandler = event -> {
+    exportDefinitions( getDefinitionPath() );
+    interpolateResolvedMap();
+    refreshActiveTab();
+  };
 
   /**
    * Called to inject the selected item when the user presses ENTER in the
    * definition pane.
    */
-  final EventHandler<? super KeyEvent> mDefinitionKeyHandler =
+  private final EventHandler<? super KeyEvent> mDefinitionKeyHandler =
       event -> {
         if( event.getCode() == ENTER ) {
           getVariableNameInjector().injectSelectedItem();
@@ -159,7 +160,7 @@ public class MainWindow implements Observer {
   /**
    * Called to switch to the definition pane when the user presses TAB.
    */
-  final EventHandler<? super KeyEvent> mEditorKeyHandler =
+  private final EventHandler<? super KeyEvent> mEditorKeyHandler =
       (EventHandler<KeyEvent>) event -> {
         if( event.getCode() == TAB ) {
           getDefinitionPane().requestFocus();
@@ -167,17 +168,21 @@ public class MainWindow implements Observer {
         }
       };
 
+  private final Object mMutex = new Object();
+  private final AtomicInteger mScrollRatio = new AtomicInteger( 0 );
+
   /**
    * Called to synchronize the scrolling areas.
    */
   private final Consumer<Double> mScrollEventObserver = o -> {
     final var eScrollPane = getActiveEditor().getScrollPane();
-    final var eScrollY = eScrollPane.estimatedScrollYProperty().getValue();
-    final var eHeight = eScrollPane
-        .totalHeightEstimateProperty()
-        .getOrElse( 0. ) - eScrollPane.getHeight();
-    final double eRatio =
-        (eHeight > 0) ? Math.min( Math.max( eScrollY / eHeight, 0 ), 1 ) : 0;
+    final int eScrollY = eScrollPane
+        .estimatedScrollYProperty().getValue().intValue();
+    final int eHeight = (int) (eScrollPane
+        .totalHeightEstimateProperty().getValue().intValue()
+        - eScrollPane.getHeight());
+    final double eRatio = eHeight > 0
+        ? Math.min( Math.max( eScrollY / (float) eHeight, 0 ), 1 ) : 0;
 
     final var pPreviewPane = getPreviewPane();
     final var pScrollBar = pPreviewPane.getVerticalScrollBar();
@@ -185,10 +190,19 @@ public class MainWindow implements Observer {
     final var pScrollY = (int) (pHeight * eRatio);
     final var pScrollPane = pPreviewPane.getScrollPane();
 
-    Platform.runLater( () -> {
-      pScrollBar.setValue( pScrollY );
-      pScrollPane.repaint();
-    } );
+    final int oldScrollY = mScrollRatio.getAndSet( pScrollY );
+    final int delta = Math.abs( oldScrollY - pScrollY );
+
+    if( delta > 33 ) {
+      // Prevent concurrent modification exceptions when attempting to
+      // set the vertical scroll bar position.
+      synchronized( mMutex ) {
+        Platform.runLater( () -> {
+          pScrollBar.setValue( pScrollY );
+          pScrollPane.repaint();
+        } );
+      }
+    }
   };
 
   public MainWindow() {
