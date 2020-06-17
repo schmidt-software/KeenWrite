@@ -30,13 +30,12 @@ package com.scrivenvar.definition;
 import com.scrivenvar.AbstractFileFactory;
 import com.scrivenvar.FileType;
 import com.scrivenvar.definition.yaml.YamlDefinitionSource;
+import com.scrivenvar.util.ProtocolResolver;
 
-import java.io.File;
-import java.net.URI;
-import java.net.URL;
 import java.nio.file.Path;
 
-import static com.scrivenvar.Constants.*;
+import static com.scrivenvar.Constants.DEFINITION_PROTOCOL_FILE;
+import static com.scrivenvar.Constants.GLOB_PREFIX_DEFINITION;
 import static com.scrivenvar.FileType.YAML;
 
 /**
@@ -64,7 +63,7 @@ public class DefinitionFactory extends AbstractFileFactory {
   public DefinitionSource createDefinitionSource( final Path path ) {
     assert path != null;
 
-    final String protocol = getProtocol( path.toString() );
+    final String protocol = ProtocolResolver.getProtocol( path.toString() );
     DefinitionSource result = null;
 
     if( DEFINITION_PROTOCOL_FILE.equals( protocol ) ) {
@@ -95,56 +94,5 @@ public class DefinitionFactory extends AbstractFileFactory {
     }
 
     throw new IllegalArgumentException( filetype.toString() );
-  }
-
-  /**
-   * Returns the protocol for a given URI or filename.
-   *
-   * @param source Determine the protocol for this URI or filename.
-   * @return The protocol for the given source.
-   */
-  private String getProtocol( final String source ) {
-    String protocol;
-
-    try {
-      final URI uri = new URI( source );
-
-      if( uri.isAbsolute() ) {
-        protocol = uri.getScheme();
-      }
-      else {
-        final URL url = new URL( source );
-        protocol = url.getProtocol();
-      }
-    } catch( final Exception e ) {
-      // Could be HTTP, HTTPS?
-      if( source.startsWith( "//" ) ) {
-        throw new IllegalArgumentException( "Relative context: " + source );
-      }
-      else {
-        final File file = new File( source );
-        protocol = getProtocol( file );
-      }
-    }
-
-    return protocol;
-  }
-
-  /**
-   * Returns the protocol for a given file.
-   *
-   * @param file Determine the protocol for this file.
-   * @return The protocol for the given file.
-   */
-  private String getProtocol( final File file ) {
-    String result;
-
-    try {
-      result = file.toURI().toURL().getProtocol();
-    } catch( final Exception e ) {
-      result = DEFINITION_PROTOCOL_UNKNOWN;
-    }
-
-    return result;
   }
 }

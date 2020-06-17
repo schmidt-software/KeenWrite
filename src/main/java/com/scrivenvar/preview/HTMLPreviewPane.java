@@ -35,6 +35,7 @@ import org.jsoup.helper.W3CDom;
 import org.jsoup.nodes.Document;
 import org.xhtmlrenderer.simple.XHTMLPanel;
 import org.xhtmlrenderer.simple.extend.XhtmlNamespaceHandler;
+import org.xhtmlrenderer.swing.SwingReplacedElementFactory;
 
 import javax.swing.*;
 import java.nio.file.Path;
@@ -56,6 +57,18 @@ public final class HTMLPreviewPane extends Pane {
     }
   }
 
+  private final static String HTML_HEADER = "<!DOCTYPE html>"
+      + "<html>"
+      + "<head>"
+      + "<link rel='stylesheet' href='" +
+      HTMLPreviewPane.class.getResource( STYLESHEET_PREVIEW ) + "'/>"
+      + "</head>"
+      + "<body>";
+  private final static String HTML_FOOTER = "</body></html>";
+
+  private final StringBuilder mHtml = new StringBuilder( 65536 );
+  private final int mHtmlPrefixLength;
+
   private final W3CDom mW3cDom = new W3CDom();
   private final XhtmlNamespaceHandler mNamespaceHandler =
       new XhtmlNamespaceHandler();
@@ -70,8 +83,17 @@ public final class HTMLPreviewPane extends Pane {
    * document.
    */
   public HTMLPreviewPane() {
-    mSwingNode.setContent( mScrollPane );
+    final ChainedReplacedElementFactory factory =
+        new ChainedReplacedElementFactory();
+    factory.addFactory( new SVGReplacedElementFactory() );
+    factory.addFactory( new SwingReplacedElementFactory() );
+
+    mRenderer.getSharedContext().setReplacedElementFactory( factory );
     mRenderer.getSharedContext().getTextRenderer().setSmoothingThreshold( 0 );
+    mSwingNode.setContent( mScrollPane );
+
+    mHtml.append( HTML_HEADER );
+    mHtmlPrefixLength = mHtml.length();
   }
 
   /**
@@ -87,23 +109,11 @@ public final class HTMLPreviewPane extends Pane {
     mRenderer.setDocument( w3cDoc, getBaseUrl(), mNamespaceHandler );
   }
 
-  private final static String HTML_HEADER = "<!DOCTYPE html>"
-      + "<html>"
-      + "<head>"
-      + "<link rel='stylesheet' href='" +
-      HTMLPreviewPane.class.getResource( STYLESHEET_PREVIEW ) + "'/>"
-      + "</head>"
-      + "<body>";
-  private final static String HTML_FOOTER = "</body></html>";
-
-  private final StringBuilder htmlDoc = new StringBuilder( 65536 );
-
   private String decorate( final String html ) {
-    htmlDoc.setLength( 0 );
-    return htmlDoc.append( HTML_HEADER )
-                  .append( html )
-                  .append( HTML_FOOTER )
-                  .toString();
+    mHtml.setLength( mHtmlPrefixLength );
+    return mHtml.append( html )
+                .append( HTML_FOOTER )
+                .toString();
   }
 
   /**

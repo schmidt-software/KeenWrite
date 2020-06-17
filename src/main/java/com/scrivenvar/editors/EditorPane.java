@@ -28,26 +28,22 @@
 package com.scrivenvar.editors;
 
 import com.scrivenvar.AbstractPane;
-
-import java.nio.file.Path;
-import java.util.function.Consumer;
-
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.event.Event;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.input.InputEvent;
 import org.fxmisc.flowless.VirtualizedScrollPane;
 import org.fxmisc.richtext.StyleClassedTextArea;
 import org.fxmisc.undo.UndoManager;
 import org.fxmisc.wellbehaved.event.EventPattern;
-import org.fxmisc.wellbehaved.event.InputMap;
+import org.fxmisc.wellbehaved.event.Nodes;
+
+import java.nio.file.Path;
+import java.util.function.Consumer;
 
 import static org.fxmisc.wellbehaved.event.InputMap.consume;
-
-import org.fxmisc.wellbehaved.event.Nodes;
 
 /**
  * Represents common editing features for various types of text editors.
@@ -61,11 +57,6 @@ public class EditorPane extends AbstractPane {
   private final VirtualizedScrollPane<StyleClassedTextArea> mScrollPane =
       new VirtualizedScrollPane<>( mEditor );
   private final ObjectProperty<Path> mPath = new SimpleObjectProperty<>();
-
-  /**
-   * Set when entering variable edit mode; retrieved upon exiting.
-   */
-  private InputMap<InputEvent> mNodeMap;
 
   public EditorPane() {
     getScrollPane().setVbarPolicy( ScrollPane.ScrollBarPolicy.ALWAYS );
@@ -131,48 +122,6 @@ public class EditorPane extends AbstractPane {
       final EventPattern<? super T, ? extends U> event,
       final Consumer<? super U> consumer ) {
     Nodes.addInputMap( getEditor(), consume( event, consumer ) );
-  }
-
-  /**
-   * This method adds listeners to editor events that can be removed without
-   * affecting the original listeners (i.e., the original lister is restored on
-   * a call to removeEventListener).
-   *
-   * @param map The map of methods to events.
-   */
-  @SuppressWarnings("unchecked")
-  public void addEventListener( final InputMap<InputEvent> map ) {
-    mNodeMap = (InputMap<InputEvent>) getInputMap();
-    Nodes.addInputMap( getEditor(), map );
-  }
-
-  /**
-   * This method removes listeners to editor events and restores the default
-   * handler.
-   *
-   * @param map The map of methods to events.
-   */
-  public void removeEventListener( final InputMap<InputEvent> map ) {
-    Nodes.removeInputMap( getEditor(), map );
-    Nodes.addInputMap( getEditor(), mNodeMap );
-  }
-
-  /**
-   * Returns the value for "org.fxmisc.wellbehaved.event.inputmap".
-   *
-   * @return An input map of input events.
-   */
-  private Object getInputMap() {
-    return getEditor().getProperties().get( getInputMapKey() );
-  }
-
-  /**
-   * Returns the hashmap key entry for the input map.
-   *
-   * @return "org.fxmisc.wellbehaved.event.inputmap"
-   */
-  private String getInputMapKey() {
-    return "org.fxmisc.wellbehaved.event.inputmap";
   }
 
   /**
