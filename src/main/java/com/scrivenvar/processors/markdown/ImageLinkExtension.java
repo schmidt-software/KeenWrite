@@ -28,7 +28,9 @@
 package com.scrivenvar.processors.markdown;
 
 import com.scrivenvar.Services;
+import com.scrivenvar.preferences.UserPreferences;
 import com.scrivenvar.service.Options;
+import com.scrivenvar.service.events.Notifier;
 import com.vladsch.flexmark.ast.Image;
 import com.vladsch.flexmark.html.HtmlRenderer;
 import com.vladsch.flexmark.html.IndependentLinkResolverFactory;
@@ -39,10 +41,11 @@ import com.vladsch.flexmark.html.renderer.ResolvedLink;
 import com.vladsch.flexmark.util.ast.Node;
 import com.vladsch.flexmark.util.data.MutableDataHolder;
 import org.jetbrains.annotations.NotNull;
+import org.renjin.repackaged.guava.base.Splitter;
 
-import java.util.prefs.Preferences;
+import java.io.File;
 
-import static com.scrivenvar.Constants.PERSIST_IMAGES_DIRECTORY;
+import static java.lang.String.format;
 
 /**
  * Responsible for ensuring that images can be rendered relative to a path.
@@ -51,7 +54,8 @@ import static com.scrivenvar.Constants.PERSIST_IMAGES_DIRECTORY;
  * @author White Magic Software, Ltd.
  */
 public class ImageLinkExtension implements HtmlRenderer.HtmlRendererExtension {
-  private final Options mOptions = Services.load( Options.class );
+  private final static Options OPTIONS = Services.load( Options.class );
+  private final static Notifier NOTIFIER = Services.load( Notifier.class );
 
   public static ImageLinkExtension create() {
     return new ImageLinkExtension();
@@ -66,6 +70,11 @@ public class ImageLinkExtension implements HtmlRenderer.HtmlRendererExtension {
   }
 
   private class ImageLinkResolver implements LinkResolver {
+    private final UserPreferences mUserPref = getUserPreferences();
+    private final String mImagePrefix = mUserPref.getImagesDirectory()
+                                                 .toString();
+    private final String mImageuffixes = mUserPref.getImagesOrder();
+
     public ImageLinkResolver() {
     }
 
@@ -83,30 +92,37 @@ public class ImageLinkExtension implements HtmlRenderer.HtmlRendererExtension {
     @NotNull
     private ResolvedLink resolve(
         @NotNull final Image image, @NotNull final ResolvedLink link ) {
-      final String url = link.getUrl();
+      String url = link.getUrl();
 
       try {
-        final Preferences p = getPreferences();
-        final String prefix = p.get( PERSIST_IMAGES_DIRECTORY, "" );
+        final String filename = format( "%s/%s", getImagePrefix(), url );
+        final String suffixes = getImageSuffixes();
 
-        System.out.printf( "prefix = %s%n", prefix );
+        for( final String ext : Splitter.on( ' ' ).split( suffixes ) ) {
+          final File file = new File( format( "%s.%s", filename, ext ) );
 
-        //URI uri = new URI( url );
+          if( file.exists() ) {
+            url = file.toString();
+            break;
+          }
+        }
 
-//        System.out.println( "image: " + image.toString() );
-//        System.out.println( "Absolute: " + uri.isAbsolute() );
-//        System.out.println( "Host: " + uri.getHost() );
+        System.out.println( "URL: " + url );
 
-        final String imageUrl = link.getUrl();
-
-        return link.withStatus( LinkStatus.VALID )
-                   .withUrl( imageUrl );
-
+        return link.withStatus( LinkStatus.VALID ).withUrl( url );
       } catch( final Exception e ) {
-        System.out.println( "Bad URI: " + url );
+        getNotifier().notify( e );
       }
 
       return link;
+    }
+
+    private String getImagePrefix() {
+      return mImagePrefix;
+    }
+
+    private String getImageSuffixes() {
+      return mImageuffixes;
     }
   }
 
@@ -124,11 +140,15 @@ public class ImageLinkExtension implements HtmlRenderer.HtmlRendererExtension {
     rendererBuilder.linkResolverFactory( new Factory() );
   }
 
-  private Preferences getPreferences() {
-    return getOptions().getState();
+  private UserPreferences getUserPreferences() {
+    return getOptions().getUserPreferences();
   }
 
   private Options getOptions() {
-    return mOptions;
+    return OPTIONS;
+  }
+
+  private Notifier getNotifier() {
+    return NOTIFIER;
   }
 }

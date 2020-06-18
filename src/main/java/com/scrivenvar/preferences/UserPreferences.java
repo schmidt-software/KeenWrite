@@ -137,7 +137,7 @@ public class UserPreferences {
             Group.of(
                 get( "Preferences.definitions.path" ),
                 Setting.of( label( "Preferences.definitions.path.desc" ) ),
-                Setting.of( "Path", mPropDefinitionPath, true )
+                Setting.of( "Path", mPropDefinitionPath, false )
             )
         )
     );
