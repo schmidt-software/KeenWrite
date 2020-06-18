@@ -78,7 +78,6 @@ public class Constants {
 
   public static final String PREFS_ROOT = get( "preferences.root" );
   public static final String PREFS_STATE = get( "preferences.root.state" );
-  public static final String PREFS_OPTIONS = get( "preferences.root.options" );
 
   // Refer to filename extension settings in the configuration file. Do not
   // terminate these prefixes with a period.
@@ -103,29 +102,12 @@ public class Constants {
   public static final int DEFAULT_MAP_SIZE = 64;
 
   /**
-   * Location of the definition source file.
-   */
-  public static final String PERSIST_DEFINITION_SOURCE = "definitionSource";
-
-  /**
-   * Content of the R startup script.
-   */
-  public static final String PERSIST_R_STARTUP = "rStartup";
-
-  /**
-   * Bootstrap directory for R startup script.
-   */
-  public static final String PERSIST_R_DIRECTORY = "rDirectory";
-
-  /**
    * Directory to search for images.
    */
   public static final String PERSIST_IMAGES_DIRECTORY = "imagesDirectory";
 
-  /**
-   * Order of image extensions to try loading for embedded files.
-   */
-  public static final String PERSIST_IMAGES_EXTENSIONS = "imagesExtensions";
+  public static final String PERSIST_IMAGES_DEFAULT =
+      get( "file.stylesheet.scene" );
 
   /**
    * Default working directory to use for R startup script.

@@ -26,15 +26,14 @@
  */
 package com.scrivenvar.service.impl;
 
-import static com.scrivenvar.Constants.PREFS_OPTIONS;
-import static com.scrivenvar.Constants.PREFS_ROOT;
-import static com.scrivenvar.Constants.PREFS_STATE;
-
+import com.scrivenvar.preferences.UserPreferences;
 import com.scrivenvar.service.Options;
 
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
+import static com.scrivenvar.Constants.PREFS_ROOT;
+import static com.scrivenvar.Constants.PREFS_STATE;
 import static java.util.prefs.Preferences.userRoot;
 
 /**
@@ -43,11 +42,9 @@ import static java.util.prefs.Preferences.userRoot;
  * @author Karl Tauber and White Magic Software, Ltd.
  */
 public class DefaultOptions implements Options {
-
-  private Preferences mPreferences;
+  private final UserPreferences mPreferences = new UserPreferences();
 
   public DefaultOptions() {
-    setPreferences( getRootPreferences().node( PREFS_OPTIONS ) );
   }
 
   /**
@@ -75,10 +72,6 @@ public class DefaultOptions implements Options {
     return get( key, "" );
   }
 
-  private void setPreferences( final Preferences preferences ) {
-    mPreferences = preferences;
-  }
-
   private Preferences getRootPreferences() {
     return userRoot().node( PREFS_ROOT );
   }
@@ -86,5 +79,10 @@ public class DefaultOptions implements Options {
   @Override
   public Preferences getState() {
     return getRootPreferences().node( PREFS_STATE );
+  }
+
+  @Override
+  public UserPreferences getUserPreferences() {
+    return mPreferences;
   }
 }

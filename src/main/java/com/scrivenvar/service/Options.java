@@ -27,6 +27,8 @@
  */
 package com.scrivenvar.service;
 
+import com.scrivenvar.preferences.UserPreferences;
+
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
@@ -37,6 +39,20 @@ import java.util.prefs.Preferences;
  */
 public interface Options extends Service {
 
+  /**
+   * Returns a reference to the persistent settings that may be configured
+   * through the UI.
+   *
+   * @return A valid {@link UserPreferences} instance, never {@code null}.
+   */
+  UserPreferences getUserPreferences();
+
+  /**
+   * Returns the {@link Preferences} that persist settings that cannot
+   * be configured via the user interface.
+   *
+   * @return A valid {@link Preferences} instance, never {@code null}.
+   */
   Preferences getState();
 
   /**

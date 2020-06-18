@@ -38,14 +38,6 @@ package com.scrivenvar.processors;
  */
 public abstract class AbstractProcessor<T> implements Processor<T> {
 
-  protected static final char NEWLINE = '\n';
-
-  /**
-   * When performing string searches using indexOf, a return value of -1
-   * indicates that the string could not be found.
-   */
-  protected static final int INDEX_NOT_FOUND = -1;
-
   /**
    * Used while processing the entire chain; null to signify no more links.
    */

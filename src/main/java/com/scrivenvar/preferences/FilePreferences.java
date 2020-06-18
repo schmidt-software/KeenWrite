@@ -27,6 +27,9 @@
  */
 package com.scrivenvar.preferences;
 
+import com.scrivenvar.Services;
+import com.scrivenvar.service.events.Notifier;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -43,6 +46,7 @@ import java.util.prefs.BackingStoreException;
  * home directory, where permissions should be a bit more lax.
  */
 public class FilePreferences extends AbstractPreferences {
+  private final Notifier mNotifier = Services.load( Notifier.class );
 
   private final Map<String, String> mRoot = new TreeMap<>();
   private final Map<String, FilePreferences> mChildren = new TreeMap<>();
@@ -212,6 +216,10 @@ public class FilePreferences extends AbstractPreferences {
   }
 
   private void error( final BackingStoreException ex ) {
-    throw new RuntimeException( ex );
+    getNotifier().notify( ex );
+  }
+
+  private Notifier getNotifier() {
+    return mNotifier;
   }
 }

@@ -27,6 +27,8 @@
  */
 package com.scrivenvar.processors.markdown;
 
+import com.scrivenvar.Services;
+import com.scrivenvar.service.Options;
 import com.vladsch.flexmark.ast.Image;
 import com.vladsch.flexmark.html.HtmlRenderer;
 import com.vladsch.flexmark.html.IndependentLinkResolverFactory;
@@ -38,6 +40,10 @@ import com.vladsch.flexmark.util.ast.Node;
 import com.vladsch.flexmark.util.data.MutableDataHolder;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.prefs.Preferences;
+
+import static com.scrivenvar.Constants.PERSIST_IMAGES_DIRECTORY;
+
 /**
  * Responsible for ensuring that images can be rendered relative to a path.
  * This allows images to be located virtually anywhere.
@@ -45,12 +51,13 @@ import org.jetbrains.annotations.NotNull;
  * @author White Magic Software, Ltd.
  */
 public class ImageLinkExtension implements HtmlRenderer.HtmlRendererExtension {
+  private final Options mOptions = Services.load( Options.class );
 
   public static ImageLinkExtension create() {
     return new ImageLinkExtension();
   }
 
-  private static class Factory extends IndependentLinkResolverFactory {
+  private class Factory extends IndependentLinkResolverFactory {
     @Override
     public @NotNull LinkResolver apply(
         @NotNull final LinkResolverBasicContext context ) {
@@ -58,7 +65,7 @@ public class ImageLinkExtension implements HtmlRenderer.HtmlRendererExtension {
     }
   }
 
-  private static class ImageLinkResolver implements LinkResolver {
+  private class ImageLinkResolver implements LinkResolver {
     public ImageLinkResolver() {
     }
 
@@ -79,6 +86,11 @@ public class ImageLinkExtension implements HtmlRenderer.HtmlRendererExtension {
       final String url = link.getUrl();
 
       try {
+        final Preferences p = getPreferences();
+        final String prefix = p.get( PERSIST_IMAGES_DIRECTORY, "" );
+
+        System.out.printf( "prefix = %s%n", prefix );
+
         //URI uri = new URI( url );
 
 //        System.out.println( "image: " + image.toString() );
@@ -112,4 +124,11 @@ public class ImageLinkExtension implements HtmlRenderer.HtmlRendererExtension {
     rendererBuilder.linkResolverFactory( new Factory() );
   }
 
+  private Preferences getPreferences() {
+    return getOptions().getState();
+  }
+
+  private Options getOptions() {
+    return mOptions;
+  }
 }

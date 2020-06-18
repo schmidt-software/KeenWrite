@@ -27,11 +27,6 @@
  */
 package com.scrivenvar;
 
-import com.dlsc.formsfx.model.structure.StringField;
-import com.dlsc.preferencesfx.PreferencesFx;
-import com.dlsc.preferencesfx.model.Category;
-import com.dlsc.preferencesfx.model.Group;
-import com.dlsc.preferencesfx.model.Setting;
 import com.scrivenvar.definition.DefinitionFactory;
 import com.scrivenvar.definition.DefinitionPane;
 import com.scrivenvar.definition.DefinitionSource;
@@ -40,12 +35,11 @@ import com.scrivenvar.definition.yaml.YamlDefinitionSource;
 import com.scrivenvar.editors.EditorPane;
 import com.scrivenvar.editors.VariableNameInjector;
 import com.scrivenvar.editors.markdown.MarkdownEditorPane;
-import com.scrivenvar.preferences.FilePreferences;
+import com.scrivenvar.preferences.UserPreferences;
 import com.scrivenvar.preview.HTMLPreviewPane;
 import com.scrivenvar.processors.Processor;
 import com.scrivenvar.processors.ProcessorFactory;
 import com.scrivenvar.service.Options;
-import com.scrivenvar.service.Settings;
 import com.scrivenvar.service.Snitch;
 import com.scrivenvar.service.events.Notifier;
 import com.scrivenvar.util.Action;
@@ -54,7 +48,8 @@ import com.scrivenvar.util.ActionUtils;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
-import javafx.beans.property.*;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ObservableBooleanValue;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener.Change;
@@ -105,10 +100,14 @@ import static javafx.stage.WindowEvent.WINDOW_CLOSE_REQUEST;
  */
 public class MainWindow implements Observer {
 
-  private final Options mOptions = Services.load( Options.class );
-  private final Snitch mSnitch = Services.load( Snitch.class );
-  private final Settings mSettings = Services.load( Settings.class );
-  private final Notifier mNotifier = Services.load( Notifier.class );
+  /**
+   * The {@code OPTIONS} variable must be declared before all other variables
+   * to prevent subsequent initializations from failing due to missing user
+   * preferences.
+   */
+  private final static Options OPTIONS = Services.load( Options.class );
+  private final static Snitch SNITCH = Services.load( Snitch.class );
+  private final static Notifier NOTIFIER = Services.load( Notifier.class );
 
   private final Scene mScene;
   private final StatusBar mStatusBar;
@@ -118,7 +117,6 @@ public class MainWindow implements Observer {
   private DefinitionSource mDefinitionSource = createDefaultDefinitionSource();
   private final DefinitionPane mDefinitionPane = new DefinitionPane();
   private final HTMLPreviewPane mPreviewPane = createHTMLPreviewPane();
-  private final PreferencesFx mPreferences;
   private FileEditorTabPane fileEditorPane;
 
   /**
@@ -175,11 +173,11 @@ public class MainWindow implements Observer {
    */
   private final Consumer<Double> mScrollEventObserver = o -> {
     final var eScrollPane = getActiveEditor().getScrollPane();
-    final int eScrollY = eScrollPane
-        .estimatedScrollYProperty().getValue().intValue();
-    final int eHeight = (int) (eScrollPane
-        .totalHeightEstimateProperty().getValue().intValue()
-        - eScrollPane.getHeight());
+    final int eScrollY =
+        eScrollPane.estimatedScrollYProperty().getValue().intValue();
+    final int eHeight = (int)
+        (eScrollPane.totalHeightEstimateProperty().getValue().intValue()
+            - eScrollPane.getHeight());
     final double eRatio = eHeight > 0
         ? Math.min( Math.max( eScrollY / (float) eHeight, 0 ), 1 ) : 0;
 
@@ -209,7 +207,6 @@ public class MainWindow implements Observer {
     mLineNumberText = createLineNumberText();
     mFindTextField = createFindTextField();
     mScene = createScene();
-    mPreferences = createPreferences();
 
     initLayout();
     initFindInput();
@@ -284,7 +281,7 @@ public class MainWindow implements Observer {
    * date with what's on the file system.
    */
   private void initSnitch() {
-    getSnitch().addObserver( this );
+    SNITCH.addObserver( this );
   }
 
   /**
@@ -391,14 +388,6 @@ public class MainWindow implements Observer {
     );
   }
 
-  private void initCaretParagraphListener( final FileEditorTab tab ) {
-    tab.addCaretParagraphListener(
-        ( ObservableValue<? extends Integer> editor,
-          final Integer oldValue, final Integer newValue ) ->
-            refreshSelectedTab( tab )
-    );
-  }
-
   private void updateVariableNameInjector() {
     getVariableNameInjector().setFileEditorTab( getActiveFileEditor() );
   }
@@ -474,7 +463,8 @@ public class MainWindow implements Observer {
     try {
       final DefinitionSource ds = createDefinitionSource( path );
       setDefinitionSource( ds );
-      storeDefinitionSourceFilename( path );
+      getUserPreferences().definitionPathProperty().setValue( path.toFile() );
+      getUserPreferences().save();
 
       final Tooltip tooltipPath = new Tooltip( path.toString() );
       tooltipPath.setShowDelay( Duration.millis( 200 ) );
@@ -523,10 +513,6 @@ public class MainWindow implements Observer {
 
   private void restoreDefinitionPane() {
     openDefinitions( getDefinitionPath() );
-  }
-
-  private void storeDefinitionSourceFilename( final Path path ) {
-    getPreferences().put( PERSIST_DEFINITION_SOURCE, path.toString() );
   }
 
   /**
@@ -668,7 +654,7 @@ public class MainWindow implements Observer {
   }
 
   public void editPreferences() {
-    mPreferences.show( false );
+    getUserPreferences().show();
   }
 
   //---- Insert actions -----------------------------------------------------
@@ -1088,60 +1074,8 @@ public class MainWindow implements Observer {
     return new VBox( menuBar, toolBar );
   }
 
-  /**
-   * Creates the preferences dialog.
-   * <p>
-   * TODO: Make this dynamic by iterating over all "Preferences.*" values
-   * that follow a particular naming pattern.
-   * </p>
-   *
-   * @return A new instance of preferences for users to edit.
-   */
-  @SuppressWarnings("unchecked")
-  private PreferencesFx createPreferences() {
-    final ObjectProperty<File> rDirectory =
-        new SimpleObjectProperty<>( getRDirectory() );
-    final StringProperty rScript =
-        new SimpleStringProperty( getRScript() );
-
-    final ObjectProperty<File> imagesDirectory =
-        new SimpleObjectProperty<>( getImagesDirectory() );
-    final StringProperty imageOrder =
-        new SimpleStringProperty( getImagesOrder() );
-
-    final Setting<StringField, StringProperty> scriptSetting =
-        Setting.of( "Script", rScript );
-    final StringField field = scriptSetting.getElement();
-    field.multiline( true );
-
-    return PreferencesFx.of(
-        FilePreferences.class,
-        Category.of(
-            get( "Preferences.r" ),
-            Group.of(
-                get( "Preferences.r.directory" ),
-                Setting.of( label( "Preferences.r.directory.desc", false ) ),
-                Setting.of( "Directory", rDirectory, true )
-            ),
-            Group.of(
-                get( "Preferences.r.script" ),
-                Setting.of( label( "Preferences.r.script.desc" ) ),
-                scriptSetting
-            ) ),
-        Category.of(
-            get( "Preferences.images" ),
-            Group.of(
-                get( "Preferences.images.directory" ),
-                Setting.of( label( "Preferences.images.directory.desc" ) ),
-                Setting.of( "Directory", imagesDirectory, true )
-            ),
-            Group.of(
-                get( "Preferences.images.suffixes" ),
-                Setting.of( label( "Preferences.images.suffixes.desc" ) ),
-                Setting.of( "Extensions", imageOrder )
-            )
-        )
-    );
+  private UserPreferences createUserPreferences() {
+    return new UserPreferences();
   }
 
   /**
@@ -1174,33 +1108,10 @@ public class MainWindow implements Observer {
     return b;
   }
 
-  /**
-   * Creates a label for the given key after interpolating its value.
-   *
-   * @param key The key to find in the resource bundle.
-   * @return The value of the key as a label.
-   */
-  private Node label( final String key ) {
-    return new Label( get( key, true ) );
-  }
-
-  /**
-   * Creates a label for the given key.
-   *
-   * @param key         The key to find in the resource bundle.
-   * @param interpolate {@code true} means to interpolate the value.
-   * @return The value of the key, interpolated if {@code interpolate} is
-   * {@code true}.
-   */
-  @SuppressWarnings("SameParameterValue")
-  private Node label( final String key, final boolean interpolate ) {
-    return new Label( get( key, interpolate ) );
-  }
-
   //---- Convenience accessors ----------------------------------------------
 
   private Preferences getPreferences() {
-    return getOptions().getState();
+    return OPTIONS.getState();
   }
 
   private float getFloat( final String key, final float defaultValue ) {
@@ -1221,19 +1132,6 @@ public class MainWindow implements Observer {
 
   private FileEditorTab getActiveFileEditor() {
     return getFileEditorPane().getActiveFileEditor();
-  }
-
-  /**
-   * Returns the value for a key from the settings properties file.
-   *
-   * @param key   Key within the settings properties file to find.
-   * @param value Default value to return if the key is not found.
-   * @return The value for the given key from the settings file, or the
-   * given {@code value} if no key found.
-   */
-  @SuppressWarnings("SameParameterValue")
-  private String getSetting( final String key, final String value ) {
-    return mSettings.getSetting( key, value );
   }
 
   //---- Member accessors ---------------------------------------------------
@@ -1271,16 +1169,8 @@ public class MainWindow implements Observer {
     return mDefinitionPane;
   }
 
-  private Options getOptions() {
-    return mOptions;
-  }
-
-  private Snitch getSnitch() {
-    return mSnitch;
-  }
-
   private Notifier getNotifier() {
-    return mNotifier;
+    return NOTIFIER;
   }
 
   private Text getLineNumberText() {
@@ -1305,38 +1195,19 @@ public class MainWindow implements Observer {
   }
 
   //---- Persistence accessors ----------------------------------------------
+  private UserPreferences getUserPreferences() {
+    return OPTIONS.getUserPreferences();
+  }
+
   private Path getDefinitionPath() {
-    final String source = getPreference( PERSIST_DEFINITION_SOURCE, "" );
-
-    return new File(
-        source.isBlank()
-            ? getSetting( "file.definition.default", "variables.yaml" )
-            : source
-    ).toPath();
-  }
-
-  private File getRDirectory() {
-    final String filename =
-        getPreference( PERSIST_R_DIRECTORY, USER_DIRECTORY );
-    return new File( filename );
-  }
-
-  private String getRScript() {
-    return getPreference( PERSIST_R_STARTUP, "" );
+    return getUserPreferences().getDefinitionPath();
   }
 
   private File getImagesDirectory() {
-    final String filename =
-        getPreference( PERSIST_IMAGES_DIRECTORY, USER_DIRECTORY );
-    return new File( filename );
+    return getUserPreferences().getImagesDirectory();
   }
 
   private String getImagesOrder() {
-    return getPreference(
-        PERSIST_IMAGES_EXTENSIONS, "svg pdf png jpg tiff" );
-  }
-
-  private String getPreference( final String key, final String defaultValue ) {
-    return getPreferences().get( key, defaultValue );
+    return getUserPreferences().getImagesOrder();
   }
 }

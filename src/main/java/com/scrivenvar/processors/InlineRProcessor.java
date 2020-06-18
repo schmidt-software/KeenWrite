@@ -28,6 +28,7 @@
 package com.scrivenvar.processors;
 
 import com.scrivenvar.Services;
+import com.scrivenvar.preferences.UserPreferences;
 import com.scrivenvar.service.Options;
 import com.scrivenvar.service.events.Notifier;
 
@@ -100,23 +101,14 @@ public final class InlineRProcessor extends DefinitionProcessor {
       final Map<String, String> map = getDefinitions();
       map.put( "$application.r.working.directory$", dir );
 
-      final String initScript = getInitScript();
+      final String bootstrap = getBootstrapScript();
 
-      if( !initScript.isBlank() ) {
-        eval( replace( initScript, map ) );
+      if( !bootstrap.isBlank() ) {
+        eval( replace( bootstrap, map ) );
       }
     } catch( final Exception e ) {
       getNotifier().notify( e );
     }
-  }
-
-  /**
-   * Loads the R init script from the application's persisted preferences.
-   *
-   * @return A non-null String, possibly empty.
-   */
-  private String getInitScript() {
-    return getOptions().get( PERSIST_R_STARTUP );
   }
 
   /**
@@ -210,7 +202,30 @@ public final class InlineRProcessor extends DefinitionProcessor {
     }
   }
 
-  private synchronized ScriptEngine getScriptEngine() {
+  /**
+   * This will return the given path if not null, otherwise it will return
+   * the path to the user's directory.
+   *
+   * @return A non-null path.
+   */
+  private Path getWorkingDirectory() {
+    return getUserPreferences().getRDirectory().toPath();
+  }
+
+  /**
+   * Loads the R init script from the application's persisted preferences.
+   *
+   * @return A non-null String, possibly empty.
+   */
+  private String getBootstrapScript() {
+    return getUserPreferences().getRScript();
+  }
+
+  private UserPreferences getUserPreferences() {
+    return getOptions().getUserPreferences();
+  }
+
+  private ScriptEngine getScriptEngine() {
     return ENGINE;
   }
 
@@ -220,27 +235,5 @@ public final class InlineRProcessor extends DefinitionProcessor {
 
   private Options getOptions() {
     return OPTIONS;
-  }
-
-  /**
-   * This will return the given path if not null, otherwise it will return
-   * the path to the user's directory.
-   *
-   * @return A non-null path.
-   */
-  private Path getWorkingDirectory() {
-    return Path.of( getPreference( PERSIST_R_DIRECTORY, USER_DIRECTORY ) );
-  }
-
-  /**
-   * Returns the user-defined preference value for the given key.
-   *
-   * @param key          The key to find in the user's preferences.
-   * @param defaultValue The default value to return if no preference is set.
-   * @return The value for the preference, or {@code defaultValue} if not found.
-   */
-  @SuppressWarnings("SameParameterValue")
-  private String getPreference( final String key, final String defaultValue ) {
-    return OPTIONS.get( key, defaultValue );
   }
 }
