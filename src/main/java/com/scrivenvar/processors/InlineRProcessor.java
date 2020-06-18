@@ -30,12 +30,12 @@ package com.scrivenvar.processors;
 import com.scrivenvar.Services;
 import com.scrivenvar.service.Options;
 import com.scrivenvar.service.events.Notifier;
-import org.renjin.eval.EvalException;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.Map;
 
 import static com.scrivenvar.Constants.*;
@@ -55,9 +55,16 @@ public final class InlineRProcessor extends DefinitionProcessor {
   private static final Notifier NOTIFIER = Services.load( Notifier.class );
   private static final Options OPTIONS = Services.load( Options.class );
 
-  // Only one editor is open at a time.
+  /**
+   * Only one editor is open at a time.
+   */
   private static final ScriptEngine ENGINE =
       (new ScriptEngineManager()).getEngineByName( "Renjin" );
+
+  /**
+   * Where to put document inline evaluated R expressions.
+   */
+  private final Map<String, Object> mEvalCache = new HashMap<>();
 
   /**
    * Constructs a processor capable of evaluating R statements.
@@ -139,7 +146,7 @@ public final class InlineRProcessor extends DefinitionProcessor {
 
         // Pass the R statement into the R engine for evaluation.
         try {
-          final Object result = eval( r );
+          final Object result = evalText( r );
 
           // Append the string representation of the result into the text.
           sb.append( result );
@@ -172,8 +179,17 @@ public final class InlineRProcessor extends DefinitionProcessor {
    * @param r The expression to evaluate.
    * @return The object resulting from the evaluation.
    */
-  private Object eval( final String r ) throws ScriptException, EvalException {
-    return getScriptEngine().eval( r );
+  private Object evalText( final String r ) {
+    return mEvalCache.computeIfAbsent( r, v -> eval( r ) );
+  }
+
+  private Object eval( final String r ) {
+    try {
+      return getScriptEngine().eval( r );
+    } catch( final ScriptException e ) {
+      getNotifier().notify( e );
+      return "";
+    }
   }
 
   private synchronized ScriptEngine getScriptEngine() {
