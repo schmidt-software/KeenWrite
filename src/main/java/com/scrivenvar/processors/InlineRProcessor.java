@@ -35,7 +35,7 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 import java.nio.file.Path;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import static com.scrivenvar.Constants.*;
@@ -56,6 +56,11 @@ public final class InlineRProcessor extends DefinitionProcessor {
   private static final Options OPTIONS = Services.load( Options.class );
 
   /**
+   * Constrain memory when typing new R expressions into the document.
+   */
+  private static final int MAX_CACHED_R_STATEMENTS = 512;
+
+  /**
    * Only one editor is open at a time.
    */
   private static final ScriptEngine ENGINE =
@@ -64,7 +69,13 @@ public final class InlineRProcessor extends DefinitionProcessor {
   /**
    * Where to put document inline evaluated R expressions.
    */
-  private final Map<String, Object> mEvalCache = new HashMap<>();
+  private final Map<String, Object> mEvalCache = new LinkedHashMap<>() {
+    @Override
+    protected boolean removeEldestEntry(
+        final Map.Entry<String, Object> eldest ) {
+      return size() > MAX_CACHED_R_STATEMENTS;
+    }
+  };
 
   /**
    * Constructs a processor capable of evaluating R statements.
@@ -105,7 +116,7 @@ public final class InlineRProcessor extends DefinitionProcessor {
    * @return A non-null String, possibly empty.
    */
   private String getInitScript() {
-    return getOptions().get( PERSIST_R_STARTUP, "" );
+    return getOptions().get( PERSIST_R_STARTUP );
   }
 
   /**
@@ -122,9 +133,9 @@ public final class InlineRProcessor extends DefinitionProcessor {
     final int length = text.length();
     final int prefixLength = PREFIX.length();
 
-    // Pre-allocate the same amount of space. A calculation is longer to write
-    // than its computed value inserted into the text.
-    final StringBuilder sb = new StringBuilder( length );
+    // The * 2 is a wild guess at the ratio of R statements to the length
+    // of text produced by those statements.
+    final StringBuilder sb = new StringBuilder( length * 2 );
 
     int prevIndex = 0;
     int currIndex = text.indexOf( PREFIX );
@@ -139,7 +150,7 @@ public final class InlineRProcessor extends DefinitionProcessor {
       // Find the statement ending (`), without indexing past the text boundary.
       currIndex = text.indexOf( SUFFIX, min( currIndex + 1, length ) );
 
-      // Only evalutate inline R statements that have end delimiters.
+      // Only evaluate inline R statements that have end delimiters.
       if( currIndex > 1 ) {
         // Extract the inline R statement to be evaluated.
         final String r = text.substring( prevIndex, currIndex );
@@ -174,7 +185,8 @@ public final class InlineRProcessor extends DefinitionProcessor {
   }
 
   /**
-   * Evaluate an R expression and return the resulting object.
+   * Look up an R expression from the cache then return the resulting object.
+   * If the R expression hasn't been cached, it'll first be evalulated.
    *
    * @param r The expression to evaluate.
    * @return The object resulting from the evaluation.
@@ -183,6 +195,12 @@ public final class InlineRProcessor extends DefinitionProcessor {
     return mEvalCache.computeIfAbsent( r, v -> eval( r ) );
   }
 
+  /**
+   * Evaluate an R expression and return the resulting object.
+   *
+   * @param r The expression to evaluate.
+   * @return The object resulting from the evaluation.
+   */
   private Object eval( final String r ) {
     try {
       return getScriptEngine().eval( r );
