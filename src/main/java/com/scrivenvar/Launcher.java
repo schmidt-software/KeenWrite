@@ -49,6 +49,9 @@ public class Launcher {
    * @param args Command-line arguments.
    */
   public static void main( final String[] args ) throws IOException {
+    // Shhh.
+    System.err.close();
+
     showAppInfo();
     Main.main( args );
   }
