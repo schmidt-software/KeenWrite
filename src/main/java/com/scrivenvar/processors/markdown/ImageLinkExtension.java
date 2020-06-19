@@ -31,6 +31,7 @@ import com.scrivenvar.Services;
 import com.scrivenvar.preferences.UserPreferences;
 import com.scrivenvar.service.Options;
 import com.scrivenvar.service.events.Notifier;
+import com.scrivenvar.util.ProtocolResolver;
 import com.vladsch.flexmark.ast.Image;
 import com.vladsch.flexmark.html.HtmlRenderer;
 import com.vladsch.flexmark.html.IndependentLinkResolverFactory;
@@ -44,6 +45,7 @@ import org.jetbrains.annotations.NotNull;
 import org.renjin.repackaged.guava.base.Splitter;
 
 import java.io.File;
+import java.nio.file.Path;
 
 import static java.lang.String.format;
 
@@ -54,11 +56,18 @@ import static java.lang.String.format;
  * @author White Magic Software, Ltd.
  */
 public class ImageLinkExtension implements HtmlRenderer.HtmlRendererExtension {
-  private final static Options OPTIONS = Services.load( Options.class );
-  private final static Notifier NOTIFIER = Services.load( Notifier.class );
+  private final static Options sOptions = Services.load( Options.class );
+  private final static Notifier sNotifier = Services.load( Notifier.class );
 
-  public static ImageLinkExtension create() {
-    return new ImageLinkExtension();
+  /**
+   * Creates an extension capable of using a relative path to embed images.
+   *
+   * @param path The {@link Path} to the file being edited; the parent path
+   *             is the starting location of the relative image directory.
+   * @return The new {@link ImageLinkExtension}, never {@code null}.
+   */
+  public static ImageLinkExtension create( final Path path ) {
+    return new ImageLinkExtension( path );
   }
 
   private class Factory extends IndependentLinkResolverFactory {
@@ -71,9 +80,9 @@ public class ImageLinkExtension implements HtmlRenderer.HtmlRendererExtension {
 
   private class ImageLinkResolver implements LinkResolver {
     private final UserPreferences mUserPref = getUserPreferences();
-    private final String mImagePrefix = mUserPref.getImagesDirectory()
-                                                 .toString();
-    private final String mImageuffixes = mUserPref.getImagesOrder();
+    private final String mImagePrefix =
+        mUserPref.getImagesDirectory().toString();
+    private final String mImageSuffixes = mUserPref.getImagesOrder();
 
     public ImageLinkResolver() {
     }
@@ -82,24 +91,27 @@ public class ImageLinkExtension implements HtmlRenderer.HtmlRendererExtension {
     // ResolvedLink.getAttributes() and
     // ResolvedLink.getNonNullAttributes()
     @NotNull
+    @Override
     public ResolvedLink resolveLink(
         @NotNull final Node node,
         @NotNull final LinkResolverBasicContext context,
         @NotNull final ResolvedLink link ) {
-      return node instanceof Image ? resolve( (Image) node, link ) : link;
+      return node instanceof Image ? resolve( link ) : link;
     }
 
     @NotNull
-    private ResolvedLink resolve(
-        @NotNull final Image image, @NotNull final ResolvedLink link ) {
+    private ResolvedLink resolve( @NotNull final ResolvedLink link ) {
       String url = link.getUrl();
 
       try {
-        final String filename = format( "%s/%s", getImagePrefix(), url );
+        final String imageFile = format( "%s/%s", getImagePrefix(), url );
         final String suffixes = getImageSuffixes();
+        final String editDir = getEditDirectory();
 
         for( final String ext : Splitter.on( ' ' ).split( suffixes ) ) {
-          final File file = new File( format( "%s.%s", filename, ext ) );
+          final String imagePath = format(
+              "%s/%s.%s", editDir, imageFile, ext );
+          final File file = new File( imagePath );
 
           if( file.exists() ) {
             url = file.toString();
@@ -107,7 +119,10 @@ public class ImageLinkExtension implements HtmlRenderer.HtmlRendererExtension {
           }
         }
 
-        System.out.println( "URL: " + url );
+        final String protocol = ProtocolResolver.getProtocol( url );
+        if( "file".equals( protocol ) ) {
+          url = "file://" + url;
+        }
 
         return link.withStatus( LinkStatus.VALID ).withUrl( url );
       } catch( final Exception e ) {
@@ -122,11 +137,18 @@ public class ImageLinkExtension implements HtmlRenderer.HtmlRendererExtension {
     }
 
     private String getImageSuffixes() {
-      return mImageuffixes;
+      return mImageSuffixes;
+    }
+
+    private String getEditDirectory() {
+      return mPath.getParent().toString();
     }
   }
 
-  private ImageLinkExtension() {
+  private final Path mPath;
+
+  private ImageLinkExtension( final Path path ) {
+    mPath = path;
   }
 
   @Override
@@ -145,10 +167,10 @@ public class ImageLinkExtension implements HtmlRenderer.HtmlRendererExtension {
   }
 
   private Options getOptions() {
-    return OPTIONS;
+    return sOptions;
   }
 
   private Notifier getNotifier() {
-    return NOTIFIER;
+    return sNotifier;
   }
 }

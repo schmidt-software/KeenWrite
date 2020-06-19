@@ -102,6 +102,11 @@ public class SVGRasterizer {
     }
   }
 
+  public static BufferedImage rasterize( final String url, final int width )
+      throws IOException, TranscoderException {
+    return rasterize( new URL( url ), width );
+  }
+
   public static BufferedImage rasterize( final URL url, final int width )
       throws IOException, TranscoderException {
     return rasterize(

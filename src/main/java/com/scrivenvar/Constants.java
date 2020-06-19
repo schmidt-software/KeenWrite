@@ -62,7 +62,7 @@ public class Constants {
 
   // Prevent double events when updating files on Linux (save and timestamp).
   public static final int APP_WATCHDOG_TIMEOUT = get(
-      "application.watchdog.timeout", 100 );
+      "application.watchdog.timeout", 200 );
 
   public static final String STYLESHEET_SCENE = get( "file.stylesheet.scene" );
   public static final String STYLESHEET_MARKDOWN = get(
@@ -100,11 +100,6 @@ public class Constants {
    * Used when creating flat maps relating to resolved variables.
    */
   public static final int DEFAULT_MAP_SIZE = 64;
-
-  /**
-   * Directory to search for images.
-   */
-  public static final String PERSIST_IMAGES_DIRECTORY = "imagesDirectory";
 
   public static final String PERSIST_IMAGES_DEFAULT =
       get( "file.stylesheet.scene" );

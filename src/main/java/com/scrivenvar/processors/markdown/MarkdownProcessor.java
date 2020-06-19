@@ -38,8 +38,11 @@ import com.vladsch.flexmark.util.ast.IParse;
 import com.vladsch.flexmark.util.ast.Node;
 import com.vladsch.flexmark.util.misc.Extension;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
+
+import static com.scrivenvar.Constants.USER_DIRECTORY;
 
 /**
  * Responsible for parsing a Markdown document and rendering it as HTML.
@@ -48,18 +51,12 @@ import java.util.Collection;
  */
 public class MarkdownProcessor extends AbstractProcessor<String> {
 
-  private final static HtmlRenderer RENDERER;
-  private final static IParse PARSER;
+  private final HtmlRenderer mRenderer;
+  private final IParse mParser;
 
-  static {
-    final Collection<Extension> extensions = new ArrayList<>();
-    extensions.add( TablesExtension.create() );
-    extensions.add( SuperscriptExtension.create() );
-    extensions.add( StrikethroughSubscriptExtension.create() );
-    extensions.add( ImageLinkExtension.create() );
-
-    RENDERER = HtmlRenderer.builder().extensions( extensions ).build();
-    PARSER = Parser.builder().extensions( extensions ).build();
+  public MarkdownProcessor(
+      final Processor<String> successor ) {
+    this( successor, Path.of( USER_DIRECTORY ) );
   }
 
   /**
@@ -67,8 +64,18 @@ public class MarkdownProcessor extends AbstractProcessor<String> {
    *
    * @param successor Usually the HTML Preview Processor.
    */
-  public MarkdownProcessor( final Processor<String> successor ) {
+  public MarkdownProcessor(
+      final Processor<String> successor, final Path path ) {
     super( successor );
+
+    final Collection<Extension> extensions = new ArrayList<>();
+    extensions.add( TablesExtension.create() );
+    extensions.add( SuperscriptExtension.create() );
+    extensions.add( StrikethroughSubscriptExtension.create() );
+    extensions.add( ImageLinkExtension.create( path ) );
+
+    mRenderer = HtmlRenderer.builder().extensions( extensions ).build();
+    mParser = Parser.builder().extensions( extensions ).build();
   }
 
   /**
@@ -121,10 +128,10 @@ public class MarkdownProcessor extends AbstractProcessor<String> {
    * @return A Parser that can build an abstract syntax tree.
    */
   private IParse getParser() {
-    return PARSER;
+    return mParser;
   }
 
   private HtmlRenderer getRenderer() {
-    return RENDERER;
+    return mRenderer;
   }
 }

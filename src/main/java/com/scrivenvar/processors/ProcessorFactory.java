@@ -109,7 +109,7 @@ public class ProcessorFactory extends AbstractFileFactory {
    */
   private Processor<String> createMarkdownProcessor() {
     final var hpp = createHTMLPreviewProcessor();
-    return new MarkdownProcessor( hpp );
+    return new MarkdownProcessor( hpp, getPreviewPane().getPath() );
   }
 
   protected Processor<String> createIdentityProcessor() {

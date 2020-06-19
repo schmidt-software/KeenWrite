@@ -322,7 +322,6 @@ public class MainWindow implements Observer {
                 final FileEditorTab tab = (FileEditorTab) newTab;
 
                 initTextChangeListener( tab );
-                //initCaretParagraphListener( tab );
                 initKeyboardEventListeners( tab );
 //              initSyntaxListener( tab );
               }

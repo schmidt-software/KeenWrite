@@ -130,7 +130,7 @@ public final class HTMLPreviewPane extends Pane {
     return parent == null ? "" : parent.toUri().toString();
   }
 
-  private Path getPath() {
+  public Path getPath() {
     return mPath;
   }
 

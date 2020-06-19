@@ -40,11 +40,6 @@ import org.xhtmlrenderer.simple.extend.FormSubmissionListener;
 import org.xhtmlrenderer.swing.ImageReplacedElement;
 
 import java.awt.*;
-import java.io.File;
-import java.net.MalformedURLException;
-import java.net.URL;
-
-import static com.scrivenvar.util.ProtocolResolver.getProtocol;
 
 public class SVGReplacedElementFactory
     implements ReplacedElementFactory {
@@ -76,9 +71,8 @@ public class SVGReplacedElementFactory
 
       if( SVG_FILE.equalsIgnoreCase( ext ) ) {
         try {
-          final URL url = getUrl( src );
           final int width = box.getContentWidth();
-          final Image image = SVGRasterizer.rasterize( url, width );
+          final Image image = SVGRasterizer.rasterize( src, width );
 
           final int w = image.getWidth( null );
           final int h = image.getHeight( null );
@@ -103,12 +97,6 @@ public class SVGReplacedElementFactory
 
   @Override
   public void setFormSubmissionListener( FormSubmissionListener listener ) {
-  }
-
-  private URL getUrl( final String src ) throws MalformedURLException {
-    return "file".equals( getProtocol( src ) )
-        ? new File( src ).toURI().toURL()
-        : new URL( src );
   }
 
   private Notifier getNotifier() {
