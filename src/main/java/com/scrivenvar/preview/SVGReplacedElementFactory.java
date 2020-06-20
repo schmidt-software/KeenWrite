@@ -40,6 +40,10 @@ import org.xhtmlrenderer.simple.extend.FormSubmissionListener;
 import org.xhtmlrenderer.swing.ImageReplacedElement;
 
 import java.awt.*;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+import static com.scrivenvar.preview.SVGRasterizer.rasterize;
 
 public class SVGReplacedElementFactory
     implements ReplacedElementFactory {
@@ -53,38 +57,54 @@ public class SVGReplacedElementFactory
   private static final String HTML_IMAGE = "img";
   private static final String HTML_IMAGE_SRC = "src";
 
+  /**
+   * Constrain memory.
+   */
+  private static final int MAX_CACHED_IMAGES = 100;
+
+  /**
+   * Where to put document inline evaluated R expressions.
+   */
+  private final Map<String, Image> mImageCache = new LinkedHashMap<>() {
+    @Override
+    protected boolean removeEldestEntry(
+        final Map.Entry<String, Image> eldest ) {
+      return size() > MAX_CACHED_IMAGES;
+    }
+  };
+
   public ReplacedElement createReplacedElement(
-      final LayoutContext c, final BlockBox box, final UserAgentCallback uac,
-      final int cssWidth, final int cssHeight ) {
+      final LayoutContext c,
+      final BlockBox box,
+      final UserAgentCallback uac,
+      final int cssWidth,
+      final int cssHeight ) {
     final Element e = box.getElement();
 
-    if( e == null ) {
-      return null;
-    }
+    if( e != null ) {
+      final String nodeName = e.getNodeName();
 
-    final String nodeName = e.getNodeName();
-    ReplacedElement result = null;
+      if( HTML_IMAGE.equals( nodeName ) ) {
+        final String src = e.getAttribute( HTML_IMAGE_SRC );
+        final String ext = FilenameUtils.getExtension( src );
 
-    if( HTML_IMAGE.equals( nodeName ) ) {
-      final String src = e.getAttribute( HTML_IMAGE_SRC );
-      final String ext = FilenameUtils.getExtension( src );
+        if( SVG_FILE.equalsIgnoreCase( ext ) ) {
+          try {
+            final int width = box.getContentWidth();
+            final Image image = getImage( src, width );
 
-      if( SVG_FILE.equalsIgnoreCase( ext ) ) {
-        try {
-          final int width = box.getContentWidth();
-          final Image image = SVGRasterizer.rasterize( src, width );
+            final int w = image.getWidth( null );
+            final int h = image.getHeight( null );
 
-          final int w = image.getWidth( null );
-          final int h = image.getHeight( null );
-
-          result = new ImageReplacedElement( image, w, h );
-        } catch( final Exception ex ) {
-          getNotifier().notify( ex );
+            return new ImageReplacedElement( image, w, h );
+          } catch( final Exception ex ) {
+            getNotifier().notify( ex );
+          }
         }
       }
     }
 
-    return result;
+    return null;
   }
 
   @Override
@@ -92,11 +112,15 @@ public class SVGReplacedElementFactory
   }
 
   @Override
-  public void remove( Element e ) {
+  public void remove( final Element e ) {
   }
 
   @Override
   public void setFormSubmissionListener( FormSubmissionListener listener ) {
+  }
+
+  private Image getImage( final String src, final int width ) {
+    return mImageCache.computeIfAbsent( src, v -> rasterize( src, width ) );
   }
 
   private Notifier getNotifier() {

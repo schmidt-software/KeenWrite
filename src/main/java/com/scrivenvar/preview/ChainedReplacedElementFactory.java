@@ -38,19 +38,20 @@ public class ChainedReplacedElementFactory implements ReplacedElementFactory {
   }
 
   public ReplacedElement createReplacedElement(
-      LayoutContext c, BlockBox box, UserAgentCallback uac,
-      int cssWidth, int cssHeight ) {
-    ReplacedElement re = null;
+      final LayoutContext c,
+      final BlockBox box,
+      final UserAgentCallback uac,
+      final int cssWidth,
+      final int cssHeight ) {
+    for( final var f : mFactoryList ) {
+      final var r = f.createReplacedElement( c, box, uac, cssWidth, cssHeight );
 
-    for( final ReplacedElementFactory ref : mFactoryList ) {
-      re = ref.createReplacedElement( c, box, uac, cssWidth, cssHeight );
-
-      if( re != null ) {
-        break;
+      if( r != null ) {
+        return r;
       }
     }
 
-    return re;
+    return null;
   }
 
   public void addFactory( final ReplacedElementFactory factory ) {
@@ -58,13 +59,13 @@ public class ChainedReplacedElementFactory implements ReplacedElementFactory {
   }
 
   public void reset() {
-    for( final ReplacedElementFactory factory : mFactoryList ) {
+    for( final var factory : mFactoryList ) {
       factory.reset();
     }
   }
 
   public void remove( final Element element ) {
-    for( final ReplacedElementFactory factory : mFactoryList ) {
+    for( final var factory : mFactoryList ) {
       factory.remove( element );
     }
   }

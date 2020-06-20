@@ -48,10 +48,10 @@ import static com.scrivenvar.Constants.STYLESHEET_PREVIEW;
  * @author Karl Tauber and White Magic Software, Ltd.
  */
 public final class HTMLPreviewPane extends Pane {
+  /**
+   * Prevent scrolling to the top on every key press.
+   */
   private static class HTMLPanel extends XHTMLPanel {
-    /**
-     * Prevent scrolling to the top.
-     */
     @Override
     public void resetScrollPosition() {
     }
@@ -83,8 +83,7 @@ public final class HTMLPreviewPane extends Pane {
    * document.
    */
   public HTMLPreviewPane() {
-    final ChainedReplacedElementFactory factory =
-        new ChainedReplacedElementFactory();
+    final var factory = new ChainedReplacedElementFactory();
     factory.addFactory( new SVGReplacedElementFactory() );
     factory.addFactory( new SwingReplacedElementFactory() );
 
@@ -104,13 +103,16 @@ public final class HTMLPreviewPane extends Pane {
    */
   public void update( final String html ) {
     final Document jsoupDoc = Jsoup.parse( decorate( html ) );
-    org.w3c.dom.Document w3cDoc = mW3cDom.fromJsoup( jsoupDoc );
+    final org.w3c.dom.Document w3cDoc = mW3cDom.fromJsoup( jsoupDoc );
 
     mRenderer.setDocument( w3cDoc, getBaseUrl(), mNamespaceHandler );
   }
 
   private String decorate( final String html ) {
+    // Trim the HTML back to the header.
     mHtml.setLength( mHtmlPrefixLength );
+
+    // Write the HTML body element followed by closing tags.
     return mHtml.append( html )
                 .append( HTML_FOOTER )
                 .toString();
@@ -121,13 +123,6 @@ public final class HTMLPreviewPane extends Pane {
    */
   public void clear() {
     update( "" );
-  }
-
-  private String getBaseUrl() {
-    final Path basePath = getPath();
-    final Path parent = basePath == null ? null : basePath.getParent();
-
-    return parent == null ? "" : parent.toUri().toString();
   }
 
   public Path getPath() {
@@ -154,5 +149,12 @@ public final class HTMLPreviewPane extends Pane {
 
   public JScrollBar getVerticalScrollBar() {
     return getScrollPane().getVerticalScrollBar();
+  }
+
+  private String getBaseUrl() {
+    final Path basePath = getPath();
+    final Path parent = basePath == null ? null : basePath.getParent();
+
+    return parent == null ? "" : parent.toUri().toString();
   }
 }

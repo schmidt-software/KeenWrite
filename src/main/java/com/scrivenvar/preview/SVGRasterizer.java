@@ -41,8 +41,10 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.Map;
 
+import static java.awt.Color.RED;
 import static java.awt.Color.WHITE;
 import static java.awt.RenderingHints.*;
+import static java.awt.image.BufferedImage.TYPE_INT_RGB;
 import static org.apache.batik.transcoder.SVGAbstractTranscoder.KEY_WIDTH;
 import static org.apache.batik.transcoder.image.ImageTranscoder.KEY_BACKGROUND_COLOR;
 import static org.apache.batik.util.XMLResourceDescriptor.getXMLParserClassName;
@@ -102,9 +104,22 @@ public class SVGRasterizer {
     }
   }
 
-  public static BufferedImage rasterize( final String url, final int width )
-      throws IOException, TranscoderException {
-    return rasterize( new URL( url ), width );
+  /**
+   * Rasterizes the vector graphic file at the given URL. If any exception
+   * happens, a red circle is returned instead.
+   *
+   * @param url   The URL to a vector graphic file, which must include the
+   *              protocol scheme (such as file:// or https://).
+   * @param width The number of pixels wide to render the image. The aspect
+   *              ratio is maintained.
+   * @return Either the rasterized image upon success or a red circle.
+   */
+  public static Image rasterize( final String url, final int width ) {
+    try {
+      return rasterize( new URL( url ), width );
+    } catch( final Exception e ) {
+      return createPlaceholderImage( width );
+    }
   }
 
   public static BufferedImage rasterize( final URL url, final int width )
@@ -123,5 +138,17 @@ public class SVGRasterizer {
     transcoder.transcode( input, null );
 
     return transcoder.getBufferedImage();
+  }
+
+  @SuppressWarnings("SuspiciousNameCombination")
+  private static Image createPlaceholderImage( final int width ) {
+    final var image = new BufferedImage( width, width, TYPE_INT_RGB );
+    final var graphics = (Graphics2D) image.getGraphics();
+
+    graphics.setColor( RED );
+    graphics.setStroke( new BasicStroke( 5 ) );
+    graphics.drawOval( 5, 5, width / 2, width / 2 );
+
+    return image;
   }
 }

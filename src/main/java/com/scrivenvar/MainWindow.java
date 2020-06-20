@@ -190,8 +190,8 @@ public class MainWindow implements Observer {
     final int delta = Math.abs( oldScrollY - pScrollY );
 
     if( delta > 33 ) {
-      // Prevent concurrent modification exceptions when attempting to
-      // set the vertical scroll bar position.
+      // Reduce concurrent modification exceptions when setting the vertical
+      // scroll bar position.
       synchronized( mMutex ) {
         Platform.runLater( () -> {
           pScrollBar.setValue( pScrollY );

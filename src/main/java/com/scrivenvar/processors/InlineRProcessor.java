@@ -62,12 +62,6 @@ public final class InlineRProcessor extends DefinitionProcessor {
   private static final int MAX_CACHED_R_STATEMENTS = 512;
 
   /**
-   * Only one editor is open at a time.
-   */
-  private static final ScriptEngine ENGINE =
-      (new ScriptEngineManager()).getEngineByName( "Renjin" );
-
-  /**
    * Where to put document inline evaluated R expressions.
    */
   private final Map<String, Object> mEvalCache = new LinkedHashMap<>() {
@@ -77,6 +71,12 @@ public final class InlineRProcessor extends DefinitionProcessor {
       return size() > MAX_CACHED_R_STATEMENTS;
     }
   };
+
+  /**
+   * Only one editor is open at a time.
+   */
+  private static final ScriptEngine ENGINE =
+      (new ScriptEngineManager()).getEngineByName( "Renjin" );
 
   /**
    * Constructs a processor capable of evaluating R statements.
