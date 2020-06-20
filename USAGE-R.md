@@ -4,7 +4,7 @@ This document describes how to use the [R](https://www.r-project.org/)
 programming language from within the application. The application uses an
 interpreter known as [Renjin](https://www.renjin.org/) to integrate with R.
 
-# Hello World
+# Hello world
 
 Complete the following steps to see R in action:
 
@@ -28,7 +28,7 @@ The preview pane shows the result of `1` plus `1`:
 2.0
 ```
 
-# Bootstrap Script
+# Bootstrap script
 
 Being able to run R code while editing an R Markdown document is convenient.
 Having the ability to call functions is where the power of R can be
@@ -70,7 +70,7 @@ The preview panel shows the result of calling the `sum` function:
 This shows how the bootstrap script can load `library.R`, which defines
 a `sum` function that is called by name in the Markdown document.
 
-# Working Directory
+# Working directory
 
 R files may be sourced from any directory, not just the user's home
 directory. Accomplish this as follows:
@@ -109,7 +109,7 @@ The preview panel shows:
 Calling `setwd` using `'$application.r.working.directory$'` changes the
 working directory where the R engine searches for source files.
 
-# YAML Definitions
+# YAML definitions
 
 To see how variable definitions work in R, try the following:
 

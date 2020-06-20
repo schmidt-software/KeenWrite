@@ -73,7 +73,6 @@ import javafx.util.Duration;
 import org.controlsfx.control.StatusBar;
 import org.fxmisc.richtext.model.TwoDimensional.Position;
 
-import java.io.File;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
@@ -1073,10 +1072,6 @@ public class MainWindow implements Observer {
     return new VBox( menuBar, toolBar );
   }
 
-  private UserPreferences createUserPreferences() {
-    return new UserPreferences();
-  }
-
   /**
    * Creates a boolean property that is bound to another boolean value of the
    * active editor.
@@ -1200,13 +1195,5 @@ public class MainWindow implements Observer {
 
   private Path getDefinitionPath() {
     return getUserPreferences().getDefinitionPath();
-  }
-
-  private File getImagesDirectory() {
-    return getUserPreferences().getImagesDirectory();
-  }
-
-  private String getImagesOrder() {
-    return getUserPreferences().getImagesOrder();
   }
 }

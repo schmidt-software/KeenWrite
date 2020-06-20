@@ -2,7 +2,7 @@
 
 This document describes how to use the application.
 
-# Variable Definitions
+# Variable definitions
 
 Variable definitions provide a way to insert key names having associated values into a document. The variable names and values are declared inside an external file using the [YAML](http://www.yaml.org/) file format. Simply put, variables are written in the file as follows:
 
@@ -45,11 +45,11 @@ copyright:
 
 Save the variable definitions in a file having an extension of `.yaml` or `.yml`.
 
-# Document Editing
+# Document editing
 
 The application's purpose is to completely separate the document's content from its presentation. To achieve this, documents are composed using a [plain text](http://spec.commonmark.org/0.28/) format.
 
-## Create Document
+## Create document
 
 Start a new document as follows:
 
@@ -62,7 +62,7 @@ Start a new document as follows:
 
 The variable definitions appear in the variable definition pane under the heading of **Definitions**.
 
-## Edit Document
+## Edit document
 
 Edit the document as normal. Notice how the preview pane updates as new content is added. The toolbar shows various icons that perform different formatting operations. Try them to see how they appear in the preview pane. Other operations not shown on the toolbar include:
 
@@ -71,7 +71,7 @@ Edit the document as normal. Notice how the preview pane updates as new content 
 
 The preview pane shows one way to interpret and format the document, but many other presentations are possible.
 
-## Insert Variable
+## Insert variable
 
 Let's assume that the variable definitions loaded into the application include:
 
