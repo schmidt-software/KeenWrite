@@ -29,9 +29,11 @@ package com.scrivenvar.processors.markdown;
 
 import com.scrivenvar.processors.AbstractProcessor;
 import com.scrivenvar.processors.Processor;
+import com.vladsch.flexmark.ext.definition.DefinitionExtension;
 import com.vladsch.flexmark.ext.gfm.strikethrough.StrikethroughSubscriptExtension;
 import com.vladsch.flexmark.ext.superscript.SuperscriptExtension;
 import com.vladsch.flexmark.ext.tables.TablesExtension;
+import com.vladsch.flexmark.ext.typographic.TypographicExtension;
 import com.vladsch.flexmark.html.HtmlRenderer;
 import com.vladsch.flexmark.parser.Parser;
 import com.vladsch.flexmark.util.ast.IParse;
@@ -69,9 +71,12 @@ public class MarkdownProcessor extends AbstractProcessor<String> {
     super( successor );
 
     final Collection<Extension> extensions = new ArrayList<>();
-    extensions.add( TablesExtension.create() );
-    extensions.add( SuperscriptExtension.create() );
+    extensions.add( DefinitionExtension.create() );
     extensions.add( StrikethroughSubscriptExtension.create() );
+    extensions.add( SuperscriptExtension.create() );
+    extensions.add( TablesExtension.create() );
+    extensions.add( TypographicExtension.create() );
+
     extensions.add( ImageLinkExtension.create( path ) );
 
     mRenderer = HtmlRenderer.builder().extensions( extensions ).build();

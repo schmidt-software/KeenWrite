@@ -116,7 +116,7 @@ public class MainWindow implements Observer {
   private DefinitionSource mDefinitionSource = createDefaultDefinitionSource();
   private final DefinitionPane mDefinitionPane = new DefinitionPane();
   private final HTMLPreviewPane mPreviewPane = createHTMLPreviewPane();
-  private FileEditorTabPane fileEditorPane;
+  private FileEditorTabPane mFileEditorPane;
 
   /**
    * Prevents re-instantiation of processing classes.
@@ -171,25 +171,29 @@ public class MainWindow implements Observer {
    * Called to synchronize the scrolling areas.
    */
   private final Consumer<Double> mScrollEventObserver = o -> {
-    final var eScrollPane = getActiveEditor().getScrollPane();
-    final int eScrollY =
-        eScrollPane.estimatedScrollYProperty().getValue().intValue();
-    final int eHeight = (int)
-        (eScrollPane.totalHeightEstimateProperty().getValue().intValue()
-            - eScrollPane.getHeight());
-    final double eRatio = eHeight > 0
-        ? Math.min( Math.max( eScrollY / (float) eHeight, 0 ), 1 ) : 0;
+    final boolean scrolling = false;
 
-    final var pPreviewPane = getPreviewPane();
-    final var pScrollBar = pPreviewPane.getVerticalScrollBar();
-    final var pHeight = pScrollBar.getMaximum() - pScrollBar.getHeight();
-    final var pScrollY = (int) (pHeight * eRatio);
-    final var pScrollPane = pPreviewPane.getScrollPane();
+    // If the user is deliberately using the scrollbar then synchronize
+    // them by calculating the ratios.
+    if( scrolling ) {
+      final var eScrollPane = getActiveEditor().getScrollPane();
+      final int eScrollY =
+          eScrollPane.estimatedScrollYProperty().getValue().intValue();
+      final int eHeight = (int)
+          (eScrollPane.totalHeightEstimateProperty().getValue().intValue()
+              - eScrollPane.getHeight());
+      final double eRatio = eHeight > 0
+          ? Math.min( Math.max( eScrollY / (float) eHeight, 0 ), 1 ) : 0;
 
-    final int oldScrollY = mScrollRatio.getAndSet( pScrollY );
-    final int delta = Math.abs( oldScrollY - pScrollY );
+      final var pPreviewPane = getPreviewPane();
+      final var pScrollBar = pPreviewPane.getVerticalScrollBar();
+      final var pHeight = pScrollBar.getMaximum() - pScrollBar.getHeight();
+      final var pScrollY = (int) (pHeight * eRatio);
+      final var pScrollPane = pPreviewPane.getScrollPane();
 
-    if( delta > 33 ) {
+      final int oldScrollY = mScrollRatio.getAndSet( pScrollY );
+      final int delta = Math.abs( oldScrollY - pScrollY );
+
       // Reduce concurrent modification exceptions when setting the vertical
       // scroll bar position.
       synchronized( mMutex ) {
@@ -198,6 +202,10 @@ public class MainWindow implements Observer {
           pScrollPane.repaint();
         } );
       }
+    }
+    else {
+      final String id = getActiveEditor().getCurrentParagraphId();
+      getPreviewPane().scrollTo( id );
     }
   };
 
@@ -1139,11 +1147,13 @@ public class MainWindow implements Observer {
   }
 
   private FileEditorTabPane getFileEditorPane() {
-    if( this.fileEditorPane == null ) {
-      this.fileEditorPane = createFileEditorPane();
+    var pane = mFileEditorPane;
+
+    if( pane == null ) {
+      pane = createFileEditorPane();
     }
 
-    return this.fileEditorPane;
+    return mFileEditorPane = pane;
   }
 
   private HTMLPreviewPane getPreviewPane() {
@@ -1161,10 +1171,6 @@ public class MainWindow implements Observer {
 
   private DefinitionPane getDefinitionPane() {
     return mDefinitionPane;
-  }
-
-  private Notifier getNotifier() {
-    return NOTIFIER;
   }
 
   private Text getLineNumberText() {
@@ -1186,6 +1192,10 @@ public class MainWindow implements Observer {
    */
   private Map<String, String> getResolvedMap() {
     return mResolvedMap;
+  }
+
+  private Notifier getNotifier() {
+    return NOTIFIER;
   }
 
   //---- Persistence accessors ----------------------------------------------

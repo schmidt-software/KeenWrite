@@ -56,6 +56,9 @@ import static java.lang.String.format;
  * @author White Magic Software, Ltd.
  */
 public class ImageLinkExtension implements HtmlRenderer.HtmlRendererExtension {
+  /**
+   * Used for image directory preferences.
+   */
   private final static Options sOptions = Services.load( Options.class );
   private final static Notifier sNotifier = Services.load( Notifier.class );
 

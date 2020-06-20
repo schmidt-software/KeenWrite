@@ -33,11 +33,14 @@ import javafx.scene.layout.Pane;
 import org.jsoup.Jsoup;
 import org.jsoup.helper.W3CDom;
 import org.jsoup.nodes.Document;
+import org.xhtmlrenderer.layout.SharedContext;
+import org.xhtmlrenderer.render.Box;
 import org.xhtmlrenderer.simple.XHTMLPanel;
 import org.xhtmlrenderer.simple.extend.XhtmlNamespaceHandler;
 import org.xhtmlrenderer.swing.SwingReplacedElementFactory;
 
 import javax.swing.*;
+import java.awt.*;
 import java.nio.file.Path;
 
 import static com.scrivenvar.Constants.STYLESHEET_PREVIEW;
@@ -87,8 +90,10 @@ public final class HTMLPreviewPane extends Pane {
     factory.addFactory( new SVGReplacedElementFactory() );
     factory.addFactory( new SwingReplacedElementFactory() );
 
-    mRenderer.getSharedContext().setReplacedElementFactory( factory );
-    mRenderer.getSharedContext().getTextRenderer().setSmoothingThreshold( 0 );
+    final var context = getSharedContext();
+    context.setReplacedElementFactory( factory );
+    context.getTextRenderer().setSmoothingThreshold( 0 );
+
     mSwingNode.setContent( mScrollPane );
 
     mHtml.append( HTML_HEADER );
@@ -106,6 +111,21 @@ public final class HTMLPreviewPane extends Pane {
     final org.w3c.dom.Document w3cDoc = mW3cDom.fromJsoup( jsoupDoc );
 
     mRenderer.setDocument( w3cDoc, getBaseUrl(), mNamespaceHandler );
+  }
+
+  /**
+   * Scrolls to an anchor link. The anchor links are injected when the
+   * HTML document is created.
+   *
+   * @param id The unique anchor link identifier.
+   */
+  public void scrollTo( final String id ) {
+    assert id != null;
+    final Box box = getSharedContext().getBoxById( id );
+
+    if( box != null ) {
+      mRenderer.scrollTo( createPoint( box ) );
+    }
   }
 
   private String decorate( final String html ) {
@@ -151,10 +171,29 @@ public final class HTMLPreviewPane extends Pane {
     return getScrollPane().getVerticalScrollBar();
   }
 
+  private Point createPoint( final Box box ) {
+    assert box != null;
+
+    int x = box.getAbsX();
+    int y = box.getAbsY();
+
+    if( !box.getStyle().isInline() ) {
+      final var margin = box.getMargin( mRenderer.getLayoutContext() );
+      x += margin.left();
+      y += margin.top();
+    }
+
+    return new Point( x, y );
+  }
+
   private String getBaseUrl() {
     final Path basePath = getPath();
     final Path parent = basePath == null ? null : basePath.getParent();
 
     return parent == null ? "" : parent.toUri().toString();
+  }
+
+  private SharedContext getSharedContext() {
+    return mRenderer.getSharedContext();
   }
 }

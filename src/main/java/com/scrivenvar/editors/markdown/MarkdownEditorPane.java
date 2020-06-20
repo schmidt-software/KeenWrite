@@ -73,34 +73,16 @@ public class MarkdownEditorPane extends EditorPane {
     addKeyboardListener( keyPressed( ENTER ), this::enterPressed );
   }
 
-  private void enterPressed( final KeyEvent e ) {
-    final StyleClassedTextArea textArea = getEditor();
-    final String currentLine =
-        textArea.getText( textArea.getCurrentParagraph() );
-    final Matcher matcher = AUTO_INDENT_PATTERN.matcher( currentLine );
+  public void insertLink() {
+    insertObject( createLinkDialog() );
+  }
 
-    String newText = "\n";
+  public void insertImage() {
+    insertObject( createImageDialog() );
+  }
 
-    if( matcher.matches() ) {
-      if( !matcher.group( 2 ).isEmpty() ) {
-        // indent new line with same whitespace characters and list markers
-        // as current line
-        newText = newText.concat( matcher.group( 1 ) );
-      }
-      else {
-        // current line contains only whitespace characters and list markers
-        // --> empty current line
-        final int caretPosition = textArea.getCaretPosition();
-        textArea.selectRange( caretPosition - currentLine.length(),
-                              caretPosition );
-      }
-    }
-
-    textArea.replaceSelection( newText );
-
-    // Ensure that the window scrolls when Enter is pressed at the bottom of
-    // the pane.
-    textArea.requestFollowCaret();
+  public String getCurrentParagraphId() {
+    return "para-" + getEditor().getCurrentParagraph();
   }
 
   public void surroundSelection( final String leading, final String trailing ) {
@@ -119,11 +101,10 @@ public class MarkdownEditorPane extends EditorPane {
 
     final String selectedText = textArea.getSelectedText();
 
-    // remove leading and trailing whitespaces from selected text
-    String trimmedSelectedText = selectedText.trim();
-    if( trimmedSelectedText.length() < selectedText.length() ) {
-      start += selectedText.indexOf( trimmedSelectedText );
-      end = start + trimmedSelectedText.length();
+    String trimmedText = selectedText.trim();
+    if( trimmedText.length() < selectedText.length() ) {
+      start += selectedText.indexOf( trimmedText );
+      end = start + trimmedText.length();
     }
 
     // remove leading whitespaces from leading text if selection starts at zero
@@ -144,6 +125,7 @@ public class MarkdownEditorPane extends EditorPane {
         if( !"\n".equals( textArea.getText( i, i + 1 ) ) ) {
           break;
         }
+
         leading = leading.substring( 1 );
       }
     }
@@ -176,8 +158,8 @@ public class MarkdownEditorPane extends EditorPane {
     int selEnd = end + leading.length();
 
     // insert hint text if selection is empty
-    if( hint != null && trimmedSelectedText.isEmpty() ) {
-      trimmedSelectedText = hint;
+    if( hint != null && trimmedText.isEmpty() ) {
+      trimmedText = hint;
       selEnd = selStart + hint.length();
     }
 
@@ -185,10 +167,38 @@ public class MarkdownEditorPane extends EditorPane {
     getUndoManager().preventMerge();
 
     // replace text and update selection
-    textArea.replaceText( start,
-                          end,
-                          leading + trimmedSelectedText + trailing );
+    textArea.replaceText( start, end, leading + trimmedText + trailing );
     textArea.selectRange( selStart, selEnd );
+  }
+
+  private void enterPressed( final KeyEvent e ) {
+    final StyleClassedTextArea textArea = getEditor();
+    final String currentLine =
+        textArea.getText( textArea.getCurrentParagraph() );
+    final Matcher matcher = AUTO_INDENT_PATTERN.matcher( currentLine );
+
+    String newText = "\n";
+
+    if( matcher.matches() ) {
+      if( !matcher.group( 2 ).isEmpty() ) {
+        // indent new line with same whitespace characters and list markers
+        // as current line
+        newText = newText.concat( matcher.group( 1 ) );
+      }
+      else {
+        // current line contains only whitespace characters and list markers
+        // --> empty current line
+        final int caretPosition = textArea.getCaretPosition();
+        textArea.selectRange( caretPosition - currentLine.length(),
+                              caretPosition );
+      }
+    }
+
+    textArea.replaceSelection( newText );
+
+    // Ensure that the window scrolls when Enter is pressed at the bottom of
+    // the pane.
+    textArea.requestFollowCaret();
   }
 
   /**
@@ -244,14 +254,6 @@ public class MarkdownEditorPane extends EditorPane {
     dialog.showAndWait().ifPresent(
         result -> getEditor().replaceSelection( result )
     );
-  }
-
-  public void insertLink() {
-    insertObject( createLinkDialog() );
-  }
-
-  public void insertImage() {
-    insertObject( createImageDialog() );
   }
 
   private Window getWindow() {
