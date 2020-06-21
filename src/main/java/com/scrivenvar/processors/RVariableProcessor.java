@@ -63,7 +63,8 @@ public class RVariableProcessor extends DefinitionProcessor {
   private Map<String, String> toR( final Map<String, String> map ) {
     final Map<String, String> rMap = new HashMap<>( map.size() );
 
-    for( final String key : map.keySet() ) {
+    for( final Map.Entry<String, String> entry : map.entrySet() ) {
+      final var key = entry.getKey();
       rMap.put( toRKey( key ), toRValue( map.get( key ) ) );
     }
 

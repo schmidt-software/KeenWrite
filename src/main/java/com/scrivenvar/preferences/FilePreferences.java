@@ -67,7 +67,9 @@ public class FilePreferences extends AbstractPreferences {
 
   @Override
   protected void putSpi( final String key, final String value ) {
-    mRoot.put( key, value );
+    synchronized( mMutex ) {
+      mRoot.put( key, value );
+    }
 
     try {
       flush();
@@ -78,12 +80,16 @@ public class FilePreferences extends AbstractPreferences {
 
   @Override
   protected String getSpi( final String key ) {
-    return mRoot.get( key );
+    synchronized( mMutex ) {
+      return mRoot.get( key );
+    }
   }
 
   @Override
   protected void removeSpi( final String key ) {
-    mRoot.remove( key );
+    synchronized( mMutex ) {
+      mRoot.remove( key );
+    }
 
     try {
       flush();
@@ -100,7 +106,9 @@ public class FilePreferences extends AbstractPreferences {
 
   @Override
   protected String[] keysSpi() {
-    return mRoot.keySet().toArray( new String[ 0 ] );
+    synchronized( mMutex ) {
+      return mRoot.keySet().toArray( new String[ 0 ] );
+    }
   }
 
   @Override
@@ -135,8 +143,8 @@ public class FilePreferences extends AbstractPreferences {
     synchronized( mMutex ) {
       final Properties p = new Properties();
 
-      try {
-        p.load( new FileInputStream( file ) );
+      try( final var inputStream = new FileInputStream( file ) ) {
+        p.load( inputStream );
 
         final String path = getPath();
         final Enumeration<?> propertyNames = p.propertyNames();
@@ -176,7 +184,9 @@ public class FilePreferences extends AbstractPreferences {
         final String path = getPath();
 
         if( file.exists() ) {
-          p.load( new FileInputStream( file ) );
+          try( final var fis = new FileInputStream( file ) ) {
+            p.load( fis );
+          }
 
           final List<String> toRemove = new ArrayList<>();
 
@@ -208,7 +218,9 @@ public class FilePreferences extends AbstractPreferences {
           }
         }
 
-        p.store( new FileOutputStream( file ), "FilePreferences" );
+        try( final var fos = new FileOutputStream( file ) ) {
+          p.store( fos, "FilePreferences" );
+        }
       } catch( final Exception ex ) {
         error( new BackingStoreException( ex ) );
       }

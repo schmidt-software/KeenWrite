@@ -28,6 +28,7 @@
 package com.scrivenvar;
 
 import com.scrivenvar.service.Settings;
+import org.fxmisc.flowless.VirtualizedScrollPane;
 
 /**
  * Defines application-wide default values.
@@ -109,5 +110,18 @@ public class Constants {
    */
   public static final String USER_DIRECTORY = System.getProperty( "user.dir" );
 
+  /**
+   * Used as the prefix for uniquely identifying HTML block elements, which
+   * helps coordinate scrolling the preview pane to where the user is typing.
+   */
   public static final String PARAGRAPH_ID_PREFIX = "para-";
+
+  /**
+   * The {@link VirtualizedScrollPane} does not provide a way to differentiate
+   * between keyboard entry triggering a scroll event and a mouse event that
+   * triggers scrolling. This value ensures that if a user has "just" pressed
+   * a key that no synchronized scrolling will be attempted, despite a
+   * scrolling event being fired.
+   */
+  public static final int KEYBOARD_SCROLL_DELAY = 250;
 }

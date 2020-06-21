@@ -35,6 +35,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import static com.scrivenvar.Constants.GLOB_PREFIX_FILE;
+import static com.scrivenvar.FileType.UNKNOWN;
 import static java.lang.String.format;
 
 /**
@@ -78,7 +79,7 @@ public class AbstractFileFactory {
     final Iterator<String> keys = properties.getKeys( prefix );
 
     boolean found = false;
-    FileType fileType = null;
+    FileType fileType = UNKNOWN;
 
     while( keys.hasNext() && !found ) {
       final String key = keys.next();

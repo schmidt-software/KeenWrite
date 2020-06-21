@@ -72,6 +72,7 @@ import javafx.stage.Window;
 import javafx.stage.WindowEvent;
 import javafx.util.Duration;
 import org.controlsfx.control.StatusBar;
+import org.fxmisc.flowless.VirtualizedScrollPane;
 import org.fxmisc.richtext.StyleClassedTextArea;
 
 import java.nio.file.Path;
@@ -79,7 +80,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.prefs.Preferences;
@@ -99,7 +99,6 @@ import static javafx.stage.WindowEvent.WINDOW_CLOSE_REQUEST;
  * @author Karl Tauber and White Magic Software, Ltd.
  */
 public class MainWindow implements Observer {
-
   /**
    * The {@code OPTIONS} variable must be declared before all other variables
    * to prevent subsequent initializations from failing due to missing user
@@ -119,6 +118,8 @@ public class MainWindow implements Observer {
   private final HTMLPreviewPane mPreviewPane = createHTMLPreviewPane();
   private FileEditorTabPane mFileEditorPane;
 
+  private final Object mMutex = new Object();
+
   /**
    * Prevents re-instantiation of processing classes.
    */
@@ -134,6 +135,12 @@ public class MainWindow implements Observer {
   private VariableNameInjector variableNameInjector;
 
   /**
+   * Prevents scroll events of {@link VirtualizedScrollPane} from jumping
+   * about while the user is typing.
+   */
+  private long mLastTyped;
+
+  /**
    * Called when the definition data is changed.
    */
   private final EventHandler<TreeItem.TreeModificationEvent<Event>>
@@ -144,41 +151,15 @@ public class MainWindow implements Observer {
   };
 
   /**
-   * Called to inject the selected item when the user presses ENTER in the
-   * definition pane.
-   */
-  private final EventHandler<? super KeyEvent> mDefinitionKeyHandler =
-      event -> {
-        if( event.getCode() == ENTER ) {
-          getVariableNameInjector().injectSelectedItem();
-        }
-      };
-
-  /**
-   * Called to switch to the definition pane when the user presses TAB.
-   */
-  private final EventHandler<? super KeyEvent> mEditorKeyHandler =
-      (EventHandler<KeyEvent>) event -> {
-        if( event.getCode() == TAB ) {
-          getDefinitionPane().requestFocus();
-          event.consume();
-        }
-      };
-
-  private final Object mMutex = new Object();
-  private final AtomicInteger mScrollRatio = new AtomicInteger( 0 );
-
-  /**
-   * Called to synchronize the scrolling areas.
+   * Called to synchronize the scrolling areas. This will suppress any
+   * scroll events that happen shortly after the user has typed a key.
+   * See {@link Constants#KEYBOARD_SCROLL_DELAY} for details.
    */
   private final Consumer<Double> mScrollEventObserver = o -> {
-    final boolean scrolling = false;
-    final var pPreviewPane = getPreviewPane();
-    final var pScrollPane = pPreviewPane.getScrollPane();
+    if( now() - mLastTyped > KEYBOARD_SCROLL_DELAY ) {
+      final var pPreviewPane = getPreviewPane();
+      final var pScrollPane = pPreviewPane.getScrollPane();
 
-    // If the user is deliberately using the scrollbar then synchronize
-    // them by calculating the ratios.
-    if( scrolling ) {
       final var eScrollPane = getActiveEditor().getScrollPane();
       final int eScrollY =
           eScrollPane.estimatedScrollYProperty().getValue().intValue();
@@ -201,16 +182,43 @@ public class MainWindow implements Observer {
         } );
       }
     }
-    else {
-      synchronized( mMutex ) {
-        Platform.runLater( () -> {
-          final String id = getActiveEditor().getCurrentParagraphId();
-          pPreviewPane.scrollTo( id );
-          pScrollPane.repaint();
-        } );
-      }
-    }
   };
+
+  /**
+   * Called to inject the selected item when the user presses ENTER in the
+   * definition pane.
+   */
+  private final EventHandler<? super KeyEvent> mDefinitionKeyHandler =
+      event -> {
+        if( event.getCode() == ENTER ) {
+          getVariableNameInjector().injectSelectedItem();
+        }
+      };
+
+  /**
+   * Called to switch to the definition pane when the user presses TAB.
+   */
+  private final EventHandler<? super KeyEvent> mEditorKeyHandler =
+      (EventHandler<KeyEvent>) event -> {
+        if( event.getCode() == TAB ) {
+          getDefinitionPane().requestFocus();
+          event.consume();
+        }
+        else {
+          mLastTyped = now();
+
+          synchronized( mMutex ) {
+            final var previewPane = getPreviewPane();
+            final var scrollPane = previewPane.getScrollPane();
+
+            Platform.runLater( () -> {
+              final String id = getActiveEditor().getCurrentParagraphId();
+              previewPane.scrollTo( id );
+              scrollPane.repaint();
+            } );
+          }
+        }
+      };
 
   private final ChangeListener<Integer> mCaretListener = ( i, j, k ) -> {
     final FileEditorTab tab = getActiveFileEditor();
@@ -261,7 +269,8 @@ public class MainWindow implements Observer {
   }
 
   /**
-   * Initialize the find input text field to listen on F3, ENTER, and ESCAPE key
+   * Initialize the find input text field to listen on F3, ENTER, and
+   * ESCAPE key
    * presses.
    */
   private void initFindInput() {
@@ -299,7 +308,8 @@ public class MainWindow implements Observer {
 
   /**
    * Watch for changes to external files. In particular, this awaits
-   * modifications to any XSL files associated with XML files being edited. When
+   * modifications to any XSL files associated with XML files being edited.
+   * When
    * an XSL file is modified (external to the application), the snitch's ears
    * perk up and the file is reloaded. This keeps the XSL transformation up to
    * date with what's on the file system.
@@ -309,7 +319,8 @@ public class MainWindow implements Observer {
   }
 
   /**
-   * Listen for {@link FileEditorTabPane} to receive open definition file event.
+   * Listen for {@link FileEditorTabPane} to receive open definition file
+   * event.
    */
   private void initDefinitionListener() {
     getFileEditorPane().onOpenDefinitionFileProperty().addListener(
@@ -327,8 +338,8 @@ public class MainWindow implements Observer {
   }
 
   /**
-   * When tabs are added, hook the various change listeners onto the new tab so
-   * that the preview pane refreshes as necessary.
+   * When tabs are added, hook the various change listeners onto the new
+   * tab sothat the preview pane refreshes as necessary.
    */
   private void initTabAddedListener() {
     final FileEditorTabPane editorPane = getFileEditorPane();
@@ -394,7 +405,8 @@ public class MainWindow implements Observer {
    * Ensure that the keyboard events are received when a new tab is added
    * to the user interface.
    *
-   * @param tab The tab that can trigger keyboard events, such as control+space.
+   * @param tab The tab that can trigger keyboard events, such as
+   *            control+space.
    */
   private void initKeyboardEventListeners( final FileEditorTab tab ) {
     final VariableNameInjector vin = getVariableNameInjector();
@@ -415,7 +427,8 @@ public class MainWindow implements Observer {
     getVariableNameInjector().setFileEditorTab( getActiveFileEditor() );
   }
 
-  private void setVariableNameInjector( final VariableNameInjector injector ) {
+  private void setVariableNameInjector(
+      final VariableNameInjector injector ) {
     this.variableNameInjector = injector;
   }
 
@@ -437,7 +450,8 @@ public class MainWindow implements Observer {
 
   /**
    * Called whenever the preview pane becomes out of sync with the file editor
-   * tab. This can be called when the text changes, the caret paragraph changes,
+   * tab. This can be called when the text changes, the caret paragraph
+   * changes,
    * or the file tab changes.
    *
    * @param tab The file editor tab that has been changed in some fashion.
@@ -547,8 +561,10 @@ public class MainWindow implements Observer {
   //---- File actions -------------------------------------------------------
 
   /**
-   * Called when an observable instance has changed. This is called by both the
-   * snitch service and the notify service. The snitch service can be called for
+   * Called when an observable instance has changed. This is called by both
+   * the
+   * snitch service and the notify service. The snitch service can be
+   * called for
    * different file types, including definition sources.
    *
    * @param observable The observed instance.
@@ -768,7 +784,8 @@ public class MainWindow implements Observer {
         getFloat( K_PANE_SPLIT_EDITOR, .45f ),
         getFloat( K_PANE_SPLIT_PREVIEW, .45f ) );
 
-    getDefinitionPane().prefHeightProperty().bind( splitPane.heightProperty() );
+    getDefinitionPane().prefHeightProperty()
+                       .bind( splitPane.heightProperty() );
 
     final BorderPane borderPane = new BorderPane();
     borderPane.setPrefSize( 1024, 800 );
@@ -1167,7 +1184,8 @@ public class MainWindow implements Observer {
     return mPreviewPane;
   }
 
-  private void setDefinitionSource( final DefinitionSource definitionSource ) {
+  private void setDefinitionSource(
+      final DefinitionSource definitionSource ) {
     assert definitionSource != null;
     mDefinitionSource = definitionSource;
   }
@@ -1212,5 +1230,16 @@ public class MainWindow implements Observer {
 
   private Path getDefinitionPath() {
     return getUserPreferences().getDefinitionPath();
+  }
+
+  //---- Time accessors -----------------------------------------------------
+
+  /**
+   * Gets the current time in milliseconds.
+   *
+   * @return The value returned by {@link System#currentTimeMillis()}.
+   */
+  private static long now() {
+    return System.currentTimeMillis();
   }
 }

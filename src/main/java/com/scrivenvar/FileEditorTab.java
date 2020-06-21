@@ -47,6 +47,7 @@ import javafx.scene.text.Text;
 import javafx.stage.Window;
 import org.fxmisc.richtext.StyleClassedTextArea;
 import org.fxmisc.undo.UndoManager;
+import org.jetbrains.annotations.NotNull;
 import org.mozilla.universalchardet.UniversalDetector;
 
 import java.io.File;
@@ -446,6 +447,7 @@ public final class FileEditorTab extends Tab {
    *
    * @return The editor pane, never null.
    */
+  @NotNull
   public EditorPane getEditorPane() {
     return mEditorPane;
   }

@@ -46,7 +46,8 @@ public enum FileType {
   JSON( "json" ),
   TOML( "toml" ),
   YAML( "yaml" ),
-  PROPERTIES( "properties" );
+  PROPERTIES( "properties" ),
+  UNKNOWN( "unknown" );
 
   private final String mType;
 
@@ -63,9 +64,7 @@ public enum FileType {
    * Returns the file type that corresponds to the given string.
    *
    * @param type The string to compare against this enumeration of file types.
-   *
    * @return The corresponding File Type for the given string.
-   *
    * @throws IllegalArgumentException Type not found.
    */
   public static FileType from( final String type ) {
@@ -83,7 +82,6 @@ public enum FileType {
    * comparison.
    *
    * @param type Presumably a file name extension to check against.
-   *
    * @return true The given extension corresponds to this enumerated type.
    */
   public boolean isType( final String type ) {
