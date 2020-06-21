@@ -30,9 +30,13 @@ package com.scrivenvar.editors.markdown;
 import com.scrivenvar.dialogs.ImageDialog;
 import com.scrivenvar.dialogs.LinkDialog;
 import com.scrivenvar.editors.EditorPane;
+import com.scrivenvar.processors.markdown.BlockExtension;
 import com.scrivenvar.processors.markdown.MarkdownProcessor;
 import com.vladsch.flexmark.ast.Link;
+import com.vladsch.flexmark.html.renderer.AttributablePart;
 import com.vladsch.flexmark.util.ast.Node;
+import com.vladsch.flexmark.util.html.MutableAttributes;
+import javafx.beans.value.ChangeListener;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.IndexRange;
 import javafx.scene.input.KeyEvent;
@@ -55,7 +59,6 @@ import static org.fxmisc.wellbehaved.event.EventPattern.keyPressed;
  * @author Karl Tauber and White Magic Software, Ltd.
  */
 public class MarkdownEditorPane extends EditorPane {
-
   private static final Pattern AUTO_INDENT_PATTERN = Pattern.compile(
       "(\\s*[*+-]\\s+|\\s*[0-9]+\\.\\s+|\\s+)(.*)" );
 
@@ -81,16 +84,50 @@ public class MarkdownEditorPane extends EditorPane {
     insertObject( createImageDialog() );
   }
 
+  public void addCaretListener( final ChangeListener<Integer> listener ) {
+    getEditor().caretPositionProperty().addListener( listener );
+  }
+
+  /**
+   * Aligns the editor's paragraph number with the paragraph number generated
+   * by HTML. Ultimately this solution is flawed because there isn't
+   * a straightforward correlation between the document being edited and
+   * what is rendered. XML documents transformed through stylesheets have
+   * no readily determined correlation. Images, tables, and other
+   * objects affect the relative location of the current paragraph being
+   * edited with respect to the preview pane.
+   * <p>
+   * See
+   * {@link BlockExtension.IdAttributeProvider#setAttributes(Node, AttributablePart, MutableAttributes)}}
+   * for details.
+   * </p>
+   * <p>
+   * Injecting a token into the document, as per a previous version of the
+   * application, can instruct the preview pane where to shift the viewport.
+   * </p>
+   *
+   * @return A unique identifier that correlates to the preview pane.
+   */
   public String getCurrentParagraphId() {
-    return "para-" + getEditor().getCurrentParagraph();
+    final StyleClassedTextArea editor = getEditor();
+    final int paraIndex = editor.getCurrentParagraph();
+    int i = 0, paragraphs = 0;
+
+    while( i < paraIndex ) {
+      final String text = editor.getParagraph( i++ ).getText().trim();
+
+      paragraphs += text.isEmpty() || text.equals( ">" ) ? 0 : 1;
+    }
+
+    return "para-" + paragraphs;
   }
 
   public void surroundSelection( final String leading, final String trailing ) {
     surroundSelection( leading, trailing, null );
   }
 
-  public void surroundSelection( String leading, String trailing,
-                                 final String hint ) {
+  public void surroundSelection(
+      String leading, String trailing, final String hint ) {
     final StyleClassedTextArea textArea = getEditor();
 
     // Note: not using textArea.insertText() to insert leading and trailing

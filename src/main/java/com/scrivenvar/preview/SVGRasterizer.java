@@ -88,7 +88,7 @@ public class SVGRasterizer {
       mImage = image;
     }
 
-    public BufferedImage getBufferedImage() {
+    public Image getImage() {
       return mImage;
     }
 
@@ -122,13 +122,25 @@ public class SVGRasterizer {
     }
   }
 
-  public static BufferedImage rasterize( final URL url, final int width )
+  /**
+   * Converts an SVG drawing into a rasterized image that can be drawn on
+   * a graphics context.
+   *
+   * @param url   The path to the image (can be web address).
+   * @param width Scale the image width to this size (aspect ratio is
+   *              maintained).
+   * @return The vector graphic transcoded into a raster image format.
+   * @throws IOException         Could not read the vector graphic.
+   * @throws TranscoderException Could not convert the vector graphic to an
+   *                             instance of {@link Image}.
+   */
+  public static Image rasterize( final URL url, final int width )
       throws IOException, TranscoderException {
     return rasterize(
         (SVGDocument) mFactory.createDocument( url.toString() ), width );
   }
 
-  public static BufferedImage rasterize(
+  public static Image rasterize(
       final SVGDocument svg, final int width ) throws TranscoderException {
     final var transcoder = new BufferedImageTranscoder();
     final var input = new TranscoderInput( svg );
@@ -137,7 +149,7 @@ public class SVGRasterizer {
     transcoder.addTranscodingHint( KEY_WIDTH, (float) width );
     transcoder.transcode( input, null );
 
-    return transcoder.getBufferedImage();
+    return transcoder.getImage();
   }
 
   @SuppressWarnings("SuspiciousNameCombination")

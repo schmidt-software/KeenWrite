@@ -89,7 +89,7 @@ public class Constants {
   public static final String DEFINITION_PROTOCOL_UNKNOWN = "unknown";
   public static final String DEFINITION_PROTOCOL_FILE = "file";
 
-  // Takes two parameters: line number and column number.
+  // Three parameters: line number, column number, and offset
   public static final String STATUS_BAR_LINE = "Main.statusbar.line";
 
   // "OK" text

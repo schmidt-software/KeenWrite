@@ -87,11 +87,14 @@ public final class FileEditorTabPane extends TabPane {
   private final ReadOnlyBooleanWrapper anyFileEditorModified =
       new ReadOnlyBooleanWrapper();
   private final Consumer<Double> mScrollEventObserver;
+  private final ChangeListener<Integer> mCaretListener;
 
   /**
    * Constructs a new file editor tab pane.
    */
-  public FileEditorTabPane( final Consumer<Double> scrollEventObserver ) {
+  public FileEditorTabPane(
+      final Consumer<Double> scrollEventObserver,
+      final ChangeListener<Integer> caretListener ) {
     final ObservableList<Tab> tabs = getTabs();
 
     setFocusTraversable( false );
@@ -107,15 +110,15 @@ public final class FileEditorTabPane extends TabPane {
         }
     );
 
-    final ChangeListener<Boolean> modifiedListener = ( observable, oldValue,
-                                                       newValue ) -> {
-      for( final Tab tab : tabs ) {
-        if( ((FileEditorTab) tab).isModified() ) {
-          this.anyFileEditorModified.set( true );
-          break;
-        }
-      }
-    };
+    final ChangeListener<Boolean> modifiedListener =
+        ( observable, oldValue, newValue ) -> {
+          for( final Tab tab : tabs ) {
+            if( ((FileEditorTab) tab).isModified() ) {
+              this.anyFileEditorModified.set( true );
+              break;
+            }
+          }
+        };
 
     tabs.addListener(
         (ListChangeListener<Tab>) change -> {
@@ -141,6 +144,7 @@ public final class FileEditorTabPane extends TabPane {
     );
 
     mScrollEventObserver = scrollEventObserver;
+    mCaretListener = caretListener;
   }
 
   /**
@@ -206,6 +210,8 @@ public final class FileEditorTabPane extends TabPane {
         mActiveFileEditor.set( null );
       }
     } );
+
+    tab.addCaretParagraphListener( mCaretListener );
 
     return tab;
   }

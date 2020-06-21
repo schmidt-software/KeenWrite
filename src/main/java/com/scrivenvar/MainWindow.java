@@ -50,6 +50,7 @@ import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableBooleanValue;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener.Change;
@@ -71,8 +72,10 @@ import javafx.stage.Window;
 import javafx.stage.WindowEvent;
 import javafx.util.Duration;
 import org.controlsfx.control.StatusBar;
-import org.fxmisc.richtext.model.TwoDimensional.Position;
+import org.fxmisc.richtext.StyleClassedTextArea;
+import org.fxmisc.richtext.model.TwoDimensional;
 
+import java.io.File;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
@@ -172,6 +175,8 @@ public class MainWindow implements Observer {
    */
   private final Consumer<Double> mScrollEventObserver = o -> {
     final boolean scrolling = false;
+    final var pPreviewPane = getPreviewPane();
+    final var pScrollPane = pPreviewPane.getScrollPane();
 
     // If the user is deliberately using the scrollbar then synchronize
     // them by calculating the ratios.
@@ -185,14 +190,9 @@ public class MainWindow implements Observer {
       final double eRatio = eHeight > 0
           ? Math.min( Math.max( eScrollY / (float) eHeight, 0 ), 1 ) : 0;
 
-      final var pPreviewPane = getPreviewPane();
       final var pScrollBar = pPreviewPane.getVerticalScrollBar();
       final var pHeight = pScrollBar.getMaximum() - pScrollBar.getHeight();
       final var pScrollY = (int) (pHeight * eRatio);
-      final var pScrollPane = pPreviewPane.getScrollPane();
-
-      final int oldScrollY = mScrollRatio.getAndSet( pScrollY );
-      final int delta = Math.abs( oldScrollY - pScrollY );
 
       // Reduce concurrent modification exceptions when setting the vertical
       // scroll bar position.
@@ -204,9 +204,28 @@ public class MainWindow implements Observer {
       }
     }
     else {
-      final String id = getActiveEditor().getCurrentParagraphId();
-      getPreviewPane().scrollTo( id );
+      synchronized( mMutex ) {
+        Platform.runLater( () -> {
+          final String id = getActiveEditor().getCurrentParagraphId();
+          pPreviewPane.scrollTo( id );
+          pScrollPane.repaint();
+        } );
+      }
     }
+  };
+
+  private final ChangeListener<Integer> mCaretListener = ( i, j, k ) -> {
+    final FileEditorTab tab = getActiveFileEditor();
+    final EditorPane pane = tab.getEditorPane();
+    final StyleClassedTextArea editor = pane.getEditor();
+
+    getLineNumberText().setText(
+        get( STATUS_BAR_LINE,
+             editor.getCurrentParagraph() + 1,
+             editor.getParagraphs().size(),
+             editor.getCaretPosition()
+        )
+    );
   };
 
   public MainWindow() {
@@ -431,16 +450,6 @@ public class MainWindow implements Observer {
     }
 
     getPreviewPane().setPath( tab.getPath() );
-
-    // TODO: https://github.com/DaveJarvis/scrivenvar/issues/29
-    final Position p = tab.getCaretOffset();
-    getLineNumberText().setText(
-        get( STATUS_BAR_LINE,
-             p.getMajor() + 1,
-             p.getMinor() + 1,
-             tab.getCaretPosition() + 1
-        )
-    );
 
     Processor<String> processor = getProcessors().get( tab );
 
@@ -739,7 +748,7 @@ public class MainWindow implements Observer {
    * @return A new instance, never null.
    */
   private FileEditorTabPane createFileEditorPane() {
-    return new FileEditorTabPane( mScrollEventObserver );
+    return new FileEditorTabPane( mScrollEventObserver, mCaretListener );
   }
 
   private DefinitionFactory createDefinitionFactory() {

@@ -70,6 +70,7 @@ public class MarkdownProcessor extends AbstractProcessor<String> {
       final Processor<String> successor, final Path path ) {
     super( successor );
 
+    // Standard extensions
     final Collection<Extension> extensions = new ArrayList<>();
     extensions.add( DefinitionExtension.create() );
     extensions.add( StrikethroughSubscriptExtension.create() );
@@ -77,7 +78,9 @@ public class MarkdownProcessor extends AbstractProcessor<String> {
     extensions.add( TablesExtension.create() );
     extensions.add( TypographicExtension.create() );
 
+    // Allows referencing image files via relative paths and dynamic file types.
     extensions.add( ImageLinkExtension.create( path ) );
+    extensions.add( BlockExtension.create() );
 
     mRenderer = HtmlRenderer.builder().extensions( extensions ).build();
     mParser = Parser.builder().extensions( extensions ).build();

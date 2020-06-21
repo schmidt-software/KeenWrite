@@ -125,18 +125,21 @@ ul, ol {
 }
 
 ol {
-   list-style-type: decimal;
+ list-style-type: decimal;
+}
+
+ul ul, ol ul,
+ol ol, ul ol {
+ list-style-position: inside;
+ margin-left: 1em;
 }
 
 ul ul, ol ul {
-   list-style-type: circle;
-   list-style-position: inside;
-   margin-left: 1em;
+ list-style-type: circle;
 }
+
 ol ol, ul ol {
-   list-style-type: lower-latin;
-   list-style-position: inside;
-   margin-left: 1em;
+ list-style-type: lower-latin;
 }
 
 /* DEFINITION LISTS
@@ -177,8 +180,6 @@ pre, code, tt {
 }
 
 code, tt {
-  margin: 0 0px;
-  padding: 0px 0px;
   white-space: nowrap;
   border: 1px solid #ccc;
   background-color: #f8f8f8;
@@ -186,7 +187,6 @@ code, tt {
 }
 
 pre>code {
-  margin: 0;
   white-space: pre;
   border: none;
   background: transparent;
@@ -194,12 +194,12 @@ pre>code {
 
 pre {
   background-color: #f8f8f8;
-  border: 1px solid #ccc;
+  border: .125em solid #ccc;
   font-size: 13px;
   line-height: 19px;
   overflow: auto;
-  padding: 6px 10px;
-  border-radius: 3px;
+  padding: .25em .5em;
+  border-radius: .25em;
 }
 
 pre code, pre tt {
@@ -208,16 +208,12 @@ pre code, pre tt {
 }
 
 kbd {
-  -moz-border-bottom-colors: none;
-  -moz-border-left-colors: none;
-  -moz-border-right-colors: none;
-  -moz-border-top-colors: none;
   background-color: #ccc;
   background-image: linear-gradient(#F1F1F1, #DDDDDD);
   background-repeat: repeat-x;
   border-color: #DDDDDD #CCCCCC #CCCCCC #DDDDDD;
   border-image: none;
-  border-radius: 2px 2px 2px 2px;
+  border-radius: 2px;
   border-style: solid;
   border-width: 1px;
   font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
@@ -277,5 +273,4 @@ th, td {
 =============================================================================*/
 img {
   max-width: 100%;
-  height: auto;
 }
