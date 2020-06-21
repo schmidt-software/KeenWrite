@@ -32,15 +32,12 @@ import com.scrivenvar.decorators.VariableDecorator;
 import com.scrivenvar.definition.DefinitionPane;
 import com.scrivenvar.definition.FindMode;
 import com.scrivenvar.definition.VariableTreeItem;
-import javafx.event.Event;
 import javafx.scene.control.TreeItem;
 import javafx.scene.input.KeyEvent;
 import org.fxmisc.richtext.StyledTextArea;
-import org.fxmisc.wellbehaved.event.EventPattern;
 
 import java.nio.file.Path;
 import java.text.BreakIterator;
-import java.util.function.Consumer;
 
 import static com.scrivenvar.definition.FindMode.*;
 import static javafx.scene.input.KeyCode.SPACE;
@@ -62,56 +59,45 @@ public final class VariableNameInjector {
   /**
    * Initiates double-click events.
    */
-  private DefinitionPane mDefinitionPane;
+  private final DefinitionPane mDefinitionPane;
 
   /**
    * Initializes the variable name injector against the given pane.
    *
-   * @param tab  The tab to inject variable names into.
    * @param pane The definition panel to listen to for double-click events.
    */
-  public VariableNameInjector(
-      final FileEditorTab tab, final DefinitionPane pane ) {
-    setFileEditorTab( tab );
-    setDefinitionPane( pane );
-    initKeyboardEventListeners();
+  public VariableNameInjector( final DefinitionPane pane ) {
+    mDefinitionPane = pane;
   }
 
   /**
-   * Trap control+space and the @ key.
+   * Trap Control+Space.
    *
-   * @param tab The file editor that sends keyboard events for variable name
-   *            injection.
+   * @param tab Editor where variable names get injected.
    */
-  public void initKeyboardEventListeners( final FileEditorTab tab ) {
-    setFileEditorTab( tab );
-    initKeyboardEventListeners();
+  public void addListener( final FileEditorTab tab ) {
+    assert tab != null;
+    mTab = tab;
+
+    tab.getEditorPane().addKeyboardListener(
+        keyPressed( SPACE, CONTROL_DOWN ),
+        this::autoinsert
+    );
   }
 
   /**
    * Inserts the variable
    */
   public void injectSelectedItem() {
-    final TreeItem<String> item = getDefinitionPane().getSelectedItem();
+    final var pane = getDefinitionPane();
+    final TreeItem<String> item = pane.getSelectedItem();
 
     if( item.isLeaf() ) {
-      // This avoids a direct typecast.
-      final VariableTreeItem<String> leaf = getDefinitionPane().findLeaf(
-          item.getValue(), FindMode.EXACT );
-      final StyledTextArea<?, ?> editor = getEditor();
+      final var leaf = pane.findLeaf( item.getValue(), FindMode.EXACT );
+      final var editor = getEditor();
 
       editor.insertText( editor.getCaretPosition(), decorate( leaf ) );
     }
-  }
-
-  /**
-   * Traps Control+SPACE to auto-insert definition key names.
-   */
-  private void initKeyboardEventListeners() {
-    addKeyboardListener(
-        keyPressed( SPACE, CONTROL_DOWN ),
-        this::autoinsert
-    );
   }
 
   /**
@@ -281,15 +267,6 @@ public final class VariableNameInjector {
     return getFileEditorTab().getEditorPane();
   }
 
-  /**
-   * Delegates to the file editor pane, and, ultimately, to its text area.
-   */
-  private <T extends Event, U extends T> void addKeyboardListener(
-      final EventPattern<? super T, ? extends U> event,
-      final Consumer<? super U> consumer ) {
-    getEditorPane().addKeyboardListener( event, consumer );
-  }
-
   private StyledTextArea<?, ?> getEditor() {
     return getEditorPane().getEditor();
   }
@@ -298,15 +275,7 @@ public final class VariableNameInjector {
     return mTab;
   }
 
-  public void setFileEditorTab( final FileEditorTab tab ) {
-    mTab = tab;
-  }
-
   private DefinitionPane getDefinitionPane() {
     return mDefinitionPane;
-  }
-
-  private void setDefinitionPane( final DefinitionPane definitionPane ) {
-    mDefinitionPane = definitionPane;
   }
 }

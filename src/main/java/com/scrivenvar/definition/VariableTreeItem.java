@@ -113,10 +113,8 @@ public class VariableTreeItem<T> extends TreeItem<T> {
    * @return A non-null, possibly empty string.
    */
   private String getDiacriticlessValue() {
-    final String value = getValue().toString();
-    final String normalized = Normalizer.normalize( value, NFD );
-
-    return normalized.replaceAll( "\\p{M}", "" );
+    return Normalizer.normalize( getValue().toString(), NFD )
+                     .replaceAll( "\\p{M}", "" );
   }
 
   /**

@@ -113,12 +113,13 @@ public class MainWindow implements Observer {
   private final Text mLineNumberText;
   private final TextField mFindTextField;
 
-  private DefinitionSource mDefinitionSource = createDefaultDefinitionSource();
-  private final DefinitionPane mDefinitionPane = new DefinitionPane();
-  private final HTMLPreviewPane mPreviewPane = createHTMLPreviewPane();
-  private FileEditorTabPane mFileEditorPane;
-
   private final Object mMutex = new Object();
+
+  /**
+   * Prevents scroll events of {@link VirtualizedScrollPane} from jumping
+   * about while the user is typing.
+   */
+  private long mLastTyped;
 
   /**
    * Prevents re-instantiation of processing classes.
@@ -128,17 +129,6 @@ public class MainWindow implements Observer {
 
   private final Map<String, String> mResolvedMap =
       new HashMap<>( DEFAULT_MAP_SIZE );
-
-  /**
-   * Listens on the definition pane for double-click events.
-   */
-  private VariableNameInjector variableNameInjector;
-
-  /**
-   * Prevents scroll events of {@link VirtualizedScrollPane} from jumping
-   * about while the user is typing.
-   */
-  private long mLastTyped;
 
   /**
    * Called when the definition data is changed.
@@ -234,6 +224,18 @@ public class MainWindow implements Observer {
     );
   };
 
+  private DefinitionSource mDefinitionSource = createDefaultDefinitionSource();
+  private final DefinitionPane mDefinitionPane = new DefinitionPane();
+  private final HTMLPreviewPane mPreviewPane = createHTMLPreviewPane();
+  private final FileEditorTabPane mFileEditorPane =
+      new FileEditorTabPane( mScrollEventObserver, mCaretListener );
+
+  /**
+   * Listens on the definition pane for double-click events.
+   */
+  private final VariableNameInjector mVariableNameInjector
+      = new VariableNameInjector( mDefinitionPane );
+
   public MainWindow() {
     mStatusBar = createStatusBar();
     mLineNumberText = createLineNumberText();
@@ -247,6 +249,7 @@ public class MainWindow implements Observer {
     initTabAddedListener();
     initTabChangedListener();
     restorePreferences();
+    initVariableNameInjector();
   }
 
   private void initLayout() {
@@ -357,7 +360,7 @@ public class MainWindow implements Observer {
                 final FileEditorTab tab = (FileEditorTab) newTab;
 
                 initTextChangeListener( tab );
-                initKeyboardEventListeners( tab );
+                initKeyboardEventListener( tab );
 //              initSyntaxListener( tab );
               }
             }
@@ -376,7 +379,6 @@ public class MainWindow implements Observer {
     editorPane.addTabSelectionListener(
         ( ObservableValue<? extends Tab> tabPane,
           final Tab oldTab, final Tab newTab ) -> {
-          updateVariableNameInjector();
 
           // If there was no old tab, then this is a first time load, which
           // can be ignored.
@@ -385,8 +387,9 @@ public class MainWindow implements Observer {
               closeRemainingTab();
             }
             else {
-              // Update the preview with the edited text.
-              refreshSelectedTab( (FileEditorTab) newTab );
+              final FileEditorTab tab = (FileEditorTab) newTab;
+              updateVariableNameInjector( tab );
+              refreshSelectedTab( tab );
             }
           }
         }
@@ -401,6 +404,10 @@ public class MainWindow implements Observer {
     getFileEditorPane().restorePreferences();
   }
 
+  private void initVariableNameInjector() {
+    updateVariableNameInjector( getActiveFileEditor() );
+  }
+
   /**
    * Ensure that the keyboard events are received when a new tab is added
    * to the user interface.
@@ -408,10 +415,7 @@ public class MainWindow implements Observer {
    * @param tab The tab that can trigger keyboard events, such as
    *            control+space.
    */
-  private void initKeyboardEventListeners( final FileEditorTab tab ) {
-    final VariableNameInjector vin = getVariableNameInjector();
-    vin.initKeyboardEventListeners( tab );
-
+  private void initKeyboardEventListener( final FileEditorTab tab ) {
     tab.addEventFilter( KeyEvent.KEY_PRESSED, mEditorKeyHandler );
   }
 
@@ -423,29 +427,12 @@ public class MainWindow implements Observer {
     );
   }
 
-  private void updateVariableNameInjector() {
-    getVariableNameInjector().setFileEditorTab( getActiveFileEditor() );
+  private void updateVariableNameInjector( final FileEditorTab tab ) {
+    getVariableNameInjector().addListener( tab );
   }
 
-  private void setVariableNameInjector(
-      final VariableNameInjector injector ) {
-    this.variableNameInjector = injector;
-  }
-
-  private synchronized VariableNameInjector getVariableNameInjector() {
-    if( this.variableNameInjector == null ) {
-      final VariableNameInjector vin = createVariableNameInjector();
-      setVariableNameInjector( vin );
-    }
-
-    return this.variableNameInjector;
-  }
-
-  private VariableNameInjector createVariableNameInjector() {
-    final FileEditorTab tab = getActiveFileEditor();
-    final DefinitionPane pane = getDefinitionPane();
-
-    return new VariableNameInjector( tab, pane );
+  private VariableNameInjector getVariableNameInjector() {
+    return mVariableNameInjector;
   }
 
   /**
@@ -520,8 +507,8 @@ public class MainWindow implements Observer {
         getNotifier().clear();
       }
       else {
-        final String msg = get( "yaml.error.tree.form",
-                                problemChild.getValue() );
+        final String msg = get(
+            "yaml.error.tree.form", problemChild.getValue() );
         getNotifier().notify( msg );
       }
     } catch( final Exception e ) {
@@ -1170,13 +1157,7 @@ public class MainWindow implements Observer {
   }
 
   private FileEditorTabPane getFileEditorPane() {
-    var pane = mFileEditorPane;
-
-    if( pane == null ) {
-      pane = createFileEditorPane();
-    }
-
-    return mFileEditorPane = pane;
+    return mFileEditorPane;
   }
 
   private HTMLPreviewPane getPreviewPane() {

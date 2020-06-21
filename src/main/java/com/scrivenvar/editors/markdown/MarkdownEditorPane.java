@@ -110,11 +110,12 @@ public class MarkdownEditorPane extends EditorPane {
     int i = 0, paragraphs = 0;
 
     while( i < paraIndex ) {
+      // Reduce numerously nested blockquotes to blanks for isBlank call.
       final String text = editor.getParagraph( i++ )
                                 .getText()
                                 .replace( '>', ' ' );
 
-      paragraphs += text.isEmpty() ? 0 : 1;
+      paragraphs += text.isBlank() ? 0 : 1;
     }
 
     return PARAGRAPH_ID_PREFIX + paragraphs;

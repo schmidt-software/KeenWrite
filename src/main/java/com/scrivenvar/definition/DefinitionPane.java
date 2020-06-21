@@ -205,8 +205,8 @@ public final class DefinitionPane extends TitledPane {
    */
   public VariableTreeItem<String> findLeaf(
       final String value, final FindMode findMode ) {
-    final VariableTreeItem<String> root = getTreeRoot();
-    final VariableTreeItem<String> leaf = root.findLeaf( value, findMode );
+    final var root = getTreeRoot();
+    final var leaf = root.findLeaf( value, findMode );
 
     return leaf == null
         ? root.findLeaf( rtrimTerminalPunctuation( value ) )
@@ -265,7 +265,7 @@ public final class DefinitionPane extends TitledPane {
    * @param nodes The nodes to collapse.
    */
   private <T> void collapse( final ObservableList<TreeItem<T>> nodes ) {
-    for( final TreeItem<T> node : nodes ) {
+    for( final var node : nodes ) {
       node.setExpanded( false );
       collapse( node.getChildren() );
     }
@@ -289,8 +289,8 @@ public final class DefinitionPane extends TitledPane {
    * Removes all selected items from the {@link TreeView}.
    */
   private void deleteSelectedItems() {
-    for( final TreeItem<String> item : getSelectedItems() ) {
-      final TreeItem<String> parent = item.getParent();
+    for( final var item : getSelectedItems() ) {
+      final var parent = item.getParent();
 
       if( parent != null ) {
         parent.getChildren().remove( item );
@@ -302,7 +302,7 @@ public final class DefinitionPane extends TitledPane {
    * Deletes the selected item.
    */
   private void deleteSelectedItem() {
-    final TreeItem<String> c = getSelectedItem();
+    final var c = getSelectedItem();
     getSiblings( c ).remove( c );
   }
 
@@ -313,7 +313,7 @@ public final class DefinitionPane extends TitledPane {
    * root must contain two items: a key and a value.
    */
   private void addItem() {
-    final TreeItem<String> value = createTreeItem();
+    final var value = createTreeItem();
     getSelectedItem().getChildren().add( value );
     expand( value );
     select( value );
@@ -465,9 +465,8 @@ public final class DefinitionPane extends TitledPane {
 
   private ObservableList<TreeItem<String>> getSiblings(
       final TreeItem<String> item ) {
-    final TreeItem<String> root = getTreeView().getRoot();
-    final TreeItem<String> parent =
-        (item == null || item == root) ? root : item.getParent();
+    final var root = getTreeView().getRoot();
+    final var parent = (item == null || item == root) ? root : item.getParent();
 
     return parent.getChildren();
   }
@@ -487,7 +486,7 @@ public final class DefinitionPane extends TitledPane {
   }
 
   public TreeItem<String> getSelectedItem() {
-    final TreeItem<String> item = getSelectionModel().getSelectedItem();
+    final var item = getSelectionModel().getSelectedItem();
     return item == null ? getTreeView().getRoot() : item;
   }
 

@@ -382,7 +382,6 @@ public final class FileEditorTab extends Tab {
    */
   public void setPath( final Path path ) {
     assert path != null;
-
     mPath = path;
 
     updateTab();
@@ -464,7 +463,6 @@ public final class FileEditorTab extends Tab {
 
   private void setEncoding( final Charset encoding ) {
     assert encoding != null;
-
     mEncoding = encoding;
   }
 
