@@ -36,7 +36,6 @@ import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.property.ReadOnlyBooleanWrapper;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.event.EventType;
@@ -47,7 +46,6 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.text.Text;
 import javafx.stage.Window;
 import org.fxmisc.richtext.StyleClassedTextArea;
-import org.fxmisc.richtext.model.TwoDimensional.Position;
 import org.fxmisc.undo.UndoManager;
 import org.mozilla.universalchardet.UniversalDetector;
 
@@ -59,7 +57,6 @@ import java.nio.file.Path;
 import static com.scrivenvar.Messages.get;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Locale.ENGLISH;
-import static org.fxmisc.richtext.model.TwoDimensional.Bias.Forward;
 
 /**
  * Editor for a single file.
@@ -214,24 +211,6 @@ public final class FileEditorTab extends Tab {
   private void setCaretPosition( final int offset ) {
     getEditor().moveTo( offset );
     getEditor().requestFollowCaret();
-  }
-
-  /**
-   * Returns the caret's current row and column position.
-   *
-   * @return The caret's offset into the document.
-   */
-  public Position getCaretOffset() {
-    return getEditor().offsetToPosition( getCaretPosition(), Forward );
-  }
-
-  /**
-   * Allows observers to synchronize caret position changes.
-   *
-   * @return An observable caret property value.
-   */
-  public final ObservableValue<Integer> caretPositionProperty() {
-    return getEditor().caretPositionProperty();
   }
 
   /**

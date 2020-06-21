@@ -179,9 +179,9 @@ public final class HTMLPreviewPane extends Pane {
     // Scroll back up by half the height of the scroll bar to keep the typing
     // area within the view port. Otherwise the view port will have jumped too
     // high up and the whatever gets typed won't be visible.
-    int y = Math.abs(
-        box.getAbsY() - (mScrollPane.getVerticalScrollBar().getHeight() / 2)
-    );
+    int y = Math.max(
+        box.getAbsY() - (mScrollPane.getVerticalScrollBar().getHeight() / 2),
+        0 );
 
     if( !box.getStyle().isInline() ) {
       final var margin = box.getMargin( mRenderer.getLayoutContext() );

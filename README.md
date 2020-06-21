@@ -39,8 +39,9 @@ If the quick start fails, run the application as follows:
 
 See the following documents for more information:
 
-* [USAGE.md](USAGE.md) - how variable definitions and string interpolation work.
-* [USAGE-R.md](USAGE-R.md) - how to call R functions in R Markdown documents.
+* [USAGE.md](USAGE.md) -- Variable definitions and string interpolation
+* [USAGE-R.md](USAGE-R.md) -- Call R functions within R Markdown documents
+* [USAGE-SVG.md](USAGE-SVG.md) -- Fix known issues with displaying SVG files
 
 ## Future Features
 

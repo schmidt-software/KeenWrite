@@ -13,6 +13,8 @@ import com.vladsch.flexmark.util.data.MutableDataHolder;
 import com.vladsch.flexmark.util.html.MutableAttributes;
 import org.jetbrains.annotations.NotNull;
 
+import static com.scrivenvar.Constants.PARAGRAPH_ID_PREFIX;
+
 /**
  * Responsible for giving most block-level elements a unique identifier
  * attribute. The identifier is used to coordinate scrolling.
@@ -45,7 +47,7 @@ public class BlockExtension implements HtmlRenderer.HtmlRendererExtension {
       // line in the resulting document; however, a > symbol in the text editor
       // does not count as a blank line. Resolving this issue is tricky.
       if( node instanceof Block && !(node instanceof BlockQuote) ) {
-        attributes.addValue( "id", "para-" + mCount++ );
+        attributes.addValue( "id", PARAGRAPH_ID_PREFIX + mCount++ );
       }
     }
   }

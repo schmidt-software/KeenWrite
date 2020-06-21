@@ -108,4 +108,6 @@ public class Constants {
    * Default working directory to use for R startup script.
    */
   public static final String USER_DIRECTORY = System.getProperty( "user.dir" );
+
+  public static final String PARAGRAPH_ID_PREFIX = "para-";
 }

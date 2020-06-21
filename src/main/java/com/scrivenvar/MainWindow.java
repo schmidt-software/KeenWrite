@@ -73,9 +73,7 @@ import javafx.stage.WindowEvent;
 import javafx.util.Duration;
 import org.controlsfx.control.StatusBar;
 import org.fxmisc.richtext.StyleClassedTextArea;
-import org.fxmisc.richtext.model.TwoDimensional;
 
-import java.io.File;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;

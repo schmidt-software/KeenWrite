@@ -36,7 +36,6 @@ import com.vladsch.flexmark.ast.Link;
 import com.vladsch.flexmark.html.renderer.AttributablePart;
 import com.vladsch.flexmark.util.ast.Node;
 import com.vladsch.flexmark.util.html.MutableAttributes;
-import javafx.beans.value.ChangeListener;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.IndexRange;
 import javafx.scene.input.KeyEvent;
@@ -47,6 +46,7 @@ import java.nio.file.Path;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.scrivenvar.Constants.PARAGRAPH_ID_PREFIX;
 import static com.scrivenvar.Constants.STYLESHEET_MARKDOWN;
 import static com.scrivenvar.util.Utils.ltrim;
 import static com.scrivenvar.util.Utils.rtrim;
@@ -84,10 +84,6 @@ public class MarkdownEditorPane extends EditorPane {
     insertObject( createImageDialog() );
   }
 
-  public void addCaretListener( final ChangeListener<Integer> listener ) {
-    getEditor().caretPositionProperty().addListener( listener );
-  }
-
   /**
    * Aligns the editor's paragraph number with the paragraph number generated
    * by HTML. Ultimately this solution is flawed because there isn't
@@ -114,12 +110,14 @@ public class MarkdownEditorPane extends EditorPane {
     int i = 0, paragraphs = 0;
 
     while( i < paraIndex ) {
-      final String text = editor.getParagraph( i++ ).getText().trim();
+      final String text = editor.getParagraph( i++ )
+                                .getText()
+                                .replace( '>', ' ' );
 
-      paragraphs += text.isEmpty() || text.equals( ">" ) ? 0 : 1;
+      paragraphs += text.isEmpty() ? 0 : 1;
     }
 
-    return "para-" + paragraphs;
+    return PARAGRAPH_ID_PREFIX + paragraphs;
   }
 
   public void surroundSelection( final String leading, final String trailing ) {
