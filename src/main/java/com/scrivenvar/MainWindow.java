@@ -561,11 +561,10 @@ public class MainWindow implements Observer {
   //---- File actions -------------------------------------------------------
 
   /**
-   * Called when an observable instance has changed. This is called by both
-   * the
-   * snitch service and the notify service. The snitch service can be
-   * called for
-   * different file types, including definition sources.
+   * Called when an {@link Observable} instance has changed. This is called
+   * by both the {@link Snitch} service and the notify service. The @link
+   * Snitch} service can be called for different file types, including
+   * {@link DefinitionSource} instances.
    *
    * @param observable The observed instance.
    * @param value      The noteworthy item.
