@@ -27,11 +27,15 @@
  */
 package com.scrivenvar;
 
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.control.ScrollBar;
 import javafx.scene.control.skin.ScrollBarSkin;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.StackPane;
 import org.fxmisc.flowless.VirtualizedScrollPane;
 import org.fxmisc.richtext.StyleClassedTextArea;
@@ -43,54 +47,95 @@ import static javafx.geometry.Orientation.VERTICAL;
 /**
  * Converts scroll events from {@link VirtualizedScrollPane} scroll bars to
  * an instance of {@link JScrollBar}.
+ * <p>
+ * Called to synchronize the scrolling areas for either scrolling with the
+ * mouse or scrolling using the scrollbar's thumb. Both are required to avoid
+ * scrolling on the estimatedScrollYProperty that occurs when text events
+ * fire. Scrolling performed for text events are handled separately to ensure
+ * the preview panel scrolls to the same position in the Markdown editor,
+ * taking into account things like images, tables, and other potentially
+ * long vertical presentation items.
+ * </p>
  */
-public final class ScrollBarDragHandler implements EventHandler<MouseEvent> {
+public final class ScrollEventHandler implements EventHandler<Event> {
+
+  private final class MouseHandler implements EventHandler<MouseEvent> {
+    private final EventHandler<? super MouseEvent> mOldHandler;
+
+    /**
+     * Constructs a new handler for mouse scrolling events.
+     *
+     * @param oldHandler Receives the event after scrolling takes place.
+     */
+    private MouseHandler( final EventHandler<? super MouseEvent> oldHandler ) {
+      mOldHandler = oldHandler;
+    }
+
+    @Override
+    public void handle( final MouseEvent event ) {
+      ScrollEventHandler.this.handle( event );
+      mOldHandler.handle( event );
+    }
+  }
+
+  private final class ScrollHandler implements EventHandler<ScrollEvent> {
+    @Override
+    public void handle( final ScrollEvent event ) {
+      ScrollEventHandler.this.handle( event );
+    }
+  }
+
   private final VirtualizedScrollPane<StyleClassedTextArea> mEditorScrollPane;
   private final JScrollBar mPreviewScrollBar;
-  private final EventHandler<? super MouseEvent> mOldHandler;
+  private final BooleanProperty mEnabled = new SimpleBooleanProperty();
 
   /**
    * @param editorScrollPane Scroll event source (human movement).
    * @param previewScrollBar Scroll event destination (corresponding movement).
    */
-  public ScrollBarDragHandler(
+  public ScrollEventHandler(
       final VirtualizedScrollPane<StyleClassedTextArea> editorScrollPane,
       final JScrollBar previewScrollBar ) {
     mEditorScrollPane = editorScrollPane;
     mPreviewScrollBar = previewScrollBar;
 
-//    mEditorScrollPane.estimatedScrollYProperty().addObserver( c -> {
-//      System.out.println("SCROLL SCROLL THE BOAT");
-//    });
+    mEditorScrollPane.addEventFilter( ScrollEvent.ANY, new ScrollHandler() );
 
     final var thumb = getVerticalScrollBarThumb( mEditorScrollPane );
-    mOldHandler = thumb.getOnMouseDragged();
-    thumb.setOnMouseDragged( this );
+    thumb.setOnMouseDragged( new MouseHandler( thumb.getOnMouseDragged() ) );
   }
 
   /**
-   * Called to synchronize the scrolling areas. This will suppress any
-   * scroll events that happen shortly after the user has typed a key.
-   * See {@link Constants#KEYBOARD_SCROLL_DELAY} for details.
+   * Gets a property intended to be bound to selected property of the tab being
+   * scrolled. This is required because there's only one preview pane but
+   * multiple editor panes. Each editor pane maintains its own scroll position.
+   *
+   * @return A {@link BooleanProperty} representing whether the scroll
+   * events for this tab are to be executed.
    */
+  public BooleanProperty enabledProperty() {
+    return mEnabled;
+  }
+
   @Override
-  public void handle( final MouseEvent event ) {
-    final var eScrollPane = getEditorScrollPane();
-    final int eScrollY =
-        eScrollPane.estimatedScrollYProperty().getValue().intValue();
-    final int eHeight = (int)
-        (eScrollPane.totalHeightEstimateProperty().getValue().intValue()
-            - eScrollPane.getHeight());
-    final double eRatio = eHeight > 0
-        ? Math.min( Math.max( eScrollY / (float) eHeight, 0 ), 1 ) : 0;
+  public void handle( final Event event ) {
+    if( isEnabled() ) {
+      final var eScrollPane = getEditorScrollPane();
+      final int eScrollY =
+          eScrollPane.estimatedScrollYProperty().getValue().intValue();
+      final int eHeight = (int)
+          (eScrollPane.totalHeightEstimateProperty().getValue().intValue()
+              - eScrollPane.getHeight());
+      final double eRatio = eHeight > 0
+          ? Math.min( Math.max( eScrollY / (float) eHeight, 0 ), 1 ) : 0;
 
-    final var pScrollBar = getPreviewScrollBar();
-    final var pHeight = pScrollBar.getMaximum() - pScrollBar.getHeight();
-    final var pScrollY = (int) (pHeight * eRatio);
+      final var pScrollBar = getPreviewScrollBar();
+      final var pHeight = pScrollBar.getMaximum() - pScrollBar.getHeight();
+      final var pScrollY = (int) (pHeight * eRatio);
 
-    pScrollBar.setValue( pScrollY );
-    pScrollBar.getParent().repaint();
-    mOldHandler.handle( event );
+      pScrollBar.setValue( pScrollY );
+      pScrollBar.getParent().repaint();
+    }
   }
 
   private StackPane getVerticalScrollBarThumb(
@@ -122,6 +167,13 @@ public final class ScrollBarDragHandler implements EventHandler<MouseEvent> {
     }
 
     throw new IllegalArgumentException( "No vertical scroll pane found." );
+  }
+
+  private boolean isEnabled() {
+    // As a minor optimization, when this is set to false, it could remove
+    // the MouseHandler and ScrollHandler so that events only dispatch to one
+    // object (instead of one per editor tab).
+    return mEnabled.get();
   }
 
   private VirtualizedScrollPane<StyleClassedTextArea> getEditorScrollPane() {

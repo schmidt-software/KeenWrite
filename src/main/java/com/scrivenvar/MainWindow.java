@@ -62,19 +62,16 @@ import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
-import javafx.scene.control.skin.ScrollBarSkin;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Window;
 import javafx.stage.WindowEvent;
 import javafx.util.Duration;
 import org.controlsfx.control.StatusBar;
-import org.fxmisc.flowless.VirtualizedScrollPane;
 import org.fxmisc.richtext.StyleClassedTextArea;
 import org.reactfx.value.Val;
 
@@ -91,7 +88,6 @@ import static com.scrivenvar.Messages.get;
 import static com.scrivenvar.util.StageState.*;
 import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.*;
 import static javafx.event.Event.fireEvent;
-import static javafx.geometry.Orientation.VERTICAL;
 import static javafx.scene.input.KeyCode.ENTER;
 import static javafx.scene.input.KeyCode.TAB;
 import static javafx.stage.WindowEvent.WINDOW_CLOSE_REQUEST;
@@ -327,10 +323,13 @@ public class MainWindow implements Observer {
     final var scrollPane = tab.getEditorPane().getScrollPane();
     final var scrollBar = getPreviewPane().getVerticalScrollBar();
 
-    final ChangeListener<? super Boolean> listener = ( ob, o, newShow ) ->
+    // Before the drag handler can be attached, the scroll bar for the
+    // text editor pane must be visible.
+    final ChangeListener<? super Boolean> listener = ( o, oldShow, newShow ) ->
         Platform.runLater( () -> {
           if( newShow ) {
-            new ScrollBarDragHandler( scrollPane, scrollBar );
+            final var handler = new ScrollEventHandler( scrollPane, scrollBar );
+            handler.enabledProperty().bind( tab.selectedProperty() );
           }
         } );
 
@@ -1186,36 +1185,5 @@ public class MainWindow implements Observer {
 
   private Path getDefinitionPath() {
     return getUserPreferences().getDefinitionPath();
-  }
-
-  private StackPane getVerticalScrollBarThumb(
-      final VirtualizedScrollPane<StyleClassedTextArea> pane ) {
-    final ScrollBar scrollBar = getVerticalScrollBar( pane );
-    final ScrollBarSkin skin = (ScrollBarSkin) (scrollBar.skinProperty().get());
-
-    for( final Node node : skin.getChildren() ) {
-      // Brittle, but what can you do?
-      if( node.getStyleClass().contains( "thumb" ) ) {
-        return (StackPane) node;
-      }
-    }
-
-    throw new IllegalArgumentException( "No scroll bar skin found." );
-  }
-
-  private ScrollBar getVerticalScrollBar(
-      final VirtualizedScrollPane<StyleClassedTextArea> pane ) {
-
-    for( final Node node : pane.getChildrenUnmodifiable() ) {
-      if( node instanceof ScrollBar ) {
-        final ScrollBar scrollBar = (ScrollBar) node;
-
-        if( scrollBar.getOrientation() == VERTICAL ) {
-          return scrollBar;
-        }
-      }
-    }
-
-    throw new IllegalArgumentException( "No vertical scroll pane found." );
   }
 }
