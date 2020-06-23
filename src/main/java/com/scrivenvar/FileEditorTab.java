@@ -67,7 +67,7 @@ import static java.util.Locale.ENGLISH;
 public final class FileEditorTab extends Tab {
 
   private final Notifier mNotifier = Services.load( Notifier.class );
-  private final EditorPane mEditorPane = new MarkdownEditorPane();
+  private final MarkdownEditorPane mEditorPane = new MarkdownEditorPane();
 
   private final ReadOnlyBooleanWrapper mModified = new ReadOnlyBooleanWrapper();
   private final BooleanProperty canUndo = new SimpleBooleanProperty();
@@ -417,12 +417,22 @@ public final class FileEditorTab extends Tab {
   }
 
   /**
-   * Forwards to the editor pane's listeners for caret paragraph change events.
+   * Forwards to the editor pane's listeners for caret change events.
    *
-   * @param listener The listener to notify when the caret changes paragraphs.
+   * @param listener Notified when the caret position changes.
+   */
+  public void addCaretPositionListener(
+      final ChangeListener<? super Integer> listener ) {
+    getEditorPane().addCaretPositionListener( listener );
+  }
+
+  /**
+   * Forwards to the editor pane's listeners for paragraph index change events.
+   *
+   * @param listener Notified when the caret's paragraph index changes.
    */
   public void addCaretParagraphListener(
-      final ChangeListener<Integer> listener ) {
+      final ChangeListener<? super Integer> listener ) {
     getEditorPane().addCaretParagraphListener( listener );
   }
 
@@ -447,7 +457,7 @@ public final class FileEditorTab extends Tab {
    * @return The editor pane, never null.
    */
   @NotNull
-  public EditorPane getEditorPane() {
+  public MarkdownEditorPane getEditorPane() {
     return mEditorPane;
   }
 

@@ -27,13 +27,13 @@
  */
 package com.scrivenvar.editors;
 
-import com.scrivenvar.AbstractPane;
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.event.Event;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.layout.Pane;
 import org.fxmisc.flowless.VirtualizedScrollPane;
 import org.fxmisc.richtext.StyleClassedTextArea;
 import org.fxmisc.undo.UndoManager;
@@ -50,7 +50,7 @@ import static org.fxmisc.wellbehaved.event.InputMap.consume;
  *
  * @author White Magic Software, Ltd.
  */
-public class EditorPane extends AbstractPane {
+public class EditorPane extends Pane {
 
   private final StyleClassedTextArea mEditor =
       new StyleClassedTextArea( false );
@@ -101,13 +101,23 @@ public class EditorPane extends AbstractPane {
   }
 
   /**
-   * Call to listen for when the caret moves to another paragraph.
+   * Notifies observers when the caret changes paragraph.
    *
-   * @param listener Receives paragraph change events.
+   * @param listener Receives change event.
    */
   public void addCaretParagraphListener(
       final ChangeListener<? super Integer> listener ) {
     getEditor().currentParagraphProperty().addListener( listener );
+  }
+
+  /**
+   * Notifies observers when the caret changes position.
+   *
+   * @param listener Receives change event.
+   */
+  public void addCaretPositionListener(
+      final ChangeListener<? super Integer> listener ) {
+    getEditor().caretPositionProperty().addListener( listener );
   }
 
   /**

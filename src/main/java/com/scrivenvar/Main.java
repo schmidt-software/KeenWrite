@@ -30,7 +30,6 @@ package com.scrivenvar;
 import com.scrivenvar.preferences.FilePreferencesFactory;
 import com.scrivenvar.service.Options;
 import com.scrivenvar.service.Snitch;
-import com.scrivenvar.service.events.Notifier;
 import com.scrivenvar.util.StageState;
 import javafx.application.Application;
 import javafx.scene.Scene;
@@ -55,10 +54,7 @@ public final class Main extends Application {
     LogManager.getLogManager().reset();
   }
 
-  private static Application sApplication;
-
   private final Options mOptions = Services.load( Options.class );
-  private final Notifier mNotifier = Services.load( Notifier.class );
   private final Snitch mSnitch = Services.load( Snitch.class );
   private final Thread mSnitchThread = new Thread( getSnitch() );
   private final MainWindow mMainWindow = new MainWindow();
@@ -83,8 +79,6 @@ public final class Main extends Application {
    */
   @Override
   public void start( final Stage stage ) {
-    initApplication();
-    initNotifyService();
     initState( stage );
     initStage( stage );
     initSnitch();
@@ -100,22 +94,6 @@ public final class Main extends Application {
         "java.util.prefs.PreferencesFactory",
         FilePreferencesFactory.class.getName()
     );
-  }
-
-  public static void showDocument( final String uri ) {
-    getApplication().getHostServices().showDocument( uri );
-  }
-
-  private void initApplication() {
-    sApplication = this;
-  }
-
-  /**
-   * Constructs the notify service and appends the main window to the list of
-   * notification observers.
-   */
-  private void initNotifyService() {
-    mNotifier.addObserver( getMainWindow() );
   }
 
   private void initState( final Stage stage ) {
@@ -154,7 +132,7 @@ public final class Main extends Application {
     thread.join();
   }
 
-  private synchronized Snitch getSnitch() {
+  private Snitch getSnitch() {
     return mSnitch;
   }
 
@@ -162,20 +140,16 @@ public final class Main extends Application {
     return mSnitchThread;
   }
 
-  private synchronized Options getOptions() {
+  private Options getOptions() {
     return mOptions;
-  }
-
-  private Scene getScene() {
-    return getMainWindow().getScene();
   }
 
   private MainWindow getMainWindow() {
     return mMainWindow;
   }
 
-  private static Application getApplication() {
-    return sApplication;
+  private Scene getScene() {
+    return getMainWindow().getScene();
   }
 
   private String getApplicationTitle() {

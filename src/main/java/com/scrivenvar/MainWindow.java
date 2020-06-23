@@ -62,10 +62,12 @@ import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.skin.ScrollBarSkin;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Window;
@@ -74,13 +76,13 @@ import javafx.util.Duration;
 import org.controlsfx.control.StatusBar;
 import org.fxmisc.flowless.VirtualizedScrollPane;
 import org.fxmisc.richtext.StyleClassedTextArea;
+import org.reactfx.value.Val;
 
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
-import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.prefs.Preferences;
 
@@ -89,6 +91,7 @@ import static com.scrivenvar.Messages.get;
 import static com.scrivenvar.util.StageState.*;
 import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.*;
 import static javafx.event.Event.fireEvent;
+import static javafx.geometry.Orientation.VERTICAL;
 import static javafx.scene.input.KeyCode.ENTER;
 import static javafx.scene.input.KeyCode.TAB;
 import static javafx.stage.WindowEvent.WINDOW_CLOSE_REQUEST;
@@ -116,12 +119,6 @@ public class MainWindow implements Observer {
   private final Object mMutex = new Object();
 
   /**
-   * Prevents scroll events of {@link VirtualizedScrollPane} from jumping
-   * about while the user is typing.
-   */
-  private long mLastTyped;
-
-  /**
    * Prevents re-instantiation of processing classes.
    */
   private final Map<FileEditorTab, Processor<String>> mProcessors =
@@ -137,42 +134,19 @@ public class MainWindow implements Observer {
       mTreeHandler = event -> {
     exportDefinitions( getDefinitionPath() );
     interpolateResolvedMap();
-    refreshActiveTab();
+    renderActiveTab();
   };
 
   /**
-   * Called to synchronize the scrolling areas. This will suppress any
-   * scroll events that happen shortly after the user has typed a key.
-   * See {@link Constants#KEYBOARD_SCROLL_DELAY} for details.
+   * Called to switch to the definition pane when the user presses the TAB key.
    */
-  private final Consumer<Double> mScrollEventObserver = o -> {
-    if( now() - mLastTyped > KEYBOARD_SCROLL_DELAY ) {
-      final var pPreviewPane = getPreviewPane();
-      final var pScrollPane = pPreviewPane.getScrollPane();
-
-      final var eScrollPane = getActiveEditor().getScrollPane();
-      final int eScrollY =
-          eScrollPane.estimatedScrollYProperty().getValue().intValue();
-      final int eHeight = (int)
-          (eScrollPane.totalHeightEstimateProperty().getValue().intValue()
-              - eScrollPane.getHeight());
-      final double eRatio = eHeight > 0
-          ? Math.min( Math.max( eScrollY / (float) eHeight, 0 ), 1 ) : 0;
-
-      final var pScrollBar = pPreviewPane.getVerticalScrollBar();
-      final var pHeight = pScrollBar.getMaximum() - pScrollBar.getHeight();
-      final var pScrollY = (int) (pHeight * eRatio);
-
-      // Reduce concurrent modification exceptions when setting the vertical
-      // scroll bar position.
-      synchronized( mMutex ) {
-        Platform.runLater( () -> {
-          pScrollBar.setValue( pScrollY );
-          pScrollPane.repaint();
-        } );
-      }
-    }
-  };
+  private final EventHandler<? super KeyEvent> mTabKeyHandler =
+      (EventHandler<KeyEvent>) event -> {
+        if( event.getCode() == TAB ) {
+          getDefinitionPane().requestFocus();
+          event.consume();
+        }
+      };
 
   /**
    * Called to inject the selected item when the user presses ENTER in the
@@ -185,50 +159,31 @@ public class MainWindow implements Observer {
         }
       };
 
-  /**
-   * Called to switch to the definition pane when the user presses TAB.
-   */
-  private final EventHandler<? super KeyEvent> mEditorKeyHandler =
-      (EventHandler<KeyEvent>) event -> {
-        if( event.getCode() == TAB ) {
-          getDefinitionPane().requestFocus();
-          event.consume();
-        }
-        else {
-          mLastTyped = now();
+  private final ChangeListener<Integer> mCaretPositionListener =
+      ( observable, oldPosition, newPosition ) -> {
+        final FileEditorTab tab = getActiveFileEditorTab();
+        final EditorPane pane = tab.getEditorPane();
+        final StyleClassedTextArea editor = pane.getEditor();
 
-          synchronized( mMutex ) {
-            final var previewPane = getPreviewPane();
-            final var scrollPane = previewPane.getScrollPane();
-
-            Platform.runLater( () -> {
-              final String id = getActiveEditor().getCurrentParagraphId();
-              previewPane.scrollTo( id );
-              scrollPane.repaint();
-            } );
-          }
-        }
+        getLineNumberText().setText(
+            get( STATUS_BAR_LINE,
+                 editor.getCurrentParagraph() + 1,
+                 editor.getParagraphs().size(),
+                 editor.getCaretPosition()
+            )
+        );
       };
 
-  private final ChangeListener<Integer> mCaretListener = ( i, j, k ) -> {
-    final FileEditorTab tab = getActiveFileEditor();
-    final EditorPane pane = tab.getEditorPane();
-    final StyleClassedTextArea editor = pane.getEditor();
-
-    getLineNumberText().setText(
-        get( STATUS_BAR_LINE,
-             editor.getCurrentParagraph() + 1,
-             editor.getParagraphs().size(),
-             editor.getCaretPosition()
-        )
-    );
-  };
+  private final ChangeListener<Integer> mCaretParagraphListener =
+      ( observable, oldIndex, newIndex ) ->
+          scrollToParagraph( newIndex, true );
 
   private DefinitionSource mDefinitionSource = createDefaultDefinitionSource();
   private final DefinitionPane mDefinitionPane = new DefinitionPane();
   private final HTMLPreviewPane mPreviewPane = createHTMLPreviewPane();
-  private final FileEditorTabPane mFileEditorPane =
-      new FileEditorTabPane( mScrollEventObserver, mCaretListener );
+  private final FileEditorTabPane mFileEditorPane = new FileEditorTabPane(
+      mCaretPositionListener,
+      mCaretParagraphListener );
 
   /**
    * Listens on the definition pane for double-click events.
@@ -248,8 +203,10 @@ public class MainWindow implements Observer {
     initDefinitionListener();
     initTabAddedListener();
     initTabChangedListener();
-    restorePreferences();
+    initPreferences();
     initVariableNameInjector();
+
+    NOTIFIER.addObserver( this );
   }
 
   private void initLayout() {
@@ -273,8 +230,7 @@ public class MainWindow implements Observer {
 
   /**
    * Initialize the find input text field to listen on F3, ENTER, and
-   * ESCAPE key
-   * presses.
+   * ESCAPE key presses.
    */
   private void initFindInput() {
     final TextField input = getFindTextField();
@@ -291,18 +247,15 @@ public class MainWindow implements Observer {
           }
         case ESCAPE:
           getStatusBar().setGraphic( null );
-          getActiveFileEditor().getEditorPane().requestFocus();
+          getActiveFileEditorTab().getEditorPane().requestFocus();
           break;
       }
     } );
 
     // Remove when the input field loses focus.
     input.focusedProperty().addListener(
-        (
-            final ObservableValue<? extends Boolean> focused,
-            final Boolean oFocus,
-            final Boolean nFocus ) -> {
-          if( !nFocus ) {
+        ( focused, oldFocus, newFocus ) -> {
+          if( !newFocus ) {
             getStatusBar().setGraphic( null );
           }
         }
@@ -335,7 +288,7 @@ public class MainWindow implements Observer {
           openDefinitions( newPath );
 
           // Will create new processors and therefore a new resolved map.
-          refreshActiveTab();
+          renderActiveTab();
         }
     );
   }
@@ -360,13 +313,30 @@ public class MainWindow implements Observer {
                 final FileEditorTab tab = (FileEditorTab) newTab;
 
                 initTextChangeListener( tab );
-                initKeyboardEventListener( tab );
+                initTabKeyEventListener( tab );
+                initScrollEventListener( tab );
 //              initSyntaxListener( tab );
               }
             }
           }
         }
     );
+  }
+
+  private void initScrollEventListener( final FileEditorTab tab ) {
+    final var scrollPane = tab.getEditorPane().getScrollPane();
+    final var scrollBar = getPreviewPane().getVerticalScrollBar();
+
+    final ChangeListener<? super Boolean> listener = ( ob, o, newShow ) ->
+        Platform.runLater( () -> {
+          if( newShow ) {
+            new ScrollBarDragHandler( scrollPane, scrollBar );
+          }
+        } );
+
+    Val.flatMap( scrollPane.sceneProperty(), Scene::windowProperty )
+       .flatMap( Window::showingProperty )
+       .addListener( listener );
   }
 
   /**
@@ -377,19 +347,14 @@ public class MainWindow implements Observer {
 
     // Update the preview pane changing tabs.
     editorPane.addTabSelectionListener(
-        ( ObservableValue<? extends Tab> tabPane,
-          final Tab oldTab, final Tab newTab ) -> {
-
+        ( tabPane, oldTab, newTab ) -> {
           // If there was no old tab, then this is a first time load, which
           // can be ignored.
           if( oldTab != null ) {
-            if( newTab == null ) {
-              closeRemainingTab();
-            }
-            else {
+            if( newTab != null ) {
               final FileEditorTab tab = (FileEditorTab) newTab;
               updateVariableNameInjector( tab );
-              refreshSelectedTab( tab );
+              process( tab );
             }
           }
         }
@@ -399,40 +364,69 @@ public class MainWindow implements Observer {
   /**
    * Reloads the preferences from the previous session.
    */
-  private void restorePreferences() {
-    restoreDefinitionPane();
-    getFileEditorPane().restorePreferences();
+  private void initPreferences() {
+    initDefinitionPane();
+    getFileEditorPane().initPreferences();
   }
 
   private void initVariableNameInjector() {
-    updateVariableNameInjector( getActiveFileEditor() );
+    updateVariableNameInjector( getActiveFileEditorTab() );
   }
 
   /**
    * Ensure that the keyboard events are received when a new tab is added
    * to the user interface.
    *
-   * @param tab The tab that can trigger keyboard events, such as
-   *            control+space.
+   * @param tab The tab editor that can trigger keyboard events.
    */
-  private void initKeyboardEventListener( final FileEditorTab tab ) {
-    tab.addEventFilter( KeyEvent.KEY_PRESSED, mEditorKeyHandler );
+  private void initTabKeyEventListener( final FileEditorTab tab ) {
+    tab.addEventFilter( KeyEvent.KEY_PRESSED, mTabKeyHandler );
   }
 
   private void initTextChangeListener( final FileEditorTab tab ) {
     tab.addTextChangeListener(
-        ( ObservableValue<? extends String> editor,
-          final String oldValue, final String newValue ) ->
-            refreshSelectedTab( tab )
+        ( editor, oldValue, newValue ) -> {
+          process( tab );
+          scrollToParagraph( getCurrentParagraphIndex() );
+        }
     );
+  }
+
+  private int getCurrentParagraphIndex() {
+    return getActiveEditorPane().getCurrentParagraphIndex();
+  }
+
+  private void scrollToParagraph( final int id ) {
+    scrollToParagraph( id, false );
+  }
+
+  /**
+   * @param id    The paragraph to scroll to, will be approximated if it doesn't
+   *              exist.
+   * @param force {@code true} means to force scrolling immediately, which
+   *              should only be attempted when it is known that the document
+   *              has been fully rendered. Otherwise the internal map of ID
+   *              attributes will be incomplete and scrolling will flounder.
+   */
+  private void scrollToParagraph( final int id, final boolean force ) {
+    synchronized( mMutex ) {
+      final var previewPane = getPreviewPane();
+      final var scrollPane = previewPane.getScrollPane();
+      final int approxId = getActiveEditorPane().approximateParagraphId( id );
+
+      if( force ) {
+        previewPane.scrollTo( approxId );
+      }
+      else {
+        previewPane.tryScrollTo( approxId );
+      }
+
+      scrollPane.repaint();
+    }
   }
 
   private void updateVariableNameInjector( final FileEditorTab tab ) {
     getVariableNameInjector().addListener( tab );
-  }
-
-  private VariableNameInjector getVariableNameInjector() {
-    return mVariableNameInjector;
   }
 
   /**
@@ -443,19 +437,16 @@ public class MainWindow implements Observer {
    *
    * @param tab The file editor tab that has been changed in some fashion.
    */
-  private void refreshSelectedTab( final FileEditorTab tab ) {
+  private void process( final FileEditorTab tab ) {
     if( tab == null ) {
       return;
     }
 
     getPreviewPane().setPath( tab.getPath() );
 
-    Processor<String> processor = getProcessors().get( tab );
-
-    if( processor == null ) {
-      processor = createProcessor( tab );
-      getProcessors().put( tab, processor );
-    }
+    final Processor<String> processor = getProcessors().computeIfAbsent(
+        tab, p -> createProcessor( tab )
+    );
 
     try {
       processor.processChain( tab.getEditorText() );
@@ -464,8 +455,8 @@ public class MainWindow implements Observer {
     }
   }
 
-  private void refreshActiveTab() {
-    refreshSelectedTab( getActiveFileEditor() );
+  private void renderActiveTab() {
+    process( getActiveFileEditorTab() );
   }
 
   /**
@@ -525,15 +516,8 @@ public class MainWindow implements Observer {
     getResolvedMap().putAll( map );
   }
 
-  private void restoreDefinitionPane() {
+  private void initDefinitionPane() {
     openDefinitions( getDefinitionPath() );
-  }
-
-  /**
-   * Called when the last open tab is closed to clear the preview pane.
-   */
-  private void closeRemainingTab() {
-    getPreviewPane().clear();
   }
 
   /**
@@ -593,7 +577,7 @@ public class MainWindow implements Observer {
         () -> {
           // Brute-force XSLT file reload by re-instantiating all processors.
           resetProcessors();
-          refreshActiveTab();
+          renderActiveTab();
         }
     );
   }
@@ -617,7 +601,7 @@ public class MainWindow implements Observer {
   }
 
   private void fileClose() {
-    getFileEditorPane().closeEditor( getActiveFileEditor(), true );
+    getFileEditorPane().closeEditor( getActiveFileEditorTab(), true );
   }
 
   /**
@@ -629,16 +613,16 @@ public class MainWindow implements Observer {
   }
 
   private void fileSave() {
-    getFileEditorPane().saveEditor( getActiveFileEditor() );
+    getFileEditorPane().saveEditor( getActiveFileEditorTab() );
   }
 
   private void fileSaveAs() {
-    final FileEditorTab editor = getActiveFileEditor();
+    final FileEditorTab editor = getActiveFileEditorTab();
     getFileEditorPane().saveEditorAs( editor );
     getProcessors().remove( editor );
 
     try {
-      refreshSelectedTab( editor );
+      process( editor );
     } catch( final Exception ex ) {
       getNotifier().notify( ex );
     }
@@ -665,7 +649,7 @@ public class MainWindow implements Observer {
   }
 
   public void editFindNext() {
-    getActiveFileEditor().searchNext( getFindTextField().getText() );
+    getActiveFileEditorTab().searchNext( getFindTextField().getText() );
   }
 
   public void editPreferences() {
@@ -683,13 +667,13 @@ public class MainWindow implements Observer {
    */
   private void insertMarkdown(
       final String leading, final String trailing ) {
-    getActiveEditor().surroundSelection( leading, trailing );
+    getActiveEditorPane().surroundSelection( leading, trailing );
   }
 
   @SuppressWarnings("SameParameterValue")
   private void insertMarkdown(
       final String leading, final String trailing, final String hint ) {
-    getActiveEditor().surroundSelection( leading, trailing, hint );
+    getActiveEditorPane().surroundSelection( leading, trailing, hint );
   }
 
   //---- Help actions -------------------------------------------------------
@@ -740,15 +724,6 @@ public class MainWindow implements Observer {
 
   private TextField createFindTextField() {
     return new TextField();
-  }
-
-  /**
-   * Create an editor pane to hold file editor tabs.
-   *
-   * @return A new instance, never null.
-   */
-  private FileEditorTabPane createFileEditorPane() {
-    return new FileEditorTabPane( mScrollEventObserver, mCaretListener );
   }
 
   private DefinitionFactory createDefinitionFactory() {
@@ -849,7 +824,7 @@ public class MainWindow implements Observer {
         .setText( "Main.menu.edit.undo" )
         .setAccelerator( "Shortcut+Z" )
         .setIcon( UNDO )
-        .setAction( e -> getActiveEditor().undo() )
+        .setAction( e -> getActiveEditorPane().undo() )
         .setDisable( createActiveBooleanProperty(
             FileEditorTab::canUndoProperty ).not() )
         .build();
@@ -857,7 +832,7 @@ public class MainWindow implements Observer {
         .setText( "Main.menu.edit.redo" )
         .setAccelerator( "Shortcut+Y" )
         .setIcon( REPEAT )
-        .setAction( e -> getActiveEditor().redo() )
+        .setAction( e -> getActiveEditorPane().redo() )
         .setDisable( createActiveBooleanProperty(
             FileEditorTab::canRedoProperty ).not() )
         .build();
@@ -935,7 +910,7 @@ public class MainWindow implements Observer {
         .setText( "Main.menu.insert.fenced_code_block" )
         .setAccelerator( "Shortcut+Shift+K" )
         .setIcon( FILE_CODE_ALT )
-        .setAction( e -> getActiveEditor().surroundSelection(
+        .setAction( e -> getActiveEditorPane().surroundSelection(
             "\n\n```\n",
             "\n```\n\n",
             get( "Main.menu.insert.fenced_code_block.prompt" ) ) )
@@ -945,14 +920,14 @@ public class MainWindow implements Observer {
         .setText( "Main.menu.insert.link" )
         .setAccelerator( "Shortcut+L" )
         .setIcon( LINK )
-        .setAction( e -> getActiveEditor().insertLink() )
+        .setAction( e -> getActiveEditorPane().insertLink() )
         .setDisable( activeFileEditorIsNull )
         .build();
     final Action insertImageAction = new ActionBuilder()
         .setText( "Main.menu.insert.image" )
         .setAccelerator( "Shortcut+G" )
         .setIcon( PICTURE_ALT )
-        .setAction( e -> getActiveEditor().insertImage() )
+        .setAction( e -> getActiveEditorPane().insertImage() )
         .setDisable( activeFileEditorIsNull )
         .build();
 
@@ -980,7 +955,7 @@ public class MainWindow implements Observer {
         .setText( "Main.menu.insert.unordered_list" )
         .setAccelerator( "Shortcut+U" )
         .setIcon( LIST_UL )
-        .setAction( e -> getActiveEditor()
+        .setAction( e -> getActiveEditorPane()
             .surroundSelection( "\n\n* ", "" ) )
         .setDisable( activeFileEditorIsNull )
         .build();
@@ -1098,7 +1073,7 @@ public class MainWindow implements Observer {
       final Function<FileEditorTab, ObservableBooleanValue> func ) {
 
     final BooleanProperty b = new SimpleBooleanProperty();
-    final FileEditorTab tab = getActiveFileEditor();
+    final FileEditorTab tab = getActiveFileEditorTab();
 
     if( tab != null ) {
       b.bind( func.apply( tab ) );
@@ -1134,15 +1109,11 @@ public class MainWindow implements Observer {
     return getScene().getWindow();
   }
 
-  private MarkdownEditorPane getActiveEditor() {
-    final EditorPane pane = getActiveFileEditor().getEditorPane();
-
-    return pane instanceof MarkdownEditorPane
-        ? (MarkdownEditorPane) pane
-        : new MarkdownEditorPane();
+  private MarkdownEditorPane getActiveEditorPane() {
+    return getActiveFileEditorTab().getEditorPane();
   }
 
-  private FileEditorTab getActiveFileEditor() {
+  private FileEditorTab getActiveFileEditorTab() {
     return getFileEditorPane().getActiveFileEditor();
   }
 
@@ -1190,6 +1161,10 @@ public class MainWindow implements Observer {
     return mFindTextField;
   }
 
+  private VariableNameInjector getVariableNameInjector() {
+    return mVariableNameInjector;
+  }
+
   /**
    * Returns the variable map of interpolated definitions.
    *
@@ -1204,6 +1179,7 @@ public class MainWindow implements Observer {
   }
 
   //---- Persistence accessors ----------------------------------------------
+
   private UserPreferences getUserPreferences() {
     return OPTIONS.getUserPreferences();
   }
@@ -1212,14 +1188,34 @@ public class MainWindow implements Observer {
     return getUserPreferences().getDefinitionPath();
   }
 
-  //---- Time accessors -----------------------------------------------------
+  private StackPane getVerticalScrollBarThumb(
+      final VirtualizedScrollPane<StyleClassedTextArea> pane ) {
+    final ScrollBar scrollBar = getVerticalScrollBar( pane );
+    final ScrollBarSkin skin = (ScrollBarSkin) (scrollBar.skinProperty().get());
 
-  /**
-   * Gets the current time in milliseconds.
-   *
-   * @return The value returned by {@link System#currentTimeMillis()}.
-   */
-  private static long now() {
-    return System.currentTimeMillis();
+    for( final Node node : skin.getChildren() ) {
+      // Brittle, but what can you do?
+      if( node.getStyleClass().contains( "thumb" ) ) {
+        return (StackPane) node;
+      }
+    }
+
+    throw new IllegalArgumentException( "No scroll bar skin found." );
+  }
+
+  private ScrollBar getVerticalScrollBar(
+      final VirtualizedScrollPane<StyleClassedTextArea> pane ) {
+
+    for( final Node node : pane.getChildrenUnmodifiable() ) {
+      if( node instanceof ScrollBar ) {
+        final ScrollBar scrollBar = (ScrollBar) node;
+
+        if( scrollBar.getOrientation() == VERTICAL ) {
+          return scrollBar;
+        }
+      }
+    }
+
+    throw new IllegalArgumentException( "No vertical scroll pane found." );
   }
 }

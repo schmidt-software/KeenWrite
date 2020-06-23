@@ -114,7 +114,7 @@ public class Constants {
    * Used as the prefix for uniquely identifying HTML block elements, which
    * helps coordinate scrolling the preview pane to where the user is typing.
    */
-  public static final String PARAGRAPH_ID_PREFIX = "para-";
+  public static final String PARAGRAPH_ID_PREFIX = "p-";
 
   /**
    * The {@link VirtualizedScrollPane} does not provide a way to differentiate
@@ -123,5 +123,5 @@ public class Constants {
    * a key that no synchronized scrolling will be attempted, despite a
    * scrolling event being fired.
    */
-  public static final int KEYBOARD_SCROLL_DELAY = 250;
+  public static final int KEYBOARD_SCROLL_DELAY = 750;
 }

@@ -46,7 +46,6 @@ import java.nio.file.Path;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.scrivenvar.Constants.PARAGRAPH_ID_PREFIX;
 import static com.scrivenvar.Constants.STYLESHEET_MARKDOWN;
 import static com.scrivenvar.util.Utils.ltrim;
 import static com.scrivenvar.util.Utils.rtrim;
@@ -85,8 +84,8 @@ public class MarkdownEditorPane extends EditorPane {
   }
 
   /**
-   * Aligns the editor's paragraph number with the paragraph number generated
-   * by HTML. Ultimately this solution is flawed because there isn't
+   * Returns the editor's paragraph number that will be close to its HTML
+   * paragraph ID. Ultimately this solution is flawed because there isn't
    * a straightforward correlation between the document being edited and
    * what is rendered. XML documents transformed through stylesheets have
    * no readily determined correlation. Images, tables, and other
@@ -102,12 +101,12 @@ public class MarkdownEditorPane extends EditorPane {
    * application, can instruct the preview pane where to shift the viewport.
    * </p>
    *
-   * @return A unique identifier that correlates to the preview pane.
+   * @return A unique identifier that correlates to an equivalent paragraph
+   * number once the Markdown is rendered into HTML.
    */
-  public String getCurrentParagraphId() {
+  public int approximateParagraphId( final int paraIndex ) {
     final StyleClassedTextArea editor = getEditor();
-    final int paraIndex = editor.getCurrentParagraph();
-    int i = 0, paragraphs = 0;
+    int i = 0, paragraph = 0;
 
     while( i < paraIndex ) {
       // Reduce numerously nested blockquotes to blanks for isBlank call.
@@ -115,10 +114,19 @@ public class MarkdownEditorPane extends EditorPane {
                                 .getText()
                                 .replace( '>', ' ' );
 
-      paragraphs += text.isBlank() ? 0 : 1;
+      paragraph += text.isBlank() ? 0 : 1;
     }
 
-    return PARAGRAPH_ID_PREFIX + paragraphs;
+    return paragraph;
+  }
+
+  /**
+   * Gets the index of the paragraph where the caret is positioned.
+   *
+   * @return The paragraph number for the caret.
+   */
+  public int getCurrentParagraphIndex() {
+    return getEditor().getCurrentParagraph();
   }
 
   public void surroundSelection( final String leading, final String trailing ) {

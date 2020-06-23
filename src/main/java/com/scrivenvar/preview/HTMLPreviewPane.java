@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Karl Tauber and White Magic Software, Ltd.
+ * Copyright 2020 Karl Tauber and White Magic Software, Ltd.
  *
  * All rights reserved.
  *
@@ -27,12 +27,17 @@
  */
 package com.scrivenvar.preview;
 
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.embed.swing.SwingNode;
 import javafx.scene.Node;
 import javafx.scene.layout.Pane;
 import org.jsoup.Jsoup;
 import org.jsoup.helper.W3CDom;
 import org.jsoup.nodes.Document;
+import org.xhtmlrenderer.event.DocumentListener;
 import org.xhtmlrenderer.layout.SharedContext;
 import org.xhtmlrenderer.render.Box;
 import org.xhtmlrenderer.simple.XHTMLPanel;
@@ -43,6 +48,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.nio.file.Path;
 
+import static com.scrivenvar.Constants.PARAGRAPH_ID_PREFIX;
 import static com.scrivenvar.Constants.STYLESHEET_PREVIEW;
 
 /**
@@ -57,6 +63,35 @@ public final class HTMLPreviewPane extends Pane {
   private static class HTMLPanel extends XHTMLPanel {
     @Override
     public void resetScrollPosition() {
+    }
+  }
+
+  /**
+   * Prevent scroll attempts until after the document has loaded.
+   */
+  private static final class DocumentEventHandler implements DocumentListener {
+    private final BooleanProperty mReadyProperty = new SimpleBooleanProperty();
+
+    public BooleanProperty readyProperty() {
+      return mReadyProperty;
+    }
+
+    @Override
+    public void documentStarted() {
+      mReadyProperty.setValue( Boolean.FALSE );
+    }
+
+    @Override
+    public void documentLoaded() {
+      mReadyProperty.setValue( Boolean.TRUE );
+    }
+
+    @Override
+    public void onLayoutException( final Throwable t ) {
+    }
+
+    @Override
+    public void onRenderException( final Throwable t ) {
     }
   }
 
@@ -78,6 +113,8 @@ public final class HTMLPreviewPane extends Pane {
   private final HTMLPanel mRenderer = new HTMLPanel();
   private final SwingNode mSwingNode = new SwingNode();
   private final JScrollPane mScrollPane = new JScrollPane( mRenderer );
+  private final DocumentEventHandler mDocumentHandler =
+      new DocumentEventHandler();
 
   private Path mPath;
 
@@ -98,6 +135,8 @@ public final class HTMLPreviewPane extends Pane {
 
     mHtml.append( HTML_HEADER );
     mHtmlPrefixLength = mHtml.length();
+
+    mRenderer.addDocumentListener( mDocumentHandler );
   }
 
   /**
@@ -119,13 +158,93 @@ public final class HTMLPreviewPane extends Pane {
    *
    * @param id The unique anchor link identifier.
    */
-  public void scrollTo( final String id ) {
-    assert id != null;
-    final Box box = getSharedContext().getBoxById( id );
+  public void tryScrollTo( final int id ) {
+    final ChangeListener<Boolean> listener = new ChangeListener<>() {
+      @Override
+      public void changed(
+          final ObservableValue<? extends Boolean> observable,
+          final Boolean oldValue,
+          final Boolean newValue ) {
+        if( newValue ) {
+          scrollTo( id );
 
-    if( box != null ) {
-      mRenderer.scrollTo( createPoint( box ) );
+          mDocumentHandler.readyProperty().removeListener( this );
+        }
+      }
+    };
+
+    mDocumentHandler.readyProperty().addListener( listener );
+  }
+
+  /**
+   * Scrolls to the closest element matching the given identifier without
+   * waiting for the document to be ready. Be sure the document is ready
+   * before calling this method.
+   *
+   * @param id Paragraph index.
+   */
+  public void scrollTo( final int id ) {
+    if( id < 2 ) {
+      scrollToTop();
     }
+    else {
+      Box box = findPrevBox( id );
+      box = box == null ? findNextBox( id + 1 ) : box;
+
+      if( box == null ) {
+        srollToBottom();
+      }
+      else {
+        scrollTo( box );
+      }
+    }
+  }
+
+  private Box findPrevBox( final int id ) {
+    int prevId = id;
+    Box box = null;
+
+    while( prevId > 0 && (box = getBoxById( PARAGRAPH_ID_PREFIX + prevId )) == null ) {
+      prevId--;
+    }
+
+    return box;
+  }
+
+  private Box findNextBox( final int id ) {
+    int nextId = id;
+    Box box = null;
+
+    while( nextId - id < 5 &&
+        (box = getBoxById( PARAGRAPH_ID_PREFIX + nextId )) == null ) {
+      nextId++;
+    }
+
+    return box;
+  }
+
+  private void scrollTo( final Point point ) {
+    mRenderer.scrollTo( point );
+  }
+
+  private void scrollTo( final Box box ) {
+    scrollTo( createPoint( box ) );
+  }
+
+  private void scrollToY( final int y ) {
+    scrollTo( new Point( 0, y ) );
+  }
+
+  private void scrollToTop() {
+    scrollToY( 0 );
+  }
+
+  private void srollToBottom() {
+    scrollToY( mRenderer.getHeight() );
+  }
+
+  private Box getBoxById( final String id ) {
+    return getSharedContext().getBoxById( id );
   }
 
   private String decorate( final String html ) {
@@ -136,13 +255,6 @@ public final class HTMLPreviewPane extends Pane {
     return mHtml.append( html )
                 .append( HTML_FOOTER )
                 .toString();
-  }
-
-  /**
-   * Clears out the HTML content from the preview.
-   */
-  public void clear() {
-    update( "" );
   }
 
   public Path getPath() {

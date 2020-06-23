@@ -38,7 +38,6 @@ import javafx.beans.property.ReadOnlyBooleanWrapper;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.Event;
@@ -57,7 +56,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Consumer;
 import java.util.prefs.Preferences;
 import java.util.stream.Collectors;
 
@@ -80,30 +78,33 @@ public final class FileEditorTabPane extends TabPane {
   private final static Settings sSettings = Services.load( Settings.class );
   private final static Notifier sNotifier = Services.load( Notifier.class );
 
-  private final ReadOnlyObjectWrapper<Path> openDefinition =
+  private final ReadOnlyObjectWrapper<Path> mOpenDefinition =
       new ReadOnlyObjectWrapper<>();
   private final ReadOnlyObjectWrapper<FileEditorTab> mActiveFileEditor =
       new ReadOnlyObjectWrapper<>();
-  private final ReadOnlyBooleanWrapper anyFileEditorModified =
+  private final ReadOnlyBooleanWrapper mAnyFileEditorModified =
       new ReadOnlyBooleanWrapper();
-  private final Consumer<Double> mScrollEventObserver;
-  private final ChangeListener<Integer> mCaretListener;
+  private final ChangeListener<Integer> mCaretPositionListener;
+  private final ChangeListener<Integer> mCaretParagraphListener;
 
   /**
    * Constructs a new file editor tab pane.
+   *
+   * @param caretPositionListener  Listens for changes to caret position so
+   *                               that the status bar can update.
+   * @param caretParagraphListener Listens for changes to the caret's paragraph
+   *                               so that scrolling may occur.
    */
   public FileEditorTabPane(
-      final Consumer<Double> scrollEventObserver,
-      final ChangeListener<Integer> caretListener ) {
+      final ChangeListener<Integer> caretPositionListener,
+      final ChangeListener<Integer> caretParagraphListener ) {
     final ObservableList<Tab> tabs = getTabs();
 
     setFocusTraversable( false );
     setTabClosingPolicy( TabClosingPolicy.ALL_TABS );
 
     addTabSelectionListener(
-        ( ObservableValue<? extends Tab> tabPane,
-          final Tab oldTab, final Tab newTab ) -> {
-
+        ( tabPane, oldTab, newTab ) -> {
           if( newTab != null ) {
             mActiveFileEditor.set( (FileEditorTab) newTab );
           }
@@ -114,7 +115,7 @@ public final class FileEditorTabPane extends TabPane {
         ( observable, oldValue, newValue ) -> {
           for( final Tab tab : tabs ) {
             if( ((FileEditorTab) tab).isModified() ) {
-              this.anyFileEditorModified.set( true );
+              mAnyFileEditorModified.set( true );
               break;
             }
           }
@@ -125,9 +126,11 @@ public final class FileEditorTabPane extends TabPane {
           while( change.next() ) {
             if( change.wasAdded() ) {
               change.getAddedSubList().forEach(
-                  ( tab ) ->
-                      ((FileEditorTab) tab).modifiedProperty()
-                                           .addListener( modifiedListener ) );
+                  ( tab ) -> {
+                    final var fet = (FileEditorTab) tab;
+                    fet.modifiedProperty()
+                       .addListener( modifiedListener );
+                  } );
             }
             else if( change.wasRemoved() ) {
               change.getRemoved().forEach(
@@ -143,8 +146,8 @@ public final class FileEditorTabPane extends TabPane {
         }
     );
 
-    mScrollEventObserver = scrollEventObserver;
-    mCaretListener = caretListener;
+    mCaretPositionListener = caretPositionListener;
+    mCaretParagraphListener = caretParagraphListener;
   }
 
   /**
@@ -182,7 +185,7 @@ public final class FileEditorTabPane extends TabPane {
    * @return A non-null instance, true meaning the content has not been saved.
    */
   ReadOnlyBooleanProperty anyFileEditorModifiedProperty() {
-    return this.anyFileEditorModified.getReadOnlyProperty();
+    return mAnyFileEditorModified.getReadOnlyProperty();
   }
 
   /**
@@ -196,10 +199,6 @@ public final class FileEditorTabPane extends TabPane {
 
     final FileEditorTab tab = new FileEditorTab( path );
 
-    tab.getEditorPane().getScrollPane().estimatedScrollYProperty().addObserver(
-        mScrollEventObserver
-    );
-
     tab.setOnCloseRequest( e -> {
       if( !canCloseEditor( tab ) ) {
         e.consume();
@@ -211,7 +210,8 @@ public final class FileEditorTabPane extends TabPane {
       }
     } );
 
-    tab.addCaretParagraphListener( mCaretListener );
+    tab.addCaretPositionListener( mCaretPositionListener );
+    tab.addCaretParagraphListener( mCaretParagraphListener );
 
     return tab;
   }
@@ -233,8 +233,7 @@ public final class FileEditorTabPane extends TabPane {
    * Called when the user selects New from the File menu.
    */
   void newEditor() {
-    final Path defaultPath = getDefaultPath();
-    final FileEditorTab tab = createFileEditor( defaultPath );
+    final FileEditorTab tab = createFileEditor( getDefaultPath() );
 
     getTabs().add( tab );
     getSelectionModel().select( tab );
@@ -331,7 +330,7 @@ public final class FileEditorTabPane extends TabPane {
   }
 
   private ReadOnlyObjectWrapper<Path> getOnOpenDefinitionFile() {
-    return this.openDefinition;
+    return mOpenDefinition;
   }
 
   /**
@@ -568,15 +567,11 @@ public final class FileEditorTabPane extends TabPane {
     return new ExtensionFilter( Messages.get( tKey ), getExtensions( eKey ) );
   }
 
-  private List<String> getExtensions( final String key ) {
-    return getSettings().getStringSettingList( key );
-  }
-
   private void saveLastDirectory( final File file ) {
     getPreferences().put( "lastDirectory", file.getParent() );
   }
 
-  public void restorePreferences() {
+  public void initPreferences() {
     int activeIndex = 0;
 
     final Preferences preferences = getPreferences();
@@ -632,6 +627,10 @@ public final class FileEditorTabPane extends TabPane {
     else {
       preferences.put( "activeFile", filePath.toString() );
     }
+  }
+
+  private List<String> getExtensions( final String key ) {
+    return getSettings().getStringSettingList( key );
   }
 
   private Notifier getNotifyService() {

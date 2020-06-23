@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2015 Karl Tauber <karl at jformdesigner dot com>
+ * Copyright 2020 Karl Tauber and White Magic Software, Ltd.
+ *
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,123 +30,12 @@
   -fx-font-size: 14px;
 }
 
-/*---- headers ----*/
-
-.markdown-editor .h1 { -fx-font-size: 2.25em; }
-.markdown-editor .h2 { -fx-font-size: 1.75em; }
-.markdown-editor .h3 { -fx-font-size: 1.5em; }
-.markdown-editor .h4 { -fx-font-size: 1.25em; }
-.markdown-editor .h5 { -fx-font-size: 1.1em; }
-.markdown-editor .h6 { -fx-font-size: 1em; }
-
-.markdown-editor .h1,
-.markdown-editor .h2,
-.markdown-editor .h3,
-.markdown-editor .h4,
-.markdown-editor .h5,
-.markdown-editor .h6 {
-  -fx-font-weight: bold;
-  -fx-fill: derive(crimson, -20%);
+/* Subtly highlight the current paragraph. */
+.markdown-editor .paragraph-box:has-caret {
+  -fx-background-color: #fcfeff;
 }
 
-
-/*---- inlines ----*/
-
-.markdown-editor .strong {
-  -fx-font-weight: bold;
-}
-
-.markdown-editor .em {
-  -fx-font-style: italic;
-}
-
-.markdown-editor .del {
-  -fx-strikethrough: true;
-}
-
-.markdown-editor .a {
-  -fx-fill: #4183C4 !important;
-}
-
-.markdown-editor .img {
-  -fx-fill: #4183C4 !important;
-}
-
-.markdown-editor .code {
-  -fx-font-family: monospace;
-  -fx-fill: #090 !important;
-}
-
-
-/*---- blocks ----*/
-
-.markdown-editor .pre {
-  -fx-font-family: monospace;
-  -fx-fill: #060 !important;
-}
-
-.markdown-editor .blockquote {
-  -fx-fill: #777;
-}
-
-
-/*---- lists ----*/
-
-.markdown-editor .ul {
-}
-
-.markdown-editor .ol {
-}
-
-.markdown-editor .li {
-  -fx-fill: #444;
-}
-
-.markdown-editor .dl {
-}
-
-.markdown-editor .dt {
-  -fx-font-weight: bold;
-  -fx-font-style: italic;
-}
-
-.markdown-editor .dd {
-  -fx-fill: #444;
-}
-
-
-/*---- table ----*/
-
-.markdown-editor .table {
-  -fx-font-family: monospace;
-}
-
-.markdown-editor .thead {
-}
-
-.markdown-editor .tbody {
-}
-
-.markdown-editor .caption {
-}
-
-.markdown-editor .th {
-  -fx-font-weight: bold;
-}
-
-.markdown-editor .tr {
-}
-
-.markdown-editor .td {
-}
-
-
-/*---- misc ----*/
-
-.markdown-editor .html {
-  -fx-font-family: monospace;
-  -fx-fill: derive(crimson, -50%);
-}
-.markdown-editor .monospace {
-  -fx-font-family: monospace;
+/* Light colour for selection highlight. */
+.markdown-editor .selection {
+  -fx-fill: #a6d2ff;
 }
