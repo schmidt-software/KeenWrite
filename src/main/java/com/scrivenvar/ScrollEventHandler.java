@@ -117,6 +117,12 @@ public final class ScrollEventHandler implements EventHandler<Event> {
     return mEnabled;
   }
 
+  /**
+   * Scrolls the preview scrollbar relative to the edit scrollbar. Algorithm
+   * is based on Karl Tauber's ratio calculation.
+   *
+   * @param event Unused; either {@link MouseEvent} or {@link ScrollEvent}
+   */
   @Override
   public void handle( final Event event ) {
     if( isEnabled() ) {
