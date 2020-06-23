@@ -18,34 +18,62 @@ repositories {
 }
 
 dependencies {
+  // JavaFX
   implementation 'org.reactfx:reactfx:1.4.1'
   implementation 'org.controlsfx:controlsfx:11.0.1'
   implementation 'org.fxmisc.richtext:richtextfx:0.10.5'
   implementation 'org.fxmisc.wellbehaved:wellbehavedfx:0.3.3'
   implementation 'com.miglayout:miglayout-javafx:5.2'
   implementation 'com.dlsc.preferencesfx:preferencesfx-core:11.6.0'
+  implementation 'de.jensd:fontawesomefx-commons:11.0'
+  implementation 'de.jensd:fontawesomefx-fontawesome:4.7.0-11'
+
+  // Markdown
   implementation 'com.vladsch.flexmark:flexmark:0.62.2'
   implementation 'com.vladsch.flexmark:flexmark-ext-definition:0.62.2'
   implementation 'com.vladsch.flexmark:flexmark-ext-gfm-strikethrough:0.62.2'
   implementation 'com.vladsch.flexmark:flexmark-ext-superscript:0.62.2'
   implementation 'com.vladsch.flexmark:flexmark-ext-tables:0.62.2'
   implementation 'com.vladsch.flexmark:flexmark-ext-typographic:0.62.2'
+
+  // YAML
   implementation 'com.fasterxml.jackson.core:jackson-core:2.11.0'
   implementation 'com.fasterxml.jackson.core:jackson-databind:2.11.0'
   implementation 'com.fasterxml.jackson.core:jackson-annotations:2.11.0'
   implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.11.0'
-  implementation 'org.ahocorasick:ahocorasick:0.4.0'
   implementation 'org.yaml:snakeyaml:1.26'
+
+  // XML and XSL
   implementation 'com.ximpleware:vtd-xml:2.13.4'
   implementation 'net.sf.saxon:Saxon-HE:10.1'
+
+  // HTML parsing and rendering
+  implementation 'org.jsoup:jsoup:1.13.1'
+  implementation 'org.xhtmlrenderer:flying-saucer-core:9.1.20'
+
+  // R
+  implementation 'org.renjin:renjin-script-engine:3.5-beta76'
+
+  // SVG
+  implementation 'org.apache.xmlgraphics:batik-anim:1.13'
+  implementation 'org.apache.xmlgraphics:batik-awt-util:1.13'
+  implementation 'org.apache.xmlgraphics:batik-bridge:1.13'
+  implementation 'org.apache.xmlgraphics:batik-css:1.13'
+  implementation 'org.apache.xmlgraphics:batik-dom:1.13'
+  implementation 'org.apache.xmlgraphics:batik-ext:1.13'
+  implementation 'org.apache.xmlgraphics:batik-gvt:1.13'
+  implementation 'org.apache.xmlgraphics:batik-parser:1.13'
+  implementation 'org.apache.xmlgraphics:batik-script:1.13'
+  implementation 'org.apache.xmlgraphics:batik-svg-dom:1.13'
+  implementation 'org.apache.xmlgraphics:batik-svggen:1.13'
+  implementation 'org.apache.xmlgraphics:batik-transcoder:1.13'
+  implementation 'org.apache.xmlgraphics:batik-util:1.13'
+  implementation 'org.apache.xmlgraphics:batik-xml:1.13'
+
+  // Misc.
+  implementation 'org.ahocorasick:ahocorasick:0.4.0'
   implementation 'org.apache.commons:commons-configuration2:2.7'
   implementation 'com.googlecode.juniversalchardet:juniversalchardet:1.0.3'
-  implementation 'de.jensd:fontawesomefx-commons:11.0'
-  implementation 'de.jensd:fontawesomefx-fontawesome:4.7.0-11'
-  implementation 'org.renjin:renjin-script-engine:3.5-beta76'
-  implementation 'org.xhtmlrenderer:flying-saucer-core:9.1.20'
-  implementation 'org.jsoup:jsoup:1.13.1'
-  implementation 'org.apache.xmlgraphics:batik-all:1.13'
 
   def os = ['win', 'linux', 'mac']
   def fx = ['controls', 'graphics', 'fxml', 'swing']
