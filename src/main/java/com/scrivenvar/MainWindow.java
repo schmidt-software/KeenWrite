@@ -669,7 +669,6 @@ public class MainWindow implements Observer {
     getActiveEditorPane().surroundSelection( leading, trailing );
   }
 
-  @SuppressWarnings("SameParameterValue")
   private void insertMarkdown(
       final String leading, final String trailing, final String hint ) {
     getActiveEditorPane().surroundSelection( leading, trailing, hint );
@@ -909,7 +908,7 @@ public class MainWindow implements Observer {
         .setText( "Main.menu.insert.fenced_code_block" )
         .setAccelerator( "Shortcut+Shift+K" )
         .setIcon( FILE_CODE_ALT )
-        .setAction( e -> getActiveEditorPane().surroundSelection(
+        .setAction( e -> insertMarkdown(
             "\n\n```\n",
             "\n```\n\n",
             get( "Main.menu.insert.fenced_code_block.prompt" ) ) )
@@ -954,8 +953,7 @@ public class MainWindow implements Observer {
         .setText( "Main.menu.insert.unordered_list" )
         .setAccelerator( "Shortcut+U" )
         .setIcon( LIST_UL )
-        .setAction( e -> getActiveEditorPane()
-            .surroundSelection( "\n\n* ", "" ) )
+        .setAction( e -> insertMarkdown( "\n\n* ", "" ) )
         .setDisable( activeFileEditorIsNull )
         .build();
     final Action insertOrderedListAction = new ActionBuilder()
