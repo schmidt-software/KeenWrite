@@ -137,6 +137,7 @@ public final class HTMLPreviewPane extends Pane {
     mHtmlPrefixLength = mHtml.length();
 
     mRenderer.addDocumentListener( mDocumentHandler );
+    setStyle("-fx-background-color: white;");
   }
 
   /**

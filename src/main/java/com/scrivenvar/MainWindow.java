@@ -75,6 +75,7 @@ import javafx.scene.text.Text;
 import javafx.stage.Window;
 import javafx.stage.WindowEvent;
 import javafx.util.Duration;
+import org.apache.commons.lang3.SystemUtils;
 import org.controlsfx.control.StatusBar;
 import org.fxmisc.richtext.StyleClassedTextArea;
 import org.reactfx.value.Val;
@@ -206,8 +207,9 @@ public class MainWindow implements Observer {
     mFindTextField = createFindTextField();
     mScene = createScene();
 
-    System.getProperties().setProperty("xr.util-logging.loggingEnabled", "true");
-    XRLog.setLoggingEnabled( true);
+    System.getProperties()
+          .setProperty( "xr.util-logging.loggingEnabled", "true" );
+    XRLog.setLoggingEnabled( true );
 
     initLayout();
     initFindInput();
@@ -772,6 +774,17 @@ public class MainWindow implements Observer {
     statusBar.setAlignment( Pos.BASELINE_CENTER );
     statusBar.getChildren().add( getLineNumberText() );
     getStatusBar().getRightItems().add( statusBar );
+
+    // Force preview pane refresh on Windows.
+    splitPane.getDividers().get( 1 ).positionProperty().addListener(
+        ( l, oValue, nValue ) -> Platform.runLater(
+            () -> {
+              if( SystemUtils.IS_OS_WINDOWS ) {
+                getPreviewPane().getScrollPane().repaint();
+              }
+            }
+        )
+    );
 
     return new Scene( borderPane );
   }
