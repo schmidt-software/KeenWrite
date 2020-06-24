@@ -106,6 +106,14 @@ def launcherClassName = "com.${applicationName}.Launcher"
 def propertiesFile = new File("src/main/resources/com/${applicationName}/app.properties")
 propertiesFile.write("application.version=${version}")
 
+//sourceSets {
+//  main {
+//    resources {
+//      srcDir 'resources'
+//    }
+//  }
+//}
+
 jar {
   duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 

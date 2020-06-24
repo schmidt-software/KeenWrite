@@ -30,16 +30,26 @@ package com.scrivenvar;
 import com.scrivenvar.preferences.FilePreferencesFactory;
 import com.scrivenvar.service.Options;
 import com.scrivenvar.service.Snitch;
+import com.scrivenvar.service.events.Notifier;
+import com.scrivenvar.util.ResourceWalker;
 import com.scrivenvar.util.StageState;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
+import java.awt.*;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
+import java.util.Map;
 import java.util.logging.LogManager;
 
 import static com.scrivenvar.Constants.*;
 import static com.scrivenvar.Messages.get;
+import static java.awt.font.TextAttribute.LIGATURES;
+import static java.awt.font.TextAttribute.LIGATURES_ON;
 
 /**
  * Application entry point. The application allows users to edit Markdown
@@ -54,6 +64,7 @@ public final class Main extends Application {
     LogManager.getLogManager().reset();
   }
 
+  private final static Notifier sNotifier = Services.load( Notifier.class );
   private final Options mOptions = Services.load( Options.class );
   private final Snitch mSnitch = Services.load( Snitch.class );
   private final Thread mSnitchThread = new Thread( getSnitch() );
@@ -69,6 +80,7 @@ public final class Main extends Application {
    */
   public static void main( final String[] args ) {
     initPreferences();
+    initFonts();
     launch( args );
   }
 
@@ -84,6 +96,42 @@ public final class Main extends Application {
     initSnitch();
 
     stage.show();
+  }
+
+  /**
+   * This needs to run before the windowing system kicks in, otherwise the
+   * fonts will not be found.
+   */
+  @SuppressWarnings({"rawtypes", "unchecked"})
+  private static void initFonts() {
+    final var ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+
+    try {
+      ResourceWalker.walk(
+          "/fonts", path -> {
+            final var uri = path.toUri();
+            final var filename = path.toString();
+
+            try( final var is = openFont( uri, filename ) ) {
+              final var font = Font.createFont( Font.TRUETYPE_FONT, is );
+              final Map attributes = font.getAttributes();
+              attributes.put( LIGATURES, LIGATURES_ON );
+              ge.registerFont( font.deriveFont( attributes ) );
+            } catch( final Exception e ) {
+              getNotifier().notify( e );
+            }
+          }
+      );
+    } catch( final Exception e ) {
+      getNotifier().notify( e );
+    }
+  }
+
+  private static InputStream openFont( final URI uri, final String filename )
+      throws IOException {
+    return uri.getScheme().equals( "jar" )
+        ? Main.class.getResourceAsStream( filename )
+        : new FileInputStream( filename );
   }
 
   /**
@@ -142,6 +190,10 @@ public final class Main extends Application {
 
   private Options getOptions() {
     return mOptions;
+  }
+
+  private static Notifier getNotifier() {
+    return sNotifier;
   }
 
   private MainWindow getMainWindow() {

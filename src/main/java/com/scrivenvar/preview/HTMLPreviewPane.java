@@ -192,7 +192,7 @@ public final class HTMLPreviewPane extends Pane {
       box = box == null ? findNextBox( id + 1 ) : box;
 
       if( box == null ) {
-        srollToBottom();
+        scrollToBottom();
       }
       else {
         scrollTo( box );
@@ -239,7 +239,7 @@ public final class HTMLPreviewPane extends Pane {
     scrollToY( 0 );
   }
 
-  private void srollToBottom() {
+  private void scrollToBottom() {
     scrollToY( mRenderer.getHeight() );
   }
 
@@ -283,6 +283,15 @@ public final class HTMLPreviewPane extends Pane {
     return getScrollPane().getVerticalScrollBar();
   }
 
+  /**
+   * Creates a {@link Point} to use as a reference for scrolling to the area
+   * described by the given {@link Box}. The {@link Box} coordinates are used
+   * to populate the {@link Point}'s location, with minor adjustments for
+   * vertical centering.
+   *
+   * @param box The {@link Box} that represents a scrolling anchor reference.
+   * @return A coordinate suitable for scrolling to.
+   */
   private Point createPoint( final Box box ) {
     assert box != null;
 

@@ -28,7 +28,7 @@ blockquote, q {
 }
 blockquote:before, blockquote:after,
 q:before, q:after {
-	content: '';
+	content: "";
 	content: none;
 }
 table {
@@ -39,7 +39,7 @@ table {
 /* BODY
 =============================================================================*/
 body {
-  font-family: Vollkorn, serif;
+  font-family: "Vollkorn", serif;
   font-size: 16px;
   background-color: #fff;
   margin: 0 auto;
@@ -175,8 +175,8 @@ dl dd {
 /* CODE
 =============================================================================*/
 pre, code, tt {
-  font-size: 12px;
-  font-family: Consolas, "Liberation Mono", Courier, monospace;
+  font-size: 14px;
+  font-family: "Fira Code", monospace;
 }
 
 code, tt {
@@ -195,8 +195,7 @@ pre>code {
 pre {
   background-color: #f8f8f8;
   border: .125em solid #ccc;
-  font-size: 13px;
-  line-height: 19px;
+  line-height: 1.6;
   overflow: auto;
   padding: .25em .5em;
   border-radius: .25em;
