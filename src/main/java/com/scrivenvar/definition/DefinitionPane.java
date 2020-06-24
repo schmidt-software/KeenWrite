@@ -27,20 +27,28 @@
  */
 package com.scrivenvar.definition;
 
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
+import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.event.EventHandler;
+import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.TextFieldTreeCell;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
 import javafx.util.StringConverter;
 
 import java.util.*;
 
 import static com.scrivenvar.Messages.get;
+import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.*;
+import static javafx.geometry.Pos.CENTER;
 import static javafx.scene.input.KeyEvent.KEY_PRESSED;
 
 /**
@@ -85,10 +93,43 @@ public final class DefinitionPane extends TitledPane {
     treeView.setShowRoot( false );
     getSelectionModel().setSelectionMode( SelectionMode.MULTIPLE );
 
+    final var bCreate = createButton(
+        "create", TREE, e -> addItem() );
+    final var bRename = createButton(
+        "rename", EDIT, e -> editSelectedItem() );
+    final var bDelete = createButton(
+        "delete", TRASH, e -> deleteSelectedItems() );
+
+    final var buttonBar = new HBox();
+    buttonBar.getChildren().addAll( bCreate, bRename, bDelete );
+    buttonBar.setAlignment( CENTER );
+    buttonBar.setSpacing( 10 );
+
+    final var borderPane = new BorderPane();
+    borderPane.setPadding( new Insets( 0, 0, 0, 0 ) );
+    borderPane.setCenter( treeView );
+    borderPane.setBottom( buttonBar );
+
     textProperty().bind( mFilename );
 
-    setContent( treeView );
+    setContent( borderPane );
     setCollapsible( false );
+  }
+
+  private Button createButton(
+      final String msgKey,
+      final FontAwesomeIcon icon,
+      final EventHandler<ActionEvent> eventHandler ) {
+    final var keyPrefix = "Pane.definition.button." + msgKey;
+    final var button = new Button( get( keyPrefix + ".label" ) );
+    button.setOnAction( eventHandler );
+
+    button.setGraphic(
+        FontAwesomeIconFactory.get().createIcon( icon )
+    );
+    button.setTooltip( new Tooltip( get( keyPrefix + ".tooltip" ) ) );
+
+    return button;
   }
 
   /**

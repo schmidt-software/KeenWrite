@@ -50,6 +50,8 @@ import static com.scrivenvar.Constants.*;
 import static com.scrivenvar.Messages.get;
 import static java.awt.font.TextAttribute.LIGATURES;
 import static java.awt.font.TextAttribute.LIGATURES_ON;
+import static javafx.scene.input.KeyCode.F11;
+import static javafx.scene.input.KeyEvent.KEY_PRESSED;
 
 /**
  * Application entry point. The application allows users to edit Markdown
@@ -59,7 +61,7 @@ import static java.awt.font.TextAttribute.LIGATURES_ON;
  */
 public final class Main extends Application {
 
-  // Suppress logging errors to standard output.
+  // Suppress standard output logging; the Launcher suppresses stderr output.
   static {
     LogManager.getLogManager().reset();
   }
@@ -108,7 +110,7 @@ public final class Main extends Application {
 
     try {
       ResourceWalker.walk(
-          "/fonts", path -> {
+          FONT_DIRECTORY, path -> {
             final var uri = path.toUri();
             final var filename = path.toString();
 
@@ -157,6 +159,12 @@ public final class Main extends Application {
         createImage( FILE_LOGO_512 ) );
     stage.setTitle( getApplicationTitle() );
     stage.setScene( getScene() );
+
+    stage.addEventHandler( KEY_PRESSED, event -> {
+      if( F11.equals( event.getCode() ) ) {
+        stage.setFullScreen( !stage.isFullScreen() );
+      }
+    } );
   }
 
   /**
@@ -180,6 +188,10 @@ public final class Main extends Application {
     thread.join();
   }
 
+  private static Notifier getNotifier() {
+    return sNotifier;
+  }
+
   private Snitch getSnitch() {
     return mSnitch;
   }
@@ -190,10 +202,6 @@ public final class Main extends Application {
 
   private Options getOptions() {
     return mOptions;
-  }
-
-  private static Notifier getNotifier() {
-    return sNotifier;
   }
 
   private MainWindow getMainWindow() {

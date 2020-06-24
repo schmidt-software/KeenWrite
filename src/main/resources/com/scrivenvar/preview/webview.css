@@ -39,6 +39,7 @@ table {
 /* BODY
 =============================================================================*/
 body {
+  /* Must be bundled in JAR file. */
   font-family: "Vollkorn", serif;
   font-size: 16px;
   background-color: #fff;
@@ -145,7 +146,7 @@ ol ol, ul ol {
 /* DEFINITION LISTS
 =============================================================================*/
 dl {
-  /** Horizontal scroll bar from appears if set to 100%. */
+  /** Horizontal scroll bar will appear if set to 100%. */
   width: 99%;
   overflow: hidden;
   padding-left: 1em;
@@ -176,6 +177,7 @@ dl dd {
 =============================================================================*/
 pre, code, tt {
   font-size: 14px;
+  /* Must be bundled in JAR file. */
   font-family: "Fira Code", monospace;
 }
 
@@ -208,15 +210,15 @@ pre code, pre tt {
 
 kbd {
   background-color: #ccc;
-  background-image: linear-gradient(#F1F1F1, #DDDDDD);
+  background-image: linear-gradient(#f8f8f8, #DDDDDD);
   background-repeat: repeat-x;
   border-color: #DDDDDD #CCCCCC #CCCCCC #DDDDDD;
   border-image: none;
   border-radius: 2px;
   border-style: solid;
   border-width: 1px;
-  font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
-  line-height: 10px;
+  font-family: sans-serif;
+  line-height: 1.25;
   padding: 1px 4px;
 }
 

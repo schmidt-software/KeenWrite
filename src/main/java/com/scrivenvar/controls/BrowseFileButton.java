@@ -27,10 +27,9 @@
 
 package com.scrivenvar.controls;
 
-import java.io.File;
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
+import com.scrivenvar.Messages;
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
+import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.event.ActionEvent;
@@ -40,75 +39,88 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
-import com.scrivenvar.Messages;
-import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
-import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
+
+import java.io.File;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * Button that opens a file chooser to select a local file for a URL in markdown.
+ * Button that opens a file chooser to select a local file for a URL in
+ * markdown.
  *
  * @author Karl Tauber
  */
-public class BrowseFileButton
-	extends Button
-{
-	private final List<ExtensionFilter> extensionFilters = new ArrayList<>();
+public class BrowseFileButton extends Button {
+  private final List<ExtensionFilter> extensionFilters = new ArrayList<>();
 
-	public BrowseFileButton() {
-		setGraphic(FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.FILE_ALT, "1.2em"));
-		setTooltip(new Tooltip(Messages.get("BrowseFileButton.tooltip")));
-		setOnAction(this::browse);
+  public BrowseFileButton() {
+    setGraphic(
+        FontAwesomeIconFactory.get().createIcon( FontAwesomeIcon.FILE_ALT )
+    );
+    setTooltip( new Tooltip( Messages.get( "BrowseFileButton.tooltip" ) ) );
+    setOnAction( this::browse );
 
-		disableProperty().bind(basePath.isNull());
+    disableProperty().bind( basePath.isNull() );
 
-		// workaround for a JavaFX bug:
-		//   avoid closing the dialog that contains this control when the user
-		//   closes the FileChooser or DirectoryChooser using the ESC key
-		addEventHandler(KeyEvent.KEY_RELEASED, e-> {
-			if (e.getCode() == KeyCode.ESCAPE)
-				e.consume();
-		});
-	}
+    // workaround for a JavaFX bug:
+    //   avoid closing the dialog that contains this control when the user
+    //   closes the FileChooser or DirectoryChooser using the ESC key
+    addEventHandler( KeyEvent.KEY_RELEASED, e -> {
+      if( e.getCode() == KeyCode.ESCAPE ) {
+        e.consume();
+      }
+    } );
+  }
 
-	public void addExtensionFilter(ExtensionFilter extensionFilter) {
-		extensionFilters.add(extensionFilter);
-	}
+  public void addExtensionFilter( ExtensionFilter extensionFilter ) {
+    extensionFilters.add( extensionFilter );
+  }
 
-	// 'basePath' property
-	private final ObjectProperty<Path> basePath = new SimpleObjectProperty<>();
-	public Path getBasePath() { return basePath.get(); }
-	public void setBasePath(Path basePath) { this.basePath.set(basePath); }
-	public ObjectProperty<Path> basePathProperty() { return basePath; }
+  // 'basePath' property
+  private final ObjectProperty<Path> basePath = new SimpleObjectProperty<>();
 
-	// 'url' property
-	private final ObjectProperty<String> url = new SimpleObjectProperty<>();
-	public String getUrl() { return url.get(); }
-	public void setUrl(String url) { this.url.set(url); }
-	public ObjectProperty<String> urlProperty() { return url; }
+  public Path getBasePath() {
+    return basePath.get();
+  }
 
-	protected void browse(ActionEvent e) {
-		FileChooser fileChooser = new FileChooser();
-		fileChooser.setTitle(Messages.get("BrowseFileButton.chooser.title"));
-		fileChooser.getExtensionFilters().addAll(extensionFilters);
-		fileChooser.getExtensionFilters().add(new ExtensionFilter(Messages.get("BrowseFileButton.chooser.allFilesFilter"), "*.*"));
-		fileChooser.setInitialDirectory(getInitialDirectory());
-		File result = fileChooser.showOpenDialog(getScene().getWindow());
-		if (result != null)
-			updateUrl(result);
-	}
+  public void setBasePath( Path basePath ) {
+    this.basePath.set( basePath );
+  }
 
-	protected File getInitialDirectory() {
-		//TODO build initial directory based on current value of 'url' property
-		return getBasePath().toFile();
-	}
+  // 'url' property
+  private final ObjectProperty<String> url = new SimpleObjectProperty<>();
 
-	protected void updateUrl(File file) {
-		String newUrl;
-		try {
-			newUrl = getBasePath().relativize(file.toPath()).toString();
-		} catch (IllegalArgumentException ex) {
-			newUrl = file.toString();
-		}
-		url.set(newUrl.replace('\\', '/'));
-	}
+  public ObjectProperty<String> urlProperty() {
+    return url;
+  }
+
+  protected void browse( ActionEvent e ) {
+    FileChooser fileChooser = new FileChooser();
+    fileChooser.setTitle( Messages.get( "BrowseFileButton.chooser.title" ) );
+    fileChooser.getExtensionFilters().addAll( extensionFilters );
+    fileChooser.getExtensionFilters()
+               .add( new ExtensionFilter( Messages.get(
+                   "BrowseFileButton.chooser.allFilesFilter" ), "*.*" ) );
+    fileChooser.setInitialDirectory( getInitialDirectory() );
+    File result = fileChooser.showOpenDialog( getScene().getWindow() );
+    if( result != null ) {
+      updateUrl( result );
+    }
+  }
+
+  protected File getInitialDirectory() {
+    //TODO build initial directory based on current value of 'url' property
+    return getBasePath().toFile();
+  }
+
+  protected void updateUrl( File file ) {
+    String newUrl;
+    try {
+      newUrl = getBasePath().relativize( file.toPath() ).toString();
+    } catch( IllegalArgumentException ex ) {
+      newUrl = file.toString();
+    }
+    url.set( newUrl.replace( '\\', '/' ) );
+  }
 }
