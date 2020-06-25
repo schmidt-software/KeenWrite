@@ -41,8 +41,6 @@ import static java.lang.String.format;
 /**
  * Provides common behaviours for factories that instantiate classes based on
  * file type.
- *
- * @author White Magic Software, Ltd.
  */
 public class AbstractFileFactory {
 

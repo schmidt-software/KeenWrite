@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Karl Tauber and White Magic Software, Ltd.
+ * Copyright 2020 Karl Tauber and White Magic Software, Ltd.
  *
  * All rights reserved.
  *
@@ -54,8 +54,6 @@ import static org.fxmisc.wellbehaved.event.EventPattern.keyPressed;
 
 /**
  * Markdown editor pane.
- *
- * @author Karl Tauber and White Magic Software, Ltd.
  */
 public class MarkdownEditorPane extends EditorPane {
   private static final Pattern AUTO_INDENT_PATTERN = Pattern.compile(

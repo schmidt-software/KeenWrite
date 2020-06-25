@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 White Magic Software, Ltd.
+ * Copyright 2020 White Magic Software, Ltd.
  *
  * All rights reserved.
  *
@@ -36,8 +36,6 @@ import java.util.function.Predicate;
 /**
  * Responsible for testing whether a given path (to a file) matches one of the
  * filename extension patterns provided during construction.
- *
- * @author White Magic Software, Ltd.
  */
 public class FileTypePredicate implements Predicate<File> {
 

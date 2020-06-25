@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 White Magic Software, Ltd.
+ * Copyright 2020 White Magic Software, Ltd.
  *
  * All rights reserved.
  *
@@ -45,8 +45,6 @@ import static com.scrivenvar.Constants.SETTINGS_NAME;
 
 /**
  * Responsible for loading settings that help avoid hard-coded assumptions.
- *
- * @author White Magic Software, Ltd.
  */
 public class DefaultSettings implements Settings {
 

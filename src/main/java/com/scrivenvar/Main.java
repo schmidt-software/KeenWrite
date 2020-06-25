@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Karl Tauber and White Magic Software, Ltd.
+ * Copyright 2020 Karl Tauber and White Magic Software, Ltd.
  *
  * All rights reserved.
  *
@@ -56,8 +56,6 @@ import static javafx.scene.input.KeyEvent.KEY_PRESSED;
 /**
  * Application entry point. The application allows users to edit Markdown
  * files and see a real-time preview of the edits.
- *
- * @author Karl Tauber and White Magic Software, Ltd.
  */
 public final class Main extends Application {
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 White Magic Software, Ltd.
+ * Copyright 2020 White Magic Software, Ltd.
  *
  * All rights reserved.
  *
@@ -35,8 +35,6 @@ import static com.scrivenvar.processors.text.TextReplacementFactory.replace;
  * Processes interpolated string definitions in the document and inserts
  * their values into the post-processed text. The default variable syntax is
  * {@code $variable$}.
- *
- * @author White Magic Software, Ltd.
  */
 public class DefinitionProcessor extends AbstractProcessor<String> {
 

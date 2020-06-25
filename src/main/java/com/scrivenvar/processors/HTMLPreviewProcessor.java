@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 White Magic Software, Ltd.
+ * Copyright 2020 White Magic Software, Ltd.
  *
  * All rights reserved.
  *
@@ -35,8 +35,6 @@ import com.scrivenvar.preview.HTMLPreviewPane;
  * HTML preview panel as well as any processing that takes place before the
  * final HTML preview is rendered. This should be the last link in the processor
  * chain.
- *
- * @author White Magic Software, Ltd.
  */
 public class HTMLPreviewProcessor extends AbstractProcessor<String> {
 

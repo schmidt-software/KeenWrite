@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 White Magic Software, Ltd.
+ * Copyright 2020 White Magic Software, Ltd.
  *
  * All rights reserved.
  *
@@ -42,7 +42,6 @@ import javafx.scene.control.TreeView;
  * </p>
  *
  * @param <T> The type of {@link TreeItem} to store in the {@link TreeView}.
- * @author White Magic Software, Ltd.
  */
 public class RootTreeItem<T> extends VariableTreeItem<T> {
   /**

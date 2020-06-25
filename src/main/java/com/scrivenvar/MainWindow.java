@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Karl Tauber and White Magic Software, Ltd.
+ * Copyright 2020 Karl Tauber and White Magic Software, Ltd.
  *
  * All rights reserved.
  *
@@ -96,8 +96,6 @@ import static javafx.stage.WindowEvent.WINDOW_CLOSE_REQUEST;
 
 /**
  * Main window containing a tab pane in the center for file editors.
- *
- * @author Karl Tauber and White Magic Software, Ltd.
  */
 public class MainWindow implements Observer {
   /**

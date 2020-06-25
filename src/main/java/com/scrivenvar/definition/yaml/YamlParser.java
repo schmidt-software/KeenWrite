@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 White Magic Software, Ltd.
+ * Copyright 2020 White Magic Software, Ltd.
  *
  * All rights reserved.
  *
@@ -41,8 +41,6 @@ import static com.scrivenvar.Constants.STATUS_BAR_OK;
 
 /**
  * Responsible for reading a YAML document into an object hierarchy.
- *
- * @author White Magic Software, Ltd.
  */
 public class YamlParser implements DocumentParser<JsonNode> {
 

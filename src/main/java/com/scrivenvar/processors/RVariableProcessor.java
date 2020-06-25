@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 White Magic Software, Ltd.
+ * Copyright 2020 White Magic Software, Ltd.
  *
  * All rights reserved.
  *
@@ -34,8 +34,6 @@ import java.util.Map;
  * Converts the keys of the resolved map from default form to R form, then
  * performs a substitution on the text. The default R variable syntax is
  * {@code v$tree$leaf}.
- *
- * @author White Magic Software, Ltd.
  */
 public class RVariableProcessor extends DefinitionProcessor {
 

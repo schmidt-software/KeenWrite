@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Karl Tauber <karl at jformdesigner dot com>
+ * Copyright 2015 Karl Tauber <karl at jformdesigner dot com>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -48,8 +48,6 @@ import java.util.List;
 /**
  * Button that opens a file chooser to select a local file for a URL in
  * markdown.
- *
- * @author Karl Tauber
  */
 public class BrowseFileButton extends Button {
   private final List<ExtensionFilter> extensionFilters = new ArrayList<>();

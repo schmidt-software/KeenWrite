@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Karl Tauber <karl at jformdesigner dot com>
+ * Copyright 2020 Karl Tauber and White Magic Software, Ltd.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,8 +38,6 @@ import static java.util.prefs.Preferences.userRoot;
 
 /**
  * Persistent options user can change at runtime.
- *
- * @author Karl Tauber and White Magic Software, Ltd.
  */
 public class DefaultOptions implements Options {
   private final UserPreferences mPreferences = new UserPreferences();

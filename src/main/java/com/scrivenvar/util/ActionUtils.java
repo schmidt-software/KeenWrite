@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Karl Tauber
+ * Copyright 2020 Karl Tauber and White Magic Software, Ltd.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,10 +37,7 @@ import javafx.scene.control.ToolBar;
 import javafx.scene.control.Tooltip;
 
 /**
- * Action utilities
- *
- * @author Karl Tauber
- * @author White Magic Software, Ltd.
+ * Responsible for creating menu items and toolbar buttons.
  */
 public class ActionUtils {
 
@@ -52,9 +49,9 @@ public class ActionUtils {
     final MenuItem[] menuItems = new MenuItem[ actions.length ];
 
     for( int i = 0; i < actions.length; i++ ) {
-      menuItems[ i ] = (actions[ i ] != null)
-          ? createMenuItem( actions[ i ] )
-          : new SeparatorMenuItem();
+      menuItems[ i ] = (actions[ i ] == null)
+          ? new SeparatorMenuItem()
+          : createMenuItem( actions[ i ] );
     }
 
     return menuItems;

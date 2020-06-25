@@ -30,8 +30,6 @@ package com.scrivenvar.processors;
 /**
  * This is the default processor used when an unknown filename extension is
  * encountered.
- *
- * @author White Magic Software, Ltd.
  */
 public class IdentityProcessor extends AbstractProcessor<String> {
 

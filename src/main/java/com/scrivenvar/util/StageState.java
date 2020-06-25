@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Karl Tauber <karl at jformdesigner dot com>
+ * Copyright 2020 Karl Tauber and White Magic Software, Ltd.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,8 +35,6 @@ import javafx.stage.WindowEvent;
 
 /**
  * Saves and restores Stage state (window bounds, maximized, fullScreen).
- *
- * @author Karl Tauber
  */
 public class StageState {
 

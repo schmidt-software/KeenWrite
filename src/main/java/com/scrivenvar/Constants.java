@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 White Magic Software, Ltd.
+ * Copyright 2020 White Magic Software, Ltd.
  *
  * All rights reserved.
  *
@@ -31,8 +31,6 @@ import com.scrivenvar.service.Settings;
 
 /**
  * Defines application-wide default values.
- *
- * @author White Magic Software, Ltd.
  */
 public class Constants {
 

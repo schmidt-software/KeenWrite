@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 White Magic Software, Ltd.
+ * Copyright 2020 White Magic Software, Ltd.
  *
  * All rights reserved.
  *
@@ -42,8 +42,6 @@ import static com.scrivenvar.FileType.YAML;
  * Responsible for creating objects that can read and write definition data
  * sources. The data source could be YAML, TOML, JSON, flat files, or from a
  * database.
- *
- * @author White Magic Software, Ltd.
  */
 public class DefinitionFactory extends AbstractFileFactory {
 

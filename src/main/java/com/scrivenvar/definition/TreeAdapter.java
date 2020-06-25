@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 White Magic Software, Ltd.
+ * Copyright 2020 White Magic Software, Ltd.
  *
  * All rights reserved.
  *
@@ -35,8 +35,6 @@ import java.nio.file.Path;
 /**
  * Responsible for converting an object hierarchy into a {@link TreeItem}
  * hierarchy.
- *
- * @author White Magic Software, Ltd.
  */
 public interface TreeAdapter {
   /**

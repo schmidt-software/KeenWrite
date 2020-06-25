@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 White Magic Software, Ltd.
+ * Copyright 2020 White Magic Software, Ltd.
  *
  * All rights reserved.
  *
@@ -37,8 +37,6 @@ import javafx.scene.control.DialogPane;
 /**
  * Ensures a consistent button order for alert dialogs across platforms (because
  * the default button order on Linux defies all logic).
- *
- * @author White Magic Software, Ltd.
  */
 public class ButtonOrderPane extends DialogPane {
 

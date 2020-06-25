@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 White Magic Software, Ltd.
+ * Copyright 2020 White Magic Software, Ltd.
  *
  * All rights reserved.
  *
@@ -31,8 +31,6 @@ import java.util.List;
 
 /**
  * Convenience class that provides a clearer API for obtaining list elements.
- *
- * @author White Magic Software, Ltd.
  */
 public final class Lists {
 

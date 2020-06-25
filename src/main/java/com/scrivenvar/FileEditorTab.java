@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Karl Tauber and White Magic Software, Ltd.
+ * Copyright 2020 Karl Tauber and White Magic Software, Ltd.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -61,8 +61,6 @@ import static java.util.Locale.ENGLISH;
 
 /**
  * Editor for a single file.
- *
- * @author Karl Tauber and White Magic Software, Ltd.
  */
 public final class FileEditorTab extends Tab {
 

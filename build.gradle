@@ -97,6 +97,14 @@ compileJava {
   options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
 }
 
+application {
+  applicationDefaultJvmArgs = [
+      "--add-opens=javafx.controls/javafx.scene.control=ALL-UNNAMED",
+      "--add-opens=javafx.controls/javafx.scene.control.skin=ALL-UNNAMED",
+      "--add-opens=javafx.graphics/com.sun.javafx.css=ALL-UNNAMED",
+  ]
+}
+
 sourceCompatibility = JavaVersion.VERSION_11
 applicationName = 'scrivenvar'
 version = gitVersion()
@@ -113,6 +121,7 @@ propertiesFile.write("application.version=${version}")
 //    }
 //  }
 //}
+
 
 jar {
   duplicatesStrategy = DuplicatesStrategy.EXCLUDE

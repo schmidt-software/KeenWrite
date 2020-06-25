@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 White Magic Software, Ltd.
+ * Copyright 2020 White Magic Software, Ltd.
  *
  * All rights reserved.
  *
@@ -34,8 +34,6 @@ import java.util.ServiceLoader;
 /**
  * Responsible for loading services. The services are treated as singleton
  * instances.
- *
- * @author White Magic Software, Ltd.
  */
 public class Services {
 

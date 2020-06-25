@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 White Magic Software, Ltd.
+ * Copyright 2020 White Magic Software, Ltd.
  *
  * All rights reserved.
  *
@@ -33,7 +33,8 @@ import com.vladsch.flexmark.util.ast.NodeVisitor;
 import com.vladsch.flexmark.util.ast.VisitHandler;
 
 /**
- * @author White Magic Software, Ltd.
+ * Visits hyperlinks in a document so that the user can edit the hyperlink
+ * within a dialog.
  */
 public class LinkVisitor {
 

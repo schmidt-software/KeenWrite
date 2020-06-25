@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 White Magic Software, Ltd.
+ * Copyright 2020 White Magic Software, Ltd.
  *
  * All rights reserved.
  *
@@ -43,8 +43,6 @@ import static java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY;
 /**
  * Listens for file changes. Other classes can register paths to be monitored
  * and listen for changes to those paths.
- *
- * @author White Magic Software, Ltd.
  */
 public class DefaultSnitch extends Observable implements Snitch {
 

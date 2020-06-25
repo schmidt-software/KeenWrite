@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 White Magic Software, Ltd.
+ * Copyright 2020 White Magic Software, Ltd.
  *
  * All rights reserved.
  *
@@ -55,8 +55,6 @@ import static javafx.scene.input.KeyEvent.KEY_PRESSED;
  * Provides the user interface that holds a {@link TreeView}, which
  * allows users to interact with key/value pairs loaded from the
  * {@link DocumentParser} and adapted using a {@link TreeAdapter}.
- *
- * @author White Magic Software, Ltd.
  */
 public final class DefinitionPane extends TitledPane {
 

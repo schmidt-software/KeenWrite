@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 White Magic Software, Ltd.
+ * Copyright 2020 White Magic Software, Ltd.
  *
  * All rights reserved.
  *
@@ -29,10 +29,8 @@ package com.scrivenvar;
 
 /**
  * Represents different file type classifications. These are high-level mappings
- * that correspond to the list of glob patterns found within
- * settings.properties.
- *
- * @author White Magic Software, Ltd.
+ * that correspond to the list of glob patterns found within {@code
+ * settings.properties}.
  */
 public enum FileType {
 

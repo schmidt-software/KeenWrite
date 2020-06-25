@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Karl Tauber and White Magic Software, Ltd.
+ * Copyright 2020 Karl Tauber and White Magic Software, Ltd.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,9 +34,6 @@ import javafx.scene.input.KeyCombination;
 
 /**
  * Simple action class
- *
- * @author Karl Tauber
- * @author White Magic Software, Ltd.
  */
 public class Action {
   public final String text;

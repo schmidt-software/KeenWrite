@@ -53,8 +53,6 @@ import static com.scrivenvar.Constants.STYLESHEET_PREVIEW;
 
 /**
  * HTML preview pane is responsible for rendering an HTML document.
- *
- * @author Karl Tauber and White Magic Software, Ltd.
  */
 public final class HTMLPreviewPane extends Pane {
   /**

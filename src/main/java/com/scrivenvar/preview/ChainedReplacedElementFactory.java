@@ -1,7 +1,7 @@
 /*
  * {{{ header & license
- * Copyright (c) 2006 Patrick Wright
- * Copyright (c) 2007 Wisconsin Court System
+ * Copyright 2006 Patrick Wright
+ * Copyright 2007 Wisconsin Court System
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License

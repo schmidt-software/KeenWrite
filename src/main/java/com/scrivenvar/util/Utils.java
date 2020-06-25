@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Karl Tauber <karl at jformdesigner dot com>
+ * Copyright 2020 Karl Tauber and White Magic Software, Ltd.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,7 +30,7 @@ import java.util.ArrayList;
 import java.util.prefs.Preferences;
 
 /**
- * @author Karl Tauber and White Magic Software, Ltd.
+ * Responsible for trimming, storing, and retrieving strings.
  */
 public class Utils {
 

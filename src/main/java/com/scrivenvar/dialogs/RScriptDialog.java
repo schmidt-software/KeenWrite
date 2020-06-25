@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 White Magic Software, Ltd.
+ * Copyright 2020 White Magic Software, Ltd.
  *
  * All rights reserved.
  *
@@ -40,8 +40,6 @@ import static javafx.scene.control.ButtonType.OK;
 /**
  * Responsible for managing the R startup script that is run when an R source
  * file is loaded.
- *
- * @author White Magic Software, Ltd.
  */
 public class RScriptDialog extends AbstractDialog<String> {
 

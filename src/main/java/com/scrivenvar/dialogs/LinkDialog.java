@@ -44,8 +44,6 @@ import static javafx.scene.control.ButtonType.OK;
 
 /**
  * Dialog to enter a markdown link.
- *
- * @author Karl Tauber
  */
 public class LinkDialog extends AbstractDialog<String> {
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 White Magic Software, Ltd.
+ * Copyright 2020 White Magic Software, Ltd.
  *
  * All rights reserved.
  *
@@ -39,7 +39,6 @@ import static java.text.Normalizer.Form.NFD;
  * Provides behaviour afforded to variable names and their corresponding value.
  *
  * @param <T> The type of TreeItem (usually String).
- * @author White Magic Software, Ltd.
  */
 public class VariableTreeItem<T> extends TreeItem<T> {
 

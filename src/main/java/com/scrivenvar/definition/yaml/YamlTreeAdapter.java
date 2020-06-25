@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 White Magic Software, Ltd.
+ * Copyright 2020 White Magic Software, Ltd.
  *
  * All rights reserved.
  *
@@ -43,8 +43,6 @@ import java.util.Map.Entry;
 /**
  * Transforms a JsonNode hierarchy into a tree that can be displayed in a user
  * interface and vice-versa.
- *
- * @author White Magic Software, Ltd.
  */
 public class YamlTreeAdapter implements TreeAdapter {
   private final YamlParser mParser;

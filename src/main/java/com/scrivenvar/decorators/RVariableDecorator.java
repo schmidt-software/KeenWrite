@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 White Magic Software, Ltd.
+ * Copyright 2020 White Magic Software, Ltd.
  *
  * All rights reserved.
  *
@@ -29,8 +29,6 @@ package com.scrivenvar.decorators;
 
 /**
  * Brackets variable names with <code>`r#</code> and <code>`</code>.
- *
- * @author White Magic Software, Ltd.
  */
 public class RVariableDecorator implements VariableDecorator {
   public static final String PREFIX = "`r#";

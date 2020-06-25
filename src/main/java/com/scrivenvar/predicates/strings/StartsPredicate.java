@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 White Magic Software, Ltd.
+ * Copyright 2020 White Magic Software, Ltd.
  *
  * All rights reserved.
  *
@@ -29,8 +29,6 @@ package com.scrivenvar.predicates.strings;
 
 /**
  * Determines if a string starts with another.
- *
- * @author White Magic Software, Ltd.
  */
 public class StartsPredicate extends StringPredicate {
 

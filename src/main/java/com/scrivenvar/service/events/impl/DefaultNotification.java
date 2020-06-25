@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 White Magic Software, Ltd.
+ * Copyright 2020 White Magic Software, Ltd.
  *
  * All rights reserved.
  *
@@ -32,7 +32,7 @@ import com.scrivenvar.service.events.Notification;
 import java.text.MessageFormat;
 
 /**
- * @author White Magic Software, Ltd.
+ * Responsible for alerting the user to prominent information.
  */
 public class DefaultNotification implements Notification {
 

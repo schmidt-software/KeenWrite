@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 White Magic Software, Ltd.
+ * Copyright 2020 White Magic Software, Ltd.
  *
  * All rights reserved.
  *
@@ -38,8 +38,6 @@ import java.util.Map;
 /**
  * Responsible for creating processors capable of parsing, transforming,
  * interpolating, and rendering known file types.
- *
- * @author White Magic Software, Ltd.
  */
 public class ProcessorFactory extends AbstractFileFactory {
 

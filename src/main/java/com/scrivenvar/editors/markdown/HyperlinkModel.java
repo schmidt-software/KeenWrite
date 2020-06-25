@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 White Magic Software, Ltd.
+ * Copyright 2020 White Magic Software, Ltd.
  *
  * All rights reserved.
  *
@@ -31,8 +31,6 @@ import com.vladsch.flexmark.ast.Link;
 
 /**
  * Represents the model for a hyperlink: text and url text.
- *
- * @author White Magic Software, Ltd.
  */
 public class HyperlinkModel {
 

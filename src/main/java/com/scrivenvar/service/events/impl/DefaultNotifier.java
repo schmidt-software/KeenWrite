@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 White Magic Software, Ltd.
+ * Copyright 2020 White Magic Software, Ltd.
  *
  * All rights reserved.
  *
@@ -45,8 +45,6 @@ import static javafx.scene.control.Alert.AlertType.ERROR;
 
 /**
  * Provides the ability to notify the user of problems.
- *
- * @author White Magic Software, Ltd.
  */
 public final class DefaultNotifier extends Observable implements Notifier {
 

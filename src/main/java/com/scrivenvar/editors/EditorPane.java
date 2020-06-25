@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Karl Tauber and White Magic Software, Ltd.
+ * Copyright 2020 Karl Tauber and White Magic Software, Ltd.
  *
  * All rights reserved.
  *
@@ -47,8 +47,6 @@ import static org.fxmisc.wellbehaved.event.InputMap.consume;
 
 /**
  * Represents common editing features for various types of text editors.
- *
- * @author White Magic Software, Ltd.
  */
 public class EditorPane extends Pane {
 

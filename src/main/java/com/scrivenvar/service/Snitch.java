@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 White Magic Software, Ltd.
+ * Copyright 2020 White Magic Software, Ltd.
  *
  * All rights reserved.
  *
@@ -33,8 +33,6 @@ import java.util.Observer;
 
 /**
  * Listens for changes to file system files and directories.
- *
- * @author White Magic Software, Ltd.
  */
 public interface Snitch extends Service, Runnable {
 

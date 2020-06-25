@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 White Magic Software, Ltd.
+ * Copyright 2020 White Magic Software, Ltd.
  *
  * All rights reserved.
  *
@@ -34,8 +34,6 @@ import java.util.prefs.Preferences;
 
 /**
  * Responsible for persisting options.
- *
- * @author White Magic Software, Ltd.
  */
 public interface Options extends Service {
 

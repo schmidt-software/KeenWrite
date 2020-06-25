@@ -34,8 +34,6 @@ import java.nio.file.Path;
 
 /**
  * Represents a definition data source for YAML files.
- *
- * @author White Magic Software, Ltd.
  */
 public class YamlDefinitionSource implements DefinitionSource {
 

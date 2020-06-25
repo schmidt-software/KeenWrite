@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Karl Tauber and White Magic Software, Ltd.
+ * Copyright 2020 Karl Tauber and White Magic Software, Ltd.
  *
  * All rights reserved.
  *
@@ -66,8 +66,6 @@ import static com.scrivenvar.service.events.Notifier.YES;
 
 /**
  * Tab pane for file editors.
- *
- * @author Karl Tauber and White Magic Software, Ltd.
  */
 public final class FileEditorTabPane extends TabPane {
 

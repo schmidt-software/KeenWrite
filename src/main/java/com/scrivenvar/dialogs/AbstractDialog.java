@@ -37,7 +37,6 @@ import javafx.stage.Window;
 /**
  * Superclass that abstracts common behaviours for all dialogs.
  *
- * @author White Magic Software, Ltd.
  * @param <T> The type of dialog to create (usually String).
  */
 public abstract class AbstractDialog<T> extends Dialog<T> {

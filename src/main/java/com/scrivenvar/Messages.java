@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Karl Tauber <karl at jformdesigner dot com>
+ * Copyright 2020 Karl Tauber and White Magic Software, Ltd.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,8 +36,6 @@ import static java.util.ResourceBundle.getBundle;
 /**
  * Recursively resolves message properties. Property values can refer to other
  * properties using a <code>${var}</code> syntax.
- *
- * @author Karl Tauber, Dave Jarvis
  */
 public class Messages {
 

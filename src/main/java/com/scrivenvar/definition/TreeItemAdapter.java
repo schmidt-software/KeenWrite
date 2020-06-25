@@ -57,8 +57,6 @@ import static com.scrivenvar.Constants.DEFAULT_MAP_SIZE;
  * {@link HTMLPreviewPane} without having to reload the definition file.
  * Reloading the definition file would work, but has a number of drawbacks.
  * </p>
- *
- * @author White Magic Software, Ltd.
  */
 public class TreeItemAdapter {
   /**

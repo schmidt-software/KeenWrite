@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 White Magic Software, Ltd.
+ * Copyright 2020 White Magic Software, Ltd.
  *
  * All rights reserved.
  *
@@ -46,8 +46,6 @@ import static org.fxmisc.wellbehaved.event.EventPattern.keyPressed;
 
 /**
  * Provides the logic for injecting variable names within the editor.
- *
- * @author White Magic Software, Ltd.
  */
 public final class VariableNameInjector {
 

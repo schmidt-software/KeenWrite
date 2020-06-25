@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Karl Tauber <karl at jformdesigner dot com>
+ * Copyright 2020 Karl Tauber and White Magic Software, Ltd.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,8 +34,6 @@ import javafx.util.StringConverter;
 
 /**
  * TextField that can escape/unescape characters for markdown.
- *
- * @author Karl Tauber and White Magic Software, Ltd.
  */
 public class EscapeTextField extends TextField {
 

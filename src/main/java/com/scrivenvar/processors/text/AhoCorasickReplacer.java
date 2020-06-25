@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 White Magic Software, Ltd.
+ * Copyright 2020 White Magic Software, Ltd.
  *
  * All rights reserved.
  *
@@ -34,8 +34,6 @@ import static org.ahocorasick.trie.Trie.builder;
 
 /**
  * Replaces text using an Aho-Corasick algorithm.
- *
- * @author White Magic Software, Ltd.
  */
 public class AhoCorasickReplacer extends AbstractTextReplacer {
 

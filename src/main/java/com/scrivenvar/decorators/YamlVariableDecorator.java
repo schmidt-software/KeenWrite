@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 White Magic Software, Ltd.
+ * Copyright 2020 White Magic Software, Ltd.
  *
  * All rights reserved.
  *
@@ -29,8 +29,6 @@ package com.scrivenvar.decorators;
 
 /**
  * Brackets variable names with dollar symbols.
- *
- * @author White Magic Software, Ltd.
  */
 public class YamlVariableDecorator implements VariableDecorator {
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 White Magic Software, Ltd.
+ * Copyright 2020 White Magic Software, Ltd.
  *
  * All rights reserved.
  *
@@ -29,8 +29,6 @@ package com.scrivenvar.service;
 
 /**
  * All services inherit from this one.
- *
- * @author White Magic Software, Ltd.
  */
 public interface Service {
 }

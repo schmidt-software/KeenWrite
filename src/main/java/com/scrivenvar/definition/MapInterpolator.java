@@ -35,8 +35,6 @@ import java.util.regex.Pattern;
  * Responsible for performing string interpolation on key/value pairs stored
  * in a map. The values in the map can use a delimited syntax to refer to
  * keys in the map.
- *
- * @author White Magic Software, Ltd.
  */
 public class MapInterpolator {
 

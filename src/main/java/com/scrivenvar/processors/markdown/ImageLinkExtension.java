@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 White Magic Software, Ltd.
+ * Copyright 2020 White Magic Software, Ltd.
  *
  * All rights reserved.
  *
@@ -52,8 +52,6 @@ import static java.lang.String.format;
 /**
  * Responsible for ensuring that images can be rendered relative to a path.
  * This allows images to be located virtually anywhere.
- *
- * @author White Magic Software, Ltd.
  */
 public class ImageLinkExtension implements HtmlRenderer.HtmlRendererExtension {
   /**

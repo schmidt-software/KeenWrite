@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Karl Tauber <karl at jformdesigner dot com>
+ * Copyright 2015 Karl Tauber <karl at jformdesigner dot com>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,8 +44,6 @@ import org.tbee.javafx.scene.layout.fxml.MigPane;
 
 /**
  * Dialog to enter a markdown image.
- *
- * @author Karl Tauber
  */
 public class ImageDialog extends AbstractDialog<String> {
 

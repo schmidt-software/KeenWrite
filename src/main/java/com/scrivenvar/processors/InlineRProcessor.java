@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 White Magic Software, Ltd.
+ * Copyright 2020 White Magic Software, Ltd.
  *
  * All rights reserved.
  *
@@ -48,8 +48,6 @@ import static java.lang.Math.min;
 
 /**
  * Transforms a document containing R statements into Markdown.
- *
- * @author White Magic Software, Ltd.
  */
 public final class InlineRProcessor extends DefinitionProcessor {
 

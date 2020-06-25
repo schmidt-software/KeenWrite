@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 White Magic Software, Ltd.
+ * Copyright 2020 White Magic Software, Ltd.
  *
  * All rights reserved.
  *
@@ -39,8 +39,6 @@ import java.util.Observer;
 
 /**
  * Provides the application with a uniform way to notify the user of events.
- *
- * @author White Magic Software, Ltd.
  */
 public interface Notifier {
 

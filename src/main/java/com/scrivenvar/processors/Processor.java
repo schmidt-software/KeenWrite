@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 White Magic Software, Ltd.
+ * Copyright 2020 White Magic Software, Ltd.
  *
  * All rights reserved.
  *
@@ -31,7 +31,6 @@ package com.scrivenvar.processors;
  * Responsible for processing documents from one known format to another.
  *
  * @param <T> The type of processor to create.
- * @author White Magic Software, Ltd.
  */
 public interface Processor<T> {
 

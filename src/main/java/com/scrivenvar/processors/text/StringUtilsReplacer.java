@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 White Magic Software, Ltd.
+ * Copyright 2020 White Magic Software, Ltd.
  *
  * All rights reserved.
  *
@@ -33,8 +33,6 @@ import static org.apache.commons.lang3.StringUtils.replaceEach;
 
 /**
  * Replaces text using Apache's StringUtils.replaceEach method.
- *
- * @author White Magic Software, Ltd.
  */
 public class StringUtilsReplacer extends AbstractTextReplacer {
 

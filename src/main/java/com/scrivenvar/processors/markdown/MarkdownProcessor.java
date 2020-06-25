@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 White Magic Software, Ltd.
+ * Copyright 2020 White Magic Software, Ltd.
  *
  * All rights reserved.
  *
@@ -48,8 +48,6 @@ import static com.scrivenvar.Constants.USER_DIRECTORY;
 
 /**
  * Responsible for parsing a Markdown document and rendering it as HTML.
- *
- * @author White Magic Software, Ltd.
  */
 public class MarkdownProcessor extends AbstractProcessor<String> {
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 White Magic Software, Ltd.
+ * Copyright 2020 White Magic Software, Ltd.
  *
  * All rights reserved.
  *
@@ -33,7 +33,6 @@ package com.scrivenvar.processors;
  * entire chain, create a second handler, or split the chain into reusable
  * sub-chains.
  *
- * @author White Magic Software, Ltd.
  * @param <T> The type of object to process.
  */
 public abstract class AbstractProcessor<T> implements Processor<T> {

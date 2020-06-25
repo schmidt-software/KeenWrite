@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 White Magic Software, Ltd.
+ * Copyright 2020 White Magic Software, Ltd.
  *
  * All rights reserved.
  *
@@ -31,8 +31,6 @@ import java.util.function.Predicate;
 
 /**
  * General predicate for different types of string comparisons.
- *
- * @author White Magic Software, Ltd.
  */
 public abstract class StringPredicate implements Predicate<String> {
 

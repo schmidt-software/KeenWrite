@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 White Magic Software, Ltd.
+ * Copyright 2020 White Magic Software, Ltd.
  *
  * All rights reserved.
  *
@@ -57,8 +57,6 @@ import static net.sf.saxon.tree.util.ProcInstParser.getPseudoAttribute;
  * <p>
  * The XSL must transform the XML document into Markdown, or another format
  * recognized by the next link on the chain.
- *
- * @author White Magic Software, Ltd.
  */
 public class XMLProcessor extends AbstractProcessor<String>
     implements ErrorListener {

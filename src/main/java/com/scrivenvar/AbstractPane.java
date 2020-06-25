@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 White Magic Software, Ltd.
+ * Copyright 2020 White Magic Software, Ltd.
  *
  * All rights reserved.
  *
@@ -31,8 +31,6 @@ import org.tbee.javafx.scene.layout.fxml.MigPane;
 
 /**
  * Hides dependency on {@link MigPane} from subclasses.
- *
- * @author White Magic Software, Ltd.
  */
 public abstract class AbstractPane extends MigPane {
 }
