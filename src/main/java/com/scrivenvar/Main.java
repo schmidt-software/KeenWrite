@@ -59,9 +59,12 @@ import static javafx.scene.input.KeyEvent.KEY_PRESSED;
  */
 public final class Main extends Application {
 
-  // Suppress standard output logging; the Launcher suppresses stderr output.
   static {
+    // Suppress logging to standard output.
     LogManager.getLogManager().reset();
+
+    // Suppress logging to standard error.
+    System.err.close();
   }
 
   private final static Notifier sNotifier = Services.load( Notifier.class );
