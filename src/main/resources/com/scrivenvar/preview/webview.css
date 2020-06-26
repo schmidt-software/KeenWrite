@@ -170,20 +170,21 @@ dl dd {
 /* CODE
 =============================================================================*/
 pre, code, tt {
-  font-size: 14px;
   /* Must be bundled in JAR file. */
   font-family: "Fira Code", monospace;
+  font-size: 14px;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  overflow-wrap: anywhere;
 }
 
 code, tt {
-  white-space: nowrap;
   border: 1px solid #ccc;
   background-color: #f8f8f8;
   border-radius: 3px;
 }
 
 pre>code {
-  white-space: pre;
   border: none;
   background: transparent;
 }
