@@ -46,10 +46,13 @@ import org.xhtmlrenderer.swing.SwingReplacedElementFactory;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.nio.file.Path;
 
 import static com.scrivenvar.Constants.PARAGRAPH_ID_PREFIX;
 import static com.scrivenvar.Constants.STYLESHEET_PREVIEW;
+import static org.xhtmlrenderer.swing.ImageResourceLoader.NO_OP_REPAINT_LISTENER;
 
 /**
  * HTML preview pane is responsible for rendering an HTML document.
@@ -102,17 +105,19 @@ public final class HTMLPreviewPane extends Pane {
       + "<body>";
   private final static String HTML_FOOTER = "</body></html>";
 
-  private final StringBuilder mHtml = new StringBuilder( 65536 );
+  private final StringBuilder mHtmlDocument = new StringBuilder( 65536 );
   private final int mHtmlPrefixLength;
 
   private final W3CDom mW3cDom = new W3CDom();
   private final XhtmlNamespaceHandler mNamespaceHandler =
       new XhtmlNamespaceHandler();
-  private final HTMLPanel mRenderer = new HTMLPanel();
+  private final HTMLPanel mHtmlRenderer = new HTMLPanel();
   private final SwingNode mSwingNode = new SwingNode();
-  private final JScrollPane mScrollPane = new JScrollPane( mRenderer );
+  private final JScrollPane mScrollPane = new JScrollPane( mHtmlRenderer );
   private final DocumentEventHandler mDocumentHandler =
       new DocumentEventHandler();
+  private final CustomImageResourceLoader mImageLoader =
+      new CustomImageResourceLoader();
 
   private Path mPath;
 
@@ -121,9 +126,13 @@ public final class HTMLPreviewPane extends Pane {
    * document.
    */
   public HTMLPreviewPane() {
+    mHtmlDocument.append( HTML_HEADER );
+    mHtmlPrefixLength = mHtmlDocument.length();
+
     final var factory = new ChainedReplacedElementFactory();
     factory.addFactory( new SVGReplacedElementFactory() );
-    factory.addFactory( new SwingReplacedElementFactory() );
+    factory.addFactory( new SwingReplacedElementFactory(
+        NO_OP_REPAINT_LISTENER, mImageLoader ) );
 
     final var context = getSharedContext();
     context.setReplacedElementFactory( factory );
@@ -131,11 +140,30 @@ public final class HTMLPreviewPane extends Pane {
 
     mSwingNode.setContent( mScrollPane );
 
-    mHtml.append( HTML_HEADER );
-    mHtmlPrefixLength = mHtml.length();
+    mHtmlRenderer.addDocumentListener( mDocumentHandler );
+    setStyle( "-fx-background-color: white;" );
 
-    mRenderer.addDocumentListener( mDocumentHandler );
-    setStyle("-fx-background-color: white;");
+    mHtmlRenderer.addComponentListener( new ComponentListener() {
+      @Override
+      public void componentResized( final ComponentEvent e ) {
+        // Scaling a bit below the full width prevents the horizontal scrollbar
+        // from appearing.
+        final int width = (int) (e.getComponent().getWidth() * .95);
+        mImageLoader.widthProperty().set( width );
+      }
+
+      @Override
+      public void componentMoved( final ComponentEvent e ) {
+      }
+
+      @Override
+      public void componentShown( final ComponentEvent e ) {
+      }
+
+      @Override
+      public void componentHidden( final ComponentEvent e ) {
+      }
+    } );
   }
 
   /**
@@ -148,7 +176,7 @@ public final class HTMLPreviewPane extends Pane {
     final Document jsoupDoc = Jsoup.parse( decorate( html ) );
     final org.w3c.dom.Document w3cDoc = mW3cDom.fromJsoup( jsoupDoc );
 
-    mRenderer.setDocument( w3cDoc, getBaseUrl(), mNamespaceHandler );
+    mHtmlRenderer.setDocument( w3cDoc, getBaseUrl(), mNamespaceHandler );
   }
 
   /**
@@ -223,7 +251,7 @@ public final class HTMLPreviewPane extends Pane {
   }
 
   private void scrollTo( final Point point ) {
-    mRenderer.scrollTo( point );
+    mHtmlRenderer.scrollTo( point );
   }
 
   private void scrollTo( final Box box ) {
@@ -239,7 +267,7 @@ public final class HTMLPreviewPane extends Pane {
   }
 
   private void scrollToBottom() {
-    scrollToY( mRenderer.getHeight() );
+    scrollToY( mHtmlRenderer.getHeight() );
   }
 
   private Box getBoxById( final String id ) {
@@ -248,12 +276,12 @@ public final class HTMLPreviewPane extends Pane {
 
   private String decorate( final String html ) {
     // Trim the HTML back to the header.
-    mHtml.setLength( mHtmlPrefixLength );
+    mHtmlDocument.setLength( mHtmlPrefixLength );
 
     // Write the HTML body element followed by closing tags.
-    return mHtml.append( html )
-                .append( HTML_FOOTER )
-                .toString();
+    return mHtmlDocument.append( html )
+                        .append( HTML_FOOTER )
+                        .toString();
   }
 
   public Path getPath() {
@@ -304,7 +332,7 @@ public final class HTMLPreviewPane extends Pane {
         0 );
 
     if( !box.getStyle().isInline() ) {
-      final var margin = box.getMargin( mRenderer.getLayoutContext() );
+      final var margin = box.getMargin( mHtmlRenderer.getLayoutContext() );
       x += margin.left();
       y += margin.top();
     }
@@ -320,6 +348,6 @@ public final class HTMLPreviewPane extends Pane {
   }
 
   private SharedContext getSharedContext() {
-    return mRenderer.getSharedContext();
+    return mHtmlRenderer.getSharedContext();
   }
 }

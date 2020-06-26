@@ -2,6 +2,7 @@ plugins {
   id 'application'
   id 'org.openjfx.javafxplugin' version '0.0.8'
   id 'com.palantir.git-version' version '0.12.3'
+  id 'org.beryx.jlink' version '2.16.2'
 }
 
 repositories {
@@ -24,9 +25,15 @@ dependencies {
   implementation 'org.fxmisc.richtext:richtextfx:0.10.5'
   implementation 'org.fxmisc.wellbehaved:wellbehavedfx:0.3.3'
   implementation 'com.miglayout:miglayout-javafx:5.2'
-  implementation 'com.dlsc.preferencesfx:preferencesfx-core:11.6.0'
-  implementation 'de.jensd:fontawesomefx-commons:11.0'
-  implementation 'de.jensd:fontawesomefx-fontawesome:4.7.0-11'
+  implementation('com.dlsc.preferencesfx:preferencesfx-core:11.6.0') {
+    exclude group: 'org.openjfx'
+  }
+  implementation('de.jensd:fontawesomefx-commons:11.0') {
+    exclude group: 'org.openjfx'
+  }
+  implementation('de.jensd:fontawesomefx-fontawesome:4.7.0-11') {
+    exclude group: 'org.openjfx'
+  }
 
   // Markdown
   implementation 'com.vladsch.flexmark:flexmark:0.62.2'
@@ -46,6 +53,7 @@ dependencies {
   // XML and XSL
   implementation 'com.ximpleware:vtd-xml:2.13.4'
   implementation 'net.sf.saxon:Saxon-HE:10.1'
+  implementation 'xalan:xalan:2.7.2'
 
   // HTML parsing and rendering
   implementation 'org.jsoup:jsoup:1.13.1'
@@ -70,6 +78,8 @@ dependencies {
   implementation 'org.apache.xmlgraphics:batik-util:1.13'
   implementation 'org.apache.xmlgraphics:batik-xml:1.13'
 
+  implementation 'org.apache.bsf:bsf-api:3.1'
+
   // Misc.
   implementation 'org.ahocorasick:ahocorasick:0.4.0'
   implementation 'org.apache.commons:commons-configuration2:2.7'
@@ -78,6 +88,9 @@ dependencies {
   def os = ['win', 'linux', 'mac']
   def fx = ['controls', 'graphics', 'fxml', 'swing']
 
+  // Create cross-platform überjar.
+  //
+  // Including these runtime dependencies breaks creating cross-platform binaries.
   fx.each { fxitem ->
     os.each { ositem ->
       runtimeOnly "org.openjfx:javafx-${fxitem}:${javafx.version}:${ositem}"
@@ -90,7 +103,7 @@ dependencies {
 
 javafx {
   version = "14"
-  modules = ['javafx.controls', 'javafx.graphics', 'javafx.swing']
+  modules = ['javafx.controls', 'javafx.swing']
 }
 
 compileJava {
@@ -98,6 +111,9 @@ compileJava {
 }
 
 application {
+  applicationName = 'scrivenvar'
+  mainClassName = "com.${applicationName}.Main"
+
   applicationDefaultJvmArgs = [
       "--add-opens=javafx.controls/javafx.scene.control=ALL-UNNAMED",
       "--add-opens=javafx.controls/javafx.scene.control.skin=ALL-UNNAMED",
@@ -105,23 +121,13 @@ application {
   ]
 }
 
-sourceCompatibility = JavaVersion.VERSION_11
-applicationName = 'scrivenvar'
 version = gitVersion()
-mainClassName = "com.${applicationName}.Main"
+sourceCompatibility = JavaVersion.VERSION_11
+
 def launcherClassName = "com.${applicationName}.Launcher"
 
 def propertiesFile = new File("src/main/resources/com/${applicationName}/app.properties")
 propertiesFile.write("application.version=${version}")
-
-//sourceSets {
-//  main {
-//    resources {
-//      srcDir 'resources'
-//    }
-//  }
-//}
-
 
 jar {
   duplicatesStrategy = DuplicatesStrategy.EXCLUDE
@@ -150,6 +156,32 @@ distributions {
         from { 'images' }
       }
     }
+  }
+}
+
+
+jlink {
+  options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']
+  forceMerge 'jackson'
+
+  launcher {
+    name = 'java-keywords'
+  }
+
+  addExtraDependencies('javafx')
+  jpackage {
+    // Can also set via environment property BADASS_JLINK_JPACKAGE_HOME
+    jpackageHome = '/opt/jdk'
+//    jvmArgs = ['-splash:$APPDIR/splash.png']
+//    imageOptions = ['--icon', 'src/main/resources/java.ico']
+//    installerOptions = [
+//        '--file-associations', 'src/main/resources/associations.properties',
+//        '--app-version', version,
+//    ]
+//    if (org.gradle.internal.os.OperatingSystem.current().windows) {
+//      installerOptions += ['--win-per-user-install', '--win-dir-chooser', '--win-menu']
+//    }
+//  }
   }
 }
 

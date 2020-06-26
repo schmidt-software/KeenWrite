@@ -167,12 +167,6 @@ dl dd {
   margin-left: 0;
 }
 
-dl dd {
-  *float: none;
-  *width: auto;
-  *margin-left: 20%;
-}
-
 /* CODE
 =============================================================================*/
 pre, code, tt {
@@ -198,7 +192,6 @@ pre {
   background-color: #f8f8f8;
   border: .125em solid #ccc;
   line-height: 1.6;
-  overflow: auto;
   padding: .25em .5em;
   border-radius: .25em;
 }
@@ -210,10 +203,8 @@ pre code, pre tt {
 
 kbd {
   background-color: #ccc;
-  background-image: linear-gradient(#f8f8f8, #DDDDDD);
   background-repeat: repeat-x;
   border-color: #DDDDDD #CCCCCC #CCCCCC #DDDDDD;
-  border-image: none;
   border-radius: 2px;
   border-style: solid;
   border-width: 1px;

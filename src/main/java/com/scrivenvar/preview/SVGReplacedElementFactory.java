@@ -63,7 +63,7 @@ public class SVGReplacedElementFactory
   private static final int MAX_CACHED_IMAGES = 100;
 
   /**
-   * Where to put document inline evaluated R expressions.
+   * Where to put cached image files.
    */
   private final Map<String, Image> mImageCache = new LinkedHashMap<>() {
     @Override
@@ -73,6 +73,7 @@ public class SVGReplacedElementFactory
     }
   };
 
+  @Override
   public ReplacedElement createReplacedElement(
       final LayoutContext c,
       final BlockBox box,

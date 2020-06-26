@@ -56,7 +56,7 @@ public class Launcher {
   @SuppressWarnings("RedundantStringFormatCall")
   private static void showAppInfo() throws IOException {
     out( format( "%s version %s", getTitle(), getVersion() ) );
-    out( format( "Copyright %s by White Magic Software, Ltd.", getYear() ) );
+    out( format( "Copyright %s White Magic Software, Ltd.", getYear() ) );
     out( format( "Portions copyright 2020 Karl Tauber." ) );
   }
 

@@ -176,7 +176,7 @@ public final class ScrollEventHandler implements EventHandler<Event> {
   }
 
   private boolean isEnabled() {
-    // As a minor optimization, when this is set to false, it could remove
+    // TODO: As a minor optimization, when this is set to false, it could remove
     // the MouseHandler and ScrollHandler so that events only dispatch to one
     // object (instead of one per editor tab).
     return mEnabled.get();

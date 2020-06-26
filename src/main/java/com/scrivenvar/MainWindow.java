@@ -45,7 +45,6 @@ import com.scrivenvar.service.events.Notifier;
 import com.scrivenvar.util.Action;
 import com.scrivenvar.util.ActionBuilder;
 import com.scrivenvar.util.ActionUtils;
-import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.BooleanProperty;
@@ -78,10 +77,7 @@ import org.reactfx.value.Val;
 import org.xhtmlrenderer.util.XRLog;
 
 import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Observable;
-import java.util.Observer;
+import java.util.*;
 import java.util.function.Function;
 import java.util.prefs.Preferences;
 
@@ -89,6 +85,7 @@ import static com.scrivenvar.Constants.*;
 import static com.scrivenvar.Messages.get;
 import static com.scrivenvar.util.StageState.*;
 import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.*;
+import static javafx.application.Platform.runLater;
 import static javafx.event.Event.fireEvent;
 import static javafx.scene.input.KeyCode.ENTER;
 import static javafx.scene.input.KeyCode.TAB;
@@ -330,7 +327,7 @@ public class MainWindow implements Observer {
     // Before the drag handler can be attached, the scroll bar for the
     // text editor pane must be visible.
     final ChangeListener<? super Boolean> listener = ( o, oldShow, newShow ) ->
-        Platform.runLater( () -> {
+        runLater( () -> {
           if( newShow ) {
             final var handler = new ScrollEventHandler( scrollPane, scrollBar );
             handler.enabledProperty().bind( tab.selectedProperty() );
@@ -561,7 +558,7 @@ public class MainWindow implements Observer {
    * @param s The message to show in the status bar.
    */
   private void updateStatusBar( final String s ) {
-    Platform.runLater(
+    runLater(
         () -> {
           final int index = s.indexOf( '\n' );
           final String message = s.substring(
@@ -576,7 +573,7 @@ public class MainWindow implements Observer {
    * Called when a file has been modified.
    */
   private void updateSelectedTab() {
-    Platform.runLater(
+    runLater(
         () -> {
           // Brute-force XSLT file reload by re-instantiating all processors.
           resetProcessors();
@@ -763,7 +760,7 @@ public class MainWindow implements Observer {
 
     // Force preview pane refresh on Windows.
     splitPane.getDividers().get( 1 ).positionProperty().addListener(
-        ( l, oValue, nValue ) -> Platform.runLater(
+        ( l, oValue, nValue ) -> runLater(
             () -> {
               if( SystemUtils.IS_OS_WINDOWS ) {
                 getPreviewPane().getScrollPane().repaint();

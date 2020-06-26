@@ -27,6 +27,8 @@
  */
 package com.scrivenvar.preview;
 
+import com.scrivenvar.Services;
+import com.scrivenvar.service.events.Notifier;
 import org.apache.batik.anim.dom.SAXSVGDocumentFactory;
 import org.apache.batik.gvt.renderer.ImageRenderer;
 import org.apache.batik.transcoder.TranscoderException;
@@ -50,29 +52,52 @@ import static org.apache.batik.transcoder.image.ImageTranscoder.KEY_BACKGROUND_C
 import static org.apache.batik.util.XMLResourceDescriptor.getXMLParserClassName;
 
 public class SVGRasterizer {
+  private final static Notifier NOTIFIER = Services.load( Notifier.class );
+
   private final static SAXSVGDocumentFactory mFactory =
       new SAXSVGDocumentFactory( getXMLParserClassName() );
 
-  private final static Map<Object, Object> RENDERING_HINTS = Map.of(
-      KEY_ALPHA_INTERPOLATION,
-      VALUE_ALPHA_INTERPOLATION_QUALITY,
-      KEY_INTERPOLATION,
-      VALUE_INTERPOLATION_BICUBIC,
+  public final static Map<Object, Object> RENDERING_HINTS = Map.of(
       KEY_ANTIALIASING,
       VALUE_ANTIALIAS_ON,
+      KEY_ALPHA_INTERPOLATION,
+      VALUE_ALPHA_INTERPOLATION_QUALITY,
       KEY_COLOR_RENDERING,
       VALUE_COLOR_RENDER_QUALITY,
       KEY_DITHERING,
       VALUE_DITHER_DISABLE,
+      KEY_FRACTIONALMETRICS,
+      VALUE_FRACTIONALMETRICS_ON,
+      KEY_INTERPOLATION,
+      VALUE_INTERPOLATION_BICUBIC,
       KEY_RENDERING,
       VALUE_RENDER_QUALITY,
       KEY_STROKE_CONTROL,
       VALUE_STROKE_PURE,
-      KEY_FRACTIONALMETRICS,
-      VALUE_FRACTIONALMETRICS_ON,
       KEY_TEXT_ANTIALIASING,
-      VALUE_TEXT_ANTIALIAS_OFF
+      VALUE_TEXT_ANTIALIAS_ON
   );
+
+  public final static BufferedImage PLACEHOLDER_IMAGE;
+
+  static {
+    final int w = 150;
+    final int h = 150;
+    final var image = new BufferedImage( w, h, TYPE_INT_RGB );
+    final var graphics = (Graphics2D) image.getGraphics();
+    graphics.setRenderingHints( RENDERING_HINTS );
+
+    graphics.setColor( new Color( 204, 204, 204 ) );
+    graphics.fillRect( 0, 0, w, h );
+    graphics.setColor( new Color( 255, 204, 204 ) );
+    graphics.setStroke( new BasicStroke( 4 ) );
+    graphics.drawOval( w / 4, h / 4, w / 2, h / 2 );
+    graphics.drawLine( w / 4 + (int) (w / 4 / Math.PI),
+                       h / 4 + (int) (w / 4 / Math.PI),
+                       w / 2 + w / 4 - (int) (w / 4 / Math.PI),
+                       h / 2 + h / 4 - (int) (w / 4 / Math.PI) );
+    PLACEHOLDER_IMAGE = image;
+  }
 
   private static class BufferedImageTranscoder extends ImageTranscoder {
     private BufferedImage mImage;
@@ -118,7 +143,8 @@ public class SVGRasterizer {
     try {
       return rasterize( new URL( url ), width );
     } catch( final Exception e ) {
-      return createPlaceholderImage( width );
+      NOTIFIER.notify( e );
+      return PLACEHOLDER_IMAGE;
     }
   }
 
@@ -150,17 +176,5 @@ public class SVGRasterizer {
     transcoder.transcode( input, null );
 
     return transcoder.getImage();
-  }
-
-  @SuppressWarnings("SuspiciousNameCombination")
-  private static Image createPlaceholderImage( final int width ) {
-    final var image = new BufferedImage( width, width, TYPE_INT_RGB );
-    final var graphics = (Graphics2D) image.getGraphics();
-
-    graphics.setColor( RED );
-    graphics.setStroke( new BasicStroke( 5 ) );
-    graphics.drawOval( 5, 5, width / 2, width / 2 );
-
-    return image;
   }
 }

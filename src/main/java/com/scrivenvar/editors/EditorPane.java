@@ -27,7 +27,6 @@
  */
 package com.scrivenvar.editors;
 
-import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
@@ -41,8 +40,10 @@ import org.fxmisc.wellbehaved.event.EventPattern;
 import org.fxmisc.wellbehaved.event.Nodes;
 
 import java.nio.file.Path;
+import java.util.Random;
 import java.util.function.Consumer;
 
+import static javafx.application.Platform.runLater;
 import static org.fxmisc.wellbehaved.event.InputMap.consume;
 
 /**
@@ -62,7 +63,7 @@ public class EditorPane extends Pane {
 
   @Override
   public void requestFocus() {
-    Platform.runLater( () -> getEditor().requestFocus() );
+    runLater( () -> getEditor().requestFocus() );
   }
 
   public void undo() {
