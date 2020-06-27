@@ -130,16 +130,20 @@ dl dd {
 pre, code, tt {
   /* Must be bundled in JAR file. */
   font-family: "Fira Code", monospace;
-  font-size: 14pt;
+  font-size: 10pt;
   white-space: pre-wrap;
   word-wrap: break-word;
   overflow-wrap: anywhere;
 }
 
 code, tt {
-  border: 1px solid #ccc;
   background-color: #f8f8f8;
-  border-radius: 3px;
+  min-width: 1em;
+  padding: .2em .3em;
+  text-align: center;
+  text-decoration: none;
+  border-radius: .3em;
+  border: none;
 }
 
 pre>code {
@@ -150,7 +154,6 @@ pre>code {
 pre {
   background-color: #f8f8f8;
   border: .125em solid #ccc;
-  line-height: 1.6;
   padding: .25em .5em;
   border-radius: .25em;
 }
@@ -158,18 +161,6 @@ pre {
 pre code, pre tt {
   background-color: transparent;
   border: none;
-}
-
-kbd {
-  background-color: #ccc;
-  background-repeat: repeat-x;
-  border-color: #DDDDDD #CCCCCC #CCCCCC #DDDDDD;
-  border-radius: 2px;
-  border-style: solid;
-  border-width: 1px;
-  font-family: sans-serif;
-  line-height: 1.25;
-  padding: 1px 4px;
 }
 
 /* QUOTES ***/

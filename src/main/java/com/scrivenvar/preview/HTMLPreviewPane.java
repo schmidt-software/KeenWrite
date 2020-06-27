@@ -27,6 +27,8 @@
  */
 package com.scrivenvar.preview;
 
+import com.scrivenvar.Services;
+import com.scrivenvar.service.events.Notifier;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
@@ -42,25 +44,31 @@ import org.xhtmlrenderer.layout.SharedContext;
 import org.xhtmlrenderer.render.Box;
 import org.xhtmlrenderer.simple.XHTMLPanel;
 import org.xhtmlrenderer.simple.extend.XhtmlNamespaceHandler;
-import org.xhtmlrenderer.swing.SwingReplacedElementFactory;
-import org.xhtmlrenderer.util.Configuration;
+import org.xhtmlrenderer.swing.*;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.Path;
 
 import static com.scrivenvar.Constants.PARAGRAPH_ID_PREFIX;
 import static com.scrivenvar.Constants.STYLESHEET_PREVIEW;
+import static java.awt.Desktop.Action.BROWSE;
+import static java.awt.Desktop.getDesktop;
 import static org.xhtmlrenderer.swing.ImageResourceLoader.NO_OP_REPAINT_LISTENER;
 
 /**
  * HTML preview pane is responsible for rendering an HTML document.
  */
 public final class HTMLPreviewPane extends Pane {
+  private final static Notifier NOTIFIER = Services.load( Notifier.class );
+
   /**
-   * Prevent scrolling to the top on every key press.
+   * Suppresses scrolling to the top on every key press.
    */
   private static class HTMLPanel extends XHTMLPanel {
     @Override
@@ -69,7 +77,7 @@ public final class HTMLPreviewPane extends Pane {
   }
 
   /**
-   * Prevent scroll attempts until after the document has loaded.
+   * Suppresses scroll attempts until after the document has loaded.
    */
   private static final class DocumentEventHandler implements DocumentListener {
     private final BooleanProperty mReadyProperty = new SimpleBooleanProperty();
@@ -97,6 +105,50 @@ public final class HTMLPreviewPane extends Pane {
     }
   }
 
+  /**
+   * Responsible for ensuring that images are constrained to the panel width
+   * upon resizing.
+   */
+  private final class ResizeListener implements ComponentListener {
+    @Override
+    public void componentResized( final ComponentEvent e ) {
+      // Scaling a bit below the full width prevents the horizontal scrollbar
+      // from appearing.
+      final int width = (int) (e.getComponent().getWidth() * .95);
+      HTMLPreviewPane.this.mImageLoader.widthProperty().set( width );
+    }
+
+    @Override
+    public void componentMoved( final ComponentEvent e ) {
+    }
+
+    @Override
+    public void componentShown( final ComponentEvent e ) {
+    }
+
+    @Override
+    public void componentHidden( final ComponentEvent e ) {
+    }
+  }
+
+  /**
+   * Responsible for launching hyperlinks in the system's default browser.
+   */
+  private static class HyperlinkListener extends LinkListener {
+    @Override
+    public void linkClicked( final BasicPanel panel, final String uri ) {
+      try {
+        final var desktop = getDesktop();
+
+        if( desktop.isSupported( BROWSE ) ) {
+          desktop.browse( new URI( uri ) );
+        }
+      } catch( final Exception e ) {
+        NOTIFIER.notify( e );
+      }
+    }
+  }
+
   private final static String HTML_HEADER = "<!DOCTYPE html>"
       + "<html>"
       + "<head>"
@@ -106,19 +158,18 @@ public final class HTMLPreviewPane extends Pane {
       + "<body>";
   private final static String HTML_FOOTER = "</body></html>";
 
+  private final static W3CDom W3C_DOM = new W3CDom();
+  private final static XhtmlNamespaceHandler NS_HANDLER =
+      new XhtmlNamespaceHandler();
+
   private final StringBuilder mHtmlDocument = new StringBuilder( 65536 );
   private final int mHtmlPrefixLength;
 
-  private final W3CDom mW3cDom = new W3CDom();
-  private final XhtmlNamespaceHandler mNamespaceHandler =
-      new XhtmlNamespaceHandler();
   private final HTMLPanel mHtmlRenderer = new HTMLPanel();
   private final SwingNode mSwingNode = new SwingNode();
   private final JScrollPane mScrollPane = new JScrollPane( mHtmlRenderer );
-  private final DocumentEventHandler mDocumentHandler =
-      new DocumentEventHandler();
-  private final CustomImageResourceLoader mImageLoader =
-      new CustomImageResourceLoader();
+  private final DocumentEventHandler mDocHandler = new DocumentEventHandler();
+  private final CustomImageLoader mImageLoader = new CustomImageLoader();
 
   private Path mPath;
 
@@ -127,14 +178,19 @@ public final class HTMLPreviewPane extends Pane {
    * document.
    */
   public HTMLPreviewPane() {
+    setStyle( "-fx-background-color: white;" );
+
+    // No need to append the header each time the HTML content is updated.
     mHtmlDocument.append( HTML_HEADER );
     mHtmlPrefixLength = mHtmlDocument.length();
 
+    // Inject an SVG renderer that produces high-quality SVG buffered images.
     final var factory = new ChainedReplacedElementFactory();
     factory.addFactory( new SVGReplacedElementFactory() );
     factory.addFactory( new SwingReplacedElementFactory(
         NO_OP_REPAINT_LISTENER, mImageLoader ) );
 
+    // Ensure fonts are always anti-aliased.
     final var context = getSharedContext();
     context.setReplacedElementFactory( factory );
     context.getTextRenderer().setSmoothingThreshold( 0 );
@@ -142,30 +198,19 @@ public final class HTMLPreviewPane extends Pane {
     mSwingNode.setContent( mScrollPane );
     mSwingNode.setCache( true );
 
-    mHtmlRenderer.addDocumentListener( mDocumentHandler );
-    setStyle( "-fx-background-color: white;" );
+    mHtmlRenderer.addDocumentListener( mDocHandler );
+    mHtmlRenderer.addComponentListener( new ResizeListener() );
 
-    mHtmlRenderer.addComponentListener( new ComponentListener() {
-      @Override
-      public void componentResized( final ComponentEvent e ) {
-        // Scaling a bit below the full width prevents the horizontal scrollbar
-        // from appearing.
-        final int width = (int) (e.getComponent().getWidth() * .95);
-        mImageLoader.widthProperty().set( width );
+    // The default mouse click listener attempts navigation within the
+    // preview panel. We want to usurp that behaviour to open the link in
+    // a platform-specific browser.
+    for( final var listener : mHtmlRenderer.getMouseTrackingListeners() ) {
+      if( !(listener instanceof HoverListener) ) {
+        mHtmlRenderer.removeMouseTrackingListener( (FSMouseListener) listener );
       }
+    }
 
-      @Override
-      public void componentMoved( final ComponentEvent e ) {
-      }
-
-      @Override
-      public void componentShown( final ComponentEvent e ) {
-      }
-
-      @Override
-      public void componentHidden( final ComponentEvent e ) {
-      }
-    } );
+    mHtmlRenderer.addMouseTrackingListener( new HyperlinkListener() );
   }
 
   /**
@@ -176,9 +221,9 @@ public final class HTMLPreviewPane extends Pane {
    */
   public void update( final String html ) {
     final Document jsoupDoc = Jsoup.parse( decorate( html ) );
-    final org.w3c.dom.Document w3cDoc = mW3cDom.fromJsoup( jsoupDoc );
+    final org.w3c.dom.Document w3cDoc = W3C_DOM.fromJsoup( jsoupDoc );
 
-    mHtmlRenderer.setDocument( w3cDoc, getBaseUrl(), mNamespaceHandler );
+    mHtmlRenderer.setDocument( w3cDoc, getBaseUrl(), NS_HANDLER );
   }
 
   /**
@@ -197,12 +242,12 @@ public final class HTMLPreviewPane extends Pane {
         if( newValue ) {
           scrollTo( id );
 
-          mDocumentHandler.readyProperty().removeListener( this );
+          mDocHandler.readyProperty().removeListener( this );
         }
       }
     };
 
-    mDocumentHandler.readyProperty().addListener( listener );
+    mDocHandler.readyProperty().addListener( listener );
   }
 
   /**

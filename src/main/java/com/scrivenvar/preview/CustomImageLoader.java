@@ -44,22 +44,39 @@ import static org.xhtmlrenderer.swing.AWTFSImage.createImage;
  * Responsible for loading images. If the image cannot be found, a placeholder
  * is used instead.
  */
-public class CustomImageResourceLoader extends ImageResourceLoader {
+public class CustomImageLoader extends ImageResourceLoader {
   /**
    * Placeholder that's displayed when image cannot be found.
    */
-  private static final FSImage FS_PLACEHOLDER_IMAGE =
-      createImage( BROKEN_IMAGE_PLACEHOLDER );
+  private static final FSImage BROKEN_IMAGE = createImage(
+      BROKEN_IMAGE_PLACEHOLDER );
 
-  private final IntegerProperty mMaxWidthProperty = new SimpleIntegerProperty();
+  private final IntegerProperty mWidthProperty = new SimpleIntegerProperty();
 
-  public CustomImageResourceLoader() {
+  public CustomImageLoader() {
   }
 
+  /**
+   * Gets an {@link IntegerProperty} that represents the maximum width an
+   * image should be scaled.
+   *
+   * @return The maximum width for an image.
+   */
   public IntegerProperty widthProperty() {
-    return mMaxWidthProperty;
+    return mWidthProperty;
   }
 
+  /**
+   * Gets an image resolved from the given URI. If the image cannot be found,
+   * this will return a custom placeholder image indicating the reference
+   * is broken.
+   *
+   * @param uri    Path to the image resource to load.
+   * @param width  Maximum image width (scaled to fit), in pixels.
+   * @param height Image height, in pixels.
+   * @return The scaled image, or a placeholder image if the URI's content
+   * could not be retrieved.
+   */
   @Override
   public synchronized ImageResource get(
       final String uri, final int width, final int height ) {
@@ -77,11 +94,11 @@ public class CustomImageResourceLoader extends ImageResourceLoader {
 
     return exists
         ? scale( uri, width, height )
-        : new ImageResource( uri, FS_PLACEHOLDER_IMAGE );
+        : new ImageResource( uri, BROKEN_IMAGE );
   }
 
   /**
-   * Scales the image found at the given uri.
+   * Scales the image found at the given URI.
    *
    * @param uri Path to the image file to load.
    * @param w   Unused (usually -1, which is useless).
@@ -94,7 +111,7 @@ public class CustomImageResourceLoader extends ImageResourceLoader {
     final var imageWidth = image.getWidth();
     final var imageHeight = image.getHeight();
 
-    int maxWidth = mMaxWidthProperty.get();
+    int maxWidth = mWidthProperty.get();
     int newWidth = imageWidth;
     int newHeight = imageHeight;
 

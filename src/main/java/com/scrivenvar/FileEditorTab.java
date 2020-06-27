@@ -39,12 +39,12 @@ import javafx.beans.value.ChangeListener;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.event.EventType;
-import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Tab;
 import javafx.scene.control.Tooltip;
 import javafx.scene.text.Text;
 import javafx.stage.Window;
+import org.fxmisc.flowless.VirtualizedScrollPane;
 import org.fxmisc.richtext.StyleClassedTextArea;
 import org.fxmisc.undo.UndoManager;
 import org.jetbrains.annotations.NotNull;
@@ -155,10 +155,6 @@ public final class FileEditorTab extends Tab {
     setContent( getScrollPane() );
   }
 
-  private Node getScrollPane() {
-    return getEditorPane().getScrollPane();
-  }
-
   private void initFocus() {
     getEditorPane().requestFocus();
   }
@@ -191,6 +187,15 @@ public final class FileEditorTab extends Tab {
       setCaretPosition( index );
       getEditor().selectRange( index, index + needle.length() );
     }
+  }
+
+  /**
+   * Gets a reference to the scroll pane that houses the editor.
+   *
+   * @return The editor's scroll pane, containing a vertical scrollbar.
+   */
+  public VirtualizedScrollPane<StyleClassedTextArea> getScrollPane() {
+    return getEditorPane().getScrollPane();
   }
 
   /**

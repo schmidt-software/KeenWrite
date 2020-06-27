@@ -77,7 +77,10 @@ import org.reactfx.value.Val;
 import org.xhtmlrenderer.util.XRLog;
 
 import java.nio.file.Path;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Observable;
+import java.util.Observer;
 import java.util.function.Function;
 import java.util.prefs.Preferences;
 
@@ -321,7 +324,7 @@ public class MainWindow implements Observer {
   }
 
   private void initScrollEventListener( final FileEditorTab tab ) {
-    final var scrollPane = tab.getEditorPane().getScrollPane();
+    final var scrollPane = tab.getScrollPane();
     final var scrollBar = getPreviewPane().getVerticalScrollBar();
 
     // Before the drag handler can be attached, the scroll bar for the
