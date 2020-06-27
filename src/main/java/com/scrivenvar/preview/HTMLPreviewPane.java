@@ -43,6 +43,7 @@ import org.xhtmlrenderer.render.Box;
 import org.xhtmlrenderer.simple.XHTMLPanel;
 import org.xhtmlrenderer.simple.extend.XhtmlNamespaceHandler;
 import org.xhtmlrenderer.swing.SwingReplacedElementFactory;
+import org.xhtmlrenderer.util.Configuration;
 
 import javax.swing.*;
 import java.awt.*;
@@ -139,6 +140,7 @@ public final class HTMLPreviewPane extends Pane {
     context.getTextRenderer().setSmoothingThreshold( 0 );
 
     mSwingNode.setContent( mScrollPane );
+    mSwingNode.setCache( true );
 
     mHtmlRenderer.addDocumentListener( mDocumentHandler );
     setStyle( "-fx-background-color: white;" );

@@ -1,11 +1,11 @@
 /* RESET ***/
-html{box-sizing:border-box;font-size:16px}body,h1,h2,h3,h4,h5,h6,ol,p,ul{margin:0;padding:0}img{max-width:100%;height:auto}table{table-collapse:collapse;table-spacing:0;border-spacing:0}
+html{box-sizing:border-box;font-size:12pt}body,h1,h2,h3,h4,h5,h6,ol,p,ul{margin:0;padding:0}img{max-width:100%;height:auto}table{table-collapse:collapse;table-spacing:0;border-spacing:0}
 
 /* BODY ***/
 body {
   /* Must be bundled in JAR file. */
   font-family: "Vollkorn", serif;
-  font-size: 16px;
+  font-size: 12pt;
   background-color: #fff;
   margin: 0 auto;
   max-width: 960px;
@@ -39,28 +39,28 @@ h4 tt, h4 code, h5 tt, h5 code, h6 tt, h6 code {
 }
 
 h1 {
-  font-size: 28px;
+  font-size: 21pt;
 }
 
 h2 {
-  font-size: 24px;
+  font-size: 18pt;
   border-bottom: 1px solid #ccc;
 }
 
 h3 {
-  font-size: 20px;
+  font-size: 15pt;
 }
 
 h4 {
-  font-size: 18px;
+  font-size: 13.5pt;
 }
 
 h5 {
-  font-size: 16px;
+  font-size: 12pt;
 }
 
 h6 {
-  font-size: 14px;
+  font-size: 10.5pt;
 }
 
 h1+p, h2+p, h3+p, h4+p, h5+p, h6+p {
@@ -130,7 +130,7 @@ dl dd {
 pre, code, tt {
   /* Must be bundled in JAR file. */
   font-family: "Fira Code", monospace;
-  font-size: 14px;
+  font-size: 14pt;
   white-space: pre-wrap;
   word-wrap: break-word;
   overflow-wrap: anywhere;
@@ -180,18 +180,18 @@ blockquote {
 }
 
 blockquote>:first-child {
-  margin-top: 0px;
+  margin-top: 0;
 }
 
 blockquote>:last-child {
-  margin-bottom: 0px;
+  margin-bottom: 0;
 }
 
 /* HORIZONTAL RULES ***/
 hr {
   clear: both;
   margin: 1.5em 0 1.5em;
-  height: 0px;
+  height: 0;
   overflow: hidden;
   border: none;
   background: transparent;

@@ -37,7 +37,7 @@ import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
-import static com.scrivenvar.preview.SVGRasterizer.PLACEHOLDER_IMAGE;
+import static com.scrivenvar.preview.SVGRasterizer.BROKEN_IMAGE_PLACEHOLDER;
 import static org.xhtmlrenderer.swing.AWTFSImage.createImage;
 
 /**
@@ -49,7 +49,7 @@ public class CustomImageResourceLoader extends ImageResourceLoader {
    * Placeholder that's displayed when image cannot be found.
    */
   private static final FSImage FS_PLACEHOLDER_IMAGE =
-      createImage( PLACEHOLDER_IMAGE );
+      createImage( BROKEN_IMAGE_PLACEHOLDER );
 
   private final IntegerProperty mMaxWidthProperty = new SimpleIntegerProperty();
 
