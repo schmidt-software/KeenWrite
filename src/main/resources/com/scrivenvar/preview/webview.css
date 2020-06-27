@@ -1,43 +1,7 @@
-/* RESET
-=============================================================================*/
-html, body, div, span, applet, object, iframe,
-h1, h2, h3, h4, h5, h6, p, blockquote, pre,
-a, abbr, acronym, address, big, cite, code,
-del, dfn, em, img, ins, kbd, q, s, samp,
-small, strike, strong, sub, sup, tt, var,
-b, u, i, center,
-dl, dt, dd, ol, ul, li,
-fieldset, form, label, legend,
-table, caption, tbody, tfoot, thead, tr, th, td,
-article, aside, canvas, details, embed,
-figure, figcaption, footer, header, hgroup,
-menu, nav, output, ruby, section, summary,
-time, mark, audio, video {
-	margin: 0;
-	padding: 0;
-	border: 0;
-	font-size: 100%;
-	font: inherit;
-	vertical-align: baseline;
-}
-ol, ul {
-	list-style: none;
-}
-blockquote, q {
-	quotes: none;
-}
-blockquote:before, blockquote:after,
-q:before, q:after {
-	content: "";
-	content: none;
-}
-table {
-	border-collapse: collapse;
-	border-spacing: 0;
-}
+/* RESET ***/
+html{box-sizing:border-box;font-size:16px}body,h1,h2,h3,h4,h5,h6,ol,p,ul{margin:0;padding:0}img{max-width:100%;height:auto}table{table-collapse:collapse;table-spacing:0;border-spacing:0}
 
-/* BODY
-=============================================================================*/
+/* BODY ***/
 body {
   /* Must be bundled in JAR file. */
   font-family: "Vollkorn", serif;
@@ -47,7 +11,7 @@ body {
   max-width: 960px;
   line-height: 1.6;
   color: #454545;
-  padding: 0 1em
+  padding: 0 1em;
 }
 
 body>*:first-child {
@@ -58,14 +22,12 @@ body>*:last-child {
   margin-bottom: 0 !important;
 }
 
-/* BLOCKS
-=============================================================================*/
+/* BLOCKS ***/
 p, blockquote, ul, ol, dl, table, pre {
   margin: 1em 0;
 }
 
-/* HEADERS
-=============================================================================*/
+/* HEADERS ***/
 h1, h2, h3, h4, h5, h6 {
   font-weight: bold;
   margin: 1em 0 .5em;
@@ -105,8 +67,7 @@ h1+p, h2+p, h3+p, h4+p, h5+p, h6+p {
   margin-top: .5em;
 }
 
-/* LINKS
-=============================================================================*/
+/* LINKS ***/
 a {
   color: #0077aa;
   text-decoration: none;
@@ -116,8 +77,7 @@ a:hover {
   text-decoration: underline;
 }
 
-/* BULLET LISTS
-=============================================================================*/
+/* BULLET LISTS ***/
 ul, ol {
   display: block;
   list-style: disc outside none;
@@ -126,25 +86,24 @@ ul, ol {
 }
 
 ol {
- list-style-type: decimal;
+  list-style-type: decimal;
 }
 
 ul ul, ol ul,
 ol ol, ul ol {
- list-style-position: inside;
- margin-left: 1em;
+  list-style-position: inside;
+  margin-left: 1em;
 }
 
 ul ul, ol ul {
- list-style-type: circle;
+  list-style-type: circle;
 }
 
 ol ol, ul ol {
- list-style-type: lower-latin;
+  list-style-type: lower-latin;
 }
 
-/* DEFINITION LISTS
-=============================================================================*/
+/* DEFINITION LISTS ***/
 dl {
   /** Horizontal scroll bar will appear if set to 100%. */
   width: 99%;
@@ -167,8 +126,7 @@ dl dd {
   margin-left: 0;
 }
 
-/* CODE
-=============================================================================*/
+/* CODE ***/
 pre, code, tt {
   /* Must be bundled in JAR file. */
   font-family: "Fira Code", monospace;
@@ -214,8 +172,7 @@ kbd {
   padding: 1px 4px;
 }
 
-/* QUOTES
-=============================================================================*/
+/* QUOTES ***/
 blockquote {
   border-left: .25em solid #ccc;
   padding: 0 1em;
@@ -230,8 +187,7 @@ blockquote>:last-child {
   margin-bottom: 0px;
 }
 
-/* HORIZONTAL RULES
-=============================================================================*/
+/* HORIZONTAL RULES ***/
 hr {
   clear: both;
   margin: 1.5em 0 1.5em;
@@ -242,8 +198,7 @@ hr {
   border-bottom: .125em solid #ccc;
 }
 
-/* TABLES
-=============================================================================*/
+/* TABLES ***/
 table {
   width: 100%;
 }
@@ -262,8 +217,7 @@ th, td {
   padding: 0 1em;
 }
 
-/* IMAGES
-=============================================================================*/
+/* IMAGES ***/
 img {
   max-width: 100%;
 }

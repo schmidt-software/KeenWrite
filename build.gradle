@@ -78,8 +78,6 @@ dependencies {
   implementation 'org.apache.xmlgraphics:batik-util:1.13'
   implementation 'org.apache.xmlgraphics:batik-xml:1.13'
 
-  implementation 'org.apache.bsf:bsf-api:3.1'
-
   // Misc.
   implementation 'org.ahocorasick:ahocorasick:0.4.0'
   implementation 'org.apache.commons:commons-configuration2:2.7'
@@ -89,7 +87,6 @@ dependencies {
   def fx = ['controls', 'graphics', 'fxml', 'swing']
 
   // Create cross-platform überjar.
-  //
   // Including these runtime dependencies breaks creating cross-platform binaries.
   fx.each { fxitem ->
     os.each { ositem ->
