@@ -1,0 +1,194 @@
+#!/usr/bin/env bash
+
+source build-template
+
+readonly APP_NAME=$(find "${SCRIPT_DIR}/src" -type f -name "settings.properties" -exec cat {} \; | grep "application.title=" | cut -d'=' -f2)
+readonly FILE_APP_JAR="${APP_NAME}.jar"
+
+ARG_JRE_OS="linux"
+ARG_JRE_ARCH="amd64"
+ARG_JRE_VERSION="14.0.1"
+ARG_JRE_UPDATE="8"
+ARG_JRE_DIR="jre"
+
+ARG_DIR_DIST="dist"
+
+FILE_DIST_EXEC="run.sh"
+
+ARG_PATH_DIST_JAR="${SCRIPT_DIR}/build/libs/${FILE_APP_JAR}"
+
+DEPENDENCIES=(
+  "gradle,https://gradle.org"
+  "warp-packer,https://github.com/dgiagio/warp"
+  "tar,https://www.gnu.org/software/tar"
+  "unzip,http://infozip.sourceforge.net"
+)
+
+ARGUMENTS+=(
+  "a,arch,Target operating system architecture (amd64)"
+  "b,build,Suppress building application"
+  "o,os,Target operating system (linux, windows, mac)"
+  "u,update,Java update version number (${ARG_JRE_UPDATE})"
+  "v,version,Full Java version (${ARG_JRE_VERSION})"
+)
+
+ARCHIVE_EXT="tar.gz"
+ARCHIVE_APP="tar xf"
+APP_EXTENSION="bin"
+
+execute() {
+  if [ "${ARG_JRE_OS}" = "windows" ]; then
+    ARCHIVE_EXT="zip"
+    ARCHIVE_APP="unzip -qq"
+    FILE_DIST_EXEC="run.bat"
+    APP_EXTENSION="exe"
+    do_create_launch_script=utile_create_launch_script_windows
+  fi
+
+  $do_build
+
+  $log "Recreate ${ARG_DIR_DIST}"
+  rm -rf "${ARG_DIR_DIST}"
+  mkdir -p "${ARG_DIR_DIST}"
+  pushd "${ARG_DIR_DIST}" > /dev/null 2>&1
+
+  $do_extract_jre
+  $do_create_launch_script
+  $do_copy_archive
+
+  popd > /dev/null 2>&1
+
+  $do_create_launcher
+
+  return 1
+}
+
+# --------------------------------------------------------------------------- 
+# Build platform-specific überjar.
+# --------------------------------------------------------------------------- 
+utile_build() {
+  $log "Build application for ${ARG_JRE_OS}"
+  gradle clean jar -PtargetOs="${ARG_JRE_OS}"
+}
+
+# --------------------------------------------------------------------------- 
+# Extract platform-specific Java Runtime Environment.
+# --------------------------------------------------------------------------- 
+utile_extract_jre() {
+  $log "Extract JRE"
+  local -r jre_version="${ARG_JRE_VERSION}+${ARG_JRE_UPDATE}"
+  local -r url_jdk="https://download.bell-sw.com/java/${jre_version}/bellsoft-jre${jre_version}-${ARG_JRE_OS}-${ARG_JRE_ARCH}-full.${ARCHIVE_EXT}"
+
+  local -r file_jdk="jre-${jre_version}-${ARG_JRE_OS}-${ARG_JRE_ARCH}.${ARCHIVE_EXT}"
+  local -r path_jdk="/tmp/${file_jdk}"
+
+  if [ ! -f ${path_jdk} ]; then
+    $log "Download ${url_jdk}"
+    wget -q "${url_jdk}" -O "${path_jdk}"
+  fi
+
+  $log "Unpack ${path_jdk}"
+  $ARCHIVE_APP "${path_jdk}"
+
+  local -r dir_jdk="jre-${ARG_JRE_VERSION}-full"
+
+  $log "Rename ${dir_jdk}-jre to ${ARG_JRE_DIR}"
+  mv "${dir_jdk}" "${ARG_JRE_DIR}"
+}
+
+# --------------------------------------------------------------------------- 
+# Create Linux-specific launch script.
+# --------------------------------------------------------------------------- 
+utile_create_launch_script_linux() {
+  $log "Create Linux launch script"
+
+  cat > "${FILE_DIST_EXEC}" << __EOT
+#!/usr/bin/env bash
+
+readonly SCRIPT_SRC="\$(dirname "\${BASH_SOURCE[\${#BASH_SOURCE[@]} - 1]}")"
+readonly SCRIPT_DIR="\$(cd "\${SCRIPT_SRC}" >/dev/null 2>&1 && pwd)"
+
+"\${SCRIPT_DIR}/${ARG_JRE_DIR}/bin/java" -jar "\${SCRIPT_DIR}/${FILE_APP_JAR}" "\$@"
+__EOT
+
+  chmod +x "${FILE_DIST_EXEC}"
+}
+
+# --------------------------------------------------------------------------- 
+# Create Windows-specific launch script.
+# --------------------------------------------------------------------------- 
+utile_create_launch_script_windows() {
+  $log "Create Windows launch script"
+
+  cat > "${FILE_DIST_EXEC}" << __EOT
+@echo off
+
+set SCRIPT_DIR=%~dp0
+"%SCRIPT_DIR%jre\\bin\\java" -jar "%SCRIPT_DIR%\\scrivenvar.jar" %*
+__EOT
+
+  # Convert Unix end of line characters (\n) to Windows format (\r\n).
+  sed -i 's/$/\r/' "${FILE_DIST_EXEC}"
+}
+
+# --------------------------------------------------------------------------- 
+# Copy application überjar.
+# --------------------------------------------------------------------------- 
+utile_copy_archive() {
+  $log "Create copy of ${FILE_APP_JAR}"
+  cp "${ARG_PATH_DIST_JAR}" "${FILE_APP_JAR}"
+}
+
+# --------------------------------------------------------------------------- 
+# Create platform-specific launcher binary.
+# --------------------------------------------------------------------------- 
+utile_create_launcher() {
+  $log "Create ${APP_NAME}.${APP_EXTENSION}"
+
+  # Download uses amd64, but warp-packer differs.
+  if [ "${ARG_JRE_ARCH}" = "amd64" ]; then
+    ARG_JRE_ARCH="x64"
+  fi
+
+  warp-packer \
+    --arch "${ARG_JRE_OS}-${ARG_JRE_ARCH}" \
+    --input_dir "${ARG_DIR_DIST}" \
+    --exec "${FILE_DIST_EXEC}" \
+    --output "${APP_NAME}.${APP_EXTENSION}" > /dev/null
+
+  chmod +x "${APP_NAME}.${APP_EXTENSION}"
+}
+
+argument() {
+  local consume=2
+
+  case "$1" in
+    -a|--arch)
+    ARG_JRE_ARCH="$2"
+    ;;
+    -b|--build)
+    do_build=noop
+    consume=1
+    ;;
+    -o|--os)
+    ARG_JRE_OS="$2"
+    ;;
+    -u|--update)
+    ARG_JRE_UPDATE="$2"
+    ;;
+    -v|--version)
+    ARG_JRE_VERSION="$2"
+    ;;
+  esac
+
+  return ${consume}
+}
+
+do_build=utile_build
+do_extract_jre=utile_extract_jre
+do_create_launch_script=utile_create_launch_script_linux
+do_copy_archive=utile_copy_archive
+do_create_launcher=utile_create_launcher
+
+main "$@"
+

@@ -50,9 +50,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
-import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.file.Path;
 
 import static com.scrivenvar.Constants.PARAGRAPH_ID_PREFIX;
@@ -149,6 +147,10 @@ public final class HTMLPreviewPane extends Pane {
     }
   }
 
+  /**
+   * The CSS must be rendered in points (pt) not pixels (px) to avoid blurry
+   * rendering on some platforms.
+   */
   private final static String HTML_HEADER = "<!DOCTYPE html>"
       + "<html>"
       + "<head>"

@@ -1,9 +1,3 @@
-/bin/
-/build/
-/.gradle/
-/gradle/
-/.nb-gradle
-/private
-.nb-gradle-properties
-scrivenvar.pro
-out
+dist
+scrivenvar.bin
+scrivenvar.exe
