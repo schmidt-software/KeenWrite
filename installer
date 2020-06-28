@@ -1,5 +1,12 @@
 #!/usr/bin/env bash
 
+# ---------------------------------------------------------------------------
+# This script cross-compiles application launchers for different platforms.
+#
+# The application binaries are self-contained launchers that do not need
+# to be installed.
+# ---------------------------------------------------------------------------
+
 source build-template
 
 readonly APP_NAME=$(find "${SCRIPT_DIR}/src" -type f -name "settings.properties" -exec cat {} \; | grep "application.title=" | cut -d'=' -f2)
@@ -36,20 +43,14 @@ ARCHIVE_EXT="tar.gz"
 ARCHIVE_APP="tar xf"
 APP_EXTENSION="bin"
 
+# ---------------------------------------------------------------------------
+# Generates
+# ---------------------------------------------------------------------------
 execute() {
-  if [ "${ARG_JRE_OS}" = "windows" ]; then
-    ARCHIVE_EXT="zip"
-    ARCHIVE_APP="unzip -qq"
-    FILE_DIST_EXEC="run.bat"
-    APP_EXTENSION="exe"
-    do_create_launch_script=utile_create_launch_script_windows
-  fi
-
+  $do_configure_target
   $do_build
+  $do_clean
 
-  $log "Recreate ${ARG_DIR_DIST}"
-  rm -rf "${ARG_DIR_DIST}"
-  mkdir -p "${ARG_DIR_DIST}"
   pushd "${ARG_DIR_DIST}" > /dev/null 2>&1
 
   $do_extract_jre
@@ -63,17 +64,43 @@ execute() {
   return 1
 }
 
-# --------------------------------------------------------------------------- 
+# ---------------------------------------------------------------------------
+# Configure platform-specific commands and file names.
+# ---------------------------------------------------------------------------
+utile_configure_target() {
+  if [ "${ARG_JRE_OS}" = "windows" ]; then
+    ARCHIVE_EXT="zip"
+    ARCHIVE_APP="unzip -qq"
+    FILE_DIST_EXEC="run.bat"
+    APP_EXTENSION="exe"
+    do_create_launch_script=utile_create_launch_script_windows
+  fi
+}
+
+# ---------------------------------------------------------------------------
 # Build platform-specific überjar.
-# --------------------------------------------------------------------------- 
+# ---------------------------------------------------------------------------
 utile_build() {
   $log "Build application for ${ARG_JRE_OS}"
   gradle clean jar -PtargetOs="${ARG_JRE_OS}"
 }
 
-# --------------------------------------------------------------------------- 
-# Extract platform-specific Java Runtime Environment.
-# --------------------------------------------------------------------------- 
+# ---------------------------------------------------------------------------
+# Purges the existing distribution directory to recreate the launcher.
+# This refreshes the JRE from the downloaded archive.
+# ---------------------------------------------------------------------------
+utile_clean() {
+  $log "Recreate ${ARG_DIR_DIST}"
+  rm -rf "${ARG_DIR_DIST}"
+  mkdir -p "${ARG_DIR_DIST}"
+}
+
+# ---------------------------------------------------------------------------
+# Extract platform-specific Java Runtime Environment. This will download
+# and cache the required Java Runtime Environment for the target platform.
+# On subsequent runs, the cached version is used, instead of issuing another
+# download.
+# ---------------------------------------------------------------------------
 utile_extract_jre() {
   $log "Extract JRE"
   local -r jre_version="${ARG_JRE_VERSION}+${ARG_JRE_UPDATE}"
@@ -96,9 +123,9 @@ utile_extract_jre() {
   mv "${dir_jdk}" "${ARG_JRE_DIR}"
 }
 
-# --------------------------------------------------------------------------- 
+# ---------------------------------------------------------------------------
 # Create Linux-specific launch script.
-# --------------------------------------------------------------------------- 
+# ---------------------------------------------------------------------------
 utile_create_launch_script_linux() {
   $log "Create Linux launch script"
 
@@ -114,9 +141,9 @@ __EOT
   chmod +x "${FILE_DIST_EXEC}"
 }
 
-# --------------------------------------------------------------------------- 
+# ---------------------------------------------------------------------------
 # Create Windows-specific launch script.
-# --------------------------------------------------------------------------- 
+# ---------------------------------------------------------------------------
 utile_create_launch_script_windows() {
   $log "Create Windows launch script"
 
@@ -128,20 +155,21 @@ set SCRIPT_DIR=%~dp0
 __EOT
 
   # Convert Unix end of line characters (\n) to Windows format (\r\n).
+  # This avoids any potential line conversion issues with the repository.
   sed -i 's/$/\r/' "${FILE_DIST_EXEC}"
 }
 
-# --------------------------------------------------------------------------- 
+# ---------------------------------------------------------------------------
 # Copy application überjar.
-# --------------------------------------------------------------------------- 
+# ---------------------------------------------------------------------------
 utile_copy_archive() {
   $log "Create copy of ${FILE_APP_JAR}"
   cp "${ARG_PATH_DIST_JAR}" "${FILE_APP_JAR}"
 }
 
-# --------------------------------------------------------------------------- 
+# ---------------------------------------------------------------------------
 # Create platform-specific launcher binary.
-# --------------------------------------------------------------------------- 
+# ---------------------------------------------------------------------------
 utile_create_launcher() {
   $log "Create ${APP_NAME}.${APP_EXTENSION}"
 
@@ -184,7 +212,9 @@ argument() {
   return ${consume}
 }
 
+do_configure_target=utile_configure_target
 do_build=utile_build
+do_clean=utile_clean
 do_extract_jre=utile_extract_jre
 do_create_launch_script=utile_create_launch_script_linux
 do_copy_archive=utile_copy_archive
