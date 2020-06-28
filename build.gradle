@@ -20,19 +20,15 @@ repositories {
   }
 }
 
-String targetOs
+// Assume an überjar unless targetOs is set.
+String[] os = ["win", "mac", "linux"]
 
-if (binding.hasVariable('targetOs') && "windows".equals(targetOs)) {
-  targetOs = "win"
-} else {
-  targetOs = "linux"
-
-  def os = DefaultNativePlatform.currentOperatingSystem
-
-  if (os.isMacOsX()) {
-    targetOs = "mac"
-  } else if (os.isWindows()) {
-    targetOs = "win"
+if (project.hasProperty('targetOs')) {
+  if ("windows".equals(targetOs)) {
+    os = ["win"]
+  }
+  else {
+    os = [targetOs]
   }
 }
 
@@ -104,7 +100,9 @@ dependencies {
   def fx = ['controls', 'graphics', 'fxml', 'swing']
 
   fx.each { fxitem ->
-    runtimeOnly "org.openjfx:javafx-${fxitem}:${javafx.version}:${targetOs}"
+    os.each { ositem ->
+      runtimeOnly "org.openjfx:javafx-${fxitem}:${javafx.version}:${ositem}"
+    }
   }
 
   testImplementation('org.junit.jupiter:junit-jupiter-api:5.4.2')
