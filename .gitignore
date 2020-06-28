@@ -1,3 +1,5 @@
 dist
 scrivenvar.bin
 scrivenvar.exe
+build
+.gradle
