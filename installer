@@ -7,7 +7,7 @@
 # to be installed.
 # ---------------------------------------------------------------------------
 
-source build-template
+source $HOME/bin/build-template
 
 readonly APP_NAME=$(find "${SCRIPT_DIR}/src" -type f -name "settings.properties" -exec cat {} \; | grep "application.title=" | cut -d'=' -f2)
 readonly FILE_APP_JAR="${APP_NAME}.jar"
