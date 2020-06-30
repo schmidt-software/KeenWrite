@@ -5,7 +5,6 @@ html{box-sizing:border-box;font-size:12pt}body,h1,h2,h3,h4,h5,h6,ol,p,ul{margin:
 body {
   /* Must be bundled in JAR file. */
   font-family: "Vollkorn", serif;
-  font-size: 12pt;
   background-color: #fff;
   margin: 0 auto;
   max-width: 960px;
@@ -127,6 +126,7 @@ dl dd {
 }
 
 /* CODE ***/
+
 pre, code, tt {
   /* Must be bundled in JAR file. */
   font-family: "Fira Code", monospace;
@@ -134,28 +134,28 @@ pre, code, tt {
   white-space: pre-wrap;
   word-wrap: break-word;
   overflow-wrap: anywhere;
+  text-decoration: none;
+  background-color: #f8f8f8;
 }
 
 code, tt {
-  background-color: #f8f8f8;
-  min-width: 1em;
-  padding: .2em .3em;
-  text-align: center;
-  text-decoration: none;
-  border-radius: .3em;
-  border: none;
+  padding: .25em;
+  border-radius: .125em;
 }
 
-pre>code {
+pre > code {
+  /* Reset the padding. */
+  padding: 0;
   border: none;
   background: transparent;
 }
 
 pre {
-  background-color: #f8f8f8;
   border: .125em solid #ccc;
+  overflow: auto;
+  /* Assign the new padding, independently from previous. */
   padding: .25em .5em;
-  border-radius: .25em;
+  border-radius: .125em;
 }
 
 pre code, pre tt {

@@ -1037,7 +1037,8 @@ public class MainWindow implements Observer {
         null,
         insertUnorderedListAction,
         insertOrderedListAction,
-        insertHorizontalRuleAction );
+        insertHorizontalRuleAction
+    );
 
     final Menu helpMenu = ActionUtils.createMenu(
         get( "Main.menu.help" ),

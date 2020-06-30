@@ -127,10 +127,24 @@ public class MarkdownEditorPane extends EditorPane {
     return getEditor().getCurrentParagraph();
   }
 
+  /**
+   * @param leading  Characters to insert at the beginning of the current
+   *                 selection (or paragraph).
+   * @param trailing Characters to insert at the end of the current selection
+   *                 (or paragraph).
+   */
   public void surroundSelection( final String leading, final String trailing ) {
     surroundSelection( leading, trailing, null );
   }
 
+  /**
+   * @param leading  Characters to insert at the beginning of the current
+   *                 selection (or paragraph).
+   * @param trailing Characters to insert at the end of the current selection
+   *                 (or paragraph).
+   * @param hint     Instructional text inserted within the leading and
+   *                 trailing characters, provided no text is selected.
+   */
   public void surroundSelection(
       String leading, String trailing, final String hint ) {
     final StyleClassedTextArea textArea = getEditor();
