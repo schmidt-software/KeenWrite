@@ -1,6 +1,7 @@
 package com.scrivenvar.processors.markdown;
 
 import com.vladsch.flexmark.ast.BlockQuote;
+import com.vladsch.flexmark.ast.ListBlock;
 import com.vladsch.flexmark.html.AttributeProvider;
 import com.vladsch.flexmark.html.AttributeProviderFactory;
 import com.vladsch.flexmark.html.HtmlRenderer;
@@ -14,6 +15,7 @@ import com.vladsch.flexmark.util.html.MutableAttributes;
 import org.jetbrains.annotations.NotNull;
 
 import static com.scrivenvar.Constants.PARAGRAPH_ID_PREFIX;
+import static com.vladsch.flexmark.html.renderer.CoreNodeRenderer.CODE_CONTENT;
 
 /**
  * Responsible for giving most block-level elements a unique identifier
@@ -46,7 +48,15 @@ public class BlockExtension implements HtmlRenderer.HtmlRendererExtension {
       // is, in Markdown the > symbol on a line by itself will generate a blank
       // line in the resulting document; however, a > symbol in the text editor
       // does not count as a blank line. Resolving this issue is tricky.
-      if( node instanceof Block && !(node instanceof BlockQuote) ) {
+      //
+      // The CODE_CONTENT represents <code> embedded inside <pre>; both elements
+      // enter this method as FencedCodeBlock, but only the <pre> must be
+      // uniquely identified (because they are the same line in Markdown).
+      //
+      if( node instanceof Block &&
+          !(node instanceof BlockQuote) &&
+          !(node instanceof ListBlock) &&
+          (part != CODE_CONTENT) ) {
         attributes.addValue( "id", PARAGRAPH_ID_PREFIX + mCount++ );
       }
     }

@@ -43,6 +43,8 @@ import javafx.stage.Window;
 import org.fxmisc.richtext.StyleClassedTextArea;
 
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -56,8 +58,15 @@ import static org.fxmisc.wellbehaved.event.EventPattern.keyPressed;
  * Markdown editor pane.
  */
 public class MarkdownEditorPane extends EditorPane {
-  private static final Pattern AUTO_INDENT_PATTERN = Pattern.compile(
+  private static final Pattern PATTERN_AUTO_INDENT = Pattern.compile(
       "(\\s*[*+-]\\s+|\\s*[0-9]+\\.\\s+|\\s+)(.*)" );
+
+  /**
+   * Any of these followed by a space and a letter produce a line
+   * by themselves. The ">" need not be followed by a space.
+   */
+  private static final Pattern PATTERN_NEW_LINE = Pattern.compile(
+      "^>|(((#+)|([*+\\-])|([1-9]\\.))\\s+).+" );
 
   public MarkdownEditorPane() {
     initEditor();
@@ -99,23 +108,37 @@ public class MarkdownEditorPane extends EditorPane {
    * application, can instruct the preview pane where to shift the viewport.
    * </p>
    *
+   * @param paraIndex The paragraph index from the editor pane to scroll to
+   *                  in the preview pane, which  will be approximated if an
+   *                  equivalent cannot be found.
    * @return A unique identifier that correlates to an equivalent paragraph
    * number once the Markdown is rendered into HTML.
    */
   public int approximateParagraphId( final int paraIndex ) {
     final StyleClassedTextArea editor = getEditor();
-    int i = 0, paragraph = 0;
+    int i = 0;
+    String prevText = "";
 
-    while( i < paraIndex ) {
-      // Reduce numerously nested blockquotes to blanks for isBlank call.
-      final String text = editor.getParagraph( i++ )
-                                .getText()
-                                .replace( '>', ' ' );
+    final List<String> lines = new ArrayList<>( 4096 );
 
-      paragraph += text.isBlank() ? 0 : 1;
+    for( final var p : editor.getParagraphs() ) {
+      if( i > paraIndex ) {
+        break;
+      }
+
+      final String text = p.getText().replace( '>', ' ' );
+      if( (!text.isBlank() && prevText.isBlank()) ||
+          PATTERN_NEW_LINE.matcher( text ).matches() ) {
+        System.out.println( "NEW LINE: " + text);
+        lines.add( text );
+      }
+
+      prevText = text;
+      i++;
     }
 
-    return paragraph;
+    // Scrolling index is 1-based.
+    return Math.max( lines.size() - 1, 0 );
   }
 
   /**
@@ -231,7 +254,7 @@ public class MarkdownEditorPane extends EditorPane {
     final StyleClassedTextArea textArea = getEditor();
     final String currentLine =
         textArea.getText( textArea.getCurrentParagraph() );
-    final Matcher matcher = AUTO_INDENT_PATTERN.matcher( currentLine );
+    final Matcher matcher = PATTERN_AUTO_INDENT.matcher( currentLine );
 
     String newText = "\n";
 

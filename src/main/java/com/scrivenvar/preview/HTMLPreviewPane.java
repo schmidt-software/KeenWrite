@@ -35,7 +35,11 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.embed.swing.SwingNode;
 import javafx.scene.Node;
+import javafx.scene.Scene;
+import javafx.scene.control.TextArea;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
+import javafx.stage.Stage;
 import org.jsoup.Jsoup;
 import org.jsoup.helper.W3CDom;
 import org.jsoup.nodes.Document;
@@ -226,6 +230,19 @@ public final class HTMLPreviewPane extends Pane {
     final org.w3c.dom.Document w3cDoc = W3C_DOM.fromJsoup( jsoupDoc );
 
     mHtmlRenderer.setDocument( w3cDoc, getBaseUrl(), NS_HANDLER );
+    sHtmlSourceArea.setText( html );
+  }
+
+  final static javafx.scene.control.TextArea sHtmlSourceArea = new TextArea();
+  final static StackPane sHtmlSourcePane = new StackPane();
+  final static Scene sHtmlScene = new Scene( sHtmlSourcePane, 1024, 768 );
+  final static Stage sHtmlSourceWindow = new Stage();
+
+  static {
+    sHtmlSourcePane.getChildren().add( sHtmlSourceArea );
+    sHtmlSourceWindow.setTitle( "HTML Source" );
+    sHtmlSourceWindow.setScene( sHtmlScene );
+    sHtmlSourceWindow.show();
   }
 
   /**

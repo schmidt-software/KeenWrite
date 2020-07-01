@@ -126,21 +126,20 @@ dl dd {
 }
 
 /* CODE ***/
-
 pre, code, tt {
   /* Must be bundled in JAR file. */
   font-family: "Fira Code", monospace;
   font-size: 10pt;
+  background-color: #f8f8f8;
+  text-decoration: none;
   white-space: pre-wrap;
   word-wrap: break-word;
   overflow-wrap: anywhere;
-  text-decoration: none;
-  background-color: #f8f8f8;
+  border-radius: .125em;
 }
 
 code, tt {
   padding: .25em;
-  border-radius: .125em;
 }
 
 pre > code {
@@ -155,7 +154,6 @@ pre {
   overflow: auto;
   /* Assign the new padding, independently from previous. */
   padding: .25em .5em;
-  border-radius: .125em;
 }
 
 pre code, pre tt {
