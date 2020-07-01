@@ -116,10 +116,12 @@ public class MarkdownEditorPane extends EditorPane {
    */
   public int approximateParagraphId( final int paraIndex ) {
     final StyleClassedTextArea editor = getEditor();
+    final List<String> lines = new ArrayList<>( 4096 );
+
     int i = 0;
     String prevText = "";
-
-    final List<String> lines = new ArrayList<>( 4096 );
+    boolean withinFencedBlock = false;
+    boolean withinCodeBlock = false;
 
     for( final var p : editor.getParagraphs() ) {
       if( i > paraIndex ) {
@@ -127,8 +129,27 @@ public class MarkdownEditorPane extends EditorPane {
       }
 
       final String text = p.getText().replace( '>', ' ' );
-      if( (!text.isBlank() && prevText.isBlank()) ||
-          PATTERN_NEW_LINE.matcher( text ).matches() ) {
+      if( text.startsWith( "```" ) ) {
+        if( withinFencedBlock = !withinFencedBlock ) {
+          lines.add( text );
+        }
+      }
+
+      if( !withinFencedBlock ) {
+        final boolean foundCodeBlock = text.startsWith( "    " );
+
+        if( foundCodeBlock && !withinCodeBlock ) {
+          lines.add( text );
+          withinCodeBlock = true;
+        }
+        else if( !foundCodeBlock ) {
+          withinCodeBlock = false;
+        }
+      }
+
+      if( !withinFencedBlock && !withinCodeBlock &&
+          ((!text.isBlank() && prevText.isBlank()) ||
+              PATTERN_NEW_LINE.matcher( text ).matches()) ) {
         lines.add( text );
       }
 
