@@ -129,7 +129,6 @@ public class MarkdownEditorPane extends EditorPane {
       final String text = p.getText().replace( '>', ' ' );
       if( (!text.isBlank() && prevText.isBlank()) ||
           PATTERN_NEW_LINE.matcher( text ).matches() ) {
-        System.out.println( "NEW LINE: " + text);
         lines.add( text );
       }
 

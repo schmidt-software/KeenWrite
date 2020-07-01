@@ -227,7 +227,7 @@ public final class HTMLPreviewPane extends Pane {
 
     mHtmlRenderer.setDocument( w3cDoc, getBaseUrl(), NS_HANDLER );
   }
-  
+
   /**
    * Scrolls to an anchor link. The anchor links are injected when the
    * HTML document is created.
