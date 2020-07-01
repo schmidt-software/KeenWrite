@@ -452,7 +452,13 @@ public class MainWindow implements Observer {
     );
 
     try {
-      processor.processChain( tab.getEditorText() );
+      Processor<String> handler = processor;
+      String t = tab.getEditorText();
+
+      while( handler != null && t != null ) {
+        t = handler.process( t );
+        handler = handler.next();
+      }
     } catch( final Exception ex ) {
       error( ex );
     }
@@ -641,6 +647,17 @@ public class MainWindow implements Observer {
   }
 
   //---- Edit actions -------------------------------------------------------
+
+  /**
+   * Transform the Markdown into HTML then copy that HTML into the copy
+   * buffer.
+   */
+  private void copyHtml() {
+    final String markdown = getActiveEditorPane().getText();
+
+    final Processor p = getProcessors().get( getActiveFileEditorTab() );
+    //p.processChain( markdown );
+  }
 
   /**
    * Used to find text in the active file editor window.
@@ -833,6 +850,13 @@ public class MainWindow implements Observer {
         .build();
 
     // Edit actions
+    final Action editCopyHtmlAction = new ActionBuilder()
+        .setText( Messages.get( "Main.menu.edit.copy.html" ) )
+        .setIcon( HTML5 )
+        .setAction( e -> copyHtml() )
+        .setDisable( activeFileEditorIsNull )
+        .build();
+
     final Action editUndoAction = new ActionBuilder()
         .setText( "Main.menu.edit.undo" )
         .setAccelerator( "Shortcut+Z" )

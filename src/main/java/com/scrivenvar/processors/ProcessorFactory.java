@@ -97,7 +97,7 @@ public class ProcessorFactory extends AbstractFileFactory {
   }
 
   private Processor<String> createHTMLPreviewProcessor() {
-    return new HTMLPreviewProcessor( getPreviewPane() );
+    return getPreviewPane();
   }
 
   /**

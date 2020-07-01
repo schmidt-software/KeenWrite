@@ -28,6 +28,7 @@
 package com.scrivenvar.preview;
 
 import com.scrivenvar.Services;
+import com.scrivenvar.processors.Processor;
 import com.scrivenvar.service.events.Notifier;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -62,7 +63,7 @@ import static org.xhtmlrenderer.swing.ImageResourceLoader.NO_OP_REPAINT_LISTENER
 /**
  * HTML preview pane is responsible for rendering an HTML document.
  */
-public final class HTMLPreviewPane extends Pane {
+public final class HTMLPreviewPane extends Pane implements Processor<String> {
   private final static Notifier NOTIFIER = Services.load( Notifier.class );
 
   /**
@@ -158,7 +159,10 @@ public final class HTMLPreviewPane extends Pane {
       HTMLPreviewPane.class.getResource( STYLESHEET_PREVIEW ) + "'/>"
       + "</head>"
       + "<body>";
-  private final static String HTML_FOOTER = "</body></html>";
+
+  // Provide some extra space at the end for scrolling past the last line.
+  private final static String HTML_FOOTER =
+      "<p style='height=2em'>&nbsp;</p></body></html>";
 
   private final static W3CDom W3C_DOM = new W3CDom();
   private final static XhtmlNamespaceHandler NS_HANDLER =
@@ -221,11 +225,18 @@ public final class HTMLPreviewPane extends Pane {
    *
    * @param html The new HTML document to display.
    */
-  public void update( final String html ) {
+  @Override
+  public String process( final String html ) {
     final Document jsoupDoc = Jsoup.parse( decorate( html ) );
     final org.w3c.dom.Document w3cDoc = W3C_DOM.fromJsoup( jsoupDoc );
 
     mHtmlRenderer.setDocument( w3cDoc, getBaseUrl(), NS_HANDLER );
+    return null;
+  }
+
+  @Override
+  public Processor<String> next() {
+    return null;
   }
 
   /**

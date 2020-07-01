@@ -446,8 +446,7 @@ public final class DefinitionPane extends BorderPane {
   }
 
   private TreeCell<String> createTreeCell() {
-    return new TextFieldTreeCell<>(
-        createStringConverter() ) {
+    return new TextFieldTreeCell<>( createStringConverter() ) {
       @Override
       public void commitEdit( final String newValue ) {
         super.commitEdit( newValue );

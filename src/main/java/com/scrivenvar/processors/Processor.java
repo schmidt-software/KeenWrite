@@ -35,15 +35,6 @@ package com.scrivenvar.processors;
 public interface Processor<T> {
 
   /**
-   * Provided so that the chain can be invoked from any link using a given
-   * value. This should be called automatically by a superclass so that
-   * the links in the chain need only implement the processLink method.
-   *
-   * @param t The value to pass along to each link in the chain.
-   */
-  void processChain( T t );
-
-  /**
    * Processes the given content providing a transformation from one document
    * format into another. For example, this could convert from XML to text using
    * an XSLT processor, or from markdown to HTML.
@@ -51,7 +42,7 @@ public interface Processor<T> {
    * @param t The type of object to process.
    * @return The post-processed document, or null if processing should stop.
    */
-  T processLink( T t );
+  T process( T t );
 
   /**
    * Adds a document processor to call after this processor finishes processing

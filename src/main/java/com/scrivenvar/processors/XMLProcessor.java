@@ -90,7 +90,7 @@ public class XMLProcessor extends AbstractProcessor<String>
    * @return The transformed text, or empty if text is empty.
    */
   @Override
-  public String processLink( final String text ) {
+  public String process( final String text ) {
     try {
       return text.isEmpty() ? text : transform( text );
     } catch( final Exception ex ) {

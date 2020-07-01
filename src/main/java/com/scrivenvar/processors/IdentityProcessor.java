@@ -49,7 +49,7 @@ public class IdentityProcessor extends AbstractProcessor<String> {
    * @return The value of t wrapped in "pre" tags.
    */
   @Override
-  public String processLink( final String t ) {
+  public String process( final String t ) {
     return "<pre>" + t + "</pre>";
   }
 }

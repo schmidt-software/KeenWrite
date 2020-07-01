@@ -119,7 +119,7 @@ public final class InlineRProcessor extends DefinitionProcessor {
    * substituted with value returned from their execution.
    */
   @Override
-  public String processLink( final String text ) {
+  public String process( final String text ) {
     final int length = text.length();
     final int prefixLength = PREFIX.length();
 

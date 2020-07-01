@@ -43,35 +43,12 @@ public abstract class AbstractProcessor<T> implements Processor<T> {
   private final Processor<T> mNext;
 
   /**
-   * Constructs a succession without a successor (i.e., next is null).
-   */
-  protected AbstractProcessor() {
-    this( null );
-  }
-
-  /**
    * Constructs a new default handler with a given successor.
    *
    * @param successor Use null to indicate last link in the chain.
    */
   public AbstractProcessor( final Processor<T> successor ) {
     mNext = successor;
-  }
-
-  /**
-   * Processes links in the chain while there are successors and valid data to
-   * process.
-   *
-   * @param t The object to process.
-   */
-  @Override
-  public synchronized void processChain( T t ) {
-    Processor<T> handler = this;
-
-    while( handler != null && t != null ) {
-      t = handler.processLink( t );
-      handler = handler.next();
-    }
   }
 
   @Override
