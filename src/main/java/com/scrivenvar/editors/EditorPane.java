@@ -40,7 +40,6 @@ import org.fxmisc.wellbehaved.event.EventPattern;
 import org.fxmisc.wellbehaved.event.Nodes;
 
 import java.nio.file.Path;
-import java.util.Random;
 import java.util.function.Consumer;
 
 import static javafx.application.Platform.runLater;
@@ -72,6 +71,23 @@ public class EditorPane extends Pane {
 
   public void redo() {
     getUndoManager().redo();
+  }
+
+  public void cut() {
+    getEditor().selectParagraph();
+    getEditor().cut();
+  }
+
+  public void copy() {
+    getEditor().copy();
+  }
+
+  public void paste() {
+    getEditor().paste();
+  }
+
+  public void selectAll() {
+    getEditor().selectAll();
   }
 
   public UndoManager<?> getUndoManager() {

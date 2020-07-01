@@ -36,6 +36,7 @@ import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.TextFieldTreeCell;
@@ -56,7 +57,7 @@ import static javafx.scene.input.KeyEvent.KEY_PRESSED;
  * allows users to interact with key/value pairs loaded from the
  * {@link DocumentParser} and adapted using a {@link TreeAdapter}.
  */
-public final class DefinitionPane extends TitledPane {
+public final class DefinitionPane extends BorderPane {
 
   /**
    * Trimmed off the end of a word to match a variable name.
@@ -78,6 +79,8 @@ public final class DefinitionPane extends TitledPane {
    * Definition file name shown in the title of the pane.
    */
   private final StringProperty mFilename = new SimpleStringProperty();
+
+  private final TitledPane mTitledPane = new TitledPane();
 
   /**
    * Constructs a definition pane with a given tree view root.
@@ -103,15 +106,26 @@ public final class DefinitionPane extends TitledPane {
     buttonBar.setAlignment( CENTER );
     buttonBar.setSpacing( 10 );
 
-    final var borderPane = new BorderPane();
-    borderPane.setPadding( new Insets( 0, 0, 0, 0 ) );
-    borderPane.setCenter( treeView );
-    borderPane.setBottom( buttonBar );
+    final var titledPane = getTitledPane();
+    titledPane.textProperty().bind( mFilename );
+    titledPane.setContent( treeView );
+    titledPane.setCollapsible( false );
+    titledPane.setPadding( new Insets( 0, 0, 0, 0 ) );
 
-    textProperty().bind( mFilename );
+    setTop( buttonBar );
+    setCenter( titledPane );
+    setAlignment( buttonBar, Pos.TOP_CENTER );
+    setAlignment( titledPane, Pos.TOP_CENTER );
 
-    setContent( borderPane );
-    setCollapsible( false );
+    titledPane.prefHeightProperty().bind( this.heightProperty() );
+  }
+
+  public void setTooltip( final Tooltip tooltip ) {
+    getTitledPane().setTooltip( tooltip );
+  }
+
+  private TitledPane getTitledPane() {
+    return mTitledPane;
   }
 
   private Button createButton(

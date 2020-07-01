@@ -38,6 +38,7 @@ import com.vladsch.flexmark.util.ast.Node;
 import com.vladsch.flexmark.util.html.MutableAttributes;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.IndexRange;
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Window;
 import org.fxmisc.richtext.StyleClassedTextArea;
@@ -52,6 +53,7 @@ import static com.scrivenvar.Constants.STYLESHEET_MARKDOWN;
 import static com.scrivenvar.util.Utils.ltrim;
 import static com.scrivenvar.util.Utils.rtrim;
 import static javafx.scene.input.KeyCode.ENTER;
+import static javafx.scene.input.KeyCombination.CONTROL_DOWN;
 import static org.fxmisc.wellbehaved.event.EventPattern.keyPressed;
 
 /**
@@ -80,6 +82,7 @@ public class MarkdownEditorPane extends EditorPane {
     textArea.getStylesheets().add( STYLESHEET_MARKDOWN );
 
     addKeyboardListener( keyPressed( ENTER ), this::enterPressed );
+    addKeyboardListener( keyPressed( KeyCode.X, CONTROL_DOWN ), this::cut );
   }
 
   public void insertLink() {
@@ -298,6 +301,10 @@ public class MarkdownEditorPane extends EditorPane {
     // Ensure that the window scrolls when Enter is pressed at the bottom of
     // the pane.
     textArea.requestFollowCaret();
+  }
+
+  private void cut( final KeyEvent event ) {
+    super.cut();
   }
 
   /**

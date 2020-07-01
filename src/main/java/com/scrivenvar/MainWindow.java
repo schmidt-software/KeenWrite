@@ -849,6 +849,35 @@ public class MainWindow implements Observer {
         .setDisable( createActiveBooleanProperty(
             FileEditorTab::canRedoProperty ).not() )
         .build();
+
+    final Action editCutAction = new ActionBuilder()
+        .setText( Messages.get( "Main.menu.edit.cut" ) )
+        .setAccelerator( "Shortcut+X" )
+        .setIcon( CUT )
+        .setAction( e -> getActiveEditorPane().cut() )
+        .setDisable( activeFileEditorIsNull )
+        .build();
+    final Action editCopyAction = new ActionBuilder()
+        .setText( Messages.get( "Main.menu.edit.copy" ) )
+        .setAccelerator( "Shortcut+C" )
+        .setIcon( COPY )
+        .setAction( e -> getActiveEditorPane().copy() )
+        .setDisable( activeFileEditorIsNull )
+        .build();
+    final Action editPasteAction = new ActionBuilder()
+        .setText( Messages.get( "Main.menu.edit.paste" ) )
+        .setAccelerator( "Shortcut+V" )
+        .setIcon( PASTE )
+        .setAction( e -> getActiveEditorPane().paste() )
+        .setDisable( activeFileEditorIsNull )
+        .build();
+    final Action editSelectAllAction = new ActionBuilder()
+        .setText( Messages.get( "Main.menu.edit.selectAll" ) )
+        .setAccelerator( "Shortcut+A" )
+        .setAction( e -> getActiveEditorPane().selectAll() )
+        .setDisable( activeFileEditorIsNull )
+        .build();
+
     final Action editFindAction = new ActionBuilder()
         .setText( "Main.menu.edit.find" )
         .setAccelerator( "Ctrl+F" )
@@ -1012,6 +1041,11 @@ public class MainWindow implements Observer {
         get( "Main.menu.edit" ),
         editUndoAction,
         editRedoAction,
+        null,
+        editCutAction,
+        editCopyAction,
+        editPasteAction,
+        null,
         editFindAction,
         editFindNextAction,
         null,
@@ -1058,6 +1092,9 @@ public class MainWindow implements Observer {
         null,
         editUndoAction,
         editRedoAction,
+        editCutAction,
+        editCopyAction,
+        editPasteAction,
         null,
         insertBoldAction,
         insertItalicAction,
