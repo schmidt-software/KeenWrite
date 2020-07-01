@@ -418,11 +418,9 @@ public class MainWindow implements Observer {
       final int approxId = getActiveEditorPane().approximateParagraphId( id );
 
       if( force ) {
-        System.out.printf("SCROLL TO: %d %d%n", id, approxId);
         previewPane.scrollTo( approxId );
       }
       else {
-        System.out.printf("TRY SCROLL TO: %d %d%n", id, approxId);
         previewPane.tryScrollTo( approxId );
       }
 
