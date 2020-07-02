@@ -100,7 +100,7 @@ public class Constants {
   public static final int DEFAULT_MAP_SIZE = 64;
 
   public static final String PERSIST_IMAGES_DEFAULT =
-      get( "file.stylesheet.scene" );
+      get( "file.ext.image.order" );
 
   /**
    * Default working directory to use for R startup script.
