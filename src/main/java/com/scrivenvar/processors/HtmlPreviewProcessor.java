@@ -27,34 +27,46 @@
  */
 package com.scrivenvar.processors;
 
+import com.scrivenvar.preview.HTMLPreviewPane;
+
 /**
- * Responsible for processing documents from one known format to another.
- *
- * @param <T> The type of processor to create.
+ * Responsible for notifying the HTMLPreviewPane when the succession chain has
+ * updated. This decouples knowledge of changes to the editor panel from the
+ * HTML preview panel as well as any processing that takes place before the
+ * final HTML preview is rendered. This should be the last link in the processor
+ * chain.
  */
-public interface Processor<T> {
+public class HtmlPreviewProcessor extends AbstractProcessor<String> {
+
+  // There is only one preview panel.
+  private static HTMLPreviewPane sHtmlPreviewPane;
 
   /**
-   * Processes the given content providing a transformation from one document
-   * format into another. For example, this could convert from XML to text using
-   * an XSLT processor, or from markdown to HTML.
+   * Constructs the end of a processing chain.
    *
-   * @param t The type of object to process.
-   * @return The post-processed document, or null if processing should stop.
+   * @param htmlPreviewPane The pane to update with the post-processed document.
    */
-  T process( T t );
-
-  Processor<T> remove( Class<? extends Processor<T>> processor );
+  public HtmlPreviewProcessor( final HTMLPreviewPane htmlPreviewPane ) {
+    sHtmlPreviewPane = htmlPreviewPane;
+  }
 
   /**
-   * Adds a document processor to call after this processor finishes processing
-   * the document given to the process method.
+   * Update the preview panel using HTML from the succession chain.
    *
-   * @return The processor that should transform the document after this
-   * instance has finished processing, or {@code null} if this is the last
-   * processor in the chain.
+   * @param html The document content to render in the preview pane. The HTML
+   *             should not contain a doctype, head, or body tag, only
+   *             content to render within the body.
+   * @return {@code null} to indicate no more processors in the chain.
    */
-  default Processor<T> next() {
+  @Override
+  public String process( final String html ) {
+    getHtmlPreviewPane().process( html );
+
+    // No more processing required.
     return null;
+  }
+
+  private HTMLPreviewPane getHtmlPreviewPane() {
+    return sHtmlPreviewPane;
   }
 }

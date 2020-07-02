@@ -28,7 +28,6 @@
 package com.scrivenvar.preview;
 
 import com.scrivenvar.Services;
-import com.scrivenvar.processors.Processor;
 import com.scrivenvar.service.events.Notifier;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -63,7 +62,7 @@ import static org.xhtmlrenderer.swing.ImageResourceLoader.NO_OP_REPAINT_LISTENER
 /**
  * HTML preview pane is responsible for rendering an HTML document.
  */
-public final class HTMLPreviewPane extends Pane implements Processor<String> {
+public final class HTMLPreviewPane extends Pane {
   private final static Notifier NOTIFIER = Services.load( Notifier.class );
 
   /**
@@ -225,18 +224,15 @@ public final class HTMLPreviewPane extends Pane implements Processor<String> {
    *
    * @param html The new HTML document to display.
    */
-  @Override
-  public String process( final String html ) {
+  public void process( final String html ) {
     final Document jsoupDoc = Jsoup.parse( decorate( html ) );
     final org.w3c.dom.Document w3cDoc = W3C_DOM.fromJsoup( jsoupDoc );
 
     mHtmlRenderer.setDocument( w3cDoc, getBaseUrl(), NS_HANDLER );
-    return null;
   }
 
-  @Override
-  public Processor<String> next() {
-    return null;
+  public void clear() {
+    process( "" );
   }
 
   /**

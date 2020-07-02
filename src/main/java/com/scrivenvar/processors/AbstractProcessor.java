@@ -43,9 +43,16 @@ public abstract class AbstractProcessor<T> implements Processor<T> {
   private final Processor<T> mNext;
 
   /**
+   * Constructs a new default handler with no successor.
+   */
+  protected AbstractProcessor() {
+    this( null );
+  }
+
+  /**
    * Constructs a new default handler with a given successor.
    *
-   * @param successor Use null to indicate last link in the chain.
+   * @param successor The next processor in the chain.
    */
   public AbstractProcessor( final Processor<T> successor ) {
     mNext = successor;
@@ -54,5 +61,70 @@ public abstract class AbstractProcessor<T> implements Processor<T> {
   @Override
   public Processor<T> next() {
     return mNext;
+  }
+
+  /**
+   * This algorithm is incorrect, but works for the one use case of removing
+   * the ending HTML Preview Processor from the end of the processor chain.
+   * The processor chain is immutable so this creates a succession of
+   * delegators that wrap each processor in the chain, except for the one
+   * to be removed.
+   * <p>
+   * An alternative is to update the {@link ProcessorFactory} with the ability
+   * to create a processor chain devoid of an {@link HtmlPreviewProcessor}.
+   * </p>
+   *
+   * @param removal The {@link Processor} to remove from the chain.
+   * @return A delegating processor chain starting from this processor
+   * onwards with the given processor removed from the chain.
+   */
+  @Override
+  public Processor<T> remove( final Class<? extends Processor<T>> removal ) {
+    Processor<T> p = this;
+    final ProcessorDelegator<T> head = new ProcessorDelegator<>( p );
+    ProcessorDelegator<T> result = head;
+
+    while( p != null ) {
+      final Processor<T> next = p.next();
+
+      if( next != null && next.getClass() != removal ) {
+        final var delegator = new ProcessorDelegator<>( next );
+
+        result.setNext( delegator );
+        result = delegator;
+      }
+
+      p = p.next();
+    }
+
+    return head;
+  }
+
+  private static final class ProcessorDelegator<T>
+      extends AbstractProcessor<T> {
+    private final Processor<T> mDelegate;
+    private Processor<T> mNext;
+
+    public ProcessorDelegator( final Processor<T> delegate ) {
+      super( delegate );
+
+      assert delegate != null;
+
+      mDelegate = delegate;
+    }
+
+    @Override
+    public T process( T t ) {
+      return mDelegate.process( t );
+    }
+
+    protected void setNext( final Processor<T> next ) {
+      mNext = next;
+    }
+
+    @Override
+    public Processor<T> next() {
+      return mNext;
+    }
   }
 }

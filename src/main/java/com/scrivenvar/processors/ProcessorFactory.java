@@ -61,13 +61,13 @@ public class ProcessorFactory extends AbstractFileFactory {
   }
 
   /**
-   * Creates a processor suitable for parsing and rendering the file opened at
-   * the given tab.
+   * Creates a processor chain suitable for parsing and rendering the file
+   * opened at the given tab.
    *
    * @param tab The tab containing a text editor, path, and caret position.
    * @return A processor that can render the given tab's text.
    */
-  public Processor<String> createProcessor( final FileEditorTab tab ) {
+  public Processor<String> createProcessors( final FileEditorTab tab ) {
     final Path path = tab.getPath();
     final Processor<String> processor;
 
@@ -97,7 +97,7 @@ public class ProcessorFactory extends AbstractFileFactory {
   }
 
   private Processor<String> createHTMLPreviewProcessor() {
-    return getPreviewPane();
+    return new HtmlPreviewProcessor( getPreviewPane() );
   }
 
   /**
@@ -127,7 +127,7 @@ public class ProcessorFactory extends AbstractFileFactory {
 
   protected Processor<String> createXMLProcessor( final FileEditorTab tab ) {
     final var tpc = getCommonProcessor();
-    final var xmlp = new XMLProcessor( tpc, tab.getPath() );
+    final var xmlp = new XmlProcessor( tpc, tab.getPath() );
     return createDefinitionProcessor( xmlp );
   }
 
@@ -139,7 +139,7 @@ public class ProcessorFactory extends AbstractFileFactory {
 
   protected Processor<String> createRXMLProcessor( final FileEditorTab tab ) {
     final var tpc = getCommonProcessor();
-    final var xmlp = new XMLProcessor( tpc, tab.getPath() );
+    final var xmlp = new XmlProcessor( tpc, tab.getPath() );
     final var rp = new InlineRProcessor( xmlp, getResolvedMap() );
     return new RVariableProcessor( rp, getResolvedMap() );
   }

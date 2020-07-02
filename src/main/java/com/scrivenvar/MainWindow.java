@@ -37,6 +37,7 @@ import com.scrivenvar.editors.VariableNameInjector;
 import com.scrivenvar.editors.markdown.MarkdownEditorPane;
 import com.scrivenvar.preferences.UserPreferences;
 import com.scrivenvar.preview.HTMLPreviewPane;
+import com.scrivenvar.processors.HtmlPreviewProcessor;
 import com.scrivenvar.processors.Processor;
 import com.scrivenvar.processors.ProcessorFactory;
 import com.scrivenvar.service.Options;
@@ -63,6 +64,8 @@ import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
@@ -351,6 +354,10 @@ public class MainWindow implements Observer {
     // Update the preview pane changing tabs.
     editorPane.addTabSelectionListener(
         ( tabPane, oldTab, newTab ) -> {
+          if( newTab == null ) {
+            getPreviewPane().clear();
+          }
+
           // If there was no old tab, then this is a first time load, which
           // can be ignored.
           if( oldTab != null ) {
@@ -435,8 +442,7 @@ public class MainWindow implements Observer {
   /**
    * Called whenever the preview pane becomes out of sync with the file editor
    * tab. This can be called when the text changes, the caret paragraph
-   * changes,
-   * or the file tab changes.
+   * changes, or the file tab changes.
    *
    * @param tab The file editor tab that has been changed in some fashion.
    */
@@ -448,20 +454,30 @@ public class MainWindow implements Observer {
     getPreviewPane().setPath( tab.getPath() );
 
     final Processor<String> processor = getProcessors().computeIfAbsent(
-        tab, p -> createProcessor( tab )
+        tab, p -> createProcessors( tab )
     );
 
     try {
-      Processor<String> handler = processor;
-      String t = tab.getEditorText();
-
-      while( handler != null && t != null ) {
-        t = handler.process( t );
-        handler = handler.next();
-      }
+      processChain( processor, tab.getEditorText() );
     } catch( final Exception ex ) {
       error( ex );
     }
+  }
+
+  /**
+   * Executes the processing chain, operating on the given string.
+   *
+   * @param handler The first processor in the chain to call.
+   * @param text    The initial value of the text to process.
+   * @return The final value of the text that was processed by the chain.
+   */
+  private String processChain( Processor<String> handler, String text ) {
+    while( handler != null && text != null ) {
+      text = handler.process( text );
+      handler = handler.next();
+    }
+
+    return text;
   }
 
   private void renderActiveTab() {
@@ -653,10 +669,19 @@ public class MainWindow implements Observer {
    * buffer.
    */
   private void copyHtml() {
-    final String markdown = getActiveEditorPane().getText();
+    final var markdown = getActiveEditorPane().getText();
+    final var processors = createProcessorFactory().createProcessors(
+        getActiveFileEditorTab()
+    );
 
-    final Processor p = getProcessors().get( getActiveFileEditorTab() );
-    //p.processChain( markdown );
+    final var chain = processors.remove( HtmlPreviewProcessor.class );
+
+    final String html = processChain( chain, markdown );
+
+    final Clipboard clipboard = Clipboard.getSystemClipboard();
+    final ClipboardContent content = new ClipboardContent();
+    content.putString( html );
+    clipboard.setContent( content );
   }
 
   /**
@@ -716,8 +741,8 @@ public class MainWindow implements Observer {
    * @param tab The tab that is subjected to processing.
    * @return A processor suited to the file type specified by the tab's path.
    */
-  private Processor<String> createProcessor( final FileEditorTab tab ) {
-    return createProcessorFactory().createProcessor( tab );
+  private Processor<String> createProcessors( final FileEditorTab tab ) {
+    return createProcessorFactory().createProcessors( tab );
   }
 
   private ProcessorFactory createProcessorFactory() {
@@ -1063,6 +1088,8 @@ public class MainWindow implements Observer {
 
     final Menu editMenu = ActionUtils.createMenu(
         get( "Main.menu.edit" ),
+        editCopyHtmlAction,
+        null,
         editUndoAction,
         editRedoAction,
         null,

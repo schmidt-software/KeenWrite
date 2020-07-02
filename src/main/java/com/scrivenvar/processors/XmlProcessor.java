@@ -52,13 +52,15 @@ import static net.sf.saxon.tree.util.ProcInstParser.getPseudoAttribute;
 /**
  * Transforms an XML document. The XML document must have a stylesheet specified
  * as part of its processing instructions, such as:
- *
- * <code>xml-stylesheet type="text/xsl" href="markdown.xsl"</code>
+ * <p>
+ * {@code xml-stylesheet type="text/xsl" href="markdown.xsl"}
+ * </p>
  * <p>
  * The XSL must transform the XML document into Markdown, or another format
  * recognized by the next link on the chain.
+ * </p>
  */
-public class XMLProcessor extends AbstractProcessor<String>
+public class XmlProcessor extends AbstractProcessor<String>
     implements ErrorListener {
 
   private final Snitch snitch = Services.load( Snitch.class );
@@ -78,7 +80,7 @@ public class XMLProcessor extends AbstractProcessor<String>
    * @param processor Next link in the processing chain.
    * @param path      The path to the XML file content to be processed.
    */
-  public XMLProcessor( final Processor<String> processor, final Path path ) {
+  public XmlProcessor( final Processor<String> processor, final Path path ) {
     super( processor );
     setPath( path );
   }
