@@ -785,15 +785,15 @@ public class MainWindow implements Observer {
         getPreviewPane().getNode() );
 
     splitPane.setDividerPositions(
-        getFloat( K_PANE_SPLIT_DEFINITION, .10f ),
-        getFloat( K_PANE_SPLIT_EDITOR, .45f ),
-        getFloat( K_PANE_SPLIT_PREVIEW, .45f ) );
+        getFloat( K_PANE_SPLIT_DEFINITION, .22f ),
+        getFloat( K_PANE_SPLIT_EDITOR, .60f ),
+        getFloat( K_PANE_SPLIT_PREVIEW, .18f ) );
 
     getDefinitionPane().prefHeightProperty()
                        .bind( splitPane.heightProperty() );
 
     final BorderPane borderPane = new BorderPane();
-    borderPane.setPrefSize( 1024, 800 );
+    borderPane.setPrefSize( 1280, 800 );
     borderPane.setTop( createMenuBar() );
     borderPane.setBottom( getStatusBar() );
     borderPane.setCenter( splitPane );
@@ -804,15 +804,13 @@ public class MainWindow implements Observer {
     getStatusBar().getRightItems().add( statusBar );
 
     // Force preview pane refresh on Windows.
-    splitPane.getDividers().get( 1 ).positionProperty().addListener(
-        ( l, oValue, nValue ) -> runLater(
-            () -> {
-              if( SystemUtils.IS_OS_WINDOWS ) {
-                getPreviewPane().getScrollPane().repaint();
-              }
-            }
-        )
-    );
+    if( SystemUtils.IS_OS_WINDOWS ) {
+      splitPane.getDividers().get( 1 ).positionProperty().addListener(
+          ( l, oValue, nValue ) -> runLater(
+              () -> getPreviewPane().getScrollPane().repaint()
+          )
+      );
+    }
 
     return new Scene( borderPane );
   }
