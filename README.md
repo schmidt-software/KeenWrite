@@ -4,36 +4,34 @@
 
 A text editor that uses [interpolated strings](https://en.wikipedia.org/wiki/String_interpolation) to reference externally defined values.
 
-## Requirements
+## Download
 
-Download and install the following software packages:
+Download one of the following editions:
 
-* [OpenJDK 14](https://openjdk.java.net)
+* [Windows](https://gitreleases.dev/gh/DaveJarvis/scrivenvar/latest/scrivenvar.exe)
+* [Linux](https://gitreleases.dev/gh/DaveJarvis/scrivenvar/latest/scrivenvar.bin)
+* [Java Archive](https://gitreleases.dev/gh/DaveJarvis/scrivenvar/latest/scrivenvar.jar)
 
-## Quick Start
+## Run
 
-Complete the following steps to run the application:
+Note that the first time the application runs, it will unpack itself into a local directory. Subsequent starts will be faster.
 
-1. [Download](https://github.com/DaveJarvis/scrivenvar/releases)
-`scrivenvar.jar`.
-1. Double-click `scrivenvar.jar` to start the application.
+### Windows
 
-## Command Line Start
+On Windows, double-click the application to start. You will have to give the application permission to run.
 
-If the quick start fails, run the application as follows:
+### Linux
 
-1. Open a command prompt.
-1. Change to the download directory containing the archive file.
-1. Run: `java -jar scrivenvar.jar`
+On Linux, run `chmod +x scrivenvar.bin` then `./scrivenvar.bin`.
 
 ## Features
 
-* R integration
-* User-defined variables, interpolated
+* User-defined interpolated strings
 * Real-time preview with variable substitution
 * Auto-complete variable names based on variable values
 * XML document transformation using XSLT3 or older
 * Platform independent (Windows, Linux, MacOS)
+* R integration
 
 ## Usage
 
