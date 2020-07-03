@@ -113,6 +113,9 @@ public class Constants {
    */
   public static final String USER_DIRECTORY = System.getProperty( "user.dir" );
 
+  /**
+   * Default path to use for an untitled (pathless) file.
+   */
   public static final Path DEFAULT_DIRECTORY = Paths.get( USER_DIRECTORY );
 
   /**

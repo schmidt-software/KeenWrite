@@ -90,9 +90,11 @@ public class ImageLinkExtension implements HtmlRenderer.HtmlRendererExtension {
     public ImageLinkResolver() {
     }
 
-    // you can also set/clear/modify attributes through
-    // ResolvedLink.getAttributes() and
-    // ResolvedLink.getNonNullAttributes()
+    /**
+     * You can also set/clear/modify attributes through
+     * {@link ResolvedLink#getAttributes()} and
+     * {@link ResolvedLink#getNonNullAttributes()}.
+     */
     @NotNull
     @Override
     public ResolvedLink resolveLink(
@@ -102,8 +104,7 @@ public class ImageLinkExtension implements HtmlRenderer.HtmlRendererExtension {
       return node instanceof Image ? resolve( link ) : link;
     }
 
-    @NotNull
-    private ResolvedLink resolve( @NotNull final ResolvedLink link ) {
+    private ResolvedLink resolve( final ResolvedLink link ) {
       String url = link.getUrl();
 
       try {
