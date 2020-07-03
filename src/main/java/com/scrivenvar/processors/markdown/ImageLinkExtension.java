@@ -48,7 +48,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.nio.file.Path;
 
-import static com.scrivenvar.Constants.DEFAULT_DIRECTORY;
 import static java.lang.String.format;
 
 /**
@@ -83,9 +82,8 @@ public class ImageLinkExtension implements HtmlRenderer.HtmlRendererExtension {
 
   private class ImageLinkResolver implements LinkResolver {
     private final UserPreferences mUserPref = getUserPreferences();
-    private final String mImagePrefix =
-        mUserPref.getImagesDirectory().toString();
-    private final String mImageSuffixes = mUserPref.getImagesOrder();
+    private final File mImagesUserPrefix = mUserPref.getImagesDirectory();
+    private final String mImageExtensions = mUserPref.getImagesOrder();
 
     public ImageLinkResolver() {
     }
@@ -108,14 +106,28 @@ public class ImageLinkExtension implements HtmlRenderer.HtmlRendererExtension {
       String url = link.getUrl();
 
       try {
-        final String imageFile = format( "%s/%s", getImagePrefix(), url );
-        final String suffixes = getImageSuffixes();
-        final Path editPath = getEditPath();
+        final Path imagePrefix = getImagePrefix().toPath();
+
+        // Path to the file being edited.
+        Path editPath = getEditPath();
+
+        // If there is no parent path to the file, it means the file has not
+        // been saved. Default to using the value from the user's preferences.
+        // The user's preferences will be defaulted to a the application's
+        // starting directory.
+        if( editPath == null ) {
+          editPath = imagePrefix;
+        }
+        else {
+          editPath = Path.of( editPath.toString(), imagePrefix.toString() );
+        }
+
+        final Path imagePathPrefix = Path.of( editPath.toString(), url );
+        final String suffixes = getImageExtensions();
         boolean missing = true;
 
         for( final String ext : Splitter.on( ' ' ).split( suffixes ) ) {
-          final String imagePath = format(
-              "%s/%s.%s", editPath, imageFile, ext );
+          final String imagePath = format( "%s.%s", imagePathPrefix, ext );
           final File file = new File( imagePath );
 
           if( file.exists() ) {
@@ -126,7 +138,7 @@ public class ImageLinkExtension implements HtmlRenderer.HtmlRendererExtension {
         }
 
         if( missing ) {
-          throw new FileNotFoundException( imageFile + ".*" );
+          throw new FileNotFoundException( imagePathPrefix + ".*" );
         }
 
         final String protocol = ProtocolResolver.getProtocol( url );
@@ -134,27 +146,26 @@ public class ImageLinkExtension implements HtmlRenderer.HtmlRendererExtension {
           url = "file://" + url;
         }
 
+        getNotifier().clear();
+
         return link.withStatus( LinkStatus.VALID ).withUrl( url );
       } catch( final Exception e ) {
-        getNotifier().notify( e );
+        getNotifier().notify( "File not found: " + e.getLocalizedMessage() );
       }
 
       return link;
     }
 
-    private String getImagePrefix() {
-      return mImagePrefix;
+    private File getImagePrefix() {
+      return mImagesUserPrefix;
     }
 
-    private String getImageSuffixes() {
-      return mImageSuffixes;
+    private String getImageExtensions() {
+      return mImageExtensions;
     }
 
-    @NotNull
     private Path getEditPath() {
-      final Path p = mPath.getParent();
-
-      return p == null ? DEFAULT_DIRECTORY : p;
+      return mPath.getParent();
     }
   }
 
