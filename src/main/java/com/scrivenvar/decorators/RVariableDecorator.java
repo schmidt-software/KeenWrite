@@ -28,11 +28,11 @@
 package com.scrivenvar.decorators;
 
 /**
- * Brackets variable names with {@code `r#x( v$} and {@code )`}.
+ * Brackets variable names with {@code `r#} and {@code `}.
  */
 public class RVariableDecorator implements VariableDecorator {
-  public static final String PREFIX = "`r#x( v$";
-  public static final String SUFFIX = " )`";
+  public static final String PREFIX = "`r#";
+  public static final char SUFFIX = '`';
 
   /**
    * Returns the given string R-escaping backticks prepended and appended. This
@@ -50,6 +50,10 @@ public class RVariableDecorator implements VariableDecorator {
       variableName = variableName.substring( 1, variableName.length() - 1 );
     }
 
-    return PREFIX + variableName.replace( '.', '$' ) + SUFFIX;
+    return PREFIX +
+        "x( v$" +
+        variableName.replace( '.', '$' ) +
+        " )" +
+        SUFFIX;
   }
 }
