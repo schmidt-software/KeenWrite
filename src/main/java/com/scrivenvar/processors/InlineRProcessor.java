@@ -39,7 +39,7 @@ import java.nio.file.Path;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import static com.scrivenvar.Constants.*;
+import static com.scrivenvar.Constants.STATUS_PARSE_ERROR;
 import static com.scrivenvar.Messages.get;
 import static com.scrivenvar.decorators.RVariableDecorator.PREFIX;
 import static com.scrivenvar.decorators.RVariableDecorator.SUFFIX;
@@ -75,6 +75,8 @@ public final class InlineRProcessor extends DefinitionProcessor {
    */
   private static final ScriptEngine ENGINE =
       (new ScriptEngineManager()).getEngineByName( "Renjin" );
+
+  private static final int PREFIX_LENGTH = PREFIX.length();
 
   /**
    * Constructs a processor capable of evaluating R statements.
@@ -121,7 +123,6 @@ public final class InlineRProcessor extends DefinitionProcessor {
   @Override
   public String process( final String text ) {
     final int length = text.length();
-    final int prefixLength = PREFIX.length();
 
     // The * 2 is a wild guess at the ratio of R statements to the length
     // of text produced by those statements.
@@ -135,7 +136,7 @@ public final class InlineRProcessor extends DefinitionProcessor {
       sb.append( text, prevIndex, currIndex );
 
       // Jump to the start of the R statement.
-      prevIndex = currIndex + prefixLength;
+      prevIndex = currIndex + PREFIX_LENGTH;
 
       // Find the statement ending (`), without indexing past the text boundary.
       currIndex = text.indexOf( SUFFIX, min( currIndex + 1, length ) );
