@@ -45,6 +45,10 @@ import java.util.Map;
 
 import static com.scrivenvar.preview.SVGRasterizer.rasterize;
 
+/**
+ * Responsible for running {@link SVGRasterizer} on SVG images detected within
+ * a document to transform them into rasterized versions.
+ */
 public class SVGReplacedElementFactory
     implements ReplacedElementFactory {
 

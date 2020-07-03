@@ -57,7 +57,7 @@ import static javafx.scene.input.KeyCombination.CONTROL_DOWN;
 import static org.fxmisc.wellbehaved.event.EventPattern.keyPressed;
 
 /**
- * Markdown editor pane.
+ * Provides the ability to edit a text document.
  */
 public class MarkdownEditorPane extends EditorPane {
   private static final Pattern PATTERN_AUTO_INDENT = Pattern.compile(

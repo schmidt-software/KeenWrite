@@ -33,7 +33,7 @@ import javafx.event.EventHandler;
 import javafx.scene.input.KeyCombination;
 
 /**
- * Simple action class
+ * Defines actions the user can take by interacting with the GUI.
  */
 public class Action {
   public final String text;

@@ -46,8 +46,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Button that opens a file chooser to select a local file for a URL in
- * markdown.
+ * Button that opens a file chooser to select a local file for a URL.
  */
 public class BrowseFileButton extends Button {
   private final List<ExtensionFilter> extensionFilters = new ArrayList<>();

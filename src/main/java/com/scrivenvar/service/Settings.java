@@ -84,13 +84,4 @@ public interface Settings extends Service {
    * @return The list of properties coerced from objects to strings.
    */
   List<String> getStringSettingList( String property );
-
-  /**
-   * Changes key's value. This will clear the old value before setting the
-   * new value so that the old value is erased, not changed into a list.
-   *
-   * @param key   The property key name to obtain its value.
-   * @param value The new value to set.
-   */
-  void putSetting( String key, String value );
 }

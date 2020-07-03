@@ -30,7 +30,7 @@ package com.scrivenvar.editors.markdown;
 import com.vladsch.flexmark.ast.Link;
 
 /**
- * Represents the model for a hyperlink: text and url text.
+ * Represents the model for a hyperlink: text, url, and title.
  */
 public class HyperlinkModel {
 
@@ -43,7 +43,7 @@ public class HyperlinkModel {
    * title (i.e., tooltip).
    *
    * @param text The hyperlink text displayed (e.g., displayed to the user).
-   * @param url The destination URL (e.g., when clicked).
+   * @param url  The destination URL (e.g., when clicked).
    */
   public HyperlinkModel( final String text, final String url ) {
     this( text, url, null );
@@ -51,25 +51,26 @@ public class HyperlinkModel {
 
   /**
    * Constructs a new hyperlink model for the given AST link.
-   * 
+   *
    * @param link A markdown link.
    */
   public HyperlinkModel( final Link link ) {
     this(
-      link.getText().toString(),
-      link.getUrl().toString(),
-      link.getTitle().toString()
+        link.getText().toString(),
+        link.getUrl().toString(),
+        link.getTitle().toString()
     );
   }
 
   /**
    * Constructs a new hyperlink model in Markdown format by default.
    *
-   * @param text The hyperlink text displayed (e.g., displayed to the user).
-   * @param url The destination URL (e.g., when clicked).
+   * @param text  The hyperlink text displayed (e.g., displayed to the user).
+   * @param url   The destination URL (e.g., when clicked).
    * @param title The hyperlink title (e.g., shown as a tooltip).
    */
-  public HyperlinkModel( final String text, final String url, final String title ) {
+  public HyperlinkModel( final String text, final String url,
+                         final String title ) {
     setText( text );
     setUrl( url );
     setTitle( title );

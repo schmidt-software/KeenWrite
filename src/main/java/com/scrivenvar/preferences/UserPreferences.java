@@ -48,6 +48,10 @@ import static com.scrivenvar.Constants.PERSIST_IMAGES_DEFAULT;
 import static com.scrivenvar.Constants.USER_DIRECTORY;
 import static com.scrivenvar.Messages.get;
 
+/**
+ * Responsible for user preferences that can be changed from the GUI. The
+ * settings are displayed and persisted using {@link PreferencesFx}.
+ */
 public class UserPreferences {
   private final Settings SETTINGS = Services.load( Settings.class );
 

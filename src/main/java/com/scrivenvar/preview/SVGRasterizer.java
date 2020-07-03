@@ -52,6 +52,9 @@ import static org.apache.batik.transcoder.SVGAbstractTranscoder.KEY_WIDTH;
 import static org.apache.batik.transcoder.image.ImageTranscoder.KEY_BACKGROUND_COLOR;
 import static org.apache.batik.util.XMLResourceDescriptor.getXMLParserClassName;
 
+/**
+ * Responsible for converting SVG images into rasterized PNG images.
+ */
 public class SVGRasterizer {
   private final static Notifier NOTIFIER = Services.load( Notifier.class );
 

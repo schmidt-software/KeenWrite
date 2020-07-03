@@ -81,19 +81,6 @@ public class DefaultSettings implements Settings {
   }
 
   /**
-   * Changes key's value. This will clear the old value before setting the new
-   * value so that the old value is erased, not changed into a list.
-   *
-   * @param key   The property key name to obtain its value.
-   * @param value The new value to set.
-   */
-  @Override
-  public void putSetting( final String key, final String value ) {
-    getSettings().clearProperty( key );
-    getSettings().addProperty( key, value );
-  }
-
-  /**
    * Convert the generic list of property objects into strings.
    *
    * @param property The property value to coerce.
