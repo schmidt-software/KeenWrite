@@ -24,6 +24,14 @@ On Windows, double-click the application to start. You will have to give the app
 
 On Linux, run `chmod +x scrivenvar.bin` then `./scrivenvar.bin`.
 
+### Other
+
+On other platforms, download and install a full version of [OpenJDK 14](https://bell-sw.com/) that includes JavaFX module support, then run:
+
+``` bash
+java -jar scrivenvar.jar
+```
+
 ## Features
 
 * User-defined interpolated strings
