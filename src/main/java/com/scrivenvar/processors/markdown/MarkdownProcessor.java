@@ -40,6 +40,7 @@ import com.vladsch.flexmark.util.ast.IParse;
 import com.vladsch.flexmark.util.ast.Node;
 import com.vladsch.flexmark.util.misc.Extension;
 
+import javax.validation.constraints.NotNull;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -65,7 +66,7 @@ public class MarkdownProcessor extends AbstractProcessor<String> {
    * @param successor Usually the HTML Preview Processor.
    */
   public MarkdownProcessor(
-      final Processor<String> successor, final Path path ) {
+      final Processor<String> successor, @NotNull final Path path ) {
     super( successor );
 
     // Standard extensions

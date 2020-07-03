@@ -53,8 +53,7 @@ import java.awt.event.ComponentListener;
 import java.net.URI;
 import java.nio.file.Path;
 
-import static com.scrivenvar.Constants.PARAGRAPH_ID_PREFIX;
-import static com.scrivenvar.Constants.STYLESHEET_PREVIEW;
+import static com.scrivenvar.Constants.*;
 import static java.awt.Desktop.Action.BROWSE;
 import static java.awt.Desktop.getDesktop;
 import static org.xhtmlrenderer.swing.ImageResourceLoader.NO_OP_REPAINT_LISTENER;
@@ -176,7 +175,7 @@ public final class HTMLPreviewPane extends Pane {
   private final DocumentEventHandler mDocHandler = new DocumentEventHandler();
   private final CustomImageLoader mImageLoader = new CustomImageLoader();
 
-  private Path mPath;
+  private Path mPath = DEFAULT_DIRECTORY;
 
   /**
    * Creates a new preview pane that can scroll to the caret position within the
@@ -195,7 +194,6 @@ public final class HTMLPreviewPane extends Pane {
     factory.addFactory( new SwingReplacedElementFactory(
         NO_OP_REPAINT_LISTENER, mImageLoader ) );
 
-    // Ensure fonts are always anti-aliased.
     final var context = getSharedContext();
     context.setReplacedElementFactory( factory );
     context.getTextRenderer().setSmoothingThreshold( 0 );

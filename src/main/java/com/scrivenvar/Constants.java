@@ -29,6 +29,9 @@ package com.scrivenvar;
 
 import com.scrivenvar.service.Settings;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 /**
  * Defines application-wide default values.
  */
@@ -99,6 +102,9 @@ public class Constants {
    */
   public static final int DEFAULT_MAP_SIZE = 64;
 
+  /**
+   * Default image extension order to use when scanning.
+   */
   public static final String PERSIST_IMAGES_DEFAULT =
       get( "file.ext.image.order" );
 
@@ -106,6 +112,8 @@ public class Constants {
    * Default working directory to use for R startup script.
    */
   public static final String USER_DIRECTORY = System.getProperty( "user.dir" );
+
+  public static final Path DEFAULT_DIRECTORY = Paths.get( USER_DIRECTORY );
 
   /**
    * Used as the prefix for uniquely identifying HTML block elements, which

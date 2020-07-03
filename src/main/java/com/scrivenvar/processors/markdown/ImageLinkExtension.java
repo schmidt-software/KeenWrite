@@ -45,8 +45,10 @@ import org.jetbrains.annotations.NotNull;
 import org.renjin.repackaged.guava.base.Splitter;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.nio.file.Path;
 
+import static com.scrivenvar.Constants.DEFAULT_DIRECTORY;
 import static java.lang.String.format;
 
 /**
@@ -67,7 +69,7 @@ public class ImageLinkExtension implements HtmlRenderer.HtmlRendererExtension {
    *             is the starting location of the relative image directory.
    * @return The new {@link ImageLinkExtension}, never {@code null}.
    */
-  public static ImageLinkExtension create( final Path path ) {
+  public static ImageLinkExtension create( @NotNull final Path path ) {
     return new ImageLinkExtension( path );
   }
 
@@ -107,17 +109,23 @@ public class ImageLinkExtension implements HtmlRenderer.HtmlRendererExtension {
       try {
         final String imageFile = format( "%s/%s", getImagePrefix(), url );
         final String suffixes = getImageSuffixes();
-        final String editDir = getEditDirectory();
+        final Path editPath = getEditPath();
+        boolean missing = true;
 
         for( final String ext : Splitter.on( ' ' ).split( suffixes ) ) {
           final String imagePath = format(
-              "%s/%s.%s", editDir, imageFile, ext );
+              "%s/%s.%s", editPath, imageFile, ext );
           final File file = new File( imagePath );
 
           if( file.exists() ) {
             url = file.toString();
+            missing = false;
             break;
           }
+        }
+
+        if( missing ) {
+          throw new FileNotFoundException( imageFile + ".*" );
         }
 
         final String protocol = ProtocolResolver.getProtocol( url );
@@ -141,14 +149,17 @@ public class ImageLinkExtension implements HtmlRenderer.HtmlRendererExtension {
       return mImageSuffixes;
     }
 
-    private String getEditDirectory() {
-      return mPath.getParent().toString();
+    @NotNull
+    private Path getEditPath() {
+      final Path p = mPath.getParent();
+
+      return p == null ? DEFAULT_DIRECTORY : p;
     }
   }
 
   private final Path mPath;
 
-  private ImageLinkExtension( final Path path ) {
+  private ImageLinkExtension( @NotNull final Path path ) {
     mPath = path;
   }
 
