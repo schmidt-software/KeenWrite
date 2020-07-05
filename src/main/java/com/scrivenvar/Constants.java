@@ -119,6 +119,11 @@ public class Constants {
   public static final Path DEFAULT_DIRECTORY = Paths.get( USER_DIRECTORY );
 
   /**
+   * Resource directory where different language lexicons are located.
+   */
+  public static final String LEXICONS_DIRECTORY = "lexicons";
+
+  /**
    * Used as the prefix for uniquely identifying HTML block elements, which
    * helps coordinate scrolling the preview pane to where the user is typing.
    */

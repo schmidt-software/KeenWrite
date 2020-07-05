@@ -118,6 +118,7 @@ public final class Main extends Application {
             try( final var is = openFont( uri, filename ) ) {
               final var font = Font.createFont( Font.TRUETYPE_FONT, is );
               final Map attributes = font.getAttributes();
+
               attributes.put( LIGATURES, LIGATURES_ON );
               ge.registerFont( font.deriveFont( attributes ) );
             } catch( final Exception e ) {

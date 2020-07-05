@@ -22,10 +22,9 @@ repositories {
 String[] os = ["win", "mac", "linux"]
 
 if (project.hasProperty('targetOs')) {
-  if ("windows".equals(targetOs)) {
+  if ("windows" == targetOs) {
     os = ["win"]
-  }
-  else {
+  } else {
     os = [targetOs]
   }
 }
@@ -89,6 +88,9 @@ dependencies {
   implementation 'org.apache.xmlgraphics:batik-transcoder:1.13'
   implementation 'org.apache.xmlgraphics:batik-util:1.13'
   implementation 'org.apache.xmlgraphics:batik-xml:1.13'
+
+  // Spelling implementation
+  implementation fileTree(include: ['**/*.jar'], dir: 'libs')
 
   // Misc.
   implementation 'org.ahocorasick:ahocorasick:0.4.0'

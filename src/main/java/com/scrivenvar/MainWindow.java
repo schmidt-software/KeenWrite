@@ -43,6 +43,9 @@ import com.scrivenvar.processors.ProcessorFactory;
 import com.scrivenvar.service.Options;
 import com.scrivenvar.service.Snitch;
 import com.scrivenvar.service.events.Notifier;
+import com.scrivenvar.spelling.api.SpellChecker;
+import com.scrivenvar.spelling.impl.PermissiveSpeller;
+import com.scrivenvar.spelling.impl.SymSpellSpeller;
 import com.scrivenvar.util.Action;
 import com.scrivenvar.util.ActionBuilder;
 import com.scrivenvar.util.ActionUtils;
@@ -76,26 +79,33 @@ import javafx.util.Duration;
 import org.apache.commons.lang3.SystemUtils;
 import org.controlsfx.control.StatusBar;
 import org.fxmisc.richtext.StyleClassedTextArea;
+import org.fxmisc.richtext.model.StyleSpansBuilder;
 import org.reactfx.value.Val;
 import org.xhtmlrenderer.util.XRLog;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Observable;
-import java.util.Observer;
+import java.nio.file.Paths;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.prefs.Preferences;
+import java.util.stream.Collectors;
 
 import static com.scrivenvar.Constants.*;
 import static com.scrivenvar.Messages.get;
 import static com.scrivenvar.util.StageState.*;
 import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.*;
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singleton;
 import static javafx.application.Platform.runLater;
 import static javafx.event.Event.fireEvent;
 import static javafx.scene.input.KeyCode.ENTER;
 import static javafx.scene.input.KeyCode.TAB;
 import static javafx.stage.WindowEvent.WINDOW_CLOSE_REQUEST;
+import static org.fxmisc.richtext.model.TwoDimensional.Bias.Forward;
 
 /**
  * Main window containing a tab pane in the center for file editors.
@@ -114,6 +124,7 @@ public class MainWindow implements Observer {
   private final StatusBar mStatusBar;
   private final Text mLineNumberText;
   private final TextField mFindTextField;
+  private final SpellChecker mSpellChecker;
 
   private final Object mMutex = new Object();
 
@@ -195,6 +206,7 @@ public class MainWindow implements Observer {
     mLineNumberText = createLineNumberText();
     mFindTextField = createFindTextField();
     mScene = createScene();
+    mSpellChecker = createSpellChecker();
 
     System.getProperties()
           .setProperty( "xr.util-logging.loggingEnabled", "true" );
@@ -318,12 +330,32 @@ public class MainWindow implements Observer {
                 initTextChangeListener( tab );
                 initTabKeyEventListener( tab );
                 initScrollEventListener( tab );
+                initSpellCheckListener( tab );
 //              initSyntaxListener( tab );
               }
             }
           }
         }
     );
+  }
+
+  private void initTextChangeListener( final FileEditorTab tab ) {
+    tab.addTextChangeListener(
+        ( editor, oldValue, newValue ) -> {
+          process( tab );
+          scrollToParagraph( getCurrentParagraphIndex() );
+        }
+    );
+  }
+
+  /**
+   * Ensure that the keyboard events are received when a new tab is added
+   * to the user interface.
+   *
+   * @param tab The tab editor that can trigger keyboard events.
+   */
+  private void initTabKeyEventListener( final FileEditorTab tab ) {
+    tab.addEventFilter( KeyEvent.KEY_PRESSED, mTabKeyHandler );
   }
 
   private void initScrollEventListener( final FileEditorTab tab ) {
@@ -343,6 +375,53 @@ public class MainWindow implements Observer {
     Val.flatMap( scrollPane.sceneProperty(), Scene::windowProperty )
        .flatMap( Window::showingProperty )
        .addListener( listener );
+  }
+
+  /**
+   * Listen for changes to the any particular paragraph and perform a quick
+   * spell check upon it. The style classes in the editor will be changed to
+   * mark any spelling mistakes in the paragraph. The user may then interact
+   * with any misspelled word (i.e., any piece of text that is marked) to
+   * revise the spelling.
+   *
+   * @param tab The tab to spellcheck.
+   */
+  private void initSpellCheckListener( final FileEditorTab tab ) {
+    final var editor = tab.getEditorPane().getEditor();
+
+    // Use the plain text changes so that notifications of style changes
+    // are suppressed.
+    editor.plainTextChanges()
+          .filter( p -> !p.isIdentity() ).subscribe( change -> {
+
+      // Only perform a spell check on the current paragraph. The
+      // entire document is processed once, when opened.
+      final var offset = change.getPosition();
+      final var position = editor.offsetToPosition( offset, Forward );
+      final var paraId = position.getMajor();
+      final var paragraph = editor.getParagraph( paraId );
+      final var text = paragraph.getText();
+
+      editor.clearStyle( paraId );
+
+      final var builder = new StyleSpansBuilder<Collection<String>>();
+      final var count = new AtomicInteger( 0 );
+      final var runningIndex = new AtomicInteger( 0 );
+
+      getSpellChecker().proofread( text, ( prevIndex, currIndex ) -> {
+        builder.add( emptyList(), prevIndex - runningIndex.get() );
+        builder.add( singleton( "spelling" ), currIndex - prevIndex );
+        count.incrementAndGet();
+        runningIndex.set( currIndex );
+      } );
+
+      if( count.get() > 0 ) {
+        builder.add( emptyList(), text.length() - runningIndex.get() );
+
+        final var spans = builder.create();
+        editor.setStyleSpans( paraId, 0, spans );
+      }
+    } );
   }
 
   /**
@@ -381,25 +460,6 @@ public class MainWindow implements Observer {
 
   private void initVariableNameInjector() {
     updateVariableNameInjector( getActiveFileEditorTab() );
-  }
-
-  /**
-   * Ensure that the keyboard events are received when a new tab is added
-   * to the user interface.
-   *
-   * @param tab The tab editor that can trigger keyboard events.
-   */
-  private void initTabKeyEventListener( final FileEditorTab tab ) {
-    tab.addEventFilter( KeyEvent.KEY_PRESSED, mTabKeyHandler );
-  }
-
-  private void initTextChangeListener( final FileEditorTab tab ) {
-    tab.addTextChangeListener(
-        ( editor, oldValue, newValue ) -> {
-          process( tab );
-          scrollToParagraph( getCurrentParagraphIndex() );
-        }
-    );
   }
 
   private int getCurrentParagraphIndex() {
@@ -734,6 +794,16 @@ public class MainWindow implements Observer {
   }
 
   //---- Member creators ----------------------------------------------------
+
+  private SpellChecker createSpellChecker() {
+    try {
+      final Collection<String> lexicon = readLexicon( "en.txt" );
+      return SymSpellSpeller.forLexicon( lexicon );
+    } catch( final Exception e ) {
+      getNotifier().notify( e );
+      return new PermissiveSpeller();
+    }
+  }
 
   /**
    * Factory to create processors that are suited to different file types.
@@ -1094,6 +1164,7 @@ public class MainWindow implements Observer {
         editCutAction,
         editCopyAction,
         editPasteAction,
+        editSelectAllAction,
         null,
         editFindAction,
         editFindNextAction,
@@ -1222,6 +1293,10 @@ public class MainWindow implements Observer {
     return mScene;
   }
 
+  private SpellChecker getSpellChecker() {
+    return mSpellChecker;
+  }
+
   private Map<FileEditorTab, Processor<String>> getProcessors() {
     return mProcessors;
   }
@@ -1285,5 +1360,22 @@ public class MainWindow implements Observer {
 
   private Path getDefinitionPath() {
     return getUserPreferences().getDefinitionPath();
+  }
+
+  //---- Resource accessors -------------------------------------------------
+
+  @SuppressWarnings("SameParameterValue")
+  private Collection<String> readLexicon( final String filename )
+      throws Exception {
+    final var path = Paths.get( LEXICONS_DIRECTORY, filename ).toString();
+    final var classLoader = MainWindow.class.getClassLoader();
+
+    try( final var resource = classLoader.getResourceAsStream( path ) ) {
+      assert resource != null;
+
+      return new BufferedReader( new InputStreamReader( resource, UTF_8 ) )
+          .lines()
+          .collect( Collectors.toList() );
+    }
   }
 }

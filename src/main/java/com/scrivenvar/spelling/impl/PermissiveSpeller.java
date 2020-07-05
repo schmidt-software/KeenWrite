@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Karl Tauber and White Magic Software, Ltd.
+ * Copyright 2020 White Magic Software, Ltd.
  *
  * All rights reserved.
  *
@@ -25,24 +25,50 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+package com.scrivenvar.spelling.impl;
 
-.markdown-editor {
-  -fx-font-size: 11pt;
-}
+import com.scrivenvar.spelling.api.SpellChecker;
 
-/* Subtly highlight the current paragraph. */
-.markdown-editor .paragraph-box:has-caret {
-  -fx-background-color: #fcfeff;
-}
+import java.util.List;
+import java.util.function.BiConsumer;
 
-/* Light colour for selection highlight. */
-.markdown-editor .selection {
-  -fx-fill: #a6d2ff;
-}
+/**
+ * Responsible for spell checking in the event that a real spell checking
+ * implementation cannot be created (for any reason). Does not perform any
+ * spell checking and indicates that any given lexeme is in the lexicon.
+ */
+public class PermissiveSpeller implements SpellChecker {
+  /**
+   * Returns {@code true}, ignoring the given word.
+   *
+   * @param ignored Unused.
+   * @return {@code true}
+   */
+  @Override
+  public boolean inLexicon( final String ignored ) {
+    return true;
+  }
 
-/* Decoration for words not found in the lexicon. */
-.markdown-editor .spelling {
-  -rtfx-underline-color: rgba(255, 131, 67, .9);
-  -rtfx-underline-dash-array: 4, 2;
-  -rtfx-underline-width: 2;
+  /**
+   * Returns an array with the given lexeme.
+   *
+   * @param lexeme  The word to return.
+   * @param ignored Unused.
+   * @return A suggestion list containing the given lexeme.
+   */
+  @Override
+  public List<String> suggestions( final String lexeme, final int ignored ) {
+    return List.of( lexeme );
+  }
+
+  /**
+   * Performs no action.
+   *
+   * @param text    Unused.
+   * @param ignored Uncalled.
+   */
+  @Override
+  public void proofread(
+      final String text, final BiConsumer<Integer, Integer> ignored ) {
+  }
 }
