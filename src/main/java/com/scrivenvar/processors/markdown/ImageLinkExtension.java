@@ -108,9 +108,10 @@ public class ImageLinkExtension implements HtmlRenderer.HtmlRendererExtension {
       try {
         // If the direct file name exists, then use it directly.
         if( Path.of( url ).toFile().exists() ) {
-          return link.withStatus( LinkStatus.VALID ).withUrl( url );
+          return valid( link, url );
         }
       } catch( final Exception ignored ) {
+        // Try to dynamically resolve the image.
       }
 
       try {
@@ -156,12 +157,16 @@ public class ImageLinkExtension implements HtmlRenderer.HtmlRendererExtension {
 
         getNotifier().clear();
 
-        return link.withStatus( LinkStatus.VALID ).withUrl( url );
+        return valid( link, url );
       } catch( final Exception e ) {
         getNotifier().notify( "File not found: " + e.getLocalizedMessage() );
       }
 
       return link;
+    }
+
+    private ResolvedLink valid( final ResolvedLink link, final String url ) {
+      return link.withStatus( LinkStatus.VALID ).withUrl( url );
     }
 
     private File getImagePrefix() {

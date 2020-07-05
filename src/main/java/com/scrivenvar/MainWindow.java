@@ -81,7 +81,6 @@ import org.controlsfx.control.StatusBar;
 import org.fxmisc.richtext.StyleClassedTextArea;
 import org.fxmisc.richtext.model.StyleSpansBuilder;
 import org.reactfx.value.Val;
-import org.xhtmlrenderer.util.XRLog;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -89,6 +88,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.prefs.Preferences;
 import java.util.stream.Collectors;
@@ -207,10 +207,6 @@ public class MainWindow implements Observer {
     mFindTextField = createFindTextField();
     mScene = createScene();
     mSpellChecker = createSpellChecker();
-
-    System.getProperties()
-          .setProperty( "xr.util-logging.loggingEnabled", "true" );
-    XRLog.setLoggingEnabled( true );
 
     initLayout();
     initFindInput();
@@ -364,17 +360,10 @@ public class MainWindow implements Observer {
 
     // Before the drag handler can be attached, the scroll bar for the
     // text editor pane must be visible.
-    final ChangeListener<? super Boolean> listener = ( o, oldShow, newShow ) ->
-        runLater( () -> {
-          if( newShow ) {
-            final var handler = new ScrollEventHandler( scrollPane, scrollBar );
-            handler.enabledProperty().bind( tab.selectedProperty() );
-          }
-        } );
-
-    Val.flatMap( scrollPane.sceneProperty(), Scene::windowProperty )
-       .flatMap( Window::showingProperty )
-       .addListener( listener );
+    addShowListener( scrollPane, ( __ ) -> {
+      final var handler = new ScrollEventHandler( scrollPane, scrollBar );
+      handler.enabledProperty().bind( tab.selectedProperty() );
+    } );
   }
 
   /**
@@ -388,6 +377,10 @@ public class MainWindow implements Observer {
    */
   private void initSpellCheckListener( final FileEditorTab tab ) {
     final var editor = tab.getEditorPane().getEditor();
+
+    addShowListener(
+        editor, ( __ ) -> spellcheck( editor, editor.getText() )
+    );
 
     // Use the plain text changes so that notifications of style changes
     // are suppressed. Checking against the identity ensures that only
@@ -406,24 +399,7 @@ public class MainWindow implements Observer {
       // Ensure that styles aren't doubled-up.
       editor.clearStyle( paraId );
 
-      final var builder = new StyleSpansBuilder<Collection<String>>();
-      final var runningIndex = new AtomicInteger( 0 );
-
-      getSpellChecker().proofread( text, ( prevIndex, currIndex ) -> {
-        // Apply no styling between lexiconically absent words.
-        builder.add( emptyList(), prevIndex - runningIndex.get() );
-        builder.add( singleton( "spelling" ), currIndex - prevIndex );
-        runningIndex.set( currIndex );
-      } );
-
-      // If the running index was set, at least one word triggered the listener.
-      if( runningIndex.get() > 0 ) {
-        // Apply no styling after the last lexiconically absent word.
-        builder.add( emptyList(), text.length() - runningIndex.get() );
-
-        final var spans = builder.create();
-        editor.setStyleSpans( paraId, 0, spans );
-      }
+      spellcheck( editor, text, paraId );
     } );
   }
 
@@ -465,8 +441,30 @@ public class MainWindow implements Observer {
     updateVariableNameInjector( getActiveFileEditorTab() );
   }
 
-  private int getCurrentParagraphIndex() {
-    return getActiveEditorPane().getCurrentParagraphIndex();
+  /**
+   * Calls the listener when the given node is shown for the first time. The
+   * visible property is not the same as the initial showing event; visibility
+   * can be triggered numerous times (such as going off screen).
+   *
+   * @param node     The node to watch for showing.
+   * @param consumer The consumer to invoke when the event fires.
+   */
+  private void addShowListener(
+      final Node node, final Consumer<Void> consumer ) {
+    final ChangeListener<? super Boolean> listener = ( o, oldShow, newShow ) ->
+        runLater( () -> {
+          if( newShow ) {
+            try {
+              consumer.accept( null );
+            } catch( final Exception ex ) {
+              error( ex );
+            }
+          }
+        } );
+
+    Val.flatMap( node.sceneProperty(), Scene::windowProperty )
+       .flatMap( Window::showingProperty )
+       .addListener( listener );
   }
 
   private void scrollToParagraph( final int id ) {
@@ -510,20 +508,18 @@ public class MainWindow implements Observer {
    * @param tab The file editor tab that has been changed in some fashion.
    */
   private void process( final FileEditorTab tab ) {
-    if( tab == null ) {
-      return;
-    }
+    if( tab != null ) {
+      getPreviewPane().setPath( tab.getPath() );
 
-    getPreviewPane().setPath( tab.getPath() );
+      final Processor<String> processor = getProcessors().computeIfAbsent(
+          tab, p -> createProcessors( tab )
+      );
 
-    final Processor<String> processor = getProcessors().computeIfAbsent(
-        tab, p -> createProcessors( tab )
-    );
-
-    try {
-      processChain( processor, tab.getEditorText() );
-    } catch( final Exception ex ) {
-      error( ex );
+      try {
+        processChain( processor, tab.getEditorText() );
+      } catch( final Exception ex ) {
+        error( ex );
+      }
     }
   }
 
@@ -570,8 +566,8 @@ public class MainWindow implements Observer {
       pane.setTooltip( tooltipPath );
 
       interpolateResolvedMap();
-    } catch( final Exception e ) {
-      error( e );
+    } catch( final Exception ex ) {
+      error( ex );
     }
   }
 
@@ -588,10 +584,10 @@ public class MainWindow implements Observer {
       else {
         final String msg = get(
             "yaml.error.tree.form", problemChild.getValue() );
-        getNotifier().notify( msg );
+        error( msg );
       }
-    } catch( final Exception e ) {
-      error( e );
+    } catch( final Exception ex ) {
+      error( ex );
     }
   }
 
@@ -611,10 +607,14 @@ public class MainWindow implements Observer {
   /**
    * Called when an exception occurs that warrants the user's attention.
    *
-   * @param e The exception with a message that the user should know about.
+   * @param ex The exception with a message that the user should know about.
    */
-  private void error( final Exception e ) {
-    getNotifier().notify( e );
+  private void error( final Exception ex ) {
+    getNotifier().notify( ex );
+  }
+
+  private void error( final String msg ) {
+    getNotifier().notify( msg );
   }
 
   //---- File actions -------------------------------------------------------
@@ -712,7 +712,7 @@ public class MainWindow implements Observer {
     try {
       process( editor );
     } catch( final Exception ex ) {
-      getNotifier().notify( ex );
+      error( ex );
     }
   }
 
@@ -802,8 +802,8 @@ public class MainWindow implements Observer {
     try {
       final Collection<String> lexicon = readLexicon( "en.txt" );
       return SymSpellSpeller.forLexicon( lexicon );
-    } catch( final Exception e ) {
-      getNotifier().notify( e );
+    } catch( final Exception ex ) {
+      error( ex );
       return new PermissiveSpeller();
     }
   }
@@ -1274,6 +1274,10 @@ public class MainWindow implements Observer {
     return OPTIONS.getState();
   }
 
+  private int getCurrentParagraphIndex() {
+    return getActiveEditorPane().getCurrentParagraphIndex();
+  }
+
   private float getFloat( final String key, final float defaultValue ) {
     return getPreferences().getFloat( key, defaultValue );
   }
@@ -1365,7 +1369,50 @@ public class MainWindow implements Observer {
     return getUserPreferences().getDefinitionPath();
   }
 
-  //---- Resource accessors -------------------------------------------------
+  //---- Spelling -----------------------------------------------------------
+
+  /**
+   * Delegates to {@link #spellcheck(StyleClassedTextArea, String, int)}.
+   *
+   * @param text The full document text.
+   */
+  private void spellcheck(
+      final StyleClassedTextArea editor, final String text ) {
+    spellcheck( editor, text, -1 );
+  }
+
+  /**
+   * @param text   Look up words for this text in the lexicon.
+   * @param paraId Set to -1 to apply resulting style spans to the entire
+   *               text.
+   */
+  private void spellcheck(
+      final StyleClassedTextArea editor, final String text, final int paraId ) {
+    final var builder = new StyleSpansBuilder<Collection<String>>();
+    final var runningIndex = new AtomicInteger( 0 );
+
+    getSpellChecker().proofread( text, ( prevIndex, currIndex ) -> {
+      // Clear styling between lexiconically absent words.
+      builder.add( emptyList(), prevIndex - runningIndex.get() );
+      builder.add( singleton( "spelling" ), currIndex - prevIndex );
+      runningIndex.set( currIndex );
+    } );
+
+    // If the running index was set, at least one word triggered the listener.
+    if( runningIndex.get() > 0 ) {
+      // Clear styling after the last lexiconically absent word.
+      builder.add( emptyList(), text.length() - runningIndex.get() );
+
+      final var spans = builder.create();
+
+      if( paraId >= 0 ) {
+        editor.setStyleSpans( paraId, 0, spans );
+      }
+      else {
+        editor.setStyleSpans( 0, spans );
+      }
+    }
+  }
 
   @SuppressWarnings("SameParameterValue")
   private Collection<String> readLexicon( final String filename )
