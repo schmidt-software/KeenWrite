@@ -109,10 +109,12 @@ public final class HTMLPreviewPane extends Pane {
   private final class ResizeListener implements ComponentListener {
     @Override
     public void componentResized( final ComponentEvent e ) {
-      // Scaling a bit below the full width prevents the horizontal scrollbar
-      // from appearing.
-      final int width = (int) (e.getComponent().getWidth() * .95);
-      HTMLPreviewPane.this.mImageLoader.widthProperty().set( width );
+      setWidth( e );
+    }
+
+    @Override
+    public void componentShown( final ComponentEvent e ) {
+      setWidth( e );
     }
 
     @Override
@@ -120,11 +122,19 @@ public final class HTMLPreviewPane extends Pane {
     }
 
     @Override
-    public void componentShown( final ComponentEvent e ) {
+    public void componentHidden( final ComponentEvent e ) {
     }
 
-    @Override
-    public void componentHidden( final ComponentEvent e ) {
+    /**
+     * Sets the width of the {@link HTMLPreviewPane} so that images can be
+     * scaled to fit. The scale factor is adjusted a bit below the full width
+     * to prevent the horizontal scrollbar from appearing.
+     *
+     * @param e The component that defines the image scaling width.
+     */
+    private void setWidth( final ComponentEvent e ) {
+      final int width = (int) (e.getComponent().getWidth() * .95);
+      HTMLPreviewPane.this.mImageLoader.widthProperty().set( width );
     }
   }
 

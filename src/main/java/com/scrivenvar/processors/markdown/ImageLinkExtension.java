@@ -106,6 +106,14 @@ public class ImageLinkExtension implements HtmlRenderer.HtmlRendererExtension {
       String url = link.getUrl();
 
       try {
+        // If the direct file name exists, then use it directly.
+        if( Path.of( url ).toFile().exists() ) {
+          return link.withStatus( LinkStatus.VALID ).withUrl( url );
+        }
+      } catch( final Exception ignored ) {
+      }
+
+      try {
         final Path imagePrefix = getImagePrefix().toPath();
 
         // Path to the file being edited.
