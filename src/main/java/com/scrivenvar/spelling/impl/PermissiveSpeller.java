@@ -27,10 +27,10 @@
  */
 package com.scrivenvar.spelling.impl;
 
+import com.scrivenvar.spelling.api.SpellCheckListener;
 import com.scrivenvar.spelling.api.SpellChecker;
 
 import java.util.List;
-import java.util.function.BiConsumer;
 
 /**
  * Responsible for spell checking in the event that a real spell checking
@@ -69,6 +69,6 @@ public class PermissiveSpeller implements SpellChecker {
    */
   @Override
   public void proofread(
-      final String text, final BiConsumer<Integer, Integer> ignored ) {
+      final String text, final SpellCheckListener ignored ) {
   }
 }

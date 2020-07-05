@@ -27,6 +27,7 @@
  */
 package com.scrivenvar.spelling.impl;
 
+import com.scrivenvar.spelling.api.SpellCheckListener;
 import com.scrivenvar.spelling.api.SpellChecker;
 import io.gitlab.rxp90.jsymspell.SuggestItem;
 import io.gitlab.rxp90.jsymspell.SymSpell;
@@ -36,7 +37,6 @@ import java.text.BreakIterator;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.function.BiConsumer;
 
 import static io.gitlab.rxp90.jsymspell.SymSpell.Verbosity;
 import static io.gitlab.rxp90.jsymspell.SymSpell.Verbosity.ALL;
@@ -101,7 +101,7 @@ public class SymSpellSpeller implements SpellChecker {
 
   @Override
   public void proofread(
-      final String text, final BiConsumer<Integer, Integer> consumer ) {
+      final String text, final SpellCheckListener consumer ) {
     assert text != null;
     assert consumer != null;
 

@@ -390,7 +390,8 @@ public class MainWindow implements Observer {
     final var editor = tab.getEditorPane().getEditor();
 
     // Use the plain text changes so that notifications of style changes
-    // are suppressed.
+    // are suppressed. Checking against the identity ensures that only
+    // new text additions or deletions trigger proofreading.
     editor.plainTextChanges()
           .filter( p -> !p.isIdentity() ).subscribe( change -> {
 
@@ -402,20 +403,22 @@ public class MainWindow implements Observer {
       final var paragraph = editor.getParagraph( paraId );
       final var text = paragraph.getText();
 
+      // Ensure that styles aren't doubled-up.
       editor.clearStyle( paraId );
 
       final var builder = new StyleSpansBuilder<Collection<String>>();
-      final var count = new AtomicInteger( 0 );
       final var runningIndex = new AtomicInteger( 0 );
 
       getSpellChecker().proofread( text, ( prevIndex, currIndex ) -> {
+        // Apply no styling between lexiconically absent words.
         builder.add( emptyList(), prevIndex - runningIndex.get() );
         builder.add( singleton( "spelling" ), currIndex - prevIndex );
-        count.incrementAndGet();
         runningIndex.set( currIndex );
       } );
 
-      if( count.get() > 0 ) {
+      // If the running index was set, at least one word triggered the listener.
+      if( runningIndex.get() > 0 ) {
+        // Apply no styling after the last lexiconically absent word.
         builder.add( emptyList(), text.length() - runningIndex.get() );
 
         final var spans = builder.create();
