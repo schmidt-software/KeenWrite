@@ -4,6 +4,8 @@ Import the files in this directory into the application, which include:
 
 * pluralize.R
 * possessive.R
+* conversion.R
+* csv.R
 
 # pluralize.R
 
