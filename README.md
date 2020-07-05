@@ -39,6 +39,7 @@ java -jar scrivenvar.jar
 * Auto-complete variable names based on variable values
 * XML document transformation using XSLT3 or older
 * Platform independent (Windows, Linux, MacOS)
+* Spellcheck while typing
 * R integration
 
 ## Usage
@@ -51,7 +52,6 @@ See the following documents for more information:
 
 ## Future Features
 
-* Spell check
 * Search and replace using variables
 * Re-organize variable names
 
