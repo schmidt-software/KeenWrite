@@ -129,12 +129,12 @@ public class UserPreferences {
             Group.of(
                 get( "Preferences.r.delimiter.began" ),
                 Setting.of( label( "Preferences.r.delimiter.began.desc" ) ),
-                Setting.of( "Start delimiter", mRDelimiterBegan )
+                Setting.of( "Opening", mRDelimiterBegan )
             ),
             Group.of(
                 get( "Preferences.r.delimiter.ended" ),
                 Setting.of( label( "Preferences.r.delimiter.ended.desc" ) ),
-                Setting.of( "Stop delimiter", mRDelimiterEnded )
+                Setting.of( "Closing", mRDelimiterEnded )
             )
         ),
         Category.of(
