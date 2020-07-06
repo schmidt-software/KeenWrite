@@ -133,7 +133,7 @@ public final class HTMLPreviewPane extends Pane {
      * @param e The component that defines the image scaling width.
      */
     private void setWidth( final ComponentEvent e ) {
-      final int width = (int) (e.getComponent().getWidth() * .95);
+      final int width = (int) (e.getComponent().getWidth() * .9);
       HTMLPreviewPane.this.mImageLoader.widthProperty().set( width );
     }
   }

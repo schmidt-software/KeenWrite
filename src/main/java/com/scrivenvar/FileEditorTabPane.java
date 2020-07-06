@@ -228,13 +228,17 @@ public final class FileEditorTabPane extends TabPane {
   }
 
   /**
-   * Called when the user selects New from the File menu.
+   * Called to add a new {@link FileEditorTab} to the tab pane. The return
+   * value is used when initializing the application, but isn't required.
+   *
+   * @return The new {@link FileEditorTab} instance created.
    */
-  void newEditor() {
+  FileEditorTab newEditor() {
     final FileEditorTab tab = createFileEditor( getDefaultPath() );
 
     getTabs().add( tab );
     getSelectionModel().select( tab );
+    return tab;
   }
 
   void openFileDialog() {

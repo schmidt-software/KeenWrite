@@ -358,8 +358,6 @@ public class MainWindow implements Observer {
     final var scrollPane = tab.getScrollPane();
     final var scrollBar = getPreviewPane().getVerticalScrollBar();
 
-    // Before the drag handler can be attached, the scroll bar for the
-    // text editor pane must be visible.
     addShowListener( scrollPane, ( __ ) -> {
       final var handler = new ScrollEventHandler( scrollPane, scrollBar );
       handler.enabledProperty().bind( tab.selectedProperty() );
@@ -412,6 +410,8 @@ public class MainWindow implements Observer {
     // Update the preview pane changing tabs.
     editorPane.addTabSelectionListener(
         ( tabPane, oldTab, newTab ) -> {
+          // Clear the preview pane when closing an editor. When the last
+          // tab is closed, this ensures that the preview pane is empty.
           if( newTab == null ) {
             getPreviewPane().clear();
           }
@@ -434,7 +434,26 @@ public class MainWindow implements Observer {
    */
   private void initPreferences() {
     initDefinitionPane();
-    getFileEditorPane().initPreferences();
+    final var editor = getFileEditorPane();
+    final var tab = editor.newEditor();
+
+    // This is a bonafide hack to ensure the preview panel scales any images
+    // to fit the panel width. The preview panel width isn't known until after
+    // the main window is displayed. However, these preferences are initialized
+    // prior to showing the main window. The preferences include loading the
+    // text for an editor, which then parses it. Upon parsing, the width of
+    // the preview pane is a negative (invalid) value. By waiting to load the
+    // editors until after the main window is shown, a valid preview panel
+    // width can be determined and thus the images scaled to fit.
+    //
+    // To avoid this hack, the preferences need to be loaded separately from
+    // opening the editors. Those preferences can be used to get the window
+    // sizes for showing the main window. Once the main window is shown, all
+    // the subsequent initializations can take place.
+    addShowListener( editor, ( __ ) -> {
+      editor.closeEditor( tab, false );
+      editor.initPreferences();
+    } );
   }
 
   private void initVariableNameInjector() {
@@ -445,6 +464,10 @@ public class MainWindow implements Observer {
    * Calls the listener when the given node is shown for the first time. The
    * visible property is not the same as the initial showing event; visibility
    * can be triggered numerous times (such as going off screen).
+   * <p>
+   * This is called, for example, before the drag handler can be attached,
+   * because the scrollbar for the text editor pane must be visible.
+   * </p>
    *
    * @param node     The node to watch for showing.
    * @param consumer The consumer to invoke when the event fires.
