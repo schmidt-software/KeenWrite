@@ -40,14 +40,10 @@ public class RVariableDecorator implements VariableDecorator {
   public static final String PREFIX = "`r#";
   public static final char SUFFIX = '`';
 
-  private final String mDelimiterBegan;
-  private final String mDelimiterEnded;
-
-  public RVariableDecorator() {
-    final var prefs = getUserPreferences();
-    mDelimiterBegan = prefs.getRDelimiterBegan();
-    mDelimiterEnded = prefs.getRDelimiterEnded();
-  }
+  private final String mDelimiterBegan =
+      getUserPreferences().getRDelimiterBegan();
+  private final String mDelimiterEnded =
+      getUserPreferences().getRDelimiterEnded();
 
   /**
    * Returns the given string R-escaping backticks prepended and appended. This

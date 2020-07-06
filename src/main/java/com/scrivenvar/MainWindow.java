@@ -202,13 +202,22 @@ public class MainWindow implements Observer {
       = new VariableNameInjector( mDefinitionPane );
 
   public MainWindow() {
+    sNotifier.addObserver( this );
+
     mStatusBar = createStatusBar();
     mLineNumberText = createLineNumberText();
     mFindTextField = createFindTextField();
     mScene = createScene();
     mSpellChecker = createSpellChecker();
 
+    // Add the close request listener before the window is shown.
     initLayout();
+  }
+
+  /**
+   * Called after the stage is shown.
+   */
+  public void init() {
     initFindInput();
     initSnitch();
     initDefinitionListener();
@@ -216,8 +225,6 @@ public class MainWindow implements Observer {
     initTabChangedListener();
     initPreferences();
     initVariableNameInjector();
-
-    sNotifier.addObserver( this );
   }
 
   private void initLayout() {
@@ -410,20 +417,15 @@ public class MainWindow implements Observer {
     // Update the preview pane changing tabs.
     editorPane.addTabSelectionListener(
         ( tabPane, oldTab, newTab ) -> {
-          // Clear the preview pane when closing an editor. When the last
-          // tab is closed, this ensures that the preview pane is empty.
           if( newTab == null ) {
+            // Clear the preview pane when closing an editor. When the last
+            // tab is closed, this ensures that the preview pane is empty.
             getPreviewPane().clear();
           }
-
-          // If there was no old tab, then this is a first time load, which
-          // can be ignored.
-          if( oldTab != null ) {
-            if( newTab != null ) {
-              final FileEditorTab tab = (FileEditorTab) newTab;
-              updateVariableNameInjector( tab );
-              process( tab );
-            }
+          else {
+            final var tab = (FileEditorTab) newTab;
+            updateVariableNameInjector( tab );
+            process( tab );
           }
         }
     );
@@ -434,27 +436,7 @@ public class MainWindow implements Observer {
    */
   private void initPreferences() {
     initDefinitionPane();
-    final var editor = getFileEditorPane();
-    editor.initPreferences();
-    final var tab = editor.newEditor();
-
-    // This is a bonafide hack to ensure the preview panel scales any images
-    // to fit the panel width. The preview panel width isn't known until after
-    // the main window is displayed. However, these preferences are initialized
-    // prior to showing the main window. The preferences include loading the
-    // text for an editor, which then parses it. Upon parsing, the width of
-    // the preview pane is a negative (invalid) value. By waiting to load the
-    // editors until after the main window is shown, a valid preview panel
-    // width can be determined and thus the images scaled to fit.
-    //
-    // To avoid this hack, the preferences need to be loaded separately from
-    // opening the editors. Those preferences can be used to get the window
-    // sizes for showing the main window. Once the main window is shown, all
-    // the subsequent initializations can take place.
-    addShowListener( editor, ( __ ) -> {
-      editor.closeEditor( tab, false );
-      editor.initPreferences();
-    } );
+    getFileEditorPane().initPreferences();
   }
 
   private void initVariableNameInjector() {

@@ -104,10 +104,12 @@ public class ImageLinkExtension implements HtmlRenderer.HtmlRendererExtension {
 
     private ResolvedLink resolve( final ResolvedLink link ) {
       String url = link.getUrl();
+      final String protocol = ProtocolResolver.getProtocol( url );
 
       try {
         // If the direct file name exists, then use it directly.
-        if( Path.of( url ).toFile().exists() ) {
+        if( ("file".equals( protocol ) && Path.of( url ).toFile().exists()) ||
+            protocol.startsWith( "http" ) ) {
           return valid( link, url );
         }
       } catch( final Exception ignored ) {
@@ -150,7 +152,6 @@ public class ImageLinkExtension implements HtmlRenderer.HtmlRendererExtension {
           throw new FileNotFoundException( imagePathPrefix + ".*" );
         }
 
-        final String protocol = ProtocolResolver.getProtocol( url );
         if( "file".equals( protocol ) ) {
           url = "file://" + url;
         }

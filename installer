@@ -109,8 +109,9 @@ utile_extract_jre() {
   local -r file_jdk="jre-${jre_version}-${ARG_JRE_OS}-${ARG_JRE_ARCH}.${ARCHIVE_EXT}"
   local -r path_jdk="/tmp/${file_jdk}"
 
-  if [ ! -f ${path_jdk} ]; then
-    $log "Download ${url_jdk}"
+  # File must have contents.
+  if [ ! -s ${path_jdk} ]; then
+    $log "Download ${url_jdk} to ${path_jdk}"
     wget -q "${url_jdk}" -O "${path_jdk}"
   fi
 

@@ -27,6 +27,7 @@
  */
 package com.scrivenvar.preview;
 
+import com.scrivenvar.util.ProtocolResolver;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import org.xhtmlrenderer.extend.FSImage;
@@ -72,8 +73,8 @@ public class CustomImageLoader extends ImageResourceLoader {
    * is broken.
    *
    * @param uri    Path to the image resource to load.
-   * @param width  Maximum image width (scaled to fit), in pixels.
-   * @param height Image height, in pixels.
+   * @param width  Ignored.
+   * @param height Ignored.
    * @return The scaled image, or a placeholder image if the URI's content
    * could not be retrieved.
    */
@@ -84,10 +85,14 @@ public class CustomImageLoader extends ImageResourceLoader {
     assert width >= 0;
     assert height >= 0;
 
-    boolean exists;
+    boolean exists = true;
 
     try {
-      exists = Files.exists( Paths.get( new URI( uri ) ) );
+      final String protocol = ProtocolResolver.getProtocol( uri );
+
+      if( "file".equals( protocol ) ) {
+        exists = Files.exists( Paths.get( new URI( uri ) ) );
+      }
     } catch( final Exception e ) {
       exists = false;
     }
@@ -101,8 +106,8 @@ public class CustomImageLoader extends ImageResourceLoader {
    * Scales the image found at the given URI.
    *
    * @param uri Path to the image file to load.
-   * @param w   Unused (usually -1, which is useless).
-   * @param h   Unused (ditto).
+   * @param w   Ignored.
+   * @param h   Ignored.
    * @return Resource representing the rendered image and path.
    */
   private ImageResource scale( final String uri, final int w, final int h ) {

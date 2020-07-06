@@ -103,6 +103,10 @@ public final class Main extends Application {
     initSnitch();
 
     stage.show();
+
+    // After the stage is visible, the panel dimensions are known, which
+    // allows scaling images to fit the preview panel.
+    getMainWindow().init();
   }
 
   /**
