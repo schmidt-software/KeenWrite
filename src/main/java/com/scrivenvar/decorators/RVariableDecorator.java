@@ -35,18 +35,18 @@ import com.scrivenvar.service.Options;
  * Brackets variable names with {@code `r#} and {@code `}.
  */
 public class RVariableDecorator implements VariableDecorator {
-  //private static final Options sOptions = Services.load( Options.class );
+  private static final Options sOptions = Services.load( Options.class );
 
   public static final String PREFIX = "`r#";
   public static final char SUFFIX = '`';
 
-  private final String mDelimiterBegan = "x( ";
-  private final String mDelimiterEnded = " )";
+  private final String mDelimiterBegan;
+  private final String mDelimiterEnded;
 
   public RVariableDecorator() {
-    //final var prefs = getUserPreferences();
-//    mDelimiterBegan = prefs.getRDelimiterBegan();
-//    mDelimiterEnded = prefs.getRDelimiterEnded();
+    final var prefs = getUserPreferences();
+    mDelimiterBegan = prefs.getRDelimiterBegan();
+    mDelimiterEnded = prefs.getRDelimiterEnded();
   }
 
   /**
@@ -73,7 +73,7 @@ public class RVariableDecorator implements VariableDecorator {
         + SUFFIX;
   }
 
-//  private UserPreferences getUserPreferences() {
-//    return sOptions.getUserPreferences();
-//  }
+  private UserPreferences getUserPreferences() {
+    return sOptions.getUserPreferences();
+  }
 }

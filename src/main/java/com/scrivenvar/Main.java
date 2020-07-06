@@ -67,6 +67,9 @@ public final class Main extends Application {
     System.err.close();
   }
 
+  /**
+   * Must be static, otherwise instant crash.
+   */
   private final static Notifier sNotifier = Services.load( Notifier.class );
   private final Options mOptions = Services.load( Options.class );
   private final Snitch mSnitch = Services.load( Snitch.class );
