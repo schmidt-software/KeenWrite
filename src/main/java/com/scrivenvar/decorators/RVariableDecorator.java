@@ -27,19 +27,34 @@
  */
 package com.scrivenvar.decorators;
 
+import com.scrivenvar.Services;
+import com.scrivenvar.preferences.UserPreferences;
+import com.scrivenvar.service.Options;
+
 /**
  * Brackets variable names with {@code `r#} and {@code `}.
  */
 public class RVariableDecorator implements VariableDecorator {
+  //private static final Options sOptions = Services.load( Options.class );
+
   public static final String PREFIX = "`r#";
   public static final char SUFFIX = '`';
+
+  private final String mDelimiterBegan = "x( ";
+  private final String mDelimiterEnded = " )";
+
+  public RVariableDecorator() {
+    //final var prefs = getUserPreferences();
+//    mDelimiterBegan = prefs.getRDelimiterBegan();
+//    mDelimiterEnded = prefs.getRDelimiterEnded();
+  }
 
   /**
    * Returns the given string R-escaping backticks prepended and appended. This
    * is not null safe. Do not pass null into this method.
    *
    * @param variableName The string to decorate.
-   * @return "`r#" + variableName + "`".
+   * @return "`r#" + delimiterBegan + variableName+ delimiterEnded + "`".
    */
   @Override
   public String decorate( String variableName ) {
@@ -50,10 +65,15 @@ public class RVariableDecorator implements VariableDecorator {
       variableName = variableName.substring( 1, variableName.length() - 1 );
     }
 
-    return PREFIX +
-        "x( v$" +
-        variableName.replace( '.', '$' ) +
-        " )" +
-        SUFFIX;
+    return PREFIX
+        + mDelimiterBegan
+        + "v$"
+        + variableName.replace( '.', '$' )
+        + mDelimiterEnded
+        + SUFFIX;
   }
+
+//  private UserPreferences getUserPreferences() {
+//    return sOptions.getUserPreferences();
+//  }
 }

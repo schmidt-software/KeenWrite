@@ -116,9 +116,9 @@ public class MainWindow implements Observer {
    * to prevent subsequent initializations from failing due to missing user
    * preferences.
    */
-  private final static Options OPTIONS = Services.load( Options.class );
+  private final static Options sOptions = Services.load( Options.class );
   private final static Snitch SNITCH = Services.load( Snitch.class );
-  private final static Notifier NOTIFIER = Services.load( Notifier.class );
+  private final static Notifier sNotifier = Services.load( Notifier.class );
 
   private final Scene mScene;
   private final StatusBar mStatusBar;
@@ -217,7 +217,7 @@ public class MainWindow implements Observer {
     initPreferences();
     initVariableNameInjector();
 
-    NOTIFIER.addObserver( this );
+    sNotifier.addObserver( this );
   }
 
   private void initLayout() {
@@ -435,6 +435,7 @@ public class MainWindow implements Observer {
   private void initPreferences() {
     initDefinitionPane();
     final var editor = getFileEditorPane();
+    editor.initPreferences();
     final var tab = editor.newEditor();
 
     // This is a bonafide hack to ensure the preview panel scales any images
@@ -573,15 +574,17 @@ public class MainWindow implements Observer {
    */
   private void openDefinitions( final Path path ) {
     try {
-      final DefinitionSource ds = createDefinitionSource( path );
+      final var ds = createDefinitionSource( path );
       setDefinitionSource( ds );
-      getUserPreferences().definitionPathProperty().setValue( path.toFile() );
-      getUserPreferences().save();
 
-      final Tooltip tooltipPath = new Tooltip( path.toString() );
+      final var prefs = getUserPreferences();
+      prefs.definitionPathProperty().setValue( path.toFile() );
+      prefs.save();
+
+      final var tooltipPath = new Tooltip( path.toString() );
       tooltipPath.setShowDelay( Duration.millis( 200 ) );
 
-      final DefinitionPane pane = getDefinitionPane();
+      final var pane = getDefinitionPane();
       pane.update( ds );
       pane.addTreeChangeHandler( mTreeHandler );
       pane.addKeyEventHandler( mDefinitionKeyHandler );
@@ -1294,7 +1297,7 @@ public class MainWindow implements Observer {
   //---- Convenience accessors ----------------------------------------------
 
   private Preferences getPreferences() {
-    return OPTIONS.getState();
+    return sOptions.getState();
   }
 
   private int getCurrentParagraphIndex() {
@@ -1379,13 +1382,13 @@ public class MainWindow implements Observer {
   }
 
   private Notifier getNotifier() {
-    return NOTIFIER;
+    return sNotifier;
   }
 
   //---- Persistence accessors ----------------------------------------------
 
   private UserPreferences getUserPreferences() {
-    return OPTIONS.getUserPreferences();
+    return sOptions.getUserPreferences();
   }
 
   private Path getDefinitionPath() {

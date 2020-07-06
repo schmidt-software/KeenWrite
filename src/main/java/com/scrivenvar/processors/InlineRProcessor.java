@@ -51,8 +51,8 @@ import static java.lang.Math.min;
  */
 public final class InlineRProcessor extends DefinitionProcessor {
 
-  private static final Notifier NOTIFIER = Services.load( Notifier.class );
-  private static final Options OPTIONS = Services.load( Options.class );
+  private static final Notifier sNotifier = Services.load( Notifier.class );
+  private static final Options sOptions = Services.load( Options.class );
 
   /**
    * Constrain memory when typing new R expressions into the document.
@@ -106,8 +106,8 @@ public final class InlineRProcessor extends DefinitionProcessor {
       if( !bootstrap.isBlank() ) {
         eval( replace( bootstrap, map ) );
       }
-    } catch( final Exception e ) {
-      getNotifier().notify( e );
+    } catch( final Exception ex ) {
+      getNotifier().notify( ex );
     }
   }
 
@@ -195,8 +195,8 @@ public final class InlineRProcessor extends DefinitionProcessor {
   private Object eval( final String r ) {
     try {
       return getScriptEngine().eval( r );
-    } catch( final ScriptException e ) {
-      getNotifier().notify( e );
+    } catch( final ScriptException ex ) {
+      getNotifier().notify( ex );
       return "";
     }
   }
@@ -221,7 +221,7 @@ public final class InlineRProcessor extends DefinitionProcessor {
   }
 
   private UserPreferences getUserPreferences() {
-    return getOptions().getUserPreferences();
+    return sOptions.getUserPreferences();
   }
 
   private ScriptEngine getScriptEngine() {
@@ -229,10 +229,6 @@ public final class InlineRProcessor extends DefinitionProcessor {
   }
 
   private Notifier getNotifier() {
-    return NOTIFIER;
-  }
-
-  private Options getOptions() {
-    return OPTIONS;
+    return sNotifier;
   }
 }

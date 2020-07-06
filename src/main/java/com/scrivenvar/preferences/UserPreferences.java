@@ -44,8 +44,7 @@ import javafx.scene.control.Label;
 import java.io.File;
 import java.nio.file.Path;
 
-import static com.scrivenvar.Constants.PERSIST_IMAGES_DEFAULT;
-import static com.scrivenvar.Constants.USER_DIRECTORY;
+import static com.scrivenvar.Constants.*;
 import static com.scrivenvar.Messages.get;
 
 /**
@@ -60,6 +59,8 @@ public class UserPreferences {
   private final ObjectProperty<File> mPropImagesDirectory;
   private final StringProperty mPropImagesOrder;
   private final ObjectProperty<File> mPropDefinitionPath;
+  private final StringProperty mRDelimiterBegan;
+  private final StringProperty mRDelimiterEnded;
 
   private final PreferencesFx mPreferencesFx;
 
@@ -73,6 +74,9 @@ public class UserPreferences {
     mPropDefinitionPath = simpleFile( getSetting(
         "file.definition.default", "variables.yaml" )
     );
+
+    mRDelimiterBegan = new SimpleStringProperty( R_DELIMITER_BEGAN_DEFAULT );
+    mRDelimiterEnded = new SimpleStringProperty( R_DELIMITER_ENDED_DEFAULT );
 
     mPreferencesFx = createPreferencesFx();
   }
@@ -121,6 +125,16 @@ public class UserPreferences {
                 get( "Preferences.r.script" ),
                 Setting.of( label( "Preferences.r.script.desc" ) ),
                 scriptSetting
+            ),
+            Group.of(
+                get( "Preferences.r.delimiter.began" ),
+                Setting.of( label( "Preferences.r.delimiter.began.desc" ) ),
+                Setting.of( "Start delimiter", mRDelimiterBegan )
+            ),
+            Group.of(
+                get( "Preferences.r.delimiter.ended" ),
+                Setting.of( label( "Preferences.r.delimiter.ended.desc" ) ),
+                Setting.of( "Stop delimiter", mRDelimiterEnded )
             )
         ),
         Category.of(
@@ -216,6 +230,22 @@ public class UserPreferences {
 
   public String getRScript() {
     return rScriptProperty().getValue();
+  }
+
+  private StringProperty rDelimiterBegan() {
+    return mRDelimiterBegan;
+  }
+
+  public String getRDelimiterBegan() {
+    return rDelimiterBegan().get();
+  }
+
+  private StringProperty rDelimiterEnded() {
+    return mRDelimiterEnded;
+  }
+
+  public String getRDelimiterEnded() {
+    return rDelimiterEnded().get();
   }
 
   private ObjectProperty<File> imagesDirectoryProperty() {

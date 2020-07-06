@@ -119,6 +119,16 @@ public class Constants {
   public static final Path DEFAULT_DIRECTORY = Paths.get( USER_DIRECTORY );
 
   /**
+   * Default starting delimiter when inserting R variables.
+   */
+  public static final String R_DELIMITER_BEGAN_DEFAULT = "x( ";
+
+  /**
+   * Default ending delimiter when inserting R variables.
+   */
+  public static final String R_DELIMITER_ENDED_DEFAULT = " )";
+
+  /**
    * Resource directory where different language lexicons are located.
    */
   public static final String LEXICONS_DIRECTORY = "lexicons";

@@ -68,8 +68,9 @@ public final class Main extends Application {
   }
 
   private final static Notifier sNotifier = Services.load( Notifier.class );
-  private final Options mOptions = Services.load( Options.class );
-  private final Snitch mSnitch = Services.load( Snitch.class );
+  private final static Options sOptions = Services.load( Options.class );
+  private final static Snitch sSnitch = Services.load( Snitch.class );
+
   private final Thread mSnitchThread = new Thread( getSnitch() );
   private final MainWindow mMainWindow = new MainWindow();
 
@@ -195,7 +196,7 @@ public final class Main extends Application {
   }
 
   private Snitch getSnitch() {
-    return mSnitch;
+    return sSnitch;
   }
 
   private Thread getSnitchThread() {
@@ -203,7 +204,7 @@ public final class Main extends Application {
   }
 
   private Options getOptions() {
-    return mOptions;
+    return sOptions;
   }
 
   private MainWindow getMainWindow() {
