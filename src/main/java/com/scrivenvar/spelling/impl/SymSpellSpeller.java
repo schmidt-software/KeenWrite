@@ -116,7 +116,7 @@ public class SymSpellSpeller implements SpellChecker {
           text.substring( previousIndex, boundaryIndex ).toLowerCase();
 
       if( isWord( substring ) && !inLexicon( substring ) ) {
-        consumer.accept( previousIndex, boundaryIndex );
+        consumer.accept( substring, previousIndex, boundaryIndex );
       }
 
       previousIndex = boundaryIndex;

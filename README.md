@@ -53,7 +53,7 @@ See the following documents for more information:
 ## Future Features
 
 * Search and replace using variables
-* Re-organize variable names
+* Reorganize variable names
 
 ## Screenshot
 
@@ -62,4 +62,3 @@ See the following documents for more information:
 ## License
 
 This software is licensed under the [BSD 2-Clause License](LICENSE.md).
-

@@ -113,7 +113,7 @@ public class ImageLinkExtension implements HtmlRenderer.HtmlRendererExtension {
           return valid( link, url );
         }
       } catch( final Exception ignored ) {
-        // Try to dynamically resolve the image.
+        // Try to resolve the image, dynamically.
       }
 
       try {
@@ -137,6 +137,7 @@ public class ImageLinkExtension implements HtmlRenderer.HtmlRendererExtension {
         final String suffixes = getImageExtensions();
         boolean missing = true;
 
+        // Iterate over the user's preferred image file type extensions.
         for( final String ext : Splitter.on( ' ' ).split( suffixes ) ) {
           final String imagePath = format( "%s.%s", imagePathPrefix, ext );
           final File file = new File( imagePath );

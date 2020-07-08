@@ -31,8 +31,8 @@ import java.util.function.BiConsumer;
 
 /**
  * Represents an operation that accepts two input arguments and returns no
- * result. Unlike most other functional interfaces, {@code BiConsumer} is
- * expected to operate via side-effects.
+ * result. Unlike most other functional interfaces, this class is expected to
+ * operate via side-effects.
  * <p>
  * This is used instead of a {@link BiConsumer} to avoid autoboxing.
  * </p>
@@ -43,8 +43,10 @@ public interface SpellCheckListener {
   /**
    * Performs an operation on the given arguments.
    *
-   * @param i1 the first input argument
-   * @param i2 the second input argument
+   * @param text        The text associated with a beginning and ending offset.
+   * @param beganOffset A starting offset, used as an index into a string.
+   * @param endedOffset An ending offset, which should equal text.length() +
+   *                    beganOffset.
    */
-  void accept( int i1, int i2 );
+  void accept( String text, int beganOffset, int endedOffset );
 }

@@ -43,12 +43,16 @@ import com.scrivenvar.processors.ProcessorFactory;
 import com.scrivenvar.service.Options;
 import com.scrivenvar.service.Snitch;
 import com.scrivenvar.service.events.Notifier;
+import com.scrivenvar.spelling.api.SpellCheckListener;
 import com.scrivenvar.spelling.api.SpellChecker;
 import com.scrivenvar.spelling.impl.PermissiveSpeller;
 import com.scrivenvar.spelling.impl.SymSpellSpeller;
 import com.scrivenvar.util.Action;
 import com.scrivenvar.util.ActionBuilder;
 import com.scrivenvar.util.ActionUtils;
+import com.vladsch.flexmark.parser.Parser;
+import com.vladsch.flexmark.util.ast.NodeVisitor;
+import com.vladsch.flexmark.util.ast.VisitHandler;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.BooleanProperty;
@@ -228,14 +232,11 @@ public class MainWindow implements Observer {
   }
 
   private void initLayout() {
-    final Scene appScene = getScene();
+    final var appScene = getScene();
 
     appScene.getStylesheets().add( STYLESHEET_SCENE );
-
-    // TODO: Apply an XML syntax highlighting for XML files.
-//    appScene.getStylesheets().add( STYLESHEET_XML );
     appScene.windowProperty().addListener(
-        ( observable, oldWindow, newWindow ) ->
+        ( unused, oldWindow, newWindow ) ->
             newWindow.setOnCloseRequest(
                 e -> {
                   if( !getFileEditorPane().closeAllEditors() ) {
@@ -383,6 +384,9 @@ public class MainWindow implements Observer {
   private void initSpellCheckListener( final FileEditorTab tab ) {
     final var editor = tab.getEditorPane().getEditor();
 
+    // When the editor first appears, run a full spell check. This allows
+    // spell checking while typing to be restricted to the active paragraph,
+    // which is usually substantially smaller than the whole document.
     addShowListener(
         editor, ( __ ) -> spellcheck( editor, editor.getText() )
     );
@@ -1381,6 +1385,7 @@ public class MainWindow implements Observer {
 
   /**
    * Delegates to {@link #spellcheck(StyleClassedTextArea, String, int)}.
+   * This is called to spell check the document, rather than a single paragraph.
    *
    * @param text The full document text.
    */
@@ -1390,21 +1395,38 @@ public class MainWindow implements Observer {
   }
 
   /**
+   * Spellchecks a subset of the entire document.
+   *
    * @param text   Look up words for this text in the lexicon.
    * @param paraId Set to -1 to apply resulting style spans to the entire
    *               text.
    */
+  @SuppressWarnings("CodeBlock2Expr")
   private void spellcheck(
       final StyleClassedTextArea editor, final String text, final int paraId ) {
     final var builder = new StyleSpansBuilder<Collection<String>>();
     final var runningIndex = new AtomicInteger( 0 );
+    final var checker = getSpellChecker();
 
-    getSpellChecker().proofread( text, ( prevIndex, currIndex ) -> {
-      // Clear styling between lexiconically absent words.
-      builder.add( emptyList(), prevIndex - runningIndex.get() );
-      builder.add( singleton( "spelling" ), currIndex - prevIndex );
-      runningIndex.set( currIndex );
+    // The text nodes must be relayed through a contextual "visitor" that
+    // can return text in chunks with correlative offsets into the string.
+    // This allows Markdown, R Markdown, XML, and R XML documents to return
+    // sets of words to check.
+
+    final var node = mParser.parse( text );
+    final var visitor = new TextVisitor( ( visited, bIndex, eIndex ) -> {
+      checker.proofread( visited, ( misspelled, prevIndex, currIndex ) -> {
+        prevIndex += bIndex;
+        currIndex += bIndex;
+
+        // Clear styling between lexiconically absent words.
+        builder.add( emptyList(), prevIndex - runningIndex.get() );
+        builder.add( singleton( "spelling" ), currIndex - prevIndex );
+        runningIndex.set( currIndex );
+      } );
     } );
+
+    visitor.visit( node );
 
     // If the running index was set, at least one word triggered the listener.
     if( runningIndex.get() > 0 ) {
@@ -1436,4 +1458,33 @@ public class MainWindow implements Observer {
           .collect( Collectors.toList() );
     }
   }
+
+  // TODO: Replace using Markdown processor instantiated for Markdown files.
+  // FIXME: https://github.com/DaveJarvis/scrivenvar/issues/59
+  private final Parser mParser = Parser.builder().build();
+
+  // TODO: Replace with generic interface; provide Markdown/XML implementations.
+  // FIXME: https://github.com/DaveJarvis/scrivenvar/issues/59
+  private final static class TextVisitor {
+    private final NodeVisitor mVisitor = new NodeVisitor( new VisitHandler<>(
+        com.vladsch.flexmark.ast.Text.class, this::visit )
+    );
+
+    private final SpellCheckListener mConsumer;
+
+    public TextVisitor( final SpellCheckListener consumer ) {
+      mConsumer = consumer;
+    }
+
+    private void visit( final com.vladsch.flexmark.util.ast.Node node ) {
+      if( node instanceof com.vladsch.flexmark.ast.Text ) {
+        mConsumer.accept( node.getChars().toString(),
+                          node.getStartOffset(),
+                          node.getEndOffset() );
+      }
+
+      mVisitor.visitChildren( node );
+    }
+  }
+
 }
