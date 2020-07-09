@@ -1415,7 +1415,10 @@ public class MainWindow implements Observer {
 
     final var node = mParser.parse( text );
     final var visitor = new TextVisitor( ( visited, bIndex, eIndex ) -> {
-      checker.proofread( visited, ( misspelled, prevIndex, currIndex ) -> {
+      // Treat hyphenated compound words as individual words.
+      final var preprocess = visited.replace( '-', ' ' );
+
+      checker.proofread( preprocess, ( misspelled, prevIndex, currIndex ) -> {
         prevIndex += bIndex;
         currIndex += bIndex;
 

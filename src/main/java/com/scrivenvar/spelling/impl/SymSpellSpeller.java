@@ -47,6 +47,8 @@ import static java.lang.Character.isLetter;
  * Responsible for spell checking using {@link SymSpell}.
  */
 public class SymSpellSpeller implements SpellChecker {
+  private final BreakIterator mBreakIterator = BreakIterator.getWordInstance();
+
   private final SymSpell mSymSpell;
 
   /**
@@ -105,10 +107,9 @@ public class SymSpellSpeller implements SpellChecker {
     assert text != null;
     assert consumer != null;
 
-    final BreakIterator wb = BreakIterator.getWordInstance();
-    wb.setText( text );
+    mBreakIterator.setText( text );
 
-    int boundaryIndex = wb.first();
+    int boundaryIndex = mBreakIterator.first();
     int previousIndex = 0;
 
     while( boundaryIndex != BreakIterator.DONE ) {
@@ -120,7 +121,7 @@ public class SymSpellSpeller implements SpellChecker {
       }
 
       previousIndex = boundaryIndex;
-      boundaryIndex = wb.next();
+      boundaryIndex = mBreakIterator.next();
     }
   }
 
