@@ -82,9 +82,10 @@ public class MapInterpolator {
 
     while( matcher.find() ) {
       final String keyName = matcher.group( GROUP_DELIMITED );
-      final String keyValue = resolve(
-          map, map.getOrDefault( keyName, keyName )
-      );
+      final String mapValue = map.get( keyName );
+      final String keyValue = mapValue == null
+          ? keyName
+          : resolve( map, mapValue );
 
       value = value.replace( keyName, keyValue );
     }

@@ -1401,7 +1401,6 @@ public class MainWindow implements Observer {
    * @param paraId Set to -1 to apply resulting style spans to the entire
    *               text.
    */
-  @SuppressWarnings("CodeBlock2Expr")
   private void spellcheck(
       final StyleClassedTextArea editor, final String text, final int paraId ) {
     final var builder = new StyleSpansBuilder<Collection<String>>();
@@ -1489,5 +1488,4 @@ public class MainWindow implements Observer {
       mVisitor.visitChildren( node );
     }
   }
-
 }
