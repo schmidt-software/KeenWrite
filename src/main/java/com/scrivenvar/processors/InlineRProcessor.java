@@ -177,7 +177,7 @@ public final class InlineRProcessor extends DefinitionProcessor {
 
   /**
    * Look up an R expression from the cache then return the resulting object.
-   * If the R expression hasn't been cached, it'll first be evalulated.
+   * If the R expression hasn't been cached, it'll first be evaluated.
    *
    * @param r The expression to evaluate.
    * @return The object resulting from the evaluation.

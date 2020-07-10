@@ -113,11 +113,15 @@ public class SymSpellSpeller implements SpellChecker {
     int previousIndex = 0;
 
     while( boundaryIndex != BreakIterator.DONE ) {
-      final String substring =
-          text.substring( previousIndex, boundaryIndex ).toLowerCase();
+      final var lex = text.substring( previousIndex, boundaryIndex )
+                          .toLowerCase();
 
-      if( isWord( substring ) && !inLexicon( substring ) ) {
-        consumer.accept( substring, previousIndex, boundaryIndex );
+      // Get the lexeme for the possessive.
+      final var pos = lex.endsWith( "'s" ) || lex.endsWith( "’s" );
+      final var lexeme = pos ? lex.substring( 0, lex.length() - 2 ) : lex;
+
+      if( isWord( lexeme ) && !inLexicon( lexeme ) ) {
+        consumer.accept( lex, previousIndex, boundaryIndex );
       }
 
       previousIndex = boundaryIndex;
