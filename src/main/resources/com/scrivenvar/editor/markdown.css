@@ -42,7 +42,8 @@
 
 /* Decoration for words not found in the lexicon. */
 .markdown-editor .spelling {
-  -rtfx-underline-color: rgba(255, 131, 67, .9);
+  -rtfx-underline-color: rgba(255, 131, 67, .7);
   -rtfx-underline-dash-array: 4, 2;
   -rtfx-underline-width: 2;
+  -rtfx-underline-cap: round;
 }
