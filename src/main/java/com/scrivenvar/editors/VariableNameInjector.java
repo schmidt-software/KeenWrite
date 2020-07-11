@@ -91,7 +91,7 @@ public final class VariableNameInjector {
     final TreeItem<String> item = pane.getSelectedItem();
 
     if( item.isLeaf() ) {
-      final var leaf = pane.findLeaf( item.getValue(), FindMode.EXACT );
+      final var leaf = pane.findLeaf( item.getValue(), FindMode.EQUALS_EXACT );
       final var editor = getEditor();
 
       editor.insertText( editor.getCaretPosition(), decorate( leaf ) );
@@ -210,15 +210,15 @@ public final class VariableNameInjector {
   }
 
   private VariableTreeItem<String> findLeafExact( final String text ) {
-    return findLeaf( text, EXACT );
+    return findLeaf( text, EQUALS_EXACT );
   }
 
   private VariableTreeItem<String> findLeafContains( final String text ) {
-    return findLeaf( text, CONTAINS );
+    return findLeaf( text, CONTAINS_EXACT );
   }
 
   private VariableTreeItem<String> findLeafStartsWith( final String text ) {
-    return findLeaf( text, STARTS_WITH );
+    return findLeaf( text, STARTS_WITH_EXACT );
   }
 
   private VariableTreeItem<String> findLeafLevenshtein( final String text ) {

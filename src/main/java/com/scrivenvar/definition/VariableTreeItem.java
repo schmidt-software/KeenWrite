@@ -55,55 +55,41 @@ public class VariableTreeItem<T> extends TreeItem<T> {
    * Finds a leaf starting at the current node with text that matches the given
    * value.
    *
-   * @param text The text to match against each leaf in the tree.
-   * @return The leaf that has a value starting with the given text.
-   */
-  public VariableTreeItem<T> findLeaf( final String text ) {
-    return findLeaf( text, STARTS_WITH );
-  }
-
-  /**
-   * Finds a leaf starting at the current node with text that matches the given
-   * value.
-   *
    * @param text     The text to match against each leaf in the tree.
    * @param findMode What algorithm is used to match the given text.
-   * @return The leaf that has a value starting with the given text.
+   * @return The leaf that has a value starting with the given text, or {@code
+   * null} if there was no match for the given {@link FindMode}.
    */
   public VariableTreeItem<T> findLeaf(
       final String text, final FindMode findMode ) {
     final Stack<VariableTreeItem<T>> stack = new Stack<>();
-    final VariableTreeItem<T> root = this;
+    stack.push( this );
 
-    stack.push( root );
-
-    // Don't try to find keys for blank/empty variable values.
+    // Don't hunt for blank (empty) keys.
     boolean found = text.isBlank();
-    VariableTreeItem<T> node = null;
 
     while( !found && !stack.isEmpty() ) {
-      node = stack.pop();
+      final VariableTreeItem<T> node = stack.pop();
 
-      if( findMode == EXACT && node.valueEquals( text ) ) {
-        found = true;
-      }
-      else if( findMode == CONTAINS && node.valueContains( text ) ) {
-        found = true;
-      }
-      else if( findMode == STARTS_WITH && node.valueStartsWith( text ) ) {
-        found = true;
-      }
-      else {
-        for( final TreeItem<T> child : node.getChildren() ) {
-          stack.push( (VariableTreeItem<T>) child );
+      for( final TreeItem<T> child : node.getChildren() ) {
+        final VariableTreeItem<T> result = (VariableTreeItem<T>) child;
+
+        if( result.isLeaf() ) {
+          found = (findMode == EQUALS_EXACT && result.valueEquals( text )) ||
+              (findMode == CONTAINS_EXACT && result.valueContains( text )) ||
+              (findMode == STARTS_WITH_EXACT && result.valueStartsWith( text ));
+
+          if( found ) {
+            return result;
+          }
         }
-
-        // No match found, yet.
-        node = null;
+        else {
+          stack.push( result );
+        }
       }
     }
 
-    return node;
+    return null;
   }
 
   /**

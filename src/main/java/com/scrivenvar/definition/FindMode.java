@@ -32,9 +32,9 @@ package com.scrivenvar.definition;
  * according to the relationships provided in this enumeration.
  */
 public enum FindMode {
-  EXACT,
-  CONTAINS,
-  STARTS_WITH,
+  EQUALS_EXACT,
+  CONTAINS_EXACT,
+  STARTS_WITH_EXACT,
   LEVENSHTEIN
 }
 

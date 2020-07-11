@@ -60,11 +60,6 @@ import static javafx.scene.input.KeyEvent.KEY_PRESSED;
 public final class DefinitionPane extends BorderPane {
 
   /**
-   * Trimmed off the end of a word to match a variable name.
-   */
-  private final static String TERMINALS = ":;,.!?-/\\¡¿";
-
-  /**
    * Contains a view of the definitions.
    */
   private final TreeView<String> mTreeView = new TreeView<>();
@@ -251,36 +246,14 @@ public final class DefinitionPane extends BorderPane {
    * Returns the leaf that matches the given value. If the value is terminally
    * punctuated, the punctuation is removed if no match was found.
    *
-   * @param value    The value to find, never null.
+   * @param value    The value to find, never {@code null}.
    * @param findMode Defines how to match words.
-   * @return The leaf that contains the given value, or null if neither the
-   * original value nor the terminally-trimmed value was found.
+   * @return The leaf that contains the given value, or {@code null} if
+   * neither the original value nor the terminally-trimmed value was found.
    */
   public VariableTreeItem<String> findLeaf(
       final String value, final FindMode findMode ) {
-    final var root = getTreeRoot();
-    final var leaf = root.findLeaf( value, findMode );
-
-    return leaf == null
-        ? root.findLeaf( rtrimTerminalPunctuation( value ) )
-        : leaf;
-  }
-
-  /**
-   * Removes punctuation from the end of a string.
-   *
-   * @param s The string to trim, never null.
-   * @return The string trimmed of all terminal characters from the end
-   */
-  private String rtrimTerminalPunctuation( final String s ) {
-    assert s != null;
-    int index = s.length() - 1;
-
-    while( index > 0 && (TERMINALS.indexOf( s.charAt( index ) ) >= 0) ) {
-      index--;
-    }
-
-    return s.substring( 0, index );
+    return getTreeRoot().findLeaf( value, findMode );
   }
 
   /**
