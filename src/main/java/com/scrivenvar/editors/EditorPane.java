@@ -73,9 +73,19 @@ public class EditorPane extends Pane {
     getUndoManager().redo();
   }
 
+  /**
+   * Cuts the actively selected text; if no text is selected, this will cut
+   * the entire paragraph.
+   */
   public void cut() {
-    getEditor().selectParagraph();
-    getEditor().cut();
+    final var editor = getEditor();
+    final var selected = editor.getSelectedText();
+
+    if( selected == null || selected.isEmpty() ) {
+      editor.selectParagraph();
+    }
+
+    editor.cut();
   }
 
   public void copy() {

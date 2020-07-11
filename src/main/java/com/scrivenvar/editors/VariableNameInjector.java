@@ -84,7 +84,7 @@ public final class VariableNameInjector {
   }
 
   /**
-   * Inserts the variable
+   * Inserts the currently selected variable from the {@link DefinitionPane}.
    */
   public void injectSelectedItem() {
     final var pane = getDefinitionPane();
