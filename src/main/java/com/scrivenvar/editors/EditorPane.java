@@ -62,7 +62,29 @@ public class EditorPane extends Pane {
 
   @Override
   public void requestFocus() {
-    runLater( () -> getEditor().requestFocus() );
+    requestFocus( 3 );
+  }
+
+  /**
+   * There's a race-condition between displaying the {@link EditorPane}
+   * and giving the {@link #mEditor} focus. Try to focus up to {@code max}
+   * times before giving up.
+   *
+   * @param max The number of attempts to try to request focus.
+   */
+  private void requestFocus( final int max ) {
+    if( max > 0 ) {
+      runLater(
+          () -> {
+            final var editor = getEditor();
+
+            if( !editor.isFocused() ) {
+              editor.requestFocus();
+              requestFocus( max - 1 );
+            }
+          }
+      );
+    }
   }
 
   public void undo() {

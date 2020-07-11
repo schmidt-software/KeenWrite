@@ -89,6 +89,7 @@ public final class FileEditorTab extends Tab {
     setOnSelectionChanged( e -> {
       if( isSelected() ) {
         runLater( this::activated );
+        requestFocus();
       }
     } );
   }
@@ -142,8 +143,6 @@ public final class FileEditorTab extends Tab {
       initLayout();
       initUndoManager();
     }
-
-    requestFocus();
   }
 
   private void initLayout() {
@@ -164,7 +163,7 @@ public final class FileEditorTab extends Tab {
   }
 
   private void requestFocus() {
-    runLater( () -> getEditorPane().requestFocus() );
+    getEditorPane().requestFocus();
   }
 
   /**
