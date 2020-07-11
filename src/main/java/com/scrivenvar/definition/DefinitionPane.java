@@ -243,17 +243,47 @@ public final class DefinitionPane extends BorderPane {
   }
 
   /**
-   * Returns the leaf that matches the given value. If the value is terminally
-   * punctuated, the punctuation is removed if no match was found.
+   * Delegates to {@link VariableTreeItem#findLeafExact(String)}.
    *
-   * @param value    The value to find, never {@code null}.
-   * @param findMode Defines how to match words.
+   * @param text The value to find, never {@code null}.
    * @return The leaf that contains the given value, or {@code null} if
-   * neither the original value nor the terminally-trimmed value was found.
+   * not found.
    */
-  public VariableTreeItem<String> findLeaf(
-      final String value, final FindMode findMode ) {
-    return getTreeRoot().findLeaf( value, findMode );
+  public VariableTreeItem<String> findLeafExact( final String text ) {
+    return getTreeRoot().findLeafExact( text );
+  }
+
+  /**
+   * Delegates to {@link VariableTreeItem#findLeafContains(String)}.
+   *
+   * @param text The value to find, never {@code null}.
+   * @return The leaf that contains the given value, or {@code null} if
+   * not found.
+   */
+  public VariableTreeItem<String> findLeafContains( final String text ) {
+    return getTreeRoot().findLeafContains( text );
+  }
+
+  /**
+   * Delegates to {@link VariableTreeItem#findLeafContains(String)}.
+   *
+   * @param text The value to find, never {@code null}.
+   * @return The leaf that contains the given value, or {@code null} if
+   * not found.
+   */
+  public VariableTreeItem<String> findLeafContainsNoCase( final String text ) {
+    return getTreeRoot().findLeafContainsNoCase( text );
+  }
+
+  /**
+   * Delegates to {@link VariableTreeItem#findLeafStartsWith(String)}.
+   *
+   * @param text The value to find, never {@code null}.
+   * @return The leaf that contains the given value, or {@code null} if
+   * not found.
+   */
+  public VariableTreeItem<String> findLeafStartsWith( final String text ) {
+    return getTreeRoot().findLeafStartsWith( text );
   }
 
   /**

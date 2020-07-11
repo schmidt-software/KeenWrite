@@ -30,7 +30,6 @@ package com.scrivenvar.editors;
 import com.scrivenvar.FileEditorTab;
 import com.scrivenvar.decorators.VariableDecorator;
 import com.scrivenvar.definition.DefinitionPane;
-import com.scrivenvar.definition.FindMode;
 import com.scrivenvar.definition.VariableTreeItem;
 import javafx.scene.control.TreeItem;
 import javafx.scene.input.KeyEvent;
@@ -39,7 +38,6 @@ import org.fxmisc.richtext.StyledTextArea;
 import java.nio.file.Path;
 import java.text.BreakIterator;
 
-import static com.scrivenvar.definition.FindMode.*;
 import static javafx.scene.input.KeyCode.SPACE;
 import static javafx.scene.input.KeyCombination.CONTROL_DOWN;
 import static org.fxmisc.wellbehaved.event.EventPattern.keyPressed;
@@ -91,7 +89,7 @@ public final class VariableNameInjector {
     final TreeItem<String> item = pane.getSelectedItem();
 
     if( item.isLeaf() ) {
-      final var leaf = pane.findLeaf( item.getValue(), FindMode.EQUALS_EXACT );
+      final var leaf = pane.findLeafExact( item.getValue() );
       final var editor = getEditor();
 
       editor.insertText( editor.getCaretPosition(), decorate( leaf ) );
@@ -197,45 +195,26 @@ public final class VariableNameInjector {
     return getEditor().getCaretColumn();
   }
 
+  /**
+   * Looks for the given word, matching first by exact, next by a starts-with
+   * condition with diacritics replaced, then by containment.
+   *
+   * @param word
+   * @return
+   */
+  @SuppressWarnings("ConstantConditions")
   private VariableTreeItem<String> findLeaf( final String word ) {
     assert word != null;
 
-    VariableTreeItem<String> leaf = findLeafExact( word );
+    final var pane = getDefinitionPane();
+    VariableTreeItem<String> leaf = null;
 
-    leaf = leaf == null ? findLeafStartsWith( word ) : leaf;
-    leaf = leaf == null ? findLeafContains( word ) : leaf;
-    leaf = leaf == null ? findLeafLevenshtein( word ) : leaf;
+    leaf = leaf == null ? pane.findLeafExact( word ) : leaf;
+    leaf = leaf == null ? pane.findLeafStartsWith( word ) : leaf;
+    leaf = leaf == null ? pane.findLeafContains( word ) : leaf;
+    leaf = leaf == null ? pane.findLeafContainsNoCase( word ) : leaf;
 
     return leaf;
-  }
-
-  private VariableTreeItem<String> findLeafExact( final String text ) {
-    return findLeaf( text, EQUALS_EXACT );
-  }
-
-  private VariableTreeItem<String> findLeafContains( final String text ) {
-    return findLeaf( text, CONTAINS_EXACT );
-  }
-
-  private VariableTreeItem<String> findLeafStartsWith( final String text ) {
-    return findLeaf( text, STARTS_WITH_EXACT );
-  }
-
-  private VariableTreeItem<String> findLeafLevenshtein( final String text ) {
-    return findLeaf( text, LEVENSHTEIN );
-  }
-
-  /**
-   * Finds the first leaf having a value that starts with the given text, or
-   * contains the text if contains is true.
-   *
-   * @param text     The text to find in the definition tree.
-   * @param findMode Dictates what search criteria to use for matching words.
-   * @return The leaf that starts with the given text, or null if not found.
-   */
-  private VariableTreeItem<String> findLeaf(
-      final String text, final FindMode findMode ) {
-    return getDefinitionPane().findLeaf( text, findMode );
   }
 
   /**
