@@ -29,7 +29,6 @@ import com.scrivenvar.editors.EditorPane;
 import com.scrivenvar.editors.markdown.MarkdownEditorPane;
 import com.scrivenvar.service.events.Notification;
 import com.scrivenvar.service.events.Notifier;
-import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyBooleanProperty;
@@ -58,6 +57,7 @@ import java.nio.file.Path;
 import static com.scrivenvar.Messages.get;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Locale.ENGLISH;
+import static javafx.application.Platform.runLater;
 
 /**
  * Editor for a single file.
@@ -88,7 +88,7 @@ public final class FileEditorTab extends Tab {
 
     setOnSelectionChanged( e -> {
       if( isSelected() ) {
-        Platform.runLater( this::activated );
+        runLater( this::activated );
       }
     } );
   }
@@ -136,29 +136,23 @@ public final class FileEditorTab extends Tab {
       return;
     }
 
-    // Switch to the tab without loading if the contents are already in memory.
-    if( getContent() != null ) {
-      getEditorPane().requestFocus();
-      return;
+    // If the tab is devoid of content, load it.
+    if( getContent() == null ) {
+      readFile();
+      initLayout();
+      initUndoManager();
     }
 
-    // Load the text and update the preview before the undo manager.
-    load();
-
-    // Track undo requests -- can only be called *after* load.
-    initUndoManager();
-    initLayout();
-    initFocus();
+    requestFocus();
   }
 
   private void initLayout() {
     setContent( getScrollPane() );
   }
 
-  private void initFocus() {
-    getEditorPane().requestFocus();
-  }
-
+  /**
+   * Tracks undo requests, but can only be called <em>after</em> load.
+   */
   private void initUndoManager() {
     final UndoManager<?> undoManager = getUndoManager();
     undoManager.forgetHistory();
@@ -167,6 +161,10 @@ public final class FileEditorTab extends Tab {
     mModified.bind( Bindings.not( undoManager.atMarkedPositionProperty() ) );
     canUndo.bind( undoManager.undoAvailableProperty() );
     canRedo.bind( undoManager.redoAvailableProperty() );
+  }
+
+  private void requestFocus() {
+    runLater( () -> getEditorPane().requestFocus() );
   }
 
   /**
@@ -241,7 +239,7 @@ public final class FileEditorTab extends Tab {
   /**
    * Reads the entire file contents from the path associated with this tab.
    */
-  private void load() {
+  private void readFile() {
     final Path path = getPath();
     final File file = path.toFile();
 
