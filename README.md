@@ -44,11 +44,11 @@ java -jar scrivenvar.jar
 
 ## Usage
 
-See the following documents for more information:
+See the following documents for usage information:
 
-* [USAGE.md](USAGE.md) -- Variable definitions and string interpolation
-* [USAGE-R.md](USAGE-R.md) -- Call R functions within R Markdown documents
-* [USAGE-SVG.md](USAGE-SVG.md) -- Fix known issues with displaying SVG files
+* [docs/definitions.md](definitions.md) -- Definitions and interpolation
+* [docs/r.md](r.md) -- Call R functions within R Markdown documents
+* [docs/svg.md](svg.md) -- Fix known issues with displaying SVG files
 
 ## Future Features
 
