@@ -1105,18 +1105,18 @@ public class MainWindow implements Observer {
         .setDisable( activeFileEditorIsNull )
         .build();
 
-    // Number of header actions (H1 ... H3)
-    final int HEADERS = 3;
-    final Action[] headers = new Action[ HEADERS ];
+    // Number of heading actions (H1 ... H3)
+    final int HEADINGS = 3;
+    final Action[] headings = new Action[ HEADINGS ];
 
-    for( int i = 1; i <= HEADERS; i++ ) {
+    for( int i = 1; i <= HEADINGS; i++ ) {
       final String hashes = new String( new char[ i ] ).replace( "\0", "#" );
       final String markup = String.format( "%n%n%s ", hashes );
-      final String text = "Main.menu.insert.header." + i;
+      final String text = "Main.menu.insert.heading." + i;
       final String accelerator = "Shortcut+" + i;
       final String prompt = text + ".prompt";
 
-      headers[ i - 1 ] = new ActionBuilder()
+      headings[ i - 1 ] = new ActionBuilder()
           .setText( text )
           .setAccelerator( accelerator )
           .setIcon( HEADER )
@@ -1200,9 +1200,9 @@ public class MainWindow implements Observer {
         insertLinkAction,
         insertImageAction,
         null,
-        headers[ 0 ],
-        headers[ 1 ],
-        headers[ 2 ],
+        headings[ 0 ],
+        headings[ 1 ],
+        headings[ 2 ],
         null,
         insertUnorderedListAction,
         insertOrderedListAction,
@@ -1242,7 +1242,7 @@ public class MainWindow implements Observer {
         insertLinkAction,
         insertImageAction,
         null,
-        headers[ 0 ],
+        headings[ 0 ],
         null,
         insertUnorderedListAction,
         insertOrderedListAction );

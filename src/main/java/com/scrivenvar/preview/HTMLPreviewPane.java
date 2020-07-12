@@ -160,7 +160,7 @@ public final class HTMLPreviewPane extends Pane {
    * The CSS must be rendered in points (pt) not pixels (px) to avoid blurry
    * rendering on some platforms.
    */
-  private final static String HTML_HEADER = "<!DOCTYPE html>"
+  private final static String HTML_PREFIX = "<!DOCTYPE html>"
       + "<html>"
       + "<head>"
       + "<link rel='stylesheet' href='" +
@@ -169,7 +169,7 @@ public final class HTMLPreviewPane extends Pane {
       + "<body>";
 
   // Provide some extra space at the end for scrolling past the last line.
-  private final static String HTML_FOOTER =
+  private final static String HTML_SUFFIX =
       "<p style='height=2em'>&nbsp;</p></body></html>";
 
   private final static W3CDom W3C_DOM = new W3CDom();
@@ -194,8 +194,8 @@ public final class HTMLPreviewPane extends Pane {
   public HTMLPreviewPane() {
     setStyle( "-fx-background-color: white;" );
 
-    // No need to append the header each time the HTML content is updated.
-    mHtmlDocument.append( HTML_HEADER );
+    // No need to append same prefix each time the HTML content is updated.
+    mHtmlDocument.append( HTML_PREFIX );
     mHtmlPrefixLength = mHtmlDocument.length();
 
     // Inject an SVG renderer that produces high-quality SVG buffered images.
@@ -339,12 +339,12 @@ public final class HTMLPreviewPane extends Pane {
   }
 
   private String decorate( final String html ) {
-    // Trim the HTML back to the header.
+    // Trim the HTML back to only the prefix.
     mHtmlDocument.setLength( mHtmlPrefixLength );
 
     // Write the HTML body element followed by closing tags.
     return mHtmlDocument.append( html )
-                        .append( HTML_FOOTER )
+                        .append( HTML_SUFFIX )
                         .toString();
   }
 
