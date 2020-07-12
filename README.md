@@ -44,11 +44,8 @@ java -jar scrivenvar.jar
 
 ## Usage
 
-See the following documents for usage information:
-
-* [docs/definitions.md](definitions.md) -- Definitions and interpolation
-* [docs/r.md](r.md) -- Call R functions within R Markdown documents
-* [docs/svg.md](svg.md) -- Fix known issues with displaying SVG files
+See the [detailed documentation](docs/README.md) for information about
+using the application.
 
 ## Future Features
 
