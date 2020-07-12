@@ -34,8 +34,7 @@ from editor import *
 # -----------------------------------------------------------------------------
 # Open sample chapter.
 # -----------------------------------------------------------------------------
-type( "o", Key.CTRL )
-wait( 1 )
+file_open()
 type( Key.UP, Key.ALT )
 wait( 1 )
 typer( Key.END )
@@ -48,15 +47,14 @@ wait( 1 )
 # -----------------------------------------------------------------------------
 # Open the corresponding definition file.
 # -----------------------------------------------------------------------------
-type( "o", Key.CTRL )
-wait( 1 )
-down()
+file_open()
+recur( 2, down )
 wait( 1 )
 enter()
 wait( 1 )
 
 # -----------------------------------------------------------------------------
-# Start to edit the sample document.
+# Edit the sample document.
 # -----------------------------------------------------------------------------
 set_typing_speed( 80 )
 
@@ -96,7 +94,7 @@ set_typing_speed( 220 )
 typer( " Let's interpolate those four definitions instead!" )
 wait( 4 )
 recur( 13, type, Key.BACKSPACE, Key.CTRL )
-recur( 9, typer, Key.BACKSPACE )
+recur( 9, backspace )
 
 set_typing_speed( 60 )
 
@@ -118,7 +116,7 @@ recur( 2, typer, Key.RIGHT )
 typer( Key.F2 )
 
 # Traverse the text field
-typer( Key.HOME )
+home()
 recur( 16, type, Key.RIGHT, Key.CTRL )
 esc()
 
@@ -134,7 +132,7 @@ autoinsert()
 
 edit_find_next()
 typer( Key.RIGHT )
-recur( 2, typer, Key.DELETE )
+recur( 2, delete )
 autoinsert()
 typer( "'s" )
 
@@ -174,7 +172,7 @@ enter()
 
 tab()
 typer( "Organizing definitions is left to your ")
-typer( "Doub" )
+typer( "doub" )
 wait( .25 )
 autoinsert()
 wait( 1 )
@@ -182,7 +180,7 @@ typer( " Good imagination." )
 tab()
 
 # Jump to "char" definition
-typer( Key.HOME )
+home()
 
 # Jump to "char.a.primary.name" definition
 recur( 6, typer, Key.RIGHT )
@@ -196,4 +194,12 @@ recur( 7, down )
 
 # Reselect "super"
 recur( 5, typer, Key.RIGHT )
-wait( 5 )
+wait( 2 )
+
+# Close the window, no save
+type( "w", Key.CTRL )
+wait( 0.5 )
+tab()
+wait( 0.5 )
+typer( Key.SPACE )
+wait( 1 )

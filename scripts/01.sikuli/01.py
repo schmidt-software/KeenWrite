@@ -51,10 +51,10 @@ set_typing_speed( 240 )
 
 header( "What is this application?" )
 typer( "Well, this application is a text editor that supports interpolated definitions, ")
-typer( "a few different plain text formats, real-time preview, spell check ") 
+typer( "a few different text formats, real-time preview, spell check ") 
 typer( "as you tipe" ) 
 wait( 0.5 )
-recur( 3, typer, Key.BACKSPACE )
+recur( 3, backspace )
 typer( "ype, and R statements." )
 paragraph()
 wait( 1 )
@@ -68,7 +68,7 @@ wait( .5 )
 
 # Focus the definition editor.
 click_create()
-recur( 4, typer, Key.TAB )
+recur( 4, tab )
 
 wait( .5 )
 rename_definition( "application" )
@@ -80,7 +80,7 @@ insert()
 rename_definition( "Scrivenvar" )
 
 # Set focus to the text editor.
-typer( Key.TAB )
+tab()
 
 typer( "The left-hand pane contains a nested, folder-like structure of names " )
 typer( "and values that are called *definitions*. " )
@@ -106,4 +106,4 @@ typer( "Definition values can reference definition names. " )
 wait( .5 )
 typer( "The definition names act as placeholders. Substituting placeholders with " )
 typer( "their defined value is called *interpolation*. Let's see how it works." )
-wait( 3 )
+wait( 2 )
