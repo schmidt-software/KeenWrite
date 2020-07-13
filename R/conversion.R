@@ -201,7 +201,7 @@ commas <- function( n ) {
 # -----------------------------------------------------------------------------
 # Returns a human-readable string that provides the elapsed time between
 # two numbers in terms of years, months, and days. If any unit value is zero,
-# the unit is not included. The words (year, month, day) are pluralised
+# the unit is not included. The words (year, month, day) are pluralized
 # according to English grammar. The numbers are written out according to
 # Chicago Manual of Style. This applies the serial comma.
 #
@@ -287,11 +287,11 @@ elapsed <- function( began, ended, s = "same day" ) {
 # "five wolves".
 # -----------------------------------------------------------------------------
 pl.numeric <- function( s, n ) {
-  concat( cms( n ), concat( " ", pluralise( s, n ) ) )
+  concat( cms( n ), concat( " ", pluralize( s, n ) ) )
 }
 
 # -----------------------------------------------------------------------------
-# Pluralise s if n is not equal to 1.
+# Pluralize s if n is not equal to 1.
 # -----------------------------------------------------------------------------
 pl <- function( s, n=2 ) {
   pluralize( s, x( n ) )

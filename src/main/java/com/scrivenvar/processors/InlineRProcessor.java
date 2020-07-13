@@ -49,6 +49,7 @@ import static com.scrivenvar.decorators.RVariableDecorator.PREFIX;
 import static com.scrivenvar.decorators.RVariableDecorator.SUFFIX;
 import static com.scrivenvar.processors.text.TextReplacementFactory.replace;
 import static java.lang.Math.min;
+import static java.lang.String.format;
 
 /**
  * Transforms a document containing R statements into Markdown.
@@ -116,6 +117,8 @@ public final class InlineRProcessor extends DefinitionProcessor {
    * called multiple times.
    */
   private void init() {
+    getNotifier().clear();
+
     try {
       final var bootstrap = getBootstrapScript();
 
@@ -127,8 +130,6 @@ public final class InlineRProcessor extends DefinitionProcessor {
 
         eval( replace( bootstrap, map ) );
       }
-
-      getNotifier().clear();
     } catch( final Exception ex ) {
       getNotifier().notify( ex );
     }
@@ -165,6 +166,8 @@ public final class InlineRProcessor extends DefinitionProcessor {
    */
   @Override
   public String process( final String text ) {
+    getNotifier().clear();
+
     final int length = text.length();
 
     // The * 2 is a wild guess at the ratio of R statements to the length
@@ -239,9 +242,13 @@ public final class InlineRProcessor extends DefinitionProcessor {
     try {
       return getScriptEngine().eval( r );
     } catch( final ScriptException ex ) {
-      getNotifier().notify( ex );
-      return "";
+      final String expr = r.substring( 0, min( r.length(), 30 ) );
+      final String msg = format(
+          "Error with [%s...]: %s", expr, ex.getMessage() );
+      getNotifier().notify( msg );
     }
+
+    return "";
   }
 
   /**
