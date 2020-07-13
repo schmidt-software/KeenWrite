@@ -148,6 +148,7 @@ public class MainWindow implements Observer {
       mTreeHandler = event -> {
     exportDefinitions( getDefinitionPath() );
     interpolateResolvedMap();
+    resetProcessors();
     renderActiveTab();
   };
 
