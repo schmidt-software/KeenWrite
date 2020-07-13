@@ -36,7 +36,7 @@ from editor import *
 # ---------------------------------------------------------------
 rm( app_home + "/variables.yaml" )
 rm( app_home + "/untitled.md" )
-rm( home + "/.scrivenvar" )
+rm( dir_home + "/.scrivenvar" )
 
 # ---------------------------------------------------------------
 # Wait for application to launch
@@ -49,7 +49,7 @@ wait("1594187265140.png", 30)
 # ---------------------------------------------------------------
 set_typing_speed( 240 )
 
-header( "What is this application?" )
+heading( "What is this application?" )
 typer( "Well, this application is a text editor that supports interpolated definitions, ")
 typer( "a few different text formats, real-time preview, spell check ") 
 typer( "as you tipe" ) 
@@ -62,7 +62,7 @@ wait( 1 )
 # ---------------------------------------------------------------
 # Definition demo
 # ---------------------------------------------------------------
-header( "What are definitions?" )
+heading( "What are definitions?" )
 typer( "Watch. " )
 wait( .5 )
 
@@ -101,9 +101,9 @@ typer( "values into the document." )
 wait( 2 )
 paragraph()
 
-header( "What is interpolation?" )
+heading( "What is interpolation?" )
 typer( "Definition values can reference definition names. " )
 wait( .5 )
 typer( "The definition names act as placeholders. Substituting placeholders with " )
-typer( "their defined value is called *interpolation*. Let's see how it works." )
+typer( "their definition value is called *interpolation*. Let's see how it works." )
 wait( 2 )

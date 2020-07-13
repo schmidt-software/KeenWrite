@@ -32,8 +32,8 @@ import sys
 import os
 from os.path import expanduser
 
-home = expanduser( "~" )
-app_home = home + "/bin"
+dir_home = expanduser( "~" )
+app_home = dir_home + "/bin"
 app_bin = app_home + "/scrivenvar.jar"
 
 wpm_default_speed = 80
@@ -91,6 +91,13 @@ def typer( text ):
     for c in text:
         type( c )
         random_wait()
+
+# -----------------------------------------------------------------------------
+# Type a line of text followed by typing the ENTER key.
+# -----------------------------------------------------------------------------
+def typeln( text ):
+    typer( text )
+    enter()
 
 # -----------------------------------------------------------------------------
 # Injects a definition.
@@ -174,7 +181,7 @@ def paragraph():
 # -----------------------------------------------------------------------------
 # Writes a heading to the document using the given text value as the content.
 # -----------------------------------------------------------------------------
-def header( text ):
+def heading( text ):
     typer( "# " + text )
     paragraph()
 
