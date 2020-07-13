@@ -31,13 +31,17 @@ import com.scrivenvar.Services;
 import com.scrivenvar.preferences.UserPreferences;
 import com.scrivenvar.service.Options;
 import com.scrivenvar.service.events.Notifier;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.StringProperty;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
+import java.io.File;
 import java.nio.file.Path;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.scrivenvar.Constants.STATUS_PARSE_ERROR;
 import static com.scrivenvar.Messages.get;
@@ -78,6 +82,8 @@ public final class InlineRProcessor extends DefinitionProcessor {
 
   private static final int PREFIX_LENGTH = PREFIX.length();
 
+  private final AtomicBoolean mDirty = new AtomicBoolean( false );
+
   /**
    * Constructs a processor capable of evaluating R statements.
    *
@@ -88,27 +94,64 @@ public final class InlineRProcessor extends DefinitionProcessor {
       final Processor<String> processor,
       final Map<String, String> map ) {
     super( processor, map );
+
+    bootstrapScriptProperty().addListener(
+        ( ob, oldScript, newScript ) -> setDirty( true ) );
+    workingDirectoryProperty().addListener(
+        ( ob, oldScript, newScript ) -> setDirty( true ) );
+
+    getUserPreferences().addSaveEventHandler( ( handler ) -> {
+      if( isDirty() ) {
+        init();
+        setDirty( false );
+      }
+    } );
+
     init();
   }
 
   /**
-   * Initialises the R code so that R can find imported libraries.
+   * Initialises the R code so that R can find imported libraries. Note that
+   * any existing R functionality will not be overwritten if this method is
+   * called multiple times.
    */
   private void init() {
     try {
-      final Path wd = getWorkingDirectory();
-      final String dir = wd.toString().replace( '\\', '/' );
-      final Map<String, String> map = getDefinitions();
-      map.put( "$application.r.working.directory$", dir );
-
-      final String bootstrap = getBootstrapScript();
+      final var bootstrap = getBootstrapScript();
 
       if( !bootstrap.isBlank() ) {
+        final var wd = getWorkingDirectory();
+        final var dir = wd.toString().replace( '\\', '/' );
+        final var map = getDefinitions();
+        map.put( "$application.r.working.directory$", dir );
+
         eval( replace( bootstrap, map ) );
       }
+
+      getNotifier().clear();
     } catch( final Exception ex ) {
       getNotifier().notify( ex );
     }
+  }
+
+  /**
+   * Sets the dirty flag to indicate that the bootstrap script or working
+   * directory has been modified. Upon saving the preferences, if this flag
+   * is true, then {@link #init()} will be called to reload the R environment.
+   *
+   * @param dirty Set to true to reload changes upon closing preferences.
+   */
+  private void setDirty( final boolean dirty ) {
+    mDirty.set( dirty );
+  }
+
+  /**
+   * Answers whether R-related settings have been modified.
+   *
+   * @return {@code true} when the settings have changed.
+   */
+  private boolean isDirty() {
+    return mDirty.get();
   }
 
   /**
@@ -202,8 +245,8 @@ public final class InlineRProcessor extends DefinitionProcessor {
   }
 
   /**
-   * This will return the given path if not null, otherwise it will return
-   * the path to the user's directory.
+   * Return the given path if not {@code null}, otherwise return the path to
+   * the user's directory.
    *
    * @return A non-null path.
    */
@@ -211,13 +254,21 @@ public final class InlineRProcessor extends DefinitionProcessor {
     return getUserPreferences().getRDirectory().toPath();
   }
 
+  private ObjectProperty<File> workingDirectoryProperty() {
+    return getUserPreferences().rDirectoryProperty();
+  }
+
   /**
    * Loads the R init script from the application's persisted preferences.
    *
-   * @return A non-null String, possibly empty.
+   * @return A non-null string, possibly empty.
    */
   private String getBootstrapScript() {
     return getUserPreferences().getRScript();
+  }
+
+  private StringProperty bootstrapScriptProperty() {
+    return getUserPreferences().rScriptProperty();
   }
 
   private UserPreferences getUserPreferences() {

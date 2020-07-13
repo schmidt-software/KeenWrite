@@ -29,6 +29,7 @@ package com.scrivenvar.preferences;
 
 import com.dlsc.formsfx.model.structure.StringField;
 import com.dlsc.preferencesfx.PreferencesFx;
+import com.dlsc.preferencesfx.PreferencesFxEvent;
 import com.dlsc.preferencesfx.model.Category;
 import com.dlsc.preferencesfx.model.Group;
 import com.dlsc.preferencesfx.model.Setting;
@@ -38,6 +39,7 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 
@@ -196,6 +198,18 @@ public class UserPreferences {
   }
 
   /**
+   * Delegates to the {@link PreferencesFx} event handler for monitoring
+   * save events.
+   *
+   * @param eventHandler The handler to call when the preferences are saved.
+   */
+  public void addSaveEventHandler(
+      final EventHandler<? super PreferencesFxEvent> eventHandler ) {
+    final var eventType = PreferencesFxEvent.EVENT_PREFERENCES_SAVED;
+    mPreferencesFx.addEventHandler( eventType, eventHandler );
+  }
+
+  /**
    * Returns the value for a key from the settings properties file.
    *
    * @param key   Key within the settings properties file to find.
@@ -216,7 +230,7 @@ public class UserPreferences {
     return definitionPathProperty().getValue().toPath();
   }
 
-  private ObjectProperty<File> rDirectoryProperty() {
+  public ObjectProperty<File> rDirectoryProperty() {
     return mPropRDirectory;
   }
 
@@ -224,7 +238,7 @@ public class UserPreferences {
     return rDirectoryProperty().getValue();
   }
 
-  private StringProperty rScriptProperty() {
+  public StringProperty rScriptProperty() {
     return mPropRScript;
   }
 
