@@ -27,6 +27,7 @@
  */
 package com.scrivenvar;
 
+import com.dlsc.preferencesfx.PreferencesFxEvent;
 import com.scrivenvar.definition.DefinitionFactory;
 import com.scrivenvar.definition.DefinitionPane;
 import com.scrivenvar.definition.DefinitionSource;
@@ -141,6 +142,11 @@ public class MainWindow implements Observer {
   private final Map<String, String> mResolvedMap =
       new HashMap<>( DEFAULT_MAP_SIZE );
 
+  private final EventHandler<PreferencesFxEvent> mRPreferencesListener =
+      event -> {
+        rerender();
+      };
+
   /**
    * Called when the definition data is changed.
    */
@@ -148,8 +154,7 @@ public class MainWindow implements Observer {
       mTreeHandler = event -> {
     exportDefinitions( getDefinitionPath() );
     interpolateResolvedMap();
-    resetProcessors();
-    renderActiveTab();
+    rerender();
   };
 
   /**
@@ -302,12 +307,21 @@ public class MainWindow implements Observer {
     getFileEditorPane().onOpenDefinitionFileProperty().addListener(
         ( final ObservableValue<? extends Path> file,
           final Path oldPath, final Path newPath ) -> {
-          // Indirectly refresh the resolved map.
-          resetProcessors();
-
           openDefinitions( newPath );
+          rerender();
+        }
+    );
+  }
 
-          // Will create new processors and therefore a new resolved map.
+  /**
+   * Re-instantiates all processors then re-renders the active tab. This
+   * will refresh the resolved map, force R to re-initialize, and brute-force
+   * XSLT file reloads.
+   */
+  private void rerender() {
+    runLater(
+        () -> {
+          resetProcessors();
           renderActiveTab();
         }
     );
@@ -442,6 +456,7 @@ public class MainWindow implements Observer {
   private void initPreferences() {
     initDefinitionPane();
     getFileEditorPane().initPreferences();
+    getUserPreferences().addSaveEventHandler( mRPreferencesListener );
   }
 
   private void initVariableNameInjector() {
@@ -674,13 +689,7 @@ public class MainWindow implements Observer {
    * Called when a file has been modified.
    */
   private void updateSelectedTab() {
-    runLater(
-        () -> {
-          // Brute-force XSLT file reload by re-instantiating all processors.
-          resetProcessors();
-          renderActiveTab();
-        }
-    );
+    rerender();
   }
 
   /**
