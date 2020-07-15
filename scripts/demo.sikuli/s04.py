@@ -24,6 +24,7 @@
 # -----------------------------------------------------------------------------
 # This script demonstrates using R.
 # -----------------------------------------------------------------------------
+from sikuli import *
 import sys
 
 if not "../editor.sikuli" in sys.path:
@@ -40,13 +41,13 @@ file_open()
 type( Key.UP, Key.ALT )
 wait( 0.5 )
 end()
-wait( 0.25 )
+wait( 0.5 )
 enter()
 wait( 0.5 )
 down()
-wait( 0.25 )
+wait( 0.5 )
 enter()
-wait( 1 )
+wait( 2 )
 
 # -----------------------------------------------------------------------------
 # Re-open the corresponding definition file.
@@ -55,7 +56,7 @@ file_open()
 recur( 2, down )
 wait( 1 )
 enter()
-wait( 1 )
+wait( 2 )
 
 # -----------------------------------------------------------------------------
 # Brief introduction to R
@@ -192,7 +193,8 @@ typer( "open `data.csv` from one directory above the *working directory*." )
 paragraph()
 heading( "Export" )
 typer( "Retrieve the output HTML by using the **Edit > Copy HTML** menu. Let's " )
-typer( "look at the output document." )
+typer( "peek at the output." )
+wait( 2 )
 
 type( "e", Key.ALT )
 wait( 0.5 )
@@ -204,3 +206,27 @@ wait( 0.25 )
 type( "a", Key.CTRL )
 wait( 0.25 )
 type( "v", Key.CTRL )
+wait( 5 )
+
+set_typing_speed( 40 )
+
+# Jump to page bottom (should already be there, but just in case)
+type( Key.END, Key.CTRL )
+recur( 3, typer, Key.PAGE_UP )
+type( Key.HOME, Key.CTRL )
+wait( 3 )
+
+set_typing_speed( 220 )
+type( "z", Key.CTRL )
+type( Key.END, Key.CTRL )
+
+paragraph()
+typer( "That's all for now, thank you!" )
+wait( 5 )
+
+# Delete the anchor date.
+tab()
+end()
+recur( 2, type, Key.UP )
+delete()
+tab()

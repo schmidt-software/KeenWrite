@@ -24,6 +24,7 @@
 # -----------------------------------------------------------------------------
 # This script demonstrates how to use interpolated strings.
 # -----------------------------------------------------------------------------
+from sikuli import *
 import sys
 
 if not "../editor.sikuli" in sys.path:
@@ -173,9 +174,7 @@ enter()
 tab()
 typer( "Organizing definitions is left to your ")
 typer( "doub" )
-wait( .25 )
 autoinsert()
-wait( 1 )
 typer( " Good imagination." )
 tab()
 

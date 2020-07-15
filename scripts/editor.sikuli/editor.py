@@ -36,8 +36,7 @@ dir_home = expanduser( "~" )
 app_home = dir_home + "/bin"
 app_bin = app_home + "/scrivenvar.jar"
 
-wpm_default_speed = 80
-wpm_typing_speed = wpm_default_speed
+wpm_typing_speed = 80
 
 # -----------------------------------------------------------------------------
 # Try to delete the file pointed to by the path variable. If there is no such
@@ -55,9 +54,6 @@ def rm( path ):
 def set_typing_speed( wpm ):
     global wpm_typing_speed
     wpm_typing_speed = wpm
-
-def restore_typing_speed():
-    set_typing_speed( wpm_default_speed )
 
 # -----------------------------------------------------------------------------
 # Creates a delay between keystrokes to emulate typing at a particular speed.
@@ -80,14 +76,13 @@ def random_wait():
 # -----------------------------------------------------------------------------
 def recur( n, f, *args ):
     for i in range( n ):
-        f(*args)
+        f( *args )
         random_wait()
 
 # -----------------------------------------------------------------------------
 # Emulate a typist who is typing in the given text.
 # -----------------------------------------------------------------------------
 def typer( text ):
-    # ~25 is a reasonably realistic, fast typist.
     for c in text:
         type( c )
         random_wait()

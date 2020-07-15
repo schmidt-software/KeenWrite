@@ -24,6 +24,7 @@
 # -----------------------------------------------------------------------------
 # This script introduces the editor and its purpose.
 # -----------------------------------------------------------------------------
+from sikuli import *
 import sys
 
 if not "../editor.sikuli" in sys.path:
@@ -44,6 +45,10 @@ rm( dir_home + "/.scrivenvar" )
 openApp( "java -jar " + app_bin )
 
 wait("1594187265140.png", 30)
+
+# Breathing room for video recording.
+wait( 4 )
+
 # ---------------------------------------------------------------
 # Introduction
 # ---------------------------------------------------------------
@@ -97,8 +102,15 @@ typer( "$application.title$" )
 type( Key.END, Key.CTRL )
 
 typer( "The right-hand pane shows the result after having substituted definition " )
-typer( "values into the document." )
-wait( 2 )
+typer( "values into the document." ) 
+
+paragraph()
+typer( "Now nobody wants to type definition names all the time. Instead, type any " )
+typer( "partial definition value followed by `Ctrl+Space`, such as: scr" )
+wait( 0.5 )
+autoinsert()
+wait( 1 )
+typer( ". *Much* better!" )
 paragraph()
 
 heading( "What is interpolation?" )

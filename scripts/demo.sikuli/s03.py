@@ -24,6 +24,7 @@
 # -----------------------------------------------------------------------------
 # This script introduces images and R.
 # -----------------------------------------------------------------------------
+from sikuli import *
 import sys
 
 if not "../editor.sikuli" in sys.path:
@@ -89,7 +90,7 @@ typer( "*working directory* is the full path to those R files; the *startup scri
 typer( "defines what R files to load. Both preferences must be changed before prose " )
 typer( "may be processed. Preferences can be opened using either the " )
 typeln( "**Edit > Preferences** menu or by pressing `Ctrl+Alt+s`. Here goes!" ) 
-wait( 5 )
+wait( 2 )
 
 # -----------------------------------------------------------------------------
 # Select the R script directory
@@ -127,14 +128,13 @@ click("1594593710440.png")
 set_typing_speed( 440 )
 
 typeln( "setwd( '$application.r.working.directory$' )" )
-typeln( "assign( ""anchor"", '$date.anchor$', envir = .GlobalEnv )" )
+typeln( "assign( 'anchor', '$date.anchor$', envir = .GlobalEnv )" )
 typeln( "source( 'pluralize.R' )" )
 typeln( "source( 'possessive.R' )" )
 typeln( "source( 'conversion.R' )" )
 typeln( "source( 'csv.R' )" )
-wait( 2 )
 
-wait("1594593794335.png", 5)
+wait("1594593794335.png", 3)
 click("1594593794335.png")
 
 paragraph()
@@ -143,13 +143,14 @@ set_typing_speed( 220 )
 typer( "R is now configured. The startup script and other R " )
 typer( "files can be found in the " )
 typer( "[repository](https://github.com/DaveJarvis/scrivenvar/tree/master/R). " )
-wait( 2.25 )
+wait( 1.5 )
 
+# Wait for the browser to appear.
 wait("1594594984108.png", 5)
 click("1594594984108.png")
 
 wait( 5 )
-click("1594595370191.png")
+click("1594689573764.png")
 
 paragraph()
 typer( "Next, we'll see how definitions and R can work together." )
