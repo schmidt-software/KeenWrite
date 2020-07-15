@@ -54,7 +54,7 @@ using the application.
 
 ## Screenshot
 
-![Screenshot](images/screenshot.png)
+![Screenshot](docs/images/screenshot.png)
 
 ## License
 
