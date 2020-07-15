@@ -33,9 +33,6 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.RoundRectangle2D;
 
-import static java.awt.GraphicsDevice.WindowTranslucency.PERPIXEL_TRANSPARENT;
-import static java.awt.GraphicsDevice.WindowTranslucency.TRANSLUCENT;
-
 /**
  * This class is responsible for logging key presses and mouse clicks on the
  * screen. While there is a plethora of software out here that does this,
@@ -43,6 +40,15 @@ import static java.awt.GraphicsDevice.WindowTranslucency.TRANSLUCENT;
  * show single key stroke or chord, shows left/right mouse clicks, shows
  * release of modifier keys when quickly typing, and traps all keys typed
  * from within Sikuli.
+ * <p>
+ * When using the XFCE Window Manager, enable compositing as follows:
+ * </p>
+ * <ol>
+ *   <li>Open the Xfce Applications Menu.</li>
+ *   <li>Click Settings, Settings Editor.</li>
+ *   <li>Select xfwm4, near the bottom left.</li>
+ *   <li>Check the value column for use_compositing.</li>
+ * </ol>
  */
 @SuppressWarnings("unused")
 public class KeyCast {
@@ -76,20 +82,20 @@ public class KeyCast {
 
   private static class EventFrame extends JFrame {
     public EventFrame() {
+      setDefaultLookAndFeelDecorated( true );
       setUndecorated( true );
       setAlwaysOnTop( true );
-      setOpacity( 0.7f );
-      //setBackground( new Color( 33, 33, 33, 22 ) );
+      setBackground( new Color( .2f, .2f, .2f, 0.5f ) );
+      //setOpacity( 0.55f );
+      setLocationRelativeTo( null );
 
       setSize( FRAME_WIDTH, FRAME_HEIGHT );
-
       setShape( new RoundRectangle2D.Double(
           0, 0, getWidth(), getHeight(), ARC, ARC ) );
 
       FrameDragListener frameDragListener = new FrameDragListener( this );
       addMouseListener( frameDragListener );
       addMouseMotionListener( frameDragListener );
-      setLocationRelativeTo( null );
     }
   }
 
@@ -103,20 +109,6 @@ public class KeyCast {
   }
 
   public static void main( final String[] args ) {
-
-    // Determine what the GraphicsDevice can support.
-    GraphicsEnvironment ge =
-        GraphicsEnvironment.getLocalGraphicsEnvironment();
-    GraphicsDevice gd = ge.getDefaultScreenDevice();
-    final boolean isTranslucencySupported =
-        gd.isWindowTranslucencySupported(TRANSLUCENT);
-
-    //If shaped windows aren't supported, exit.
-    if (!gd.isWindowTranslucencySupported(PERPIXEL_TRANSPARENT)) {
-      System.err.println("Shaped windows are not supported");
-      System.exit(0);
-    }
-
     final var kc = new KeyCast();
     kc.show();
   }
