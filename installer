@@ -70,7 +70,7 @@ execute() {
 utile_configure_target() {
   if [ "${ARG_JAVA_OS}" = "windows" ]; then
     ARCHIVE_EXT="zip"
-    ARCHIVE_APP="unzip"
+    ARCHIVE_APP="unzip -qq"
     FILE_DIST_EXEC="run.bat"
     APP_EXTENSION="exe"
     do_create_launch_script=utile_create_launch_script_windows
@@ -117,7 +117,7 @@ utile_extract_java() {
   fi
 
   $log "Unpack ${path_java}"
-  $ARCHIVE_APP -qq "${path_java}"
+  $ARCHIVE_APP "${path_java}"
 
   local -r dir_java="${java_vm}-${ARG_JAVA_VERSION}-full"
 
