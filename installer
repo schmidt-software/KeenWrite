@@ -12,11 +12,11 @@ source $HOME/bin/build-template
 readonly APP_NAME=$(find "${SCRIPT_DIR}/src" -type f -name "settings.properties" -exec cat {} \; | grep "application.title=" | cut -d'=' -f2)
 readonly FILE_APP_JAR="${APP_NAME}.jar"
 
-ARG_JRE_OS="linux"
-ARG_JRE_ARCH="amd64"
-ARG_JRE_VERSION="14.0.1"
-ARG_JRE_UPDATE="8"
-ARG_JRE_DIR="jre"
+ARG_JAVA_OS="linux"
+ARG_JAVA_ARCH="amd64"
+ARG_JAVA_VERSION="14.0.2"
+ARG_JAVA_UPDATE="13"
+ARG_JAVA_DIR="java"
 
 ARG_DIR_DIST="dist"
 
@@ -35,8 +35,8 @@ ARGUMENTS+=(
   "a,arch,Target operating system architecture (amd64)"
   "b,build,Suppress building application"
   "o,os,Target operating system (linux, windows, mac)"
-  "u,update,Java update version number (${ARG_JRE_UPDATE})"
-  "v,version,Full Java version (${ARG_JRE_VERSION})"
+  "u,update,Java update version number (${ARG_JAVA_UPDATE})"
+  "v,version,Full Java version (${ARG_JAVA_VERSION})"
 )
 
 ARCHIVE_EXT="tar.gz"
@@ -53,7 +53,7 @@ execute() {
 
   pushd "${ARG_DIR_DIST}" > /dev/null 2>&1
 
-  $do_extract_jre
+  $do_extract_java
   $do_create_launch_script
   $do_copy_archive
 
@@ -68,9 +68,9 @@ execute() {
 # Configure platform-specific commands and file names.
 # ---------------------------------------------------------------------------
 utile_configure_target() {
-  if [ "${ARG_JRE_OS}" = "windows" ]; then
+  if [ "${ARG_JAVA_OS}" = "windows" ]; then
     ARCHIVE_EXT="zip"
-    ARCHIVE_APP="unzip -qq"
+    ARCHIVE_APP="unzip"
     FILE_DIST_EXEC="run.bat"
     APP_EXTENSION="exe"
     do_create_launch_script=utile_create_launch_script_windows
@@ -81,8 +81,8 @@ utile_configure_target() {
 # Build platform-specific überjar.
 # ---------------------------------------------------------------------------
 utile_build() {
-  $log "Build application for ${ARG_JRE_OS}"
-  gradle clean jar -PtargetOs="${ARG_JRE_OS}"
+  $log "Build application for ${ARG_JAVA_OS}"
+  gradle clean jar -PtargetOs="${ARG_JAVA_OS}"
 }
 
 # ---------------------------------------------------------------------------
@@ -101,27 +101,28 @@ utile_clean() {
 # On subsequent runs, the cached version is used, instead of issuing another
 # download.
 # ---------------------------------------------------------------------------
-utile_extract_jre() {
-  $log "Extract JRE"
-  local -r jre_version="${ARG_JRE_VERSION}+${ARG_JRE_UPDATE}"
-  local -r url_jdk="https://download.bell-sw.com/java/${jre_version}/bellsoft-jre${jre_version}-${ARG_JRE_OS}-${ARG_JRE_ARCH}-full.${ARCHIVE_EXT}"
+utile_extract_java() {
+  $log "Extract Java"
+  local -r java_vm="jre"
+  local -r java_version="${ARG_JAVA_VERSION}+${ARG_JAVA_UPDATE}"
+  local -r url_java="https://download.bell-sw.com/java/${java_version}/bellsoft-${java_vm}${java_version}-${ARG_JAVA_OS}-${ARG_JAVA_ARCH}-full.${ARCHIVE_EXT}"
 
-  local -r file_jdk="jre-${jre_version}-${ARG_JRE_OS}-${ARG_JRE_ARCH}.${ARCHIVE_EXT}"
-  local -r path_jdk="/tmp/${file_jdk}"
+  local -r file_java="${java_vm}-${java_version}-${ARG_JAVA_OS}-${ARG_JAVA_ARCH}.${ARCHIVE_EXT}"
+  local -r path_java="/tmp/${file_java}"
 
   # File must have contents.
-  if [ ! -s ${path_jdk} ]; then
-    $log "Download ${url_jdk} to ${path_jdk}"
-    wget -q "${url_jdk}" -O "${path_jdk}"
+  if [ ! -s ${path_java} ]; then
+    $log "Download ${url_java} to ${path_java}"
+    wget -q "${url_java}" -O "${path_java}"
   fi
 
-  $log "Unpack ${path_jdk}"
-  $ARCHIVE_APP "${path_jdk}"
+  $log "Unpack ${path_java}"
+  $ARCHIVE_APP -qq "${path_java}"
 
-  local -r dir_jdk="jre-${ARG_JRE_VERSION}-full"
+  local -r dir_java="${java_vm}-${ARG_JAVA_VERSION}-full"
 
-  $log "Rename ${dir_jdk}-jre to ${ARG_JRE_DIR}"
-  mv "${dir_jdk}" "${ARG_JRE_DIR}"
+  $log "Rename ${dir_java} to ${ARG_JAVA_DIR}"
+  mv "${dir_java}" "${ARG_JAVA_DIR}"
 }
 
 # ---------------------------------------------------------------------------
@@ -136,7 +137,7 @@ utile_create_launch_script_linux() {
 readonly SCRIPT_SRC="\$(dirname "\${BASH_SOURCE[\${#BASH_SOURCE[@]} - 1]}")"
 readonly SCRIPT_DIR="\$(cd "\${SCRIPT_SRC}" >/dev/null 2>&1 && pwd)"
 
-"\${SCRIPT_DIR}/${ARG_JRE_DIR}/bin/java" -jar "\${SCRIPT_DIR}/${FILE_APP_JAR}" "\$@"
+"\${SCRIPT_DIR}/${ARG_JAVA_DIR}/bin/java.exe" -jar "\${SCRIPT_DIR}/${FILE_APP_JAR}" "\$@"
 __EOT
 
   chmod +x "${FILE_DIST_EXEC}"
@@ -152,7 +153,7 @@ utile_create_launch_script_windows() {
 @echo off
 
 set SCRIPT_DIR=%~dp0
-"%SCRIPT_DIR%jre\\bin\\java" -jar "%SCRIPT_DIR%\\scrivenvar.jar" %*
+"%SCRIPT_DIR%\\${ARG_JAVA_DIR}\\bin\\java" -jar "%SCRIPT_DIR%\\scrivenvar.jar" %*
 __EOT
 
   # Convert Unix end of line characters (\n) to Windows format (\r\n).
@@ -175,12 +176,12 @@ utile_create_launcher() {
   $log "Create ${APP_NAME}.${APP_EXTENSION}"
 
   # Download uses amd64, but warp-packer differs.
-  if [ "${ARG_JRE_ARCH}" = "amd64" ]; then
-    ARG_JRE_ARCH="x64"
+  if [ "${ARG_JAVA_ARCH}" = "amd64" ]; then
+    ARG_JAVA_ARCH="x64"
   fi
 
   warp-packer \
-    --arch "${ARG_JRE_OS}-${ARG_JRE_ARCH}" \
+    --arch "${ARG_JAVA_OS}-${ARG_JAVA_ARCH}" \
     --input_dir "${ARG_DIR_DIST}" \
     --exec "${FILE_DIST_EXEC}" \
     --output "${APP_NAME}.${APP_EXTENSION}" > /dev/null
@@ -193,20 +194,20 @@ argument() {
 
   case "$1" in
     -a|--arch)
-    ARG_JRE_ARCH="$2"
+    ARG_JAVA_ARCH="$2"
     ;;
     -b|--build)
     do_build=noop
     consume=1
     ;;
     -o|--os)
-    ARG_JRE_OS="$2"
+    ARG_JAVA_OS="$2"
     ;;
     -u|--update)
-    ARG_JRE_UPDATE="$2"
+    ARG_JAVA_UPDATE="$2"
     ;;
     -v|--version)
-    ARG_JRE_VERSION="$2"
+    ARG_JAVA_VERSION="$2"
     ;;
   esac
 
@@ -216,7 +217,7 @@ argument() {
 do_configure_target=utile_configure_target
 do_build=utile_build
 do_clean=utile_clean
-do_extract_jre=utile_extract_jre
+do_extract_java=utile_extract_java
 do_create_launch_script=utile_create_launch_script_linux
 do_copy_archive=utile_copy_archive
 do_create_launcher=utile_create_launcher
