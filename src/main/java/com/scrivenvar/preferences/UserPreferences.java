@@ -33,12 +33,7 @@ import com.dlsc.preferencesfx.PreferencesFxEvent;
 import com.dlsc.preferencesfx.model.Category;
 import com.dlsc.preferencesfx.model.Group;
 import com.dlsc.preferencesfx.model.Setting;
-import com.scrivenvar.Services;
-import com.scrivenvar.service.Settings;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
+import javafx.beans.property.*;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
@@ -54,7 +49,7 @@ import static com.scrivenvar.Messages.get;
  * settings are displayed and persisted using {@link PreferencesFx}.
  */
 public class UserPreferences {
-  private final Settings SETTINGS = Services.load( Settings.class );
+  private final PreferencesFx mPreferencesFx;
 
   private final ObjectProperty<File> mPropRDirectory;
   private final StringProperty mPropRScript;
@@ -63,8 +58,7 @@ public class UserPreferences {
   private final ObjectProperty<File> mPropDefinitionPath;
   private final StringProperty mRDelimiterBegan;
   private final StringProperty mRDelimiterEnded;
-
-  private final PreferencesFx mPreferencesFx;
+  private final DoubleProperty mPropFontAntialias;
 
   public UserPreferences() {
     mPropRDirectory = simpleFile( USER_DIRECTORY );
@@ -73,13 +67,16 @@ public class UserPreferences {
     mPropImagesDirectory = simpleFile( USER_DIRECTORY );
     mPropImagesOrder = new SimpleStringProperty( PERSIST_IMAGES_DEFAULT );
 
-    mPropDefinitionPath = simpleFile( getSetting(
-        "file.definition.default", "variables.yaml" )
+    mPropDefinitionPath = simpleFile(
+        getSetting( "file.definition.default", DEFINITION_NAME )
     );
 
     mRDelimiterBegan = new SimpleStringProperty( R_DELIMITER_BEGAN_DEFAULT );
     mRDelimiterEnded = new SimpleStringProperty( R_DELIMITER_ENDED_DEFAULT );
 
+    mPropFontAntialias = new SimpleDoubleProperty( FONT_ANTIALIAS_THRESHOLD );
+
+    // All properties must be initialized before creating the dialog.
     mPreferencesFx = createPreferencesFx();
   }
 
@@ -158,6 +155,14 @@ public class UserPreferences {
                 get( "Preferences.definitions.path" ),
                 Setting.of( label( "Preferences.definitions.path.desc" ) ),
                 Setting.of( "Path", mPropDefinitionPath, false )
+            )
+        ),
+        Category.of(
+            get( "Preferences.fonts" ),
+            Group.of(
+                get( "Preferences.fonts.antialias" ),
+                Setting.of( label( "Preferences.fonts.antialias.desc" ) ),
+                Setting.of( "Antialiasing", mPropFontAntialias )
             )
         )
     );
@@ -276,5 +281,13 @@ public class UserPreferences {
 
   public String getImagesOrder() {
     return imagesOrderProperty().getValue();
+  }
+
+  public DoubleProperty fontsAntialiasProperty() {
+    return mPropFontAntialias;
+  }
+
+  public float getFontsAntialias() {
+    return mPropFontAntialias.floatValue();
   }
 }

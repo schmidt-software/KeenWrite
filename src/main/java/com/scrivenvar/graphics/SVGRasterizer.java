@@ -25,7 +25,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.scrivenvar.preview;
+package com.scrivenvar.graphics;
 
 import com.scrivenvar.Services;
 import com.scrivenvar.service.events.Notifier;
@@ -43,10 +43,9 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.StringReader;
 import java.net.URL;
-import java.util.Map;
 
+import static com.scrivenvar.graphics.RenderingSettings.RENDERING_HINTS;
 import static java.awt.Color.WHITE;
-import static java.awt.RenderingHints.*;
 import static java.awt.image.BufferedImage.TYPE_INT_RGB;
 import static org.apache.batik.transcoder.SVGAbstractTranscoder.KEY_WIDTH;
 import static org.apache.batik.transcoder.image.ImageTranscoder.KEY_BACKGROUND_COLOR;
@@ -60,27 +59,6 @@ public class SVGRasterizer {
 
   private final static SAXSVGDocumentFactory mFactory =
       new SAXSVGDocumentFactory( getXMLParserClassName() );
-
-  public final static Map<Object, Object> RENDERING_HINTS = Map.of(
-      KEY_ANTIALIASING,
-      VALUE_ANTIALIAS_ON,
-      KEY_ALPHA_INTERPOLATION,
-      VALUE_ALPHA_INTERPOLATION_QUALITY,
-      KEY_COLOR_RENDERING,
-      VALUE_COLOR_RENDER_QUALITY,
-      KEY_DITHERING,
-      VALUE_DITHER_DISABLE,
-      KEY_FRACTIONALMETRICS,
-      VALUE_FRACTIONALMETRICS_ON,
-      KEY_INTERPOLATION,
-      VALUE_INTERPOLATION_BICUBIC,
-      KEY_RENDERING,
-      VALUE_RENDER_QUALITY,
-      KEY_STROKE_CONTROL,
-      VALUE_STROKE_PURE,
-      KEY_TEXT_ANTIALIASING,
-      VALUE_TEXT_ANTIALIAS_ON
-  );
 
   public final static Image BROKEN_IMAGE_PLACEHOLDER;
 

@@ -25,35 +25,27 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.scrivenvar.service.events.impl;
+package com.scrivenvar.adapters;
 
-import javafx.scene.Node;
-import javafx.scene.control.ButtonBar;
-import javafx.scene.control.DialogPane;
-
-import static com.scrivenvar.Constants.SETTINGS;
-import static javafx.scene.control.ButtonBar.BUTTON_ORDER_WINDOWS;
+import org.xhtmlrenderer.event.DocumentListener;
 
 /**
- * Ensures a consistent button order for alert dialogs across platforms (because
- * the default button order on Linux defies all logic).
+ * Allows subclasses to implement specific events.
  */
-public class ButtonOrderPane extends DialogPane {
+public class DocumentAdapter implements DocumentListener {
+  @Override
+  public void documentStarted() {
+  }
 
   @Override
-  protected Node createButtonBar() {
-    final var node = (ButtonBar) super.createButtonBar();
-    node.setButtonOrder( getButtonOrder() );
-    return node;
+  public void documentLoaded() {
   }
 
-  private String getButtonOrder() {
-    return getSetting( "dialog.alert.button.order.windows",
-                       BUTTON_ORDER_WINDOWS );
+  @Override
+  public void onLayoutException( final Throwable t ) {
   }
 
-  @SuppressWarnings("SameParameterValue")
-  private String getSetting( final String key, final String defaultValue ) {
-    return SETTINGS.getSetting( key, defaultValue );
+  @Override
+  public void onRenderException( final Throwable t ) {
   }
 }

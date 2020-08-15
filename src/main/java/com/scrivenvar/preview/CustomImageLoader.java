@@ -38,7 +38,7 @@ import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
-import static com.scrivenvar.preview.SVGRasterizer.BROKEN_IMAGE_PLACEHOLDER;
+import static com.scrivenvar.graphics.SVGRasterizer.BROKEN_IMAGE_PLACEHOLDER;
 import static org.xhtmlrenderer.swing.AWTFSImage.createImage;
 
 /**
@@ -53,9 +53,6 @@ public class CustomImageLoader extends ImageResourceLoader {
       BROKEN_IMAGE_PLACEHOLDER );
 
   private final IntegerProperty mWidthProperty = new SimpleIntegerProperty();
-
-  public CustomImageLoader() {
-  }
 
   /**
    * Gets an {@link IntegerProperty} that represents the maximum width an

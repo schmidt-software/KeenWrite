@@ -28,8 +28,13 @@
 package com.scrivenvar.preview;
 
 import com.scrivenvar.Services;
+import com.scrivenvar.adapters.DocumentAdapter;
+import com.scrivenvar.graphics.SVGReplacedElementFactory;
+import com.scrivenvar.preferences.UserPreferences;
+import com.scrivenvar.service.Options;
 import com.scrivenvar.service.events.Notifier;
 import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -39,7 +44,6 @@ import javafx.scene.layout.Pane;
 import org.jsoup.Jsoup;
 import org.jsoup.helper.W3CDom;
 import org.jsoup.nodes.Document;
-import org.xhtmlrenderer.event.DocumentListener;
 import org.xhtmlrenderer.layout.SharedContext;
 import org.xhtmlrenderer.render.Box;
 import org.xhtmlrenderer.simple.XHTMLPanel;
@@ -48,21 +52,23 @@ import org.xhtmlrenderer.swing.*;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
 import java.net.URI;
 import java.nio.file.Path;
 
 import static com.scrivenvar.Constants.*;
 import static java.awt.Desktop.Action.BROWSE;
 import static java.awt.Desktop.getDesktop;
+import static java.lang.Math.max;
 import static org.xhtmlrenderer.swing.ImageResourceLoader.NO_OP_REPAINT_LISTENER;
 
 /**
  * HTML preview pane is responsible for rendering an HTML document.
  */
 public final class HTMLPreviewPane extends Pane {
-  private final static Notifier NOTIFIER = Services.load( Notifier.class );
+  private final static Notifier sNotifier = Services.load( Notifier.class );
+  private final static Options sOptions = Services.load( Options.class );
 
   /**
    * Suppresses scrolling to the top on every key press.
@@ -76,7 +82,7 @@ public final class HTMLPreviewPane extends Pane {
   /**
    * Suppresses scroll attempts until after the document has loaded.
    */
-  private static final class DocumentEventHandler implements DocumentListener {
+  private static final class DocumentEventHandler extends DocumentAdapter {
     private final BooleanProperty mReadyProperty = new SimpleBooleanProperty();
 
     public BooleanProperty readyProperty() {
@@ -92,21 +98,13 @@ public final class HTMLPreviewPane extends Pane {
     public void documentLoaded() {
       mReadyProperty.setValue( Boolean.TRUE );
     }
-
-    @Override
-    public void onLayoutException( final Throwable t ) {
-    }
-
-    @Override
-    public void onRenderException( final Throwable t ) {
-    }
   }
 
   /**
    * Responsible for ensuring that images are constrained to the panel width
    * upon resizing.
    */
-  private final class ResizeListener implements ComponentListener {
+  private final class ResizeListener extends ComponentAdapter {
     @Override
     public void componentResized( final ComponentEvent e ) {
       setWidth( e );
@@ -115,14 +113,6 @@ public final class HTMLPreviewPane extends Pane {
     @Override
     public void componentShown( final ComponentEvent e ) {
       setWidth( e );
-    }
-
-    @Override
-    public void componentMoved( final ComponentEvent e ) {
-    }
-
-    @Override
-    public void componentHidden( final ComponentEvent e ) {
     }
 
     /**
@@ -151,7 +141,7 @@ public final class HTMLPreviewPane extends Pane {
           desktop.browse( new URI( uri ) );
         }
       } catch( final Exception e ) {
-        NOTIFIER.notify( e );
+        sNotifier.notify( e );
       }
     }
   }
@@ -206,7 +196,11 @@ public final class HTMLPreviewPane extends Pane {
 
     final var context = getSharedContext();
     context.setReplacedElementFactory( factory );
-    context.getTextRenderer().setSmoothingThreshold( 0 );
+
+    fontsAntialiasProperty().addListener( ( l, o, n ) -> {
+      final var threshold = max( n.floatValue(), -1 );
+      context.getTextRenderer().setSmoothingThreshold( threshold );
+    } );
 
     mSwingNode.setContent( mScrollPane );
     mSwingNode.setCache( true );
@@ -391,7 +385,7 @@ public final class HTMLPreviewPane extends Pane {
     // Scroll back up by half the height of the scroll bar to keep the typing
     // area within the view port. Otherwise the view port will have jumped too
     // high up and the whatever gets typed won't be visible.
-    int y = Math.max(
+    int y = max(
         box.getAbsY() - (mScrollPane.getVerticalScrollBar().getHeight() / 2),
         0 );
 
@@ -413,5 +407,19 @@ public final class HTMLPreviewPane extends Pane {
 
   private SharedContext getSharedContext() {
     return mHtmlRenderer.getSharedContext();
+  }
+
+  /**
+   * Returns the font size antialias threshold property used to instruct
+   * the preview panel when to enable font antialiasing. A value of -1 means
+   * disabled; 0 means always enabled; otherwise, the minimum font height for
+   * enabling text antialiasing.
+   */
+  private DoubleProperty fontsAntialiasProperty() {
+    return getUserPreferences().fontsAntialiasProperty();
+  }
+
+  private UserPreferences getUserPreferences() {
+    return sOptions.getUserPreferences();
   }
 }

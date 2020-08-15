@@ -31,10 +31,10 @@ import com.scrivenvar.predicates.files.FileTypePredicate;
 import com.scrivenvar.service.Settings;
 
 import java.nio.file.Path;
-import java.util.Iterator;
 import java.util.List;
 
 import static com.scrivenvar.Constants.GLOB_PREFIX_FILE;
+import static com.scrivenvar.Constants.SETTINGS;
 import static com.scrivenvar.FileType.UNKNOWN;
 import static java.lang.String.format;
 
@@ -46,8 +46,6 @@ public class AbstractFileFactory {
 
   private static final String MSG_UNKNOWN_FILE_TYPE =
       "Unknown type '%s' for file '%s'.";
-
-  private final Settings mSettings = Services.load( Settings.class );
 
   /**
    * Determines the file type from the path extension. This should only be
@@ -73,15 +71,15 @@ public class AbstractFileFactory {
     assert path != null;
     assert prefix != null;
 
-    final Settings properties = getSettings();
-    final Iterator<String> keys = properties.getKeys( prefix );
+    final var settings = getSettings();
+    final var keys = settings.getKeys( prefix );
 
     boolean found = false;
     FileType fileType = UNKNOWN;
 
     while( keys.hasNext() && !found ) {
       final String key = keys.next();
-      final List<String> patterns = properties.getStringSettingList( key );
+      final List<String> patterns = settings.getStringSettingList( key );
       final FileTypePredicate predicate = new FileTypePredicate( patterns );
 
       if( found = predicate.test( path.toFile() ) ) {
@@ -113,6 +111,6 @@ public class AbstractFileFactory {
    * @return A non-null instance.
    */
   private Settings getSettings() {
-    return this.mSettings;
+    return SETTINGS;
   }
 }

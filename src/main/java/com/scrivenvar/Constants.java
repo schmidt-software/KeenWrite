@@ -37,7 +37,7 @@ import java.nio.file.Paths;
  */
 public class Constants {
 
-  private static final Settings SETTINGS = Services.load( Settings.class );
+  public final static Settings SETTINGS = Services.load( Settings.class );
 
   /**
    * Prevent instantiation.
@@ -57,6 +57,8 @@ public class Constants {
   // Bootstrapping...
   public static final String SETTINGS_NAME =
       "/com/scrivenvar/settings.properties";
+
+  public static final String DEFINITION_NAME = "variables.yaml";
 
   public static final String APP_TITLE = get( "application.title" );
   public static final String APP_BUNDLE_NAME = get( "application.messages" );
@@ -139,5 +141,13 @@ public class Constants {
    */
   public static final String PARAGRAPH_ID_PREFIX = "p-";
 
+  /**
+   * Absolute location of true type fonts within the Java archive file.
+   */
   public static final String FONT_DIRECTORY = "/fonts";
+
+  /**
+   * -1 indicates no font anti-aliasing  default.
+   */
+  public static final float FONT_ANTIALIAS_THRESHOLD = -1f;
 }

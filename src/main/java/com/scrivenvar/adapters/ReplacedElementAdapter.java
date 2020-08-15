@@ -25,35 +25,23 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.scrivenvar.service.events.impl;
+package com.scrivenvar.adapters;
 
-import javafx.scene.Node;
-import javafx.scene.control.ButtonBar;
-import javafx.scene.control.DialogPane;
+import org.w3c.dom.Element;
+import org.xhtmlrenderer.extend.ReplacedElementFactory;
+import org.xhtmlrenderer.simple.extend.FormSubmissionListener;
 
-import static com.scrivenvar.Constants.SETTINGS;
-import static javafx.scene.control.ButtonBar.BUTTON_ORDER_WINDOWS;
-
-/**
- * Ensures a consistent button order for alert dialogs across platforms (because
- * the default button order on Linux defies all logic).
- */
-public class ButtonOrderPane extends DialogPane {
+public abstract class ReplacedElementAdapter implements ReplacedElementFactory {
+  @Override
+  public void reset() {
+  }
 
   @Override
-  protected Node createButtonBar() {
-    final var node = (ButtonBar) super.createButtonBar();
-    node.setButtonOrder( getButtonOrder() );
-    return node;
+  public void remove( final Element e ) {
   }
 
-  private String getButtonOrder() {
-    return getSetting( "dialog.alert.button.order.windows",
-                       BUTTON_ORDER_WINDOWS );
-  }
-
-  @SuppressWarnings("SameParameterValue")
-  private String getSetting( final String key, final String defaultValue ) {
-    return SETTINGS.getSetting( key, defaultValue );
+  @Override
+  public void setFormSubmissionListener(
+      final FormSubmissionListener listener ) {
   }
 }

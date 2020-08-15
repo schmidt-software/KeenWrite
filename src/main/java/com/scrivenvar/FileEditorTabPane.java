@@ -60,6 +60,7 @@ import java.util.prefs.Preferences;
 import java.util.stream.Collectors;
 
 import static com.scrivenvar.Constants.GLOB_PREFIX_FILE;
+import static com.scrivenvar.Constants.SETTINGS;
 import static com.scrivenvar.FileType.*;
 import static com.scrivenvar.Messages.get;
 import static com.scrivenvar.service.events.Notifier.YES;
@@ -73,7 +74,6 @@ public final class FileEditorTabPane extends TabPane {
       "Dialog.file.choose.filter";
 
   private final static Options sOptions = Services.load( Options.class );
-  private final static Settings sSettings = Services.load( Settings.class );
   private final static Notifier sNotifier = Services.load( Notifier.class );
 
   private final ReadOnlyObjectWrapper<Path> mOpenDefinition =
@@ -636,7 +636,7 @@ public final class FileEditorTabPane extends TabPane {
   }
 
   private Settings getSettings() {
-    return sSettings;
+    return SETTINGS;
   }
 
   protected Options getOptions() {

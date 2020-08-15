@@ -25,35 +25,45 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.scrivenvar.service.events.impl;
+package com.scrivenvar.graphics;
 
-import javafx.scene.Node;
-import javafx.scene.control.ButtonBar;
-import javafx.scene.control.DialogPane;
+import java.util.Map;
 
-import static com.scrivenvar.Constants.SETTINGS;
-import static javafx.scene.control.ButtonBar.BUTTON_ORDER_WINDOWS;
+import static java.awt.RenderingHints.*;
 
 /**
- * Ensures a consistent button order for alert dialogs across platforms (because
- * the default button order on Linux defies all logic).
+ * Responsible for supplying consistent rendering hints throughout the
+ * application, such as image rendering for {@link SVGRasterizer}.
  */
-public class ButtonOrderPane extends DialogPane {
+public class RenderingSettings {
 
-  @Override
-  protected Node createButtonBar() {
-    final var node = (ButtonBar) super.createButtonBar();
-    node.setButtonOrder( getButtonOrder() );
-    return node;
-  }
+  /**
+   * Shared hints for high-quality rendering.
+   */
+  public final static Map<Object, Object> RENDERING_HINTS = Map.of(
+      KEY_ANTIALIASING,
+      VALUE_ANTIALIAS_ON,
+      KEY_ALPHA_INTERPOLATION,
+      VALUE_ALPHA_INTERPOLATION_QUALITY,
+      KEY_COLOR_RENDERING,
+      VALUE_COLOR_RENDER_QUALITY,
+      KEY_DITHERING,
+      VALUE_DITHER_DISABLE,
+      KEY_FRACTIONALMETRICS,
+      VALUE_FRACTIONALMETRICS_ON,
+      KEY_INTERPOLATION,
+      VALUE_INTERPOLATION_BICUBIC,
+      KEY_RENDERING,
+      VALUE_RENDER_QUALITY,
+      KEY_STROKE_CONTROL,
+      VALUE_STROKE_PURE,
+      KEY_TEXT_ANTIALIASING,
+      VALUE_TEXT_ANTIALIAS_ON
+  );
 
-  private String getButtonOrder() {
-    return getSetting( "dialog.alert.button.order.windows",
-                       BUTTON_ORDER_WINDOWS );
-  }
-
-  @SuppressWarnings("SameParameterValue")
-  private String getSetting( final String key, final String defaultValue ) {
-    return SETTINGS.getSetting( key, defaultValue );
+  /**
+   * Prevent instantiation as per Joshua Bloch's recommendation.
+   */
+  private RenderingSettings() {
   }
 }

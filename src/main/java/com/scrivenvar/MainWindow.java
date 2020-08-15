@@ -143,9 +143,7 @@ public class MainWindow implements Observer {
       new HashMap<>( DEFAULT_MAP_SIZE );
 
   private final EventHandler<PreferencesFxEvent> mRPreferencesListener =
-      event -> {
-        rerender();
-      };
+      event -> rerender();
 
   /**
    * Called when the definition data is changed.
@@ -805,6 +803,12 @@ public class MainWindow implements Observer {
     getActiveEditorPane().surroundSelection( leading, trailing, hint );
   }
 
+  //---- View actions -------------------------------------------------------
+
+  private void viewRefresh() {
+    rerender();
+  }
+
   //---- Help actions -------------------------------------------------------
 
   private void helpAbout() {
@@ -1158,6 +1162,13 @@ public class MainWindow implements Observer {
         .setDisable( activeFileEditorIsNull )
         .build();
 
+    // View actions
+    final Action viewRefreshAction = new ActionBuilder()
+        .setText( "Main.menu.view.refresh" )
+        .setAccelerator( "F5" )
+        .setAction( e -> viewRefresh() )
+        .build();
+
     // Help actions
     final Action helpAboutAction = new ActionBuilder()
         .setText( "Main.menu.help.about" )
@@ -1219,6 +1230,10 @@ public class MainWindow implements Observer {
         insertHorizontalRuleAction
     );
 
+    final Menu viewMenu = ActionUtils.createMenu(
+        get( "Main.menu.view" ),
+        viewRefreshAction );
+
     final Menu helpMenu = ActionUtils.createMenu(
         get( "Main.menu.help" ),
         helpAboutAction );
@@ -1227,6 +1242,7 @@ public class MainWindow implements Observer {
         fileMenu,
         editMenu,
         insertMenu,
+        viewMenu,
         helpMenu );
 
     //---- ToolBar ----
