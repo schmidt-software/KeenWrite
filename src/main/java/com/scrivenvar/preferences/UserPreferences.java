@@ -165,7 +165,7 @@ public class UserPreferences {
                 Setting.of( "Antialiasing", mPropFontAntialias )
             )
         )
-    );
+    ).instantPersistent(false);
   }
 
   /**

@@ -195,11 +195,13 @@ public final class HTMLPreviewPane extends Pane {
         NO_OP_REPAINT_LISTENER, mImageLoader ) );
 
     final var context = getSharedContext();
+    final var textRenderer = context.getTextRenderer();
     context.setReplacedElementFactory( factory );
+    textRenderer.setSmoothingThreshold( getFontsAntialias() );
 
     fontsAntialiasProperty().addListener( ( l, o, n ) -> {
       final var threshold = max( n.floatValue(), -1 );
-      context.getTextRenderer().setSmoothingThreshold( threshold );
+      textRenderer.setSmoothingThreshold( threshold );
     } );
 
     mSwingNode.setContent( mScrollPane );
@@ -417,6 +419,10 @@ public final class HTMLPreviewPane extends Pane {
    */
   private DoubleProperty fontsAntialiasProperty() {
     return getUserPreferences().fontsAntialiasProperty();
+  }
+
+  private float getFontsAntialias() {
+    return getUserPreferences().getFontsAntialias();
   }
 
   private UserPreferences getUserPreferences() {

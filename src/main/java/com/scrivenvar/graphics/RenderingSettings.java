@@ -27,20 +27,24 @@
  */
 package com.scrivenvar.graphics;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import static java.awt.RenderingHints.*;
+import static java.awt.Toolkit.getDefaultToolkit;
 
 /**
  * Responsible for supplying consistent rendering hints throughout the
  * application, such as image rendering for {@link SVGRasterizer}.
  */
+@SuppressWarnings("rawtypes")
 public class RenderingSettings {
 
   /**
-   * Shared hints for high-quality rendering.
+   * Default hints for high-quality rendering that may be changed by
+   * the system's rendering hints.
    */
-  public final static Map<Object, Object> RENDERING_HINTS = Map.of(
+  private final static Map<Object, Object> DEFAULT_HINTS = Map.of(
       KEY_ANTIALIASING,
       VALUE_ANTIALIAS_ON,
       KEY_ALPHA_INTERPOLATION,
@@ -60,6 +64,26 @@ public class RenderingSettings {
       KEY_TEXT_ANTIALIASING,
       VALUE_TEXT_ANTIALIAS_ON
   );
+
+  /**
+   * Shared hints for high-quality rendering.
+   */
+  public final static Map<Object, Object> RENDERING_HINTS = new HashMap<>(
+      DEFAULT_HINTS
+  );
+
+  static {
+    final var toolkit = getDefaultToolkit();
+    final var hints = toolkit.getDesktopProperty( "awt.font.desktophints" );
+
+    if( hints instanceof Map ) {
+      final var map = (Map) hints;
+      for( final var key : map.keySet() ) {
+        final var hint = map.get( key );
+        RENDERING_HINTS.put( key, hint );
+      }
+    }
+  }
 
   /**
    * Prevent instantiation as per Joshua Bloch's recommendation.
