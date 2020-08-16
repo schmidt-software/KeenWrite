@@ -135,9 +135,8 @@ utile_create_launch_script_linux() {
 #!/usr/bin/env bash
 
 readonly SCRIPT_SRC="\$(dirname "\${BASH_SOURCE[\${#BASH_SOURCE[@]} - 1]}")"
-readonly SCRIPT_DIR="\$(cd "\${SCRIPT_SRC}" >/dev/null 2>&1 && pwd)"
 
-"\${SCRIPT_DIR}/${ARG_JAVA_DIR}/bin/java.exe" -jar "\${SCRIPT_DIR}/${FILE_APP_JAR}" "\$@"
+"\${SCRIPT_SRC}/${ARG_JAVA_DIR}/bin/java" -jar "\${SCRIPT_SRC}/${FILE_APP_JAR}" "\$@" 2>&1 >/dev/null &
 __EOT
 
   chmod +x "${FILE_DIST_EXEC}"
