@@ -162,7 +162,7 @@ public class UserPreferences {
             Group.of(
                 get( "Preferences.fonts.size_editor" ),
                 Setting.of( label( "Preferences.fonts.size_editor.desc" ) ),
-                Setting.of( "Editor", mPropFontsSizeEditor )
+                Setting.of( "Points", mPropFontsSizeEditor )
             )
         )
     ).instantPersistent( false );

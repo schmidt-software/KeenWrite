@@ -142,7 +142,7 @@ public class Constants {
   public static final String PARAGRAPH_ID_PREFIX = "p-";
 
   /**
-   * Absolute location of true type fonts within the Java archive file.
+   * Absolute location of true type font files within the Java archive file.
    */
   public static final String FONT_DIRECTORY = "/fonts";
 
