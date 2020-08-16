@@ -58,7 +58,7 @@ public class UserPreferences {
   private final ObjectProperty<File> mPropDefinitionPath;
   private final StringProperty mRDelimiterBegan;
   private final StringProperty mRDelimiterEnded;
-  private final DoubleProperty mPropFontAntialias;
+  private final IntegerProperty mPropFontsSizeEditor;
 
   public UserPreferences() {
     mPropRDirectory = simpleFile( USER_DIRECTORY );
@@ -74,7 +74,7 @@ public class UserPreferences {
     mRDelimiterBegan = new SimpleStringProperty( R_DELIMITER_BEGAN_DEFAULT );
     mRDelimiterEnded = new SimpleStringProperty( R_DELIMITER_ENDED_DEFAULT );
 
-    mPropFontAntialias = new SimpleDoubleProperty( FONT_ANTIALIAS_THRESHOLD );
+    mPropFontsSizeEditor = new SimpleIntegerProperty( FONT_SIZE_EDITOR );
 
     // All properties must be initialized before creating the dialog.
     mPreferencesFx = createPreferencesFx();
@@ -160,12 +160,12 @@ public class UserPreferences {
         Category.of(
             get( "Preferences.fonts" ),
             Group.of(
-                get( "Preferences.fonts.antialias" ),
-                Setting.of( label( "Preferences.fonts.antialias.desc" ) ),
-                Setting.of( "Antialiasing", mPropFontAntialias )
+                get( "Preferences.fonts.size_editor" ),
+                Setting.of( label( "Preferences.fonts.size_editor.desc" ) ),
+                Setting.of( "Editor", mPropFontsSizeEditor )
             )
         )
-    ).instantPersistent(false);
+    ).instantPersistent( false );
   }
 
   /**
@@ -283,11 +283,16 @@ public class UserPreferences {
     return imagesOrderProperty().getValue();
   }
 
-  public DoubleProperty fontsAntialiasProperty() {
-    return mPropFontAntialias;
+  public IntegerProperty fontsSizeEditorProperty() {
+    return mPropFontsSizeEditor;
   }
 
-  public float getFontsAntialias() {
-    return mPropFontAntialias.floatValue();
+  /**
+   * Returns the preferred font size of the text editor.
+   *
+   * @return A non-negative integer, in points.
+   */
+  public int getFontsSizeEditor() {
+    return mPropFontsSizeEditor.intValue();
   }
 }

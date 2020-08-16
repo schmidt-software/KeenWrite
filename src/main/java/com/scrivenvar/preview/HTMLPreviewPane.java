@@ -34,7 +34,7 @@ import com.scrivenvar.preferences.UserPreferences;
 import com.scrivenvar.service.Options;
 import com.scrivenvar.service.events.Notifier;
 import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -46,6 +46,7 @@ import org.jsoup.helper.W3CDom;
 import org.jsoup.nodes.Document;
 import org.xhtmlrenderer.layout.SharedContext;
 import org.xhtmlrenderer.render.Box;
+import org.xhtmlrenderer.simple.FSScrollPane;
 import org.xhtmlrenderer.simple.XHTMLPanel;
 import org.xhtmlrenderer.simple.extend.XhtmlNamespaceHandler;
 import org.xhtmlrenderer.swing.*;
@@ -70,10 +71,37 @@ public final class HTMLPreviewPane extends Pane {
   private final static Notifier sNotifier = Services.load( Notifier.class );
   private final static Options sOptions = Services.load( Options.class );
 
-  /**
-   * Suppresses scrolling to the top on every key press.
-   */
+  final IndieFrame mIndie = new IndieFrame();
+
+  private static class IndieFrame {
+    private final XHTMLPanel panel = new XHTMLPanel();
+    private final JFrame frame = new JFrame( "Single Page Demo" );
+
+    private IndieFrame() {
+      frame.setDefaultCloseOperation( JFrame.HIDE_ON_CLOSE );
+      frame.getContentPane().add( new FSScrollPane( panel ) );
+      frame.pack();
+      frame.setSize( 1024, 768 );
+    }
+
+    private void update( final org.w3c.dom.Document html ) {
+      frame.setVisible( true );
+
+      // Set the XHTML document to render. We use the simplest form
+      // of the API call, which uses a File reference. There
+      // are a variety of overloads for setDocument().
+      try {
+        panel.setDocument( html );
+      } catch( Exception e ) {
+        e.printStackTrace();
+      }
+    }
+  }
+
   private static class HTMLPanel extends XHTMLPanel {
+    /**
+     * Suppresses scrolling to the top on every key press.
+     */
     @Override
     public void resetScrollPosition() {
     }
@@ -197,15 +225,9 @@ public final class HTMLPreviewPane extends Pane {
     final var context = getSharedContext();
     final var textRenderer = context.getTextRenderer();
     context.setReplacedElementFactory( factory );
-    textRenderer.setSmoothingThreshold( getFontsAntialias() );
-
-    fontsAntialiasProperty().addListener( ( l, o, n ) -> {
-      final var threshold = max( n.floatValue(), -1 );
-      textRenderer.setSmoothingThreshold( threshold );
-    } );
+    textRenderer.setSmoothingThreshold( 0 );
 
     mSwingNode.setContent( mScrollPane );
-    mSwingNode.setCache( true );
 
     mHtmlRenderer.addDocumentListener( mDocHandler );
     mHtmlRenderer.addComponentListener( new ResizeListener() );
@@ -233,6 +255,8 @@ public final class HTMLPreviewPane extends Pane {
     final org.w3c.dom.Document w3cDoc = W3C_DOM.fromJsoup( jsoupDoc );
 
     mHtmlRenderer.setDocument( w3cDoc, getBaseUrl(), NS_HANDLER );
+
+    //mIndie.update( w3cDoc );
   }
 
   public void clear() {
@@ -412,17 +436,14 @@ public final class HTMLPreviewPane extends Pane {
   }
 
   /**
-   * Returns the font size antialias threshold property used to instruct
-   * the preview panel when to enable font antialiasing. A value of -1 means
-   * disabled; 0 means always enabled; otherwise, the minimum font height for
-   * enabling text antialiasing.
+   * Returns the text editor font size.
    */
-  private DoubleProperty fontsAntialiasProperty() {
-    return getUserPreferences().fontsAntialiasProperty();
+  private IntegerProperty fontsSizeProperty() {
+    return getUserPreferences().fontsSizeEditorProperty();
   }
 
-  private float getFontsAntialias() {
-    return getUserPreferences().getFontsAntialias();
+  private float getFontsSize() {
+    return getUserPreferences().getFontsSizeEditor();
   }
 
   private UserPreferences getUserPreferences() {

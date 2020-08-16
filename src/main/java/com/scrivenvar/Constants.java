@@ -147,7 +147,7 @@ public class Constants {
   public static final String FONT_DIRECTORY = "/fonts";
 
   /**
-   * -1 indicates no font anti-aliasing  default.
+   * Default text editor font size, in points.
    */
-  public static final float FONT_ANTIALIAS_THRESHOLD = -1f;
+  public static final int FONT_SIZE_EDITOR = 12;
 }
