@@ -43,7 +43,6 @@ import org.jsoup.helper.W3CDom;
 import org.jsoup.nodes.Document;
 import org.xhtmlrenderer.layout.SharedContext;
 import org.xhtmlrenderer.render.Box;
-import org.xhtmlrenderer.simple.FSScrollPane;
 import org.xhtmlrenderer.simple.XHTMLPanel;
 import org.xhtmlrenderer.simple.extend.XhtmlNamespaceHandler;
 import org.xhtmlrenderer.swing.*;
@@ -66,33 +65,6 @@ import static org.xhtmlrenderer.swing.ImageResourceLoader.NO_OP_REPAINT_LISTENER
  */
 public final class HTMLPreviewPane extends Pane {
   private final static Notifier sNotifier = Services.load( Notifier.class );
-
-  final IndieFrame mIndie = new IndieFrame();
-
-  private static class IndieFrame {
-    private final XHTMLPanel panel = new XHTMLPanel();
-    private final JFrame frame = new JFrame( "Single Page Demo" );
-
-    private IndieFrame() {
-      frame.setDefaultCloseOperation( JFrame.HIDE_ON_CLOSE );
-      frame.getContentPane().add( new FSScrollPane( panel ) );
-      frame.pack();
-      frame.setSize( 1024, 768 );
-    }
-
-    private void update( final org.w3c.dom.Document html ) {
-      frame.setVisible( true );
-
-      // Set the XHTML document to render. We use the simplest form
-      // of the API call, which uses a File reference. There
-      // are a variety of overloads for setDocument().
-      try {
-        panel.setDocument( html );
-      } catch( Exception e ) {
-        e.printStackTrace();
-      }
-    }
-  }
 
   private static class HTMLPanel extends XHTMLPanel {
     /**
@@ -430,5 +402,4 @@ public final class HTMLPreviewPane extends Pane {
   private SharedContext getSharedContext() {
     return mHtmlRenderer.getSharedContext();
   }
-
 }
