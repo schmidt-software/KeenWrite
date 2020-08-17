@@ -27,6 +27,9 @@
  */
 package com.scrivenvar.editors;
 
+import com.scrivenvar.Services;
+import com.scrivenvar.service.Options;
+import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
@@ -42,6 +45,7 @@ import org.fxmisc.wellbehaved.event.Nodes;
 import java.nio.file.Path;
 import java.util.function.Consumer;
 
+import static java.lang.String.format;
 import static javafx.application.Platform.runLater;
 import static org.fxmisc.wellbehaved.event.InputMap.consume;
 
@@ -49,6 +53,13 @@ import static org.fxmisc.wellbehaved.event.InputMap.consume;
  * Represents common editing features for various types of text editors.
  */
 public class EditorPane extends Pane {
+
+  private final static Options sOptions = Services.load( Options.class );
+
+  /**
+   * Used when changing the text area font size.
+   */
+  private static final String FMT_CSS_FONT_SIZE = "-fx-font-size: %dpt;";
 
   private final StyleClassedTextArea mEditor =
       new StyleClassedTextArea( false );
@@ -58,6 +69,9 @@ public class EditorPane extends Pane {
 
   public EditorPane() {
     getScrollPane().setVbarPolicy( ScrollPane.ScrollBarPolicy.ALWAYS );
+    fontsSizeProperty().addListener(
+        ( l, o, n ) -> setFontSize( n.intValue() )
+    );
   }
 
   @Override
@@ -208,5 +222,22 @@ public class EditorPane extends Pane {
 
   public void setPath( final Path path ) {
     mPath.set( path );
+  }
+
+  /**
+   * Sets the font size in points.
+   *
+   * @param size The new font size to use for the text editor.
+   */
+  private void setFontSize( final int size ) {
+    mEditor.setStyle( format( FMT_CSS_FONT_SIZE, size ) );
+  }
+
+  /**
+   * Returns the text editor font size property for handling font size change
+   * events.
+   */
+  private IntegerProperty fontsSizeProperty() {
+    return sOptions.getUserPreferences().fontsSizeEditorProperty();
   }
 }

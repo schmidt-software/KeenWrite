@@ -30,11 +30,8 @@ package com.scrivenvar.preview;
 import com.scrivenvar.Services;
 import com.scrivenvar.adapters.DocumentAdapter;
 import com.scrivenvar.graphics.SVGReplacedElementFactory;
-import com.scrivenvar.preferences.UserPreferences;
-import com.scrivenvar.service.Options;
 import com.scrivenvar.service.events.Notifier;
 import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -69,7 +66,6 @@ import static org.xhtmlrenderer.swing.ImageResourceLoader.NO_OP_REPAINT_LISTENER
  */
 public final class HTMLPreviewPane extends Pane {
   private final static Notifier sNotifier = Services.load( Notifier.class );
-  private final static Options sOptions = Services.load( Options.class );
 
   final IndieFrame mIndie = new IndieFrame();
 
@@ -435,18 +431,4 @@ public final class HTMLPreviewPane extends Pane {
     return mHtmlRenderer.getSharedContext();
   }
 
-  /**
-   * Returns the text editor font size.
-   */
-  private IntegerProperty fontsSizeProperty() {
-    return getUserPreferences().fontsSizeEditorProperty();
-  }
-
-  private float getFontsSize() {
-    return getUserPreferences().getFontsSizeEditor();
-  }
-
-  private UserPreferences getUserPreferences() {
-    return sOptions.getUserPreferences();
-  }
 }

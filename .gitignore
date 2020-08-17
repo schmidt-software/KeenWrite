@@ -5,3 +5,5 @@ build
 .gradle
 contacted.csv
 video
+.settings
+.classpath
