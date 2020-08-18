@@ -27,15 +27,14 @@
  */
 package com.scrivenvar;
 
-import com.scrivenvar.predicates.files.FileTypePredicate;
 import com.scrivenvar.service.Settings;
 
 import java.nio.file.Path;
-import java.util.List;
 
 import static com.scrivenvar.Constants.GLOB_PREFIX_FILE;
 import static com.scrivenvar.Constants.SETTINGS;
 import static com.scrivenvar.FileType.UNKNOWN;
+import static com.scrivenvar.predicates.PredicateFactory.createFileTypePredicate;
 import static java.lang.String.format;
 
 /**
@@ -74,13 +73,13 @@ public class AbstractFileFactory {
     final var settings = getSettings();
     final var keys = settings.getKeys( prefix );
 
-    boolean found = false;
-    FileType fileType = UNKNOWN;
+    var found = false;
+    var fileType = UNKNOWN;
 
     while( keys.hasNext() && !found ) {
-      final String key = keys.next();
-      final List<String> patterns = settings.getStringSettingList( key );
-      final FileTypePredicate predicate = new FileTypePredicate( patterns );
+      final var key = keys.next();
+      final var patterns = settings.getStringSettingList( key );
+      final var predicate = createFileTypePredicate( patterns );
 
       if( found = predicate.test( path.toFile() ) ) {
         // Remove the EXTENSIONS_PREFIX to get the filename extension mapped

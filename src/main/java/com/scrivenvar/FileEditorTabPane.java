@@ -27,7 +27,6 @@
  */
 package com.scrivenvar;
 
-import com.scrivenvar.predicates.files.FileTypePredicate;
 import com.scrivenvar.service.Options;
 import com.scrivenvar.service.Settings;
 import com.scrivenvar.service.events.Notification;
@@ -63,6 +62,7 @@ import static com.scrivenvar.Constants.GLOB_PREFIX_FILE;
 import static com.scrivenvar.Constants.SETTINGS;
 import static com.scrivenvar.FileType.*;
 import static com.scrivenvar.Messages.get;
+import static com.scrivenvar.predicates.PredicateFactory.createFileTypePredicate;
 import static com.scrivenvar.service.events.Notifier.YES;
 
 /**
@@ -259,17 +259,16 @@ public final class FileEditorTabPane extends TabPane {
   private void openFiles( final List<File> files ) {
     final List<String> extensions =
         createExtensionFilter( DEFINITION ).getExtensions();
-    final FileTypePredicate predicate =
-        new FileTypePredicate( extensions );
+    final var predicate = createFileTypePredicate( extensions );
 
     // The user might have opened multiple definitions files. These will
     // be discarded from the text editable files.
-    final List<File> definitions
+    final var definitions
         = files.stream().filter( predicate ).collect( Collectors.toList() );
 
     // Create a modifiable list to remove any definition files that were
     // opened.
-    final List<File> editors = new ArrayList<>( files );
+    final var editors = new ArrayList<>( files );
 
     if( !editors.isEmpty() ) {
       saveLastDirectory( editors.get( 0 ) );
