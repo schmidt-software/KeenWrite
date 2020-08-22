@@ -48,6 +48,7 @@ import java.util.logging.LogManager;
 
 import static com.scrivenvar.Constants.*;
 import static com.scrivenvar.Messages.get;
+import static java.awt.GraphicsEnvironment.getLocalGraphicsEnvironment;
 import static java.awt.font.TextAttribute.LIGATURES;
 import static java.awt.font.TextAttribute.LIGATURES_ON;
 import static javafx.scene.input.KeyCode.F11;
@@ -104,8 +105,8 @@ public final class Main extends Application {
 
     stage.show();
 
-    // After the stage is visible, the panel dimensions are known, which
-    // allows scaling images to fit the preview panel.
+    // After the stage is visible, the panel dimensions are
+    // known, which allows scaling images to fit the preview panel.
     getMainWindow().init();
   }
 
@@ -114,8 +115,8 @@ public final class Main extends Application {
    * fonts will not be found.
    */
   @SuppressWarnings({"rawtypes", "unchecked"})
-  private static void initFonts() {
-    final var ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+  public static void initFonts() {
+    final var ge = getLocalGraphicsEnvironment();
 
     try {
       ResourceWalker.walk(

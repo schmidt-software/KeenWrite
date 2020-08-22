@@ -37,7 +37,6 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.embed.swing.SwingNode;
 import javafx.scene.Node;
-import javafx.scene.layout.Pane;
 import org.jsoup.Jsoup;
 import org.jsoup.helper.W3CDom;
 import org.jsoup.nodes.Document;
@@ -58,12 +57,13 @@ import static com.scrivenvar.Constants.*;
 import static java.awt.Desktop.Action.BROWSE;
 import static java.awt.Desktop.getDesktop;
 import static java.lang.Math.max;
+import static javax.swing.SwingUtilities.invokeLater;
 import static org.xhtmlrenderer.swing.ImageResourceLoader.NO_OP_REPAINT_LISTENER;
 
 /**
  * HTML preview pane is responsible for rendering an HTML document.
  */
-public final class HTMLPreviewPane extends Pane {
+public final class HTMLPreviewPane extends SwingNode {
   private final static Notifier sNotifier = Services.load( Notifier.class );
 
   private static class HTMLPanel extends XHTMLPanel {
@@ -166,7 +166,6 @@ public final class HTMLPreviewPane extends Pane {
   private final int mHtmlPrefixLength;
 
   private final HTMLPanel mHtmlRenderer = new HTMLPanel();
-  private final SwingNode mSwingNode = new SwingNode();
   private final JScrollPane mScrollPane = new JScrollPane( mHtmlRenderer );
   private final DocumentEventHandler mDocHandler = new DocumentEventHandler();
   private final CustomImageLoader mImageLoader = new CustomImageLoader();
@@ -195,8 +194,7 @@ public final class HTMLPreviewPane extends Pane {
     context.setReplacedElementFactory( factory );
     textRenderer.setSmoothingThreshold( 0 );
 
-    mSwingNode.setContent( mScrollPane );
-
+    setContent( mScrollPane );
     mHtmlRenderer.addDocumentListener( mDocHandler );
     mHtmlRenderer.addComponentListener( new ResizeListener() );
 
@@ -222,9 +220,11 @@ public final class HTMLPreviewPane extends Pane {
     final Document jsoupDoc = Jsoup.parse( decorate( html ) );
     final org.w3c.dom.Document w3cDoc = W3C_DOM.fromJsoup( jsoupDoc );
 
-    mHtmlRenderer.setDocument( w3cDoc, getBaseUrl(), NS_HANDLER );
-
-    //mIndie.update( w3cDoc );
+    // Access to a Swing component must occur from the Event Dispatch
+    // thread according to Swing threading restrictions.
+    invokeLater(
+        () -> mHtmlRenderer.setDocument( w3cDoc, getBaseUrl(), NS_HANDLER )
+    );
   }
 
   public void clear() {
@@ -303,7 +303,7 @@ public final class HTMLPreviewPane extends Pane {
   }
 
   private void scrollTo( final Point point ) {
-    mHtmlRenderer.scrollTo( point );
+    invokeLater( () -> mHtmlRenderer.scrollTo( point ) );
   }
 
   private void scrollTo( final Box box ) {
@@ -331,9 +331,7 @@ public final class HTMLPreviewPane extends Pane {
     mHtmlDocument.setLength( mHtmlPrefixLength );
 
     // Write the HTML body element followed by closing tags.
-    return mHtmlDocument.append( html )
-                        .append( HTML_SUFFIX )
-                        .toString();
+    return mHtmlDocument.append( html ).append( HTML_SUFFIX ).toString();
   }
 
   public Path getPath() {
@@ -351,7 +349,7 @@ public final class HTMLPreviewPane extends Pane {
    * @return The content to display to the user.
    */
   public Node getNode() {
-    return mSwingNode;
+    return this;
   }
 
   public JScrollPane getScrollPane() {

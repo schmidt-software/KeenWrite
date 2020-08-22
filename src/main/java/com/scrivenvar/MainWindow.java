@@ -236,10 +236,10 @@ public class MainWindow implements Observer {
   }
 
   private void initLayout() {
-    final var appScene = getScene();
+    final var scene = getScene();
 
-    appScene.getStylesheets().add( STYLESHEET_SCENE );
-    appScene.windowProperty().addListener(
+    scene.getStylesheets().add( STYLESHEET_SCENE );
+    scene.windowProperty().addListener(
         ( unused, oldWindow, newWindow ) ->
             newWindow.setOnCloseRequest(
                 e -> {
@@ -879,9 +879,9 @@ public class MainWindow implements Observer {
 
   private Scene createScene() {
     final SplitPane splitPane = new SplitPane(
-        getDefinitionPane().getNode(),
-        getFileEditorPane().getNode(),
-        getPreviewPane().getNode() );
+        getDefinitionPane(),
+        getFileEditorPane(),
+        getPreviewPane() );
 
     splitPane.setDividerPositions(
         getFloat( K_PANE_SPLIT_DEFINITION, .22f ),
