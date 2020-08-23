@@ -1,6 +1,4 @@
-![Logo](images/logo64.png)
-
-# Scrivenvar
+# ![Logo](images/logo64.png) Scrivenvar
 
 A text editor that uses [interpolated strings](https://en.wikipedia.org/wiki/String_interpolation) to reference externally defined values.
 
