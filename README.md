@@ -20,6 +20,10 @@ Note that the first time the application runs, it will unpack itself into a loca
 
 On Windows, double-click the application to start. You will have to give the application permission to run.
 
+When upgrading to a new version, delete the following directory;
+
+    C:\Users\%USERNAME%\AppData\Local\warp\packages\scrivenvar.exe
+
 ### Linux
 
 On Linux, run `chmod +x scrivenvar.bin` then `./scrivenvar.bin`.
