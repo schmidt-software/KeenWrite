@@ -39,7 +39,6 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.TextFieldTreeCell;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
@@ -449,7 +448,7 @@ public final class DefinitionPane extends BorderPane {
   }
 
   private TreeCell<String> createTreeCell() {
-    return new TextFieldTreeCell<>( createStringConverter() ) {
+    return new FocusAwareTextFieldTreeCell( createStringConverter() ) {
       @Override
       public void commitEdit( final String newValue ) {
         super.commitEdit( newValue );
