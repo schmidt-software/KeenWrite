@@ -80,6 +80,10 @@ public class MarkdownProcessor extends AbstractProcessor<String> {
     extensions.add( ImageLinkExtension.create( path ) );
     extensions.add( BlockExtension.create() );
 
+    // TODO: https://github.com/FAlthausen/Vollkorn-Typeface/issues/38
+    // TODO: Uncomment when Vollkorn ligatures are fixed.
+    // extensions.add( LigatureExtension.create() );
+
     mRenderer = HtmlRenderer.builder().extensions( extensions ).build();
     mParser = Parser.builder().extensions( extensions ).build();
   }

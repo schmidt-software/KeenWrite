@@ -49,8 +49,7 @@ import java.util.logging.LogManager;
 import static com.scrivenvar.Constants.*;
 import static com.scrivenvar.Messages.get;
 import static java.awt.GraphicsEnvironment.getLocalGraphicsEnvironment;
-import static java.awt.font.TextAttribute.LIGATURES;
-import static java.awt.font.TextAttribute.LIGATURES_ON;
+import static java.awt.font.TextAttribute.*;
 import static javafx.scene.input.KeyCode.F11;
 import static javafx.scene.input.KeyEvent.KEY_PRESSED;
 
@@ -129,6 +128,7 @@ public final class Main extends Application {
               final Map attributes = font.getAttributes();
 
               attributes.put( LIGATURES, LIGATURES_ON );
+              attributes.put( KERNING, KERNING_ON );
               ge.registerFont( font.deriveFont( attributes ) );
             } catch( final Exception e ) {
               getNotifier().notify( e );

@@ -43,7 +43,6 @@ public final class TextReplacementFactory {
    * the given length of text.
    *
    * @param length The length of text that requires some search and replacing.
-   *
    * @return A class that can search and replace text with utmost expediency.
    */
   public static TextReplacer getTextReplacer( final int length ) {
@@ -61,12 +60,11 @@ public final class TextReplacementFactory {
    * recursively defined values must have been interpolated previously.
    *
    * @param text The text containing zero or more variables to replace.
-   * @param map The map of variables to their dereferenced values.
-   *
+   * @param map  The map of variables to their dereferenced values.
    * @return The text with all variables replaced.
    */
   public static String replace(
-    final String text, final Map<String, String> map ) {
+      final String text, final Map<String, String> map ) {
     return getTextReplacer( text.length() ).replace( text, map );
   }
 }

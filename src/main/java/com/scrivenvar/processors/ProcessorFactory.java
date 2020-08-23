@@ -68,32 +68,13 @@ public class ProcessorFactory extends AbstractFileFactory {
    * @return A processor that can render the given tab's text.
    */
   public Processor<String> createProcessors( final FileEditorTab tab ) {
-    final Path path = tab.getPath();
-    final Processor<String> processor;
-
-    switch( lookup( path ) ) {
-      case RMARKDOWN:
-        processor = createRProcessor();
-        break;
-
-      case SOURCE:
-        processor = createMarkdownDefinitionProcessor();
-        break;
-
-      case XML:
-        processor = createXMLProcessor( tab );
-        break;
-
-      case RXML:
-        processor = createRXMLProcessor( tab );
-        break;
-
-      default:
-        processor = createIdentityProcessor();
-        break;
-    }
-
-    return processor;
+    return switch( lookup( tab.getPath() ) ) {
+      case RMARKDOWN -> createRProcessor();
+      case SOURCE -> createMarkdownDefinitionProcessor();
+      case XML -> createXMLProcessor( tab );
+      case RXML -> createRXMLProcessor( tab );
+      default -> createIdentityProcessor();
+    };
   }
 
   private Processor<String> createHTMLPreviewProcessor() {

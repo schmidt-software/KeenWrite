@@ -15,5 +15,6 @@
 *.png binary
 *.zip binary
 *.ttf binary
+*.otf binary
 *.blend binary
 

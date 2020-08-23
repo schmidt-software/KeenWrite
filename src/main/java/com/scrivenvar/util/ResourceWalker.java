@@ -40,7 +40,7 @@ import static java.util.Collections.emptyMap;
  */
 public class ResourceWalker {
   private static final PathMatcher PATH_MATCHER =
-      FileSystems.getDefault().getPathMatcher( "glob:**.ttf" );
+      FileSystems.getDefault().getPathMatcher( "glob:**.{ttf,otf}" );
 
   /**
    * @param dirName The root directory to scan for files matching the glob.

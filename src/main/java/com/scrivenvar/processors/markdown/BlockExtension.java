@@ -70,11 +70,9 @@ public class BlockExtension implements HtmlRenderer.HtmlRendererExtension {
   }
 
   @Override
-  public void extend( final HtmlRenderer.Builder rendererBuilder,
+  public void extend( final HtmlRenderer.Builder builder,
                       @NotNull final String rendererType ) {
-    rendererBuilder.attributeProviderFactory(
-        IdAttributeProvider.createFactory()
-    );
+    builder.attributeProviderFactory( IdAttributeProvider.createFactory() );
   }
 
   public static BlockExtension create() {
