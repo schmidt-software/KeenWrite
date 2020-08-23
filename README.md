@@ -1,6 +1,6 @@
 ![Logo](images/logo64.png)
 
-# $application.title$
+# Scrivenvar
 
 A text editor that uses [interpolated strings](https://en.wikipedia.org/wiki/String_interpolation) to reference externally defined values.
 
