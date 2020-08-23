@@ -1,23 +1,24 @@
 package com.scrivenvar.processors.markdown;
 
 import com.vladsch.flexmark.ast.Text;
-import com.vladsch.flexmark.html.HtmlRenderer;
 import com.vladsch.flexmark.html.HtmlWriter;
 import com.vladsch.flexmark.html.renderer.NodeRenderer;
 import com.vladsch.flexmark.html.renderer.NodeRendererContext;
 import com.vladsch.flexmark.html.renderer.NodeRendererFactory;
 import com.vladsch.flexmark.html.renderer.NodeRenderingHandler;
-import com.vladsch.flexmark.util.ast.Node;
 import com.vladsch.flexmark.util.ast.TextCollectingVisitor;
 import com.vladsch.flexmark.util.data.DataHolder;
 import com.vladsch.flexmark.util.data.MutableDataHolder;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
 import static com.scrivenvar.processors.text.TextReplacementFactory.replace;
+import static com.vladsch.flexmark.html.HtmlRenderer.Builder;
+import static com.vladsch.flexmark.html.HtmlRenderer.HtmlRendererExtension;
 
 /**
  * Responsible for substituting multi-codepoint glyphs with single codepoint
@@ -27,26 +28,28 @@ import static com.scrivenvar.processors.text.TextReplacementFactory.replace;
  * TODO: I18N https://github.com/DaveJarvis/scrivenvar/issues/81
  * </p>
  */
-public class LigatureExtension
-    implements HtmlRenderer.HtmlRendererExtension {
-  private final static Map<String, String> LIGATURES_SHORT = Map.of(
+public class LigatureExtension implements HtmlRendererExtension {
+  /**
+   * Retain insertion order so that ligature substitution uses longer ligatures
+   * ahead of shorter ligatures. The word "ruffian" should use the "ffi"
+   * ligature, not the "ff" ligature.
+   */
+  private final static Map<String, String> LIGATURES = new LinkedHashMap<>();
+
+  static {
+    LIGATURES.put( "ffi", "\uFB03" );
+    LIGATURES.put( "ffl", "\uFB04" );
+    LIGATURES.put( "ff", "\uFB00" );
+    LIGATURES.put( "fi", "\uFB01" );
+    LIGATURES.put( "fl", "\uFB02" );
+    LIGATURES.put( "ft", "\uFB05" );
+    LIGATURES.put( "AE", "\u00C6" );
+    LIGATURES.put( "OE", "\u0152" );
 //      "ae", "\u00E6",
 //      "oe", "\u0153",
-      "AE", "\u00C6",
-      "OE", "\u0152",
-      "ff", "\uFB00",
-      "fi", "\uFB01",
-      "fl", "\uFB02",
-      "ft", "\uFB05"
-  );
-
-  private final static Map<String, String> LIGATURES_LONG = Map.of(
-      "ffi", "\uFB03",
-      "ffl", "\uFB04"
-  );
+  }
 
   private static class LigatureRenderer implements NodeRenderer {
-
     private final TextCollectingVisitor mVisitor = new TextCollectingVisitor();
 
     @SuppressWarnings("unused")
@@ -59,16 +62,25 @@ public class LigatureExtension
           Text.class, LigatureRenderer.this::render ) );
     }
 
-    private <N extends Node> void render(
-        @NotNull final N n,
-        @NotNull final NodeRendererContext nodeRendererContext,
+    /**
+     * This will pick the fastest string replacement algorithm based on the
+     * text length. The insertion order of the {@link #LIGATURES} is
+     * important to give precedence to longer ligatures.
+     *
+     * @param textNode The text node containing text to replace with ligatures.
+     * @param context  Not used.
+     * @param html     Where to write the text adorned with ligatures.
+     */
+    private void render(
+        @NotNull final Text textNode,
+        @NotNull final NodeRendererContext context,
         @NotNull final HtmlWriter html ) {
-      final var text = mVisitor.collectAndGetText( n );
-      html.text( replace( replace( text, LIGATURES_LONG ), LIGATURES_SHORT ) );
+      final var text = mVisitor.collectAndGetText( textNode );
+      html.text( replace( text, LIGATURES ) );
     }
   }
 
-  public static class Factory implements NodeRendererFactory {
+  private static class Factory implements NodeRendererFactory {
     @NotNull
     @Override
     public NodeRenderer apply( @NotNull DataHolder options ) {
@@ -84,7 +96,7 @@ public class LigatureExtension
   }
 
   @Override
-  public void extend( @NotNull final HtmlRenderer.Builder builder,
+  public void extend( @NotNull final Builder builder,
                       @NotNull final String rendererType ) {
     if( "HTML".equalsIgnoreCase( rendererType ) ) {
       builder.nodeRendererFactory( new Factory() );
