@@ -28,9 +28,9 @@
 package com.scrivenvar.editors;
 
 import com.scrivenvar.AbstractFileFactory;
-import com.scrivenvar.sigils.RVariableDecorator;
+import com.scrivenvar.sigils.RSigilOperator;
 import com.scrivenvar.sigils.SigilOperator;
-import com.scrivenvar.sigils.YamlVariableDecorator;
+import com.scrivenvar.sigils.YamlSigilOperator;
 import java.nio.file.Path;
 
 /**
@@ -49,11 +49,11 @@ public class VariableNameDecoratorFactory extends AbstractFileFactory {
     switch( factory.lookup( path ) ) {
       case RMARKDOWN:
       case RXML:
-        result = new RVariableDecorator();
+        result = new RSigilOperator();
         break;
 
       default:
-        result = new YamlVariableDecorator();
+        result = new YamlSigilOperator();
         break;
     }
 

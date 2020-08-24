@@ -30,7 +30,7 @@ package com.scrivenvar.sigils;
 /**
  * Brackets variable names with dollar symbols.
  */
-public class YamlVariableDecorator implements SigilOperator {
+public class YamlSigilOperator implements SigilOperator {
 
   /**
    * Returns the given {@link String} verbatim because variables in YAML

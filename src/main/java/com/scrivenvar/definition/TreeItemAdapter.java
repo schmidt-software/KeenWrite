@@ -28,7 +28,7 @@
 package com.scrivenvar.definition;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.scrivenvar.sigils.YamlVariableDecorator;
+import com.scrivenvar.sigils.YamlSigilOperator;
 import com.scrivenvar.preview.HTMLPreviewPane;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
@@ -149,6 +149,6 @@ public class TreeItemAdapter {
       separator = SEPARATOR;
     }
 
-    return YamlVariableDecorator.entoken( key.toString() );
+    return YamlSigilOperator.entoken( key.toString() );
   }
 }

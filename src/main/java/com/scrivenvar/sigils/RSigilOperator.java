@@ -34,7 +34,7 @@ import com.scrivenvar.service.Options;
 /**
  * Brackets variable names between {@link #PREFIX} and {@link #SUFFIX} sigils.
  */
-public class RVariableDecorator implements SigilOperator {
+public class RSigilOperator implements SigilOperator {
   private static final Options sOptions = Services.load( Options.class );
 
   public static final String PREFIX = "`r#";

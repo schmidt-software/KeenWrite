@@ -45,8 +45,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.scrivenvar.Constants.STATUS_PARSE_ERROR;
 import static com.scrivenvar.Messages.get;
-import static com.scrivenvar.sigils.RVariableDecorator.PREFIX;
-import static com.scrivenvar.sigils.RVariableDecorator.SUFFIX;
+import static com.scrivenvar.sigils.RSigilOperator.PREFIX;
+import static com.scrivenvar.sigils.RSigilOperator.SUFFIX;
 import static com.scrivenvar.processors.text.TextReplacementFactory.replace;
 import static java.lang.Math.min;
 import static java.lang.String.format;
