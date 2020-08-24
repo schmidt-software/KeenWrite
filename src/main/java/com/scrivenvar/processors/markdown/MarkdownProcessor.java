@@ -96,7 +96,7 @@ public class MarkdownProcessor extends AbstractProcessor<String> {
    * @return The HTML representation of the Markdown document.
    */
   @Override
-  public String process( final String markdown ) {
+  public String apply( final String markdown ) {
     return toHtml( markdown );
   }
 

@@ -25,16 +25,16 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.scrivenvar.decorators;
+package com.scrivenvar.sigils;
 
 import com.scrivenvar.Services;
 import com.scrivenvar.preferences.UserPreferences;
 import com.scrivenvar.service.Options;
 
 /**
- * Brackets variable names with {@code `r#} and {@code `}.
+ * Brackets variable names between {@link #PREFIX} and {@link #SUFFIX} sigils.
  */
-public class RVariableDecorator implements VariableDecorator {
+public class RVariableDecorator implements SigilOperator {
   private static final Options sOptions = Services.load( Options.class );
 
   public static final String PREFIX = "`r#";
@@ -53,7 +53,7 @@ public class RVariableDecorator implements VariableDecorator {
    * @return "`r#" + delimiterBegan + variableName+ delimiterEnded + "`".
    */
   @Override
-  public String decorate( String variableName ) {
+  public String apply( String variableName ) {
     assert variableName != null;
 
     // Delete the $ $ sigils from Markdown variables.

@@ -25,22 +25,15 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.scrivenvar.decorators;
+package com.scrivenvar.sigils;
+
+import java.util.function.UnaryOperator;
 
 /**
- * Responsible for updating variable names to use a machine-readable format
- * corresponding to the type of file being edited.
+ * Responsible for updating definition keys to use a machine-readable format
+ * corresponding to the type of file being edited. This changes a definition
+ * key name based on some criteria determined by the factory that creates
+ * implementations of this interface.
  */
-public interface VariableDecorator {
-
-  /**
-   * This decorates a variable name based on some criteria determined by the
-   * factory that creates implementations of this interface.
-   *
-   * @param variableName The text to decorate as per the filename extension
-   *                     would indicate (e.g., ".md" goes to $VAR$ while "
-   *                     .Rmd" goes to `r#VAR`).
-   * @return The given variable name modified with its requisite delimiters.
-   */
-  String decorate( String variableName );
+public interface SigilOperator extends UnaryOperator<String> {
 }

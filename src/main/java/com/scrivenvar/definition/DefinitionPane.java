@@ -242,46 +242,46 @@ public final class DefinitionPane extends BorderPane {
   }
 
   /**
-   * Delegates to {@link VariableTreeItem#findLeafExact(String)}.
+   * Delegates to {@link DefinitionTreeItem#findLeafExact(String)}.
    *
    * @param text The value to find, never {@code null}.
    * @return The leaf that contains the given value, or {@code null} if
    * not found.
    */
-  public VariableTreeItem<String> findLeafExact( final String text ) {
+  public DefinitionTreeItem<String> findLeafExact( final String text ) {
     return getTreeRoot().findLeafExact( text );
   }
 
   /**
-   * Delegates to {@link VariableTreeItem#findLeafContains(String)}.
+   * Delegates to {@link DefinitionTreeItem#findLeafContains(String)}.
    *
    * @param text The value to find, never {@code null}.
    * @return The leaf that contains the given value, or {@code null} if
    * not found.
    */
-  public VariableTreeItem<String> findLeafContains( final String text ) {
+  public DefinitionTreeItem<String> findLeafContains( final String text ) {
     return getTreeRoot().findLeafContains( text );
   }
 
   /**
-   * Delegates to {@link VariableTreeItem#findLeafContains(String)}.
+   * Delegates to {@link DefinitionTreeItem#findLeafContains(String)}.
    *
    * @param text The value to find, never {@code null}.
    * @return The leaf that contains the given value, or {@code null} if
    * not found.
    */
-  public VariableTreeItem<String> findLeafContainsNoCase( final String text ) {
+  public DefinitionTreeItem<String> findLeafContainsNoCase( final String text ) {
     return getTreeRoot().findLeafContainsNoCase( text );
   }
 
   /**
-   * Delegates to {@link VariableTreeItem#findLeafStartsWith(String)}.
+   * Delegates to {@link DefinitionTreeItem#findLeafStartsWith(String)}.
    *
    * @param text The value to find, never {@code null}.
    * @return The leaf that contains the given value, or {@code null} if
    * not found.
    */
-  public VariableTreeItem<String> findLeafStartsWith( final String text ) {
+  public DefinitionTreeItem<String> findLeafStartsWith( final String text ) {
     return getTreeRoot().findLeafStartsWith( text );
   }
 
@@ -443,8 +443,8 @@ public final class DefinitionPane extends BorderPane {
     return new MenuItem( get( labelKey ) );
   }
 
-  private VariableTreeItem<String> createTreeItem() {
-    return new VariableTreeItem<>( get( "Definition.menu.add.default" ) );
+  private DefinitionTreeItem<String> createTreeItem() {
+    return new DefinitionTreeItem<>( get( "Definition.menu.add.default" ) );
   }
 
   private TreeCell<String> createTreeCell() {
@@ -510,11 +510,11 @@ public final class DefinitionPane extends BorderPane {
    *
    * @return The first node added to the definition tree.
    */
-  private VariableTreeItem<String> getTreeRoot() {
+  private DefinitionTreeItem<String> getTreeRoot() {
     final TreeItem<String> root = getTreeView().getRoot();
 
-    return root instanceof VariableTreeItem ?
-        (VariableTreeItem<String>) root : new VariableTreeItem<>( "root" );
+    return root instanceof DefinitionTreeItem ?
+        (DefinitionTreeItem<String>) root : new DefinitionTreeItem<>( "root" );
   }
 
   private ObservableList<TreeItem<String>> getSiblings(

@@ -114,8 +114,8 @@ public abstract class AbstractProcessor<T> implements Processor<T> {
     }
 
     @Override
-    public T process( T t ) {
-      return mDelegate.process( t );
+    public T apply( T t ) {
+      return mDelegate.apply( t );
     }
 
     protected void setNext( final Processor<T> next ) {

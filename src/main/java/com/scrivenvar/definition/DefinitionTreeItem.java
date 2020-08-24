@@ -29,25 +29,25 @@ package com.scrivenvar.definition;
 
 import javafx.scene.control.TreeItem;
 
-import java.text.Normalizer;
 import java.util.Stack;
 import java.util.function.BiFunction;
 
 import static java.text.Normalizer.Form.NFD;
+import static java.text.Normalizer.normalize;
 
 /**
- * Provides behaviour afforded to variable names and their corresponding value.
+ * Provides behaviour afforded to definition keys and corresponding value.
  *
- * @param <T> The type of TreeItem (usually String).
+ * @param <T> The type of {@link TreeItem} (usually string).
  */
-public class VariableTreeItem<T> extends TreeItem<T> {
+public class DefinitionTreeItem<T> extends TreeItem<T> {
 
   /**
    * Constructs a new item with a default value.
    *
    * @param value Passed up to superclass.
    */
-  public VariableTreeItem( final T value ) {
+  public DefinitionTreeItem( final T value ) {
     super( value );
   }
 
@@ -58,8 +58,8 @@ public class VariableTreeItem<T> extends TreeItem<T> {
    * @param text The text to match against each leaf in the tree.
    * @return The leaf that has a value exactly matching the given text.
    */
-  public VariableTreeItem<T> findLeafExact( final String text ) {
-    return findLeaf( text, VariableTreeItem::valueEquals );
+  public DefinitionTreeItem<T> findLeafExact( final String text ) {
+    return findLeaf( text, DefinitionTreeItem::valueEquals );
   }
 
   /**
@@ -69,8 +69,8 @@ public class VariableTreeItem<T> extends TreeItem<T> {
    * @param text The text to match against each leaf in the tree.
    * @return The leaf that has a value that contains the given text.
    */
-  public VariableTreeItem<T> findLeafContains( final String text ) {
-    return findLeaf( text, VariableTreeItem::valueContains );
+  public DefinitionTreeItem<T> findLeafContains( final String text ) {
+    return findLeaf( text, DefinitionTreeItem::valueContains );
   }
 
   /**
@@ -80,8 +80,8 @@ public class VariableTreeItem<T> extends TreeItem<T> {
    * @param text The text to match against each leaf in the tree.
    * @return The leaf that has a value that contains the given text.
    */
-  public VariableTreeItem<T> findLeafContainsNoCase( final String text ) {
-    return findLeaf( text, VariableTreeItem::valueContainsNoCase );
+  public DefinitionTreeItem<T> findLeafContainsNoCase( final String text ) {
+    return findLeaf( text, DefinitionTreeItem::valueContainsNoCase );
   }
 
   /**
@@ -91,8 +91,8 @@ public class VariableTreeItem<T> extends TreeItem<T> {
    * @param text The text to match against each leaf in the tree.
    * @return The leaf that has a value that starts with the given text.
    */
-  public VariableTreeItem<T> findLeafStartsWith( final String text ) {
-    return findLeaf( text, VariableTreeItem::valueStartsWith );
+  public DefinitionTreeItem<T> findLeafStartsWith( final String text ) {
+    return findLeaf( text, DefinitionTreeItem::valueStartsWith );
   }
 
   /**
@@ -104,20 +104,20 @@ public class VariableTreeItem<T> extends TreeItem<T> {
    * @return The leaf that has a value starting with the given text, or {@code
    * null} if there was no match found.
    */
-  public VariableTreeItem<T> findLeaf(
+  public DefinitionTreeItem<T> findLeaf(
       final String text,
-      final BiFunction<VariableTreeItem<T>, String, Boolean> findMode ) {
-    final Stack<VariableTreeItem<T>> stack = new Stack<>();
+      final BiFunction<DefinitionTreeItem<T>, String, Boolean> findMode ) {
+    final var stack = new Stack<DefinitionTreeItem<T>>();
     stack.push( this );
 
     // Don't hunt for blank (empty) keys.
     boolean found = text.isBlank();
 
     while( !found && !stack.isEmpty() ) {
-      final VariableTreeItem<T> node = stack.pop();
+      final var node = stack.pop();
 
-      for( final TreeItem<T> child : node.getChildren() ) {
-        final VariableTreeItem<T> result = (VariableTreeItem<T>) child;
+      for( final var child : node.getChildren() ) {
+        final var result = (DefinitionTreeItem<T>) child;
 
         if( result.isLeaf() ) {
           if( found = findMode.apply( result, text ) ) {
@@ -139,8 +139,8 @@ public class VariableTreeItem<T> extends TreeItem<T> {
    * @return A non-null, possibly empty string.
    */
   private String getDiacriticlessValue() {
-    return Normalizer.normalize( getValue().toString(), NFD )
-                     .replaceAll( "\\p{M}", "" );
+    return normalize( getValue().toString(), NFD )
+        .replaceAll( "\\p{M}", "" );
   }
 
   /**
@@ -171,8 +171,7 @@ public class VariableTreeItem<T> extends TreeItem<T> {
    */
   private boolean valueContainsNoCase( final String s ) {
     return isLeaf() && getDiacriticlessValue()
-        .toLowerCase()
-        .contains( s.toLowerCase() );
+        .toLowerCase().contains( s.toLowerCase() );
   }
 
   /**

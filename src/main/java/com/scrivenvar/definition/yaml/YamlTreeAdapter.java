@@ -32,7 +32,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import com.scrivenvar.definition.RootTreeItem;
 import com.scrivenvar.definition.TreeAdapter;
-import com.scrivenvar.definition.VariableTreeItem;
+import com.scrivenvar.definition.DefinitionTreeItem;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 
@@ -163,7 +163,7 @@ public class YamlTreeAdapter implements TreeAdapter {
    * @return A new {@link TreeItem}, never {@code null}.
    */
   private TreeItem<String> createTreeItem( final String value ) {
-    return new VariableTreeItem<>( value );
+    return new DefinitionTreeItem<>( value );
   }
 
   /**

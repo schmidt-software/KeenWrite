@@ -25,12 +25,12 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.scrivenvar.decorators;
+package com.scrivenvar.sigils;
 
 /**
  * Brackets variable names with dollar symbols.
  */
-public class YamlVariableDecorator implements VariableDecorator {
+public class YamlVariableDecorator implements SigilOperator {
 
   /**
    * Returns the given {@link String} verbatim because variables in YAML
@@ -40,7 +40,7 @@ public class YamlVariableDecorator implements VariableDecorator {
    * @param variableName Returned verbatim.
    */
   @Override
-  public String decorate( final String variableName ) {
+  public String apply( final String variableName ) {
     assert variableName != null;
     return variableName;
   }

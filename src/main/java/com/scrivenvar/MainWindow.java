@@ -34,7 +34,7 @@ import com.scrivenvar.definition.DefinitionSource;
 import com.scrivenvar.definition.MapInterpolator;
 import com.scrivenvar.definition.yaml.YamlDefinitionSource;
 import com.scrivenvar.editors.EditorPane;
-import com.scrivenvar.editors.VariableNameInjector;
+import com.scrivenvar.editors.DefinitionNameInjector;
 import com.scrivenvar.editors.markdown.MarkdownEditorPane;
 import com.scrivenvar.preferences.UserPreferences;
 import com.scrivenvar.preview.HTMLPreviewPane;
@@ -206,8 +206,8 @@ public class MainWindow implements Observer {
   /**
    * Listens on the definition pane for double-click events.
    */
-  private final VariableNameInjector mVariableNameInjector
-      = new VariableNameInjector( mDefinitionPane );
+  private final DefinitionNameInjector mVariableNameInjector
+      = new DefinitionNameInjector( mDefinitionPane );
 
   public MainWindow() {
     sNotifier.addObserver( this );
@@ -556,7 +556,7 @@ public class MainWindow implements Observer {
    */
   private String processChain( Processor<String> handler, String text ) {
     while( handler != null && text != null ) {
-      text = handler.process( text );
+      text = handler.apply( text );
       handler = handler.next();
     }
 
@@ -1380,7 +1380,7 @@ public class MainWindow implements Observer {
     return mFindTextField;
   }
 
-  private VariableNameInjector getVariableNameInjector() {
+  private DefinitionNameInjector getVariableNameInjector() {
     return mVariableNameInjector;
   }
 

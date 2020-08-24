@@ -54,7 +54,7 @@ public class DefinitionProcessor extends AbstractProcessor<String> {
    * @return The text with all variables replaced.
    */
   @Override
-  public String process( final String text ) {
+  public String apply( final String text ) {
     return replace( text, getDefinitions() );
   }
 

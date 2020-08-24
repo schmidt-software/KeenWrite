@@ -92,7 +92,7 @@ public class XmlProcessor extends AbstractProcessor<String>
    * @return The transformed text, or empty if text is empty.
    */
   @Override
-  public String process( final String text ) {
+  public String apply( final String text ) {
     try {
       return text.isEmpty() ? text : transform( text );
     } catch( final Exception ex ) {

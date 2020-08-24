@@ -59,7 +59,7 @@ public class HtmlPreviewProcessor extends AbstractProcessor<String> {
    * @return {@code null} to indicate no more processors in the chain.
    */
   @Override
-  public String process( final String html ) {
+  public String apply( final String html ) {
     getHtmlPreviewPane().process( html );
 
     // No more processing required.

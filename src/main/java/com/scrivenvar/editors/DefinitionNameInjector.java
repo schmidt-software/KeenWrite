@@ -28,9 +28,9 @@
 package com.scrivenvar.editors;
 
 import com.scrivenvar.FileEditorTab;
-import com.scrivenvar.decorators.VariableDecorator;
+import com.scrivenvar.sigils.SigilOperator;
 import com.scrivenvar.definition.DefinitionPane;
-import com.scrivenvar.definition.VariableTreeItem;
+import com.scrivenvar.definition.DefinitionTreeItem;
 import javafx.scene.control.TreeItem;
 import javafx.scene.input.KeyEvent;
 import org.fxmisc.richtext.StyledTextArea;
@@ -45,7 +45,7 @@ import static org.fxmisc.wellbehaved.event.EventPattern.keyPressed;
 /**
  * Provides the logic for injecting variable names within the editor.
  */
-public final class VariableNameInjector {
+public final class DefinitionNameInjector {
 
   /**
    * Recipient of name injections.
@@ -62,7 +62,7 @@ public final class VariableNameInjector {
    *
    * @param pane The definition panel to listen to for double-click events.
    */
-  public VariableNameInjector( final DefinitionPane pane ) {
+  public DefinitionNameInjector( final DefinitionPane pane ) {
     mDefinitionPane = pane;
   }
 
@@ -106,7 +106,7 @@ public final class VariableNameInjector {
     final String paragraph = getCaretParagraph();
     final int[] boundaries = getWordBoundariesAtCaret();
     final String word = paragraph.substring( boundaries[ 0 ], boundaries[ 1 ] );
-    final VariableTreeItem<String> leaf = findLeaf( word );
+    final DefinitionTreeItem<String> leaf = findLeaf( word );
 
     if( leaf != null ) {
       replaceText( boundaries[ 0 ], boundaries[ 1 ], decorate( leaf ) );
@@ -139,7 +139,7 @@ public final class VariableNameInjector {
    *
    * @param leaf The path to the leaf (the definition key) to be decorated.
    */
-  private String decorate( final VariableTreeItem<String> leaf ) {
+  private String decorate( final DefinitionTreeItem<String> leaf ) {
     return decorate( leaf.toPath() );
   }
 
@@ -151,7 +151,7 @@ public final class VariableNameInjector {
    *                 start or end sigils present.
    */
   private String decorate( final String variable ) {
-    return getVariableDecorator().decorate( variable );
+    return getVariableDecorator().apply( variable );
   }
 
   /**
@@ -199,15 +199,16 @@ public final class VariableNameInjector {
    * Looks for the given word, matching first by exact, next by a starts-with
    * condition with diacritics replaced, then by containment.
    *
-   * @param word
-   * @return
+   * @param word The word to match by: exact, at the beginning, or containment.
+   * @return The matching {@link DefinitionTreeItem} for the given word, or
+   * {@code null} if none found.
    */
   @SuppressWarnings("ConstantConditions")
-  private VariableTreeItem<String> findLeaf( final String word ) {
+  private DefinitionTreeItem<String> findLeaf( final String word ) {
     assert word != null;
 
     final var pane = getDefinitionPane();
-    VariableTreeItem<String> leaf = null;
+    DefinitionTreeItem<String> leaf = null;
 
     leaf = leaf == null ? pane.findLeafExact( word ) : leaf;
     leaf = leaf == null ? pane.findLeafStartsWith( word ) : leaf;
@@ -232,7 +233,7 @@ public final class VariableNameInjector {
   /**
    * @return A variable decorator that corresponds to the given file type.
    */
-  private VariableDecorator getVariableDecorator() {
+  private SigilOperator getVariableDecorator() {
     return VariableNameDecoratorFactory.newInstance( getFilename() );
   }
 

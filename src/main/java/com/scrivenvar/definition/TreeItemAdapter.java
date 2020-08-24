@@ -28,7 +28,7 @@
 package com.scrivenvar.definition;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.scrivenvar.decorators.YamlVariableDecorator;
+import com.scrivenvar.sigils.YamlVariableDecorator;
 import com.scrivenvar.preview.HTMLPreviewPane;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;

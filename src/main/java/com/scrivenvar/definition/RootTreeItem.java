@@ -43,7 +43,7 @@ import javafx.scene.control.TreeView;
  *
  * @param <T> The type of {@link TreeItem} to store in the {@link TreeView}.
  */
-public class RootTreeItem<T> extends VariableTreeItem<T> {
+public class RootTreeItem<T> extends DefinitionTreeItem<T> {
   /**
    * Default constructor, calls the superclass, no other behaviour.
    *

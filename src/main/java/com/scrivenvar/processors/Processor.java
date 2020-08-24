@@ -27,23 +27,26 @@
  */
 package com.scrivenvar.processors;
 
+import java.util.function.UnaryOperator;
+
 /**
  * Responsible for processing documents from one known format to another.
+ * Processes the given content providing a transformation from one document
+ * format into another. For example, this could convert from XML to text using
+ * an XSLT processor, or from markdown to HTML.
  *
  * @param <T> The type of processor to create.
  */
-public interface Processor<T> {
+public interface Processor<T> extends UnaryOperator<T> {
 
   /**
-   * Processes the given content providing a transformation from one document
-   * format into another. For example, this could convert from XML to text using
-   * an XSLT processor, or from markdown to HTML.
+   * Removes the given processor from the chain, returning a new immutable
+   * chain equivalent to this chain, but without the given processor.
    *
-   * @param t The type of object to process.
-   * @return The post-processed document, or null if processing should stop.
+   * @param processor The {@link Processor} to remove from the chain.
+   * @return A delegating processor chain starting from this processor
+   * onwards with the given processor removed from the chain.
    */
-  T process( T t );
-
   Processor<T> remove( Class<? extends Processor<T>> processor );
 
   /**
