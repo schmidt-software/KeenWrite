@@ -60,7 +60,7 @@ import static com.scrivenvar.Constants.DEFAULT_MAP_SIZE;
  */
 public class TreeItemAdapter {
   /**
-   * Separates YAML variable nodes (e.g., the dots in {@code $root.node.var$}).
+   * Separates YAML definition keys (e.g., the dots in {@code $root.node.var$}).
    */
   public static final String SEPARATOR = ".";
 

@@ -1,5 +1,8 @@
 # License
 
+Copyright 2015 Karl Tauber
+All rights reserved.
+
 Copyright 2020 White Magic Software, Ltd.
 All rights reserved.
 
