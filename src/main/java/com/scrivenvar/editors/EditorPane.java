@@ -54,7 +54,7 @@ import static org.fxmisc.wellbehaved.event.InputMap.consume;
  */
 public class EditorPane extends Pane {
 
-  private final static Options sOptions = Services.load( Options.class );
+  private static final Options sOptions = Services.load( Options.class );
 
   /**
    * Used when changing the text area font size.

@@ -25,24 +25,11 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.scrivenvar.sigils;
-
-import com.scrivenvar.Services;
-import com.scrivenvar.preferences.UserPreferences;
-import com.scrivenvar.service.Options;
-
-import java.util.function.UnaryOperator;
+package com.scrivenvar.processors.math;
 
 /**
- * Responsible for updating definition keys to use a machine-readable format
- * corresponding to the type of file being edited. This changes a definition
- * key name based on some criteria determined by the factory that creates
- * implementations of this interface.
+ * Responsible for parsing equations in a document and rendering them as
+ * scalable vector graphics (SVG).
  */
-public abstract class SigilOperator implements UnaryOperator<String> {
-  private static final Options sOptions = Services.load( Options.class );
-
-  protected static UserPreferences getUserPreferences() {
-    return sOptions.getUserPreferences();
-  }
+public class MathProcessor {
 }

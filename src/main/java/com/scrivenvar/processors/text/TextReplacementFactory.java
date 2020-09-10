@@ -35,8 +35,8 @@ import java.util.Map;
  */
 public final class TextReplacementFactory {
 
-  private final static TextReplacer APACHE = new StringUtilsReplacer();
-  private final static TextReplacer AHO_CORASICK = new AhoCorasickReplacer();
+  private static final TextReplacer APACHE = new StringUtilsReplacer();
+  private static final TextReplacer AHO_CORASICK = new AhoCorasickReplacer();
 
   /**
    * Returns a text search/replacement instance that is reasonably optimal for

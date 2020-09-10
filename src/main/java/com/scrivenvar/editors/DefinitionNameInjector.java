@@ -234,7 +234,7 @@ public final class DefinitionNameInjector {
    * @return A variable decorator that corresponds to the given file type.
    */
   private SigilOperator getVariableDecorator() {
-    return VariableNameDecoratorFactory.newInstance( getFilename() );
+    return DefinitionDecoratorFactory.newInstance( getFilename() );
   }
 
   private Path getFilename() {

@@ -70,7 +70,7 @@ public final class Main extends Application {
   /**
    * Must be static, otherwise instant crash.
    */
-  private final static Notifier sNotifier = Services.load( Notifier.class );
+  private static final Notifier sNotifier = Services.load( Notifier.class );
   private final Options mOptions = Services.load( Options.class );
   private final Snitch mSnitch = Services.load( Snitch.class );
 

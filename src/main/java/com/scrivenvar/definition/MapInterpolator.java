@@ -27,9 +27,16 @@
  */
 package com.scrivenvar.definition;
 
+import com.scrivenvar.sigils.YamlSigilOperator;
+
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static com.scrivenvar.sigils.YamlSigilOperator.REGEX_PATTERN;
+import static java.lang.String.format;
+import static java.util.regex.Pattern.compile;
+import static java.util.regex.Pattern.quote;
 
 /**
  * Responsible for performing string interpolation on key/value pairs stored
@@ -37,18 +44,7 @@ import java.util.regex.Pattern;
  * keys in the map.
  */
 public class MapInterpolator {
-
-  /**
-   * Matches variables delimited by dollar symbols.
-   */
-  private final static String REGEX = "(\\$.*?\\$)";
-
-  /**
-   * Compiled regular expression for matching delimited references.
-   */
-  private final static Pattern REGEX_PATTERN = Pattern.compile( REGEX );
-
-  private final static int GROUP_DELIMITED = 1;
+  private static final int GROUP_DELIMITED = 1;
 
   /**
    * Empty.
@@ -59,7 +55,7 @@ public class MapInterpolator {
   /**
    * Performs string interpolation on the values in the given map. This will
    * change any value in the map that contains a variable that matches
-   * {@link #REGEX_PATTERN}.
+   * {@link YamlSigilOperator#REGEX_PATTERN}.
    *
    * @param map Contains values that represent references to keys.
    */

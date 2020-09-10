@@ -270,7 +270,8 @@ public final class DefinitionPane extends BorderPane {
    * @return The leaf that contains the given value, or {@code null} if
    * not found.
    */
-  public DefinitionTreeItem<String> findLeafContainsNoCase( final String text ) {
+  public DefinitionTreeItem<String> findLeafContainsNoCase(
+      final String text ) {
     return getTreeRoot().findLeafContainsNoCase( text );
   }
 
@@ -511,10 +512,11 @@ public final class DefinitionPane extends BorderPane {
    * @return The first node added to the definition tree.
    */
   private DefinitionTreeItem<String> getTreeRoot() {
-    final TreeItem<String> root = getTreeView().getRoot();
+    final var root = getTreeView().getRoot();
 
-    return root instanceof DefinitionTreeItem ?
-        (DefinitionTreeItem<String>) root : new DefinitionTreeItem<>( "root" );
+    return root instanceof DefinitionTreeItem
+        ? (DefinitionTreeItem<String>) root
+        : new DefinitionTreeItem<>( "root" );
   }
 
   private ObservableList<TreeItem<String>> getSiblings(

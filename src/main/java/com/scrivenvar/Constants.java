@@ -37,7 +37,7 @@ import java.nio.file.Paths;
  */
 public class Constants {
 
-  public final static Settings SETTINGS = Services.load( Settings.class );
+  public static final Settings SETTINGS = Services.load( Settings.class );
 
   /**
    * Prevent instantiation.
@@ -121,14 +121,24 @@ public class Constants {
   public static final Path DEFAULT_DIRECTORY = Paths.get( USER_DIRECTORY );
 
   /**
+   * Default starting delimiter for definition variables.
+   */
+  public static final String DEF_DELIM_BEGAN_DEFAULT = "${";
+
+  /**
+   * Default ending delimiter for definition variables.
+   */
+  public static final String DEF_DELIM_ENDED_DEFAULT = "}";
+
+  /**
    * Default starting delimiter when inserting R variables.
    */
-  public static final String R_DELIMITER_BEGAN_DEFAULT = "x( ";
+  public static final String R_DELIM_BEGAN_DEFAULT = "x( ";
 
   /**
    * Default ending delimiter when inserting R variables.
    */
-  public static final String R_DELIMITER_ENDED_DEFAULT = " )";
+  public static final String R_DELIM_ENDED_DEFAULT = " )";
 
   /**
    * Resource directory where different language lexicons are located.

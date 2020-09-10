@@ -27,15 +27,13 @@
  */
 package com.scrivenvar.sigils;
 
-import com.scrivenvar.Services;
-import com.scrivenvar.preferences.UserPreferences;
-import com.scrivenvar.service.Options;
+import static com.scrivenvar.sigils.YamlSigilOperator.KEY_SEPARATOR_DEF;
 
 /**
  * Brackets variable names between {@link #PREFIX} and {@link #SUFFIX} sigils.
  */
-public class RSigilOperator implements SigilOperator {
-  private static final Options sOptions = Services.load( Options.class );
+public class RSigilOperator extends SigilOperator {
+  public static final char KEY_SEPARATOR_R = '$';
 
   public static final String PREFIX = "`r#";
   public static final char SUFFIX = '`';
@@ -49,27 +47,30 @@ public class RSigilOperator implements SigilOperator {
    * Returns the given string R-escaping backticks prepended and appended. This
    * is not null safe. Do not pass null into this method.
    *
-   * @param variableName The string to decorate.
+   * @param key The string to adorn with R token delimiters.
    * @return "`r#" + delimiterBegan + variableName+ delimiterEnded + "`".
    */
   @Override
-  public String apply( String variableName ) {
-    assert variableName != null;
-
-    // Delete the $ $ sigils from Markdown variables.
-    if( variableName.length() > 1 ) {
-      variableName = variableName.substring( 1, variableName.length() - 1 );
-    }
+  public String apply( final String key ) {
+    assert key != null;
 
     return PREFIX
         + mDelimiterBegan
-        + "v$"
-        + variableName.replace( '.', '$' )
+        + entoken( key )
         + mDelimiterEnded
         + SUFFIX;
   }
 
-  private UserPreferences getUserPreferences() {
-    return sOptions.getUserPreferences();
+  /**
+   * Transforms a definition key (bracketed by token delimiters) into the
+   * expected format for an R variable key name.
+   *
+   * @param key The variable name to transform, can be empty but not null.
+   * @return The transformed variable name.
+   */
+  public static String entoken( final String key ) {
+    return "v$" +
+        YamlSigilOperator.detoken( key )
+                         .replace( KEY_SEPARATOR_DEF, KEY_SEPARATOR_R );
   }
 }

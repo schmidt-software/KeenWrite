@@ -35,9 +35,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class TreeItemInterpolatorTest {
 
-  private final static String AUTHOR_FIRST = "FirstName";
-  private final static String AUTHOR_LAST = "LastName";
-  private final static String AUTHOR_ALL = "$root.name.first$ $root.name.last$";
+  private static final String AUTHOR_FIRST = "FirstName";
+  private static final String AUTHOR_LAST = "LastName";
+  private static final String AUTHOR_ALL = "$root.name.first$ $root.name.last$";
 
   /**
    * Test that a hierarchical relationship of {@link TreeItem} instances can

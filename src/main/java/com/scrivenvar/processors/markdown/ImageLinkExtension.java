@@ -58,8 +58,8 @@ public class ImageLinkExtension implements HtmlRenderer.HtmlRendererExtension {
   /**
    * Used for image directory preferences.
    */
-  private final static Options sOptions = Services.load( Options.class );
-  private final static Notifier sNotifier = Services.load( Notifier.class );
+  private static final Options sOptions = Services.load( Options.class );
+  private static final Notifier sNotifier = Services.load( Notifier.class );
 
   /**
    * Creates an extension capable of using a relative path to embed images.

@@ -31,32 +31,24 @@ import com.scrivenvar.AbstractFileFactory;
 import com.scrivenvar.sigils.RSigilOperator;
 import com.scrivenvar.sigils.SigilOperator;
 import com.scrivenvar.sigils.YamlSigilOperator;
+
 import java.nio.file.Path;
 
 /**
- * Responsible for creating a variable name decorator suited to a particular
+ * Responsible for creating a definition name decorator suited to a particular
  * file type.
  */
-public class VariableNameDecoratorFactory extends AbstractFileFactory {
+public class DefinitionDecoratorFactory extends AbstractFileFactory {
 
-  private VariableNameDecoratorFactory() {
+  private DefinitionDecoratorFactory() {
   }
 
   public static SigilOperator newInstance( final Path path ) {
-    final var factory = new VariableNameDecoratorFactory();
-    final SigilOperator result;
+    final var factory = new DefinitionDecoratorFactory();
 
-    switch( factory.lookup( path ) ) {
-      case RMARKDOWN:
-      case RXML:
-        result = new RSigilOperator();
-        break;
-
-      default:
-        result = new YamlSigilOperator();
-        break;
-    }
-
-    return result;
+    return switch( factory.lookup( path ) ) {
+      case RMARKDOWN, RXML -> new RSigilOperator();
+      default -> new YamlSigilOperator();
+    };
   }
 }

@@ -58,6 +58,8 @@ public class UserPreferences {
   private final ObjectProperty<File> mPropDefinitionPath;
   private final StringProperty mRDelimiterBegan;
   private final StringProperty mRDelimiterEnded;
+  private final StringProperty mDefDelimiterBegan;
+  private final StringProperty mDefDelimiterEnded;
   private final IntegerProperty mPropFontsSizeEditor;
 
   public UserPreferences() {
@@ -71,8 +73,11 @@ public class UserPreferences {
         getSetting( "file.definition.default", DEFINITION_NAME )
     );
 
-    mRDelimiterBegan = new SimpleStringProperty( R_DELIMITER_BEGAN_DEFAULT );
-    mRDelimiterEnded = new SimpleStringProperty( R_DELIMITER_ENDED_DEFAULT );
+    mDefDelimiterBegan = new SimpleStringProperty( DEF_DELIM_BEGAN_DEFAULT );
+    mDefDelimiterEnded = new SimpleStringProperty( DEF_DELIM_ENDED_DEFAULT );
+
+    mRDelimiterBegan = new SimpleStringProperty( R_DELIM_BEGAN_DEFAULT );
+    mRDelimiterEnded = new SimpleStringProperty( R_DELIM_ENDED_DEFAULT );
 
     mPropFontsSizeEditor = new SimpleIntegerProperty( FONT_SIZE_EDITOR );
 
@@ -155,6 +160,16 @@ public class UserPreferences {
                 get( "Preferences.definitions.path" ),
                 Setting.of( label( "Preferences.definitions.path.desc" ) ),
                 Setting.of( "Path", mPropDefinitionPath, false )
+            ),
+            Group.of(
+                get( "Preferences.definitions.delimiter.began" ),
+                Setting.of( label( "Preferences.definitions.delimiter.began.desc" ) ),
+                Setting.of( "Opening", mDefDelimiterBegan )
+            ),
+            Group.of(
+                get( "Preferences.definitions.delimiter.ended" ),
+                Setting.of( label( "Preferences.definitions.delimiter.ended.desc" ) ),
+                Setting.of( "Closing", mDefDelimiterEnded )
             )
         ),
         Category.of(
@@ -233,6 +248,22 @@ public class UserPreferences {
 
   public Path getDefinitionPath() {
     return definitionPathProperty().getValue().toPath();
+  }
+
+  private StringProperty defDelimiterBegan() {
+    return mDefDelimiterBegan;
+  }
+
+  public String getDefDelimiterBegan() {
+    return defDelimiterBegan().get();
+  }
+
+  private StringProperty defDelimiterEnded() {
+    return mDefDelimiterEnded;
+  }
+
+  public String getDefDelimiterEnded() {
+    return defDelimiterEnded().get();
   }
 
   public ObjectProperty<File> rDirectoryProperty() {

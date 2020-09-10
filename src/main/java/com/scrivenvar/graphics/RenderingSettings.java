@@ -44,7 +44,7 @@ public class RenderingSettings {
    * Default hints for high-quality rendering that may be changed by
    * the system's rendering hints.
    */
-  private final static Map<Object, Object> DEFAULT_HINTS = Map.of(
+  private static final Map<Object, Object> DEFAULT_HINTS = Map.of(
       KEY_ANTIALIASING,
       VALUE_ANTIALIAS_ON,
       KEY_ALPHA_INTERPOLATION,
@@ -68,7 +68,7 @@ public class RenderingSettings {
   /**
    * Shared hints for high-quality rendering.
    */
-  public final static Map<Object, Object> RENDERING_HINTS = new HashMap<>(
+  public static final Map<Object, Object> RENDERING_HINTS = new HashMap<>(
       DEFAULT_HINTS
   );
 

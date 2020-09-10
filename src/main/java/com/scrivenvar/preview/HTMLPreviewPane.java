@@ -64,7 +64,7 @@ import static org.xhtmlrenderer.swing.ImageResourceLoader.NO_OP_REPAINT_LISTENER
  * HTML preview pane is responsible for rendering an HTML document.
  */
 public final class HTMLPreviewPane extends SwingNode {
-  private final static Notifier sNotifier = Services.load( Notifier.class );
+  private static final Notifier sNotifier = Services.load( Notifier.class );
 
   private static class HTMLPanel extends XHTMLPanel {
     /**
@@ -146,7 +146,7 @@ public final class HTMLPreviewPane extends SwingNode {
    * The CSS must be rendered in points (pt) not pixels (px) to avoid blurry
    * rendering on some platforms.
    */
-  private final static String HTML_PREFIX = "<!DOCTYPE html>"
+  private static final String HTML_PREFIX = "<!DOCTYPE html>"
       + "<html>"
       + "<head>"
       + "<link rel='stylesheet' href='" +
@@ -155,11 +155,11 @@ public final class HTMLPreviewPane extends SwingNode {
       + "<body>";
 
   // Provide some extra space at the end for scrolling past the last line.
-  private final static String HTML_SUFFIX =
+  private static final String HTML_SUFFIX =
       "<p style='height=2em'>&nbsp;</p></body></html>";
 
-  private final static W3CDom W3C_DOM = new W3CDom();
-  private final static XhtmlNamespaceHandler NS_HANDLER =
+  private static final W3CDom W3C_DOM = new W3CDom();
+  private static final XhtmlNamespaceHandler NS_HANDLER =
       new XhtmlNamespaceHandler();
 
   private final StringBuilder mHtmlDocument = new StringBuilder( 65536 );

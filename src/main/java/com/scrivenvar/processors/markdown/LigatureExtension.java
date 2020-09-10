@@ -34,7 +34,7 @@ public class LigatureExtension implements HtmlRendererExtension {
    * ahead of shorter ligatures. The word "ruffian" should use the "ffi"
    * ligature, not the "ff" ligature.
    */
-  private final static Map<String, String> LIGATURES = new LinkedHashMap<>();
+  private static final Map<String, String> LIGATURES = new LinkedHashMap<>();
 
   static {
     LIGATURES.put( "ffi", "\uFB03" );

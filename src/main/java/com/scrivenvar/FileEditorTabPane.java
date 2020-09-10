@@ -70,11 +70,11 @@ import static com.scrivenvar.service.events.Notifier.YES;
  */
 public final class FileEditorTabPane extends TabPane {
 
-  private final static String FILTER_EXTENSION_TITLES =
+  private static final String FILTER_EXTENSION_TITLES =
       "Dialog.file.choose.filter";
 
-  private final static Options sOptions = Services.load( Options.class );
-  private final static Notifier sNotifier = Services.load( Notifier.class );
+  private static final Options sOptions = Services.load( Options.class );
+  private static final Notifier sNotifier = Services.load( Notifier.class );
 
   private final ReadOnlyObjectWrapper<Path> mOpenDefinition =
       new ReadOnlyObjectWrapper<>();

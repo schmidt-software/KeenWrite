@@ -55,12 +55,12 @@ import static org.apache.batik.util.XMLResourceDescriptor.getXMLParserClassName;
  * Responsible for converting SVG images into rasterized PNG images.
  */
 public class SVGRasterizer {
-  private final static Notifier NOTIFIER = Services.load( Notifier.class );
+  private static final Notifier NOTIFIER = Services.load( Notifier.class );
 
-  private final static SAXSVGDocumentFactory mFactory =
+  private static final SAXSVGDocumentFactory mFactory =
       new SAXSVGDocumentFactory( getXMLParserClassName() );
 
-  public final static Image BROKEN_IMAGE_PLACEHOLDER;
+  public static final Image BROKEN_IMAGE_PLACEHOLDER;
 
   static {
     // A FontAwesome camera icon, cleft asunder.

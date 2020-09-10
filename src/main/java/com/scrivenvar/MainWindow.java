@@ -33,8 +33,8 @@ import com.scrivenvar.definition.DefinitionPane;
 import com.scrivenvar.definition.DefinitionSource;
 import com.scrivenvar.definition.MapInterpolator;
 import com.scrivenvar.definition.yaml.YamlDefinitionSource;
-import com.scrivenvar.editors.EditorPane;
 import com.scrivenvar.editors.DefinitionNameInjector;
+import com.scrivenvar.editors.EditorPane;
 import com.scrivenvar.editors.markdown.MarkdownEditorPane;
 import com.scrivenvar.preferences.UserPreferences;
 import com.scrivenvar.preview.HTMLPreviewPane;
@@ -121,9 +121,9 @@ public class MainWindow implements Observer {
    * to prevent subsequent initializations from failing due to missing user
    * preferences.
    */
-  private final static Options sOptions = Services.load( Options.class );
-  private final static Snitch SNITCH = Services.load( Snitch.class );
-  private final static Notifier sNotifier = Services.load( Notifier.class );
+  private static final Options sOptions = Services.load( Options.class );
+  private static final Snitch SNITCH = Services.load( Snitch.class );
+  private static final Notifier sNotifier = Services.load( Notifier.class );
 
   private final Scene mScene;
   private final StatusBar mStatusBar;
@@ -599,18 +599,16 @@ public class MainWindow implements Observer {
 
   private void exportDefinitions( final Path path ) {
     try {
-      final DefinitionPane pane = getDefinitionPane();
-      final TreeItem<String> root = pane.getTreeView().getRoot();
-      final TreeItem<String> problemChild = pane.isTreeWellFormed();
+      final var pane = getDefinitionPane();
+      final var root = pane.getTreeView().getRoot();
+      final var problemChild = pane.isTreeWellFormed();
 
       if( problemChild == null ) {
         getDefinitionSource().getTreeAdapter().export( root, path );
         getNotifier().clear();
       }
       else {
-        final String msg = get(
-            "yaml.error.tree.form", problemChild.getValue() );
-        error( msg );
+        error( get( "yaml.error.tree.form", problemChild.getValue() ) );
       }
     } catch( final Exception ex ) {
       error( ex );
@@ -618,8 +616,8 @@ public class MainWindow implements Observer {
   }
 
   private void interpolateResolvedMap() {
-    final Map<String, String> treeMap = getDefinitionPane().toMap();
-    final Map<String, String> map = new HashMap<>( treeMap );
+    final var treeMap = getDefinitionPane().toMap();
+    final var map = new HashMap<>( treeMap );
     MapInterpolator.interpolate( map );
 
     getResolvedMap().clear();
@@ -1493,7 +1491,7 @@ public class MainWindow implements Observer {
 
   // TODO: Replace with generic interface; provide Markdown/XML implementations.
   // FIXME: https://github.com/DaveJarvis/scrivenvar/issues/59
-  private final static class TextVisitor {
+  private static final class TextVisitor {
     private final NodeVisitor mVisitor = new NodeVisitor( new VisitHandler<>(
         com.vladsch.flexmark.ast.Text.class, this::visit )
     );

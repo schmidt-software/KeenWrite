@@ -52,7 +52,7 @@ import static com.scrivenvar.graphics.SVGRasterizer.rasterize;
 public class SVGReplacedElementFactory
     implements ReplacedElementFactory {
 
-  private final static Notifier sNotifier = Services.load( Notifier.class );
+  private static final Notifier sNotifier = Services.load( Notifier.class );
 
   /**
    * SVG filename extension.

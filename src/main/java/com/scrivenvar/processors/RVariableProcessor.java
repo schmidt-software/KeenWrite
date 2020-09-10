@@ -27,6 +27,8 @@
  */
 package com.scrivenvar.processors;
 
+import com.scrivenvar.sigils.RSigilOperator;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -59,40 +61,14 @@ public class RVariableProcessor extends DefinitionProcessor {
    * @return Map of R variables.
    */
   private Map<String, String> toR( final Map<String, String> map ) {
-    final Map<String, String> rMap = new HashMap<>( map.size() );
+    final var rMap = new HashMap<String, String>( map.size() );
 
-    for( final Map.Entry<String, String> entry : map.entrySet() ) {
+    for( final var entry : map.entrySet() ) {
       final var key = entry.getKey();
-      rMap.put( toRKey( key ), toRValue( map.get( key ) ) );
+      rMap.put( RSigilOperator.entoken( key ), toRValue( map.get( key ) ) );
     }
 
     return rMap;
-  }
-
-  /**
-   * Transforms a variable name from $tree.branch.leaf$ to v$tree$branch$leaf
-   * form.
-   *
-   * @param key The variable name to transform, can be empty but not null.
-   * @return The transformed variable name.
-   */
-  private String toRKey( final String key ) {
-    // Replace all the periods with dollar symbols.
-    final StringBuilder sb = new StringBuilder( 'v' + key );
-    final int length = sb.length();
-
-    // Replace all periods with dollar symbols. Normally we'd check i >= 0,
-    // but the prepended 'v' is always going to be a 'v', not a dot.
-    for( int i = length - 1; i > 0; i-- ) {
-      if( sb.charAt( i ) == '.' ) {
-        sb.setCharAt( i, '$' );
-      }
-    }
-
-    // The length is always at least 1 (the 'v'), so bounds aren't broken here.
-    sb.setLength( length - 1 );
-
-    return sb.toString();
   }
 
   private String toRValue( final String value ) {
