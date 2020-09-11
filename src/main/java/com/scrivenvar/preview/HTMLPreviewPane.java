@@ -29,7 +29,7 @@ package com.scrivenvar.preview;
 
 import com.scrivenvar.Services;
 import com.scrivenvar.adapters.DocumentAdapter;
-import com.scrivenvar.graphics.SVGReplacedElementFactory;
+import com.scrivenvar.graphics.SvgReplacedElementFactory;
 import com.scrivenvar.service.events.Notifier;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -185,7 +185,7 @@ public final class HTMLPreviewPane extends SwingNode {
 
     // Inject an SVG renderer that produces high-quality SVG buffered images.
     final var factory = new ChainedReplacedElementFactory();
-    factory.addFactory( new SVGReplacedElementFactory() );
+    factory.addFactory( new SvgReplacedElementFactory() );
     factory.addFactory( new SwingReplacedElementFactory(
         NO_OP_REPAINT_LISTENER, mImageLoader ) );
 

@@ -88,13 +88,13 @@ public final class InlineRProcessor extends DefinitionProcessor {
   /**
    * Constructs a processor capable of evaluating R statements.
    *
-   * @param processor Subsequent link in the processing chain.
+   * @param successor Subsequent link in the processing chain.
    * @param map       Resolved definitions map.
    */
   public InlineRProcessor(
-      final Processor<String> processor,
+      final Processor<String> successor,
       final Map<String, String> map ) {
-    super( processor, map );
+    super( successor, map );
 
     bootstrapScriptProperty().addListener(
         ( ob, oldScript, newScript ) -> setDirty( true ) );

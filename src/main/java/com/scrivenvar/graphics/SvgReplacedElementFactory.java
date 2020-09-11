@@ -39,25 +39,29 @@ import org.xhtmlrenderer.render.BlockBox;
 import org.xhtmlrenderer.simple.extend.FormSubmissionListener;
 import org.xhtmlrenderer.swing.ImageReplacedElement;
 
-import java.awt.*;
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import static com.scrivenvar.graphics.SVGRasterizer.rasterize;
+import static com.scrivenvar.graphics.SvgRasterizer.*;
 
 /**
- * Responsible for running {@link SVGRasterizer} on SVG images detected within
+ * Responsible for running {@link SvgRasterizer} on SVG images detected within
  * a document to transform them into rasterized versions.
  */
-public class SVGReplacedElementFactory
+public class SvgReplacedElementFactory
     implements ReplacedElementFactory {
 
   private static final Notifier sNotifier = Services.load( Notifier.class );
 
   /**
-   * SVG filename extension.
+   * SVG filename extension maps to an SVG image element.
    */
   private static final String SVG_FILE = "svg";
+  private static final String HTML_SVG = "svg";
+
   private static final String HTML_IMAGE = "img";
   private static final String HTML_IMAGE_SRC = "src";
 
@@ -69,10 +73,10 @@ public class SVGReplacedElementFactory
   /**
    * Where to put cached image files.
    */
-  private final Map<String, Image> mImageCache = new LinkedHashMap<>() {
+  private final Map<String, BufferedImage> mImageCache = new LinkedHashMap<>() {
     @Override
     protected boolean removeEldestEntry(
-        final Map.Entry<String, Image> eldest ) {
+        final Map.Entry<String, BufferedImage> eldest ) {
       return size() > MAX_CACHED_IMAGES;
     }
   };
@@ -84,29 +88,42 @@ public class SVGReplacedElementFactory
       final UserAgentCallback uac,
       final int cssWidth,
       final int cssHeight ) {
-    final Element e = box.getElement();
+    BufferedImage image = null;
+    final var e = box.getElement();
 
     if( e != null ) {
-      final String nodeName = e.getNodeName();
+      final var nodeName = e.getNodeName();
 
       if( HTML_IMAGE.equals( nodeName ) ) {
-        final String src = e.getAttribute( HTML_IMAGE_SRC );
-        final String ext = FilenameUtils.getExtension( src );
+        final var src = e.getAttribute( HTML_IMAGE_SRC );
+        final var ext = FilenameUtils.getExtension( src );
 
         if( SVG_FILE.equalsIgnoreCase( ext ) ) {
           try {
-            final int width = box.getContentWidth();
-            final Image image = getImage( src, width );
-
-            final int w = image.getWidth( null );
-            final int h = image.getHeight( null );
-
-            return new ImageReplacedElement( image, w, h );
+            image = getImage( src, box.getContentWidth() );
           } catch( final Exception ex ) {
             getNotifier().notify( ex );
           }
         }
       }
+      else if( HTML_SVG.equalsIgnoreCase( nodeName ) ) {
+        // Convert the <svg> element to a raster graphic.
+        try {
+          //final int width = box.getContentWidth();
+          final var svg = toSvg( e );
+          image = rasterizeString( svg );
+          ImageIO.write( image, "png", new File( "/tmp/svg.png" ) );
+        } catch( final Exception ex ) {
+          getNotifier().notify( ex );
+        }
+      }
+    }
+
+    if( image != null ) {
+      final var w = image.getWidth( null );
+      final var h = image.getHeight( null );
+
+      return new ImageReplacedElement( image, w, h );
     }
 
     return null;
@@ -124,7 +141,7 @@ public class SVGReplacedElementFactory
   public void setFormSubmissionListener( FormSubmissionListener listener ) {
   }
 
-  private Image getImage( final String src, final int width ) {
+  private BufferedImage getImage( final String src, final int width ) {
     return mImageCache.computeIfAbsent( src, v -> rasterize( src, width ) );
   }
 

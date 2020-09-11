@@ -55,7 +55,6 @@ public class YamlSigilOperator extends SigilOperator {
    */
   public static final Pattern REGEX_PATTERN = compile( REGEX );
 
-
   /**
    * Returns the given {@link String} verbatim because variables in YAML
    * documents and plain Markdown documents already have the appropriate

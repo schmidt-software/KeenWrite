@@ -31,8 +31,8 @@ import com.scrivenvar.AbstractFileFactory;
 import com.scrivenvar.FileEditorTab;
 import com.scrivenvar.preview.HTMLPreviewPane;
 import com.scrivenvar.processors.markdown.MarkdownProcessor;
+import com.scrivenvar.processors.math.MathProcessor;
 
-import java.nio.file.Path;
 import java.util.Map;
 
 /**
@@ -81,6 +81,11 @@ public class ProcessorFactory extends AbstractFileFactory {
     return new HtmlPreviewProcessor( getPreviewPane() );
   }
 
+  private Processor<String> createMathProcessor(
+      final Processor<String> successor ) {
+    return new MathProcessor( successor );
+  }
+
   /**
    * Creates and links the processors at the end of the processing chain.
    *
@@ -88,7 +93,8 @@ public class ProcessorFactory extends AbstractFileFactory {
    */
   private Processor<String> createMarkdownProcessor() {
     final var hpp = createHTMLPreviewProcessor();
-    return new MarkdownProcessor( hpp, getPreviewPane().getPath() );
+    final var tpp = createMathProcessor( hpp );
+    return new MarkdownProcessor( tpp, getPreviewPane().getPath() );
   }
 
   protected Processor<String> createIdentityProcessor() {

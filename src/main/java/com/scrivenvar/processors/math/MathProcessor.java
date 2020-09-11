@@ -27,9 +27,68 @@
  */
 package com.scrivenvar.processors.math;
 
+import com.scrivenvar.processors.AbstractProcessor;
+import com.scrivenvar.processors.Processor;
+import com.whitemagicsoftware.tex.*;
+import com.whitemagicsoftware.tex.graphics.SvgGraphics2D;
+
+import java.util.regex.Pattern;
+
+import static java.util.regex.Pattern.compile;
+
 /**
  * Responsible for parsing equations in a document and rendering them as
  * scalable vector graphics (SVG).
  */
-public class MathProcessor {
+public class MathProcessor extends AbstractProcessor<String> {
+
+  /**
+   * Non-greedy match of math expressions.
+   */
+  private static final String REGEX = "(\\$(.*?)\\$)";
+
+  /**
+   * Compiled regular expression for matching math expression.
+   */
+  public static final Pattern REGEX_PATTERN = compile( REGEX );
+
+  private static final int GROUP_DELIMITED = 2;
+
+  private final float mSize = 18f;
+  private final TeXFont mTeXFont = new DefaultTeXFont( mSize );
+  private final TeXEnvironment mEnvironment = new TeXEnvironment( mTeXFont );
+  private final SvgGraphics2D mGraphics = new SvgGraphics2D();
+
+  public MathProcessor( final Processor<String> successor ) {
+    super( successor );
+    mGraphics.scale( mSize, mSize );
+  }
+
+  @Override
+  public String apply( final String s ) {
+    final var result = new StringBuilder( s.length() * 2 );
+
+    int index = 0;
+
+    final var matcher = REGEX_PATTERN.matcher( s );
+
+    while( matcher.find() ) {
+      final var equation = matcher.group( GROUP_DELIMITED );
+
+      final var formula = new TeXFormula( equation );
+      final var box = formula.createBox( mEnvironment );
+      final var layout = new TeXLayout( box, mSize );
+
+      mGraphics.setDimensions( layout.getWidth(), layout.getHeight() );
+      box.draw( mGraphics, layout.getX(), layout.getY() );
+
+      result.append( s, index, matcher.start() );
+      result.append( mGraphics );
+      index = matcher.end();
+    }
+
+    result.append( s, index, s.length() );
+
+    return result.toString();
+  }
 }

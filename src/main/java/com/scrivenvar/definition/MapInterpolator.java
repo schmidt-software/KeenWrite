@@ -31,12 +31,8 @@ import com.scrivenvar.sigils.YamlSigilOperator;
 
 import java.util.Map;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static com.scrivenvar.sigils.YamlSigilOperator.REGEX_PATTERN;
-import static java.lang.String.format;
-import static java.util.regex.Pattern.compile;
-import static java.util.regex.Pattern.quote;
 
 /**
  * Responsible for performing string interpolation on key/value pairs stored

@@ -212,3 +212,11 @@ th, td {
 img {
   max-width: 100%;
 }
+
+/* Required for FlyingSaucer to detect the node.
+ * See SVGReplacedElementFactory for details.
+ */
+svg {
+  display:block;
+  width:100%;
+}

@@ -36,10 +36,11 @@ public class IdentityProcessor extends AbstractProcessor<String> {
   /**
    * Passes the link to the super constructor.
    *
-   * @param link The next processor in the chain to use for text processing.
+   * @param successor The next processor in the chain to use for text
+   *                  processing.
    */
-  public IdentityProcessor( final Processor<String> link ) {
-    super( link );
+  public IdentityProcessor( final Processor<String> successor ) {
+    super( successor );
   }
 
   /**

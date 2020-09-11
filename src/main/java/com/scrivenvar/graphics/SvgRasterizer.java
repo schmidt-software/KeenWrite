@@ -35,32 +35,65 @@ import org.apache.batik.transcoder.TranscoderException;
 import org.apache.batik.transcoder.TranscoderInput;
 import org.apache.batik.transcoder.TranscoderOutput;
 import org.apache.batik.transcoder.image.ImageTranscoder;
-import org.apache.batik.util.XMLResourceDescriptor;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.StringReader;
+import java.io.StringWriter;
 import java.net.URL;
+import java.text.NumberFormat;
+import java.text.ParseException;
 
 import static com.scrivenvar.graphics.RenderingSettings.RENDERING_HINTS;
-import static java.awt.Color.WHITE;
 import static java.awt.image.BufferedImage.TYPE_INT_RGB;
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.text.NumberFormat.getIntegerInstance;
+import static javax.xml.transform.OutputKeys.*;
 import static org.apache.batik.transcoder.SVGAbstractTranscoder.KEY_WIDTH;
-import static org.apache.batik.transcoder.image.ImageTranscoder.KEY_BACKGROUND_COLOR;
 import static org.apache.batik.util.XMLResourceDescriptor.getXMLParserClassName;
 
 /**
  * Responsible for converting SVG images into rasterized PNG images.
  */
-public class SVGRasterizer {
+public class SvgRasterizer {
   private static final Notifier NOTIFIER = Services.load( Notifier.class );
 
-  private static final SAXSVGDocumentFactory mFactory =
+  private static final SAXSVGDocumentFactory FACTORY_DOM =
       new SAXSVGDocumentFactory( getXMLParserClassName() );
 
-  public static final Image BROKEN_IMAGE_PLACEHOLDER;
+  private static final TransformerFactory FACTORY_TRANSFORM =
+      TransformerFactory.newInstance();
+
+  private static final Transformer sTransformer;
+
+  static {
+    Transformer t;
+
+    try {
+      t = FACTORY_TRANSFORM.newTransformer();
+      t.setOutputProperty( OMIT_XML_DECLARATION, "yes" );
+      t.setOutputProperty( METHOD, "xml" );
+      t.setOutputProperty( INDENT, "no" );
+      t.setOutputProperty( ENCODING, UTF_8.name() );
+    } catch( final TransformerConfigurationException e ) {
+      t = null;
+    }
+
+    sTransformer = t;
+  }
+
+  private static final NumberFormat INT_FORMAT = getIntegerInstance();
+
+  public static final BufferedImage BROKEN_IMAGE_PLACEHOLDER;
 
   static {
     // A FontAwesome camera icon, cleft asunder.
@@ -94,14 +127,10 @@ public class SVGRasterizer {
     // path element values are relative to the viewBox dimensions.
     final int w = 75;
     final int h = 75;
-    Image image;
+    BufferedImage image;
 
-    try( final StringReader reader = new StringReader( BROKEN_IMAGE_SVG ) ) {
-      final String parser = XMLResourceDescriptor.getXMLParserClassName();
-      final SAXSVGDocumentFactory factory = new SAXSVGDocumentFactory( parser );
-      final Document document = factory.createDocument( "", reader );
-
-      image = rasterize( document, w );
+    try {
+      image = rasterizeString( BROKEN_IMAGE_SVG, w );
     } catch( final Exception e ) {
       image = new BufferedImage( w, h, TYPE_INT_RGB );
       final var graphics = (Graphics2D) image.getGraphics();
@@ -136,7 +165,7 @@ public class SVGRasterizer {
       mImage = image;
     }
 
-    public Image getImage() {
+    public BufferedImage getImage() {
       return mImage;
     }
 
@@ -162,7 +191,7 @@ public class SVGRasterizer {
    *              ratio is maintained.
    * @return Either the rasterized image upon success or a red circle.
    */
-  public static Image rasterize( final String url, final int width ) {
+  public static BufferedImage rasterize( final String url, final int width ) {
     try {
       return rasterize( new URL( url ), width );
     } catch( final Exception e ) {
@@ -183,21 +212,82 @@ public class SVGRasterizer {
    * @throws TranscoderException Could not convert the vector graphic to an
    *                             instance of {@link Image}.
    */
-  public static Image rasterize( final URL url, final int width )
+  public static BufferedImage rasterize( final URL url, final int width )
       throws IOException, TranscoderException {
-    return rasterize(
-        mFactory.createDocument( url.toString() ), width );
+    return rasterize( FACTORY_DOM.createDocument( url.toString() ), width );
   }
 
-  public static Image rasterize(
-      final Document svg, final int width ) throws TranscoderException {
+  /**
+   * Converts an SVG string into a rasterized image that can be drawn on
+   * a graphics context.
+   *
+   * @param xml The SVG xml document.
+   * @param w   Scale the image width to this size (aspect ratio is
+   *            maintained).
+   * @return The vector graphic transcoded into a raster image format.
+   * @throws TranscoderException Could not convert the vector graphic to an
+   *                             instance of {@link Image}.
+   */
+  public static BufferedImage rasterizeString( final String xml, final int w )
+      throws IOException, TranscoderException {
+    return rasterize( toDocument( xml ), w );
+  }
+
+  /**
+   * Converts an SVG string into a rasterized image that can be drawn on
+   * a graphics context. The dimensions are determined from the document.
+   *
+   * @param xml The SVG xml document.
+   * @return The vector graphic transcoded into a raster image format.
+   * @throws TranscoderException Could not convert the vector graphic to an
+   *                             instance of {@link Image}.
+   */
+  public static BufferedImage rasterizeString( final String xml )
+      throws IOException, TranscoderException, ParseException {
+    final var doc = toDocument( xml );
+    final var root = doc.getDocumentElement();
+    final var width = root.getAttribute( "width" );
+    return rasterizeString( xml, INT_FORMAT.parse( width ).intValue() );
+  }
+
+  /**
+   * Converts an SVG XML string into a new {@link Document} instance.
+   *
+   * @param xml The XML containing SVG elements.
+   * @return The SVG contents parsed into a {@link Document} object model.
+   * @throws IOException Could
+   */
+  private static Document toDocument( final String xml ) throws IOException {
+    try( final var reader = new StringReader( xml ) ) {
+      return FACTORY_DOM.createSVGDocument( "http://www.w3.org/2000/svg",
+                                            reader );
+    }
+  }
+
+  public static BufferedImage rasterize( final Document svg, final int width )
+      throws TranscoderException {
     final var transcoder = new BufferedImageTranscoder();
     final var input = new TranscoderInput( svg );
 
-    transcoder.addTranscodingHint( KEY_BACKGROUND_COLOR, WHITE );
+    //transcoder.addTranscodingHint( KEY_BACKGROUND_COLOR, WHITE );
     transcoder.addTranscodingHint( KEY_WIDTH, (float) width );
     transcoder.transcode( input, null );
 
     return transcoder.getImage();
+  }
+
+  /**
+   * Given a document object model (DOM) {@link Element}, this will convert that
+   * element to a string.
+   *
+   * @param e The DOM node to convert to a string.
+   * @return The DOM node as an escaped, plain text string.
+   */
+  public static String toSvg( final Element e )
+      throws TransformerException, IOException {
+    try( final var writer = new StringWriter() ) {
+      sTransformer.transform( new DOMSource( e ), new StreamResult( writer ) );
+      return writer.toString().replaceAll( "xmlns=\"\" ", "" );
+    }
   }
 }

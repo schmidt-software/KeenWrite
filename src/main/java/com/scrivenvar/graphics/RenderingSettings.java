@@ -35,7 +35,7 @@ import static java.awt.Toolkit.getDefaultToolkit;
 
 /**
  * Responsible for supplying consistent rendering hints throughout the
- * application, such as image rendering for {@link SVGRasterizer}.
+ * application, such as image rendering for {@link SvgRasterizer}.
  */
 @SuppressWarnings("rawtypes")
 public class RenderingSettings {
