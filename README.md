@@ -57,7 +57,7 @@ using the application.
 
 ## Screenshots
 
-![Screenshot with Formulas](docs/images/equation.png)
+![Screenshot with Formulas](docs/images/equations.png)
 
 ![Screenshot with Hyperlinks](docs/images/screenshot.png)
 
