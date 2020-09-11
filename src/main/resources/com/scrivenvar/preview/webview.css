@@ -26,6 +26,7 @@ body>*:last-child {
 /* BLOCKS ***/
 p, blockquote, ul, ol, dl, table, pre {
   margin: 1em 0;
+  vertical-align: middle;
 }
 
 /* HEADINGS ***/
@@ -217,6 +218,6 @@ img {
  * See SVGReplacedElementFactory for details.
  */
 svg {
-  display:block;
-  width:100%;
+  display: inline-block;
+  vertical-align: middle;
 }

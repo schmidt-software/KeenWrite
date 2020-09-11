@@ -54,7 +54,7 @@ public class MathProcessor extends AbstractProcessor<String> {
 
   private static final int GROUP_DELIMITED = 2;
 
-  private final float mSize = 18f;
+  private final float mSize = 20f;
   private final TeXFont mTeXFont = new DefaultTeXFont( mSize );
   private final TeXEnvironment mEnvironment = new TeXEnvironment( mTeXFont );
   private final SvgGraphics2D mGraphics = new SvgGraphics2D();

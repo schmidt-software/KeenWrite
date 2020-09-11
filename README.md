@@ -42,6 +42,7 @@ java -jar scrivenvar.jar
 * XML document transformation using XSLT3 or older
 * Platform independent (Windows, Linux, MacOS)
 * Spellcheck while typing
+* Write mathematical formulas using a subset of TeX
 * R integration
 
 ## Usage
@@ -54,9 +55,11 @@ using the application.
 * Search and replace using variables
 * Reorganize variable names
 
-## Screenshot
+## Screenshots
 
-![Screenshot](docs/images/screenshot.png)
+![Screenshot with Formulas](docs/images/equation.png)
+
+![Screenshot with Hyperlinks](docs/images/screenshot.png)
 
 ## License
 
