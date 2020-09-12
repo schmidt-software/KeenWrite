@@ -141,7 +141,7 @@ public final class HTMLPreviewPane extends SwingNode {
             desktop.browse( new URI( link ) );
           }
         }
-        else if( ProtocolResolver.isFile( protocol )) {
+        else if( ProtocolResolver.isFile( protocol ) ) {
           // TODO: #88 -- publish a message to the event bus.
         }
       } catch( final Exception e ) {
