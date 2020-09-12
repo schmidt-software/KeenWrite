@@ -638,10 +638,8 @@ public class MainWindow implements Observer {
    */
   @Override
   public void update( final Observable observable, final Object value ) {
-    if( value != null ) {
-      if( observable instanceof Snitch && value instanceof Path ) {
-        updateSelectedTab();
-      }
+    if( value instanceof Path && observable instanceof Snitch ) {
+      updateSelectedTab();
     }
   }
 

@@ -217,16 +217,16 @@ public class SvgRasterizer {
    * Converts an SVG string into a rasterized image that can be drawn on
    * a graphics context.
    *
-   * @param xml The SVG xml document.
+   * @param svg The SVG xml document.
    * @param w   Scale the image width to this size (aspect ratio is
    *            maintained).
    * @return The vector graphic transcoded into a raster image format.
    * @throws TranscoderException Could not convert the vector graphic to an
    *                             instance of {@link Image}.
    */
-  public static BufferedImage rasterizeString( final String xml, final int w )
+  public static BufferedImage rasterizeString( final String svg, final int w )
       throws IOException, TranscoderException {
-    return rasterize( toDocument( xml ), w );
+    return rasterize( toDocument( svg ), w );
   }
 
   /**
