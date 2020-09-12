@@ -39,13 +39,13 @@ import org.xhtmlrenderer.render.BlockBox;
 import org.xhtmlrenderer.simple.extend.FormSubmissionListener;
 import org.xhtmlrenderer.swing.ImageReplacedElement;
 
-import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.function.Function;
 
-import static com.scrivenvar.graphics.SvgRasterizer.*;
+import static com.scrivenvar.graphics.SvgRasterizer.rasterize;
+import static com.scrivenvar.graphics.SvgRasterizer.toSvg;
 
 /**
  * Responsible for running {@link SvgRasterizer} on SVG images detected within
@@ -100,21 +100,20 @@ public class SvgReplacedElementFactory
 
         if( SVG_FILE.equalsIgnoreCase( ext ) ) {
           try {
-            image = getImage( src, box.getContentWidth() );
+            image = getCachedImage(
+                src, svg -> rasterize( svg, box.getContentWidth() ) );
           } catch( final Exception ex ) {
-            getNotifier().notify( ex );
+            notify( ex );
           }
         }
       }
       else if( HTML_SVG.equalsIgnoreCase( nodeName ) ) {
         // Convert the <svg> element to a raster graphic.
         try {
-          //final int width = box.getContentWidth();
-          final var svg = toSvg( e );
-          image = rasterizeString( svg );
-          ImageIO.write( image, "png", new File( "/tmp/svg.png" ) );
+          final String src = toSvg( e );
+          image = getCachedImage( src, SvgRasterizer::rasterizeString );
         } catch( final Exception ex ) {
-          getNotifier().notify( ex );
+          notify( ex );
         }
       }
     }
@@ -141,11 +140,21 @@ public class SvgReplacedElementFactory
   public void setFormSubmissionListener( FormSubmissionListener listener ) {
   }
 
-  private BufferedImage getImage( final String src, final int width ) {
-    return mImageCache.computeIfAbsent( src, v -> rasterize( src, width ) );
+  /**
+   * Returns an image associated with a string; the string's pre-computed
+   * hash code is returned as the string value, making this operation very
+   * quick to return the corresponding {@link BufferedImage}.
+   *
+   * @param src        The SVG used for the key into the image cache.
+   * @param rasterizer {@link Function} to call to convert SVG to an image.
+   * @return The image that corresponds to the given source string.
+   */
+  private BufferedImage getCachedImage(
+      final String src, final Function<String, BufferedImage> rasterizer ) {
+    return mImageCache.computeIfAbsent( src, v -> rasterizer.apply( src ) );
   }
 
-  private Notifier getNotifier() {
-    return sNotifier;
+  private static void notify( final Exception e ) {
+    sNotifier.notify( e );
   }
 }

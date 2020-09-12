@@ -51,7 +51,6 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.net.URL;
 import java.text.NumberFormat;
-import java.text.ParseException;
 
 import static com.scrivenvar.graphics.RenderingSettings.RENDERING_HINTS;
 import static java.awt.image.BufferedImage.TYPE_INT_RGB;
@@ -65,7 +64,7 @@ import static org.apache.batik.util.XMLResourceDescriptor.getXMLParserClassName;
  * Responsible for converting SVG images into rasterized PNG images.
  */
 public class SvgRasterizer {
-  private static final Notifier NOTIFIER = Services.load( Notifier.class );
+  private static final Notifier sNotifier = Services.load( Notifier.class );
 
   private static final SAXSVGDocumentFactory FACTORY_DOM =
       new SAXSVGDocumentFactory( getXMLParserClassName() );
@@ -195,7 +194,7 @@ public class SvgRasterizer {
     try {
       return rasterize( new URL( url ), width );
     } catch( final Exception e ) {
-      NOTIFIER.notify( e );
+      notify( e );
       return BROKEN_IMAGE_PLACEHOLDER;
     }
   }
@@ -239,15 +238,17 @@ public class SvgRasterizer {
    *
    * @param xml The SVG xml document.
    * @return The vector graphic transcoded into a raster image format.
-   * @throws TranscoderException Could not convert the vector graphic to an
-   *                             instance of {@link Image}.
    */
-  public static BufferedImage rasterizeString( final String xml )
-      throws IOException, TranscoderException, ParseException {
-    final var doc = toDocument( xml );
-    final var root = doc.getDocumentElement();
-    final var width = root.getAttribute( "width" );
-    return rasterizeString( xml, INT_FORMAT.parse( width ).intValue() );
+  public static BufferedImage rasterizeString( final String xml ) {
+    try {
+      final var doc = toDocument( xml );
+      final var root = doc.getDocumentElement();
+      final var width = root.getAttribute( "width" );
+      return rasterizeString( xml, INT_FORMAT.parse( width ).intValue() );
+    } catch( final Exception e ) {
+      notify( e );
+      return BROKEN_IMAGE_PLACEHOLDER;
+    }
   }
 
   /**
@@ -259,8 +260,8 @@ public class SvgRasterizer {
    */
   private static Document toDocument( final String xml ) throws IOException {
     try( final var reader = new StringReader( xml ) ) {
-      return FACTORY_DOM.createSVGDocument( "http://www.w3.org/2000/svg",
-                                            reader );
+      return FACTORY_DOM.createSVGDocument(
+          "http://www.w3.org/2000/svg", reader );
     }
   }
 
@@ -269,7 +270,6 @@ public class SvgRasterizer {
     final var transcoder = new BufferedImageTranscoder();
     final var input = new TranscoderInput( svg );
 
-    //transcoder.addTranscodingHint( KEY_BACKGROUND_COLOR, WHITE );
     transcoder.addTranscodingHint( KEY_WIDTH, (float) width );
     transcoder.transcode( input, null );
 
@@ -289,5 +289,9 @@ public class SvgRasterizer {
       sTransformer.transform( new DOMSource( e ), new StreamResult( writer ) );
       return writer.toString().replaceAll( "xmlns=\"\" ", "" );
     }
+  }
+
+  private static void notify( final Exception e ) {
+    sNotifier.notify( e );
   }
 }
