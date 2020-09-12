@@ -88,10 +88,6 @@ public class Constants {
   public static final String GLOB_PREFIX_DEFINITION =
       "definition." + GLOB_PREFIX_FILE;
 
-  // Different definition source protocols.
-  public static final String DEFINITION_PROTOCOL_UNKNOWN = "unknown";
-  public static final String DEFINITION_PROTOCOL_FILE = "file";
-
   // Three parameters: line number, column number, and offset
   public static final String STATUS_BAR_LINE = "Main.statusbar.line";
 

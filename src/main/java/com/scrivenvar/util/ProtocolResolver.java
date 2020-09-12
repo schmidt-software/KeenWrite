@@ -4,14 +4,13 @@ import java.io.File;
 import java.net.URI;
 import java.net.URL;
 
-import static com.scrivenvar.Constants.DEFINITION_PROTOCOL_UNKNOWN;
-
 /**
  * Responsible for determining the protocol of a resource.
  */
 public class ProtocolResolver {
   private static final String SCHEME_HTTP = "http";
   private static final String SCHEME_FILE = "file";
+  private static final String SCHEME_UNKNOWN = "unknown";
 
   /**
    * Answers {@code true} if the given protocol is either HTTP or HTTPS.
@@ -78,7 +77,7 @@ public class ProtocolResolver {
     try {
       result = file.toURI().toURL().getProtocol();
     } catch( final Exception e ) {
-      result = DEFINITION_PROTOCOL_UNKNOWN;
+      result = SCHEME_UNKNOWN;
     }
 
     return result;

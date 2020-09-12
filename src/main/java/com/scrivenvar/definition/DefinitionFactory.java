@@ -34,7 +34,6 @@ import com.scrivenvar.util.ProtocolResolver;
 
 import java.nio.file.Path;
 
-import static com.scrivenvar.Constants.DEFINITION_PROTOCOL_FILE;
 import static com.scrivenvar.Constants.GLOB_PREFIX_DEFINITION;
 import static com.scrivenvar.FileType.YAML;
 
@@ -64,7 +63,7 @@ public class DefinitionFactory extends AbstractFileFactory {
     final String protocol = ProtocolResolver.getProtocol( path.toString() );
     DefinitionSource result = null;
 
-    if( DEFINITION_PROTOCOL_FILE.equals( protocol ) ) {
+    if( ProtocolResolver.isFile( protocol ) ) {
       final FileType filetype = lookup( path, GLOB_PREFIX_DEFINITION );
       result = createFileDefinitionSource( filetype, path );
     }
