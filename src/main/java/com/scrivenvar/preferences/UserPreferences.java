@@ -89,7 +89,7 @@ public class UserPreferences {
    * Display the user preferences settings dialog (non-modal).
    */
   public void show() {
-    mPreferencesFx.show( false );
+    getPreferencesFx().show( false );
   }
 
   /**
@@ -97,7 +97,7 @@ public class UserPreferences {
    * all values for external changes then save automatically.
    */
   public void save() {
-    mPreferencesFx.saveSettings();
+    getPreferencesFx().saveSettings();
   }
 
   /**
@@ -226,7 +226,7 @@ public class UserPreferences {
   public void addSaveEventHandler(
       final EventHandler<? super PreferencesFxEvent> eventHandler ) {
     final var eventType = PreferencesFxEvent.EVENT_PREFERENCES_SAVED;
-    mPreferencesFx.addEventHandler( eventType, eventHandler );
+    getPreferencesFx().addEventHandler( eventType, eventHandler );
   }
 
   /**
@@ -325,5 +325,9 @@ public class UserPreferences {
    */
   public int getFontsSizeEditor() {
     return mPropFontsSizeEditor.intValue();
+  }
+
+  private PreferencesFx getPreferencesFx() {
+    return mPreferencesFx;
   }
 }

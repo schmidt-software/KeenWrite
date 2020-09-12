@@ -218,6 +218,7 @@ img {
  * See SVGReplacedElementFactory for details.
  */
 svg {
+  /* Ensure the formulas can be inlined with text. */
   display: inline-block;
   vertical-align: middle;
 }
