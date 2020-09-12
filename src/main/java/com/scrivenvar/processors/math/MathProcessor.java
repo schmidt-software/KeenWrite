@@ -39,6 +39,10 @@ import static java.util.regex.Pattern.compile;
 /**
  * Responsible for parsing equations in a document and rendering them as
  * scalable vector graphics (SVG).
+ * <p>
+ * This class is not thread-safe due to the reuse of an internal buffer to
+ * prevent memory reallocations on subsequent runs of the processor.
+ * </p>
  */
 public class MathProcessor extends AbstractProcessor<String> {
 
@@ -50,11 +54,19 @@ public class MathProcessor extends AbstractProcessor<String> {
   /**
    * Compiled regular expression for matching math expression.
    */
-  public static final Pattern REGEX_PATTERN = compile( REGEX );
+  private static final Pattern REGEX_PATTERN = compile( REGEX );
 
   private static final int GROUP_DELIMITED = 2;
 
-  private final float mSize = 20f;
+  private static final float mSize = 20f;
+
+  /**
+   * Reduces number of memory reallocations as formulas are added or removed
+   * on subsequent calls to {@link #apply(String)}. This only shaves a few
+   * milliseconds off the total time.
+   */
+  private final StringBuilder mBuffer = new StringBuilder( 65535 );
+
   private final TeXFont mTeXFont = new DefaultTeXFont( mSize );
   private final TeXEnvironment mEnvironment = new TeXEnvironment( mTeXFont );
   private final SvgGraphics2D mGraphics = new SvgGraphics2D();
@@ -64,13 +76,20 @@ public class MathProcessor extends AbstractProcessor<String> {
     mGraphics.scale( mSize, mSize );
   }
 
+  /**
+   * This method only takes a few seconds to generate
+   *
+   * @param s The string containing zero or more math formula bracketed by
+   *          dollar symbols.
+   * @return The given string with all formulas transformed to SVG format.
+   */
   @Override
   public String apply( final String s ) {
-    final var result = new StringBuilder( s.length() * 2 );
-
+    final var matcher = REGEX_PATTERN.matcher( s );
     int index = 0;
 
-    final var matcher = REGEX_PATTERN.matcher( s );
+    // Wipe out previous data, but don't deallocate previous memory.
+    mBuffer.setLength( 0 );
 
     while( matcher.find() ) {
       final var equation = matcher.group( GROUP_DELIMITED );
@@ -82,13 +101,11 @@ public class MathProcessor extends AbstractProcessor<String> {
       mGraphics.setDimensions( layout.getWidth(), layout.getHeight() );
       box.draw( mGraphics, layout.getX(), layout.getY() );
 
-      result.append( s, index, matcher.start() );
-      result.append( mGraphics );
+      mBuffer.append( s, index, matcher.start() );
+      mBuffer.append( mGraphics );
       index = matcher.end();
     }
 
-    result.append( s, index, s.length() );
-
-    return result.toString();
+    return mBuffer.append( s, index, s.length() ).toString();
   }
 }
