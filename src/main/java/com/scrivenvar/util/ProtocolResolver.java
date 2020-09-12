@@ -10,6 +10,19 @@ import static com.scrivenvar.Constants.DEFINITION_PROTOCOL_UNKNOWN;
  * Responsible for determining the protocol of a resource.
  */
 public class ProtocolResolver {
+  public static final String SCHEME_HTTP = "http";
+
+  /**
+   * Answers {@code true} if the given protocol is either HTTP or HTTPS.
+   *
+   * @param protocol The protocol to compare against the web protocol.
+   * @return {@code true} the protocol is either HTTP or HTTPS.
+   */
+  public static boolean isHttp( String protocol ) {
+    protocol = protocol == null ? "" : protocol;
+    return protocol.toLowerCase().startsWith( SCHEME_HTTP );
+  }
+
   /**
    * Returns the protocol for a given URI or filename.
    *
