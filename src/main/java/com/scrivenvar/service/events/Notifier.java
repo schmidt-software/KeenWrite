@@ -31,12 +31,6 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.stage.Window;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.Observer;
-
 /**
  * Provides the application with a uniform way to notify the user of events.
  */
@@ -45,14 +39,6 @@ public interface Notifier {
   ButtonType YES = ButtonType.YES;
   ButtonType NO = ButtonType.NO;
   ButtonType CANCEL = ButtonType.CANCEL;
-
-  /**
-   * Returns the fully qualified path to the log file to write to when
-   * an exception occurs.
-   *
-   * @return Location of the log file for writing unexpected exceptions.
-   */
-  File getLogPath();
 
   /**
    * Constructs a default alert message text for a modal alert dialog.

@@ -33,10 +33,6 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.stage.Window;
 
-import java.io.File;
-import java.nio.file.Paths;
-
-import static com.scrivenvar.Constants.APP_TITLE;
 import static javafx.scene.control.Alert.AlertType.CONFIRMATION;
 import static javafx.scene.control.Alert.AlertType.ERROR;
 
@@ -91,11 +87,5 @@ public final class DefaultNotifier implements Notifier {
   @Override
   public Alert createError( final Window parent, final Notification message ) {
     return createAlertDialog( parent, ERROR, message );
-  }
-
-  @Override
-  public File getLogPath() {
-    return Paths.get(
-        System.getProperty( "java.io.tmpdir" ), APP_TITLE + ".log" ).toFile();
   }
 }
