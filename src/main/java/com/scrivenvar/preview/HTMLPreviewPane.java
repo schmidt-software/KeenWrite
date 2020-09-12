@@ -27,6 +27,7 @@
  */
 package com.scrivenvar.preview;
 
+import com.scrivenvar.FileNavigationListener;
 import com.scrivenvar.Services;
 import com.scrivenvar.adapters.DocumentAdapter;
 import com.scrivenvar.graphics.SvgReplacedElementFactory;
@@ -128,13 +129,27 @@ public final class HTMLPreviewPane extends SwingNode {
    * Responsible for launching hyperlinks in the system's default browser.
    */
   private static class HyperlinkListener extends LinkListener {
+
+    private FileNavigationListener fileNavigationListener;
+
+    private HyperlinkListener(FileNavigationListener fileNavigationListener) {
+      this.fileNavigationListener = fileNavigationListener;
+    }
+
     @Override
     public void linkClicked( final BasicPanel panel, final String uri ) {
       try {
         final var desktop = getDesktop();
 
-        if( desktop.isSupported( BROWSE ) ) {
-          desktop.browse( new URI( uri ) );
+        if (uri.startsWith("http://")||uri.startsWith("https://")) {
+          if (desktop.isSupported(BROWSE)) {
+            desktop.browse(new URI(uri));
+          }
+        } else if (uri.contains("://")){
+          final var protocol = uri.substring(0, uri.indexOf(':'));
+          sNotifier.notify("Unable to open " + uri + ". Unknown protocol " + protocol);
+        } else {
+          fileNavigationListener.navigateToFile(uri);
         }
       } catch( final Exception e ) {
         sNotifier.notify( e );
@@ -175,8 +190,9 @@ public final class HTMLPreviewPane extends SwingNode {
   /**
    * Creates a new preview pane that can scroll to the caret position within the
    * document.
+   * @param fileNavigationListener a listener when a use action requires navigating to another file
    */
-  public HTMLPreviewPane() {
+  public HTMLPreviewPane(FileNavigationListener fileNavigationListener) {
     setStyle( "-fx-background-color: white;" );
 
     // No need to append same prefix each time the HTML content is updated.
@@ -207,7 +223,7 @@ public final class HTMLPreviewPane extends SwingNode {
       }
     }
 
-    mHtmlRenderer.addMouseTrackingListener( new HyperlinkListener() );
+    mHtmlRenderer.addMouseTrackingListener( new HyperlinkListener(fileNavigationListener) );
   }
 
   /**

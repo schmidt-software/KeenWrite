@@ -256,7 +256,7 @@ public final class FileEditorTabPane extends TabPane {
    * @param files The list of non-definition files that the were requested to
    *              open.
    */
-  private void openFiles( final List<File> files ) {
+  void openFiles( final List<File> files ) {
     final List<String> extensions =
         createExtensionFilter( DEFINITION ).getExtensions();
     final var predicate = createFileTypePredicate( extensions );

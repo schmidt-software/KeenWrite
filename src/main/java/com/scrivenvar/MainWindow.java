@@ -54,6 +54,7 @@ import com.scrivenvar.util.ActionUtils;
 import com.vladsch.flexmark.parser.Parser;
 import com.vladsch.flexmark.util.ast.NodeVisitor;
 import com.vladsch.flexmark.util.ast.VisitHandler;
+import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.BooleanProperty;
@@ -88,6 +89,7 @@ import org.fxmisc.richtext.model.StyleSpansBuilder;
 import org.reactfx.value.Val;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.InputStreamReader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -115,7 +117,7 @@ import static org.fxmisc.richtext.model.TwoDimensional.Bias.Forward;
 /**
  * Main window containing a tab pane in the center for file editors.
  */
-public class MainWindow implements Observer {
+public class MainWindow implements Observer, FileNavigationListener {
   /**
    * The {@code OPTIONS} variable must be declared before all other variables
    * to prevent subsequent initializations from failing due to missing user
@@ -664,6 +666,20 @@ public class MainWindow implements Observer {
     }
   }
 
+  @Override
+  public void navigateToFile(String path) {
+    final var currentPath = getFileEditorPane().getActiveFileEditor().getPath();
+    final var targetFile = currentPath.resolveSibling(path).toFile();
+
+    // Because this can be called from any thread, we need to make sure
+    // the UI is updated in the JavaFx thread
+    Platform.runLater(new Runnable() {
+      @Override public void run() {
+        getFileEditorPane().openFiles(Collections.singletonList(targetFile));
+      }
+    });
+  }
+
   /**
    * Updates the status bar to show the given message.
    *
@@ -847,7 +863,7 @@ public class MainWindow implements Observer {
   }
 
   private HTMLPreviewPane createHTMLPreviewPane() {
-    return new HTMLPreviewPane();
+    return new HTMLPreviewPane(this);
   }
 
   private DefinitionSource createDefaultDefinitionSource() {
