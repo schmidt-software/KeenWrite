@@ -47,54 +47,12 @@ public interface Notifier {
   ButtonType CANCEL = ButtonType.CANCEL;
 
   /**
-   * Notifies the user of a problem.
-   *
-   * @param message The problem description.
-   */
-  void alert( final String message );
-
-  /**
-   * Notifies the user about the exception.
-   *
-   * @param ex The exception containing a message to show to the user.
-   */
-  default void alert( final Exception ex ) {
-    assert ex != null;
-
-    log( ex );
-    alert( ex.getMessage() );
-  }
-
-  /**
-   * Writes the exception to a log file. The log file should be written
-   * in the System's temporary directory.
-   *
-   * @param ex The exception to show in the status bar and log to a file.
-   */
-  default void log( final Exception ex ) {
-    try(
-        final FileWriter fw = new FileWriter( getLogPath(), true );
-        final PrintWriter pw = new PrintWriter( fw )
-    ) {
-      ex.printStackTrace( pw );
-    } catch( final IOException ioe ) {
-      // The notify method will display the message on the status
-      // bar.
-    }
-  }
-
-  /**
    * Returns the fully qualified path to the log file to write to when
    * an exception occurs.
    *
    * @return Location of the log file for writing unexpected exceptions.
    */
   File getLogPath();
-
-  /**
-   * Causes any displayed notifications to disappear.
-   */
-  void clear();
 
   /**
    * Constructs a default alert message text for a modal alert dialog.
@@ -127,12 +85,4 @@ public interface Notifier {
    * @return A modal alert dialog box ready to display using showAndWait.
    */
   Alert createConfirmation( Window parent, Notification message );
-
-  /**
-   * Adds an observer to the list of objects that receive notifications about
-   * error messages to be presented to the user.
-   *
-   * @param observer The observer instance to notify.
-   */
-  void addObserver( Observer observer );
 }

@@ -27,8 +27,6 @@
  */
 package com.scrivenvar.graphics;
 
-import com.scrivenvar.Services;
-import com.scrivenvar.service.events.Notifier;
 import org.apache.commons.io.FilenameUtils;
 import org.w3c.dom.Element;
 import org.xhtmlrenderer.extend.ReplacedElement;
@@ -44,6 +42,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.Function;
 
+import static com.scrivenvar.StatusBarNotifier.alert;
 import static com.scrivenvar.graphics.SvgRasterizer.rasterize;
 import static com.scrivenvar.graphics.SvgRasterizer.toSvg;
 
@@ -53,8 +52,6 @@ import static com.scrivenvar.graphics.SvgRasterizer.toSvg;
  */
 public class SvgReplacedElementFactory
     implements ReplacedElementFactory {
-
-  private static final Notifier sNotifier = Services.load( Notifier.class );
 
   /**
    * SVG filename extension maps to an SVG image element.
@@ -152,9 +149,5 @@ public class SvgReplacedElementFactory
   private BufferedImage getCachedImage(
       final String src, final Function<String, BufferedImage> rasterizer ) {
     return mImageCache.computeIfAbsent( src, v -> rasterizer.apply( src ) );
-  }
-
-  private static void alert( final Exception e ) {
-    sNotifier.alert( e );
   }
 }

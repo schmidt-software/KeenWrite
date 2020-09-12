@@ -34,7 +34,7 @@ import java.util.*;
 import java.util.prefs.AbstractPreferences;
 import java.util.prefs.BackingStoreException;
 
-import static com.scrivenvar.service.GlobalNotifier.alert;
+import static com.scrivenvar.StatusBarNotifier.alert;
 
 /**
  * Preferences implementation that stores to a user-defined file. Local file

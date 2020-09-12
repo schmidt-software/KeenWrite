@@ -30,7 +30,6 @@ package com.scrivenvar;
 import com.scrivenvar.preferences.FilePreferencesFactory;
 import com.scrivenvar.service.Options;
 import com.scrivenvar.service.Snitch;
-import com.scrivenvar.service.events.Notifier;
 import com.scrivenvar.util.ResourceWalker;
 import com.scrivenvar.util.StageState;
 import javafx.application.Application;
@@ -48,7 +47,7 @@ import java.util.logging.LogManager;
 
 import static com.scrivenvar.Constants.*;
 import static com.scrivenvar.Messages.get;
-import static com.scrivenvar.service.GlobalNotifier.alert;
+import static com.scrivenvar.StatusBarNotifier.alert;
 import static java.awt.GraphicsEnvironment.getLocalGraphicsEnvironment;
 import static java.awt.font.TextAttribute.*;
 import static javafx.scene.input.KeyCode.F11;

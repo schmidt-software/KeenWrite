@@ -55,8 +55,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 import static com.scrivenvar.Messages.get;
-import static com.scrivenvar.service.GlobalNotifier.alert;
-import static com.scrivenvar.service.GlobalNotifier.getNotifier;
+import static com.scrivenvar.StatusBarNotifier.alert;
+import static com.scrivenvar.StatusBarNotifier.getNotifier;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Locale.ENGLISH;
 import static javafx.application.Platform.runLater;

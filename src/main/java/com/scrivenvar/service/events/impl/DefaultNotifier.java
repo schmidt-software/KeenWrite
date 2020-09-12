@@ -35,38 +35,16 @@ import javafx.stage.Window;
 
 import java.io.File;
 import java.nio.file.Paths;
-import java.util.Observable;
 
 import static com.scrivenvar.Constants.APP_TITLE;
-import static com.scrivenvar.Constants.STATUS_BAR_OK;
-import static com.scrivenvar.Messages.get;
 import static javafx.scene.control.Alert.AlertType.CONFIRMATION;
 import static javafx.scene.control.Alert.AlertType.ERROR;
 
 /**
- * Provides the ability to notify the user of problems.
+ * Provides the ability to notify the user of events that need attention,
+ * such as prompting the user to confirm closing when there are unsaved changes.
  */
-public final class DefaultNotifier extends Observable implements Notifier {
-
-  private static final String OK = get( STATUS_BAR_OK, "OK" );
-
-  /**
-   * Notifies all observer instances of the given message.
-   *
-   * @param message The text to display to the user.
-   */
-  @Override
-  public void alert( final String message ) {
-    if( message != null && !message.isBlank() ) {
-      setChanged();
-      notifyObservers( message );
-    }
-  }
-
-  @Override
-  public void clear() {
-    alert( OK );
-  }
+public final class DefaultNotifier implements Notifier {
 
   /**
    * Contains all the information that the user needs to know about a problem.

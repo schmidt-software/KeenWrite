@@ -47,8 +47,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.nio.file.Path;
 
-import static com.scrivenvar.service.GlobalNotifier.alert;
-import static com.scrivenvar.service.GlobalNotifier.clearAlert;
+import static com.scrivenvar.StatusBarNotifier.alert;
+import static com.scrivenvar.StatusBarNotifier.clearAlert;
 import static java.lang.String.format;
 
 /**

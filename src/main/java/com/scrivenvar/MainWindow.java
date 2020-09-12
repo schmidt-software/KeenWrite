@@ -43,7 +43,6 @@ import com.scrivenvar.processors.Processor;
 import com.scrivenvar.processors.ProcessorFactory;
 import com.scrivenvar.service.Options;
 import com.scrivenvar.service.Snitch;
-import com.scrivenvar.service.events.Notifier;
 import com.scrivenvar.spelling.api.SpellCheckListener;
 import com.scrivenvar.spelling.api.SpellChecker;
 import com.scrivenvar.spelling.impl.PermissiveSpeller;
@@ -100,7 +99,8 @@ import java.util.stream.Collectors;
 
 import static com.scrivenvar.Constants.*;
 import static com.scrivenvar.Messages.get;
-import static com.scrivenvar.service.GlobalNotifier.*;
+import static com.scrivenvar.StatusBarNotifier.alert;
+import static com.scrivenvar.StatusBarNotifier.clearAlert;
 import static com.scrivenvar.util.StageState.*;
 import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.*;
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -210,8 +210,6 @@ public class MainWindow implements Observer {
       = new DefinitionNameInjector( mDefinitionPane );
 
   public MainWindow() {
-    getNotifier().addObserver( this );
-
     mStatusBar = createStatusBar();
     mLineNumberText = createLineNumberText();
     mFindTextField = createFindTextField();
@@ -220,6 +218,7 @@ public class MainWindow implements Observer {
 
     // Add the close request listener before the window is shown.
     initLayout();
+    StatusBarNotifier.setStatusBar( mStatusBar );
   }
 
   /**
@@ -645,27 +644,7 @@ public class MainWindow implements Observer {
       if( observable instanceof Snitch && value instanceof Path ) {
         updateSelectedTab();
       }
-      else if( observable instanceof Notifier && value instanceof String ) {
-        updateStatusBar( (String) value );
-      }
     }
-  }
-
-  /**
-   * Updates the status bar to show the given message.
-   *
-   * @param s The message to show in the status bar.
-   */
-  private void updateStatusBar( final String s ) {
-    runLater(
-        () -> {
-          final int index = s.indexOf( '\n' );
-          final String message = s.substring(
-              0, index > 0 ? index : s.length() );
-
-          getStatusBar().setText( message );
-        }
-    );
   }
 
   /**

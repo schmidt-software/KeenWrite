@@ -27,8 +27,6 @@
  */
 package com.scrivenvar.graphics;
 
-import com.scrivenvar.Services;
-import com.scrivenvar.service.events.Notifier;
 import org.apache.batik.anim.dom.SAXSVGDocumentFactory;
 import org.apache.batik.gvt.renderer.ImageRenderer;
 import org.apache.batik.transcoder.TranscoderException;
@@ -52,6 +50,7 @@ import java.io.StringWriter;
 import java.net.URL;
 import java.text.NumberFormat;
 
+import static com.scrivenvar.StatusBarNotifier.alert;
 import static com.scrivenvar.graphics.RenderingSettings.RENDERING_HINTS;
 import static java.awt.image.BufferedImage.TYPE_INT_RGB;
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -64,8 +63,6 @@ import static org.apache.batik.util.XMLResourceDescriptor.getXMLParserClassName;
  * Responsible for converting SVG images into rasterized PNG images.
  */
 public class SvgRasterizer {
-  private static final Notifier sNotifier = Services.load( Notifier.class );
-
   private static final SAXSVGDocumentFactory FACTORY_DOM =
       new SAXSVGDocumentFactory( getXMLParserClassName() );
 
@@ -289,9 +286,5 @@ public class SvgRasterizer {
       sTransformer.transform( new DOMSource( e ), new StreamResult( writer ) );
       return writer.toString().replaceAll( "xmlns=\"\" ", "" );
     }
-  }
-
-  private static void alert( final Exception e ) {
-    sNotifier.alert( e );
   }
 }

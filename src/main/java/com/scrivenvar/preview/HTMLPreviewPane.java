@@ -27,10 +27,8 @@
  */
 package com.scrivenvar.preview;
 
-import com.scrivenvar.Services;
 import com.scrivenvar.adapters.DocumentAdapter;
 import com.scrivenvar.graphics.SvgReplacedElementFactory;
-import com.scrivenvar.service.events.Notifier;
 import com.scrivenvar.util.ProtocolResolver;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -55,6 +53,7 @@ import java.net.URI;
 import java.nio.file.Path;
 
 import static com.scrivenvar.Constants.*;
+import static com.scrivenvar.StatusBarNotifier.alert;
 import static java.awt.Desktop.Action.BROWSE;
 import static java.awt.Desktop.getDesktop;
 import static java.lang.Math.max;
@@ -65,7 +64,6 @@ import static org.xhtmlrenderer.swing.ImageResourceLoader.NO_OP_REPAINT_LISTENER
  * HTML preview pane is responsible for rendering an HTML document.
  */
 public final class HTMLPreviewPane extends SwingNode {
-  private static final Notifier sNotifier = Services.load( Notifier.class );
 
   private static class HTMLPanel extends XHTMLPanel {
     /**
@@ -145,7 +143,7 @@ public final class HTMLPreviewPane extends SwingNode {
           // TODO: #88 -- publish a message to the event bus.
         }
       } catch( final Exception e ) {
-        sNotifier.alert( e );
+        alert( e );
       }
     }
   }
