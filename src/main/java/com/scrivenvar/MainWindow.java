@@ -100,7 +100,6 @@ import java.util.stream.Collectors;
 import static com.scrivenvar.Constants.*;
 import static com.scrivenvar.Messages.get;
 import static com.scrivenvar.StatusBarNotifier.alert;
-import static com.scrivenvar.StatusBarNotifier.clearAlert;
 import static com.scrivenvar.util.StageState.*;
 import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.*;
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -604,7 +603,6 @@ public class MainWindow implements Observer {
 
       if( problemChild == null ) {
         getDefinitionSource().getTreeAdapter().export( root, path );
-        clearAlert();
       }
       else {
         alert( get( "yaml.error.tree.form", problemChild.getValue() ) );

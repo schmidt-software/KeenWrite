@@ -43,9 +43,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.scrivenvar.Constants.STATUS_PARSE_ERROR;
 import static com.scrivenvar.Messages.get;
-import static com.scrivenvar.processors.text.TextReplacementFactory.replace;
 import static com.scrivenvar.StatusBarNotifier.alert;
-import static com.scrivenvar.StatusBarNotifier.clearAlert;
+import static com.scrivenvar.processors.text.TextReplacementFactory.replace;
 import static com.scrivenvar.sigils.RSigilOperator.PREFIX;
 import static com.scrivenvar.sigils.RSigilOperator.SUFFIX;
 import static java.lang.Math.min;
@@ -116,21 +115,15 @@ public final class InlineRProcessor extends DefinitionProcessor {
    * called multiple times.
    */
   private void init() {
-    clearAlert();
+    final var bootstrap = getBootstrapScript();
 
-    try {
-      final var bootstrap = getBootstrapScript();
+    if( !bootstrap.isBlank() ) {
+      final var wd = getWorkingDirectory();
+      final var dir = wd.toString().replace( '\\', '/' );
+      final var map = getDefinitions();
+      map.put( "$application.r.working.directory$", dir );
 
-      if( !bootstrap.isBlank() ) {
-        final var wd = getWorkingDirectory();
-        final var dir = wd.toString().replace( '\\', '/' );
-        final var map = getDefinitions();
-        map.put( "$application.r.working.directory$", dir );
-
-        eval( replace( bootstrap, map ) );
-      }
-    } catch( final Exception ex ) {
-      alert( ex );
+      eval( replace( bootstrap, map ) );
     }
   }
 
@@ -165,8 +158,6 @@ public final class InlineRProcessor extends DefinitionProcessor {
    */
   @Override
   public String apply( final String text ) {
-    clearAlert();
-
     final int length = text.length();
 
     // The * 2 is a wild guess at the ratio of R statements to the length

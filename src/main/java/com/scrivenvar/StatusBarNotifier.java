@@ -53,7 +53,9 @@ public class StatusBarNotifier {
    * Resets the status bar to a default message.
    */
   public static void clearAlert() {
-    update( OK );
+    if( !OK.equals( sStatusBar.getText() ) ) {
+      update( OK );
+    }
   }
 
   /**

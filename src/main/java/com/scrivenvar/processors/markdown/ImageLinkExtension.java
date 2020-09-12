@@ -48,7 +48,6 @@ import java.io.FileNotFoundException;
 import java.nio.file.Path;
 
 import static com.scrivenvar.StatusBarNotifier.alert;
-import static com.scrivenvar.StatusBarNotifier.clearAlert;
 import static java.lang.String.format;
 
 /**
@@ -156,8 +155,6 @@ public class ImageLinkExtension implements HtmlRenderer.HtmlRendererExtension {
         if( "file".equals( protocol ) ) {
           url = "file://" + url;
         }
-
-        clearAlert();
 
         return valid( link, url );
       } catch( final Exception e ) {

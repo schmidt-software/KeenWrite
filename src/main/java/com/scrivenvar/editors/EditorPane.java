@@ -45,6 +45,7 @@ import org.fxmisc.wellbehaved.event.Nodes;
 import java.nio.file.Path;
 import java.util.function.Consumer;
 
+import static com.scrivenvar.StatusBarNotifier.clearAlert;
 import static java.lang.String.format;
 import static javafx.application.Platform.runLater;
 import static org.fxmisc.wellbehaved.event.InputMap.consume;
@@ -71,6 +72,10 @@ public class EditorPane extends Pane {
     getScrollPane().setVbarPolicy( ScrollPane.ScrollBarPolicy.ALWAYS );
     fontsSizeProperty().addListener(
         ( l, o, n ) -> setFontSize( n.intValue() )
+    );
+
+    mEditor.textProperty().addListener(
+        (l, o, n) -> clearAlert()
     );
   }
 
