@@ -56,7 +56,7 @@ public final class DefaultNotifier extends Observable implements Notifier {
    * @param message The text to display to the user.
    */
   @Override
-  public void notify( final String message ) {
+  public void alert( final String message ) {
     if( message != null && !message.isBlank() ) {
       setChanged();
       notifyObservers( message );
@@ -65,7 +65,7 @@ public final class DefaultNotifier extends Observable implements Notifier {
 
   @Override
   public void clear() {
-    notify( OK );
+    alert( OK );
   }
 
   /**

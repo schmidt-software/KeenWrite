@@ -194,7 +194,7 @@ public class SvgRasterizer {
     try {
       return rasterize( new URL( url ), width );
     } catch( final Exception e ) {
-      notify( e );
+      alert( e );
       return BROKEN_IMAGE_PLACEHOLDER;
     }
   }
@@ -246,7 +246,7 @@ public class SvgRasterizer {
       final var width = root.getAttribute( "width" );
       return rasterizeString( xml, INT_FORMAT.parse( width ).intValue() );
     } catch( final Exception e ) {
-      notify( e );
+      alert( e );
       return BROKEN_IMAGE_PLACEHOLDER;
     }
   }
@@ -291,7 +291,7 @@ public class SvgRasterizer {
     }
   }
 
-  private static void notify( final Exception e ) {
-    sNotifier.notify( e );
+  private static void alert( final Exception e ) {
+    sNotifier.alert( e );
   }
 }

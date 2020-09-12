@@ -36,7 +36,6 @@ import javafx.beans.property.StringProperty;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
-import javax.script.ScriptException;
 import java.io.File;
 import java.nio.file.Path;
 import java.util.LinkedHashMap;
@@ -45,9 +44,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.scrivenvar.Constants.STATUS_PARSE_ERROR;
 import static com.scrivenvar.Messages.get;
+import static com.scrivenvar.processors.text.TextReplacementFactory.replace;
 import static com.scrivenvar.sigils.RSigilOperator.PREFIX;
 import static com.scrivenvar.sigils.RSigilOperator.SUFFIX;
-import static com.scrivenvar.processors.text.TextReplacementFactory.replace;
 import static java.lang.Math.min;
 import static java.lang.String.format;
 
@@ -117,7 +116,7 @@ public final class InlineRProcessor extends DefinitionProcessor {
    * called multiple times.
    */
   private void init() {
-    getNotifier().clear();
+    clearAlert();
 
     try {
       final var bootstrap = getBootstrapScript();
@@ -131,7 +130,7 @@ public final class InlineRProcessor extends DefinitionProcessor {
         eval( replace( bootstrap, map ) );
       }
     } catch( final Exception ex ) {
-      getNotifier().notify( ex );
+      alert( ex );
     }
   }
 
@@ -166,7 +165,7 @@ public final class InlineRProcessor extends DefinitionProcessor {
    */
   @Override
   public String apply( final String text ) {
-    getNotifier().clear();
+    clearAlert();
 
     final int length = text.length();
 
@@ -204,9 +203,7 @@ public final class InlineRProcessor extends DefinitionProcessor {
           sb.append( PREFIX ).append( r ).append( SUFFIX );
 
           // Tell the user that there was a problem.
-          getNotifier().notify(
-              get( STATUS_PARSE_ERROR, e.getMessage(), currIndex )
-          );
+          alert( get( STATUS_PARSE_ERROR, e.getMessage(), currIndex ) );
         }
 
         // Retain the R statement's ending position in the text.
@@ -241,11 +238,9 @@ public final class InlineRProcessor extends DefinitionProcessor {
   private Object eval( final String r ) {
     try {
       return getScriptEngine().eval( r );
-    } catch( final ScriptException ex ) {
+    } catch( final Exception ex ) {
       final String expr = r.substring( 0, min( r.length(), 30 ) );
-      final String msg = format(
-          "Error with [%s...]: %s", expr, ex.getMessage() );
-      getNotifier().notify( msg );
+      alert( format( "Error with [%s...]: %s", expr, ex.getMessage() ) );
     }
 
     return "";
@@ -286,7 +281,19 @@ public final class InlineRProcessor extends DefinitionProcessor {
     return ENGINE;
   }
 
-  private Notifier getNotifier() {
+  private static Notifier getNotifier() {
     return sNotifier;
+  }
+
+  private static void clearAlert() {
+    getNotifier().clear();
+  }
+
+  private void alert( final String msg ) {
+    getNotifier().alert( msg );
+  }
+
+  private static void alert( final Exception e ) {
+    getNotifier().alert( e );
   }
 }

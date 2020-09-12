@@ -161,7 +161,7 @@ public class ImageLinkExtension implements HtmlRenderer.HtmlRendererExtension {
 
         return valid( link, url );
       } catch( final Exception e ) {
-        getNotifier().notify( "File not found: " + e.getLocalizedMessage() );
+        alert( e );
       }
 
       return link;
@@ -205,11 +205,15 @@ public class ImageLinkExtension implements HtmlRenderer.HtmlRendererExtension {
     return getOptions().getUserPreferences();
   }
 
-  private Options getOptions() {
+  private static Options getOptions() {
     return sOptions;
   }
 
-  private Notifier getNotifier() {
+  private static Notifier getNotifier() {
     return sNotifier;
+  }
+
+  private static void alert( final Exception e ) {
+    getNotifier().alert( e );
   }
 }

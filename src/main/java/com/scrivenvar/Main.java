@@ -131,12 +131,12 @@ public final class Main extends Application {
               attributes.put( KERNING, KERNING_ON );
               ge.registerFont( font.deriveFont( attributes ) );
             } catch( final Exception e ) {
-              getNotifier().notify( e );
+              alert( e );
             }
           }
       );
     } catch( final Exception e ) {
-      getNotifier().notify( e );
+      alert( e );
     }
   }
 
@@ -197,6 +197,10 @@ public final class Main extends Application {
     final Thread thread = getSnitchThread();
     thread.interrupt();
     thread.join();
+  }
+
+  private static void alert( final Exception ex ) {
+    getNotifier().alert( ex );
   }
 
   private static Notifier getNotifier() {

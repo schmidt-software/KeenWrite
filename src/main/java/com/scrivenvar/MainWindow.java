@@ -481,7 +481,7 @@ public class MainWindow implements Observer {
             try {
               consumer.accept( null );
             } catch( final Exception ex ) {
-              error( ex );
+              alert( ex );
             }
           }
         } );
@@ -542,7 +542,7 @@ public class MainWindow implements Observer {
       try {
         processChain( processor, tab.getEditorText() );
       } catch( final Exception ex ) {
-        error( ex );
+        alert( ex );
       }
     }
   }
@@ -593,7 +593,7 @@ public class MainWindow implements Observer {
 
       interpolateResolvedMap();
     } catch( final Exception ex ) {
-      error( ex );
+      alert( ex );
     }
   }
 
@@ -605,13 +605,13 @@ public class MainWindow implements Observer {
 
       if( problemChild == null ) {
         getDefinitionSource().getTreeAdapter().export( root, path );
-        getNotifier().clear();
+        clearAlert();
       }
       else {
-        error( get( "yaml.error.tree.form", problemChild.getValue() ) );
+        alert( get( "yaml.error.tree.form", problemChild.getValue() ) );
       }
     } catch( final Exception ex ) {
-      error( ex );
+      alert( ex );
     }
   }
 
@@ -628,17 +628,21 @@ public class MainWindow implements Observer {
     openDefinitions( getDefinitionPath() );
   }
 
+  private static void clearAlert() {
+    getNotifier().clear();
+  }
+
   /**
    * Called when an exception occurs that warrants the user's attention.
    *
    * @param ex The exception with a message that the user should know about.
    */
-  private void error( final Exception ex ) {
-    getNotifier().notify( ex );
+  private static void alert( final Exception ex ) {
+    getNotifier().alert( ex );
   }
 
-  private void error( final String msg ) {
-    getNotifier().notify( msg );
+  private static void alert( final String msg ) {
+    getNotifier().alert( msg );
   }
 
   //---- File actions -------------------------------------------------------
@@ -730,7 +734,7 @@ public class MainWindow implements Observer {
     try {
       process( editor );
     } catch( final Exception ex ) {
-      error( ex );
+      alert( ex );
     }
   }
 
@@ -827,7 +831,7 @@ public class MainWindow implements Observer {
       final Collection<String> lexicon = readLexicon( "en.txt" );
       return SymSpellSpeller.forLexicon( lexicon );
     } catch( final Exception ex ) {
-      error( ex );
+      alert( ex );
       return new PermissiveSpeller();
     }
   }
@@ -858,7 +862,7 @@ public class MainWindow implements Observer {
     try {
       return createDefinitionFactory().createDefinitionSource( path );
     } catch( final Exception ex ) {
-      error( ex );
+      alert( ex );
       return createDefaultDefinitionSource();
     }
   }
@@ -1391,7 +1395,7 @@ public class MainWindow implements Observer {
     return mResolvedMap;
   }
 
-  private Notifier getNotifier() {
+  private static Notifier getNotifier() {
     return sNotifier;
   }
 

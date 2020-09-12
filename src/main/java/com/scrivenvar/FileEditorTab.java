@@ -255,11 +255,11 @@ public final class FileEditorTab extends Tab {
               file.toString(),
               get( "FileEditor.loadFailed.reason.permissions" )
           );
-          getNotifier().notify( msg );
+          alert( msg );
         }
       }
     } catch( final Exception ex ) {
-      getNotifier().notify( ex );
+      alert( ex );
     }
   }
 
@@ -275,7 +275,7 @@ public final class FileEditorTab extends Tab {
       editor.getUndoManager().mark();
       return true;
     } catch( final Exception ex ) {
-      return alert(
+      return popupAlert(
           "FileEditor.saveFailed.title",
           "FileEditor.saveFailed.message",
           ex
@@ -292,7 +292,7 @@ public final class FileEditorTab extends Tab {
    * @return false
    */
   @SuppressWarnings("SameParameterValue")
-  private boolean alert(
+  private boolean popupAlert(
       final String titleKey, final String messageKey, final Exception e ) {
     final Notifier service = getNotifier();
     final Path filePath = getPath();
@@ -307,7 +307,7 @@ public final class FileEditorTab extends Tab {
     try {
       service.createError( getWindow(), message ).showAndWait();
     } catch( final Exception ex ) {
-      getNotifier().notify( ex );
+      alert( ex );
     }
 
     return false;
@@ -474,6 +474,14 @@ public final class FileEditorTab extends Tab {
   private void setEncoding( final Charset encoding ) {
     assert encoding != null;
     mEncoding = encoding;
+  }
+
+  private void alert( final String msg ) {
+    getNotifier().alert( msg );
+  }
+
+  private void alert( final Exception ex ) {
+    getNotifier().alert( ex );
   }
 
   private Notifier getNotifier() {

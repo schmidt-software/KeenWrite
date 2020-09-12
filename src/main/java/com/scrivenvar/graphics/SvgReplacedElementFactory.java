@@ -103,7 +103,7 @@ public class SvgReplacedElementFactory
             image = getCachedImage(
                 src, svg -> rasterize( svg, box.getContentWidth() ) );
           } catch( final Exception ex ) {
-            notify( ex );
+            alert( ex );
           }
         }
       }
@@ -113,7 +113,7 @@ public class SvgReplacedElementFactory
           final String src = toSvg( e );
           image = getCachedImage( src, SvgRasterizer::rasterizeString );
         } catch( final Exception ex ) {
-          notify( ex );
+          alert( ex );
         }
       }
     }
@@ -154,7 +154,7 @@ public class SvgReplacedElementFactory
     return mImageCache.computeIfAbsent( src, v -> rasterizer.apply( src ) );
   }
 
-  private static void notify( final Exception e ) {
-    sNotifier.notify( e );
+  private static void alert( final Exception e ) {
+    sNotifier.alert( e );
   }
 }

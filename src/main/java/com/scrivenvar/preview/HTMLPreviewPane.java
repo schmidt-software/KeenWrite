@@ -145,7 +145,7 @@ public final class HTMLPreviewPane extends SwingNode {
           // TODO: #88 -- publish a message to the event bus.
         }
       } catch( final Exception e ) {
-        sNotifier.notify( e );
+        sNotifier.alert( e );
       }
     }
   }

@@ -61,7 +61,7 @@ public class FilePreferences extends AbstractPreferences {
     try {
       sync();
     } catch( final BackingStoreException ex ) {
-      error( ex );
+      alert( ex );
     }
   }
 
@@ -74,7 +74,7 @@ public class FilePreferences extends AbstractPreferences {
     try {
       flush();
     } catch( final BackingStoreException ex ) {
-      error( ex );
+      alert( ex );
     }
   }
 
@@ -94,7 +94,7 @@ public class FilePreferences extends AbstractPreferences {
     try {
       flush();
     } catch( final BackingStoreException ex ) {
-      error( ex );
+      alert( ex );
     }
   }
 
@@ -162,7 +162,7 @@ public class FilePreferences extends AbstractPreferences {
           }
         }
       } catch( final Exception ex ) {
-        error( new BackingStoreException( ex ) );
+        alert( new BackingStoreException( ex ) );
       }
     }
   }
@@ -222,13 +222,13 @@ public class FilePreferences extends AbstractPreferences {
           p.store( fos, "FilePreferences" );
         }
       } catch( final Exception ex ) {
-        error( new BackingStoreException( ex ) );
+        alert( ex );
       }
     }
   }
 
-  private void error( final BackingStoreException ex ) {
-    getNotifier().notify( ex );
+  private void alert( final Exception ex ) {
+    getNotifier().alert( ex );
   }
 
   private Notifier getNotifier() {

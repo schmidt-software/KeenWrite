@@ -51,18 +51,18 @@ public interface Notifier {
    *
    * @param message The problem description.
    */
-  void notify( final String message );
+  void alert( final String message );
 
   /**
    * Notifies the user about the exception.
    *
    * @param ex The exception containing a message to show to the user.
    */
-  default void notify( final Exception ex ) {
+  default void alert( final Exception ex ) {
     assert ex != null;
 
     log( ex );
-    notify( ex.getMessage() );
+    alert( ex.getMessage() );
   }
 
   /**
