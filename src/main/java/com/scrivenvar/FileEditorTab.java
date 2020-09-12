@@ -55,6 +55,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 import static com.scrivenvar.Messages.get;
+import static com.scrivenvar.service.GlobalNotifier.alert;
+import static com.scrivenvar.service.GlobalNotifier.getNotifier;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Locale.ENGLISH;
 import static javafx.application.Platform.runLater;
@@ -64,7 +66,6 @@ import static javafx.application.Platform.runLater;
  */
 public final class FileEditorTab extends Tab {
 
-  private final Notifier mNotifier = Services.load( Notifier.class );
   private final MarkdownEditorPane mEditorPane = new MarkdownEditorPane();
 
   private final ReadOnlyBooleanWrapper mModified = new ReadOnlyBooleanWrapper();
@@ -474,18 +475,6 @@ public final class FileEditorTab extends Tab {
   private void setEncoding( final Charset encoding ) {
     assert encoding != null;
     mEncoding = encoding;
-  }
-
-  private void alert( final String msg ) {
-    getNotifier().alert( msg );
-  }
-
-  private void alert( final Exception ex ) {
-    getNotifier().alert( ex );
-  }
-
-  private Notifier getNotifier() {
-    return mNotifier;
   }
 
   /**

@@ -30,7 +30,6 @@ package com.scrivenvar.processors.markdown;
 import com.scrivenvar.Services;
 import com.scrivenvar.preferences.UserPreferences;
 import com.scrivenvar.service.Options;
-import com.scrivenvar.service.events.Notifier;
 import com.scrivenvar.util.ProtocolResolver;
 import com.vladsch.flexmark.ast.Image;
 import com.vladsch.flexmark.html.HtmlRenderer;
@@ -48,6 +47,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.nio.file.Path;
 
+import static com.scrivenvar.service.GlobalNotifier.alert;
+import static com.scrivenvar.service.GlobalNotifier.clearAlert;
 import static java.lang.String.format;
 
 /**
@@ -59,7 +60,6 @@ public class ImageLinkExtension implements HtmlRenderer.HtmlRendererExtension {
    * Used for image directory preferences.
    */
   private static final Options sOptions = Services.load( Options.class );
-  private static final Notifier sNotifier = Services.load( Notifier.class );
 
   /**
    * Creates an extension capable of using a relative path to embed images.
@@ -157,7 +157,7 @@ public class ImageLinkExtension implements HtmlRenderer.HtmlRendererExtension {
           url = "file://" + url;
         }
 
-        getNotifier().clear();
+        clearAlert();
 
         return valid( link, url );
       } catch( final Exception e ) {
@@ -207,13 +207,5 @@ public class ImageLinkExtension implements HtmlRenderer.HtmlRendererExtension {
 
   private static Options getOptions() {
     return sOptions;
-  }
-
-  private static Notifier getNotifier() {
-    return sNotifier;
-  }
-
-  private static void alert( final Exception e ) {
-    getNotifier().alert( e );
   }
 }

@@ -48,6 +48,7 @@ import java.util.logging.LogManager;
 
 import static com.scrivenvar.Constants.*;
 import static com.scrivenvar.Messages.get;
+import static com.scrivenvar.service.GlobalNotifier.alert;
 import static java.awt.GraphicsEnvironment.getLocalGraphicsEnvironment;
 import static java.awt.font.TextAttribute.*;
 import static javafx.scene.input.KeyCode.F11;
@@ -67,10 +68,6 @@ public final class Main extends Application {
     System.err.close();
   }
 
-  /**
-   * Must be static, otherwise instant crash.
-   */
-  private static final Notifier sNotifier = Services.load( Notifier.class );
   private final Options mOptions = Services.load( Options.class );
   private final Snitch mSnitch = Services.load( Snitch.class );
 
@@ -197,14 +194,6 @@ public final class Main extends Application {
     final Thread thread = getSnitchThread();
     thread.interrupt();
     thread.join();
-  }
-
-  private static void alert( final Exception ex ) {
-    getNotifier().alert( ex );
-  }
-
-  private static Notifier getNotifier() {
-    return sNotifier;
   }
 
   private Snitch getSnitch() {

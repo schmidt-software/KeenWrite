@@ -100,6 +100,7 @@ import java.util.stream.Collectors;
 
 import static com.scrivenvar.Constants.*;
 import static com.scrivenvar.Messages.get;
+import static com.scrivenvar.service.GlobalNotifier.*;
 import static com.scrivenvar.util.StageState.*;
 import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.*;
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -123,7 +124,6 @@ public class MainWindow implements Observer {
    */
   private static final Options sOptions = Services.load( Options.class );
   private static final Snitch SNITCH = Services.load( Snitch.class );
-  private static final Notifier sNotifier = Services.load( Notifier.class );
 
   private final Scene mScene;
   private final StatusBar mStatusBar;
@@ -210,7 +210,7 @@ public class MainWindow implements Observer {
       = new DefinitionNameInjector( mDefinitionPane );
 
   public MainWindow() {
-    sNotifier.addObserver( this );
+    getNotifier().addObserver( this );
 
     mStatusBar = createStatusBar();
     mLineNumberText = createLineNumberText();
@@ -626,23 +626,6 @@ public class MainWindow implements Observer {
 
   private void initDefinitionPane() {
     openDefinitions( getDefinitionPath() );
-  }
-
-  private static void clearAlert() {
-    getNotifier().clear();
-  }
-
-  /**
-   * Called when an exception occurs that warrants the user's attention.
-   *
-   * @param ex The exception with a message that the user should know about.
-   */
-  private static void alert( final Exception ex ) {
-    getNotifier().alert( ex );
-  }
-
-  private static void alert( final String msg ) {
-    getNotifier().alert( msg );
   }
 
   //---- File actions -------------------------------------------------------
@@ -1393,10 +1376,6 @@ public class MainWindow implements Observer {
    */
   private Map<String, String> getResolvedMap() {
     return mResolvedMap;
-  }
-
-  private static Notifier getNotifier() {
-    return sNotifier;
   }
 
   //---- Persistence accessors ----------------------------------------------

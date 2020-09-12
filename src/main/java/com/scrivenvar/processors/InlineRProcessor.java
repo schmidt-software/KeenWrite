@@ -30,7 +30,6 @@ package com.scrivenvar.processors;
 import com.scrivenvar.Services;
 import com.scrivenvar.preferences.UserPreferences;
 import com.scrivenvar.service.Options;
-import com.scrivenvar.service.events.Notifier;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.StringProperty;
 
@@ -45,6 +44,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import static com.scrivenvar.Constants.STATUS_PARSE_ERROR;
 import static com.scrivenvar.Messages.get;
 import static com.scrivenvar.processors.text.TextReplacementFactory.replace;
+import static com.scrivenvar.service.GlobalNotifier.alert;
+import static com.scrivenvar.service.GlobalNotifier.clearAlert;
 import static com.scrivenvar.sigils.RSigilOperator.PREFIX;
 import static com.scrivenvar.sigils.RSigilOperator.SUFFIX;
 import static java.lang.Math.min;
@@ -55,7 +56,6 @@ import static java.lang.String.format;
  */
 public final class InlineRProcessor extends DefinitionProcessor {
 
-  private static final Notifier sNotifier = Services.load( Notifier.class );
   private static final Options sOptions = Services.load( Options.class );
 
   /**
@@ -279,21 +279,5 @@ public final class InlineRProcessor extends DefinitionProcessor {
 
   private ScriptEngine getScriptEngine() {
     return ENGINE;
-  }
-
-  private static Notifier getNotifier() {
-    return sNotifier;
-  }
-
-  private static void clearAlert() {
-    getNotifier().clear();
-  }
-
-  private void alert( final String msg ) {
-    getNotifier().alert( msg );
-  }
-
-  private static void alert( final Exception e ) {
-    getNotifier().alert( e );
   }
 }
