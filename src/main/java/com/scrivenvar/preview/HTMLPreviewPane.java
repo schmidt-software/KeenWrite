@@ -31,6 +31,7 @@ import com.scrivenvar.Services;
 import com.scrivenvar.adapters.DocumentAdapter;
 import com.scrivenvar.graphics.SvgReplacedElementFactory;
 import com.scrivenvar.service.events.Notifier;
+import com.scrivenvar.util.ProtocolResolver;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
@@ -129,12 +130,19 @@ public final class HTMLPreviewPane extends SwingNode {
    */
   private static class HyperlinkListener extends LinkListener {
     @Override
-    public void linkClicked( final BasicPanel panel, final String uri ) {
+    public void linkClicked( final BasicPanel panel, final String link ) {
       try {
-        final var desktop = getDesktop();
+        final var protocol = ProtocolResolver.getProtocol( link );
 
-        if( desktop.isSupported( BROWSE ) ) {
-          desktop.browse( new URI( uri ) );
+        if( ProtocolResolver.isHttp( protocol ) ) {
+          final var desktop = getDesktop();
+
+          if( desktop.isSupported( BROWSE ) ) {
+            desktop.browse( new URI( link ) );
+          }
+        }
+        else if( ProtocolResolver.isFile( protocol )) {
+          // TODO: #88 -- publish a message to the event bus.
         }
       } catch( final Exception e ) {
         sNotifier.notify( e );
