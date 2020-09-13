@@ -75,14 +75,7 @@ public class SvgReplacedElementFactory
    * loaded into memory.
    */
   private final Map<String, BufferedImage> mImageCache =
-      new BoundedCache<>( 100 );
-
-  /**
-   * A bounded cache that removes the oldest document if the maximum number of
-   * cached SVG XML documents has been reached. This constrains the number of
-   * SVG XML documents loaded into memory.
-   */
-  private final Map<Element, String> mSvgCache = new BoundedCache<>( 200 );
+      new BoundedCache<>( 150 );
 
   @Override
   public ReplacedElement createReplacedElement(
@@ -95,29 +88,25 @@ public class SvgReplacedElementFactory
     final var e = box.getElement();
 
     if( e != null ) {
-      final var nodeName = e.getNodeName();
+      try {
+        final var nodeName = e.getNodeName();
 
-      if( HTML_IMAGE.equals( nodeName ) ) {
-        final var src = e.getAttribute( HTML_IMAGE_SRC );
-        final var ext = FilenameUtils.getExtension( src );
+        if( HTML_IMAGE.equals( nodeName ) ) {
+          final var src = e.getAttribute( HTML_IMAGE_SRC );
+          final var ext = FilenameUtils.getExtension( src );
 
-        if( SVG_FILE.equalsIgnoreCase( ext ) ) {
-          try {
+          if( SVG_FILE.equalsIgnoreCase( ext ) ) {
             image = getCachedImage(
                 src, svg -> rasterize( svg, box.getContentWidth() ) );
-          } catch( final Exception ex ) {
-            alert( ex );
           }
         }
-      }
-      else if( HTML_SVG.equalsIgnoreCase( nodeName ) ) {
-        // Convert the <svg> element to a raster graphic.
-        try {
-          final var src = e.getAttribute( "id" );
+        else if( HTML_SVG.equals( nodeName ) ) {
+          // Convert the <svg> element to a raster graphic if it isn't cached.
+          final var src = e.getAttribute( SVG_IMAGE_SRC );
           image = getCachedImage( src, __ -> rasterizeString( toSvg( e ) ) );
-        } catch( final Exception ex ) {
-          alert( ex );
         }
+      } catch( final Exception ex ) {
+        alert( ex );
       }
     }
 
@@ -155,9 +144,5 @@ public class SvgReplacedElementFactory
   private BufferedImage getCachedImage(
       final String src, final Function<String, BufferedImage> rasterizer ) {
     return mImageCache.computeIfAbsent( src, __ -> rasterizer.apply( src ) );
-  }
-
-  private String getCachedSvg( final Element doc ) {
-    return mSvgCache.computeIfAbsent( doc, SvgRasterizer::toSvg );
   }
 }
