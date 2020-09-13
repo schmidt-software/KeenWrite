@@ -108,7 +108,6 @@ import static java.util.Collections.singleton;
 import static javafx.application.Platform.runLater;
 import static javafx.event.Event.fireEvent;
 import static javafx.scene.input.KeyCode.ENTER;
-import static javafx.scene.input.KeyCode.TAB;
 import static javafx.stage.WindowEvent.WINDOW_CLOSE_REQUEST;
 import static org.fxmisc.richtext.model.TwoDimensional.Bias.Forward;
 
@@ -153,17 +152,6 @@ public class MainWindow implements Observer {
     interpolateResolvedMap();
     rerender();
   };
-
-  /**
-   * Called to switch to the definition pane when the user presses the TAB key.
-   */
-  private final EventHandler<? super KeyEvent> mTabKeyHandler =
-      (EventHandler<KeyEvent>) event -> {
-        if( event.getCode() == TAB ) {
-          getDefinitionPane().requestFocus();
-          event.consume();
-        }
-      };
 
   /**
    * Called to inject the selected item when the user presses ENTER in the
@@ -343,7 +331,6 @@ public class MainWindow implements Observer {
                 final FileEditorTab tab = (FileEditorTab) newTab;
 
                 initTextChangeListener( tab );
-                initTabKeyEventListener( tab );
                 initScrollEventListener( tab );
                 initSpellCheckListener( tab );
 //              initSyntaxListener( tab );
@@ -361,16 +348,6 @@ public class MainWindow implements Observer {
           scrollToParagraph( getCurrentParagraphIndex() );
         }
     );
-  }
-
-  /**
-   * Ensure that the keyboard events are received when a new tab is added
-   * to the user interface.
-   *
-   * @param tab The tab editor that can trigger keyboard events.
-   */
-  private void initTabKeyEventListener( final FileEditorTab tab ) {
-    tab.addEventFilter( KeyEvent.KEY_PRESSED, mTabKeyHandler );
   }
 
   private void initScrollEventListener( final FileEditorTab tab ) {
