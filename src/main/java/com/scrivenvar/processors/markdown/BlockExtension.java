@@ -4,7 +4,6 @@ import com.vladsch.flexmark.ast.BlockQuote;
 import com.vladsch.flexmark.ast.ListBlock;
 import com.vladsch.flexmark.html.AttributeProvider;
 import com.vladsch.flexmark.html.AttributeProviderFactory;
-import com.vladsch.flexmark.html.HtmlRenderer;
 import com.vladsch.flexmark.html.IndependentAttributeProviderFactory;
 import com.vladsch.flexmark.html.renderer.AttributablePart;
 import com.vladsch.flexmark.html.renderer.LinkResolverContext;
@@ -15,13 +14,15 @@ import com.vladsch.flexmark.util.html.MutableAttributes;
 import org.jetbrains.annotations.NotNull;
 
 import static com.scrivenvar.Constants.PARAGRAPH_ID_PREFIX;
+import static com.vladsch.flexmark.html.HtmlRenderer.Builder;
+import static com.vladsch.flexmark.html.HtmlRenderer.HtmlRendererExtension;
 import static com.vladsch.flexmark.html.renderer.CoreNodeRenderer.CODE_CONTENT;
 
 /**
  * Responsible for giving most block-level elements a unique identifier
  * attribute. The identifier is used to coordinate scrolling.
  */
-public class BlockExtension implements HtmlRenderer.HtmlRendererExtension {
+public class BlockExtension implements HtmlRendererExtension {
   /**
    * Responsible for creating the id attribute. This class is instantiated
    * each time the document is rendered, thereby resetting the count to zero.
@@ -66,16 +67,16 @@ public class BlockExtension implements HtmlRenderer.HtmlRendererExtension {
   }
 
   @Override
-  public void rendererOptions( @NotNull final MutableDataHolder options ) {
-  }
-
-  @Override
-  public void extend( final HtmlRenderer.Builder builder,
+  public void extend( final Builder builder,
                       @NotNull final String rendererType ) {
     builder.attributeProviderFactory( IdAttributeProvider.createFactory() );
   }
 
   public static BlockExtension create() {
     return new BlockExtension();
+  }
+
+  @Override
+  public void rendererOptions( @NotNull final MutableDataHolder options ) {
   }
 }

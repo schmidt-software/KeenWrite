@@ -31,7 +31,6 @@ import com.scrivenvar.Services;
 import com.scrivenvar.preferences.UserPreferences;
 import com.scrivenvar.service.Options;
 import com.vladsch.flexmark.ast.Image;
-import com.vladsch.flexmark.html.HtmlRenderer;
 import com.vladsch.flexmark.html.IndependentLinkResolverFactory;
 import com.vladsch.flexmark.html.LinkResolver;
 import com.vladsch.flexmark.html.renderer.LinkResolverBasicContext;
@@ -48,13 +47,15 @@ import java.nio.file.Path;
 
 import static com.scrivenvar.StatusBarNotifier.alert;
 import static com.scrivenvar.util.ProtocolResolver.getProtocol;
+import static com.vladsch.flexmark.html.HtmlRenderer.Builder;
+import static com.vladsch.flexmark.html.HtmlRenderer.HtmlRendererExtension;
 import static java.lang.String.format;
 
 /**
  * Responsible for ensuring that images can be rendered relative to a path.
  * This allows images to be located virtually anywhere.
  */
-public class ImageLinkExtension implements HtmlRenderer.HtmlRendererExtension {
+public class ImageLinkExtension implements HtmlRendererExtension {
   /**
    * Used for image directory preferences.
    */
@@ -192,10 +193,9 @@ public class ImageLinkExtension implements HtmlRenderer.HtmlRendererExtension {
   }
 
   @Override
-  public void extend(
-      final HtmlRenderer.Builder rendererBuilder,
-      @NotNull final String rendererType ) {
-    rendererBuilder.linkResolverFactory( new Factory() );
+  public void extend( @NotNull final Builder builder,
+                      @NotNull final String rendererType ) {
+    builder.linkResolverFactory( new Factory() );
   }
 
   private UserPreferences getUserPreferences() {

@@ -217,7 +217,7 @@ img {
 /* Required for FlyingSaucer to detect the node.
  * See SVGReplacedElementFactory for details.
  */
-svg {
+svg, tex {
   /* Ensure the formulas can be inlined with text. */
   display: inline-block;
   vertical-align: middle;
