@@ -31,6 +31,8 @@ import com.whitemagicsoftware.tex.DefaultTeXFont;
 import com.whitemagicsoftware.tex.TeXEnvironment;
 import com.whitemagicsoftware.tex.TeXFormula;
 import com.whitemagicsoftware.tex.TeXLayout;
+import com.whitemagicsoftware.tex.graphics.AbstractGraphics2D;
+import com.whitemagicsoftware.tex.graphics.SvgDomGraphics2D;
 import com.whitemagicsoftware.tex.graphics.SvgGraphics2D;
 import org.junit.jupiter.api.Test;
 import org.xml.sax.SAXException;
@@ -44,8 +46,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 
-import static com.scrivenvar.preview.SvgRasterizer.rasterizeString;
-import static com.scrivenvar.preview.SvgRasterizer.toSvg;
+import static com.scrivenvar.preview.SvgRasterizer.*;
 import static java.lang.System.getProperty;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -74,10 +75,9 @@ public class TeXRasterization {
   @Test
   public void test_Rasterize_SimpleFormula_CorrectImageSize()
       throws IOException {
-    final var svg = createSvg();
-    final var image = rasterizeString( svg );
-    final var file = export( image, "image.png" );
-    assertEquals( FILESIZE, file.length() );
+    final var g = new SvgGraphics2D();
+    drawGraphics( g );
+    verifyImage( rasterizeString( g.toString() ) );
   }
 
   /**
@@ -85,9 +85,12 @@ public class TeXRasterization {
    * an image.
    */
   @Test
-  public void test_Conversion_InputElement_OutputRasterizableSvg()
+  public void getTest_SvgDomGraphics2D_InputElement_OutputRasterizedImage()
       throws ParserConfigurationException, IOException, SAXException {
-    final var expectedSvg = createSvg();
+    final var g = new SvgGraphics2D();
+    drawGraphics( g );
+
+    final var expectedSvg = g.toString();
     final var bytes = expectedSvg.getBytes();
 
     final var dbf = DocumentBuilderFactory.newInstance();
@@ -98,21 +101,43 @@ public class TeXRasterization {
     final var doc = builder.parse( new ByteArrayInputStream( bytes ) );
     final var actualSvg = toSvg( doc.getDocumentElement() );
 
-    final var image = rasterizeString( actualSvg );
+    verifyImage( rasterizeString( actualSvg ) );
+  }
+
+  /**
+   * Test that an SVG image from a DOM element can be rasterized.
+   *
+   * @throws IOException Could not write the image.
+   */
+  @Test
+  public void test_SvgDomGraphics2D_InputDom_OutputRasterizedImage()
+      throws IOException {
+    final var g = new SvgDomGraphics2D();
+    drawGraphics( g );
+
+    final var dom = g.toDom();
+
+    verifyImage( rasterize( dom ) );
+  }
+
+  /**
+   * Asserts that the given image matches an expected file size.
+   *
+   * @param image The image to check against the file size.
+   * @throws IOException Could not write the image.
+   */
+  private void verifyImage( final BufferedImage image ) throws IOException {
     final var file = export( image, "dom.png" );
     assertEquals( FILESIZE, file.length() );
   }
 
   /**
    * Creates an SVG string for the default equation and font size.
-   *
-   * @return The equation converted to an SVG string.
    */
-  private String createSvg() {
+  private void drawGraphics( final AbstractGraphics2D g ) {
     final var size = 100f;
     final var texFont = new DefaultTeXFont( size );
     final var env = new TeXEnvironment( texFont );
-    final var g = new SvgGraphics2D();
     g.scale( size, size );
 
     final var formula = new TeXFormula( EQUATION );
@@ -121,9 +146,9 @@ public class TeXRasterization {
 
     g.initialize( layout.getWidth(), layout.getHeight() );
     box.draw( g, layout.getX(), layout.getY() );
-    return g.toString();
   }
 
+  @SuppressWarnings("SameParameterValue")
   private File export( final BufferedImage image, final String filename )
       throws IOException {
     final var path = Path.of( DIR_TEMP, filename );

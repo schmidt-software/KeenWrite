@@ -43,7 +43,7 @@ import java.util.Map;
 import java.util.function.Function;
 
 import static com.scrivenvar.StatusBarNotifier.alert;
-import static com.scrivenvar.preview.SvgRasterizer.*;
+import static com.scrivenvar.preview.SvgRasterizer.rasterize;
 
 /**
  * Responsible for running {@link SvgRasterizer} on SVG images detected within
@@ -56,23 +56,16 @@ public class SvgReplacedElementFactory
    * SVG filename extension maps to an SVG image element.
    */
   private static final String SVG_FILE = "svg";
-  private static final String HTML_SVG = "svg";
 
   /**
    * TeX expression wrapped in a {@code <tex>} element.
    */
   private static final String HTML_TEX = "tex";
 
-  /**
-   * The {@code <svg>} element attribute name containing a value that uniquely
-   * identifies the vector graphic file. This value must always be the same for
-   * the same formula. That is, {@code E=mc^2} must always hash the same way
-   * (e.g., by calling {@link String#hashCode()} on the formula).
-   */
-  private static final String SVG_IMAGE_SRC = "id";
-
   private static final String HTML_IMAGE = "img";
   private static final String HTML_IMAGE_SRC = "src";
+
+  private static final MathRenderer sMathRenderer = new MathRenderer();
 
   /**
    * A bounded cache that removes the oldest image if the maximum number of
@@ -105,10 +98,12 @@ public class SvgReplacedElementFactory
                 src, svg -> rasterize( svg, box.getContentWidth() ) );
           }
         }
-        else if( HTML_TEX.equals(nodeName)) {
+        else if( HTML_TEX.equals( nodeName ) ) {
           // Convert the <svg> element to a raster graphic if it isn't cached.
-          final var src = e.getAttribute( SVG_IMAGE_SRC );
-          image = getCachedImage( src, __ -> rasterizeString( toSvg( e ) ) );
+          final var src = e.getTextContent();
+          image = getCachedImage(
+              src, __ -> rasterize( sMathRenderer.render( src ) )
+          );
         }
       } catch( final Exception ex ) {
         alert( ex );

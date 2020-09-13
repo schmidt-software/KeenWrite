@@ -149,6 +149,10 @@ public class SvgRasterizer {
     BROKEN_IMAGE_PLACEHOLDER = image;
   }
 
+  /**
+   * Responsible for creating a new {@link ImageRenderer} implementation that
+   * can render a DOM as an SVG image.
+   */
   private static class BufferedImageTranscoder extends ImageTranscoder {
     private BufferedImage mImage;
 
@@ -199,6 +203,25 @@ public class SvgRasterizer {
   }
 
   /**
+   * Rasterizes the given document into an image.
+   *
+   * @param svg   The SVG {@link Document} to rasterize.
+   * @param width The rasterized image's width (in pixels).
+   * @return The rasterized image.
+   * @throws TranscoderException Signifies an issue with the input document.
+   */
+  public static BufferedImage rasterize( final Document svg, final int width )
+      throws TranscoderException {
+    final var transcoder = new BufferedImageTranscoder();
+    final var input = new TranscoderInput( svg );
+
+    transcoder.addTranscodingHint( KEY_WIDTH, (float) width );
+    transcoder.transcode( input, null );
+
+    return transcoder.getImage();
+  }
+
+  /**
    * Converts an SVG drawing into a rasterized image that can be drawn on
    * a graphics context.
    *
@@ -213,6 +236,17 @@ public class SvgRasterizer {
   public static BufferedImage rasterize( final URL url, final int width )
       throws IOException, TranscoderException {
     return rasterize( FACTORY_DOM.createDocument( url.toString() ), width );
+  }
+
+  public static BufferedImage rasterize( final Document document ) {
+    try {
+      final var root = document.getDocumentElement();
+      final var width = root.getAttribute( "width" );
+      return rasterize( document, INT_FORMAT.parse( width ).intValue() );
+    } catch( final Exception e ) {
+      alert( e );
+      return BROKEN_IMAGE_PLACEHOLDER;
+    }
   }
 
   /**
@@ -240,8 +274,8 @@ public class SvgRasterizer {
    */
   public static BufferedImage rasterizeString( final String xml ) {
     try {
-      final var doc = toDocument( xml );
-      final var root = doc.getDocumentElement();
+      final var document = toDocument( xml );
+      final var root = document.getDocumentElement();
       final var width = root.getAttribute( "width" );
       return rasterizeString( xml, INT_FORMAT.parse( width ).intValue() );
     } catch( final Exception e ) {
@@ -262,17 +296,6 @@ public class SvgRasterizer {
       return FACTORY_DOM.createSVGDocument(
           "http://www.w3.org/2000/svg", reader );
     }
-  }
-
-  public static BufferedImage rasterize( final Document svg, final int width )
-      throws TranscoderException {
-    final var transcoder = new BufferedImageTranscoder();
-    final var input = new TranscoderInput( svg );
-
-    transcoder.addTranscodingHint( KEY_WIDTH, (float) width );
-    transcoder.transcode( input, null );
-
-    return transcoder.getImage();
   }
 
   /**
