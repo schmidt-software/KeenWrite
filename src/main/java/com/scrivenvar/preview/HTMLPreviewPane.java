@@ -29,7 +29,6 @@ package com.scrivenvar.preview;
 
 import com.scrivenvar.adapters.DocumentAdapter;
 import com.scrivenvar.graphics.SvgReplacedElementFactory;
-import com.scrivenvar.util.ProtocolResolver;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
@@ -54,7 +53,7 @@ import java.nio.file.Path;
 
 import static com.scrivenvar.Constants.*;
 import static com.scrivenvar.StatusBarNotifier.alert;
-import static com.scrivenvar.util.ProtocolResolver.*;
+import static com.scrivenvar.util.ProtocolResolver.getProtocol;
 import static java.awt.Desktop.Action.BROWSE;
 import static java.awt.Desktop.getDesktop;
 import static java.lang.Math.max;
@@ -134,15 +133,17 @@ public final class HTMLPreviewPane extends SwingNode {
       try {
         final var protocol = getProtocol( link );
 
-        if( protocol.isHttp() ) {
-          final var desktop = getDesktop();
+        switch( protocol ) {
+          case HTTP:
+            final var desktop = getDesktop();
 
-          if( desktop.isSupported( BROWSE ) ) {
-            desktop.browse( new URI( link ) );
-          }
-        }
-        else if( protocol.isFile() ) {
-          // TODO: #88 -- publish a message to the event bus.
+            if( desktop.isSupported( BROWSE ) ) {
+              desktop.browse( new URI( link ) );
+            }
+            break;
+          case FILE:
+            // TODO: #88 -- publish a message to the event bus.
+            break;
         }
       } catch( final Exception e ) {
         alert( e );
