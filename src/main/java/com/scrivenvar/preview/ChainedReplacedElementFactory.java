@@ -32,7 +32,6 @@ import java.util.Set;
 
 public class ChainedReplacedElementFactory extends ReplacedElementAdapter {
   private final Set<ReplacedElementFactory> mFactoryList = new HashSet<>();
-  private volatile boolean mChain;
 
   @Override
   public ReplacedElement createReplacedElement(

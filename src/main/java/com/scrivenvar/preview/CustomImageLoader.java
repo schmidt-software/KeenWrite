@@ -27,7 +27,6 @@
  */
 package com.scrivenvar.preview;
 
-import com.scrivenvar.util.ProtocolResolver;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import org.xhtmlrenderer.extend.FSImage;
@@ -39,6 +38,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 
 import static com.scrivenvar.graphics.SvgRasterizer.BROKEN_IMAGE_PLACEHOLDER;
+import static com.scrivenvar.util.ProtocolResolver.getProtocol;
 import static org.xhtmlrenderer.swing.AWTFSImage.createImage;
 
 /**
@@ -85,7 +85,7 @@ public class CustomImageLoader extends ImageResourceLoader {
     boolean exists = true;
 
     try {
-      final var protocol = ProtocolResolver.getProtocol( uri );
+      final var protocol = getProtocol( uri );
 
       if( protocol.isFile() ) {
         exists = Files.exists( Paths.get( new URI( uri ) ) );

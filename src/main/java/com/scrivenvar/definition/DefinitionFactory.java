@@ -30,12 +30,12 @@ package com.scrivenvar.definition;
 import com.scrivenvar.AbstractFileFactory;
 import com.scrivenvar.FileType;
 import com.scrivenvar.definition.yaml.YamlDefinitionSource;
-import com.scrivenvar.util.ProtocolResolver;
 
 import java.nio.file.Path;
 
 import static com.scrivenvar.Constants.GLOB_PREFIX_DEFINITION;
 import static com.scrivenvar.FileType.YAML;
+import static com.scrivenvar.util.ProtocolResolver.getProtocol;
 
 /**
  * Responsible for creating objects that can read and write definition data
@@ -60,7 +60,7 @@ public class DefinitionFactory extends AbstractFileFactory {
   public DefinitionSource createDefinitionSource( final Path path ) {
     assert path != null;
 
-    final var protocol = ProtocolResolver.getProtocol( path.toString() );
+    final var protocol = getProtocol( path.toString() );
     DefinitionSource result = null;
 
     if( protocol.isFile() ) {

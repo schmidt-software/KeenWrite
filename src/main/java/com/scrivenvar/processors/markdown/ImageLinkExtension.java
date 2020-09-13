@@ -30,7 +30,6 @@ package com.scrivenvar.processors.markdown;
 import com.scrivenvar.Services;
 import com.scrivenvar.preferences.UserPreferences;
 import com.scrivenvar.service.Options;
-import com.scrivenvar.util.ProtocolResolver;
 import com.vladsch.flexmark.ast.Image;
 import com.vladsch.flexmark.html.HtmlRenderer;
 import com.vladsch.flexmark.html.IndependentLinkResolverFactory;
@@ -48,6 +47,7 @@ import java.io.FileNotFoundException;
 import java.nio.file.Path;
 
 import static com.scrivenvar.StatusBarNotifier.alert;
+import static com.scrivenvar.util.ProtocolResolver.getProtocol;
 import static java.lang.String.format;
 
 /**
@@ -103,7 +103,7 @@ public class ImageLinkExtension implements HtmlRenderer.HtmlRendererExtension {
 
     private ResolvedLink resolve( final ResolvedLink link ) {
       var url = link.getUrl();
-      final var protocol = ProtocolResolver.getProtocol( url );
+      final var protocol = getProtocol( url );
 
       try {
         // If the direct file name exists, then use it directly.

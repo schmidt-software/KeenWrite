@@ -28,21 +28,14 @@
 package com.scrivenvar.util;
 
 import java.io.File;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
-
-import static com.scrivenvar.util.ProtocolScheme.FILE;
-import static com.scrivenvar.util.ProtocolScheme.HTTP;
-import static org.apache.commons.compress.utils.ArchiveUtils.sanitize;
 
 /**
  * Responsible for determining the protocol of a resource.
  */
 public class ProtocolResolver {
-  private static final String SCHEME_HTTP = "http";
-  private static final String SCHEME_FILE = "file";
-  private static final String SCHEME_UNKNOWN = "unknown";
-
   /**
    * Returns the protocol for a given URI or filename.
    *
@@ -73,7 +66,7 @@ public class ProtocolResolver {
       }
     }
 
-    return ProtocolScheme.valueFrom(protocol);
+    return ProtocolScheme.valueFrom( protocol );
   }
 
   /**
@@ -87,8 +80,9 @@ public class ProtocolResolver {
 
     try {
       result = file.toURI().toURL().getProtocol();
-    } catch( final Exception e ) {
-      result = SCHEME_UNKNOWN;
+    } catch( final MalformedURLException ex ) {
+      // Arbitrary value to avoid identification as a standard protocol.
+      result = "unknown";
     }
 
     return result;
