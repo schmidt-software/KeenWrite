@@ -32,6 +32,8 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 
+import static com.scrivenvar.util.ProtocolScheme.UNKNOWN;
+
 /**
  * Responsible for determining the protocol of a resource.
  */
@@ -81,8 +83,8 @@ public class ProtocolResolver {
     try {
       result = file.toURI().toURL().getProtocol();
     } catch( final MalformedURLException ex ) {
-      // Arbitrary value to avoid identification as a standard protocol.
-      result = "unknown";
+      // Value guaranteed to avoid identification as a standard protocol.
+      result = UNKNOWN.toString();
     }
 
     return result;
