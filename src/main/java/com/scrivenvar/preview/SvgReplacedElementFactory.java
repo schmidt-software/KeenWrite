@@ -59,6 +59,11 @@ public class SvgReplacedElementFactory
   private static final String HTML_SVG = "svg";
 
   /**
+   * TeX expression wrapped in a {@code <tex>} element.
+   */
+  private static final String HTML_TEX = "tex";
+
+  /**
    * The {@code <svg>} element attribute name containing a value that uniquely
    * identifies the vector graphic file. This value must always be the same for
    * the same formula. That is, {@code E=mc^2} must always hash the same way
@@ -100,7 +105,7 @@ public class SvgReplacedElementFactory
                 src, svg -> rasterize( svg, box.getContentWidth() ) );
           }
         }
-        else if( HTML_SVG.equals( nodeName ) ) {
+        else if( HTML_TEX.equals(nodeName)) {
           // Convert the <svg> element to a raster graphic if it isn't cached.
           final var src = e.getAttribute( SVG_IMAGE_SRC );
           image = getCachedImage( src, __ -> rasterizeString( toSvg( e ) ) );
