@@ -25,7 +25,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.scrivenvar.graphics;
+package com.scrivenvar.preview;
 
 import org.apache.batik.anim.dom.SAXSVGDocumentFactory;
 import org.apache.batik.gvt.renderer.ImageRenderer;
@@ -50,7 +50,7 @@ import java.net.URL;
 import java.text.NumberFormat;
 
 import static com.scrivenvar.StatusBarNotifier.alert;
-import static com.scrivenvar.graphics.RenderingSettings.RENDERING_HINTS;
+import static com.scrivenvar.preview.RenderingSettings.RENDERING_HINTS;
 import static java.awt.image.BufferedImage.TYPE_INT_RGB;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.text.NumberFormat.getIntegerInstance;

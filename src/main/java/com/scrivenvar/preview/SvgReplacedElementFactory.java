@@ -25,7 +25,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.scrivenvar.graphics;
+package com.scrivenvar.preview;
 
 import com.scrivenvar.util.BoundedCache;
 import org.apache.commons.io.FilenameUtils;
@@ -43,7 +43,7 @@ import java.util.Map;
 import java.util.function.Function;
 
 import static com.scrivenvar.StatusBarNotifier.alert;
-import static com.scrivenvar.graphics.SvgRasterizer.*;
+import static com.scrivenvar.preview.SvgRasterizer.*;
 
 /**
  * Responsible for running {@link SvgRasterizer} on SVG images detected within

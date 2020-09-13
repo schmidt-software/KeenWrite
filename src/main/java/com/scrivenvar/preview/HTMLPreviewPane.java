@@ -28,7 +28,6 @@
 package com.scrivenvar.preview;
 
 import com.scrivenvar.adapters.DocumentAdapter;
-import com.scrivenvar.graphics.SvgReplacedElementFactory;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;

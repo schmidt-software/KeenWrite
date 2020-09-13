@@ -44,8 +44,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 
-import static com.scrivenvar.graphics.SvgRasterizer.rasterizeString;
-import static com.scrivenvar.graphics.SvgRasterizer.toSvg;
+import static com.scrivenvar.preview.SvgRasterizer.rasterizeString;
+import static com.scrivenvar.preview.SvgRasterizer.toSvg;
 import static java.lang.System.getProperty;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

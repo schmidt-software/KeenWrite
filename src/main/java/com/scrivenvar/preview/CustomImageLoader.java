@@ -37,7 +37,7 @@ import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
-import static com.scrivenvar.graphics.SvgRasterizer.BROKEN_IMAGE_PLACEHOLDER;
+import static com.scrivenvar.preview.SvgRasterizer.BROKEN_IMAGE_PLACEHOLDER;
 import static com.scrivenvar.util.ProtocolResolver.getProtocol;
 import static org.xhtmlrenderer.swing.AWTFSImage.createImage;
 
