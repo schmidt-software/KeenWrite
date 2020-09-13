@@ -54,6 +54,7 @@ import java.nio.file.Path;
 
 import static com.scrivenvar.Constants.*;
 import static com.scrivenvar.StatusBarNotifier.alert;
+import static com.scrivenvar.util.ProtocolResolver.*;
 import static java.awt.Desktop.Action.BROWSE;
 import static java.awt.Desktop.getDesktop;
 import static java.lang.Math.max;
@@ -65,10 +66,10 @@ import static org.xhtmlrenderer.swing.ImageResourceLoader.NO_OP_REPAINT_LISTENER
  */
 public final class HTMLPreviewPane extends SwingNode {
 
+  /**
+   * Suppresses scrolling to the top on every key press.
+   */
   private static class HTMLPanel extends XHTMLPanel {
-    /**
-     * Suppresses scrolling to the top on every key press.
-     */
     @Override
     public void resetScrollPosition() {
     }
@@ -96,8 +97,7 @@ public final class HTMLPreviewPane extends SwingNode {
   }
 
   /**
-   * Responsible for ensuring that images are constrained to the panel width
-   * upon resizing.
+   * Ensure that images are constrained to the panel width upon resizing.
    */
   private final class ResizeListener extends ComponentAdapter {
     @Override
@@ -115,31 +115,33 @@ public final class HTMLPreviewPane extends SwingNode {
      * scaled to fit. The scale factor is adjusted a bit below the full width
      * to prevent the horizontal scrollbar from appearing.
      *
-     * @param e The component that defines the image scaling width.
+     * @param event The component that defines the image scaling width.
      */
-    private void setWidth( final ComponentEvent e ) {
-      final int width = (int) (e.getComponent().getWidth() * .95);
+    private void setWidth( final ComponentEvent event ) {
+      final int width = (int) (event.getComponent().getWidth() * .95);
       HTMLPreviewPane.this.mImageLoader.widthProperty().set( width );
     }
   }
 
   /**
-   * Responsible for launching hyperlinks in the system's default browser.
+   * Responsible for opening hyperlinks. External hyperlinks are opened in
+   * the system's default browser; local file system links are opened in the
+   * editor.
    */
   private static class HyperlinkListener extends LinkListener {
     @Override
     public void linkClicked( final BasicPanel panel, final String link ) {
       try {
-        final var protocol = ProtocolResolver.getProtocol( link );
+        final var protocol = getProtocol( link );
 
-        if( ProtocolResolver.isHttp( protocol ) ) {
+        if( protocol.isHttp() ) {
           final var desktop = getDesktop();
 
           if( desktop.isSupported( BROWSE ) ) {
             desktop.browse( new URI( link ) );
           }
         }
-        else if( ProtocolResolver.isFile( protocol ) ) {
+        else if( protocol.isFile() ) {
           // TODO: #88 -- publish a message to the event bus.
         }
       } catch( final Exception e ) {
@@ -225,6 +227,7 @@ public final class HTMLPreviewPane extends SwingNode {
   public void process( final String html ) {
     final Document jsoupDoc = Jsoup.parse( decorate( html ) );
     final org.w3c.dom.Document w3cDoc = W3C_DOM.fromJsoup( jsoupDoc );
+
 
     // Access to a Swing component must occur from the Event Dispatch
     // thread according to Swing threading restrictions.

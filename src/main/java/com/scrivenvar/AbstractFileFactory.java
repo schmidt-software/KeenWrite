@@ -28,6 +28,7 @@
 package com.scrivenvar;
 
 import com.scrivenvar.service.Settings;
+import com.scrivenvar.util.ProtocolScheme;
 
 import java.nio.file.Path;
 
@@ -99,7 +100,8 @@ public class AbstractFileFactory {
    * @param type The detected path type (protocol, file extension, etc.).
    * @param path The path to a source of definitions.
    */
-  protected void unknownFileType( final String type, final String path ) {
+  protected void unknownFileType(
+      final ProtocolScheme type, final String path ) {
     final String msg = format( MSG_UNKNOWN_FILE_TYPE, type, path );
     throw new IllegalArgumentException( msg );
   }

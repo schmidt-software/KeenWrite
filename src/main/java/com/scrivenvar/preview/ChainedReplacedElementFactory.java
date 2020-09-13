@@ -27,11 +27,12 @@ import org.xhtmlrenderer.extend.UserAgentCallback;
 import org.xhtmlrenderer.layout.LayoutContext;
 import org.xhtmlrenderer.render.BlockBox;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 public class ChainedReplacedElementFactory extends ReplacedElementAdapter {
-  private final List<ReplacedElementFactory> mFactoryList = new ArrayList<>();
+  private final Set<ReplacedElementFactory> mFactoryList = new HashSet<>();
+  private volatile boolean mChain;
 
   @Override
   public ReplacedElement createReplacedElement(

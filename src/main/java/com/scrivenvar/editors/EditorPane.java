@@ -74,8 +74,11 @@ public class EditorPane extends Pane {
         ( l, o, n ) -> setFontSize( n.intValue() )
     );
 
+    // Clear out any previous alerts after the user has typed. If the problem
+    // persists, re-rendering the document will re-raise the error. If there
+    // was no previous error, clearing the alert is essentially a no-op.
     mEditor.textProperty().addListener(
-        (l, o, n) -> clearAlert()
+        ( l, o, n ) -> clearAlert()
     );
   }
 

@@ -60,10 +60,10 @@ public class DefinitionFactory extends AbstractFileFactory {
   public DefinitionSource createDefinitionSource( final Path path ) {
     assert path != null;
 
-    final String protocol = ProtocolResolver.getProtocol( path.toString() );
+    final var protocol = ProtocolResolver.getProtocol( path.toString() );
     DefinitionSource result = null;
 
-    if( ProtocolResolver.isFile( protocol ) ) {
+    if( protocol.isFile() ) {
       final FileType filetype = lookup( path, GLOB_PREFIX_DEFINITION );
       result = createFileDefinitionSource( filetype, path );
     }

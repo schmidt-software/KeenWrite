@@ -85,9 +85,9 @@ public class CustomImageLoader extends ImageResourceLoader {
     boolean exists = true;
 
     try {
-      final String protocol = ProtocolResolver.getProtocol( uri );
+      final var protocol = ProtocolResolver.getProtocol( uri );
 
-      if( "file".equals( protocol ) ) {
+      if( protocol.isFile() ) {
         exists = Files.exists( Paths.get( new URI( uri ) ) );
       }
     } catch( final Exception e ) {

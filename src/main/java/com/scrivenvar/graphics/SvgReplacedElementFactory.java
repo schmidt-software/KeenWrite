@@ -27,6 +27,7 @@
  */
 package com.scrivenvar.graphics;
 
+import com.scrivenvar.util.BoundedCache;
 import org.apache.commons.io.FilenameUtils;
 import org.w3c.dom.Element;
 import org.xhtmlrenderer.extend.ReplacedElement;
@@ -38,13 +39,11 @@ import org.xhtmlrenderer.simple.extend.FormSubmissionListener;
 import org.xhtmlrenderer.swing.ImageReplacedElement;
 
 import java.awt.image.BufferedImage;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.Function;
 
 import static com.scrivenvar.StatusBarNotifier.alert;
 import static com.scrivenvar.graphics.SvgRasterizer.rasterize;
-import static com.scrivenvar.graphics.SvgRasterizer.toSvg;
 
 /**
  * Responsible for running {@link SvgRasterizer} on SVG images detected within
@@ -63,20 +62,19 @@ public class SvgReplacedElementFactory
   private static final String HTML_IMAGE_SRC = "src";
 
   /**
-   * Constrain memory.
+   * A bounded cache that removes the oldest image if the maximum number of
+   * cached images has been reached. This constrains the number of images
+   * loaded into memory.
    */
-  private static final int MAX_CACHED_IMAGES = 100;
+  private final Map<String, BufferedImage> mImageCache =
+      new BoundedCache<>( 100 );
 
   /**
-   * Where to put cached image files.
+   * A bounded cache that removes the oldest document if the maximum number of
+   * cached SVG XML documents has been reached. This constrains the number of
+   * SVG XML documents loaded into memory.
    */
-  private final Map<String, BufferedImage> mImageCache = new LinkedHashMap<>() {
-    @Override
-    protected boolean removeEldestEntry(
-        final Map.Entry<String, BufferedImage> eldest ) {
-      return size() > MAX_CACHED_IMAGES;
-    }
-  };
+  private final Map<Element, String> mSvgCache = new BoundedCache<>( 200 );
 
   @Override
   public ReplacedElement createReplacedElement(
@@ -107,7 +105,7 @@ public class SvgReplacedElementFactory
       else if( HTML_SVG.equalsIgnoreCase( nodeName ) ) {
         // Convert the <svg> element to a raster graphic.
         try {
-          final String src = toSvg( e );
+          final var src = getCachedSvg( e );
           image = getCachedImage( src, SvgRasterizer::rasterizeString );
         } catch( final Exception ex ) {
           alert( ex );
@@ -149,5 +147,9 @@ public class SvgReplacedElementFactory
   private BufferedImage getCachedImage(
       final String src, final Function<String, BufferedImage> rasterizer ) {
     return mImageCache.computeIfAbsent( src, v -> rasterizer.apply( src ) );
+  }
+
+  private String getCachedSvg( final Element doc ) {
+    return mSvgCache.computeIfAbsent( doc, SvgRasterizer::toSvg );
   }
 }

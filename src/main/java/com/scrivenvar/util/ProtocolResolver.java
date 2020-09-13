@@ -1,8 +1,39 @@
+/*
+ * Copyright 2020 White Magic Software, Ltd.
+ *
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *  o Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ *
+ *  o Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 package com.scrivenvar.util;
 
 import java.io.File;
 import java.net.URI;
 import java.net.URL;
+
+import static com.scrivenvar.util.ProtocolScheme.FILE;
+import static com.scrivenvar.util.ProtocolScheme.HTTP;
+import static org.apache.commons.compress.utils.ArchiveUtils.sanitize;
 
 /**
  * Responsible for determining the protocol of a resource.
@@ -13,32 +44,12 @@ public class ProtocolResolver {
   private static final String SCHEME_UNKNOWN = "unknown";
 
   /**
-   * Answers {@code true} if the given protocol is either HTTP or HTTPS.
-   *
-   * @param protocol The protocol to compare against the web URI scheme.
-   * @return {@code true} the protocol is either HTTP or HTTPS.
-   */
-  public static boolean isHttp( final String protocol ) {
-    return sanitize( protocol ).startsWith( SCHEME_HTTP );
-  }
-
-  /**
-   * Answers {@code true} if the given protocol is for a local file.
-   *
-   * @param protocol The protocol to compare against the file URI scheme.
-   * @return {@code true} the protocol is for a local file reference.
-   */
-  public static boolean isFile( String protocol ) {
-    return sanitize( protocol ).startsWith( SCHEME_FILE );
-  }
-
-  /**
    * Returns the protocol for a given URI or filename.
    *
    * @param resource Determine the protocol for this URI or filename.
    * @return The protocol for the given resource.
    */
-  public static String getProtocol( final String resource ) {
+  public static ProtocolScheme getProtocol( final String resource ) {
     String protocol;
 
     try {
@@ -62,7 +73,7 @@ public class ProtocolResolver {
       }
     }
 
-    return protocol;
+    return ProtocolScheme.valueFrom(protocol);
   }
 
   /**
@@ -71,7 +82,7 @@ public class ProtocolResolver {
    * @param file Determine the protocol for this file.
    * @return The protocol for the given file.
    */
-  public static String getProtocol( final File file ) {
+  private static String getProtocol( final File file ) {
     String result;
 
     try {
@@ -81,16 +92,5 @@ public class ProtocolResolver {
     }
 
     return result;
-  }
-
-  /**
-   * Returns an empty string if the given string to sanitize is {@code null},
-   * otherwise the given string in lowercase.
-   *
-   * @param s The string to sanitize, may be {@code null}.
-   * @return A non-{@code null} string.
-   */
-  private static String sanitize( final String s ) {
-    return s == null ? "" : s.toLowerCase();
   }
 }
