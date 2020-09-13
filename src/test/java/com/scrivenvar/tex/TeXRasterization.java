@@ -32,20 +32,17 @@ import com.whitemagicsoftware.tex.TeXEnvironment;
 import com.whitemagicsoftware.tex.TeXFormula;
 import com.whitemagicsoftware.tex.TeXLayout;
 import com.whitemagicsoftware.tex.graphics.SvgGraphics2D;
-import org.apache.batik.transcoder.TranscoderException;
 import org.junit.jupiter.api.Test;
 import org.xml.sax.SAXException;
 
 import javax.imageio.ImageIO;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerException;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.text.ParseException;
 
 import static com.scrivenvar.graphics.SvgRasterizer.rasterizeString;
 import static com.scrivenvar.graphics.SvgRasterizer.toSvg;
@@ -76,7 +73,7 @@ public class TeXRasterization {
    */
   @Test
   public void test_Rasterize_SimpleFormula_CorrectImageSize()
-      throws IOException, TranscoderException, ParseException {
+      throws IOException {
     final var svg = createSvg();
     final var image = rasterizeString( svg );
     final var file = export( image, "image.png" );
@@ -89,8 +86,7 @@ public class TeXRasterization {
    */
   @Test
   public void test_Conversion_InputElement_OutputRasterizableSvg()
-      throws ParserConfigurationException, IOException, SAXException,
-      ParseException, TranscoderException, TransformerException {
+      throws ParserConfigurationException, IOException, SAXException {
     final var expectedSvg = createSvg();
     final var bytes = expectedSvg.getBytes();
 
@@ -123,7 +119,7 @@ public class TeXRasterization {
     final var box = formula.createBox( env );
     final var layout = new TeXLayout( box, size );
 
-    g.setDimensions( layout.getWidth(), layout.getHeight() );
+    g.initialize( layout.getWidth(), layout.getHeight() );
     box.draw( g, layout.getX(), layout.getY() );
     return g.toString();
   }

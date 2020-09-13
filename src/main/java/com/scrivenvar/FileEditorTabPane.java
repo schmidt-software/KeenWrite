@@ -126,15 +126,16 @@ public final class FileEditorTabPane extends TabPane {
               change.getAddedSubList().forEach(
                   ( tab ) -> {
                     final var fet = (FileEditorTab) tab;
-                    fet.modifiedProperty()
-                       .addListener( modifiedListener );
+                    fet.modifiedProperty().addListener( modifiedListener );
                   } );
             }
             else if( change.wasRemoved() ) {
               change.getRemoved().forEach(
-                  ( tab ) ->
-                      ((FileEditorTab) tab).modifiedProperty()
-                                           .removeListener( modifiedListener ) );
+                  ( tab ) -> {
+                    final var fet = (FileEditorTab) tab;
+                    fet.modifiedProperty().removeListener( modifiedListener );
+                  }
+              );
             }
           }
 

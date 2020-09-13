@@ -81,11 +81,6 @@ public class ProcessorFactory extends AbstractFileFactory {
     return new HtmlPreviewProcessor( getPreviewPane() );
   }
 
-  private Processor<String> createMathProcessor(
-      final Processor<String> successor ) {
-    return new MathProcessor( successor );
-  }
-
   /**
    * Creates and links the processors at the end of the processing chain.
    *
@@ -95,6 +90,11 @@ public class ProcessorFactory extends AbstractFileFactory {
     final var hpp = createHTMLPreviewProcessor();
     final var mdp = new MarkdownProcessor( hpp, getPreviewPane().getPath() );
     return createMathProcessor( mdp );
+  }
+
+  private Processor<String> createMathProcessor(
+      final Processor<String> successor ) {
+    return new MathProcessor( successor );
   }
 
   protected Processor<String> createIdentityProcessor() {

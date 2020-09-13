@@ -98,7 +98,7 @@ public class MathProcessor extends AbstractProcessor<String> {
       final var box = formula.createBox( mEnvironment );
       final var l = new TeXLayout( box, mSize );
 
-      mGraphics.initialize( formula.hashCode(), l.getWidth(), l.getHeight() );
+      mGraphics.initialize( equation.hashCode(), l.getWidth(), l.getHeight() );
       box.draw( mGraphics, l.getX(), l.getY() );
 
       mBuffer.append( s, index, matcher.start() );

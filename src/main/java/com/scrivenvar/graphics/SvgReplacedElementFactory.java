@@ -43,7 +43,7 @@ import java.util.Map;
 import java.util.function.Function;
 
 import static com.scrivenvar.StatusBarNotifier.alert;
-import static com.scrivenvar.graphics.SvgRasterizer.rasterize;
+import static com.scrivenvar.graphics.SvgRasterizer.*;
 
 /**
  * Responsible for running {@link SvgRasterizer} on SVG images detected within
@@ -57,6 +57,14 @@ public class SvgReplacedElementFactory
    */
   private static final String SVG_FILE = "svg";
   private static final String HTML_SVG = "svg";
+
+  /**
+   * The {@code <svg>} element attribute name containing a value that uniquely
+   * identifies the vector graphic file. This value must always be the same for
+   * the same formula. That is, {@code E=mc^2} must always hash the same way
+   * (e.g., by calling {@link String#hashCode()} on the formula).
+   */
+  private static final String SVG_IMAGE_SRC = "id";
 
   private static final String HTML_IMAGE = "img";
   private static final String HTML_IMAGE_SRC = "src";
@@ -105,8 +113,8 @@ public class SvgReplacedElementFactory
       else if( HTML_SVG.equalsIgnoreCase( nodeName ) ) {
         // Convert the <svg> element to a raster graphic.
         try {
-          final var src = getCachedSvg( e );
-          image = getCachedImage( src, SvgRasterizer::rasterizeString );
+          final var src = e.getAttribute( "id" );
+          image = getCachedImage( src, __ -> rasterizeString( toSvg( e ) ) );
         } catch( final Exception ex ) {
           alert( ex );
         }
@@ -146,7 +154,7 @@ public class SvgReplacedElementFactory
    */
   private BufferedImage getCachedImage(
       final String src, final Function<String, BufferedImage> rasterizer ) {
-    return mImageCache.computeIfAbsent( src, v -> rasterizer.apply( src ) );
+    return mImageCache.computeIfAbsent( src, __ -> rasterizer.apply( src ) );
   }
 
   private String getCachedSvg( final Element doc ) {

@@ -440,7 +440,7 @@ public final class FileEditorTab extends Tab {
   public <T extends Event> void addEventFilter(
       final EventType<T> eventType,
       final EventHandler<? super T> eventFilter ) {
-    getEditorPane().getEditor().addEventFilter( eventType, eventFilter );
+    getEditor().addEventFilter( eventType, eventFilter );
   }
 
   /**
