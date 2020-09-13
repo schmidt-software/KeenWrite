@@ -357,17 +357,8 @@ public class MainWindow implements Observer {
   private void initTextChangeListener( final FileEditorTab tab ) {
     tab.addTextChangeListener(
         ( __, ov, nv ) -> {
-          //final var editor = tab.getEditorPane().getEditor();
-
-          //if( ov.isEmpty() ) {
-            process( tab );
-            scrollToParagraph( getCurrentParagraphIndex() );
-          //}
-
-//          editor.setOnKeyReleased( ( event ) -> {
-//            process( tab );
-//            scrollToParagraph( getCurrentParagraphIndex() );
-//          } );
+          process( tab );
+          scrollToParagraph( getCurrentParagraphIndex() );
         }
     );
   }
