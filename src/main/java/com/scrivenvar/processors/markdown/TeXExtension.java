@@ -1,5 +1,7 @@
 package com.scrivenvar.processors.markdown;
 
+import com.scrivenvar.processors.markdown.tex.TeXInlineDelimiterProcessor;
+import com.scrivenvar.processors.markdown.tex.TeXNodeRenderer;
 import com.vladsch.flexmark.html.HtmlRenderer;
 import com.vladsch.flexmark.parser.Parser;
 import com.vladsch.flexmark.util.data.MutableDataHolder;

@@ -1,4 +1,4 @@
-package com.scrivenvar.processors.markdown;
+package com.scrivenvar.processors.markdown.tex;
 
 import com.vladsch.flexmark.html.HtmlWriter;
 import com.vladsch.flexmark.html.renderer.NodeRenderer;

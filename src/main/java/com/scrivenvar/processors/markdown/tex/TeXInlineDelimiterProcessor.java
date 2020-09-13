@@ -1,4 +1,4 @@
-package com.scrivenvar.processors.markdown;
+package com.scrivenvar.processors.markdown.tex;
 
 import com.vladsch.flexmark.parser.InlineParser;
 import com.vladsch.flexmark.parser.core.delimiter.Delimiter;
