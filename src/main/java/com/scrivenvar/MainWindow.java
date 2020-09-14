@@ -160,7 +160,7 @@ public class MainWindow implements Observer {
   private final EventHandler<? super KeyEvent> mDefinitionKeyHandler =
       event -> {
         if( event.getCode() == ENTER ) {
-          getVariableNameInjector().injectSelectedItem();
+          getDefinitionNameInjector().injectSelectedItem();
         }
       };
 
@@ -193,7 +193,7 @@ public class MainWindow implements Observer {
   /**
    * Listens on the definition pane for double-click events.
    */
-  private final DefinitionNameInjector mVariableNameInjector
+  private final DefinitionNameInjector mDefinitionNameInjector
       = new DefinitionNameInjector( mDefinitionPane );
 
   public MainWindow() {
@@ -496,7 +496,7 @@ public class MainWindow implements Observer {
   }
 
   private void updateVariableNameInjector( final FileEditorTab tab ) {
-    getVariableNameInjector().addListener( tab );
+    getDefinitionNameInjector().addListener( tab );
   }
 
   /**
@@ -1239,6 +1239,7 @@ public class MainWindow implements Observer {
    * Performs the autoinsert function on the active file editor.
    */
   private void definitionInsert() {
+    getDefinitionNameInjector().autoinsert();
   }
 
   /**
@@ -1345,8 +1346,8 @@ public class MainWindow implements Observer {
     return mFindTextField;
   }
 
-  private DefinitionNameInjector getVariableNameInjector() {
-    return mVariableNameInjector;
+  private DefinitionNameInjector getDefinitionNameInjector() {
+    return mDefinitionNameInjector;
   }
 
   /**

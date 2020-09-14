@@ -103,7 +103,7 @@ public final class DefinitionNameInjector {
    * Pressing Control+SPACE will find a node that matches the current word and
    * substitute the definition reference.
    */
-  private void autoinsert() {
+  public void autoinsert() {
     final String paragraph = getCaretParagraph();
     final int[] bounds = getWordBoundariesAtCaret();
 
