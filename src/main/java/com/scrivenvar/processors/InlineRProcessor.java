@@ -42,13 +42,11 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.scrivenvar.Constants.STATUS_PARSE_ERROR;
-import static com.scrivenvar.Messages.get;
 import static com.scrivenvar.StatusBarNotifier.alert;
 import static com.scrivenvar.processors.text.TextReplacementFactory.replace;
 import static com.scrivenvar.sigils.RSigilOperator.PREFIX;
 import static com.scrivenvar.sigils.RSigilOperator.SUFFIX;
 import static java.lang.Math.min;
-import static java.lang.String.format;
 
 /**
  * Transforms a document containing R statements into Markdown.
@@ -194,7 +192,7 @@ public final class InlineRProcessor extends DefinitionProcessor {
           sb.append( PREFIX ).append( r ).append( SUFFIX );
 
           // Tell the user that there was a problem.
-          alert( get( STATUS_PARSE_ERROR, e.getMessage(), currIndex ) );
+          alert( STATUS_PARSE_ERROR, e.getMessage(), currIndex );
         }
 
         // Retain the R statement's ending position in the text.
@@ -231,7 +229,7 @@ public final class InlineRProcessor extends DefinitionProcessor {
       return getScriptEngine().eval( r );
     } catch( final Exception ex ) {
       final String expr = r.substring( 0, min( r.length(), 30 ) );
-      alert( format( "Error with [%s...]: %s", expr, ex.getMessage() ) );
+      alert( "Main.status.error.r", expr, ex.getMessage() );
     }
 
     return "";

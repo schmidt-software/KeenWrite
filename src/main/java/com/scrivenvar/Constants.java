@@ -82,18 +82,32 @@ public class Constants {
   public static final String PREFS_ROOT = get( "preferences.root" );
   public static final String PREFS_STATE = get( "preferences.root.state" );
 
-  // Refer to filename extension settings in the configuration file. Do not
-  // terminate these prefixes with a period.
+  /**
+   * Refer to filename extension settings in the configuration file. Do not
+   * terminate these prefixes with a period.
+   */
   public static final String GLOB_PREFIX_FILE = "file.ext";
   public static final String GLOB_PREFIX_DEFINITION =
       "definition." + GLOB_PREFIX_FILE;
 
-  // Three parameters: line number, column number, and offset
-  public static final String STATUS_BAR_LINE = "Main.statusbar.line";
+  /**
+   * Three parameters: line number, column number, and offset.
+   */
+  public static final String STATUS_BAR_LINE = "Main.status.line";
 
-  // "OK" text
-  public static final String STATUS_BAR_OK = "Main.statusbar.state.default";
-  public static final String STATUS_PARSE_ERROR = "Main.statusbar.parse.error";
+  public static final String STATUS_BAR_OK = "Main.status.state.default";
+
+  /**
+   * Used to show an error while parsing, usually syntactical.
+   */
+  public static final String STATUS_PARSE_ERROR = "Main.status.error.parse";
+  public static final String STATUS_DEFINITION_BLANK = "Main.status.error.def.blank";
+  public static final String STATUS_DEFINITION_EMPTY = "Main.status.error.def.empty";
+
+  /**
+   * One parameter: the word under the cursor that could not be found.
+   */
+  public static final String STATUS_DEFINITION_MISSING = "Main.status.error.def.missing";
 
   /**
    * Used when creating flat maps relating to resolved variables.

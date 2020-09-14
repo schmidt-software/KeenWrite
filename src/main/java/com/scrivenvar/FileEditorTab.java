@@ -251,12 +251,8 @@ public final class FileEditorTab extends Tab {
           pane.scrollToTop();
         }
         else {
-          final String msg = get(
-              "FileEditor.loadFailed.message",
-              file.toString(),
-              get( "FileEditor.loadFailed.reason.permissions" )
-          );
-          alert( msg );
+          final String msg = get( "FileEditor.loadFailed.reason.permissions" );
+          alert( "FileEditor.loadFailed.message", file.toString(), msg );
         }
       }
     } catch( final Exception ex ) {

@@ -195,4 +195,14 @@ public class DefinitionTreeItem<T> extends TreeItem<T> {
   public String toPath() {
     return TreeItemAdapter.toPath( getParent() );
   }
+
+  /**
+   * Answers whether there are any definitions in this tree.
+   *
+   * @return {@code true} when there are no definitions in the tree; {@code
+   * false} when there is at least one definition present.
+   */
+  public boolean isEmpty() {
+    return getChildren().isEmpty();
+  }
 }

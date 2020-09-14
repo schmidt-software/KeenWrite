@@ -99,7 +99,7 @@ public class SvgReplacedElementFactory
           }
         }
         else if( HTML_TEX.equals( nodeName ) ) {
-          // Convert the <svg> element to a raster graphic if it isn't cached.
+          // Convert the <svg> element to a raster graphic if not yet cached.
           final var src = e.getTextContent();
           image = getCachedImage(
               src, __ -> rasterize( sMathRenderer.render( src ) )

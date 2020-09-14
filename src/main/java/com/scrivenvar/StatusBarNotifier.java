@@ -62,10 +62,21 @@ public class StatusBarNotifier {
   /**
    * Updates the status bar with a custom message.
    *
-   * @param msg A notification to show the user (typically an error).
+   * @param key The resource bundle key associated with a message (typically
+   *            to inform the user about an error).
    */
-  public static void alert( final String msg ) {
-    update( msg );
+  public static void alert( final String key ) {
+    update( get( key ) );
+  }
+
+  /**
+   * Updates the status bar with a custom message.
+   *
+   * @param key  The property key having a value to populate with arguments.
+   * @param args The placeholder values to substitute into the key's value.
+   */
+  public static void alert( final String key, final Object... args ) {
+    update( get( key, args ) );
   }
 
   /**

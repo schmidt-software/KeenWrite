@@ -28,9 +28,9 @@
 package com.scrivenvar.editors;
 
 import com.scrivenvar.FileEditorTab;
-import com.scrivenvar.sigils.SigilOperator;
 import com.scrivenvar.definition.DefinitionPane;
 import com.scrivenvar.definition.DefinitionTreeItem;
+import com.scrivenvar.sigils.SigilOperator;
 import javafx.scene.control.TreeItem;
 import javafx.scene.input.KeyEvent;
 import org.fxmisc.richtext.StyledTextArea;
@@ -38,6 +38,9 @@ import org.fxmisc.richtext.StyledTextArea;
 import java.nio.file.Path;
 import java.text.BreakIterator;
 
+import static com.scrivenvar.Constants.*;
+import static com.scrivenvar.StatusBarNotifier.alert;
+import static java.lang.Character.isWhitespace;
 import static javafx.scene.input.KeyCode.SPACE;
 import static javafx.scene.input.KeyCombination.CONTROL_DOWN;
 import static org.fxmisc.wellbehaved.event.EventPattern.keyPressed;
@@ -98,39 +101,83 @@ public final class DefinitionNameInjector {
 
   /**
    * Pressing Control+SPACE will find a node that matches the current word and
-   * substitute the YAML variable reference.
+   * substitute the definition reference.
+   */
+  private void autoinsert() {
+    final String paragraph = getCaretParagraph();
+    final int[] bounds = getWordBoundariesAtCaret();
+
+    try {
+      if( isEmptyDefinitionPane() ) {
+        alert( STATUS_DEFINITION_EMPTY );
+      }
+      else {
+        final String word = paragraph.substring( bounds[ 0 ], bounds[ 1 ] );
+
+        if( word.isBlank() ) {
+          alert( STATUS_DEFINITION_BLANK );
+        }
+        else {
+          final var leaf = findLeaf( word );
+
+          if( leaf == null ) {
+            alert( STATUS_DEFINITION_MISSING, word );
+          }
+          else {
+            replaceText( bounds[ 0 ], bounds[ 1 ], decorate( leaf ) );
+            expand( leaf );
+          }
+        }
+      }
+    } catch( final Exception ignored ) {
+      alert( STATUS_DEFINITION_BLANK );
+    }
+  }
+
+  /**
+   * Pressing Control+SPACE will find a node that matches the current word and
+   * substitute the definition reference.
    *
    * @param e Ignored -- it can only be Control+SPACE.
    */
   private void autoinsert( final KeyEvent e ) {
-    final String paragraph = getCaretParagraph();
-    final int[] boundaries = getWordBoundariesAtCaret();
-    final String word = paragraph.substring( boundaries[ 0 ], boundaries[ 1 ] );
-    final DefinitionTreeItem<String> leaf = findLeaf( word );
-
-    if( leaf != null ) {
-      replaceText( boundaries[ 0 ], boundaries[ 1 ], decorate( leaf ) );
-      expand( leaf );
-    }
+    autoinsert();
   }
 
+  /**
+   * Finds the start and end indexes for the word in the current paragraph
+   * where the caret is located. There are a few different scenarios, where
+   * the caret can be at: the start, end, or middle of a word; also, the
+   * caret can be at the end or beginning of a punctuated word.
+   */
   private int[] getWordBoundariesAtCaret() {
-    final String paragraph = getCaretParagraph();
+    final var paragraph = getCaretParagraph();
+    final var length = paragraph.length();
     int offset = getCurrentCaretColumn();
 
-    final BreakIterator wordBreaks = BreakIterator.getWordInstance();
-    wordBreaks.setText( paragraph );
+    int began = offset;
+    int ended = offset;
 
-    // Scan back until the first word is found.
-    while( offset > 0 && wordBreaks.isBoundary( offset ) ) {
-      offset--;
+    while( began > 0 && !isWhitespace( paragraph.charAt( began - 1 ) ) ) {
+      began--;
     }
 
-    final int[] boundaries = new int[ 2 ];
-    boundaries[ 1 ] = wordBreaks.following( offset );
-    boundaries[ 0 ] = wordBreaks.previous();
+    while( ended < length && !isWhitespace( paragraph.charAt( ended ) ) ) {
+      ended++;
+    }
 
-    return boundaries;
+    final var iterator = BreakIterator.getWordInstance();
+    iterator.setText( paragraph );
+
+    while( began < length && iterator.isBoundary( began + 1 ) ) {
+      began++;
+    }
+
+    while( ended > 0 && iterator.isBoundary( ended - 1 ) ) {
+      ended--;
+    }
+
+    return new int[]{began, ended};
   }
 
   /**
@@ -216,6 +263,16 @@ public final class DefinitionNameInjector {
     leaf = leaf == null ? pane.findLeafContainsNoCase( word ) : leaf;
 
     return leaf;
+  }
+
+  /**
+   * Answers whether there are any definitions in the tree.
+   *
+   * @return {@code true} when there are no definitions; {@code false} when
+   * there's at least one definition.
+   */
+  private boolean isEmptyDefinitionPane() {
+    return getDefinitionPane().isEmpty();
   }
 
   /**

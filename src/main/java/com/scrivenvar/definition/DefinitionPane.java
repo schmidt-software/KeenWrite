@@ -368,7 +368,7 @@ public final class DefinitionPane extends BorderPane {
    * when adding to a leaf, and when adding to a non-leaf. Items added to the
    * root must contain two items: a key and a value.
    */
-  private void addItem() {
+  public void addItem() {
     final var value = createTreeItem();
     getSelectedItem().getChildren().add( value );
     expand( value );
@@ -548,5 +548,15 @@ public final class DefinitionPane extends BorderPane {
 
   private Set<EventHandler<? super KeyEvent>> getKeyEventHandlers() {
     return mKeyEventHandlers;
+  }
+
+  /**
+   * Answers whether there are any definitions in the tree.
+   *
+   * @return {@code true} when there are no definitions; {@code false} when
+   * there's at least one definition.
+   */
+  public boolean isEmpty() {
+    return getTreeRoot().isEmpty();
   }
 }

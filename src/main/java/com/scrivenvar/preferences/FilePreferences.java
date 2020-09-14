@@ -160,7 +160,7 @@ public class FilePreferences extends AbstractPreferences {
           }
         }
       } catch( final Exception ex ) {
-        alert( new BackingStoreException( ex ) );
+        alert( ex );
       }
     }
   }

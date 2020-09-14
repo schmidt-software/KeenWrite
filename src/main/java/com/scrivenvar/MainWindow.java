@@ -582,7 +582,7 @@ public class MainWindow implements Observer {
         getDefinitionSource().getTreeAdapter().export( root, path );
       }
       else {
-        alert( get( "yaml.error.tree.form", problemChild.getValue() ) );
+        alert( "yaml.error.tree.form", problemChild.getValue() );
       }
     } catch( final Exception ex ) {
       alert( ex );
@@ -910,7 +910,7 @@ public class MainWindow implements Observer {
 
     // Edit actions
     final Action editCopyHtmlAction = new ActionBuilder()
-        .setText( Messages.get( "Main.menu.edit.copy.html" ) )
+        .setText( "Main.menu.edit.copy.html" )
         .setIcon( HTML5 )
         .setAction( e -> copyHtml() )
         .setDisable( activeFileEditorIsNull )
@@ -934,28 +934,28 @@ public class MainWindow implements Observer {
         .build();
 
     final Action editCutAction = new ActionBuilder()
-        .setText( Messages.get( "Main.menu.edit.cut" ) )
+        .setText( "Main.menu.edit.cut" )
         .setAccelerator( "Shortcut+X" )
         .setIcon( CUT )
         .setAction( e -> getActiveEditorPane().cut() )
         .setDisable( activeFileEditorIsNull )
         .build();
     final Action editCopyAction = new ActionBuilder()
-        .setText( Messages.get( "Main.menu.edit.copy" ) )
+        .setText( "Main.menu.edit.copy" )
         .setAccelerator( "Shortcut+C" )
         .setIcon( COPY )
         .setAction( e -> getActiveEditorPane().copy() )
         .setDisable( activeFileEditorIsNull )
         .build();
     final Action editPasteAction = new ActionBuilder()
-        .setText( Messages.get( "Main.menu.edit.paste" ) )
+        .setText( "Main.menu.edit.paste" )
         .setAccelerator( "Shortcut+V" )
         .setIcon( PASTE )
         .setAction( e -> getActiveEditorPane().paste() )
         .setDisable( activeFileEditorIsNull )
         .build();
     final Action editSelectAllAction = new ActionBuilder()
-        .setText( Messages.get( "Main.menu.edit.selectAll" ) )
+        .setText( "Main.menu.edit.selectAll" )
         .setAccelerator( "Shortcut+A" )
         .setAction( e -> getActiveEditorPane().selectAll() )
         .setDisable( activeFileEditorIsNull )
@@ -981,42 +981,44 @@ public class MainWindow implements Observer {
         .setAction( e -> editPreferences() )
         .build();
 
-    // Insert actions
-    final Action insertBoldAction = new ActionBuilder()
-        .setText( "Main.menu.insert.bold" )
+    // Format actions
+    final Action formatBoldAction = new ActionBuilder()
+        .setText( "Main.menu.format.bold" )
         .setAccelerator( "Shortcut+B" )
         .setIcon( BOLD )
         .setAction( e -> insertMarkdown( "**", "**" ) )
         .setDisable( activeFileEditorIsNull )
         .build();
-    final Action insertItalicAction = new ActionBuilder()
-        .setText( "Main.menu.insert.italic" )
+    final Action formatItalicAction = new ActionBuilder()
+        .setText( "Main.menu.format.italic" )
         .setAccelerator( "Shortcut+I" )
         .setIcon( ITALIC )
         .setAction( e -> insertMarkdown( "*", "*" ) )
         .setDisable( activeFileEditorIsNull )
         .build();
-    final Action insertSuperscriptAction = new ActionBuilder()
-        .setText( "Main.menu.insert.superscript" )
+    final Action formatSuperscriptAction = new ActionBuilder()
+        .setText( "Main.menu.format.superscript" )
         .setAccelerator( "Shortcut+[" )
         .setIcon( SUPERSCRIPT )
         .setAction( e -> insertMarkdown( "^", "^" ) )
         .setDisable( activeFileEditorIsNull )
         .build();
-    final Action insertSubscriptAction = new ActionBuilder()
-        .setText( "Main.menu.insert.subscript" )
+    final Action formatSubscriptAction = new ActionBuilder()
+        .setText( "Main.menu.format.subscript" )
         .setAccelerator( "Shortcut+]" )
         .setIcon( SUBSCRIPT )
         .setAction( e -> insertMarkdown( "~", "~" ) )
         .setDisable( activeFileEditorIsNull )
         .build();
-    final Action insertStrikethroughAction = new ActionBuilder()
-        .setText( "Main.menu.insert.strikethrough" )
+    final Action formatStrikethroughAction = new ActionBuilder()
+        .setText( "Main.menu.format.strikethrough" )
         .setAccelerator( "Shortcut+T" )
         .setIcon( STRIKETHROUGH )
         .setAction( e -> insertMarkdown( "~~", "~~" ) )
         .setDisable( activeFileEditorIsNull )
         .build();
+
+    // Insert actions
     final Action insertBlockquoteAction = new ActionBuilder()
         .setText( "Main.menu.insert.blockquote" )
         .setAccelerator( "Ctrl+Q" )
@@ -1099,11 +1101,17 @@ public class MainWindow implements Observer {
         .setDisable( activeFileEditorIsNull )
         .build();
 
-    // View actions
-    final Action viewRefreshAction = new ActionBuilder()
-        .setText( "Main.menu.view.refresh" )
-        .setAccelerator( "F5" )
-        .setAction( e -> viewRefresh() )
+    // Definition actions
+    final Action definitionCreateAction = new ActionBuilder()
+        .setText( "Main.menu.definition.create" )
+        .setIcon( TREE )
+        .setAction( e -> getDefinitionPane().addItem() )
+        .build();
+    final Action definitionInsertAction = new ActionBuilder()
+        .setText( "Main.menu.definition.insert" )
+        .setAccelerator( "Ctrl+Space" )
+        .setIcon( STAR )
+        .setAction( e -> definitionInsert() )
         .build();
 
     // Help actions
@@ -1113,7 +1121,9 @@ public class MainWindow implements Observer {
         .build();
 
     //---- MenuBar ----
-    final Menu fileMenu = ActionUtils.createMenu(
+
+    // File Menu
+    final var fileMenu = ActionUtils.createMenu(
         get( "Main.menu.file" ),
         fileNewAction,
         fileOpenAction,
@@ -1127,7 +1137,8 @@ public class MainWindow implements Observer {
         null,
         fileExitAction );
 
-    final Menu editMenu = ActionUtils.createMenu(
+    // Edit Menu
+    final var editMenu = ActionUtils.createMenu(
         get( "Main.menu.edit" ),
         editCopyHtmlAction,
         null,
@@ -1144,13 +1155,19 @@ public class MainWindow implements Observer {
         null,
         editPreferencesAction );
 
-    final Menu insertMenu = ActionUtils.createMenu(
+    // Format Menu
+    final var formatMenu = ActionUtils.createMenu(
+        get( "Main.menu.format" ),
+        formatBoldAction,
+        formatItalicAction,
+        formatSuperscriptAction,
+        formatSubscriptAction,
+        formatStrikethroughAction
+    );
+
+    // Insert Menu
+    final var insertMenu = ActionUtils.createMenu(
         get( "Main.menu.insert" ),
-        insertBoldAction,
-        insertItalicAction,
-        insertSuperscriptAction,
-        insertSubscriptAction,
-        insertStrikethroughAction,
         insertBlockquoteAction,
         insertCodeAction,
         insertFencedCodeBlockAction,
@@ -1167,23 +1184,28 @@ public class MainWindow implements Observer {
         insertHorizontalRuleAction
     );
 
-    final Menu viewMenu = ActionUtils.createMenu(
-        get( "Main.menu.view" ),
-        viewRefreshAction );
+    // Definition Menu
+    final var definitionMenu = ActionUtils.createMenu(
+        get( "Main.menu.definition" ),
+        definitionCreateAction,
+        definitionInsertAction );
 
-    final Menu helpMenu = ActionUtils.createMenu(
+    // Help Menu
+    final var helpMenu = ActionUtils.createMenu(
         get( "Main.menu.help" ),
         helpAboutAction );
 
-    final MenuBar menuBar = new MenuBar(
+    //---- MenuBar ----
+    final var menuBar = new MenuBar(
         fileMenu,
         editMenu,
+        formatMenu,
         insertMenu,
-        viewMenu,
+        definitionMenu,
         helpMenu );
 
     //---- ToolBar ----
-    final ToolBar toolBar = ActionUtils.createToolBar(
+    final var toolBar = ActionUtils.createToolBar(
         fileNewAction,
         fileOpenAction,
         fileSaveAction,
@@ -1194,10 +1216,10 @@ public class MainWindow implements Observer {
         editCopyAction,
         editPasteAction,
         null,
-        insertBoldAction,
-        insertItalicAction,
-        insertSuperscriptAction,
-        insertSubscriptAction,
+        formatBoldAction,
+        formatItalicAction,
+        formatSuperscriptAction,
+        formatSubscriptAction,
         insertBlockquoteAction,
         insertCodeAction,
         insertFencedCodeBlockAction,
@@ -1211,6 +1233,12 @@ public class MainWindow implements Observer {
         insertOrderedListAction );
 
     return new VBox( menuBar, toolBar );
+  }
+
+  /**
+   * Performs the autoinsert function on the active file editor.
+   */
+  private void definitionInsert() {
   }
 
   /**

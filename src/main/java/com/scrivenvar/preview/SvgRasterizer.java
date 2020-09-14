@@ -196,8 +196,8 @@ public class SvgRasterizer {
   public static BufferedImage rasterize( final String url, final int width ) {
     try {
       return rasterize( new URL( url ), width );
-    } catch( final Exception e ) {
-      alert( e );
+    } catch( final Exception ex ) {
+      alert( ex );
       return BROKEN_IMAGE_PLACEHOLDER;
     }
   }
@@ -243,8 +243,8 @@ public class SvgRasterizer {
       final var root = document.getDocumentElement();
       final var width = root.getAttribute( "width" );
       return rasterize( document, INT_FORMAT.parse( width ).intValue() );
-    } catch( final Exception e ) {
-      alert( e );
+    } catch( final Exception ex ) {
+      alert( ex );
       return BROKEN_IMAGE_PLACEHOLDER;
     }
   }
@@ -278,8 +278,8 @@ public class SvgRasterizer {
       final var root = document.getDocumentElement();
       final var width = root.getAttribute( "width" );
       return rasterizeString( xml, INT_FORMAT.parse( width ).intValue() );
-    } catch( final Exception e ) {
-      alert( e );
+    } catch( final Exception ex ) {
+      alert( ex );
       return BROKEN_IMAGE_PLACEHOLDER;
     }
   }

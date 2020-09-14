@@ -1,0 +1,41 @@
+# Real-time equation rendering
+
+With interpolated variables and R calculations:
+
+$\sqrt{`r#x( v$formula$sqrt$value)`} = `r# round(sqrt(x( v$formula$sqrt$value )),5)`$
+
+# Maxwell's equations
+
+$rot \vec{E} = \frac{1}{c} \frac{\partial{\vec{B}}}{\partial t}, div \vec{B} = 0$
+
+$rot \vec{B} = \frac{1}{c} \frac{\partial{\vec{E}}}{\partial t} + \frac{4\pi}{c} \vec{j}, div \vec{E} = 4 \pi \rho_{\varepsilon}$
+
+# Time-dependent Schrödinger equation
+
+$- \frac{{\hbar ^2 }}{{2m}}\frac{{\partial ^2 \psi (x,t)}}{{\partial x^2 }} + U(x)\psi (x,t) = i\hbar \frac{{\partial \psi (x,t)}}{{\partial t}}$
+
+# Discrete-time Fourier transforms
+
+Unit step function: $u(n) \Leftrightarrow \frac{1}{1-e^{-jw}} + \sum_{k=-\infty}^{\infty} \pi \delta (\omega + 2\pi k)$
+
+Shifted delta: $\delta (n - n_o ) \Leftrightarrow e^{ - j\omega n_o }$
+
+# Faraday's Law
+
+$\oint_C {E \cdot d\ell  =  - \frac{d}{{dt}}} \int_S {B_n dA}$
+
+# Infinite series
+
+$sin(x) = \sum_{n = 1}^{\infty}  {\frac{{( { - 1})^{n - 1} x^{2n - 1} }}{{( {2n - 1})!}}}$
+
+# Magnetic flux
+
+$\phi _m  = \int_S {N{{B}} \cdot {{\hat n}}dA = } \int_S {NB_n dA}$
+
+# Driven oscillation amplitude
+
+$A = \frac{{F_0 }}{{\sqrt {m^2 ( {\omega _0^2  - \omega ^2 } )^2  + b^2 \omega ^2 } }}$
+
+# Optics
+
+$\phi  = \frac{{2\pi }}{\lambda }a sin(\theta)$

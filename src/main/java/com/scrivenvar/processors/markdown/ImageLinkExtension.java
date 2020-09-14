@@ -158,8 +158,8 @@ public class ImageLinkExtension implements HtmlRendererExtension {
         }
 
         return valid( link, url );
-      } catch( final Exception e ) {
-        alert( e );
+      } catch( final Exception ex ) {
+        alert( ex );
       }
 
       return link;
