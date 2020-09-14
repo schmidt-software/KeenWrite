@@ -50,11 +50,6 @@ java -jar scrivenvar.jar
 See the [detailed documentation](docs/README.md) for information about
 using the application.
 
-## Future Features
-
-* Search and replace using variables
-* Reorganize variable names
-
 ## Screenshots
 
 ![Screenshot with Formulas](docs/images/equations.png)
