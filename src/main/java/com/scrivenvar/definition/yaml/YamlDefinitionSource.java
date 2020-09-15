@@ -54,13 +54,4 @@ public class YamlDefinitionSource implements DefinitionSource {
   public TreeAdapter getTreeAdapter() {
     return mYamlTreeAdapter;
   }
-
-  @Override
-  public String getError() {
-    return getYamlParser().getError();
-  }
-
-  private YamlParser getYamlParser() {
-    return mYamlTreeAdapter.getYamlParser();
-  }
 }

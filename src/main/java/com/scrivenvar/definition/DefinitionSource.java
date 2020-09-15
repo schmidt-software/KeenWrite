@@ -43,14 +43,4 @@ public interface DefinitionSource {
    * @return A hierarchical tree suitable for displaying in the definition pane.
    */
   TreeAdapter getTreeAdapter();
-
-  /**
-   * Returns the error message, if any, that occurred while loading the
-   * definition source.
-   *
-   * @return The empty string if no error occurred, otherwise the error message.
-   */
-  default String getError() {
-    return "";
-  }
 }

@@ -30,24 +30,16 @@ package com.scrivenvar.definition.yaml;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import com.scrivenvar.Messages;
 import com.scrivenvar.definition.DocumentParser;
 
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import static com.scrivenvar.Constants.STATUS_BAR_OK;
-
 /**
  * Responsible for reading a YAML document into an object hierarchy.
  */
 public class YamlParser implements DocumentParser<JsonNode> {
-
-  /**
-   * Error that occurred while parsing.
-   */
-  private String mError;
 
   /**
    * Start of the Universe (the YAML document node that contains all others).
@@ -84,29 +76,12 @@ public class YamlParser implements DocumentParser<JsonNode> {
    */
   private JsonNode parse( final Path path ) {
     try( final InputStream in = Files.newInputStream( path ) ) {
-      setError( Messages.get( STATUS_BAR_OK ) );
-
       return new ObjectMapper( new YAMLFactory() ).readTree( in );
     } catch( final Exception e ) {
-      setError( Messages.get( "yaml.error.open" ) );
-
       // Ensure that a document root node exists by relying on the
       // default failure condition when processing. This is required
       // because the input stream could not be read.
       return new ObjectMapper().createObjectNode();
     }
-  }
-
-  private void setError( final String error ) {
-    mError = error;
-  }
-
-  /**
-   * Returns the last error message, if any, that occurred during parsing.
-   *
-   * @return The error message or the empty string if no error occurred.
-   */
-  public String getError() {
-    return mError;
   }
 }
