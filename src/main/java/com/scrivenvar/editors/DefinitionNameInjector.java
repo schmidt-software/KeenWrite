@@ -148,7 +148,8 @@ public final class DefinitionNameInjector {
    * Finds the start and end indexes for the word in the current paragraph
    * where the caret is located. There are a few different scenarios, where
    * the caret can be at: the start, end, or middle of a word; also, the
-   * caret can be at the end or beginning of a punctuated word.
+   * caret can be at the end or beginning of a punctuated word; as well, the
+   * caret could be at the beginning or end of the line or document.
    */
   private int[] getWordBoundariesAtCaret() {
     final var paragraph = getCaretParagraph();
