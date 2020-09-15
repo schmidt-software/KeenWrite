@@ -76,7 +76,7 @@ public enum ProtocolScheme {
 
     for( final var scheme : values() ) {
       // This will match HTTP/HTTPS as well as FILE*, which may be inaccurate.
-      if( scheme.name().startsWith( protocol ) ) {
+      if( protocol.startsWith( scheme.name() ) ) {
         result = scheme;
         break;
       }

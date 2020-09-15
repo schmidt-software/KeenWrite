@@ -33,12 +33,16 @@ import org.xhtmlrenderer.extend.FSImage;
 import org.xhtmlrenderer.resource.ImageResource;
 import org.xhtmlrenderer.swing.ImageResourceLoader;
 
+import javax.imageio.ImageIO;
 import java.net.URI;
-import java.nio.file.Files;
+import java.net.URL;
 import java.nio.file.Paths;
 
+import static com.scrivenvar.StatusBarNotifier.alert;
 import static com.scrivenvar.preview.SvgRasterizer.BROKEN_IMAGE_PLACEHOLDER;
 import static com.scrivenvar.util.ProtocolResolver.getProtocol;
+import static java.lang.String.valueOf;
+import static java.nio.file.Files.exists;
 import static org.xhtmlrenderer.swing.AWTFSImage.createImage;
 
 /**
@@ -49,8 +53,7 @@ public class CustomImageLoader extends ImageResourceLoader {
   /**
    * Placeholder that's displayed when image cannot be found.
    */
-  private static final FSImage BROKEN_IMAGE = createImage(
-      BROKEN_IMAGE_PLACEHOLDER );
+  private FSImage mBrokenImage;
 
   private final IntegerProperty mWidthProperty = new SimpleIntegerProperty();
 
@@ -82,33 +85,40 @@ public class CustomImageLoader extends ImageResourceLoader {
     assert width >= 0;
     assert height >= 0;
 
-    boolean exists = true;
-
     try {
       final var protocol = getProtocol( uri );
+      final ImageResource imageResource;
 
-      if( protocol.isFile() ) {
-        exists = Files.exists( Paths.get( new URI( uri ) ) );
+      if( protocol.isFile() && exists( Paths.get( new URI( uri ) ) ) ) {
+        imageResource = super.get( uri, width, height );
       }
-    } catch( final Exception e ) {
-      exists = false;
-    }
+      else if( protocol.isHttp() ) {
+        // FlyingSaucer will silently swallow any images that fail to load.
+        // Consequently, the following lines load the resource over HTTP and
+        // translate errors into a broken image icon.
+        final var url = new URL( uri );
+        final var image = ImageIO.read( url );
+        imageResource = new ImageResource( uri, createImage( image ) );
+      }
+      else {
+        // Caught below to return a broken image; exception is swallowed.
+        throw new UnsupportedOperationException( valueOf( protocol ) );
+      }
 
-    return exists
-        ? scale( uri, width, height )
-        : new ImageResource( uri, BROKEN_IMAGE );
+      return scale( imageResource );
+    } catch( final Exception e ) {
+      alert( e );
+      return new ImageResource( uri, getBrokenImage() );
+    }
   }
 
   /**
    * Scales the image found at the given URI.
    *
-   * @param uri Path to the image file to load.
-   * @param w   Ignored.
-   * @param h   Ignored.
+   * @param ir {@link ImageResource} of image loaded successfully.
    * @return Resource representing the rendered image and path.
    */
-  private ImageResource scale( final String uri, final int w, final int h ) {
-    final var ir = super.get( uri, w, h );
+  private ImageResource scale( final ImageResource ir ) {
     final var image = ir.getImage();
     final var imageWidth = image.getWidth();
     final var imageHeight = image.getHeight();
@@ -125,5 +135,20 @@ public class CustomImageLoader extends ImageResourceLoader {
 
     image.scale( newWidth, newHeight );
     return ir;
+  }
+
+  /**
+   * Lazily initializes the broken image placeholder.
+   *
+   * @return The {@link FSImage} that represents a broken image icon.
+   */
+  private FSImage getBrokenImage() {
+    final var image = mBrokenImage;
+
+    if( image == null ) {
+      mBrokenImage = createImage( BROKEN_IMAGE_PLACEHOLDER );
+    }
+
+    return mBrokenImage;
   }
 }
