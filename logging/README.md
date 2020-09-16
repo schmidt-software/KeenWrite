@@ -21,8 +21,7 @@ The file `jp.jar` is built with `Main.class`.
 
 # Usage
 
-The `Main.class` is run using the name of the Java class file to parse.
-Run the parser as follows:
+Run `Main` by passing the name of the Java class file to parse as follows:
 
     pushd ../src/main/java
     for i in $(find . -type f -name "*.java"); do \
