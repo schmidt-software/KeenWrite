@@ -184,7 +184,7 @@ public class MainWindow implements Observer {
           scrollToParagraph( newIndex, true );
 
   private DefinitionSource mDefinitionSource = createDefaultDefinitionSource();
-  private final DefinitionPane mDefinitionPane = new DefinitionPane();
+  private final DefinitionPane mDefinitionPane = createDefinitionPane();
   private final HTMLPreviewPane mPreviewPane = createHTMLPreviewPane();
   private final FileEditorTabPane mFileEditorPane = new FileEditorTabPane(
       mCaretPositionListener,
@@ -783,6 +783,10 @@ public class MainWindow implements Observer {
 
   private ProcessorFactory createProcessorFactory() {
     return new ProcessorFactory( getPreviewPane(), getResolvedMap() );
+  }
+
+  private DefinitionPane createDefinitionPane() {
+    return new DefinitionPane();
   }
 
   private HTMLPreviewPane createHTMLPreviewPane() {
