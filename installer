@@ -174,7 +174,11 @@ utile_copy_archive() {
 # Create platform-specific launcher binary.
 # ---------------------------------------------------------------------------
 utile_create_launcher() {
-  $log "Create ${APP_NAME}.${APP_EXTENSION}"
+  local -r FILE_APP_NAME="${APP_NAME}.${APP_EXTENSION}"
+  $log "Create ${FILE_APP_NAME}"
+
+  # Warp-packer does not seem to overwrite the file.
+  rm -f "${FILE_APP_NAME}"
 
   # Download uses amd64, but warp-packer differs.
   if [ "${ARG_JAVA_ARCH}" = "amd64" ]; then
@@ -185,9 +189,9 @@ utile_create_launcher() {
     --arch "${ARG_JAVA_OS}-${ARG_JAVA_ARCH}" \
     --input_dir "${ARG_DIR_DIST}" \
     --exec "${FILE_DIST_EXEC}" \
-    --output "${APP_NAME}.${APP_EXTENSION}" > /dev/null
+    --output "${FILE_APP_NAME}" > /dev/null
 
-  chmod +x "${APP_NAME}.${APP_EXTENSION}"
+  chmod +x "${FILE_APP_NAME}"
 }
 
 argument() {

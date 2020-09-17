@@ -82,10 +82,10 @@ public class StatusBarNotifier {
   /**
    * Called when an exception occurs that warrants the user's attention.
    *
-   * @param ex The exception with a message that the user should know about.
+   * @param t The exception with a message that the user should know about.
    */
-  public static void alert( final Exception ex ) {
-    update( ex.getMessage() );
+  public static void alert( final Throwable t ) {
+    update( t.getMessage() );
   }
 
   /**

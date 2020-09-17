@@ -29,6 +29,8 @@ package com.scrivenvar.adapters;
 
 import org.xhtmlrenderer.event.DocumentListener;
 
+import static com.scrivenvar.StatusBarNotifier.alert;
+
 /**
  * Allows subclasses to implement specific events.
  */
@@ -43,9 +45,11 @@ public class DocumentAdapter implements DocumentListener {
 
   @Override
   public void onLayoutException( final Throwable t ) {
+    alert( t );
   }
 
   @Override
   public void onRenderException( final Throwable t ) {
+    alert( t );
   }
 }
