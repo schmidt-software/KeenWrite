@@ -27,9 +27,7 @@
  */
 package com.scrivenvar.processors;
 
-import com.scrivenvar.Services;
 import com.scrivenvar.preferences.UserPreferences;
-import com.scrivenvar.service.Options;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.StringProperty;
 
@@ -52,9 +50,6 @@ import static java.lang.Math.min;
  * Transforms a document containing R statements into Markdown.
  */
 public final class InlineRProcessor extends DefinitionProcessor {
-
-  private static final Options sOptions = Services.load( Options.class );
-
   /**
    * Constrain memory when typing new R expressions into the document.
    */
@@ -263,7 +258,7 @@ public final class InlineRProcessor extends DefinitionProcessor {
   }
 
   private UserPreferences getUserPreferences() {
-    return sOptions.getUserPreferences();
+    return UserPreferences.getInstance();
   }
 
   private ScriptEngine getScriptEngine() {

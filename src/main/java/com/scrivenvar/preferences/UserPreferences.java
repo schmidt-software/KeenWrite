@@ -49,6 +49,37 @@ import static com.scrivenvar.Messages.get;
  * settings are displayed and persisted using {@link PreferencesFx}.
  */
 public class UserPreferences {
+  /**
+   * Implementation of the  initialization-on-demand holder design pattern,
+   * an for a lazy-loaded singleton. In all versions of Java, the idiom enables
+   * a safe, highly concurrent lazy initialization of static fields with good
+   * performance. The implementation relies upon the initialization phase of
+   * execution within the Java Virtual Machine (JVM) as specified by the Java
+   * Language Specification. When the class {@link LazyContainer} is loaded,
+   * its initialization completes trivially because there are no static
+   * variables to initialize.
+   * <p>
+   * The static class definition {@link LazyContainer} within the
+   * {@link UserPreferences} is not initialized until such time that
+   * {@link LazyContainer} must be executed. The static {@link LazyContainer}
+   * class executes when {@link #getInstance} is called. The first call will
+   * trigger loading and initialization of the {@link LazyContainer} thereby
+   * instantiating the {@link #INSTANCE}.
+   * </p>
+   * <p>
+   * This indirection is necessary because the {@link UserPreferences} class
+   * references {@link PreferencesFx}, which must not be instantiated until the
+   * UI is ready.
+   * </p>
+   */
+  private static class LazyContainer {
+    private static final UserPreferences INSTANCE = new UserPreferences();
+  }
+
+  public static UserPreferences getInstance() {
+    return LazyContainer.INSTANCE;
+  }
+
   private final PreferencesFx mPreferencesFx;
 
   private final ObjectProperty<File> mPropRDirectory;
@@ -62,7 +93,7 @@ public class UserPreferences {
   private final StringProperty mDefDelimiterEnded;
   private final IntegerProperty mPropFontsSizeEditor;
 
-  public UserPreferences() {
+  private UserPreferences() {
     mPropRDirectory = simpleFile( USER_DIRECTORY );
     mPropRScript = new SimpleStringProperty( "" );
 
@@ -163,12 +194,14 @@ public class UserPreferences {
             ),
             Group.of(
                 get( "Preferences.definitions.delimiter.began" ),
-                Setting.of( label( "Preferences.definitions.delimiter.began.desc" ) ),
+                Setting.of( label(
+                    "Preferences.definitions.delimiter.began.desc" ) ),
                 Setting.of( "Opening", mDefDelimiterBegan )
             ),
             Group.of(
                 get( "Preferences.definitions.delimiter.ended" ),
-                Setting.of( label( "Preferences.definitions.delimiter.ended.desc" ) ),
+                Setting.of( label(
+                    "Preferences.definitions.delimiter.ended.desc" ) ),
                 Setting.of( "Closing", mDefDelimiterEnded )
             )
         ),

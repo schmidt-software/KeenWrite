@@ -27,23 +27,19 @@
  */
 package com.scrivenvar.service;
 
-import com.scrivenvar.preferences.UserPreferences;
+import com.dlsc.preferencesfx.PreferencesFx;
 
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
 /**
- * Responsible for persisting options.
+ * Responsible for persisting options that are safe to load before the UI
+ * is shown. This can include items like window dimensions, last file
+ * opened, split pane locations, and more. This cannot be used to persist
+ * options that are user-controlled (i.e., all options available through
+ * {@link PreferencesFx}).
  */
 public interface Options extends Service {
-
-  /**
-   * Returns a reference to the persistent settings that may be configured
-   * through the UI.
-   *
-   * @return A valid {@link UserPreferences} instance, never {@code null}.
-   */
-  UserPreferences getUserPreferences();
 
   /**
    * Returns the {@link Preferences} that persist settings that cannot

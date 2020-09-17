@@ -40,7 +40,6 @@ import javafx.beans.value.ChangeListener;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.Event;
-import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Tab;
@@ -599,25 +598,25 @@ public final class FileEditorTabPane extends TabPane {
   }
 
   public void persistPreferences() {
-    final ObservableList<Tab> allEditors = getTabs();
+    final var allEditors = getTabs();
     final List<String> fileNames = new ArrayList<>( allEditors.size() );
 
-    for( final Tab tab : allEditors ) {
-      final FileEditorTab fileEditor = (FileEditorTab) tab;
-      final Path filePath = fileEditor.getPath();
+    for( final var tab : allEditors ) {
+      final var fileEditor = (FileEditorTab) tab;
+      final var filePath = fileEditor.getPath();
 
       if( filePath != null ) {
         fileNames.add( filePath.toString() );
       }
     }
 
-    final Preferences preferences = getPreferences();
+    final var preferences = getPreferences();
     Utils.putPrefsStrings( preferences,
                            "file",
                            fileNames.toArray( new String[ 0 ] ) );
 
-    final FileEditorTab activeEditor = getActiveFileEditor();
-    final Path filePath = activeEditor == null ? null : activeEditor.getPath();
+    final var activeEditor = getActiveFileEditor();
+    final var filePath = activeEditor == null ? null : activeEditor.getPath();
 
     if( filePath == null ) {
       preferences.remove( "activeFile" );
@@ -649,9 +648,5 @@ public final class FileEditorTabPane extends TabPane {
 
   private Preferences getPreferences() {
     return getOptions().getState();
-  }
-
-  Node getNode() {
-    return this;
   }
 }

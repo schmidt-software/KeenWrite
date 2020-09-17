@@ -26,7 +26,6 @@
  */
 package com.scrivenvar.service.impl;
 
-import com.scrivenvar.preferences.UserPreferences;
 import com.scrivenvar.service.Options;
 
 import java.util.prefs.BackingStoreException;
@@ -40,8 +39,6 @@ import static java.util.prefs.Preferences.userRoot;
  * Persistent options user can change at runtime.
  */
 public class DefaultOptions implements Options {
-  private final UserPreferences mPreferences = new UserPreferences();
-
   public DefaultOptions() {
   }
 
@@ -77,10 +74,5 @@ public class DefaultOptions implements Options {
   @Override
   public Preferences getState() {
     return getRootPreferences().node( PREFS_STATE );
-  }
-
-  @Override
-  public UserPreferences getUserPreferences() {
-    return mPreferences;
   }
 }

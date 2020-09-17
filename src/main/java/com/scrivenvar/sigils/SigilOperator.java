@@ -27,9 +27,7 @@
  */
 package com.scrivenvar.sigils;
 
-import com.scrivenvar.Services;
 import com.scrivenvar.preferences.UserPreferences;
-import com.scrivenvar.service.Options;
 
 import java.util.function.UnaryOperator;
 
@@ -40,9 +38,7 @@ import java.util.function.UnaryOperator;
  * implementations of this interface.
  */
 public abstract class SigilOperator implements UnaryOperator<String> {
-  private static final Options sOptions = Services.load( Options.class );
-
   protected static UserPreferences getUserPreferences() {
-    return sOptions.getUserPreferences();
+    return UserPreferences.getInstance();
   }
 }

@@ -1366,7 +1366,7 @@ public class MainWindow implements Observer {
   //---- Persistence accessors ----------------------------------------------
 
   private UserPreferences getUserPreferences() {
-    return sOptions.getUserPreferences();
+    return UserPreferences.getInstance();
   }
 
   private Path getDefinitionPath() {

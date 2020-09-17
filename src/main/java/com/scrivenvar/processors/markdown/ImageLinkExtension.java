@@ -27,9 +27,7 @@
  */
 package com.scrivenvar.processors.markdown;
 
-import com.scrivenvar.Services;
 import com.scrivenvar.preferences.UserPreferences;
-import com.scrivenvar.service.Options;
 import com.vladsch.flexmark.ast.Image;
 import com.vladsch.flexmark.html.IndependentLinkResolverFactory;
 import com.vladsch.flexmark.html.LinkResolver;
@@ -56,10 +54,6 @@ import static java.lang.String.format;
  * This allows images to be located virtually anywhere.
  */
 public class ImageLinkExtension implements HtmlRendererExtension {
-  /**
-   * Used for image directory preferences.
-   */
-  private static final Options sOptions = Services.load( Options.class );
 
   /**
    * Creates an extension capable of using a relative path to embed images.
@@ -199,10 +193,6 @@ public class ImageLinkExtension implements HtmlRendererExtension {
   }
 
   private UserPreferences getUserPreferences() {
-    return getOptions().getUserPreferences();
-  }
-
-  private static Options getOptions() {
-    return sOptions;
+    return UserPreferences.getInstance();
   }
 }

@@ -27,8 +27,7 @@
  */
 package com.scrivenvar.editors;
 
-import com.scrivenvar.Services;
-import com.scrivenvar.service.Options;
+import com.scrivenvar.preferences.UserPreferences;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -54,8 +53,6 @@ import static org.fxmisc.wellbehaved.event.InputMap.consume;
  * Represents common editing features for various types of text editors.
  */
 public class EditorPane extends Pane {
-
-  private static final Options sOptions = Services.load( Options.class );
 
   /**
    * Used when changing the text area font size.
@@ -246,6 +243,6 @@ public class EditorPane extends Pane {
    * events.
    */
   private IntegerProperty fontsSizeProperty() {
-    return sOptions.getUserPreferences().fontsSizeEditorProperty();
+    return UserPreferences.getInstance().fontsSizeEditorProperty();
   }
 }
