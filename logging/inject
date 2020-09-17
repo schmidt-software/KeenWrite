@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+echo "Parsing"
+find ../src/main/java -type f -name "*.java" -exec \
+  sh -c 'echo {}; java -cp jp.jar com.github.javaparser.Main {} > {}.jp' \;
+
+echo "Renaming"
+# The +10c ensures that files without code are skipped.
+find ../src/main/java -type f -name "*.jp" -size +10c -exec \
+  sh -c 'echo {}; mv {} $(dirname {})/$(basename {} .jp)' \;
+
