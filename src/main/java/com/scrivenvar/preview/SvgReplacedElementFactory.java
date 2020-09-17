@@ -49,8 +49,23 @@ import static com.scrivenvar.preview.SvgRasterizer.rasterize;
  * Responsible for running {@link SvgRasterizer} on SVG images detected within
  * a document to transform them into rasterized versions.
  */
-public class SvgReplacedElementFactory
-    implements ReplacedElementFactory {
+public class SvgReplacedElementFactory implements ReplacedElementFactory {
+
+  /**
+   * Prevent instantiation until needed.
+   */
+  private static class LazyContainer {
+    private static final MathRenderer INSTANCE = new MathRenderer();
+  }
+
+  /**
+   * Returns the singleton instance for rendering math symbols.
+   *
+   * @return A non-null instance, loaded, configured, and ready to render math.
+   */
+  public static MathRenderer getInstance() {
+    return LazyContainer.INSTANCE;
+  }
 
   /**
    * SVG filename extension maps to an SVG image element.
@@ -64,8 +79,6 @@ public class SvgReplacedElementFactory
 
   private static final String HTML_IMAGE = "img";
   private static final String HTML_IMAGE_SRC = "src";
-
-  private static final MathRenderer sMathRenderer = new MathRenderer();
 
   /**
    * A bounded cache that removes the oldest image if the maximum number of
@@ -102,7 +115,7 @@ public class SvgReplacedElementFactory
           // Convert the <svg> element to a raster graphic if not yet cached.
           final var src = e.getTextContent();
           image = getCachedImage(
-              src, __ -> rasterize( sMathRenderer.render( src ) )
+              src, __ -> rasterize( getInstance().render( src ) )
           );
         }
       } catch( final Exception ex ) {

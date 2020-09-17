@@ -1,6 +1,6 @@
 plugins {
   id 'application'
-  id 'org.openjfx.javafxplugin' version '0.0.8'
+  id 'org.openjfx.javafxplugin' version '0.0.9'
   id 'com.palantir.git-version' version '0.12.3'
   id 'org.beryx.jlink' version '2.16.2'
 }
@@ -27,6 +27,12 @@ if (project.hasProperty('targetOs')) {
   } else {
     os = [targetOs]
   }
+}
+
+javafx {
+  version = "14"
+  modules = ['javafx.controls', 'javafx.swing']
+  configuration = 'compileOnly'
 }
 
 dependencies {
@@ -102,17 +108,14 @@ dependencies {
 
   fx.each { fxitem ->
     os.each { ositem ->
+      println "org.openjfx:javafx-${fxitem}:${javafx.version}:${ositem}"
+
       runtimeOnly "org.openjfx:javafx-${fxitem}:${javafx.version}:${ositem}"
     }
   }
 
   testImplementation('org.junit.jupiter:junit-jupiter-api:5.4.2')
   testRuntime('org.junit.jupiter:junit-jupiter-engine:5.4.2')
-}
-
-javafx {
-  version = "14"
-  modules = ['javafx.controls', 'javafx.swing']
 }
 
 compileJava {
@@ -170,4 +173,3 @@ distributions {
 test {
   useJUnitPlatform()
 }
-
