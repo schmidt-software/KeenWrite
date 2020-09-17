@@ -33,7 +33,6 @@ DEPENDENCIES=(
 
 ARGUMENTS+=(
   "a,arch,Target operating system architecture (amd64)"
-  "b,build,Suppress building application"
   "o,os,Target operating system (linux, windows, mac)"
   "u,update,Java update version number (${ARG_JAVA_UPDATE})"
   "v,version,Full Java version (${ARG_JAVA_VERSION})"
@@ -81,6 +80,9 @@ utile_configure_target() {
 # Build platform-specific überjar.
 # ---------------------------------------------------------------------------
 utile_build() {
+  $log "Delete ${ARG_PATH_DIST_JAR}"
+  rm -f "${ARG_PATH_DIST_JAR}"
+
   $log "Build application for ${ARG_JAVA_OS}"
   gradle clean jar -PtargetOs="${ARG_JAVA_OS}"
 }
@@ -194,10 +196,6 @@ argument() {
   case "$1" in
     -a|--arch)
     ARG_JAVA_ARCH="$2"
-    ;;
-    -b|--build)
-    do_build=noop
-    consume=1
     ;;
     -o|--os)
     ARG_JAVA_OS="$2"
