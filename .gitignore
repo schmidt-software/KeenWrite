@@ -1,6 +1,6 @@
 dist
-scrivenvar.bin
-scrivenvar.exe
+*.bin
+*.exe
 build
 .gradle
 contacted.csv

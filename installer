@@ -154,7 +154,7 @@ utile_create_launch_script_windows() {
 @echo off
 
 set SCRIPT_DIR=%~dp0
-"%SCRIPT_DIR%\\${ARG_JAVA_DIR}\\bin\\java" -jar "%SCRIPT_DIR%\\scrivenvar.jar" %*
+"%SCRIPT_DIR%\\${ARG_JAVA_DIR}\\bin\\java" -jar "%SCRIPT_DIR%\\${APP_NAME}.jar" %*
 __EOT
 
   # Convert Unix end of line characters (\n) to Windows format (\r\n).

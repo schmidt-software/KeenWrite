@@ -1,4 +1,4 @@
-# ![Logo](images/logo64.png) Scrivenvar
+# ![Logo](images/logo64.png) KeenWrite
 
 A text editor that uses [interpolated strings](https://en.wikipedia.org/wiki/String_interpolation) to reference externally defined values.
 
@@ -6,9 +6,9 @@ A text editor that uses [interpolated strings](https://en.wikipedia.org/wiki/Str
 
 Download one of the following editions:
 
-* [Windows](https://gitreleases.dev/gh/DaveJarvis/scrivenvar/latest/scrivenvar.exe)
-* [Linux](https://gitreleases.dev/gh/DaveJarvis/scrivenvar/latest/scrivenvar.bin)
-* [Java Archive](https://gitreleases.dev/gh/DaveJarvis/scrivenvar/latest/scrivenvar.jar)
+* [Windows](https://gitreleases.dev/gh/DaveJarvis/keenwrite/latest/keenwrite.exe)
+* [Linux](https://gitreleases.dev/gh/DaveJarvis/keenwrite/latest/keenwrite.bin)
+* [Java Archive](https://gitreleases.dev/gh/DaveJarvis/keenwrite/latest/keenwrite.jar)
 
 ## Run
 
@@ -20,18 +20,18 @@ On Windows, double-click the application to start. You will have to give the app
 
 When upgrading to a new version, delete the following directory;
 
-    C:\Users\%USERNAME%\AppData\Local\warp\packages\scrivenvar.exe
+    C:\Users\%USERNAME%\AppData\Local\warp\packages\keenwrite.exe
 
 ### Linux
 
-On Linux, run `chmod +x scrivenvar.bin` then `./scrivenvar.bin`.
+On Linux, run `chmod +x keenwrite.bin` then `./keenwrite.bin`.
 
 ### Other
 
 On other platforms, download and install a full version of [OpenJDK 14](https://bell-sw.com/) that includes JavaFX module support, then run:
 
 ``` bash
-java -jar scrivenvar.jar
+java -jar keenwrite.jar
 ```
 
 ## Features

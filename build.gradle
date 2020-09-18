@@ -1,3 +1,15 @@
+import org.yaml.snakeyaml.Yaml
+
+buildscript {
+  repositories {
+    mavenCentral()
+  }
+
+  dependencies {
+    classpath group: 'org.yaml', name: 'snakeyaml', version: '1.19'
+  }
+}
+
 plugins {
   id 'application'
   id 'org.openjfx.javafxplugin' version '0.0.9'
@@ -122,8 +134,10 @@ compileJava {
   options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
 }
 
+def config = new Yaml().load( new File("_config.yaml").newInputStream() )
+
 application {
-  applicationName = 'scrivenvar'
+  applicationName = config["application"]["title"].toLowerCase()
   mainClassName = "com.${applicationName}.Main"
 
   applicationDefaultJvmArgs = [
@@ -132,6 +146,8 @@ application {
       "--add-opens=javafx.graphics/com.sun.javafx.css=ALL-UNNAMED",
   ]
 }
+
+println applicationName
 
 version = gitVersion()
 
