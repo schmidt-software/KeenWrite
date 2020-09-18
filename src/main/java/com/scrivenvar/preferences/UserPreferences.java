@@ -55,15 +55,16 @@ public class UserPreferences {
    * a safe, highly concurrent lazy initialization of static fields with good
    * performance. The implementation relies upon the initialization phase of
    * execution within the Java Virtual Machine (JVM) as specified by the Java
-   * Language Specification. When the class {@link LazyContainer} is loaded,
-   * its initialization completes trivially because there are no static
-   * variables to initialize.
+   * Language Specification. When the class {@link UserPreferencesContainer}
+   * is loaded, its initialization completes trivially because there are no
+   * static variables to initialize.
    * <p>
-   * The static class definition {@link LazyContainer} within the
+   * The static class definition {@link UserPreferencesContainer} within the
    * {@link UserPreferences} is not initialized until such time that
-   * {@link LazyContainer} must be executed. The static {@link LazyContainer}
-   * class executes when {@link #getInstance} is called. The first call will
-   * trigger loading and initialization of the {@link LazyContainer} thereby
+   * {@link UserPreferencesContainer} must be executed. The static
+   * {@link UserPreferencesContainer} class executes when
+   * {@link #getInstance} is called. The first call will trigger loading and
+   * initialization of the {@link UserPreferencesContainer} thereby
    * instantiating the {@link #INSTANCE}.
    * </p>
    * <p>
@@ -72,12 +73,12 @@ public class UserPreferences {
    * UI is ready.
    * </p>
    */
-  private static class LazyContainer {
+  private static class UserPreferencesContainer {
     private static final UserPreferences INSTANCE = new UserPreferences();
   }
 
   public static UserPreferences getInstance() {
-    return LazyContainer.INSTANCE;
+    return UserPreferencesContainer.INSTANCE;
   }
 
   private final PreferencesFx mPreferencesFx;
@@ -110,7 +111,7 @@ public class UserPreferences {
     mRDelimiterBegan = new SimpleStringProperty( R_DELIM_BEGAN_DEFAULT );
     mRDelimiterEnded = new SimpleStringProperty( R_DELIM_ENDED_DEFAULT );
 
-    mPropFontsSizeEditor = new SimpleIntegerProperty( FONT_SIZE_EDITOR );
+    mPropFontsSizeEditor = new SimpleIntegerProperty( (int) FONT_SIZE_EDITOR );
 
     // All properties must be initialized before creating the dialog.
     mPreferencesFx = createPreferencesFx();

@@ -36,8 +36,9 @@ import com.vladsch.flexmark.util.data.DataHolder;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashSet;
 import java.util.Set;
+
+import static com.scrivenvar.processors.markdown.tex.TeXNode.HTML_TEX;
 
 public class TeXNodeRenderer implements NodeRenderer {
 
@@ -51,18 +52,14 @@ public class TeXNodeRenderer implements NodeRenderer {
 
   @Override
   public @Nullable Set<NodeRenderingHandler<?>> getNodeRenderingHandlers() {
-    final Set<NodeRenderingHandler<?>> set = new HashSet<>();
-    set.add( new NodeRenderingHandler<>(
-        TeXNode.class, this::render ) );
-
-    return set;
+    return Set.of( new NodeRenderingHandler<>( TeXNode.class, this::render ) );
   }
 
   private void render( final TeXNode node,
                        final NodeRendererContext context,
                        final HtmlWriter html ) {
-    html.tag( "tex" );
+    html.tag( HTML_TEX );
     html.raw( node.getText() );
-    html.closeTag( "tex" );
+    html.closeTag( HTML_TEX );
   }
 }

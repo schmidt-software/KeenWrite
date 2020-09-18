@@ -44,6 +44,7 @@ import java.util.function.Function;
 
 import static com.scrivenvar.StatusBarNotifier.alert;
 import static com.scrivenvar.preview.SvgRasterizer.rasterize;
+import static com.scrivenvar.processors.markdown.tex.TeXNode.HTML_TEX;
 
 /**
  * Responsible for running {@link SvgRasterizer} on SVG images detected within
@@ -54,7 +55,7 @@ public class SvgReplacedElementFactory implements ReplacedElementFactory {
   /**
    * Prevent instantiation until needed.
    */
-  private static class LazyContainer {
+  private static class MathRendererContainer {
     private static final MathRenderer INSTANCE = new MathRenderer();
   }
 
@@ -64,18 +65,13 @@ public class SvgReplacedElementFactory implements ReplacedElementFactory {
    * @return A non-null instance, loaded, configured, and ready to render math.
    */
   public static MathRenderer getInstance() {
-    return LazyContainer.INSTANCE;
+    return MathRendererContainer.INSTANCE;
   }
 
   /**
    * SVG filename extension maps to an SVG image element.
    */
   private static final String SVG_FILE = "svg";
-
-  /**
-   * TeX expression wrapped in a {@code <tex>} element.
-   */
-  private static final String HTML_TEX = "tex";
 
   private static final String HTML_IMAGE = "img";
   private static final String HTML_IMAGE_SRC = "src";
@@ -112,7 +108,7 @@ public class SvgReplacedElementFactory implements ReplacedElementFactory {
           }
         }
         else if( HTML_TEX.equals( nodeName ) ) {
-          // Convert the <svg> element to a raster graphic if not yet cached.
+          // Convert the TeX element to a raster graphic if not yet cached.
           final var src = e.getTextContent();
           image = getCachedImage(
               src, __ -> rasterize( getInstance().render( src ) )
@@ -150,8 +146,8 @@ public class SvgReplacedElementFactory implements ReplacedElementFactory {
    * hash code is returned as the string value, making this operation very
    * quick to return the corresponding {@link BufferedImage}.
    *
-   * @param src        The SVG used for the key into the image cache.
-   * @param rasterizer {@link Function} to call to convert SVG to an image.
+   * @param src        The source used for the key into the image cache.
+   * @param rasterizer {@link Function} to call to rasterize an image.
    * @return The image that corresponds to the given source string.
    */
   private BufferedImage getCachedImage(

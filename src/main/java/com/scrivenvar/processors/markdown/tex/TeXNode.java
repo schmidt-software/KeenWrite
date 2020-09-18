@@ -30,8 +30,11 @@ package com.scrivenvar.processors.markdown.tex;
 import com.vladsch.flexmark.ast.DelimitedNodeImpl;
 
 public class TeXNode extends DelimitedNodeImpl {
+  /**
+   * TeX expression wrapped in a {@code <tex>} element.
+   */
+  public static final String HTML_TEX = "tex";
 
   public TeXNode() {
   }
-
 }

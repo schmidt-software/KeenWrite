@@ -87,9 +87,9 @@ import org.fxmisc.richtext.model.StyleSpansBuilder;
 import org.reactfx.value.Val;
 
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
@@ -452,7 +452,7 @@ public class MainWindow implements Observer {
       final Node node, final Consumer<Void> consumer ) {
     final ChangeListener<? super Boolean> listener = ( o, oldShow, newShow ) ->
         runLater( () -> {
-          if( newShow ) {
+          if( newShow != null && newShow ) {
             try {
               consumer.accept( null );
             } catch( final Exception ex ) {
@@ -1441,15 +1441,17 @@ public class MainWindow implements Observer {
   @SuppressWarnings("SameParameterValue")
   private Collection<String> readLexicon( final String filename )
       throws Exception {
-    final var path = Paths.get( LEXICONS_DIRECTORY, filename ).toString();
-    final var classLoader = MainWindow.class.getClassLoader();
+    final var path = "/" + LEXICONS_DIRECTORY + "/" + filename;
 
-    try( final var resource = classLoader.getResourceAsStream( path ) ) {
-      assert resource != null;
+    try( final var resource = getClass().getResourceAsStream( path ) ) {
+      if( resource == null ) {
+        throw new FileNotFoundException( path );
+      }
 
-      return new BufferedReader( new InputStreamReader( resource, UTF_8 ) )
-          .lines()
-          .collect( Collectors.toList() );
+      try( final var isr = new InputStreamReader( resource, UTF_8 );
+           final var reader = new BufferedReader( isr ) ) {
+        return reader.lines().collect( Collectors.toList() );
+      }
     }
   }
 

@@ -169,5 +169,5 @@ public class Constants {
   /**
    * Default text editor font size, in points.
    */
-  public static final int FONT_SIZE_EDITOR = 12;
+  public static final float FONT_SIZE_EDITOR = 12f;
 }

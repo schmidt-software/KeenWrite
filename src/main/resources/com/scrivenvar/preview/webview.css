@@ -26,7 +26,6 @@ body>*:last-child {
 /* BLOCKS ***/
 p, blockquote, ul, ol, dl, table, pre {
   margin: 1em 0;
-  vertical-align: middle;
 }
 
 /* HEADINGS ***/
@@ -217,8 +216,17 @@ img {
 /* Required for FlyingSaucer to detect the node.
  * See SVGReplacedElementFactory for details.
  */
-svg, tex {
+tex {
   /* Ensure the formulas can be inlined with text. */
   display: inline-block;
+}
+
+/* Without a robust typesetting engine, there's no
+ * nice-looking way to automatically typeset equations.
+ * Sometimes baseline is appropriate, sometimes the
+ * descender must be considered, and sometimes vertical
+ * alignment to the middle looks best.
+ */
+p tex {
   vertical-align: middle;
 }

@@ -89,13 +89,14 @@ public class StatusBarNotifier {
   }
 
   /**
-   * Updates the status bar to show the given message.
+   * Updates the status bar to show the first line of the given message.
    *
-   * @param s The message to show in the status bar.
+   * @param message The message to show in the status bar.
    */
-  private static void update( final String s ) {
+  private static void update( final String message ) {
     runLater(
         () -> {
+          final var s = message == null ? "" : message;
           final var i = s.indexOf( '\n' );
           sStatusBar.setText( s.substring( 0, i > 0 ? i : s.length() ) );
         }
