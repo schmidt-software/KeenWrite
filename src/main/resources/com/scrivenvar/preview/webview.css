@@ -228,5 +228,5 @@ tex {
  * alignment to the middle looks best.
  */
 p tex {
-  vertical-align: middle;
+  vertical-align: baseline;
 }

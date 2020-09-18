@@ -100,12 +100,4 @@ public class MathRenderer {
       return null;
     }
   }
-
-  /**
-   * Returns the text editor font size property for handling font size change
-   * events.
-   */
-  private IntegerProperty fontsSizeProperty() {
-    return UserPreferences.getInstance().fontsSizeEditorProperty();
-  }
 }
