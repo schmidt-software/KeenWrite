@@ -1,15 +1,3 @@
-import org.yaml.snakeyaml.Yaml
-
-buildscript {
-  repositories {
-    mavenCentral()
-  }
-
-  dependencies {
-    classpath group: 'org.yaml', name: 'snakeyaml', version: '1.19'
-  }
-}
-
 plugins {
   id 'application'
   id 'org.openjfx.javafxplugin' version '0.0.9'
@@ -134,10 +122,15 @@ compileJava {
   options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
 }
 
-def config = new Yaml().load( new File("_config.yaml").newInputStream() )
+def resourceDir = sourceSets.main.resources.srcDirs[0]
+
+def config = new Properties()
+file("${resourceDir}/bootstrap.properties").withInputStream {
+  config.load(it)
+}
 
 application {
-  applicationName = config["application"]["title"].toLowerCase()
+  applicationName = config["application.title"].toLowerCase()
   mainClassName = "com.${applicationName}.Main"
 
   applicationDefaultJvmArgs = [
@@ -147,13 +140,11 @@ application {
   ]
 }
 
-println applicationName
-
 version = gitVersion()
 
 def launcherClassName = "com.${applicationName}.Launcher"
 
-def propertiesFile = new File("src/main/resources/com/${applicationName}/app.properties")
+def propertiesFile = new File("${resourceDir}/com/${applicationName}/app.properties")
 propertiesFile.write("application.version=${version}")
 
 jar {
