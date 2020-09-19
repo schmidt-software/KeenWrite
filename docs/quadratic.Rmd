@@ -1,0 +1,23 @@
+![Logo](images/app-title)
+
+Given the quadratic formula:
+
+$x = \frac{-b \pm \sqrt{b^2 -4ac}}{2a}$
+
+Formatted in an R Markdown document as follows:
+
+    $x = \frac{-b \pm \sqrt{b^2 -4ac}}{2a}$
+
+We can substitute the following values:
+
+$a = `r# x(v$formula$quadratic$a)`, b = `r# x(v$formula$quadratic$b)`, c = `r# x(v$formula$quadratic$c)`$
+
+`r# -x(v$formula$quadratic$b) + sqrt( v$formula$quadratic$b^2  - 4 * v$formula$quadratic$a * v$formula$quadratic$c )`
+
+To arrive at two solutions:
+
+$x = \frac{-b + \sqrt{b^2 -4ac}}{2a} = `r# (-x(v$formula$quadratic$b) + sqrt( x(v$formula$quadratic$b)^2  - 4 * x(v$formula$quadratic$a) * x(v$formula$quadratic$c) )) / (2 * x(v$formula$quadratic$a))`$
+
+$x = \frac{-b - \sqrt{b^2 -4ac}}{2a} = `r# (-x(v$formula$quadratic$b) - sqrt( x(v$formula$quadratic$b)^2  - 4 * x(v$formula$quadratic$a) * x(v$formula$quadratic$c) )) / (2 * x(v$formula$quadratic$a))`$
+
+Changing the variable values is reflected in the output immediately.
