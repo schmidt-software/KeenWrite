@@ -21,11 +21,11 @@ The application is built.
 
 After the application is compiled, run it as follows:
 
-    java -jar build/libs/scrivenvar.jar
+    java -jar build/libs/keenwrite.jar
 
 On Windows:
 
-    java -jar build\libs\scrivenvar.jar
+    java -jar build\libs\keenwrite.jar
 
 # Installers
 

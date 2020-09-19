@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   version="1.1"
+   width="971.53119"
+   height="498.39355"
+   viewBox="0 0 971.53119 498.39354"
+   xml:space="preserve"
+   id="svg52"
+   sodipodi:docname="app-title.svg"
+   inkscape:version="1.0 (4035a4fb49, 2020-05-01)"
+   inkscape:export-filename="/home/jarvisd/dev/java/scrivenvar/docs/images/app-title.png"
+   inkscape:export-xdpi="24.66"
+   inkscape:export-ydpi="24.66"><metadata
+   id="metadata56"><rdf:RDF><cc:Work
+       rdf:about=""><dc:format>image/svg+xml</dc:format><dc:type
+         rdf:resource="http://purl.org/dc/dcmitype/StillImage" /><dc:title /></cc:Work></rdf:RDF></metadata><sodipodi:namedview
+   inkscape:document-rotation="0"
+   pagecolor="#ffffff"
+   bordercolor="#666666"
+   borderopacity="1"
+   objecttolerance="10"
+   gridtolerance="10"
+   guidetolerance="10"
+   inkscape:pageopacity="0"
+   inkscape:pageshadow="2"
+   inkscape:window-width="640"
+   inkscape:window-height="480"
+   id="namedview54"
+   showgrid="false"
+   inkscape:zoom="0.78417969"
+   inkscape:cx="455.5775"
+   inkscape:cy="347.59625"
+   inkscape:current-layer="svg52"
+   fit-margin-top="0"
+   fit-margin-left="0"
+   fit-margin-right="0"
+   fit-margin-bottom="0" />
+<desc
+   id="desc2">Created with Fabric.js 3.6.3</desc>
+<defs
+   id="defs4"><rect
+   x="114.92139"
+   y="132.06313"
+   width="470.12033"
+   height="175.55823"
+   id="rect933" />
+
+
+
+		
+		
+		
+		
+		
+		
+		
+		
+
+<linearGradient
+   y2="-0.049471263"
+   x2="0.96880889"
+   y1="-0.044911571"
+   x1="0.15235768"
+   gradientTransform="matrix(-121.64666,137.28602,-137.28602,-121.64666,522.68198,525.78258)"
+   gradientUnits="userSpaceOnUse"
+   id="SVGID_1_302284">
+<stop
+   id="stop9"
+   style="stop-color:#ec706a;stop-opacity:1"
+   offset="0%" />
+<stop
+   id="stop11"
+   style="stop-color:#ecd980;stop-opacity:1"
+   offset="100%" />
+</linearGradient>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</defs>
+
+<g
+   id="g853"
+   transform="translate(-394.35834,-171.20491)"><path
+     style="fill:url(#SVGID_1_302284);fill-rule:nonzero;stroke:none;stroke-width:4.99606;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0"
+     paint-order="stroke"
+     d="m 425.11895,550.88213 c -46.93797,72.14807 -26.19433,103.38343 -26.19433,103.38343 v 0 c 0,0 31.07048,-45.59403 48.81648,-27.97293 v 0 c 15.24298,15.10308 -12.06548,43.30583 -12.06548,43.30583 v 0 c 0,0 166.06898,-68.436 89.90407,-144.24619 v 0 c 0,0 -16.00237,-18.40049 -39.62873,-18.40548 v 0 c -17.28637,0 -38.64951,9.84223 -60.83201,43.93534"
+     stroke-linecap="round"
+     id="path14" /><path
+     style="fill:#126d95;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:4.99606;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0"
+     paint-order="stroke"
+     d="m 575.11882,568.48329 -4.34657,-84.38342 19.95925,-19.85434 30.59087,30.75573 z"
+     stroke-linecap="round"
+     id="path22" /><path
+     style="fill:#126d95;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:4.99606;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0"
+     paint-order="stroke"
+     d="m 638.20224,478.0873 -10.3968,10.33684 -30.52591,-30.69078 10.39679,-10.33685 z"
+     stroke-linecap="round"
+     id="path26" /><path
+     style="fill:#51a9cf;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:4.99606;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0"
+     paint-order="stroke"
+     d="m 791.45508,258.2912 c -6.12517,-3.44728 -14.03892,-2.61294 -19.29478,2.61793 -6.36997,6.33501 -6.39495,16.63688 -0.0649,23.00186 L 613.81523,441.29182 583.28931,410.60103 c 96.04423,-96.4489 126.74501,-177.76974 126.74501,-177.76974 79.22249,-11.81068 139.14522,-43.08601 168.97169,-61.62638 z"
+     stroke-linecap="round"
+     id="path30" /><path
+     style="fill:#51a9cf;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:4.99606;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0"
+     paint-order="stroke"
+     d="m 607.67733,447.39871 -10.3968,10.33684 -30.64582,-30.87064 10.36183,-10.31186 z"
+     stroke-linecap="round"
+     id="path34" /><path
+     style="fill:#51a9cf;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:4.99606;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0"
+     paint-order="stroke"
+     d="m 590.73628,464.25235 -19.95925,19.85434 -84.29849,-4.79622 73.70185,-45.84383 z"
+     stroke-linecap="round"
+     id="path38" /><path
+     style="fill:#126d95;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:4.99606;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0"
+     paint-order="stroke"
+     d="m 798.0649,265.0575 87.61088,-87.14624 c -18.72523,29.76151 -50.29032,89.4844 -62.52567,168.64194 0,0 -77.5688,34.88248 -178.68403,125.55095 L 613.81527,441.28846 772.09539,283.91262 c 6.35998,6.39496 16.63687,6.38996 23.00185,0.06 5.14095,-5.10597 6.11018,-12.8049 2.96766,-18.91508"
+     stroke-linecap="round"
+     id="path42" /></g>
+
+<text
+   xml:space="preserve"
+   id="text931"
+   style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;white-space:pre;shape-inside:url(#rect933);fill:#000000;fill-opacity:1;stroke:none;"
+   transform="translate(-394.35834,-171.20491)" /><text
+   xml:space="preserve"
+   style="font-style:italic;font-variant:normal;font-weight:800;font-stretch:normal;font-size:133.333px;line-height:1.25;font-family:'Merriweather Sans';-inkscape-font-specification:'Merriweather Sans, Ultra-Bold Italic';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;letter-spacing:0px;word-spacing:0px;fill:#51a9cf;fill-opacity:1;stroke:none"
+   x="311.66693"
+   y="402.20627"
+   id="text939"><tspan
+     sodipodi:role="line"
+     id="tspan937"
+     x="311.66693"
+     y="402.20627">KeenWrite</tspan></text></svg>
