@@ -31,17 +31,14 @@ import com.keenwrite.service.Settings;
 import org.apache.commons.configuration2.PropertiesConfiguration;
 import org.apache.commons.configuration2.convert.DefaultListDelimiterHandler;
 import org.apache.commons.configuration2.convert.ListDelimiterHandler;
-import org.apache.commons.configuration2.ex.ConfigurationException;
 
-import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.Reader;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.Iterator;
 import java.util.List;
 
-import static com.keenwrite.Constants.SETTINGS_NAME;
+import static com.keenwrite.Constants.PATH_PROPERTIES_SETTINGS;
 
 /**
  * Responsible for loading settings that help avoid hard-coded assumptions.
@@ -50,9 +47,9 @@ public class DefaultSettings implements Settings {
 
   private static final char VALUE_SEPARATOR = ',';
 
-  private PropertiesConfiguration properties;
+  private PropertiesConfiguration mProperties;
 
-  public DefaultSettings() throws ConfigurationException {
+  public DefaultSettings() {
     setProperties( createProperties() );
   }
 
@@ -115,20 +112,17 @@ public class DefaultSettings implements Settings {
     return getSettings().getKeys( prefix );
   }
 
-  private PropertiesConfiguration createProperties()
-      throws ConfigurationException {
-
-    final URL url = getPropertySource();
-    final PropertiesConfiguration configuration = new PropertiesConfiguration();
+  private PropertiesConfiguration createProperties() {
+    final var url = getPropertySource();
+    final var configuration = new PropertiesConfiguration();
 
     if( url != null ) {
-      try( final Reader r = new InputStreamReader( url.openStream(),
-                                                   getDefaultEncoding() ) ) {
+      try( final var reader = new InputStreamReader(
+          url.openStream(), getDefaultEncoding() ) ) {
         configuration.setListDelimiterHandler( createListDelimiterHandler() );
-        configuration.read( r );
-
-      } catch( final IOException ex ) {
-        throw new RuntimeException( new ConfigurationException( ex ) );
+        configuration.read( reader );
+      } catch( final Exception ex ) {
+        throw new RuntimeException( ex );
       }
     }
 
@@ -144,18 +138,14 @@ public class DefaultSettings implements Settings {
   }
 
   private URL getPropertySource() {
-    return DefaultSettings.class.getResource( getSettingsFilename() );
+    return DefaultSettings.class.getResource( PATH_PROPERTIES_SETTINGS );
   }
 
-  private String getSettingsFilename() {
-    return SETTINGS_NAME;
-  }
-
-  private void setProperties( final PropertiesConfiguration configuration ) {
-    this.properties = configuration;
+  private void setProperties( final PropertiesConfiguration properties ) {
+    mProperties = properties;
   }
 
   private PropertiesConfiguration getSettings() {
-    return this.properties;
+    return mProperties;
   }
 }

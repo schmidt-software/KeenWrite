@@ -62,7 +62,7 @@ public class TeXRasterization {
 
   private static final String DIR_TEMP = getProperty( "java.io.tmpdir" );
 
-  private static final long FILESIZE = 12547;
+  private static final long FILESIZE = 12364;
 
   /**
    * Test that an equation can be converted to a raster image and the

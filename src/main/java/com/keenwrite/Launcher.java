@@ -32,6 +32,7 @@ import java.io.InputStream;
 import java.util.Calendar;
 import java.util.Properties;
 
+import static com.keenwrite.Bootstrap.APP_TITLE;
 import static java.lang.String.format;
 
 /**
@@ -64,9 +65,8 @@ public class Launcher {
     System.out.println( s );
   }
 
-  private static String getTitle() throws IOException {
-    final Properties properties = loadProperties( "messages.properties" );
-    return properties.getProperty( "Main.title" );
+  private static String getTitle() {
+    return APP_TITLE;
   }
 
   private static String getVersion() throws IOException {

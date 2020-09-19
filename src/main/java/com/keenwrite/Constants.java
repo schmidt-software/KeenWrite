@@ -28,39 +28,37 @@
 package com.keenwrite;
 
 import com.keenwrite.service.Settings;
+import javafx.scene.image.Image;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+
+import static com.keenwrite.Bootstrap.APP_TITLE_LOWERCASE;
+import static java.lang.String.format;
 
 /**
  * Defines application-wide default values.
  */
 public class Constants {
 
-  public static final Settings SETTINGS = Services.load( Settings.class );
+  /**
+   * Used by the default settings to load the {@link Settings} service. This
+   * must come before any attempt is made to create a {@link Settings} object.
+   * The reference to {@link Bootstrap#APP_TITLE_LOWERCASE} should cause the
+   * JVM to load {@link Bootstrap} prior to proceeding. Loading that class
+   * beforehand will read the bootstrap properties file to determine the
+   * application name, which is then used to locate the settings properties.
+   */
+  public static final String PATH_PROPERTIES_SETTINGS =
+      format( "/com/%s/settings.properties", APP_TITLE_LOWERCASE );
 
   /**
-   * Prevent instantiation.
+   * The {@link Settings} uses {@link #PATH_PROPERTIES_SETTINGS}.
    */
-  private Constants() {
-  }
-
-  private static String get( final String key ) {
-    return SETTINGS.getSetting( key, "" );
-  }
-
-  @SuppressWarnings("SameParameterValue")
-  private static int get( final String key, final int defaultValue ) {
-    return SETTINGS.getSetting( key, defaultValue );
-  }
-
-  // Bootstrapping...
-  public static final String SETTINGS_NAME =
-      "/com/keenwrite/settings.properties";
+  public static final Settings SETTINGS = Services.load( Settings.class );
 
   public static final String DEFINITION_NAME = "variables.yaml";
 
-  public static final String APP_TITLE = get( "application.title" );
   public static final String APP_BUNDLE_NAME = get( "application.messages" );
 
   // Prevent double events when updating files on Linux (save and timestamp).
@@ -78,6 +76,8 @@ public class Constants {
   public static final String FILE_LOGO_128 = get( "file.logo.128" );
   public static final String FILE_LOGO_256 = get( "file.logo.256" );
   public static final String FILE_LOGO_512 = get( "file.logo.512" );
+
+  public static final Image ICON_DIALOG = new Image( FILE_LOGO_32 );
 
   public static final String PREFS_ROOT = get( "preferences.root" );
   public static final String PREFS_STATE = get( "preferences.root.state" );
@@ -101,13 +101,16 @@ public class Constants {
    * Used to show an error while parsing, usually syntactical.
    */
   public static final String STATUS_PARSE_ERROR = "Main.status.error.parse";
-  public static final String STATUS_DEFINITION_BLANK = "Main.status.error.def.blank";
-  public static final String STATUS_DEFINITION_EMPTY = "Main.status.error.def.empty";
+  public static final String STATUS_DEFINITION_BLANK =
+      "Main.status.error.def.blank";
+  public static final String STATUS_DEFINITION_EMPTY =
+      "Main.status.error.def.empty";
 
   /**
    * One parameter: the word under the cursor that could not be found.
    */
-  public static final String STATUS_DEFINITION_MISSING = "Main.status.error.def.missing";
+  public static final String STATUS_DEFINITION_MISSING = "Main.status.error" +
+      ".def.missing";
 
   /**
    * Used when creating flat maps relating to resolved variables.
@@ -170,4 +173,19 @@ public class Constants {
    * Default text editor font size, in points.
    */
   public static final float FONT_SIZE_EDITOR = 12f;
+
+  /**
+   * Prevent instantiation.
+   */
+  private Constants() {
+  }
+
+  private static String get( final String key ) {
+    return SETTINGS.getSetting( key, "" );
+  }
+
+  @SuppressWarnings("SameParameterValue")
+  private static int get( final String key, final int defaultValue ) {
+    return SETTINGS.getSetting( key, defaultValue );
+  }
 }

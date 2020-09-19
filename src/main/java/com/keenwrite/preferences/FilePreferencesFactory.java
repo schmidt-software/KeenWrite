@@ -28,11 +28,12 @@
 package com.keenwrite.preferences;
 
 import java.io.File;
-import java.nio.file.FileSystems;
 import java.util.prefs.Preferences;
 import java.util.prefs.PreferencesFactory;
 
-import static com.keenwrite.Constants.APP_TITLE;
+import static com.keenwrite.Bootstrap.APP_TITLE_LOWERCASE;
+import static java.io.File.separator;
+import static java.lang.System.getProperty;
 
 /**
  * PreferencesFactory implementation that stores the preferences in a
@@ -44,7 +45,7 @@ import static com.keenwrite.Constants.APP_TITLE;
  */
 public class FilePreferencesFactory implements PreferencesFactory {
 
-  private static File preferencesFile;
+  private static File sPreferencesFile;
   private Preferences rootPreferences;
 
   @Override
@@ -53,30 +54,28 @@ public class FilePreferencesFactory implements PreferencesFactory {
   }
 
   @Override
-  public synchronized Preferences userRoot() {
-    if( rootPreferences == null ) {
+  public Preferences userRoot() {
+    final var prefs = rootPreferences;
+
+    if( prefs == null ) {
       rootPreferences = new FilePreferences( null, "" );
     }
 
     return rootPreferences;
   }
 
-  public synchronized static File getPreferencesFile() {
-    if( preferencesFile == null ) {
-      String prefsFile = getPreferencesFilename();
+  public static File getPreferencesFile() {
+    final var prefs = sPreferencesFile;
 
-      preferencesFile = new File( prefsFile ).getAbsoluteFile();
+    if( prefs == null ) {
+      sPreferencesFile = new File( getPreferencesFilename() ).getAbsoluteFile();
     }
 
-    return preferencesFile;
+    return sPreferencesFile;
   }
 
   public static String getPreferencesFilename() {
-    final String filename = System.getProperty( "application.name", APP_TITLE );
-    return System.getProperty( "user.home" ) + getSeparator() + "." + filename;
-  }
-
-  public static String getSeparator() {
-    return FileSystems.getDefault().getSeparator();
+    final var filename = getProperty( "application.name", APP_TITLE_LOWERCASE );
+    return getProperty( "user.home" ) + separator + '.' + filename;
   }
 }

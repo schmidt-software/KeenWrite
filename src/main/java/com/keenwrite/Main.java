@@ -45,8 +45,8 @@ import java.net.URI;
 import java.util.Map;
 import java.util.logging.LogManager;
 
+import static com.keenwrite.Bootstrap.APP_TITLE;
 import static com.keenwrite.Constants.*;
-import static com.keenwrite.Messages.get;
 import static com.keenwrite.StatusBarNotifier.alert;
 import static java.awt.GraphicsEnvironment.getLocalGraphicsEnvironment;
 import static java.awt.font.TextAttribute.*;
@@ -73,7 +73,7 @@ public final class Main extends Application {
   private final Thread mSnitchThread = new Thread( getSnitch() );
   private final MainWindow mMainWindow = new MainWindow();
 
-  @SuppressWarnings({"FieldCanBeLocal", "unused"})
+  @SuppressWarnings({"FieldCanBeLocal"})
   private StageState mStageState;
 
   /**
@@ -216,10 +216,17 @@ public final class Main extends Application {
   }
 
   private String getApplicationTitle() {
-    return get( "Main.title" );
+    return APP_TITLE;
   }
 
   private Image createImage( final String filename ) {
     return new Image( filename );
+  }
+
+  /**
+   * This is here to suppress an IDE warning, the method is not used.
+   */
+  public StageState getStageState() {
+    return mStageState;
   }
 }

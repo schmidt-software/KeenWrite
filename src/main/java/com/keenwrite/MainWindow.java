@@ -68,8 +68,6 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.control.Alert.AlertType;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
@@ -97,6 +95,7 @@ import java.util.function.Function;
 import java.util.prefs.Preferences;
 import java.util.stream.Collectors;
 
+import static com.keenwrite.Bootstrap.APP_TITLE;
 import static com.keenwrite.Constants.*;
 import static com.keenwrite.Messages.get;
 import static com.keenwrite.StatusBarNotifier.alert;
@@ -107,6 +106,7 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.singleton;
 import static javafx.application.Platform.runLater;
 import static javafx.event.Event.fireEvent;
+import static javafx.scene.control.Alert.AlertType.INFORMATION;
 import static javafx.scene.input.KeyCode.ENTER;
 import static javafx.stage.WindowEvent.WINDOW_CLOSE_REQUEST;
 import static org.fxmisc.richtext.model.TwoDimensional.Bias.Forward;
@@ -749,11 +749,11 @@ public class MainWindow implements Observer {
   //---- Help actions -------------------------------------------------------
 
   private void helpAbout() {
-    final Alert alert = new Alert( AlertType.INFORMATION );
-    alert.setTitle( get( "Dialog.about.title" ) );
-    alert.setHeaderText( get( "Dialog.about.header" ) );
+    final Alert alert = new Alert( INFORMATION );
+    alert.setTitle( get( "Dialog.about.title", APP_TITLE ) );
+    alert.setHeaderText( get( "Dialog.about.header", APP_TITLE ) );
     alert.setContentText( get( "Dialog.about.content" ) );
-    alert.setGraphic( new ImageView( new Image( FILE_LOGO_32 ) ) );
+    alert.setGraphic( new ImageView( ICON_DIALOG ) );
     alert.initOwner( getWindow() );
 
     alert.showAndWait();
@@ -1455,10 +1455,12 @@ public class MainWindow implements Observer {
     }
   }
 
-  // TODO: #59 -- Replace using Markdown processor instantiated for Markdown files.
+  // TODO: #59 -- Replace using Markdown processor instantiated for Markdown
+  //  files.
   private final Parser mParser = Parser.builder().build();
 
-  // TODO: #59 -- Replace with generic interface; provide Markdown/XML implementations.
+  // TODO: #59 -- Replace with generic interface; provide Markdown/XML
+  //  implementations.
   private static final class TextVisitor {
     private final NodeVisitor mVisitor = new NodeVisitor( new VisitHandler<>(
         com.vladsch.flexmark.ast.Text.class, this::visit )

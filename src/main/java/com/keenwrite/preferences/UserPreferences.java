@@ -214,7 +214,8 @@ public class UserPreferences {
                 Setting.of( "Points", mPropFontsSizeEditor )
             )
         )
-    ).instantPersistent( false );
+    ).instantPersistent( false )
+                        .dialogIcon( ICON_DIALOG );
   }
 
   /**
