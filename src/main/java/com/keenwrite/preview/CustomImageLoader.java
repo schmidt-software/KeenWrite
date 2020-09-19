@@ -27,6 +27,7 @@
  */
 package com.keenwrite.preview;
 
+import com.keenwrite.Messages;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import org.xhtmlrenderer.extend.FSImage;
@@ -34,6 +35,7 @@ import org.xhtmlrenderer.resource.ImageResource;
 import org.xhtmlrenderer.swing.ImageResourceLoader;
 
 import javax.imageio.ImageIO;
+import java.io.FileNotFoundException;
 import java.net.URI;
 import java.net.URL;
 import java.nio.file.Paths;
@@ -89,8 +91,14 @@ public class CustomImageLoader extends ImageResourceLoader {
       final var protocol = getProtocol( uri );
       final ImageResource imageResource;
 
-      if( protocol.isFile() && exists( Paths.get( new URI( uri ) ) ) ) {
-        imageResource = super.get( uri, width, height );
+      if( protocol.isFile() ) {
+        if( exists( Paths.get( new URI( uri ) ) ) ) {
+          imageResource = super.get( uri, width, height );
+        }
+        else {
+          final var m = Messages.get( "Main.status.error.file.missing", uri );
+          throw new FileNotFoundException( m );
+        }
       }
       else if( protocol.isHttp() ) {
         // FlyingSaucer will silently swallow any images that fail to load.

@@ -56,17 +56,13 @@ public class Launcher {
 
   @SuppressWarnings("RedundantStringFormatCall")
   private static void showAppInfo() throws IOException {
-    out( format( "%s version %s", getTitle(), getVersion() ) );
+    out( format( "%s version %s", APP_TITLE, getVersion() ) );
     out( format( "Copyright %s White Magic Software, Ltd.", getYear() ) );
     out( format( "Portions copyright 2020 Karl Tauber." ) );
   }
 
   private static void out( final String s ) {
     System.out.println( s );
-  }
-
-  private static String getTitle() {
-    return APP_TITLE;
   }
 
   private static String getVersion() throws IOException {

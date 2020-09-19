@@ -164,7 +164,7 @@ public final class Main extends Application {
         createImage( FILE_LOGO_128 ),
         createImage( FILE_LOGO_256 ),
         createImage( FILE_LOGO_512 ) );
-    stage.setTitle( getApplicationTitle() );
+    stage.setTitle( APP_TITLE );
     stage.setScene( getScene() );
 
     stage.addEventHandler( KEY_PRESSED, event -> {
@@ -213,10 +213,6 @@ public final class Main extends Application {
 
   private Scene getScene() {
     return getMainWindow().getScene();
-  }
-
-  private String getApplicationTitle() {
-    return APP_TITLE;
   }
 
   private Image createImage( final String filename ) {

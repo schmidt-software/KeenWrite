@@ -109,8 +109,8 @@ public class Constants {
   /**
    * One parameter: the word under the cursor that could not be found.
    */
-  public static final String STATUS_DEFINITION_MISSING = "Main.status.error" +
-      ".def.missing";
+  public static final String STATUS_DEFINITION_MISSING =
+      "Main.status.error.def.missing";
 
   /**
    * Used when creating flat maps relating to resolved variables.
