@@ -28,7 +28,7 @@ On Linux, run `chmod +x keenwrite.bin` then `./keenwrite.bin`.
 
 ### Other
 
-On other platforms, download and install a full version of [OpenJDK 14](https://bell-sw.com/) that includes JavaFX module support, then run:
+On other platforms, download and install a full version of [OpenJDK 14](https://bell-sw.com/pages/downloads/?version=java-14#mn) that includes JavaFX module support, then run:
 
 ``` bash
 java -jar keenwrite.jar
