@@ -38,6 +38,7 @@ import com.keenwrite.editors.EditorPane;
 import com.keenwrite.editors.markdown.MarkdownEditorPane;
 import com.keenwrite.preferences.UserPreferences;
 import com.keenwrite.preview.HTMLPreviewPane;
+import com.keenwrite.exceptions.MissingFileException;
 import com.keenwrite.processors.HtmlPreviewProcessor;
 import com.keenwrite.processors.Processor;
 import com.keenwrite.processors.ProcessorFactory;
@@ -85,7 +86,6 @@ import org.fxmisc.richtext.model.StyleSpansBuilder;
 import org.reactfx.value.Val;
 
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
 import java.nio.file.Path;
 import java.util.*;
@@ -1445,7 +1445,7 @@ public class MainWindow implements Observer {
 
     try( final var resource = getClass().getResourceAsStream( path ) ) {
       if( resource == null ) {
-        throw new FileNotFoundException( path );
+        throw new MissingFileException( path );
       }
 
       try( final var isr = new InputStreamReader( resource, UTF_8 );

@@ -27,7 +27,7 @@
  */
 package com.keenwrite.preview;
 
-import com.keenwrite.Messages;
+import com.keenwrite.exceptions.MissingFileException;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import org.xhtmlrenderer.extend.FSImage;
@@ -35,7 +35,6 @@ import org.xhtmlrenderer.resource.ImageResource;
 import org.xhtmlrenderer.swing.ImageResourceLoader;
 
 import javax.imageio.ImageIO;
-import java.io.FileNotFoundException;
 import java.net.URI;
 import java.net.URL;
 import java.nio.file.Paths;
@@ -96,8 +95,7 @@ public class CustomImageLoader extends ImageResourceLoader {
           imageResource = super.get( uri, width, height );
         }
         else {
-          final var m = Messages.get( "Main.status.error.file.missing", uri );
-          throw new FileNotFoundException( m );
+          throw new MissingFileException( uri );
         }
       }
       else if( protocol.isHttp() ) {

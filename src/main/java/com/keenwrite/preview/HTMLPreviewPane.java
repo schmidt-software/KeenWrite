@@ -162,10 +162,6 @@ public final class HTMLPreviewPane extends SwingNode {
       + "</head>"
       + "<body>";
 
-  // Provide some extra space at the end for scrolling past the last line.
-  private static final String HTML_SUFFIX =
-      "<p style='height=2em'>&nbsp;</p></body></html>";
-
   private static final W3CDom W3C_DOM = new W3CDom();
   private static final XhtmlNamespaceHandler NS_HANDLER =
       new XhtmlNamespaceHandler();
@@ -340,7 +336,7 @@ public final class HTMLPreviewPane extends SwingNode {
     mHtmlDocument.setLength( mHtmlPrefixLength );
 
     // Write the HTML body element followed by closing tags.
-    return mHtmlDocument.append( html ).append( HTML_SUFFIX ).toString();
+    return mHtmlDocument.append( html ).toString();
   }
 
   public Path getPath() {

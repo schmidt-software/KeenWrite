@@ -1,8 +1,10 @@
+# ![Logo](images/app-title.png)
+
 # Real-time equation rendering
 
-With interpolated variables and R calculations:
+Interpolated variables within R calculations, formatted as an equation:
 
-$\sqrt{`r#x( v$formula$sqrt$value)`} = `r# round(sqrt(x( v$formula$sqrt$value )),5)`$
+$\sqrt{`r#x( v$formula$sqrt$value)`} = \pm `r# round(sqrt(x( v$formula$sqrt$value )),5)`$
 
 # Maxwell's equations
 

@@ -27,6 +27,7 @@
  */
 package com.keenwrite.processors.markdown;
 
+import com.keenwrite.exceptions.MissingFileException;
 import com.keenwrite.preferences.UserPreferences;
 import com.vladsch.flexmark.ast.Image;
 import com.vladsch.flexmark.html.IndependentLinkResolverFactory;
@@ -40,7 +41,6 @@ import org.jetbrains.annotations.NotNull;
 import org.renjin.repackaged.guava.base.Splitter;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.nio.file.Path;
 
 import static com.keenwrite.StatusBarNotifier.alert;
@@ -48,6 +48,8 @@ import static com.keenwrite.util.ProtocolResolver.getProtocol;
 import static com.vladsch.flexmark.html.HtmlRenderer.Builder;
 import static com.vladsch.flexmark.html.HtmlRenderer.HtmlRendererExtension;
 import static java.lang.String.format;
+import static org.apache.commons.io.FilenameUtils.getExtension;
+import static org.apache.commons.io.FilenameUtils.removeExtension;
 
 /**
  * Responsible for ensuring that images can be rendered relative to a path.
@@ -101,13 +103,11 @@ public class ImageLinkExtension implements HtmlRendererExtension {
       final var protocol = getProtocol( url );
 
       try {
-        // If the direct file name exists, then use it directly.
-        if( (protocol.isFile() && Path.of( url ).toFile().exists()) ||
-            protocol.isHttp() ) {
+        if( protocol.isHttp() ) {
           return valid( link, url );
         }
       } catch( final Exception ignored ) {
-        // Try to resolve the image, dynamically.
+        // Try to resolve the image path, dynamically.
       }
 
       try {
@@ -120,15 +120,16 @@ public class ImageLinkExtension implements HtmlRendererExtension {
         // been saved. Default to using the value from the user's preferences.
         // The user's preferences will be defaulted to a the application's
         // starting directory.
-        if( editPath == null ) {
-          editPath = imagePrefix;
-        }
-        else {
-          editPath = Path.of( editPath.toString(), imagePrefix.toString() );
-        }
+        editPath = editPath == null
+            ? imagePrefix
+            : Path.of( editPath.toString(), imagePrefix.toString() );
 
-        final Path imagePathPrefix = Path.of( editPath.toString(), url );
-        final String suffixes = getImageExtensions();
+        final var urlExt = getExtension( url );
+        url = removeExtension( url );
+
+        final var suffixes = urlExt + ' ' + getImageExtensions();
+        final var imagePathPrefix = Path.of( editPath.toString(), url );
+        var suffix = ".*";
         boolean missing = true;
 
         // Iterate over the user's preferred image file type extensions.
@@ -141,10 +142,15 @@ public class ImageLinkExtension implements HtmlRendererExtension {
             missing = false;
             break;
           }
+          else if( !urlExt.isBlank() ) {
+            // The file is missing because the user specified a prefix.
+            suffix = urlExt;
+            break;
+          }
         }
 
         if( missing ) {
-          throw new FileNotFoundException( imagePathPrefix + ".*" );
+          throw new MissingFileException( imagePathPrefix + suffix );
         }
 
         if( protocol.isFile() ) {
