@@ -50,11 +50,9 @@ java -jar keenwrite.jar
 See the [detailed documentation](docs/README.md) for information about
 using the application.
 
-## Screenshots
+## Screenshot
 
 ![Screenshot with Formulas](docs/images/equations.png)
-
-![Screenshot with Hyperlinks](docs/images/screenshot.png)
 
 ## License
 
