@@ -27,6 +27,7 @@
  */
 package com.keenwrite.processors;
 
+import com.keenwrite.StatusBarNotifier;
 import com.keenwrite.preferences.UserPreferences;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.StringProperty;
@@ -40,7 +41,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.keenwrite.Constants.STATUS_PARSE_ERROR;
-import static com.keenwrite.StatusBarNotifier.alert;
+import static com.keenwrite.StatusBarNotifier.clue;
 import static com.keenwrite.processors.text.TextReplacementFactory.replace;
 import static com.keenwrite.sigils.RSigilOperator.PREFIX;
 import static com.keenwrite.sigils.RSigilOperator.SUFFIX;
@@ -187,7 +188,7 @@ public final class InlineRProcessor extends DefinitionProcessor {
           sb.append( PREFIX ).append( r ).append( SUFFIX );
 
           // Tell the user that there was a problem.
-          alert( STATUS_PARSE_ERROR, e.getMessage(), currIndex );
+          StatusBarNotifier.clue( STATUS_PARSE_ERROR, e.getMessage(), currIndex );
         }
 
         // Retain the R statement's ending position in the text.
@@ -224,7 +225,7 @@ public final class InlineRProcessor extends DefinitionProcessor {
       return getScriptEngine().eval( r );
     } catch( final Exception ex ) {
       final String expr = r.substring( 0, min( r.length(), 30 ) );
-      alert( "Main.status.error.r", expr, ex.getMessage() );
+      StatusBarNotifier.clue( "Main.status.error.r", expr, ex.getMessage() );
     }
 
     return "";

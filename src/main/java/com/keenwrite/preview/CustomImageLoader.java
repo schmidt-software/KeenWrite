@@ -39,7 +39,7 @@ import java.net.URI;
 import java.net.URL;
 import java.nio.file.Paths;
 
-import static com.keenwrite.StatusBarNotifier.alert;
+import static com.keenwrite.StatusBarNotifier.clue;
 import static com.keenwrite.preview.SvgRasterizer.BROKEN_IMAGE_PLACEHOLDER;
 import static com.keenwrite.util.ProtocolResolver.getProtocol;
 import static java.lang.String.valueOf;
@@ -113,7 +113,7 @@ public class CustomImageLoader extends ImageResourceLoader {
 
       return scale( imageResource );
     } catch( final Exception e ) {
-      alert( e );
+      clue( e );
       return new ImageResource( uri, getBrokenImage() );
     }
   }

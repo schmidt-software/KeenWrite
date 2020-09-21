@@ -49,7 +49,7 @@ import java.io.StringWriter;
 import java.net.URL;
 import java.text.NumberFormat;
 
-import static com.keenwrite.StatusBarNotifier.alert;
+import static com.keenwrite.StatusBarNotifier.clue;
 import static com.keenwrite.preview.RenderingSettings.RENDERING_HINTS;
 import static java.awt.image.BufferedImage.TYPE_INT_RGB;
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -197,7 +197,7 @@ public class SvgRasterizer {
     try {
       return rasterize( new URL( url ), width );
     } catch( final Exception ex ) {
-      alert( ex );
+      clue( ex );
       return BROKEN_IMAGE_PLACEHOLDER;
     }
   }
@@ -244,7 +244,7 @@ public class SvgRasterizer {
       final var width = root.getAttribute( "width" );
       return rasterize( document, INT_FORMAT.parse( width ).intValue() );
     } catch( final Exception ex ) {
-      alert( ex );
+      clue( ex );
       return BROKEN_IMAGE_PLACEHOLDER;
     }
   }
@@ -279,7 +279,7 @@ public class SvgRasterizer {
       final var width = root.getAttribute( "width" );
       return rasterizeString( xml, INT_FORMAT.parse( width ).intValue() );
     } catch( final Exception ex ) {
-      alert( ex );
+      clue( ex );
       return BROKEN_IMAGE_PLACEHOLDER;
     }
   }
@@ -310,7 +310,7 @@ public class SvgRasterizer {
       sTransformer.transform( new DOMSource( e ), new StreamResult( writer ) );
       return writer.toString().replaceAll( "xmlns=\"\" ", "" );
     } catch( final Exception ex ) {
-      alert( ex );
+      clue( ex );
     }
 
     return BROKEN_IMAGE_SVG;

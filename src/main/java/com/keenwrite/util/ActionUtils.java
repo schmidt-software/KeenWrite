@@ -26,15 +26,10 @@
  */
 package com.keenwrite.util;
 
-import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
 import javafx.scene.Node;
-import javafx.scene.control.Button;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
-import javafx.scene.control.Separator;
-import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.ToolBar;
-import javafx.scene.control.Tooltip;
 
 /**
  * Responsible for creating menu items and toolbar buttons.
@@ -46,38 +41,13 @@ public class ActionUtils {
   }
 
   public static MenuItem[] createMenuItems( final Action... actions ) {
-    final MenuItem[] menuItems = new MenuItem[ actions.length ];
+    final var menuItems = new MenuItem[ actions.length ];
 
     for( int i = 0; i < actions.length; i++ ) {
-      menuItems[ i ] = (actions[ i ] == null)
-          ? new SeparatorMenuItem()
-          : createMenuItem( actions[ i ] );
+      menuItems[ i ] = actions[ i ].createMenuItem();
     }
 
     return menuItems;
-  }
-
-  public static MenuItem createMenuItem( final Action action ) {
-    final MenuItem menuItem = new MenuItem( action.text );
-
-    if( action.accelerator != null ) {
-      menuItem.setAccelerator( action.accelerator );
-    }
-
-    if( action.icon != null ) {
-      menuItem.setGraphic(
-          FontAwesomeIconFactory.get().createIcon( action.icon ) );
-    }
-
-    menuItem.setOnAction( action.action );
-
-    if( action.disable != null ) {
-      menuItem.disableProperty().bind( action.disable );
-    }
-
-    menuItem.setMnemonicParsing( true );
-
-    return menuItem;
   }
 
   public static ToolBar createToolBar( final Action... actions ) {
@@ -86,39 +56,11 @@ public class ActionUtils {
 
   public static Node[] createToolBarButtons( final Action... actions ) {
     Node[] buttons = new Node[ actions.length ];
+
     for( int i = 0; i < actions.length; i++ ) {
-      buttons[ i ] = (actions[ i ] != null)
-          ? createToolBarButton( actions[ i ] )
-          : new Separator();
+      buttons[ i ] = actions[ i ].createToolBarButton();
     }
+
     return buttons;
-  }
-
-  public static Button createToolBarButton( final Action action ) {
-    final Button button = new Button();
-    button.setGraphic(
-        FontAwesomeIconFactory
-            .get()
-            .createIcon( action.icon, "1.2em" ) );
-
-    String tooltip = action.text;
-
-    if( tooltip.endsWith( "..." ) ) {
-      tooltip = tooltip.substring( 0, tooltip.length() - 3 );
-    }
-
-    if( action.accelerator != null ) {
-      tooltip += " (" + action.accelerator.getDisplayText() + ')';
-    }
-
-    button.setTooltip( new Tooltip( tooltip ) );
-    button.setFocusTraversable( false );
-    button.setOnAction( action.action );
-
-    if( action.disable != null ) {
-      button.disableProperty().bind( action.disable );
-    }
-
-    return button;
   }
 }

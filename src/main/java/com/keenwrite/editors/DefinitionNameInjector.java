@@ -39,7 +39,7 @@ import java.nio.file.Path;
 import java.text.BreakIterator;
 
 import static com.keenwrite.Constants.*;
-import static com.keenwrite.StatusBarNotifier.alert;
+import static com.keenwrite.StatusBarNotifier.clue;
 import static java.lang.Character.isWhitespace;
 import static javafx.scene.input.KeyCode.SPACE;
 import static javafx.scene.input.KeyCombination.CONTROL_DOWN;
@@ -109,19 +109,19 @@ public final class DefinitionNameInjector {
 
     try {
       if( isEmptyDefinitionPane() ) {
-        alert( STATUS_DEFINITION_EMPTY );
+        clue( STATUS_DEFINITION_EMPTY );
       }
       else {
         final String word = paragraph.substring( bounds[ 0 ], bounds[ 1 ] );
 
         if( word.isBlank() ) {
-          alert( STATUS_DEFINITION_BLANK );
+          clue( STATUS_DEFINITION_BLANK );
         }
         else {
           final var leaf = findLeaf( word );
 
           if( leaf == null ) {
-            alert( STATUS_DEFINITION_MISSING, word );
+            clue( STATUS_DEFINITION_MISSING, word );
           }
           else {
             replaceText( bounds[ 0 ], bounds[ 1 ], decorate( leaf ) );
@@ -130,7 +130,7 @@ public final class DefinitionNameInjector {
         }
       }
     } catch( final Exception ignored ) {
-      alert( STATUS_DEFINITION_BLANK );
+      clue( STATUS_DEFINITION_BLANK );
     }
   }
 

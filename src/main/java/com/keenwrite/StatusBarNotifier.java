@@ -65,7 +65,7 @@ public class StatusBarNotifier {
    * @param key The resource bundle key associated with a message (typically
    *            to inform the user about an error).
    */
-  public static void alert( final String key ) {
+  public static void clue( final String key ) {
     update( get( key ) );
   }
 
@@ -75,7 +75,7 @@ public class StatusBarNotifier {
    * @param key  The property key having a value to populate with arguments.
    * @param args The placeholder values to substitute into the key's value.
    */
-  public static void alert( final String key, final Object... args ) {
+  public static void clue( final String key, final Object... args ) {
     update( get( key, args ) );
   }
 
@@ -84,7 +84,7 @@ public class StatusBarNotifier {
    *
    * @param t The exception with a message that the user should know about.
    */
-  public static void alert( final Throwable t ) {
+  public static void clue( final Throwable t ) {
     update( t.getMessage() );
   }
 

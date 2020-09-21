@@ -47,7 +47,7 @@ import java.util.logging.LogManager;
 
 import static com.keenwrite.Bootstrap.APP_TITLE;
 import static com.keenwrite.Constants.*;
-import static com.keenwrite.StatusBarNotifier.alert;
+import static com.keenwrite.StatusBarNotifier.clue;
 import static java.awt.GraphicsEnvironment.getLocalGraphicsEnvironment;
 import static java.awt.font.TextAttribute.*;
 import static javafx.scene.input.KeyCode.F11;
@@ -127,12 +127,12 @@ public final class Main extends Application {
               attributes.put( KERNING, KERNING_ON );
               ge.registerFont( font.deriveFont( attributes ) );
             } catch( final Exception e ) {
-              alert( e );
+              clue( e );
             }
           }
       );
     } catch( final Exception e ) {
-      alert( e );
+      clue( e );
     }
   }
 

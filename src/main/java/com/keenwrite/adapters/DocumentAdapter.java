@@ -29,7 +29,7 @@ package com.keenwrite.adapters;
 
 import org.xhtmlrenderer.event.DocumentListener;
 
-import static com.keenwrite.StatusBarNotifier.alert;
+import static com.keenwrite.StatusBarNotifier.clue;
 
 /**
  * Allows subclasses to implement specific events.
@@ -45,11 +45,11 @@ public class DocumentAdapter implements DocumentListener {
 
   @Override
   public void onLayoutException( final Throwable t ) {
-    alert( t );
+    clue( t );
   }
 
   @Override
   public void onRenderException( final Throwable t ) {
-    alert( t );
+    clue( t );
   }
 }

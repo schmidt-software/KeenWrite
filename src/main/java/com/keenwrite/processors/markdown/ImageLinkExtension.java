@@ -43,7 +43,7 @@ import org.renjin.repackaged.guava.base.Splitter;
 import java.io.File;
 import java.nio.file.Path;
 
-import static com.keenwrite.StatusBarNotifier.alert;
+import static com.keenwrite.StatusBarNotifier.clue;
 import static com.keenwrite.util.ProtocolResolver.getProtocol;
 import static com.vladsch.flexmark.html.HtmlRenderer.Builder;
 import static com.vladsch.flexmark.html.HtmlRenderer.HtmlRendererExtension;
@@ -159,7 +159,7 @@ public class ImageLinkExtension implements HtmlRendererExtension {
 
         return valid( link, url );
       } catch( final Exception ex ) {
-        alert( ex );
+        clue( ex );
       }
 
       return link;

@@ -29,23 +29,21 @@ package com.keenwrite.util;
 
 import javafx.scene.Node;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.Separator;
+import javafx.scene.control.SeparatorMenuItem;
 
 /**
- * Represents a menu action that can generate {@link MenuItem} instances and
- * and {@link Node} instances for a toolbar.
+ * Represents a menu bar action that has no operation, acting as a placeholder
+ * for line separators.
  */
-public abstract class Action {
-  public abstract MenuItem createMenuItem();
+public class SeparatorAction extends Action {
+  @Override
+  public MenuItem createMenuItem() {
+    return new SeparatorMenuItem();
+  }
 
-  public abstract Node createToolBarButton();
-
-  /**
-   * Adds subordinate actions to the menu. This is used to establish sub-menu
-   * relationships. The default behaviour does not wire up any registration;
-   * subclasses are responsible for handling how actions relate to one another.
-   *
-   * @param action Actions that only exist with respect to this action.
-   */
-  public void addSubActions( Action... action ) {
+  @Override
+  public Node createToolBarButton() {
+    return new Separator();
   }
 }

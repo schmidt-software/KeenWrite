@@ -76,6 +76,6 @@ public class ActionBuilder {
   }
 
   public Action build() {
-    return new Action( mText, mAccelerator, mIcon, mAction, mDisable );
+    return new MenuAction( mText, mAccelerator, mIcon, mAction, mDisable );
   }
 }

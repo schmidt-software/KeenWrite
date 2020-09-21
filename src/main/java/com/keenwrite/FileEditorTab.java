@@ -55,7 +55,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 import static com.keenwrite.Messages.get;
-import static com.keenwrite.StatusBarNotifier.alert;
+import static com.keenwrite.StatusBarNotifier.clue;
 import static com.keenwrite.StatusBarNotifier.getNotifier;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Locale.ENGLISH;
@@ -252,11 +252,11 @@ public final class FileEditorTab extends Tab {
         }
         else {
           final String msg = get( "FileEditor.loadFailed.reason.permissions" );
-          alert( "FileEditor.loadFailed.message", file.toString(), msg );
+          clue( "FileEditor.loadFailed.message", file.toString(), msg );
         }
       }
     } catch( final Exception ex ) {
-      alert( ex );
+      clue( ex );
     }
   }
 
@@ -304,7 +304,7 @@ public final class FileEditorTab extends Tab {
     try {
       service.createError( getWindow(), message ).showAndWait();
     } catch( final Exception ex ) {
-      alert( ex );
+      clue( ex );
     }
 
     return false;

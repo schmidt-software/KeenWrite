@@ -33,7 +33,7 @@ import org.w3c.dom.Document;
 
 import java.util.function.Supplier;
 
-import static com.keenwrite.StatusBarNotifier.alert;
+import static com.keenwrite.StatusBarNotifier.clue;
 
 /**
  * Responsible for rendering formulas as scalable vector graphics (SVG).
@@ -94,7 +94,7 @@ public class MathRenderer {
     try {
       return supplier.get();
     } catch( final Exception ex ) {
-      alert( ex );
+      clue( ex );
       return null;
     }
   }

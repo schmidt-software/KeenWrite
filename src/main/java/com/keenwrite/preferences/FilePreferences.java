@@ -34,7 +34,7 @@ import java.util.*;
 import java.util.prefs.AbstractPreferences;
 import java.util.prefs.BackingStoreException;
 
-import static com.keenwrite.StatusBarNotifier.alert;
+import static com.keenwrite.StatusBarNotifier.clue;
 
 /**
  * Preferences implementation that stores to a user-defined file. Local file
@@ -59,7 +59,7 @@ public class FilePreferences extends AbstractPreferences {
     try {
       sync();
     } catch( final BackingStoreException ex ) {
-      alert( ex );
+      clue( ex );
     }
   }
 
@@ -72,7 +72,7 @@ public class FilePreferences extends AbstractPreferences {
     try {
       flush();
     } catch( final BackingStoreException ex ) {
-      alert( ex );
+      clue( ex );
     }
   }
 
@@ -92,7 +92,7 @@ public class FilePreferences extends AbstractPreferences {
     try {
       flush();
     } catch( final BackingStoreException ex ) {
-      alert( ex );
+      clue( ex );
     }
   }
 
@@ -160,7 +160,7 @@ public class FilePreferences extends AbstractPreferences {
           }
         }
       } catch( final Exception ex ) {
-        alert( ex );
+        clue( ex );
       }
     }
   }
@@ -220,7 +220,7 @@ public class FilePreferences extends AbstractPreferences {
           p.store( fos, "FilePreferences" );
         }
       } catch( final Exception ex ) {
-        alert( ex );
+        clue( ex );
       }
     }
   }

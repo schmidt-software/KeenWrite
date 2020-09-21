@@ -51,7 +51,7 @@ import java.net.URI;
 import java.nio.file.Path;
 
 import static com.keenwrite.Constants.*;
-import static com.keenwrite.StatusBarNotifier.alert;
+import static com.keenwrite.StatusBarNotifier.clue;
 import static com.keenwrite.util.ProtocolResolver.getProtocol;
 import static java.awt.Desktop.Action.BROWSE;
 import static java.awt.Desktop.getDesktop;
@@ -145,7 +145,7 @@ public final class HTMLPreviewPane extends SwingNode {
             break;
         }
       } catch( final Exception ex ) {
-        alert( ex );
+        clue( ex );
       }
     }
   }

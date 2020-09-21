@@ -36,9 +36,9 @@ import com.keenwrite.definition.yaml.YamlDefinitionSource;
 import com.keenwrite.editors.DefinitionNameInjector;
 import com.keenwrite.editors.EditorPane;
 import com.keenwrite.editors.markdown.MarkdownEditorPane;
+import com.keenwrite.exceptions.MissingFileException;
 import com.keenwrite.preferences.UserPreferences;
 import com.keenwrite.preview.HTMLPreviewPane;
-import com.keenwrite.exceptions.MissingFileException;
 import com.keenwrite.processors.HtmlPreviewProcessor;
 import com.keenwrite.processors.Processor;
 import com.keenwrite.processors.ProcessorFactory;
@@ -51,6 +51,7 @@ import com.keenwrite.spelling.impl.SymSpellSpeller;
 import com.keenwrite.util.Action;
 import com.keenwrite.util.ActionBuilder;
 import com.keenwrite.util.ActionUtils;
+import com.keenwrite.util.SeparatorAction;
 import com.vladsch.flexmark.parser.Parser;
 import com.vladsch.flexmark.util.ast.NodeVisitor;
 import com.vladsch.flexmark.util.ast.VisitHandler;
@@ -98,7 +99,7 @@ import java.util.stream.Collectors;
 import static com.keenwrite.Bootstrap.APP_TITLE;
 import static com.keenwrite.Constants.*;
 import static com.keenwrite.Messages.get;
-import static com.keenwrite.StatusBarNotifier.alert;
+import static com.keenwrite.StatusBarNotifier.clue;
 import static com.keenwrite.util.StageState.*;
 import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.*;
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -456,7 +457,7 @@ public class MainWindow implements Observer {
             try {
               consumer.accept( null );
             } catch( final Exception ex ) {
-              alert( ex );
+              clue( ex );
             }
           }
         } );
@@ -517,7 +518,7 @@ public class MainWindow implements Observer {
       try {
         processChain( processor, tab.getEditorText() );
       } catch( final Exception ex ) {
-        alert( ex );
+        clue( ex );
       }
     }
   }
@@ -568,7 +569,7 @@ public class MainWindow implements Observer {
 
       interpolateResolvedMap();
     } catch( final Exception ex ) {
-      alert( ex );
+      clue( ex );
     }
   }
 
@@ -582,10 +583,10 @@ public class MainWindow implements Observer {
         getDefinitionSource().getTreeAdapter().export( root, path );
       }
       else {
-        alert( "yaml.error.tree.form", problemChild.getValue() );
+        clue( "yaml.error.tree.form", problemChild.getValue() );
       }
     } catch( final Exception ex ) {
-      alert( ex );
+      clue( ex );
     }
   }
 
@@ -669,12 +670,20 @@ public class MainWindow implements Observer {
     try {
       process( editor );
     } catch( final Exception ex ) {
-      alert( ex );
+      clue( ex );
     }
   }
 
   private void fileSaveAll() {
     getFileEditorPane().saveAllEditors();
+  }
+
+  private void fileExportHtmlSvg() {
+    //getFileEditorPane().export(ExportType.HTML.SVG);
+  }
+
+  private void fileExportHtmlTex() {
+    //getFileEditorPane().export(ExportType.HTML.TEX);
   }
 
   private void fileExit() {
@@ -766,7 +775,7 @@ public class MainWindow implements Observer {
       final Collection<String> lexicon = readLexicon( "en.txt" );
       return SymSpellSpeller.forLexicon( lexicon );
     } catch( final Exception ex ) {
-      alert( ex );
+      clue( ex );
       return new PermissiveSpeller();
     }
   }
@@ -801,7 +810,7 @@ public class MainWindow implements Observer {
     try {
       return createDefinitionFactory().createDefinitionSource( path );
     } catch( final Exception ex ) {
-      alert( ex );
+      clue( ex );
       return createDefaultDefinitionSource();
     }
   }
@@ -907,6 +916,20 @@ public class MainWindow implements Observer {
         .setDisable( Bindings.not(
             getFileEditorPane().anyFileEditorModifiedProperty() ) )
         .build();
+    final Action fileExportAction = new ActionBuilder()
+        .setText( "Main.menu.file.export" )
+        .build();
+    final Action fileExportHtmlSvgAction = new ActionBuilder()
+        .setText( "Main.menu.file.export.html_svg" )
+        .setAction( e -> fileExportHtmlSvg() )
+        .build();
+    final Action fileExportHtmlTexAction = new ActionBuilder()
+        .setText( "Main.menu.file.export.html_tex" )
+        .setAction( e -> fileExportHtmlTex() )
+        .build();
+    fileExportAction.addSubActions(
+        fileExportHtmlSvgAction, fileExportHtmlTexAction );
+
     final Action fileExitAction = new ActionBuilder()
         .setText( "Main.menu.file.exit" )
         .setAction( e -> fileExit() )
@@ -975,7 +998,6 @@ public class MainWindow implements Observer {
     final Action editFindNextAction = new ActionBuilder()
         .setText( "Main.menu.edit.find.next" )
         .setAccelerator( "F3" )
-        .setIcon( null )
         .setAction( e -> editFindNext() )
         .setDisable( activeFileEditorIsNull )
         .build();
@@ -1124,6 +1146,8 @@ public class MainWindow implements Observer {
         .setAction( e -> helpAbout() )
         .build();
 
+    final Action SEPARATOR_ACTION = new SeparatorAction();
+
     //---- MenuBar ----
 
     // File Menu
@@ -1131,32 +1155,34 @@ public class MainWindow implements Observer {
         get( "Main.menu.file" ),
         fileNewAction,
         fileOpenAction,
-        null,
+        SEPARATOR_ACTION,
         fileCloseAction,
         fileCloseAllAction,
-        null,
+        SEPARATOR_ACTION,
         fileSaveAction,
         fileSaveAsAction,
         fileSaveAllAction,
-        null,
+        SEPARATOR_ACTION,
+        fileExportAction,
+        SEPARATOR_ACTION,
         fileExitAction );
 
     // Edit Menu
     final var editMenu = ActionUtils.createMenu(
         get( "Main.menu.edit" ),
         editCopyHtmlAction,
-        null,
+        SEPARATOR_ACTION,
         editUndoAction,
         editRedoAction,
-        null,
+        SEPARATOR_ACTION,
         editCutAction,
         editCopyAction,
         editPasteAction,
         editSelectAllAction,
-        null,
+        SEPARATOR_ACTION,
         editFindAction,
         editFindNextAction,
-        null,
+        SEPARATOR_ACTION,
         editPreferencesAction );
 
     // Format Menu
@@ -1175,14 +1201,14 @@ public class MainWindow implements Observer {
         insertBlockquoteAction,
         insertCodeAction,
         insertFencedCodeBlockAction,
-        null,
+        SEPARATOR_ACTION,
         insertLinkAction,
         insertImageAction,
-        null,
+        SEPARATOR_ACTION,
         headings[ 0 ],
         headings[ 1 ],
         headings[ 2 ],
-        null,
+        SEPARATOR_ACTION,
         insertUnorderedListAction,
         insertOrderedListAction,
         insertHorizontalRuleAction
@@ -1213,13 +1239,13 @@ public class MainWindow implements Observer {
         fileNewAction,
         fileOpenAction,
         fileSaveAction,
-        null,
+        SEPARATOR_ACTION,
         editUndoAction,
         editRedoAction,
         editCutAction,
         editCopyAction,
         editPasteAction,
-        null,
+        SEPARATOR_ACTION,
         formatBoldAction,
         formatItalicAction,
         formatSuperscriptAction,
@@ -1227,12 +1253,12 @@ public class MainWindow implements Observer {
         insertBlockquoteAction,
         insertCodeAction,
         insertFencedCodeBlockAction,
-        null,
+        SEPARATOR_ACTION,
         insertLinkAction,
         insertImageAction,
-        null,
+        SEPARATOR_ACTION,
         headings[ 0 ],
-        null,
+        SEPARATOR_ACTION,
         insertUnorderedListAction,
         insertOrderedListAction );
 

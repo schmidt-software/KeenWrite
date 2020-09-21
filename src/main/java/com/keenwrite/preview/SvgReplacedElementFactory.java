@@ -42,7 +42,7 @@ import java.awt.image.BufferedImage;
 import java.util.Map;
 import java.util.function.Function;
 
-import static com.keenwrite.StatusBarNotifier.alert;
+import static com.keenwrite.StatusBarNotifier.clue;
 import static com.keenwrite.preview.SvgRasterizer.rasterize;
 import static com.keenwrite.processors.markdown.tex.TeXNode.HTML_TEX;
 
@@ -115,7 +115,7 @@ public class SvgReplacedElementFactory implements ReplacedElementFactory {
           );
         }
       } catch( final Exception ex ) {
-        alert( ex );
+        clue( ex );
       }
     }
 
