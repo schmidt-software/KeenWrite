@@ -99,6 +99,7 @@ import static com.keenwrite.Constants.*;
 import static com.keenwrite.Messages.get;
 import static com.keenwrite.OutputFormat.*;
 import static com.keenwrite.StatusBarNotifier.clue;
+import static com.keenwrite.processors.ProcessorFactory.processChain;
 import static com.keenwrite.util.StageState.*;
 import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.*;
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -522,22 +523,6 @@ public class MainWindow implements Observer {
     }
   }
 
-  /**
-   * Executes the processing chain, operating on the given string.
-   *
-   * @param handler The first processor in the chain to call.
-   * @param text    The initial value of the text to process.
-   * @return The final value of the text that was processed by the chain.
-   */
-  private String processChain( Processor<String> handler, String text ) {
-    while( handler != null && text != null ) {
-      text = handler.apply( text );
-      handler = handler.next();
-    }
-
-    return text;
-  }
-
   private void renderActiveTab() {
     process( getActiveFileEditorTab() );
   }
@@ -763,20 +748,16 @@ public class MainWindow implements Observer {
    */
   private Processor<String> createProcessors( final FileEditorTab tab ) {
     final var context = createProcessorContext( tab );
-
     return ProcessorFactory.createProcessors( context );
   }
 
   private ProcessorContext createProcessorContext( final FileEditorTab tab ) {
-    return new ProcessorContext(
-        getPreviewPane(), getResolvedMap(), tab.getPath()
-    );
+    final var path = tab.getPath();
+    return new ProcessorContext( getPreviewPane(), getResolvedMap(), path );
   }
 
   private ProcessorContext createProcessorContext( final OutputFormat format ) {
-    return new ProcessorContext(
-        getPreviewPane(), getResolvedMap(), format
-    );
+    return new ProcessorContext( getPreviewPane(), getResolvedMap(), format );
   }
 
   private DefinitionPane createDefinitionPane() {

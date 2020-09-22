@@ -93,6 +93,22 @@ public class ProcessorFactory extends AbstractFileFactory {
   }
   */
 
+  /**
+   * Executes the processing chain, operating on the given string.
+   *
+   * @param handler The first processor in the chain to call.
+   * @param text    The initial value of the text to process.
+   * @return The final value of the text that was processed by the chain.
+   */
+  public static String processChain( Processor<String> handler, String text ) {
+    while( handler != null && text != null ) {
+      text = handler.apply( text );
+      handler = handler.next();
+    }
+
+    return text;
+  }
+
   private Processor<String> createHTMLPreviewProcessor() {
     return new HtmlPreviewProcessor( getPreviewPane() );
   }
