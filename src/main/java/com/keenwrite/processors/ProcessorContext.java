@@ -27,14 +27,15 @@
  */
 package com.keenwrite.processors;
 
+import com.keenwrite.ExportFormat;
 import com.keenwrite.FileType;
-import com.keenwrite.OutputFormat;
 import com.keenwrite.preview.HTMLPreviewPane;
 
 import java.nio.file.Path;
 import java.util.Map;
 
 import static com.keenwrite.AbstractFileFactory.lookup;
+import static com.keenwrite.ExportFormat.NONE;
 
 /**
  * Provides a context for configuring a chain of {@link Processor} instances.
@@ -42,28 +43,37 @@ import static com.keenwrite.AbstractFileFactory.lookup;
 public class ProcessorContext {
   private final HTMLPreviewPane mPreviewPane;
   private final Map<String, String> mResolvedMap;
-  private final OutputFormat mOutputFormat;
+  private final ExportFormat mExportFormat;
   private final FileType mFileType;
   private final Path mPath;
 
-  public ProcessorContext( final HTMLPreviewPane previewPane,
-                           final Map<String, String> resolvedMap,
-                           final OutputFormat format ) {
-    mPreviewPane = previewPane;
-    mResolvedMap = resolvedMap;
-    mPath = null;
-    mFileType = null;
-    mOutputFormat = format;
-  }
-
-  public ProcessorContext( final HTMLPreviewPane previewPane,
-                           final Map<String, String> resolvedMap,
-                           final Path path ) {
+  public ProcessorContext(
+      final HTMLPreviewPane previewPane,
+      final Map<String, String> resolvedMap,
+      final Path path,
+      final ExportFormat format ) {
     mPreviewPane = previewPane;
     mResolvedMap = resolvedMap;
     mPath = path;
     mFileType = lookup( path );
-    mOutputFormat = null;
+    mExportFormat = format;
+  }
+
+  /**
+   * Creates a new context for use by the {@link ProcessorFactory} when
+   * instantiating new {@link Processor} instances. Although all the
+   * parameters are required, not all {@link Processor} instances will use
+   * all parameters.
+   *
+   * @param previewPane Where to display the final (HTML) output.
+   * @param resolvedMap Fully expanded interpolated strings.
+   * @param path        Path to the document to process.
+   */
+  public ProcessorContext(
+      final HTMLPreviewPane previewPane,
+      final Map<String, String> resolvedMap,
+      final Path path ) {
+    this( previewPane, resolvedMap, path, NONE );
   }
 
   public HTMLPreviewPane getPreviewPane() {
@@ -82,7 +92,7 @@ public class ProcessorContext {
     return mFileType;
   }
 
-  public OutputFormat getOutputFormat() {
-    return mOutputFormat;
+  public boolean isExportFormat( final ExportFormat format ) {
+    return mExportFormat == format;
   }
 }

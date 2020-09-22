@@ -28,6 +28,7 @@
 package com.keenwrite.processors;
 
 import com.keenwrite.AbstractFileFactory;
+import com.keenwrite.ExportFormat;
 import com.keenwrite.preview.HTMLPreviewPane;
 import com.keenwrite.processors.markdown.MarkdownProcessor;
 
@@ -54,6 +55,26 @@ public class ProcessorFactory extends AbstractFileFactory {
     mMarkdownProcessor = createMarkdownProcessor();
   }
 
+  private Processor<String> createProcessor() {
+    final ProcessorContext context = getContext();
+    final Processor<String> processor;
+
+    if( context.isExportFormat( ExportFormat.NONE ) ) {
+      processor = switch( context.getFileType() ) {
+        case RMARKDOWN -> createRProcessor();
+        case SOURCE -> createMarkdownDefinitionProcessor();
+        case XML -> createXMLProcessor();
+        case RXML -> createRXMLProcessor();
+        default -> createIdentityProcessor();
+      };
+    }
+    else {
+      processor = null;
+    }
+
+    return processor;
+  }
+
   /**
    * Creates a processor chain suitable for parsing and rendering the file
    * opened at the given tab.
@@ -63,35 +84,8 @@ public class ProcessorFactory extends AbstractFileFactory {
    */
   public static Processor<String> createProcessors(
       final ProcessorContext context ) {
-    final var factory = new ProcessorFactory( context );
-
-    return switch( context.getFileType() ) {
-      case RMARKDOWN -> factory.createRProcessor();
-      case SOURCE -> factory.createMarkdownDefinitionProcessor();
-      case XML -> factory.createXMLProcessor();
-      case RXML -> factory.createRXMLProcessor();
-      default -> factory.createIdentityProcessor();
-    };
+    return new ProcessorFactory( context ).createProcessor();
   }
-
-  /*
-  public Processor<String> createProcessors(
-      final FileEditorTab tab, final OutputFormat format ) {
-    var chain = createProcessors( tab );
-    chain.remove( HtmlPreviewProcessor.class );
-
-    if( format.isHtml() ) {
-      switch( format ) {
-        case HTML_SVG:
-          break;
-        case HTML_TEX:
-          break;
-      }
-    }
-
-    return chain;
-  }
-  */
 
   /**
    * Executes the processing chain, operating on the given string.

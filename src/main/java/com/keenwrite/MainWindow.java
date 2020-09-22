@@ -96,8 +96,8 @@ import java.util.stream.Collectors;
 
 import static com.keenwrite.Bootstrap.APP_TITLE;
 import static com.keenwrite.Constants.*;
+import static com.keenwrite.ExportFormat.*;
 import static com.keenwrite.Messages.get;
-import static com.keenwrite.OutputFormat.*;
 import static com.keenwrite.StatusBarNotifier.clue;
 import static com.keenwrite.processors.ProcessorFactory.processChain;
 import static com.keenwrite.util.StageState.*;
@@ -662,7 +662,7 @@ public class MainWindow implements Observer {
     getFileEditorPane().saveAllEditors();
   }
 
-  private void fileExport( final OutputFormat format ) {
+  private void fileExport( final ExportFormat format ) {
     final var tab = getActiveFileEditorTab();
     final var context = createProcessorContext( format );
     final var chain = ProcessorFactory.createProcessors( context );
@@ -752,12 +752,17 @@ public class MainWindow implements Observer {
   }
 
   private ProcessorContext createProcessorContext( final FileEditorTab tab ) {
+    final var pane = getPreviewPane();
+    final var map = getResolvedMap();
     final var path = tab.getPath();
-    return new ProcessorContext( getPreviewPane(), getResolvedMap(), path );
+    return new ProcessorContext( pane, map, path );
   }
 
-  private ProcessorContext createProcessorContext( final OutputFormat format ) {
-    return new ProcessorContext( getPreviewPane(), getResolvedMap(), format );
+  private ProcessorContext createProcessorContext( final ExportFormat format ) {
+    final var pane = getPreviewPane();
+    final var map = getResolvedMap();
+    final var path = getActiveFileEditorTab().getPath();
+    return new ProcessorContext( pane, map, path, format );
   }
 
   private DefinitionPane createDefinitionPane() {

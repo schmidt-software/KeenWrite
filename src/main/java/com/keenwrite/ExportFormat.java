@@ -30,7 +30,7 @@ package com.keenwrite;
 /**
  * Provides controls for processor behaviour when transforming input documents.
  */
-public enum OutputFormat {
+public enum ExportFormat {
 
   /**
    * For HTML exports, encode TeX as SVG.
@@ -46,7 +46,12 @@ public enum OutputFormat {
   /**
    * Indicates that the processors should export to a Markdown format.
    */
-  MARKDOWN_PLAIN;
+  MARKDOWN_PLAIN,
+
+  /**
+   * Indicates no export format is to be created.
+   */
+  NONE;
 
   public boolean isHtml() {
     return this == HTML_SVG || this == HTML_TEX;
