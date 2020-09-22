@@ -669,6 +669,9 @@ public class MainWindow implements Observer {
     final var doc = tab.getEditorText();
     final var export = processChain( chain, doc );
 
+    // Gotta' save this somewhere.
+    System.out.println( export );
+
     clue( tab.getPath().toString() );
   }
 

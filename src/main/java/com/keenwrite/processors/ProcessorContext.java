@@ -76,23 +76,28 @@ public class ProcessorContext {
     this( previewPane, resolvedMap, path, NONE );
   }
 
-  public HTMLPreviewPane getPreviewPane() {
+  HTMLPreviewPane getPreviewPane() {
     return mPreviewPane;
   }
 
-  public Map<String, String> getResolvedMap() {
+  Map<String, String> getResolvedMap() {
     return mResolvedMap;
   }
 
-  public Path getPath() {
+  Path getPath() {
     return mPath;
   }
 
-  public FileType getFileType() {
+  FileType getFileType() {
     return mFileType;
   }
 
-  public boolean isExportFormat( final ExportFormat format ) {
+  @SuppressWarnings("SameParameterValue")
+  boolean isExportFormat( final ExportFormat format ) {
     return mExportFormat == format;
+  }
+
+  ExportFormat getExportFormat() {
+    return mExportFormat;
   }
 }

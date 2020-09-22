@@ -28,12 +28,13 @@
 package com.keenwrite.processors;
 
 import com.keenwrite.AbstractFileFactory;
-import com.keenwrite.ExportFormat;
 import com.keenwrite.preview.HTMLPreviewPane;
 import com.keenwrite.processors.markdown.MarkdownProcessor;
 
 import java.nio.file.Path;
 import java.util.Map;
+
+import static com.keenwrite.ExportFormat.NONE;
 
 /**
  * Responsible for creating processors capable of parsing, transforming,
@@ -56,23 +57,29 @@ public class ProcessorFactory extends AbstractFileFactory {
   }
 
   private Processor<String> createProcessor() {
-    final ProcessorContext context = getContext();
-    final Processor<String> processor;
+    final ProcessorContext context = getProcessorContext();
 
-    if( context.isExportFormat( ExportFormat.NONE ) ) {
-      processor = switch( context.getFileType() ) {
-        case RMARKDOWN -> createRProcessor();
-        case SOURCE -> createMarkdownDefinitionProcessor();
-        case XML -> createXMLProcessor();
-        case RXML -> createRXMLProcessor();
-        default -> createIdentityProcessor();
-      };
+    final Processor<String> successor;
+
+    if( context.isExportFormat( NONE ) ) {
+      successor = getCommonProcessor();
     }
     else {
-      processor = null;
+      successor = switch( context.getExportFormat() ) {
+        case HTML_SVG -> createHtmlSvgProcessor();
+        case HTML_TEX -> createHtmlTexProcessor();
+        case MARKDOWN_PLAIN -> createMarkdownPlainProcessor();
+        case NONE -> null;
+      };
     }
 
-    return processor;
+    return switch( context.getFileType() ) {
+      case RMARKDOWN -> createRProcessor( successor );
+      case SOURCE -> createMarkdownDefinitionProcessor( successor );
+      case RXML -> createRXMLProcessor( successor );
+      case XML -> createXMLProcessor( successor );
+      default -> createHtmlPreProcessor();
+    };
   }
 
   /**
@@ -117,55 +124,58 @@ public class ProcessorFactory extends AbstractFileFactory {
     return new MarkdownProcessor( hpp, getPreviewPane().getPath() );
   }
 
-  protected Processor<String> createIdentityProcessor() {
-    final var hpp = createHTMLPreviewProcessor();
-    return new IdentityProcessor( hpp );
+  private Processor<String> createHtmlPreProcessor(
+      final Processor<String> successor ) {
+    return new HtmlPreProcessor( successor );
   }
 
-  protected Processor<String> createDefinitionProcessor(
-      final Processor<String> p ) {
-    return new DefinitionProcessor( p, getResolvedMap() );
+  private Processor<String> createIdentityProcessor() {
+    return new IdentityProcessor( null );
   }
 
-  protected Processor<String> createMarkdownDefinitionProcessor() {
-    final var tpc = getCommonProcessor();
-    return createDefinitionProcessor( tpc );
+  private Processor<String> createHtmlPreProcessor() {
+    return createHtmlPreProcessor( createHTMLPreviewProcessor() );
   }
 
-  protected Processor<String> createXMLProcessor() {
-    final var tpc = getCommonProcessor();
-    final var xmlp = new XmlProcessor( tpc, getPath() );
-    return createDefinitionProcessor( xmlp );
+  private Processor<String> createDefinitionProcessor(
+      final Processor<String> successor ) {
+    return new DefinitionProcessor( successor, getResolvedMap() );
   }
 
-  private Processor<String> createRProcessor() {
-    final var tpc = getCommonProcessor();
-    final var rp = new InlineRProcessor( tpc, getResolvedMap() );
+  private Processor<String> createRProcessor(
+      final Processor<String> successor ) {
+    final var rp = new InlineRProcessor( successor, getResolvedMap() );
     return new RVariableProcessor( rp, getResolvedMap() );
   }
 
-  protected Processor<String> createRXMLProcessor() {
-    final var tpc = getCommonProcessor();
-    final var xmlp = new XmlProcessor( tpc, getPath() );
+  private Processor<String> createMarkdownDefinitionProcessor(
+      final Processor<String> successor ) {
+    return createDefinitionProcessor( successor );
+  }
+
+  protected Processor<String> createRXMLProcessor(
+      final Processor<String> successor ) {
+    final var xmlp = new XmlProcessor( successor, getPath() );
     final var rp = new InlineRProcessor( xmlp, getResolvedMap() );
     return new RVariableProcessor( rp, getResolvedMap() );
   }
 
-  private HTMLPreviewPane getPreviewPane() {
-    return getContext().getPreviewPane();
+  private Processor<String> createXMLProcessor(
+      final Processor<String> successor ) {
+    final var xmlp = new XmlProcessor( successor, getPath() );
+    return createDefinitionProcessor( xmlp );
   }
 
-  /**
-   * Returns the variable map of interpolated definitions.
-   *
-   * @return A map to help dereference variables.
-   */
-  private Map<String, String> getResolvedMap() {
-    return getContext().getResolvedMap();
+  private Processor<String> createHtmlSvgProcessor() {
+    return new MarkdownProcessor( null, getPreviewPane().getPath() );
   }
 
-  private Path getPath() {
-    return getContext().getPath();
+  private Processor<String> createHtmlTexProcessor() {
+    return new MarkdownProcessor( null, getPreviewPane().getPath() );
+  }
+
+  private Processor<String> createMarkdownPlainProcessor() {
+    return createIdentityProcessor();
   }
 
   /**
@@ -178,7 +188,24 @@ public class ProcessorFactory extends AbstractFileFactory {
     return mMarkdownProcessor;
   }
 
-  private ProcessorContext getContext() {
+  private ProcessorContext getProcessorContext() {
     return mProcessorContext;
+  }
+
+  private HTMLPreviewPane getPreviewPane() {
+    return getProcessorContext().getPreviewPane();
+  }
+
+  /**
+   * Returns the variable map of interpolated definitions.
+   *
+   * @return A map to help dereference variables.
+   */
+  private Map<String, String> getResolvedMap() {
+    return getProcessorContext().getResolvedMap();
+  }
+
+  private Path getPath() {
+    return getProcessorContext().getPath();
   }
 }

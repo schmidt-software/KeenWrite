@@ -28,11 +28,11 @@
 package com.keenwrite.processors;
 
 /**
- * Responsible for transforming a string into itself. This is typically used
- * at the end of a processing chain when no more processing is required, such
- * as when exporting files.
+ * This is the default processor used when an unknown filename extension is
+ * encountered. It processes the text by enclosing it in an HTML {@code <pre>}
+ * element.
  */
-public class IdentityProcessor extends AbstractProcessor<String> {
+public class HtmlPreProcessor extends AbstractProcessor<String> {
 
   /**
    * Passes the link to the super constructor.
@@ -40,18 +40,18 @@ public class IdentityProcessor extends AbstractProcessor<String> {
    * @param successor The next processor in the chain to use for text
    *                  processing.
    */
-  public IdentityProcessor( final Processor<String> successor ) {
+  public HtmlPreProcessor( final Processor<String> successor ) {
     super( successor );
   }
 
   /**
-   * Returns the given string without modification.
+   * Returns the given string, modified with "pre" tags.
    *
-   * @param s The string to return.
-   * @return The value of s.
+   * @param t The string to return, enclosed in "pre" tags.
+   * @return The value of t wrapped in "pre" tags.
    */
   @Override
-  public String apply( final String s ) {
-    return s;
+  public String apply( final String t ) {
+    return "<pre>" + t + "</pre>";
   }
 }
