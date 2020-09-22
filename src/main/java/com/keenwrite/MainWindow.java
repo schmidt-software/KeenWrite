@@ -39,8 +39,8 @@ import com.keenwrite.editors.markdown.MarkdownEditorPane;
 import com.keenwrite.exceptions.MissingFileException;
 import com.keenwrite.preferences.UserPreferences;
 import com.keenwrite.preview.HTMLPreviewPane;
-import com.keenwrite.processors.HtmlPreviewProcessor;
 import com.keenwrite.processors.Processor;
+import com.keenwrite.processors.ProcessorContext;
 import com.keenwrite.processors.ProcessorFactory;
 import com.keenwrite.service.Options;
 import com.keenwrite.service.Snitch;
@@ -71,8 +71,6 @@ import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.Clipboard;
-import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
@@ -99,6 +97,7 @@ import java.util.stream.Collectors;
 import static com.keenwrite.Bootstrap.APP_TITLE;
 import static com.keenwrite.Constants.*;
 import static com.keenwrite.Messages.get;
+import static com.keenwrite.OutputFormat.*;
 import static com.keenwrite.StatusBarNotifier.clue;
 import static com.keenwrite.util.StageState.*;
 import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.*;
@@ -678,12 +677,14 @@ public class MainWindow implements Observer {
     getFileEditorPane().saveAllEditors();
   }
 
-  private void fileExportHtmlSvg() {
-    //getFileEditorPane().export(ExportType.HTML.SVG);
-  }
+  private void fileExport( final OutputFormat format ) {
+    final var tab = getActiveFileEditorTab();
+    final var context = createProcessorContext( format );
+    final var chain = ProcessorFactory.createProcessors( context );
+    final var doc = tab.getEditorText();
+    final var export = processChain( chain, doc );
 
-  private void fileExportHtmlTex() {
-    //getFileEditorPane().export(ExportType.HTML.TEX);
+    clue( tab.getPath().toString() );
   }
 
   private void fileExit() {
@@ -692,26 +693,6 @@ public class MainWindow implements Observer {
   }
 
   //---- Edit actions -------------------------------------------------------
-
-  /**
-   * Transform the Markdown into HTML then copy that HTML into the copy
-   * buffer.
-   */
-  private void copyHtml() {
-    final var markdown = getActiveEditorPane().getText();
-    final var processors = createProcessorFactory().createProcessors(
-        getActiveFileEditorTab()
-    );
-
-    final var chain = processors.remove( HtmlPreviewProcessor.class );
-
-    final String html = processChain( chain, markdown );
-
-    final Clipboard clipboard = Clipboard.getSystemClipboard();
-    final ClipboardContent content = new ClipboardContent();
-    content.putString( html );
-    clipboard.setContent( content );
-  }
 
   /**
    * Used to find text in the active file editor window.
@@ -749,12 +730,6 @@ public class MainWindow implements Observer {
     getActiveEditorPane().surroundSelection( leading, trailing, hint );
   }
 
-  //---- View actions -------------------------------------------------------
-
-  private void viewRefresh() {
-    rerender();
-  }
-
   //---- Help actions -------------------------------------------------------
 
   private void helpAbout() {
@@ -781,17 +756,27 @@ public class MainWindow implements Observer {
   }
 
   /**
-   * Factory to create processors that are suited to different file types.
+   * Creates processors suited to parsing and rendering different file types.
    *
    * @param tab The tab that is subjected to processing.
    * @return A processor suited to the file type specified by the tab's path.
    */
   private Processor<String> createProcessors( final FileEditorTab tab ) {
-    return createProcessorFactory().createProcessors( tab );
+    final var context = createProcessorContext( tab );
+
+    return ProcessorFactory.createProcessors( context );
   }
 
-  private ProcessorFactory createProcessorFactory() {
-    return new ProcessorFactory( getPreviewPane(), getResolvedMap() );
+  private ProcessorContext createProcessorContext( final FileEditorTab tab ) {
+    return new ProcessorContext(
+        getPreviewPane(), getResolvedMap(), tab.getPath()
+    );
+  }
+
+  private ProcessorContext createProcessorContext( final OutputFormat format ) {
+    return new ProcessorContext(
+        getPreviewPane(), getResolvedMap(), format
+    );
   }
 
   private DefinitionPane createDefinitionPane() {
@@ -921,14 +906,20 @@ public class MainWindow implements Observer {
         .build();
     final Action fileExportHtmlSvgAction = new ActionBuilder()
         .setText( "Main.menu.file.export.html_svg" )
-        .setAction( e -> fileExportHtmlSvg() )
+        .setAction( e -> fileExport( HTML_SVG ) )
         .build();
     final Action fileExportHtmlTexAction = new ActionBuilder()
         .setText( "Main.menu.file.export.html_tex" )
-        .setAction( e -> fileExportHtmlTex() )
+        .setAction( e -> fileExport( HTML_TEX ) )
+        .build();
+    final Action fileExportMarkdownAction = new ActionBuilder()
+        .setText( "Main.menu.file.export.markdown" )
+        .setAction( e -> fileExport( MARKDOWN_PLAIN ) )
         .build();
     fileExportAction.addSubActions(
-        fileExportHtmlSvgAction, fileExportHtmlTexAction );
+        fileExportHtmlSvgAction,
+        fileExportHtmlTexAction,
+        fileExportMarkdownAction );
 
     final Action fileExitAction = new ActionBuilder()
         .setText( "Main.menu.file.exit" )
@@ -936,13 +927,6 @@ public class MainWindow implements Observer {
         .build();
 
     // Edit actions
-    final Action editCopyHtmlAction = new ActionBuilder()
-        .setText( "Main.menu.edit.copy.html" )
-        .setIcon( HTML5 )
-        .setAction( e -> copyHtml() )
-        .setDisable( activeFileEditorIsNull )
-        .build();
-
     final Action editUndoAction = new ActionBuilder()
         .setText( "Main.menu.edit.undo" )
         .setAccelerator( "Shortcut+Z" )
@@ -1170,7 +1154,6 @@ public class MainWindow implements Observer {
     // Edit Menu
     final var editMenu = ActionUtils.createMenu(
         get( "Main.menu.edit" ),
-        editCopyHtmlAction,
         SEPARATOR_ACTION,
         editUndoAction,
         editRedoAction,

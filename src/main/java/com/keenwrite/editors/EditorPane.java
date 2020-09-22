@@ -44,7 +44,7 @@ import org.fxmisc.wellbehaved.event.Nodes;
 import java.nio.file.Path;
 import java.util.function.Consumer;
 
-import static com.keenwrite.StatusBarNotifier.clearAlert;
+import static com.keenwrite.StatusBarNotifier.clearClue;
 import static java.lang.String.format;
 import static javafx.application.Platform.runLater;
 import static org.fxmisc.wellbehaved.event.InputMap.consume;
@@ -75,7 +75,7 @@ public class EditorPane extends Pane {
     // persists, re-rendering the document will re-raise the error. If there
     // was no previous error, clearing the alert is essentially a no-op.
     mEditor.textProperty().addListener(
-        ( l, o, n ) -> clearAlert()
+        ( l, o, n ) -> clearClue()
     );
   }
 

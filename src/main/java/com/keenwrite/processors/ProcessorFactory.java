@@ -28,10 +28,10 @@
 package com.keenwrite.processors;
 
 import com.keenwrite.AbstractFileFactory;
-import com.keenwrite.FileEditorTab;
 import com.keenwrite.preview.HTMLPreviewPane;
 import com.keenwrite.processors.markdown.MarkdownProcessor;
 
+import java.nio.file.Path;
 import java.util.Map;
 
 /**
@@ -40,22 +40,17 @@ import java.util.Map;
  */
 public class ProcessorFactory extends AbstractFileFactory {
 
-  private final HTMLPreviewPane mPreviewPane;
-  private final Map<String, String> mResolvedMap;
+  private final ProcessorContext mProcessorContext;
   private final Processor<String> mMarkdownProcessor;
 
   /**
    * Constructs a factory with the ability to create processors that can perform
    * text and caret processing to generate a final preview.
    *
-   * @param previewPane Where the final output is rendered.
-   * @param resolvedMap Flat map of definitions to replace before final render.
+   * @param processorContext Parameters needed to construct various processors.
    */
-  public ProcessorFactory(
-      final HTMLPreviewPane previewPane,
-      final Map<String, String> resolvedMap ) {
-    mPreviewPane = previewPane;
-    mResolvedMap = resolvedMap;
+  private ProcessorFactory( final ProcessorContext processorContext ) {
+    mProcessorContext = processorContext;
     mMarkdownProcessor = createMarkdownProcessor();
   }
 
@@ -63,18 +58,40 @@ public class ProcessorFactory extends AbstractFileFactory {
    * Creates a processor chain suitable for parsing and rendering the file
    * opened at the given tab.
    *
-   * @param tab The tab containing a text editor, path, and caret position.
+   * @param context The tab containing a text editor, path, and caret position.
    * @return A processor that can render the given tab's text.
    */
-  public Processor<String> createProcessors( final FileEditorTab tab ) {
-    return switch( lookup( tab.getPath() ) ) {
-      case RMARKDOWN -> createRProcessor();
-      case SOURCE -> createMarkdownDefinitionProcessor();
-      case XML -> createXMLProcessor( tab );
-      case RXML -> createRXMLProcessor( tab );
-      default -> createIdentityProcessor();
+  public static Processor<String> createProcessors(
+      final ProcessorContext context ) {
+    final var factory = new ProcessorFactory( context );
+
+    return switch( context.getFileType() ) {
+      case RMARKDOWN -> factory.createRProcessor();
+      case SOURCE -> factory.createMarkdownDefinitionProcessor();
+      case XML -> factory.createXMLProcessor();
+      case RXML -> factory.createRXMLProcessor();
+      default -> factory.createIdentityProcessor();
     };
   }
+
+  /*
+  public Processor<String> createProcessors(
+      final FileEditorTab tab, final OutputFormat format ) {
+    var chain = createProcessors( tab );
+    chain.remove( HtmlPreviewProcessor.class );
+
+    if( format.isHtml() ) {
+      switch( format ) {
+        case HTML_SVG:
+          break;
+        case HTML_TEX:
+          break;
+      }
+    }
+
+    return chain;
+  }
+  */
 
   private Processor<String> createHTMLPreviewProcessor() {
     return new HtmlPreviewProcessor( getPreviewPane() );
@@ -105,27 +122,27 @@ public class ProcessorFactory extends AbstractFileFactory {
     return createDefinitionProcessor( tpc );
   }
 
-  protected Processor<String> createXMLProcessor( final FileEditorTab tab ) {
+  protected Processor<String> createXMLProcessor() {
     final var tpc = getCommonProcessor();
-    final var xmlp = new XmlProcessor( tpc, tab.getPath() );
+    final var xmlp = new XmlProcessor( tpc, getPath() );
     return createDefinitionProcessor( xmlp );
   }
 
-  protected Processor<String> createRProcessor() {
+  private Processor<String> createRProcessor() {
     final var tpc = getCommonProcessor();
     final var rp = new InlineRProcessor( tpc, getResolvedMap() );
     return new RVariableProcessor( rp, getResolvedMap() );
   }
 
-  protected Processor<String> createRXMLProcessor( final FileEditorTab tab ) {
+  protected Processor<String> createRXMLProcessor() {
     final var tpc = getCommonProcessor();
-    final var xmlp = new XmlProcessor( tpc, tab.getPath() );
+    final var xmlp = new XmlProcessor( tpc, getPath() );
     final var rp = new InlineRProcessor( xmlp, getResolvedMap() );
     return new RVariableProcessor( rp, getResolvedMap() );
   }
 
   private HTMLPreviewPane getPreviewPane() {
-    return mPreviewPane;
+    return getContext().getPreviewPane();
   }
 
   /**
@@ -134,7 +151,11 @@ public class ProcessorFactory extends AbstractFileFactory {
    * @return A map to help dereference variables.
    */
   private Map<String, String> getResolvedMap() {
-    return mResolvedMap;
+    return getContext().getResolvedMap();
+  }
+
+  private Path getPath() {
+    return getContext().getPath();
   }
 
   /**
@@ -145,5 +166,9 @@ public class ProcessorFactory extends AbstractFileFactory {
    */
   private Processor<String> getCommonProcessor() {
     return mMarkdownProcessor;
+  }
+
+  private ProcessorContext getContext() {
+    return mProcessorContext;
   }
 }

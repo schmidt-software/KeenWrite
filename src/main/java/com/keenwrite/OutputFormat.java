@@ -25,31 +25,34 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.keenwrite.editors;
-
-import com.keenwrite.AbstractFileFactory;
-import com.keenwrite.sigils.RSigilOperator;
-import com.keenwrite.sigils.SigilOperator;
-import com.keenwrite.sigils.YamlSigilOperator;
-
-import java.nio.file.Path;
+package com.keenwrite;
 
 /**
- * Responsible for creating a definition name decorator suited to a particular
- * file type.
+ * Provides controls for processor behaviour when transforming input documents.
  */
-public class DefinitionDecoratorFactory extends AbstractFileFactory {
+public enum OutputFormat {
 
   /**
-   * Prevent instantiation.
+   * For HTML exports, encode TeX as SVG.
    */
-  private DefinitionDecoratorFactory() {
+  HTML_SVG,
+
+  /**
+   * For HTML exports, encode TeX using {@code $} delimiters, suitable for
+   * rendering by an external TeX typesetting engine (or online with KaTeX).
+   */
+  HTML_TEX,
+
+  /**
+   * Indicates that the processors should export to a Markdown format.
+   */
+  MARKDOWN_PLAIN;
+
+  public boolean isHtml() {
+    return this == HTML_SVG || this == HTML_TEX;
   }
 
-  public static SigilOperator newInstance( final Path path ) {
-    return switch( lookup( path ) ) {
-      case RMARKDOWN, RXML -> new RSigilOperator();
-      default -> new YamlSigilOperator();
-    };
+  public boolean isMarkdown() {
+    return this == MARKDOWN_PLAIN;
   }
 }

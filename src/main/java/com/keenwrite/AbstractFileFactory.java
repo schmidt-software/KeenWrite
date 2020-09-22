@@ -27,25 +27,18 @@
  */
 package com.keenwrite;
 
-import com.keenwrite.service.Settings;
-import com.keenwrite.util.ProtocolScheme;
-
 import java.nio.file.Path;
 
 import static com.keenwrite.Constants.GLOB_PREFIX_FILE;
 import static com.keenwrite.Constants.SETTINGS;
 import static com.keenwrite.FileType.UNKNOWN;
 import static com.keenwrite.predicates.PredicateFactory.createFileTypePredicate;
-import static java.lang.String.format;
 
 /**
  * Provides common behaviours for factories that instantiate classes based on
  * file type.
  */
-public class AbstractFileFactory {
-
-  private static final String MSG_UNKNOWN_FILE_TYPE =
-      "Unknown type '%s' for file '%s'.";
+public abstract class AbstractFileFactory {
 
   /**
    * Determines the file type from the path extension. This should only be
@@ -56,7 +49,7 @@ public class AbstractFileFactory {
    * @param path The path with a file name extension.
    * @return The FileType for the given path.
    */
-  public FileType lookup( final Path path ) {
+  public static FileType lookup( final Path path ) {
     return lookup( path, GLOB_PREFIX_FILE );
   }
 
@@ -67,19 +60,18 @@ public class AbstractFileFactory {
    * @param prefix One of GLOB_PREFIX_DEFINITION or GLOB_PREFIX_FILE.
    * @return The file type that corresponds to the given path.
    */
-  protected FileType lookup( final Path path, final String prefix ) {
+  protected static FileType lookup( final Path path, final String prefix ) {
     assert path != null;
     assert prefix != null;
 
-    final var settings = getSettings();
-    final var keys = settings.getKeys( prefix );
+    final var keys = SETTINGS.getKeys( prefix );
 
     var found = false;
     var fileType = UNKNOWN;
 
     while( keys.hasNext() && !found ) {
       final var key = keys.next();
-      final var patterns = settings.getStringSettingList( key );
+      final var patterns = SETTINGS.getStringSettingList( key );
       final var predicate = createFileTypePredicate( patterns );
 
       if( found = predicate.test( path.toFile() ) ) {
@@ -91,27 +83,5 @@ public class AbstractFileFactory {
     }
 
     return fileType;
-  }
-
-  /**
-   * Throws IllegalArgumentException because the given path could not be
-   * recognized. This exists because
-   *
-   * @param type The detected path type (protocol, file extension, etc.).
-   * @param path The path to a source of definitions.
-   */
-  protected void unknownFileType(
-      final ProtocolScheme type, final String path ) {
-    final String msg = format( MSG_UNKNOWN_FILE_TYPE, type, path );
-    throw new IllegalArgumentException( msg );
-  }
-
-  /**
-   * Return the singleton Settings instance.
-   *
-   * @return A non-null instance.
-   */
-  private Settings getSettings() {
-    return SETTINGS;
   }
 }

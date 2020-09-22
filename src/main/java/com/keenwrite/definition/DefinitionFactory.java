@@ -30,12 +30,14 @@ package com.keenwrite.definition;
 import com.keenwrite.AbstractFileFactory;
 import com.keenwrite.FileType;
 import com.keenwrite.definition.yaml.YamlDefinitionSource;
+import com.keenwrite.util.ProtocolScheme;
 
 import java.nio.file.Path;
 
 import static com.keenwrite.Constants.GLOB_PREFIX_DEFINITION;
 import static com.keenwrite.FileType.YAML;
 import static com.keenwrite.util.ProtocolResolver.getProtocol;
+import static java.lang.String.format;
 
 /**
  * Responsible for creating objects that can read and write definition data
@@ -43,6 +45,12 @@ import static com.keenwrite.util.ProtocolResolver.getProtocol;
  * database.
  */
 public class DefinitionFactory extends AbstractFileFactory {
+
+  /**
+   * TODO: Use an error message key from messages properties file.
+   */
+  private static final String MSG_UNKNOWN_FILE_TYPE =
+      "Unknown type '%s' for file '%s'.";
 
   /**
    * Default (empty) constructor.
@@ -91,5 +99,18 @@ public class DefinitionFactory extends AbstractFileFactory {
     }
 
     throw new IllegalArgumentException( filetype.toString() );
+  }
+
+  /**
+   * Throws IllegalArgumentException because the given path could not be
+   * recognized. This exists because
+   *
+   * @param type The detected path type (protocol, file extension, etc.).
+   * @param path The path to a source of definitions.
+   */
+  private void unknownFileType(
+      final ProtocolScheme type, final String path ) {
+    final String msg = format( MSG_UNKNOWN_FILE_TYPE, type, path );
+    throw new IllegalArgumentException( msg );
   }
 }

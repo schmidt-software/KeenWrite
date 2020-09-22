@@ -391,7 +391,7 @@ public final class FileEditorTabPane extends TabPane {
   }
 
   /**
-   * Answers whether the file has had modifications. '
+   * Answers whether the file has had modifications.
    *
    * @param tab THe tab to check for modifications.
    * @return false The file is unmodified.
@@ -638,15 +638,11 @@ public final class FileEditorTabPane extends TabPane {
     return SETTINGS;
   }
 
-  protected Options getOptions() {
-    return sOptions;
-  }
-
   private Window getWindow() {
     return getScene().getWindow();
   }
 
   private Preferences getPreferences() {
-    return getOptions().getState();
+    return sOptions.getState();
   }
 }
