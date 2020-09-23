@@ -62,9 +62,18 @@ public class ProcessorFactory extends AbstractFileFactory {
     final Processor<String> successor;
 
     if( context.isExportFormat( NONE ) ) {
+      // If the content is not to be exported, then the successor processor
+      // is one that parses Markdown into HTML and passes the string to the
+      // HTML preview pane.
       successor = getCommonProcessor();
     }
     else {
+      // Otherwise, bolt on a processor that--after the interpolation and
+      // substitution phase, which includes text strings or R code---will
+      // generate HTML or plain Markdown. HTML has a few output formats:
+      // with embedded SVG representing formulas, or without any conversion
+      // to SVG. Without conversion would require client-side rendering of
+      // math (such as using the KaTeX engine, written in JavaScript).
       successor = switch( context.getExportFormat() ) {
         case HTML_SVG -> createHtmlSvgProcessor();
         case HTML_TEX -> createHtmlTexProcessor();
@@ -126,7 +135,7 @@ public class ProcessorFactory extends AbstractFileFactory {
 
   private Processor<String> createHtmlPreProcessor(
       final Processor<String> successor ) {
-    return new HtmlPreProcessor( successor );
+    return new PreformattedProcessor( successor );
   }
 
   private Processor<String> createIdentityProcessor() {

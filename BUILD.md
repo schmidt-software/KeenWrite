@@ -8,11 +8,21 @@ Download and install the following software packages:
 
 * [OpenJDK 14](https://openjdk.java.net)
 * [Gradle 6.4](https://gradle.org/releases)
+* [Git 2.28.0](https://git-scm.com/downloads)
+
+## Repository
+
+Clone the repository as follows:
+
+    git clone https://github.com/DaveJarvis/keenwrite.git
+
+The repository is cloned.
 
 # Build
 
 Build the application überjar as follows:
 
+    cd keenwrite
     gradle clean jar
 
 The application is built.
@@ -27,6 +37,40 @@ On Windows:
 
     java -jar build\libs\keenwrite.jar
 
+# Integrated development environments
+
+This section describes setup instructions to build and run the application
+using an integrated development environment (IDE).
+
+## IntelliJ IDEA
+
+This section describes how to build and run the application using
+IntellIJ's IDEA software.
+
+### Build
+
+Complete the following steps to build the application:
+
+1. Start the IDE.
+1. Click **File → New → Project from Existing Sources**.
+1. Browse to the directory containing `keenwrite`.
+1. Click **OK**.
+1. Select **Gradle** as the external model.
+1. Click **Finish**.
+
+The project is imported into the IDE.
+
+### Run
+
+Run the application from within the IDE as follows:
+
+1. Ensure the **Project** is open.
+1. Expand **src → main → java → com.keenwrite**.
+1. Open **Launcher**.
+1. Run **main**.
+
+The application is launched.
+
 # Installers
 
 This section describes how to set up the development environment and
@@ -37,7 +81,7 @@ build native executables for supported operating systems.
 Follow these one-time setup instructions to begin:
 
 1. Ensure `$HOME/bin` is set in the `PATH` environment variable.
-1. Move `build-template` into `$HOME/bin`.
+1. Copy `build-template` into `$HOME/bin`.
 
 Setup is complete.
 
@@ -59,6 +103,6 @@ Run `./installer -h` to see all command-line options.
 # Versioning
 
 Version numbers are read directly from Git using a plugin. The version
-number is written to `app.properties`, a properties file in the `resources`
-directory that can be read from within the application.
+number is written to `app.properties` in the `resources` directory.
+The application reads that file to display version information upon start.
 
