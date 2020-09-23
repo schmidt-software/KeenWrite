@@ -6,7 +6,7 @@ This document describes how to build the application and platform binaries.
 
 Download and install the following software packages:
 
-* [OpenJDK 14](https://openjdk.java.net)
+* [OpenJDK 14.0.2](https://openjdk.java.net) (full JDK, including JavaFX)
 * [Gradle 6.4](https://gradle.org/releases)
 * [Git 2.28.0](https://git-scm.com/downloads)
 
@@ -39,17 +39,15 @@ On Windows:
 
 # Integrated development environments
 
-This section describes setup instructions to build and run the application
-using an integrated development environment (IDE).
+This section describes setup instructions to import and run the application using an integrated development environment (IDE). Running the application should trigger a build.
 
 ## IntelliJ IDEA
 
-This section describes how to build and run the application using
-IntellIJ's IDEA software.
+This section describes how to build and run the application using IntellIJ's IDEA.
 
-### Build
+### Import
 
-Complete the following steps to build the application:
+Complete the following steps to import the application:
 
 1. Start the IDE.
 1. Click **File → New → Project from Existing Sources**.
@@ -62,7 +60,7 @@ The project is imported into the IDE.
 
 ### Run
 
-Run the application from within the IDE as follows:
+Run the application as follows:
 
 1. Ensure the **Project** is open.
 1. Expand **src → main → java → com.keenwrite**.
@@ -73,8 +71,7 @@ The application is launched.
 
 # Installers
 
-This section describes how to set up the development environment and
-build native executables for supported operating systems.
+This section describes how to set up the development environment and build native executables for supported operating systems.
 
 ## Setup
 
@@ -102,7 +99,5 @@ Run `./installer -h` to see all command-line options.
 
 # Versioning
 
-Version numbers are read directly from Git using a plugin. The version
-number is written to `app.properties` in the `resources` directory.
-The application reads that file to display version information upon start.
+Version numbers are read directly from Git using a plugin. The version number is written to `app.properties` in the `resources` directory. The application reads that file to display version information upon start.
 
