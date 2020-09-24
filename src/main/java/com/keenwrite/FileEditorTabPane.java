@@ -238,8 +238,8 @@ public final class FileEditorTabPane extends TabPane {
   }
 
   void openFileDialog() {
-    final String title = get( "Dialog.file.choose.open.title" );
-    final FileChooser dialog = createFileChooser( title );
+    final FileChooser dialog = createFileChooser(
+        "Dialog.file.choose.open.title" );
     final List<File> files = dialog.showOpenMultipleDialog( getWindow() );
 
     if( files != null ) {
@@ -371,9 +371,9 @@ public final class FileEditorTabPane extends TabPane {
 
     getSelectionModel().select( tab );
 
-    final FileChooser fileChooser = createFileChooser( get(
-        "Dialog.file.choose.save.title" ) );
-    final File file = fileChooser.showSaveDialog( getWindow() );
+    final FileChooser chooser = createFileChooser(
+        "Dialog.file.choose.save.title" );
+    final File file = chooser.showSaveDialog( getWindow() );
     if( file == null ) {
       return false;
     }
@@ -517,10 +517,16 @@ public final class FileEditorTabPane extends TabPane {
     return null;
   }
 
-  private FileChooser createFileChooser( String title ) {
+  /**
+   * Opens a new {@link FileChooser} at the previously selected directory.
+   *
+   * @param key Message key from resource bundle.
+   * @return {@link FileChooser} GUI allowing the user to pick a file.
+   */
+  private FileChooser createFileChooser( final String key ) {
     final FileChooser fileChooser = new FileChooser();
 
-    fileChooser.setTitle( title );
+    fileChooser.setTitle( get( key ) );
     fileChooser.getExtensionFilters().addAll(
         createExtensionFilters() );
 

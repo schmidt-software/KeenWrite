@@ -44,7 +44,7 @@ import java.util.function.Function;
 
 import static com.keenwrite.StatusBarNotifier.clue;
 import static com.keenwrite.preview.SvgRasterizer.rasterize;
-import static com.keenwrite.processors.markdown.tex.TeXNode.HTML_TEX;
+import static com.keenwrite.processors.markdown.tex.TexNode.HTML_TEX;
 
 /**
  * Responsible for running {@link SvgRasterizer} on SVG images detected within

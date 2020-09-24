@@ -42,6 +42,7 @@ import com.keenwrite.preview.HTMLPreviewPane;
 import com.keenwrite.processors.Processor;
 import com.keenwrite.processors.ProcessorContext;
 import com.keenwrite.processors.ProcessorFactory;
+import com.keenwrite.processors.markdown.MarkdownProcessor;
 import com.keenwrite.service.Options;
 import com.keenwrite.service.Snitch;
 import com.keenwrite.spelling.api.SpellCheckListener;
@@ -75,6 +76,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
+import javafx.stage.FileChooser;
 import javafx.stage.Window;
 import javafx.stage.WindowEvent;
 import javafx.util.Duration;
@@ -85,6 +87,8 @@ import org.fxmisc.richtext.model.StyleSpansBuilder;
 import org.reactfx.value.Val;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.file.Path;
 import java.util.*;
@@ -103,6 +107,7 @@ import static com.keenwrite.processors.ProcessorFactory.processChain;
 import static com.keenwrite.util.StageState.*;
 import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.*;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.nio.file.Files.writeString;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singleton;
 import static javafx.application.Platform.runLater;
@@ -662,17 +667,39 @@ public class MainWindow implements Observer {
     getFileEditorPane().saveAllEditors();
   }
 
+  /**
+   * Exports the contents of the current tab according to the given
+   * {@link ExportFormat}.
+   *
+   * @param format Configures the {@link MarkdownProcessor} when exporting.
+   */
   private void fileExport( final ExportFormat format ) {
     final var tab = getActiveFileEditorTab();
-    final var context = createProcessorContext( format );
+    final var context = createProcessorContext( tab, format );
     final var chain = ProcessorFactory.createProcessors( context );
     final var doc = tab.getEditorText();
     final var export = processChain( chain, doc );
 
-    // Gotta' save this somewhere.
-    System.out.println( export );
+    final var filename = format.toExportFilename( tab.getPath().toFile() );
+    final var dir = getPreferences().get( "lastDirectory", null );
+    final var lastDir = new File( dir == null ? "." : dir );
 
-    clue( tab.getPath().toString() );
+    final FileChooser chooser = new FileChooser();
+    chooser.setTitle( get( "Dialog.file.choose.export.title" ) );
+    chooser.setInitialFileName( filename.getName() );
+    chooser.setInitialDirectory( lastDir );
+
+    final File file = chooser.showSaveDialog( getWindow() );
+
+    if( file != null ) {
+      try {
+        writeString( file.toPath(), export, UTF_8 );
+        final var m = get( "Main.status.export.success", file.toString() );
+        clue( m );
+      } catch( final IOException e ) {
+        clue( e );
+      }
+    }
   }
 
   private void fileExit() {
@@ -754,18 +781,16 @@ public class MainWindow implements Observer {
     return ProcessorFactory.createProcessors( context );
   }
 
-  private ProcessorContext createProcessorContext( final FileEditorTab tab ) {
+  private ProcessorContext createProcessorContext(
+      final FileEditorTab tab, final ExportFormat format ) {
     final var pane = getPreviewPane();
     final var map = getResolvedMap();
     final var path = tab.getPath();
-    return new ProcessorContext( pane, map, path );
+    return new ProcessorContext( pane, map, path, format );
   }
 
-  private ProcessorContext createProcessorContext( final ExportFormat format ) {
-    final var pane = getPreviewPane();
-    final var map = getResolvedMap();
-    final var path = getActiveFileEditorTab().getPath();
-    return new ProcessorContext( pane, map, path, format );
+  private ProcessorContext createProcessorContext( final FileEditorTab tab ) {
+    return createProcessorContext( tab, NONE );
   }
 
   private DefinitionPane createDefinitionPane() {
@@ -895,11 +920,11 @@ public class MainWindow implements Observer {
         .build();
     final Action fileExportHtmlSvgAction = new ActionBuilder()
         .setText( "Main.menu.file.export.html_svg" )
-        .setAction( e -> fileExport( HTML_SVG ) )
+        .setAction( e -> fileExport( HTML_TEX_SVG ) )
         .build();
     final Action fileExportHtmlTexAction = new ActionBuilder()
         .setText( "Main.menu.file.export.html_tex" )
-        .setAction( e -> fileExport( HTML_TEX ) )
+        .setAction( e -> fileExport( HTML_TEX_DELIMITED ) )
         .build();
     final Action fileExportMarkdownAction = new ActionBuilder()
         .setText( "Main.menu.file.export.markdown" )

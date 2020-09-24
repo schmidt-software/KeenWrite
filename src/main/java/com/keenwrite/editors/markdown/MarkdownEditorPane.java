@@ -318,7 +318,7 @@ public class MarkdownEditorPane extends EditorPane {
     final String selectedText = textArea.getSelectedText();
 
     // Get the current paragraph, convert to Markdown nodes.
-    final MarkdownProcessor mp = new MarkdownProcessor( null );
+    final MarkdownProcessor mp = MarkdownProcessor.create();
     final int p = textArea.getCurrentParagraph();
     final String paragraph = textArea.getText( p );
     final Node node = mp.toNode( paragraph );

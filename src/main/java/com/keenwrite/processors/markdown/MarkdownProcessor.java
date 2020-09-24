@@ -27,8 +27,10 @@
  */
 package com.keenwrite.processors.markdown;
 
+import com.keenwrite.ExportFormat;
 import com.keenwrite.processors.AbstractProcessor;
 import com.keenwrite.processors.Processor;
+import com.keenwrite.processors.ProcessorContext;
 import com.vladsch.flexmark.ext.definition.DefinitionExtension;
 import com.vladsch.flexmark.ext.gfm.strikethrough.StrikethroughSubscriptExtension;
 import com.vladsch.flexmark.ext.superscript.SuperscriptExtension;
@@ -37,6 +39,7 @@ import com.vladsch.flexmark.ext.typographic.TypographicExtension;
 import com.vladsch.flexmark.html.HtmlRenderer;
 import com.vladsch.flexmark.parser.Parser;
 import com.vladsch.flexmark.util.ast.IParse;
+import com.vladsch.flexmark.util.ast.IRender;
 import com.vladsch.flexmark.util.ast.Node;
 import com.vladsch.flexmark.util.misc.Extension;
 
@@ -45,50 +48,85 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import static com.keenwrite.Constants.USER_DIRECTORY;
+import static com.keenwrite.ExportFormat.NONE;
 
 /**
  * Responsible for parsing a Markdown document and rendering it as HTML.
  */
 public class MarkdownProcessor extends AbstractProcessor<String> {
 
-  private final HtmlRenderer mRenderer;
+  private final IRender mRenderer;
   private final IParse mParser;
 
+  public static MarkdownProcessor create() {
+    return create( null, Path.of( USER_DIRECTORY ) );
+  }
+
+  public static MarkdownProcessor create(
+      final Processor<String> successor, final Path path ) {
+    final var extensions = createExtensions( path, NONE );
+
+    return new MarkdownProcessor( successor, extensions );
+  }
+
+  public static MarkdownProcessor create(
+      final Processor<String> successor, final ProcessorContext context ) {
+    final var extensions = createExtensions( context );
+
+    // Allows referencing image files via relative paths and dynamic file types.
+    extensions.add( ImageLinkExtension.create( context.getPath() ) );
+    extensions.add( BlockExtension.create() );
+    extensions.add( TeXExtension.create( context.getExportFormat() ) );
+
+    return new MarkdownProcessor( successor, extensions );
+  }
+
+  private static Collection<Extension> createExtensions(
+      final ProcessorContext context ) {
+    return createExtensions( context.getPath(), context.getExportFormat() );
+  }
+
+  private static Collection<Extension> createExtensions(
+      final Path path, final ExportFormat format ) {
+    final var extensions = createDefaultExtensions();
+
+    // Allows referencing image files via relative paths and dynamic file types.
+    extensions.add( ImageLinkExtension.create( path ) );
+    extensions.add( BlockExtension.create() );
+    extensions.add( TeXExtension.create( format ) );
+
+    return extensions;
+  }
+
   public MarkdownProcessor(
-      final Processor<String> successor ) {
-    this( successor, Path.of( USER_DIRECTORY ) );
+      final Processor<String> successor,
+      final Collection<Extension> extensions ) {
+    super( successor );
+
+    // TODO: https://github.com/FAlthausen/Vollkorn-Typeface/issues/38
+    // TODO: Uncomment when ligatures are fixed.
+    // extensions.add( LigatureExtension.create() );
+
+    mRenderer = HtmlRenderer.builder().extensions( extensions ).build();
+    mParser = Parser.builder().extensions( extensions ).build();
   }
 
   /**
-   * Constructs a new Markdown processor that can create HTML documents.
+   * Instantiates a number of extensions to be applied when parsing. These
+   * are typically typographic extensions that convert characters into
+   * HTML entities.
    *
-   * @param successor Usually the HTML Preview Processor.
+   * @return A {@link Collection} of {@link Extension} instances that
+   * change the {@link Parser}'s behaviour.
    */
-  public MarkdownProcessor(
-      final Processor<String> successor, final Path path ) {
-    super( successor );
-
-    // Standard extensions
-    final Collection<Extension> extensions = new ArrayList<>();
+  private static Collection<Extension> createDefaultExtensions() {
+    final var extensions = new ArrayList<Extension>();
     extensions.add( DefinitionExtension.create() );
     extensions.add( StrikethroughSubscriptExtension.create() );
     extensions.add( SuperscriptExtension.create() );
     extensions.add( TablesExtension.create() );
     extensions.add( TypographicExtension.create() );
-
-    // Allows referencing image files via relative paths and dynamic file types.
-    extensions.add( ImageLinkExtension.create( path ) );
-    extensions.add( BlockExtension.create() );
-    extensions.add( TeXExtension.create() );
-
-    // TODO: https://github.com/FAlthausen/Vollkorn-Typeface/issues/38
-    // TODO: Uncomment when Vollkorn ligatures are fixed.
-    // extensions.add( LigatureExtension.create() );
-
-    mRenderer = HtmlRenderer.builder().extensions( extensions ).build();
-    mParser = Parser.builder()
-                    .extensions( extensions )
-                    .build();
+    return extensions;
   }
 
   /**
@@ -144,7 +182,7 @@ public class MarkdownProcessor extends AbstractProcessor<String> {
     return mParser;
   }
 
-  private HtmlRenderer getRenderer() {
+  private IRender getRenderer() {
     return mRenderer;
   }
 }

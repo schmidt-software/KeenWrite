@@ -58,7 +58,6 @@ public class ProcessorFactory extends AbstractFileFactory {
 
   private Processor<String> createProcessor() {
     final ProcessorContext context = getProcessorContext();
-
     final Processor<String> successor;
 
     if( context.isExportFormat( NONE ) ) {
@@ -73,10 +72,10 @@ public class ProcessorFactory extends AbstractFileFactory {
       // generate HTML or plain Markdown. HTML has a few output formats:
       // with embedded SVG representing formulas, or without any conversion
       // to SVG. Without conversion would require client-side rendering of
-      // math (such as using the KaTeX engine, written in JavaScript).
-      successor = switch( context.getExportFormat() ) {
-        case HTML_SVG -> createHtmlSvgProcessor();
-        case HTML_TEX -> createHtmlTexProcessor();
+      // math (such as using the JavaScript-based KaTeX engine).
+      successor = switch( context.getExportFormat()   ) {
+        case HTML_TEX_SVG -> createHtmlSvgProcessor();
+        case HTML_TEX_DELIMITED -> createHtmlTexProcessor();
         case MARKDOWN_PLAIN -> createMarkdownPlainProcessor();
         case NONE -> null;
       };
@@ -87,7 +86,7 @@ public class ProcessorFactory extends AbstractFileFactory {
       case SOURCE -> createMarkdownDefinitionProcessor( successor );
       case RXML -> createRXMLProcessor( successor );
       case XML -> createXMLProcessor( successor );
-      default -> createHtmlPreProcessor();
+      default -> createPreformattedProcessor();
     };
   }
 
@@ -119,31 +118,43 @@ public class ProcessorFactory extends AbstractFileFactory {
     return text;
   }
 
+  /**
+   * Instantiates a new {@link Processor} that has no successor and returns
+   * the string it was given without modification.
+   *
+   * @return An instance of {@link Processor} that performs no processing.
+   */
+  private Processor<String> createIdentityProcessor() {
+    return new IdentityProcessor( null );
+  }
+
+  /**
+   * Instantiates a new {@link Processor} that passes an incoming HTML
+   * string to a user interface widget that can render HTML as a web page.
+   *
+   * @return An instance of {@link Processor} that forwards HTML for display.
+   */
   private Processor<String> createHTMLPreviewProcessor() {
     return new HtmlPreviewProcessor( getPreviewPane() );
   }
 
   /**
-   * Creates and links the processors at the end of the processing chain.
+   * Instantiates {@link Processor} instances that end the processing chain.
    *
-   * @return A markdown, caret replacement, and preview pane processor chain.
+   * @return A chain of {@link Processor}s that convert Markdown to HTML.
    */
   private Processor<String> createMarkdownProcessor() {
     final var hpp = createHTMLPreviewProcessor();
-    return new MarkdownProcessor( hpp, getPreviewPane().getPath() );
+    return MarkdownProcessor.create( hpp, getProcessorContext() );
   }
 
-  private Processor<String> createHtmlPreProcessor(
+  private Processor<String> createPreformattedProcessor(
       final Processor<String> successor ) {
     return new PreformattedProcessor( successor );
   }
 
-  private Processor<String> createIdentityProcessor() {
-    return new IdentityProcessor( null );
-  }
-
-  private Processor<String> createHtmlPreProcessor() {
-    return createHtmlPreProcessor( createHTMLPreviewProcessor() );
+  private Processor<String> createPreformattedProcessor() {
+    return createPreformattedProcessor( createHTMLPreviewProcessor() );
   }
 
   private Processor<String> createDefinitionProcessor(
@@ -176,11 +187,11 @@ public class ProcessorFactory extends AbstractFileFactory {
   }
 
   private Processor<String> createHtmlSvgProcessor() {
-    return new MarkdownProcessor( null, getPreviewPane().getPath() );
+    return MarkdownProcessor.create( null, getProcessorContext() );
   }
 
   private Processor<String> createHtmlTexProcessor() {
-    return new MarkdownProcessor( null, getPreviewPane().getPath() );
+    return MarkdownProcessor.create( null, getProcessorContext() );
   }
 
   private Processor<String> createMarkdownPlainProcessor() {
@@ -188,10 +199,10 @@ public class ProcessorFactory extends AbstractFileFactory {
   }
 
   /**
-   * Returns a processor common to all processors: markdown, caret position
-   * token replacer, and an HTML preview renderer.
+   * Returns the {@link Processor} common to all {@link Processor}s: markdown
+   * and an HTML preview renderer.
    *
-   * @return Processors at the end of the processing chain.
+   * @return {@link Processor}s at the end of the processing chain.
    */
   private Processor<String> getCommonProcessor() {
     return mMarkdownProcessor;
@@ -214,6 +225,11 @@ public class ProcessorFactory extends AbstractFileFactory {
     return getProcessorContext().getResolvedMap();
   }
 
+  /**
+   * Returns the {@link Path} from the {@link ProcessorContext}.
+   *
+   * @return A non-null {@link Path} instance.
+   */
   private Path getPath() {
     return getProcessorContext().getPath();
   }

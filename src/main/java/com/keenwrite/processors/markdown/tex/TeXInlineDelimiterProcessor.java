@@ -36,10 +36,11 @@ import com.vladsch.flexmark.util.ast.Node;
 public class TeXInlineDelimiterProcessor implements DelimiterProcessor {
 
   @Override
-  public void process( final Delimiter opener, final Delimiter closer,
+  public void process( final Delimiter opener,
+                       final Delimiter closer,
                        final int delimitersUsed ) {
-    final var node = new TeXNode();
-    opener.moveNodesBetweenDelimitersTo(node, closer);
+    final var node = new TexNode();
+    opener.moveNodesBetweenDelimitersTo( node, closer );
   }
 
   @Override

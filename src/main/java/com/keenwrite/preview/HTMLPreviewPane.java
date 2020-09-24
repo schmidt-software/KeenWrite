@@ -36,7 +36,6 @@ import javafx.embed.swing.SwingNode;
 import javafx.scene.Node;
 import org.jsoup.Jsoup;
 import org.jsoup.helper.W3CDom;
-import org.jsoup.nodes.Document;
 import org.xhtmlrenderer.layout.SharedContext;
 import org.xhtmlrenderer.render.Box;
 import org.xhtmlrenderer.simple.XHTMLPanel;
@@ -151,8 +150,8 @@ public final class HTMLPreviewPane extends SwingNode {
   }
 
   /**
-   * The CSS must be rendered in points (pt) not pixels (px) to avoid blurry
-   * rendering on some platforms.
+   * Render CSS using points (pt) not pixels (px) to reduce the chance of
+   * poor rendering.
    */
   private static final String HTML_PREFIX = "<!DOCTYPE html>"
       + "<html>"
@@ -162,12 +161,20 @@ public final class HTMLPreviewPane extends SwingNode {
       + "</head>"
       + "<body>";
 
+  /**
+   * Used to reset the {@link #mHtmlDocument} buffer so that the
+   * {@link #HTML_PREFIX} need not be appended all the time.
+   */
+  private static final int HTML_PREFIX_LENGTH = HTML_PREFIX.length();
+
   private static final W3CDom W3C_DOM = new W3CDom();
   private static final XhtmlNamespaceHandler NS_HANDLER =
       new XhtmlNamespaceHandler();
 
+  /**
+   * The buffer is reused so that previous memory allocations need not repeat.
+   */
   private final StringBuilder mHtmlDocument = new StringBuilder( 65536 );
-  private final int mHtmlPrefixLength;
 
   private final HTMLPanel mHtmlRenderer = new HTMLPanel();
   private final JScrollPane mScrollPane = new JScrollPane( mHtmlRenderer );
@@ -185,7 +192,6 @@ public final class HTMLPreviewPane extends SwingNode {
 
     // No need to append same prefix each time the HTML content is updated.
     mHtmlDocument.append( HTML_PREFIX );
-    mHtmlPrefixLength = mHtmlDocument.length();
 
     // Inject an SVG renderer that produces high-quality SVG buffered images.
     final var factory = new ChainedReplacedElementFactory();
@@ -221,17 +227,19 @@ public final class HTMLPreviewPane extends SwingNode {
    * @param html The new HTML document to display.
    */
   public void process( final String html ) {
-    final Document jsoupDoc = Jsoup.parse( decorate( html ) );
-    final org.w3c.dom.Document w3cDoc = W3C_DOM.fromJsoup( jsoupDoc );
-
+    final var docJsoup = Jsoup.parse( decorate( html ) );
+    final var docW3c = W3C_DOM.fromJsoup( docJsoup );
 
     // Access to a Swing component must occur from the Event Dispatch
-    // thread according to Swing threading restrictions.
+    // Thread (EDT) according to Swing threading restrictions.
     invokeLater(
-        () -> mHtmlRenderer.setDocument( w3cDoc, getBaseUrl(), NS_HANDLER )
+        () -> mHtmlRenderer.setDocument( docW3c, getBaseUrl(), NS_HANDLER )
     );
   }
 
+  /**
+   * Clears the preview pane by rendering an empty string.
+   */
   public void clear() {
     process( "" );
   }
@@ -333,7 +341,7 @@ public final class HTMLPreviewPane extends SwingNode {
 
   private String decorate( final String html ) {
     // Trim the HTML back to only the prefix.
-    mHtmlDocument.setLength( mHtmlPrefixLength );
+    mHtmlDocument.setLength( HTML_PREFIX_LENGTH );
 
     // Write the HTML body element followed by closing tags.
     return mHtmlDocument.append( html ).toString();

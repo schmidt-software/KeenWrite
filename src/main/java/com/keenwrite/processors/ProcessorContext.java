@@ -35,7 +35,6 @@ import java.nio.file.Path;
 import java.util.Map;
 
 import static com.keenwrite.AbstractFileFactory.lookup;
-import static com.keenwrite.ExportFormat.NONE;
 
 /**
  * Provides a context for configuring a chain of {@link Processor} instances.
@@ -47,6 +46,18 @@ public class ProcessorContext {
   private final FileType mFileType;
   private final Path mPath;
 
+
+  /**
+   * Creates a new context for use by the {@link ProcessorFactory} when
+   * instantiating new {@link Processor} instances. Although all the
+   * parameters are required, not all {@link Processor} instances will use
+   * all parameters.
+   *
+   * @param previewPane Where to display the final (HTML) output.
+   * @param resolvedMap Fully expanded interpolated strings.
+   * @param path        Path to the document to process.
+   * @param format      Indicate configuration options for export format.
+   */
   public ProcessorContext(
       final HTMLPreviewPane previewPane,
       final Map<String, String> resolvedMap,
@@ -59,23 +70,6 @@ public class ProcessorContext {
     mExportFormat = format;
   }
 
-  /**
-   * Creates a new context for use by the {@link ProcessorFactory} when
-   * instantiating new {@link Processor} instances. Although all the
-   * parameters are required, not all {@link Processor} instances will use
-   * all parameters.
-   *
-   * @param previewPane Where to display the final (HTML) output.
-   * @param resolvedMap Fully expanded interpolated strings.
-   * @param path        Path to the document to process.
-   */
-  public ProcessorContext(
-      final HTMLPreviewPane previewPane,
-      final Map<String, String> resolvedMap,
-      final Path path ) {
-    this( previewPane, resolvedMap, path, NONE );
-  }
-
   HTMLPreviewPane getPreviewPane() {
     return mPreviewPane;
   }
@@ -84,7 +78,7 @@ public class ProcessorContext {
     return mResolvedMap;
   }
 
-  Path getPath() {
+  public Path getPath() {
     return mPath;
   }
 
@@ -92,12 +86,12 @@ public class ProcessorContext {
     return mFileType;
   }
 
+  public ExportFormat getExportFormat() {
+    return mExportFormat;
+  }
+
   @SuppressWarnings("SameParameterValue")
   boolean isExportFormat( final ExportFormat format ) {
     return mExportFormat == format;
-  }
-
-  ExportFormat getExportFormat() {
-    return mExportFormat;
   }
 }
