@@ -1,6 +1,6 @@
 # ![Logo](docs/images/app-title.png)
 
-A text editor that uses [interpolated strings](https://en.wikipedia.org/wiki/String_interpolation) to reference externally defined values.
+An editor for [Markdown](https://en.wikipedia.org/wiki/Markdown)-based documents in which you can write [interpolated strings](https://en.wikipedia.org/wiki/String_interpolation) to reference externally defined values.
 
 ## Download
 
