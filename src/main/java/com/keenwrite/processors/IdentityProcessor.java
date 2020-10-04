@@ -28,20 +28,16 @@
 package com.keenwrite.processors;
 
 /**
- * Responsible for transforming a string into itself. This is typically used
- * at the end of a processing chain when no more processing is required, such
- * as when exporting files.
+ * Responsible for transforming a string into itself. This is used at the
+ * end of a processing chain when no more processing is required.
  */
 public class IdentityProcessor extends AbstractProcessor<String> {
 
   /**
-   * Passes the link to the super constructor.
-   *
-   * @param successor The next processor in the chain to use for text
-   *                  processing.
+   * Constructs a new instance having no successor.
    */
-  public IdentityProcessor( final Processor<String> successor ) {
-    super( successor );
+  public IdentityProcessor() {
+    super( null );
   }
 
   /**

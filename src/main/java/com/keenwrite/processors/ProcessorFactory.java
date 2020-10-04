@@ -58,28 +58,24 @@ public class ProcessorFactory extends AbstractFileFactory {
 
   private Processor<String> createProcessor() {
     final ProcessorContext context = getProcessorContext();
-    final Processor<String> successor;
 
-    if( context.isExportFormat( NONE ) ) {
-      // If the content is not to be exported, then the successor processor
-      // is one that parses Markdown into HTML and passes the string to the
-      // HTML preview pane.
-      successor = getCommonProcessor();
-    }
-    else {
-      // Otherwise, bolt on a processor that--after the interpolation and
-      // substitution phase, which includes text strings or R code---will
-      // generate HTML or plain Markdown. HTML has a few output formats:
-      // with embedded SVG representing formulas, or without any conversion
-      // to SVG. Without conversion would require client-side rendering of
-      // math (such as using the JavaScript-based KaTeX engine).
-      successor = switch( context.getExportFormat()   ) {
-        case HTML_TEX_SVG -> createHtmlSvgProcessor();
-        case HTML_TEX_DELIMITED -> createHtmlTexProcessor();
-        case MARKDOWN_PLAIN -> createMarkdownPlainProcessor();
-        case NONE -> null;
-      };
-    }
+    // If the content is not to be exported, then the successor processor
+    // is one that parses Markdown into HTML and passes the string to the
+    // HTML preview pane.
+    //
+    // Otherwise, bolt on a processor that--after the interpolation and
+    // substitution phase, which includes text strings or R code---will
+    // generate HTML or plain Markdown. HTML has a few output formats:
+    // with embedded SVG representing formulas, or without any conversion
+    // to SVG. Without conversion would require client-side rendering of
+    // math (such as using the JavaScript-based KaTeX engine).
+    final Processor<String> successor = context.isExportFormat( NONE )
+        ? getCommonProcessor()
+        :
+        switch( context.getExportFormat() ) {
+          case HTML_TEX_SVG, HTML_TEX_DELIMITED -> createHtmlProcessor();
+          case MARKDOWN_PLAIN, NONE -> createIdentityProcessor();
+        };
 
     return switch( context.getFileType() ) {
       case RMARKDOWN -> createRProcessor( successor );
@@ -125,7 +121,7 @@ public class ProcessorFactory extends AbstractFileFactory {
    * @return An instance of {@link Processor} that performs no processing.
    */
   private Processor<String> createIdentityProcessor() {
-    return new IdentityProcessor( null );
+    return new IdentityProcessor();
   }
 
   /**
@@ -186,16 +182,9 @@ public class ProcessorFactory extends AbstractFileFactory {
     return createDefinitionProcessor( xmlp );
   }
 
-  private Processor<String> createHtmlSvgProcessor() {
-    return MarkdownProcessor.create( null, getProcessorContext() );
-  }
-
-  private Processor<String> createHtmlTexProcessor() {
-    return MarkdownProcessor.create( null, getProcessorContext() );
-  }
-
-  private Processor<String> createMarkdownPlainProcessor() {
-    return createIdentityProcessor();
+  private Processor<String> createHtmlProcessor() {
+    final Processor<String> successor = createIdentityProcessor();
+    return MarkdownProcessor.create( successor, getProcessorContext() );
   }
 
   /**
