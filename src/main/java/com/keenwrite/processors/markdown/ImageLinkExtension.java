@@ -42,6 +42,7 @@ import org.renjin.repackaged.guava.base.Splitter;
 
 import java.io.File;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import static com.keenwrite.StatusBarNotifier.clue;
 import static com.keenwrite.util.ProtocolResolver.getProtocol;
@@ -154,7 +155,10 @@ public class ImageLinkExtension implements HtmlRendererExtension {
         }
 
         if( protocol.isFile() ) {
-          url = "file://" + url;
+          // When generating an HTML document, ensure images use a path that's
+          // relative to the source document. This handles displaying within
+          // the application and when exporting to an HTML file.
+          url = editPath.relativize( Paths.get( url ) ).toString();
         }
 
         return valid( link, url );

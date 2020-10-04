@@ -75,18 +75,15 @@ public class ProtocolResolver {
    * Returns the protocol for a given file.
    *
    * @param file Determine the protocol for this file.
-   * @return The protocol for the given file.
+   * @return The protocol for the given file, or {@link ProtocolScheme#UNKNOWN}
+   * if the protocol cannot be determined.
    */
   private static String getProtocol( final File file ) {
-    String result;
-
     try {
-      result = file.toURI().toURL().getProtocol();
+      return file.toURI().toURL().getProtocol();
     } catch( final MalformedURLException ex ) {
-      // Value guaranteed to avoid identification as a standard protocol.
-      result = UNKNOWN.toString();
+      // Return a protocol guaranteed to be undefined.
+      return UNKNOWN.toString();
     }
-
-    return result;
   }
 }

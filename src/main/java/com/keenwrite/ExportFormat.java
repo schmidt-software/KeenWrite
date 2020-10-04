@@ -63,16 +63,8 @@ public enum ExportFormat {
    */
   private final String mExtension;
 
-  private ExportFormat( final String extension ) {
+  ExportFormat( final String extension ) {
     mExtension = extension;
-  }
-
-  public boolean isHtml() {
-    return this == HTML_TEX_SVG || this == HTML_TEX_DELIMITED;
-  }
-
-  public boolean isMarkdown() {
-    return this == MARKDOWN_PLAIN;
   }
 
   /**

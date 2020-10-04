@@ -129,9 +129,7 @@ public final class HTMLPreviewPane extends SwingNode {
     @Override
     public void linkClicked( final BasicPanel panel, final String link ) {
       try {
-        final var protocol = getProtocol( link );
-
-        switch( protocol ) {
+        switch( getProtocol( link ) ) {
           case HTTP:
             final var desktop = getDesktop();
 
