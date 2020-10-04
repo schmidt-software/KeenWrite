@@ -44,8 +44,8 @@ import com.vladsch.flexmark.util.ast.Node;
 import com.vladsch.flexmark.util.misc.Extension;
 
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 
 import static com.keenwrite.Constants.USER_DIRECTORY;
 import static com.keenwrite.ExportFormat.NONE;
@@ -72,12 +72,6 @@ public class MarkdownProcessor extends AbstractProcessor<String> {
   public static MarkdownProcessor create(
       final Processor<String> successor, final ProcessorContext context ) {
     final var extensions = createExtensions( context );
-
-    // Allows referencing image files via relative paths and dynamic file types.
-    extensions.add( ImageLinkExtension.create( context.getPath() ) );
-    extensions.add( BlockExtension.create() );
-    extensions.add( TeXExtension.create( context.getExportFormat() ) );
-
     return new MarkdownProcessor( successor, extensions );
   }
 
@@ -120,7 +114,7 @@ public class MarkdownProcessor extends AbstractProcessor<String> {
    * change the {@link Parser}'s behaviour.
    */
   private static Collection<Extension> createDefaultExtensions() {
-    final var extensions = new ArrayList<Extension>();
+    final var extensions = new HashSet<Extension>();
     extensions.add( DefinitionExtension.create() );
     extensions.add( StrikethroughSubscriptExtension.create() );
     extensions.add( SuperscriptExtension.create() );

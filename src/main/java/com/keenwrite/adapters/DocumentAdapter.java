@@ -32,7 +32,7 @@ import org.xhtmlrenderer.event.DocumentListener;
 import static com.keenwrite.StatusBarNotifier.clue;
 
 /**
- * Allows subclasses to implement specific events.
+ * Allows subclasses to implement only specific events of interest.
  */
 public class DocumentAdapter implements DocumentListener {
   @Override

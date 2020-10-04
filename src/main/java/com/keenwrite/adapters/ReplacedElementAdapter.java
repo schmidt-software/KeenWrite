@@ -31,6 +31,9 @@ import org.w3c.dom.Element;
 import org.xhtmlrenderer.extend.ReplacedElementFactory;
 import org.xhtmlrenderer.simple.extend.FormSubmissionListener;
 
+/**
+ * Allows subclasses to implement only specific events of interest.
+ */
 public abstract class ReplacedElementAdapter implements ReplacedElementFactory {
   @Override
   public void reset() {
