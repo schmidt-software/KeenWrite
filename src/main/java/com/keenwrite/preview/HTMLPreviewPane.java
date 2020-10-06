@@ -49,7 +49,8 @@ import java.awt.event.ComponentEvent;
 import java.net.URI;
 import java.nio.file.Path;
 
-import static com.keenwrite.Constants.*;
+import static com.keenwrite.Constants.DEFAULT_DIRECTORY;
+import static com.keenwrite.Constants.STYLESHEET_PREVIEW;
 import static com.keenwrite.StatusBarNotifier.clue;
 import static com.keenwrite.util.ProtocolResolver.getProtocol;
 import static java.awt.Desktop.Action.BROWSE;
@@ -152,12 +153,14 @@ public final class HTMLPreviewPane extends SwingNode {
    * poor rendering.
    */
   private static final String HTML_PREFIX = "<!DOCTYPE html>"
-      + "<html>"
-      + "<head>"
+      + "<html lang='en'>"
+      + "<head><title> </title><meta charset='utf-8'/>"
       + "<link rel='stylesheet' href='" +
       HTMLPreviewPane.class.getResource( STYLESHEET_PREVIEW ) + "'/>"
       + "</head>"
       + "<body>";
+
+  private static final String HTML_SUFFIX = "</body></html>";
 
   /**
    * Used to reset the {@link #mHtmlDocument} buffer so that the
@@ -294,7 +297,7 @@ public final class HTMLPreviewPane extends SwingNode {
     int prevId = id;
     Box box = null;
 
-    while( prevId > 0 && (box = getBoxById( PARAGRAPH_ID_PREFIX + prevId )) == null ) {
+    while( prevId > 0 && (box = getBoxById( prevId )) == null ) {
       prevId--;
     }
 
@@ -306,7 +309,7 @@ public final class HTMLPreviewPane extends SwingNode {
     Box box = null;
 
     while( nextId - id < 5 &&
-        (box = getBoxById( PARAGRAPH_ID_PREFIX + nextId )) == null ) {
+        (box = getBoxById( nextId )) == null ) {
       nextId++;
     }
 
@@ -333,8 +336,8 @@ public final class HTMLPreviewPane extends SwingNode {
     scrollToY( mHtmlRenderer.getHeight() );
   }
 
-  private Box getBoxById( final String id ) {
-    return getSharedContext().getBoxById( id );
+  private Box getBoxById( final int id ) {
+    return getSharedContext().getBoxById( Integer.toString( id ) );
   }
 
   private String decorate( final String html ) {
@@ -342,7 +345,7 @@ public final class HTMLPreviewPane extends SwingNode {
     mHtmlDocument.setLength( HTML_PREFIX_LENGTH );
 
     // Write the HTML body element followed by closing tags.
-    return mHtmlDocument.append( html ).toString();
+    return mHtmlDocument.append( html ).append( HTML_SUFFIX ).toString();
   }
 
   public Path getPath() {

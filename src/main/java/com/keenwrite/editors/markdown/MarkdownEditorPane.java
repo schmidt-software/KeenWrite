@@ -131,7 +131,7 @@ public class MarkdownEditorPane extends EditorPane {
         break;
       }
 
-      final String text = p.getText().replace( '>', ' ' );
+      String text = p.getText().replace( '>', ' ' );
       if( text.startsWith( "```" ) ) {
         if( withinFencedBlock = !withinFencedBlock ) {
           lines.add( text );
@@ -139,13 +139,13 @@ public class MarkdownEditorPane extends EditorPane {
       }
 
       if( !withinFencedBlock ) {
-        final boolean foundCodeBlock = text.startsWith( "    " );
-
-        if( foundCodeBlock && !withinCodeBlock ) {
-          lines.add( text );
-          withinCodeBlock = true;
+        if( text.startsWith( "    " ) ) {
+          if( !withinCodeBlock ) {
+            lines.add( text );
+            withinCodeBlock = true;
+          }
         }
-        else if( !foundCodeBlock ) {
+        else {
           withinCodeBlock = false;
         }
       }

@@ -159,12 +159,6 @@ public class Constants {
   public static final String LEXICONS_DIRECTORY = "lexicons";
 
   /**
-   * Used as the prefix for uniquely identifying HTML block elements, which
-   * helps coordinate scrolling the preview pane to where the user is typing.
-   */
-  public static final String PARAGRAPH_ID_PREFIX = "p-";
-
-  /**
    * Absolute location of true type font files within the Java archive file.
    */
   public static final String FONT_DIRECTORY = "/fonts";

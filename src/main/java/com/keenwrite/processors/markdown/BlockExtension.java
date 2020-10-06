@@ -1,7 +1,6 @@
 package com.keenwrite.processors.markdown;
 
-import com.vladsch.flexmark.ast.BlockQuote;
-import com.vladsch.flexmark.ast.ListBlock;
+import com.vladsch.flexmark.ast.*;
 import com.vladsch.flexmark.html.AttributeProvider;
 import com.vladsch.flexmark.html.AttributeProviderFactory;
 import com.vladsch.flexmark.html.IndependentAttributeProviderFactory;
@@ -13,7 +12,6 @@ import com.vladsch.flexmark.util.data.MutableDataHolder;
 import com.vladsch.flexmark.util.html.MutableAttributes;
 import org.jetbrains.annotations.NotNull;
 
-import static com.keenwrite.Constants.PARAGRAPH_ID_PREFIX;
 import static com.vladsch.flexmark.html.HtmlRenderer.Builder;
 import static com.vladsch.flexmark.html.HtmlRenderer.HtmlRendererExtension;
 import static com.vladsch.flexmark.html.renderer.CoreNodeRenderer.CODE_CONTENT;
@@ -57,8 +55,10 @@ public class BlockExtension implements HtmlRendererExtension {
       if( node instanceof Block &&
           !(node instanceof BlockQuote) &&
           !(node instanceof ListBlock) &&
+          !(node instanceof Paragraph && (node.getParent() instanceof ListItem) && node.getPrevious() == null) &&
+          !(node instanceof FencedCodeBlock && (node.getParent() instanceof ListItem)) &&
           (part != CODE_CONTENT) ) {
-        attributes.addValue( "id", PARAGRAPH_ID_PREFIX + mCount++ );
+        attributes.addValue( "id", Integer.toString( mCount++ ) );
       }
     }
   }
