@@ -46,7 +46,6 @@ public class ProcessorContext {
   private final FileType mFileType;
   private final Path mPath;
 
-
   /**
    * Creates a new context for use by the {@link ProcessorFactory} when
    * instantiating new {@link Processor} instances. Although all the

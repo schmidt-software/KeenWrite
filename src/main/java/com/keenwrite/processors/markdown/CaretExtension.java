@@ -20,7 +20,9 @@ import static com.vladsch.flexmark.html.renderer.CoreNodeRenderer.CODE_CONTENT;
  * Responsible for giving most block-level elements a unique identifier
  * attribute. The identifier is used to coordinate scrolling.
  */
-public class BlockExtension implements HtmlRendererExtension {
+public class CaretExtension implements HtmlRendererExtension {
+
+
   /**
    * Responsible for creating the id attribute. This class is instantiated
    * each time the document is rendered, thereby resetting the count to zero.
@@ -42,28 +44,10 @@ public class BlockExtension implements HtmlRendererExtension {
     public void setAttributes( @NotNull Node node,
                                @NotNull AttributablePart part,
                                @NotNull MutableAttributes attributes ) {
-      // Blockquotes are troublesome because they can interleave blank lines
-      // without having an equivalent blank line in the source document. That
-      // is, in Markdown the > symbol on a line by itself will generate a blank
-      // line in the resulting document; however, a > symbol in the text editor
-      // does not count as a blank line. Resolving this issue is tricky.
-      //
-      // The CODE_CONTENT represents <code> embedded inside <pre>; both elements
-      // enter this method as FencedCodeBlock, but only the <pre> must be
-      // uniquely identified (because they are the same line in Markdown).
-      //
-      if( node instanceof Block &&
-          !(node instanceof BlockQuote) &&
-          !(node instanceof ListBlock) &&
-          !(node instanceof Paragraph && (node.getParent() instanceof ListItem) && node.getPrevious() == null) &&
-          !(node instanceof FencedCodeBlock && (node.getParent() instanceof ListItem)) &&
-          (part != CODE_CONTENT) ) {
-        attributes.addValue( "id", Integer.toString( mCount++ ) );
-      }
     }
   }
 
-  private BlockExtension() {
+  private CaretExtension() {
   }
 
   @Override
@@ -72,8 +56,8 @@ public class BlockExtension implements HtmlRendererExtension {
     builder.attributeProviderFactory( IdAttributeProvider.createFactory() );
   }
 
-  public static BlockExtension create() {
-    return new BlockExtension();
+  public static CaretExtension create() {
+    return new CaretExtension();
   }
 
   @Override

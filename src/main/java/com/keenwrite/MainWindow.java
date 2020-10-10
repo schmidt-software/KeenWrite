@@ -488,14 +488,8 @@ public class MainWindow implements Observer {
     synchronized( mMutex ) {
       final var previewPane = getPreviewPane();
       final var scrollPane = previewPane.getScrollPane();
-      final int approxId = getActiveEditorPane().approximateParagraphId( id );
 
-      if( force ) {
-        previewPane.scrollTo( approxId );
-      }
-      else {
-        previewPane.tryScrollTo( approxId );
-      }
+      previewPane.scrollTo( "caret" );
 
       scrollPane.repaint();
     }

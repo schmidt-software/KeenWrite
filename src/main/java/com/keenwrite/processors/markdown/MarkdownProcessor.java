@@ -86,8 +86,8 @@ public class MarkdownProcessor extends AbstractProcessor<String> {
 
     // Allows referencing image files via relative paths and dynamic file types.
     extensions.add( ImageLinkExtension.create( path ) );
-    extensions.add( BlockExtension.create() );
     extensions.add( TeXExtension.create( format ) );
+    //extensions.add( CaretExtension.create() );
 
     return extensions;
   }

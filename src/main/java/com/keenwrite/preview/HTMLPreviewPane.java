@@ -30,8 +30,6 @@ package com.keenwrite.preview;
 import com.keenwrite.adapters.DocumentAdapter;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.embed.swing.SwingNode;
 import javafx.scene.Node;
 import org.jsoup.Jsoup;
@@ -179,7 +177,7 @@ public final class HTMLPreviewPane extends SwingNode {
 
   private final HTMLPanel mHtmlRenderer = new HTMLPanel();
   private final JScrollPane mScrollPane = new JScrollPane( mHtmlRenderer );
-  private final DocumentEventHandler mDocHandler = new DocumentEventHandler();
+  //private final DocumentEventHandler mDocHandler = new DocumentEventHandler();
   private final CustomImageLoader mImageLoader = new CustomImageLoader();
 
   private Path mPath = DEFAULT_DIRECTORY;
@@ -206,7 +204,7 @@ public final class HTMLPreviewPane extends SwingNode {
     textRenderer.setSmoothingThreshold( 0 );
 
     setContent( mScrollPane );
-    mHtmlRenderer.addDocumentListener( mDocHandler );
+    //mHtmlRenderer.addDocumentListener( mDocHandler );
     mHtmlRenderer.addComponentListener( new ResizeListener() );
 
     // The default mouse click listener attempts navigation within the
@@ -246,74 +244,21 @@ public final class HTMLPreviewPane extends SwingNode {
   }
 
   /**
-   * Scrolls to an anchor link. The anchor links are injected when the
-   * HTML document is created.
-   *
-   * @param id The unique anchor link identifier.
-   */
-  public void tryScrollTo( final int id ) {
-    final ChangeListener<Boolean> listener = new ChangeListener<>() {
-      @Override
-      public void changed(
-          final ObservableValue<? extends Boolean> observable,
-          final Boolean oldValue,
-          final Boolean newValue ) {
-        if( newValue ) {
-          scrollTo( id );
-
-          mDocHandler.readyProperty().removeListener( this );
-        }
-      }
-    };
-
-    mDocHandler.readyProperty().addListener( listener );
-  }
-
-  /**
    * Scrolls to the closest element matching the given identifier without
    * waiting for the document to be ready. Be sure the document is ready
    * before calling this method.
    *
-   * @param id Paragraph index.
+   * @param id Scroll the preview pane to this unique paragraph identifier.
    */
-  public void scrollTo( final int id ) {
-    if( id < 2 ) {
+  public void scrollTo( final String id ) {
+    final var box = getBoxById( id );
+
+    if( box == null ) {
       scrollToTop();
     }
     else {
-      Box box = findPrevBox( id );
-      box = box == null ? findNextBox( id + 1 ) : box;
-
-      if( box == null ) {
-        scrollToBottom();
-      }
-      else {
-        scrollTo( box );
-      }
+      scrollTo( getBoxById( id ) );
     }
-  }
-
-  private Box findPrevBox( final int id ) {
-    int prevId = id;
-    Box box = null;
-
-    while( prevId > 0 && (box = getBoxById( prevId )) == null ) {
-      prevId--;
-    }
-
-    return box;
-  }
-
-  private Box findNextBox( final int id ) {
-    int nextId = id;
-    Box box = null;
-
-    while( nextId - id < 5 &&
-        (box = getBoxById( nextId )) == null ) {
-      nextId++;
-    }
-
-    return box;
   }
 
   private void scrollTo( final Point point ) {
@@ -336,8 +281,8 @@ public final class HTMLPreviewPane extends SwingNode {
     scrollToY( mHtmlRenderer.getHeight() );
   }
 
-  private Box getBoxById( final int id ) {
-    return getSharedContext().getBoxById( Integer.toString( id ) );
+  private Box getBoxById( final String id ) {
+    return getSharedContext().getBoxById( id );
   }
 
   private String decorate( final String html ) {
