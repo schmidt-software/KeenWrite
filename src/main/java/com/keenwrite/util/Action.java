@@ -27,6 +27,11 @@
  */
 package com.keenwrite.util;
 
+import com.keenwrite.Messages;
+import de.jensd.fx.glyphs.GlyphIcons;
+import javafx.beans.value.ObservableBooleanValue;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.control.MenuItem;
 
@@ -35,6 +40,10 @@ import javafx.scene.control.MenuItem;
  * and {@link Node} instances for a toolbar.
  */
 public abstract class Action {
+  public static Builder builder() {
+    return new Builder();
+  }
+
   public abstract MenuItem createMenuItem();
 
   public abstract Node createToolBarButton();
@@ -47,5 +56,52 @@ public abstract class Action {
    * @param action Actions that only exist with respect to this action.
    */
   public void addSubActions( Action... action ) {
+  }
+
+  /**
+   * Provides a fluent interface around constructing actions so that duplication
+   * can be avoided.
+   */
+  public static class Builder {
+    private String mText;
+    private String mAccelerator;
+    private GlyphIcons mIcon;
+    private EventHandler<ActionEvent> mAction;
+    private ObservableBooleanValue mDisable;
+
+    /**
+     * Sets the action text based on a resource bundle key.
+     *
+     * @param key The key to look up in the {@link Messages}.
+     * @return The corresponding value, or the key name if none found.
+     */
+    public Builder setText( final String key ) {
+      mText = Messages.get( key, key );
+      return this;
+    }
+
+    public Builder setAccelerator( final String accelerator ) {
+      mAccelerator = accelerator;
+      return this;
+    }
+
+    public Builder setIcon( final GlyphIcons icon ) {
+      mIcon = icon;
+      return this;
+    }
+
+    public Builder setAction( final EventHandler<ActionEvent> action ) {
+      mAction = action;
+      return this;
+    }
+
+    public Builder setDisable( final ObservableBooleanValue disable ) {
+      mDisable = disable;
+      return this;
+    }
+
+    public Action build() {
+      return new MenuAction( mText, mAccelerator, mIcon, mAction, mDisable );
+    }
   }
 }
