@@ -30,12 +30,9 @@ package com.keenwrite.editors.markdown;
 import com.keenwrite.dialogs.ImageDialog;
 import com.keenwrite.dialogs.LinkDialog;
 import com.keenwrite.editors.EditorPane;
-import com.keenwrite.processors.markdown.CaretExtension;
 import com.keenwrite.processors.markdown.MarkdownProcessor;
 import com.vladsch.flexmark.ast.Link;
-import com.vladsch.flexmark.html.renderer.AttributablePart;
 import com.vladsch.flexmark.util.ast.Node;
-import com.vladsch.flexmark.util.html.MutableAttributes;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.IndexRange;
 import javafx.scene.input.KeyCode;
@@ -44,8 +41,6 @@ import javafx.stage.Window;
 import org.fxmisc.richtext.StyleClassedTextArea;
 
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -62,13 +57,6 @@ import static org.fxmisc.wellbehaved.event.EventPattern.keyPressed;
 public class MarkdownEditorPane extends EditorPane {
   private static final Pattern PATTERN_AUTO_INDENT = Pattern.compile(
       "(\\s*[*+-]\\s+|\\s*[0-9]+\\.\\s+|\\s+)(.*)" );
-
-  /**
-   * Any of these followed by a space and a letter produce a line
-   * by themselves. The ">" need not be followed by a space.
-   */
-  private static final Pattern PATTERN_NEW_LINE = Pattern.compile(
-      "^>|(((#+)|([*+\\-])|([1-9]\\.))\\s+).+" );
 
   public MarkdownEditorPane() {
     initEditor();

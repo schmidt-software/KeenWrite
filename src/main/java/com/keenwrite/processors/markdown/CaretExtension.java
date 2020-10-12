@@ -1,12 +1,10 @@
 package com.keenwrite.processors.markdown;
 
-import com.vladsch.flexmark.ast.*;
 import com.vladsch.flexmark.html.AttributeProvider;
 import com.vladsch.flexmark.html.AttributeProviderFactory;
 import com.vladsch.flexmark.html.IndependentAttributeProviderFactory;
 import com.vladsch.flexmark.html.renderer.AttributablePart;
 import com.vladsch.flexmark.html.renderer.LinkResolverContext;
-import com.vladsch.flexmark.util.ast.Block;
 import com.vladsch.flexmark.util.ast.Node;
 import com.vladsch.flexmark.util.data.MutableDataHolder;
 import com.vladsch.flexmark.util.html.MutableAttributes;
@@ -14,14 +12,12 @@ import org.jetbrains.annotations.NotNull;
 
 import static com.vladsch.flexmark.html.HtmlRenderer.Builder;
 import static com.vladsch.flexmark.html.HtmlRenderer.HtmlRendererExtension;
-import static com.vladsch.flexmark.html.renderer.CoreNodeRenderer.CODE_CONTENT;
 
 /**
  * Responsible for giving most block-level elements a unique identifier
  * attribute. The identifier is used to coordinate scrolling.
  */
 public class CaretExtension implements HtmlRendererExtension {
-
 
   /**
    * Responsible for creating the id attribute. This class is instantiated

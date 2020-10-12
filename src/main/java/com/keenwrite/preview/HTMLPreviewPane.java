@@ -54,6 +54,7 @@ import static com.keenwrite.util.ProtocolResolver.getProtocol;
 import static java.awt.Desktop.Action.BROWSE;
 import static java.awt.Desktop.getDesktop;
 import static java.lang.Math.max;
+import static java.lang.String.format;
 import static javax.swing.SwingUtilities.invokeLater;
 import static org.xhtmlrenderer.swing.ImageResourceLoader.NO_OP_REPAINT_LISTENER;
 
@@ -61,6 +62,10 @@ import static org.xhtmlrenderer.swing.ImageResourceLoader.NO_OP_REPAINT_LISTENER
  * HTML preview pane is responsible for rendering an HTML document.
  */
 public final class HTMLPreviewPane extends SwingNode {
+  /**
+   * Used to scroll to the top of the preview pane.
+   */
+  private static final Point POINT_TOP = new Point( 0, 0 );
 
   /**
    * Suppresses scrolling to the top on every key press.
@@ -150,13 +155,15 @@ public final class HTMLPreviewPane extends SwingNode {
    * Render CSS using points (pt) not pixels (px) to reduce the chance of
    * poor rendering.
    */
-  private static final String HTML_PREFIX = "<!DOCTYPE html>"
-      + "<html lang='en'>"
-      + "<head><title> </title><meta charset='utf-8'/>"
-      + "<link rel='stylesheet' href='" +
-      HTMLPreviewPane.class.getResource( STYLESHEET_PREVIEW ) + "'/>"
-      + "</head>"
-      + "<body>";
+  private static final String HTML_PREFIX = format(
+      "<!DOCTYPE html>"
+          + "<html lang='en'>"
+          + "<head><title> </title><meta charset='utf-8'/>"
+          + "<link rel='stylesheet' href='%s'/>"
+          + "</head>"
+          + "<body>",
+      HTMLPreviewPane.class.getResource( STYLESHEET_PREVIEW )
+  );
 
   private static final String HTML_SUFFIX = "</body></html>";
 
@@ -177,7 +184,6 @@ public final class HTMLPreviewPane extends SwingNode {
 
   private final HTMLPanel mHtmlRenderer = new HTMLPanel();
   private final JScrollPane mScrollPane = new JScrollPane( mHtmlRenderer );
-  //private final DocumentEventHandler mDocHandler = new DocumentEventHandler();
   private final CustomImageLoader mImageLoader = new CustomImageLoader();
 
   private Path mPath = DEFAULT_DIRECTORY;
@@ -204,7 +210,7 @@ public final class HTMLPreviewPane extends SwingNode {
     textRenderer.setSmoothingThreshold( 0 );
 
     setContent( mScrollPane );
-    //mHtmlRenderer.addDocumentListener( mDocHandler );
+    mHtmlRenderer.addDocumentListener( new DocumentEventHandler() );
     mHtmlRenderer.addComponentListener( new ResizeListener() );
 
     // The default mouse click listener attempts navigation within the
@@ -251,34 +257,15 @@ public final class HTMLPreviewPane extends SwingNode {
    * @param id Scroll the preview pane to this unique paragraph identifier.
    */
   public void scrollTo( final String id ) {
-    final var box = getBoxById( id );
+    scrollTo( getBoxById( id ) );
+  }
 
-    if( box == null ) {
-      scrollToTop();
-    }
-    else {
-      scrollTo( getBoxById( id ) );
-    }
+  private void scrollTo( final Box box ) {
+    scrollTo( box == null ? POINT_TOP : createPoint( box ) );
   }
 
   private void scrollTo( final Point point ) {
     invokeLater( () -> mHtmlRenderer.scrollTo( point ) );
-  }
-
-  private void scrollTo( final Box box ) {
-    scrollTo( createPoint( box ) );
-  }
-
-  private void scrollToY( final int y ) {
-    scrollTo( new Point( 0, y ) );
-  }
-
-  private void scrollToTop() {
-    scrollToY( 0 );
-  }
-
-  private void scrollToBottom() {
-    scrollToY( mHtmlRenderer.getHeight() );
   }
 
   private Box getBoxById( final String id ) {
@@ -311,8 +298,8 @@ public final class HTMLPreviewPane extends SwingNode {
     return this;
   }
 
-  public JScrollPane getScrollPane() {
-    return mScrollPane;
+  public void repaintScrollPane() {
+    getScrollPane().repaint();
   }
 
   public JScrollBar getVerticalScrollBar() {
@@ -335,7 +322,7 @@ public final class HTMLPreviewPane extends SwingNode {
 
     // Scroll back up by half the height of the scroll bar to keep the typing
     // area within the view port. Otherwise the view port will have jumped too
-    // high up and the whatever gets typed won't be visible.
+    // high up and the most recently typed letters won't be visible.
     int y = max(
         box.getAbsY() - (mScrollPane.getVerticalScrollBar().getHeight() / 2),
         0 );
@@ -349,9 +336,13 @@ public final class HTMLPreviewPane extends SwingNode {
     return new Point( x, y );
   }
 
+  private JScrollPane getScrollPane() {
+    return mScrollPane;
+  }
+
   private String getBaseUrl() {
-    final Path basePath = getPath();
-    final Path parent = basePath == null ? null : basePath.getParent();
+    final var basePath = getPath();
+    final var parent = basePath == null ? null : basePath.getParent();
 
     return parent == null ? "" : parent.toUri().toString();
   }

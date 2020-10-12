@@ -34,7 +34,6 @@ import com.keenwrite.definition.DefinitionSource;
 import com.keenwrite.definition.MapInterpolator;
 import com.keenwrite.definition.yaml.YamlDefinitionSource;
 import com.keenwrite.editors.DefinitionNameInjector;
-import com.keenwrite.editors.EditorPane;
 import com.keenwrite.editors.markdown.MarkdownEditorPane;
 import com.keenwrite.exceptions.MissingFileException;
 import com.keenwrite.preferences.UserPreferences;
@@ -42,6 +41,7 @@ import com.keenwrite.preview.HTMLPreviewPane;
 import com.keenwrite.processors.Processor;
 import com.keenwrite.processors.ProcessorContext;
 import com.keenwrite.processors.ProcessorFactory;
+import com.keenwrite.processors.markdown.CaretPosition;
 import com.keenwrite.processors.markdown.MarkdownProcessor;
 import com.keenwrite.service.Options;
 import com.keenwrite.service.Snitch;
@@ -172,17 +172,7 @@ public class MainWindow implements Observer {
 
   private final ChangeListener<Integer> mCaretPositionListener =
       ( observable, oldPosition, newPosition ) -> {
-        final FileEditorTab tab = getActiveFileEditorTab();
-        final EditorPane pane = tab.getEditorPane();
-        final StyleClassedTextArea editor = pane.getEditor();
-
-        getLineNumberText().setText(
-            get( STATUS_BAR_LINE,
-                 editor.getCurrentParagraph() + 1,
-                 editor.getParagraphs().size(),
-                 editor.getCaretPosition()
-            )
-        );
+        getLineNumberText().setText( getCaretPosition().toString() );
       };
 
   private final ChangeListener<Integer> mCaretParagraphListener =
@@ -487,11 +477,9 @@ public class MainWindow implements Observer {
   private void scrollToParagraph( final int id, final boolean force ) {
     synchronized( mMutex ) {
       final var previewPane = getPreviewPane();
-      final var scrollPane = previewPane.getScrollPane();
 
       previewPane.scrollTo( "caret" );
-
-      scrollPane.repaint();
+      previewPane.repaintScrollPane();
     }
   }
 
@@ -849,7 +837,7 @@ public class MainWindow implements Observer {
     if( SystemUtils.IS_OS_WINDOWS ) {
       splitPane.getDividers().get( 1 ).positionProperty().addListener(
           ( l, oValue, nValue ) -> runLater(
-              () -> getPreviewPane().getScrollPane().repaint()
+              () -> getPreviewPane().repaintScrollPane()
           )
       );
     }
@@ -1378,6 +1366,30 @@ public class MainWindow implements Observer {
    */
   private Map<String, String> getResolvedMap() {
     return mResolvedMap;
+  }
+
+  /**
+   * Determines the caret position for the active tab.
+   *
+   * @return The current caret position.
+   */
+  private CaretPosition getCaretPosition() {
+    final var tab = getActiveFileEditorTab();
+    final var pane = tab.getEditorPane();
+    final var editor = pane.getEditor();
+
+    final var paraIndex = editor.getCurrentParagraph() + 1;
+    final var maxParaIndex = editor.getParagraphs().size();
+    final var paraOffset = editor.getCaretColumn();
+    final var textOffset = editor.getCaretPosition();
+
+    return CaretPosition
+        .builder()
+        .with( CaretPosition.Mutator::setParagraph, paraIndex )
+        .with( CaretPosition.Mutator::setMaxParagraph, maxParaIndex )
+        .with( CaretPosition.Mutator::setParaOffset, paraOffset )
+        .with( CaretPosition.Mutator::setTextOffset, textOffset )
+        .build();
   }
 
   //---- Persistence accessors ----------------------------------------------
