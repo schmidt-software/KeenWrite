@@ -761,8 +761,7 @@ public class MainWindow implements Observer {
       final FileEditorTab tab, final ExportFormat format ) {
     final var pane = getPreviewPane();
     final var map = getResolvedMap();
-    final var path = tab.getPath();
-    return new ProcessorContext( pane, map, path, format );
+    return new ProcessorContext( pane, map, tab, format );
   }
 
   private ProcessorContext createProcessorContext( final FileEditorTab tab ) {

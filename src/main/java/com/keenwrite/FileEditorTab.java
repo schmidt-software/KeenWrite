@@ -228,7 +228,7 @@ public final class FileEditorTab extends Tab {
    *
    * @return A number from 0 to the editor's document text length.
    */
-  public int getCaretTextOffset() {
+  private int getCaretTextOffset() {
     return getEditor().getCaretPosition();
   }
 

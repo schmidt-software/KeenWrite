@@ -28,8 +28,10 @@
 package com.keenwrite.processors;
 
 import com.keenwrite.ExportFormat;
+import com.keenwrite.FileEditorTab;
 import com.keenwrite.FileType;
 import com.keenwrite.preview.HTMLPreviewPane;
+import com.keenwrite.processors.markdown.CaretPosition;
 
 import java.nio.file.Path;
 import java.util.Map;
@@ -43,8 +45,9 @@ public class ProcessorContext {
   private final HTMLPreviewPane mPreviewPane;
   private final Map<String, String> mResolvedMap;
   private final ExportFormat mExportFormat;
-  private final FileType mFileType;
+  private final FileEditorTab mTab;
   private final Path mPath;
+  private final FileType mFileType;
 
   /**
    * Creates a new context for use by the {@link ProcessorFactory} when
@@ -54,18 +57,19 @@ public class ProcessorContext {
    *
    * @param previewPane Where to display the final (HTML) output.
    * @param resolvedMap Fully expanded interpolated strings.
-   * @param path        Path to the document to process.
+   * @param tab         Tab containing path to the document to process.
    * @param format      Indicate configuration options for export format.
    */
   public ProcessorContext(
       final HTMLPreviewPane previewPane,
       final Map<String, String> resolvedMap,
-      final Path path,
+      final FileEditorTab tab,
       final ExportFormat format ) {
     mPreviewPane = previewPane;
     mResolvedMap = resolvedMap;
-    mPath = path;
-    mFileType = lookup( path );
+    mTab = tab;
+    mPath = mTab.getPath();
+    mFileType = lookup( mPath );
     mExportFormat = format;
   }
 
@@ -79,6 +83,10 @@ public class ProcessorContext {
 
   public Path getPath() {
     return mPath;
+  }
+
+  public CaretPosition getCaretPosition() {
+    return mTab.getCaretPosition();
   }
 
   FileType getFileType() {

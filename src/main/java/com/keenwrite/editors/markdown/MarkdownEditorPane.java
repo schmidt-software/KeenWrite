@@ -32,7 +32,6 @@ import com.keenwrite.dialogs.LinkDialog;
 import com.keenwrite.editors.EditorPane;
 import com.keenwrite.processors.markdown.MarkdownProcessor;
 import com.vladsch.flexmark.ast.Link;
-import com.vladsch.flexmark.util.ast.Node;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.IndexRange;
 import javafx.scene.input.KeyCode;

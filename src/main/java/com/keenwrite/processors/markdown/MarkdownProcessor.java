@@ -46,6 +46,7 @@ import com.vladsch.flexmark.util.misc.Extension;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Optional;
 
 import static com.keenwrite.Constants.USER_DIRECTORY;
 import static com.keenwrite.ExportFormat.NONE;
@@ -57,6 +58,7 @@ public class MarkdownProcessor extends AbstractProcessor<String> {
 
   private final IRender mRenderer;
   private final IParse mParser;
+  private final ProcessorContext mContext;
 
   public static MarkdownProcessor create() {
     return create( null, Path.of( USER_DIRECTORY ) );
@@ -66,13 +68,13 @@ public class MarkdownProcessor extends AbstractProcessor<String> {
       final Processor<String> successor, final Path path ) {
     final var extensions = createExtensions( path, NONE );
 
-    return new MarkdownProcessor( successor, extensions );
+    return new MarkdownProcessor( successor, extensions, null );
   }
 
   public static MarkdownProcessor create(
       final Processor<String> successor, final ProcessorContext context ) {
     final var extensions = createExtensions( context );
-    return new MarkdownProcessor( successor, extensions );
+    return new MarkdownProcessor( successor, extensions, context );
   }
 
   private static Collection<Extension> createExtensions(
@@ -94,13 +96,15 @@ public class MarkdownProcessor extends AbstractProcessor<String> {
 
   public MarkdownProcessor(
       final Processor<String> successor,
-      final Collection<Extension> extensions ) {
+      final Collection<Extension> extensions,
+      final ProcessorContext context ) {
     super( successor );
 
     // TODO: https://github.com/FAlthausen/Vollkorn-Typeface/issues/38
     // TODO: Uncomment when ligatures are fixed.
     // extensions.add( LigatureExtension.create() );
 
+    mContext = context;
     mRenderer = HtmlRenderer.builder().extensions( extensions ).build();
     mParser = Parser.builder().extensions( extensions ).build();
   }
@@ -154,7 +158,26 @@ public class MarkdownProcessor extends AbstractProcessor<String> {
    * @return The root node of the markdown tree.
    */
   private Node parse( final String markdown ) {
+    //System.out.println( "Parse, caret @: " + getCaretPosition() );
     return getParser().parse( markdown );
+  }
+
+  private CaretPosition getCaretPosition() {
+    final var context = getProcessorContext();
+    return context.isPresent()
+        ? context.get().getCaretPosition()
+        : CaretPosition.builder().build();
+  }
+
+  /**
+   * If no {@link ProcessorContext} is available, then parsing the text
+   * from Markdown to HTML will use the default caret position (index 0,
+   * paragraph 0).
+   *
+   * @return The {@link ProcessorContext} to configure the Markdown parser.
+   */
+  private Optional<ProcessorContext> getProcessorContext() {
+    return Optional.of( mContext );
   }
 
   /**
