@@ -171,7 +171,7 @@ public class MainWindow implements Observer {
 
   private final ChangeListener<Integer> mCaretPositionListener =
       ( observable, oldPosition, newPosition ) -> {
-        getLineNumberText().setText( getCaretPosition().toString() );
+        updateCaretPosition( getActiveFileEditorTab() );
       };
 
   private final ChangeListener<Integer> mCaretParagraphListener =
@@ -412,6 +412,7 @@ public class MainWindow implements Observer {
           else {
             final var tab = (FileEditorTab) newTab;
             updateVariableNameInjector( tab );
+            updateCaretPosition( tab );
             process( tab );
           }
         }
@@ -484,6 +485,10 @@ public class MainWindow implements Observer {
 
   private void updateVariableNameInjector( final FileEditorTab tab ) {
     getDefinitionNameInjector().addListener( tab );
+  }
+
+  private void updateCaretPosition( final FileEditorTab tab ) {
+    getLineNumberText().setText( getCaretPosition( tab ).toString() );
   }
 
   /**
@@ -872,13 +877,13 @@ public class MainWindow implements Observer {
         .setText( "Main.menu.file.close" )
         .setAccelerator( "Shortcut+W" )
         .setAction( e -> fileClose() )
-        .setDisable( activeFileEditorIsNull )
+        .setDisabled( activeFileEditorIsNull )
         .build();
     final Action fileCloseAllAction = Action
         .builder()
         .setText( "Main.menu.file.close_all" )
         .setAction( e -> fileCloseAll() )
-        .setDisable( activeFileEditorIsNull )
+        .setDisabled( activeFileEditorIsNull )
         .build();
     final Action fileSaveAction = Action
         .builder()
@@ -886,21 +891,21 @@ public class MainWindow implements Observer {
         .setAccelerator( "Shortcut+S" )
         .setIcon( FLOPPY_ALT )
         .setAction( e -> fileSave() )
-        .setDisable( createActiveBooleanProperty(
+        .setDisabled( createActiveBooleanProperty(
             FileEditorTab::modifiedProperty ).not() )
         .build();
     final Action fileSaveAsAction = Action
         .builder()
         .setText( "Main.menu.file.save_as" )
         .setAction( e -> fileSaveAs() )
-        .setDisable( activeFileEditorIsNull )
+        .setDisabled( activeFileEditorIsNull )
         .build();
     final Action fileSaveAllAction = Action
         .builder()
         .setText( "Main.menu.file.save_all" )
         .setAccelerator( "Shortcut+Shift+S" )
         .setAction( e -> fileSaveAll() )
-        .setDisable( Bindings.not(
+        .setDisabled( Bindings.not(
             getFileEditorPane().anyFileEditorModifiedProperty() ) )
         .build();
     final Action fileExportAction = Action
@@ -940,7 +945,7 @@ public class MainWindow implements Observer {
         .setAccelerator( "Shortcut+Z" )
         .setIcon( UNDO )
         .setAction( e -> getActiveEditorPane().undo() )
-        .setDisable( createActiveBooleanProperty(
+        .setDisabled( createActiveBooleanProperty(
             FileEditorTab::canUndoProperty ).not() )
         .build();
     final Action editRedoAction = Action
@@ -949,7 +954,7 @@ public class MainWindow implements Observer {
         .setAccelerator( "Shortcut+Y" )
         .setIcon( REPEAT )
         .setAction( e -> getActiveEditorPane().redo() )
-        .setDisable( createActiveBooleanProperty(
+        .setDisabled( createActiveBooleanProperty(
             FileEditorTab::canRedoProperty ).not() )
         .build();
 
@@ -959,7 +964,7 @@ public class MainWindow implements Observer {
         .setAccelerator( "Shortcut+X" )
         .setIcon( CUT )
         .setAction( e -> getActiveEditorPane().cut() )
-        .setDisable( activeFileEditorIsNull )
+        .setDisabled( activeFileEditorIsNull )
         .build();
     final Action editCopyAction = Action
         .builder()
@@ -967,7 +972,7 @@ public class MainWindow implements Observer {
         .setAccelerator( "Shortcut+C" )
         .setIcon( COPY )
         .setAction( e -> getActiveEditorPane().copy() )
-        .setDisable( activeFileEditorIsNull )
+        .setDisabled( activeFileEditorIsNull )
         .build();
     final Action editPasteAction = Action
         .builder()
@@ -975,14 +980,14 @@ public class MainWindow implements Observer {
         .setAccelerator( "Shortcut+V" )
         .setIcon( PASTE )
         .setAction( e -> getActiveEditorPane().paste() )
-        .setDisable( activeFileEditorIsNull )
+        .setDisabled( activeFileEditorIsNull )
         .build();
     final Action editSelectAllAction = Action
         .builder()
         .setText( "Main.menu.edit.selectAll" )
         .setAccelerator( "Shortcut+A" )
         .setAction( e -> getActiveEditorPane().selectAll() )
-        .setDisable( activeFileEditorIsNull )
+        .setDisabled( activeFileEditorIsNull )
         .build();
 
     final Action editFindAction = Action
@@ -991,14 +996,14 @@ public class MainWindow implements Observer {
         .setAccelerator( "Ctrl+F" )
         .setIcon( SEARCH )
         .setAction( e -> editFind() )
-        .setDisable( activeFileEditorIsNull )
+        .setDisabled( activeFileEditorIsNull )
         .build();
     final Action editFindNextAction = Action
         .builder()
         .setText( "Main.menu.edit.find.next" )
         .setAccelerator( "F3" )
         .setAction( e -> editFindNext() )
-        .setDisable( activeFileEditorIsNull )
+        .setDisabled( activeFileEditorIsNull )
         .build();
     final Action editPreferencesAction = Action
         .builder()
@@ -1014,7 +1019,7 @@ public class MainWindow implements Observer {
         .setAccelerator( "Shortcut+B" )
         .setIcon( BOLD )
         .setAction( e -> insertMarkdown( "**", "**" ) )
-        .setDisable( activeFileEditorIsNull )
+        .setDisabled( activeFileEditorIsNull )
         .build();
     final Action formatItalicAction = Action
         .builder()
@@ -1022,7 +1027,7 @@ public class MainWindow implements Observer {
         .setAccelerator( "Shortcut+I" )
         .setIcon( ITALIC )
         .setAction( e -> insertMarkdown( "*", "*" ) )
-        .setDisable( activeFileEditorIsNull )
+        .setDisabled( activeFileEditorIsNull )
         .build();
     final Action formatSuperscriptAction = Action
         .builder()
@@ -1030,7 +1035,7 @@ public class MainWindow implements Observer {
         .setAccelerator( "Shortcut+[" )
         .setIcon( SUPERSCRIPT )
         .setAction( e -> insertMarkdown( "^", "^" ) )
-        .setDisable( activeFileEditorIsNull )
+        .setDisabled( activeFileEditorIsNull )
         .build();
     final Action formatSubscriptAction = Action
         .builder()
@@ -1038,7 +1043,7 @@ public class MainWindow implements Observer {
         .setAccelerator( "Shortcut+]" )
         .setIcon( SUBSCRIPT )
         .setAction( e -> insertMarkdown( "~", "~" ) )
-        .setDisable( activeFileEditorIsNull )
+        .setDisabled( activeFileEditorIsNull )
         .build();
     final Action formatStrikethroughAction = Action
         .builder()
@@ -1046,7 +1051,7 @@ public class MainWindow implements Observer {
         .setAccelerator( "Shortcut+T" )
         .setIcon( STRIKETHROUGH )
         .setAction( e -> insertMarkdown( "~~", "~~" ) )
-        .setDisable( activeFileEditorIsNull )
+        .setDisabled( activeFileEditorIsNull )
         .build();
 
     // Insert actions
@@ -1056,7 +1061,7 @@ public class MainWindow implements Observer {
         .setAccelerator( "Ctrl+Q" )
         .setIcon( QUOTE_LEFT )
         .setAction( e -> insertMarkdown( "\n\n> ", "" ) )
-        .setDisable( activeFileEditorIsNull )
+        .setDisabled( activeFileEditorIsNull )
         .build();
     final Action insertCodeAction = Action
         .builder()
@@ -1064,7 +1069,7 @@ public class MainWindow implements Observer {
         .setAccelerator( "Shortcut+K" )
         .setIcon( CODE )
         .setAction( e -> insertMarkdown( "`", "`" ) )
-        .setDisable( activeFileEditorIsNull )
+        .setDisabled( activeFileEditorIsNull )
         .build();
     final Action insertFencedCodeBlockAction = Action
         .builder()
@@ -1075,7 +1080,7 @@ public class MainWindow implements Observer {
             "\n\n```\n",
             "\n```\n\n",
             get( "Main.menu.insert.fenced_code_block.prompt" ) ) )
-        .setDisable( activeFileEditorIsNull )
+        .setDisabled( activeFileEditorIsNull )
         .build();
     final Action insertLinkAction = Action
         .builder()
@@ -1083,7 +1088,7 @@ public class MainWindow implements Observer {
         .setAccelerator( "Shortcut+L" )
         .setIcon( LINK )
         .setAction( e -> getActiveEditorPane().insertLink() )
-        .setDisable( activeFileEditorIsNull )
+        .setDisabled( activeFileEditorIsNull )
         .build();
     final Action insertImageAction = Action
         .builder()
@@ -1091,7 +1096,7 @@ public class MainWindow implements Observer {
         .setAccelerator( "Shortcut+G" )
         .setIcon( PICTURE_ALT )
         .setAction( e -> getActiveEditorPane().insertImage() )
-        .setDisable( activeFileEditorIsNull )
+        .setDisabled( activeFileEditorIsNull )
         .build();
 
     // Number of heading actions (H1 ... H3)
@@ -1111,7 +1116,7 @@ public class MainWindow implements Observer {
           .setAccelerator( accelerator )
           .setIcon( HEADER )
           .setAction( e -> insertMarkdown( markup, "", get( prompt ) ) )
-          .setDisable( activeFileEditorIsNull )
+          .setDisabled( activeFileEditorIsNull )
           .build();
     }
 
@@ -1121,7 +1126,7 @@ public class MainWindow implements Observer {
         .setAccelerator( "Shortcut+U" )
         .setIcon( LIST_UL )
         .setAction( e -> insertMarkdown( "\n\n* ", "" ) )
-        .setDisable( activeFileEditorIsNull )
+        .setDisabled( activeFileEditorIsNull )
         .build();
     final Action insertOrderedListAction = Action
         .builder()
@@ -1130,7 +1135,7 @@ public class MainWindow implements Observer {
         .setIcon( LIST_OL )
         .setAction( e -> insertMarkdown(
             "\n\n1. ", "" ) )
-        .setDisable( activeFileEditorIsNull )
+        .setDisabled( activeFileEditorIsNull )
         .build();
     final Action insertHorizontalRuleAction = Action
         .builder()
@@ -1138,7 +1143,7 @@ public class MainWindow implements Observer {
         .setAccelerator( "Shortcut+H" )
         .setAction( e -> insertMarkdown(
             "\n\n---\n\n", "" ) )
-        .setDisable( activeFileEditorIsNull )
+        .setDisabled( activeFileEditorIsNull )
         .build();
 
     // Definition actions
@@ -1410,8 +1415,7 @@ public class MainWindow implements Observer {
    *
    * @return The current caret position.
    */
-  private CaretPosition getCaretPosition() {
-    final var tab = getActiveFileEditorTab();
+  private CaretPosition getCaretPosition( final FileEditorTab tab ) {
     final var pane = tab.getEditorPane();
     final var editor = pane.getEditor();
 

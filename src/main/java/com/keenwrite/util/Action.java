@@ -40,6 +40,11 @@ import javafx.scene.control.MenuItem;
  * and {@link Node} instances for a toolbar.
  */
 public abstract class Action {
+  /**
+   * TODO: Reuse the {@link GenericBuilder}.
+   *
+   * @return The {@link Builder} for an instance of {@link Action}.
+   */
   public static Builder builder() {
     return new Builder();
   }
@@ -67,7 +72,7 @@ public abstract class Action {
     private String mAccelerator;
     private GlyphIcons mIcon;
     private EventHandler<ActionEvent> mAction;
-    private ObservableBooleanValue mDisable;
+    private ObservableBooleanValue mDisabled;
 
     /**
      * Sets the action text based on a resource bundle key.
@@ -95,13 +100,13 @@ public abstract class Action {
       return this;
     }
 
-    public Builder setDisable( final ObservableBooleanValue disable ) {
-      mDisable = disable;
+    public Builder setDisabled( final ObservableBooleanValue disabled ) {
+      mDisabled = disabled;
       return this;
     }
 
     public Action build() {
-      return new MenuAction( mText, mAccelerator, mIcon, mAction, mDisable );
+      return new MenuAction( mText, mAccelerator, mIcon, mAction, mDisabled );
     }
   }
 }
