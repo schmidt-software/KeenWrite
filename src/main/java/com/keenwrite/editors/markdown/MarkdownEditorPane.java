@@ -231,16 +231,16 @@ public class MarkdownEditorPane extends EditorPane {
    * @return An instance containing the link URL and display text.
    */
   private HyperlinkModel getHyperlink() {
-    final StyleClassedTextArea textArea = getEditor();
-    final String selectedText = textArea.getSelectedText();
+    final var textArea = getEditor();
+    final var selectedText = textArea.getSelectedText();
 
     // Get the current paragraph, convert to Markdown nodes.
-    final MarkdownProcessor mp = MarkdownProcessor.create();
-    final int p = textArea.getCurrentParagraph();
-    final String paragraph = textArea.getText( p );
-    final Node node = mp.toNode( paragraph );
-    final LinkVisitor visitor = new LinkVisitor( textArea.getCaretColumn() );
-    final Link link = visitor.process( node );
+    final var mp = MarkdownProcessor.create();
+    final var p = textArea.getCurrentParagraph();
+    final var paragraph = textArea.getText( p );
+    final var node = mp.toNode( paragraph );
+    final var visitor = new LinkVisitor( textArea.getCaretColumn() );
+    final var link = visitor.process( node );
 
     if( link != null ) {
       textArea.selectRange( p, link.getStartOffset(), p, link.getEndOffset() );
@@ -262,7 +262,7 @@ public class MarkdownEditorPane extends EditorPane {
 
   private Path getParentPath() {
     final Path path = getPath();
-    return (path != null) ? path.getParent() : null;
+    return path != null ? path.getParent() : null;
   }
 
   private Dialog<String> createLinkDialog() {

@@ -171,7 +171,7 @@ public class MainWindow implements Observer {
 
   private final ChangeListener<Integer> mCaretPositionListener =
       ( observable, oldPosition, newPosition ) -> {
-        updateCaretPosition( getActiveFileEditorTab() );
+        updateCaretStatus( getActiveFileEditorTab() );
         scrollToCaret();
       };
 
@@ -336,7 +336,6 @@ public class MainWindow implements Observer {
     tab.addTextChangeListener(
         ( __, ov, nv ) -> {
           process( tab );
-          scrollToCaret();
         }
     );
   }
@@ -399,7 +398,7 @@ public class MainWindow implements Observer {
 
     // Update the preview pane changing tabs.
     editorPane.addTabSelectionListener(
-        ( tabPane, oldTab, newTab ) -> {
+        ( __, oldTab, newTab ) -> {
           if( newTab == null ) {
             // Clear the preview pane when closing an editor. When the last
             // tab is closed, this ensures that the preview pane is empty.
@@ -408,7 +407,6 @@ public class MainWindow implements Observer {
           else {
             final var tab = (FileEditorTab) newTab;
             updateVariableNameInjector( tab );
-            updateCaretPosition( tab );
             process( tab );
           }
         }
@@ -477,8 +475,8 @@ public class MainWindow implements Observer {
    *
    * @param tab The active tab containing a caret position to show.
    */
-  private void updateCaretPosition( final FileEditorTab tab ) {
-    getLineNumberText().setText( getCaretPosition( tab ).toString() );
+  private void updateCaretStatus( final FileEditorTab tab ) {
+    getLineNumberText().setText( tab.getCaretPosition().toString() );
   }
 
   /**
@@ -497,7 +495,9 @@ public class MainWindow implements Observer {
       );
 
       try {
+        updateCaretStatus( tab );
         processChain( processor, tab.getEditorText() );
+        scrollToCaret();
       } catch( final Exception ex ) {
         clue( ex );
       }
@@ -1398,29 +1398,6 @@ public class MainWindow implements Observer {
    */
   private Map<String, String> getResolvedMap() {
     return mResolvedMap;
-  }
-
-  /**
-   * Determines the caret position for the active tab.
-   *
-   * @return The current caret position.
-   */
-  private CaretPosition getCaretPosition( final FileEditorTab tab ) {
-    final var pane = tab.getEditorPane();
-    final var editor = pane.getEditor();
-
-    final var paraIndex = editor.getCurrentParagraph() + 1;
-    final var maxParaIndex = editor.getParagraphs().size();
-    final var paraOffset = editor.getCaretColumn();
-    final var textOffset = editor.getCaretPosition();
-
-    return CaretPosition
-        .builder()
-        .with( CaretPosition.Mutator::setParagraph, paraIndex )
-        .with( CaretPosition.Mutator::setMaxParagraph, maxParaIndex )
-        .with( CaretPosition.Mutator::setParaOffset, paraOffset )
-        .with( CaretPosition.Mutator::setTextOffset, textOffset )
-        .build();
   }
 
   //---- Persistence accessors ----------------------------------------------

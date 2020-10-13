@@ -27,6 +27,8 @@ package com.keenwrite;
 
 import com.keenwrite.editors.EditorPane;
 import com.keenwrite.editors.markdown.MarkdownEditorPane;
+import com.keenwrite.processors.Processor;
+import com.keenwrite.processors.markdown.CaretPosition;
 import com.keenwrite.service.events.Notification;
 import com.keenwrite.service.events.Notifier;
 import javafx.beans.binding.Bindings;
@@ -174,7 +176,7 @@ public final class FileEditorTab extends Tab {
    */
   public void searchNext( final String needle ) {
     final String haystack = getEditorText();
-    int index = haystack.indexOf( needle, getCaretPosition() );
+    int index = haystack.indexOf( needle, getCaretTextOffset() );
 
     // Wrap around.
     if( index == -1 ) {
@@ -182,7 +184,7 @@ public final class FileEditorTab extends Tab {
     }
 
     if( index >= 0 ) {
-      setCaretPosition( index );
+      setCaretTextOffset( index );
       getEditor().selectRange( index, index + needle.length() );
     }
   }
@@ -197,11 +199,36 @@ public final class FileEditorTab extends Tab {
   }
 
   /**
+   * Returns an instance of {@link CaretPosition} that contains information
+   * about the caret, including the offset into the text, the paragraph into
+   * the text, maximum number of paragraphs, and more. This allows the main
+   * application and the {@link Processor} instances to get the current
+   * caret position.
+   *
+   * @return The current values for the caret's position within the editor.
+   */
+  public CaretPosition getCaretPosition() {
+    final var editor = getEditor();
+    final var paraIndex = editor.getCurrentParagraph() + 1;
+    final var maxParaIndex = editor.getParagraphs().size();
+    final var paraOffset = editor.getCaretColumn();
+    final var textOffset = editor.getCaretPosition();
+
+    return CaretPosition
+        .builder()
+        .with( CaretPosition.Mutator::setParagraph, paraIndex )
+        .with( CaretPosition.Mutator::setMaxParagraph, maxParaIndex )
+        .with( CaretPosition.Mutator::setParaOffset, paraOffset )
+        .with( CaretPosition.Mutator::setTextOffset, textOffset )
+        .build();
+  }
+
+  /**
    * Returns the index into the text where the caret blinks happily away.
    *
    * @return A number from 0 to the editor's document text length.
    */
-  public int getCaretPosition() {
+  public int getCaretTextOffset() {
     return getEditor().getCaretPosition();
   }
 
@@ -210,7 +237,7 @@ public final class FileEditorTab extends Tab {
    *
    * @param offset The new caret offset.
    */
-  private void setCaretPosition( final int offset ) {
+  private void setCaretTextOffset( final int offset ) {
     getEditor().moveTo( offset );
     getEditor().requestFollowCaret();
   }
