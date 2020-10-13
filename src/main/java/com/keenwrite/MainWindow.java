@@ -172,18 +172,14 @@ public class MainWindow implements Observer {
   private final ChangeListener<Integer> mCaretPositionListener =
       ( observable, oldPosition, newPosition ) -> {
         updateCaretPosition( getActiveFileEditorTab() );
+        scrollToCaret();
       };
-
-  private final ChangeListener<Integer> mCaretParagraphListener =
-      ( observable, oldIndex, newIndex ) ->
-          scrollToParagraph( newIndex, true );
 
   private DefinitionSource mDefinitionSource = createDefaultDefinitionSource();
   private final DefinitionPane mDefinitionPane = createDefinitionPane();
   private final HTMLPreviewPane mPreviewPane = createHTMLPreviewPane();
   private final FileEditorTabPane mFileEditorPane = new FileEditorTabPane(
-      mCaretPositionListener,
-      mCaretParagraphListener );
+      mCaretPositionListener );
 
   /**
    * Listens on the definition pane for double-click events.
@@ -340,7 +336,7 @@ public class MainWindow implements Observer {
     tab.addTextChangeListener(
         ( __, ov, nv ) -> {
           process( tab );
-          scrollToParagraph( getCurrentParagraphIndex() );
+          scrollToCaret();
         }
     );
   }
@@ -462,19 +458,7 @@ public class MainWindow implements Observer {
        .addListener( listener );
   }
 
-  private void scrollToParagraph( final int id ) {
-    scrollToParagraph( id, false );
-  }
-
-  /**
-   * @param id    The paragraph to scroll to, will be approximated if it doesn't
-   *              exist.
-   * @param force {@code true} means to force scrolling immediately, which
-   *              should only be attempted when it is known that the document
-   *              has been fully rendered. Otherwise the internal map of ID
-   *              attributes will be incomplete and scrolling will flounder.
-   */
-  private void scrollToParagraph( final int id, final boolean force ) {
+  private void scrollToCaret() {
     synchronized( mMutex ) {
       final var previewPane = getPreviewPane();
 
@@ -487,6 +471,12 @@ public class MainWindow implements Observer {
     getDefinitionNameInjector().addListener( tab );
   }
 
+  /**
+   * Called to update the status bar's caret position when a new tab is added
+   * or the active tab is switched.
+   *
+   * @param tab The active tab containing a caret position to show.
+   */
   private void updateCaretPosition( final FileEditorTab tab ) {
     getLineNumberText().setText( getCaretPosition( tab ).toString() );
   }

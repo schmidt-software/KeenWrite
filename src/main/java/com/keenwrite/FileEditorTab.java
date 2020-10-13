@@ -423,16 +423,6 @@ public final class FileEditorTab extends Tab {
     getEditorPane().addCaretPositionListener( listener );
   }
 
-  /**
-   * Forwards to the editor pane's listeners for paragraph index change events.
-   *
-   * @param listener Notified when the caret's paragraph index changes.
-   */
-  public void addCaretParagraphListener(
-      final ChangeListener<? super Integer> listener ) {
-    getEditorPane().addCaretParagraphListener( listener );
-  }
-
   public <T extends Event> void addEventFilter(
       final EventType<T> eventType,
       final EventHandler<? super T> eventFilter ) {
