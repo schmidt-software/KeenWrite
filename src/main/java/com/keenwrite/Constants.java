@@ -169,6 +169,11 @@ public class Constants {
   public static final float FONT_SIZE_EDITOR = 12f;
 
   /**
+   * Default identifier to use for synchronized scrolling.
+   */
+  public static String CARET_ID = "caret";
+
+  /**
    * Prevent instantiation.
    */
   private Constants() {

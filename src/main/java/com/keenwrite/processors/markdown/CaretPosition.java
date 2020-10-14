@@ -1,6 +1,38 @@
+/*
+ * Copyright 2020 White Magic Software, Ltd.
+ *
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *  o Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ *
+ *  o Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 package com.keenwrite.processors.markdown;
 
 import com.keenwrite.util.GenericBuilder;
+import javafx.beans.value.ObservableValue;
+import org.fxmisc.richtext.model.Paragraph;
+import org.reactfx.collection.LiveList;
+
+import java.util.Collection;
 
 import static com.keenwrite.Constants.STATUS_BAR_LINE;
 import static com.keenwrite.Messages.get;
@@ -10,45 +42,46 @@ import static com.keenwrite.Messages.get;
  * The caret position is a character offset into the text.
  */
 public class CaretPosition {
+
   public static GenericBuilder<CaretPosition.Mutator, CaretPosition> builder() {
     return GenericBuilder.of( CaretPosition.Mutator::new, CaretPosition::new );
   }
 
   public static class Mutator {
     /**
+     * Caret's current paragraph index (i.e., current caret line number).
+     */
+    private ObservableValue<Integer> mParagraph;
+
+    private LiveList<Paragraph<Collection<String>, String,
+        Collection<String>>> mParagraphs;
+
+    /**
      * Caret offset into the full text, represented as a string index.
      */
-    private int mTextOffset;
+    private ObservableValue<Integer> mTextOffset;
 
     /**
      * Caret offset into the current paragraph, represented as a string index.
      */
-    private int mParaOffset;
+    private ObservableValue<Integer> mParaOffset;
 
-    /**
-     * Caret's current paragraph index (i.e., current caret line number).
-     */
-    private int mParagraph;
-
-    /**
-     * Maximum paragraph index in the text (i.e., number of lines).
-     */
-    private int mMaxParagraph;
-
-    public void setTextOffset( final int textOffset ) {
-      mTextOffset = textOffset;
-    }
-
-    public void setParaOffset( final int paraOffset ) {
-      mParaOffset = paraOffset;
-    }
-
-    public void setParagraph( final int paragraph ) {
+    public void setParagraph( final ObservableValue<Integer> paragraph ) {
       mParagraph = paragraph;
     }
 
-    public void setMaxParagraph( final int maxParagraph ) {
-      mMaxParagraph = maxParagraph;
+    public void setParagraphs(
+        final LiveList<Paragraph<Collection<String>, String,
+            Collection<String>>> paragraphs ) {
+      mParagraphs = paragraphs;
+    }
+
+    public void setTextOffset( final ObservableValue<Integer> textOffset ) {
+      mTextOffset = textOffset;
+    }
+
+    public void setParaOffset( final ObservableValue<Integer> paraOffset ) {
+      mParaOffset = paraOffset;
     }
   }
 
@@ -62,25 +95,17 @@ public class CaretPosition {
   }
 
   /**
-   * Answers whether the caret's offset into the text is before the given
-   * offset.
+   * Answers whether the caret's offset into the text is between the given
+   * offsets.
    *
-   * @param offset Compared against the caret's text offset.
-   * @return {@code true} the caret's offset is before the given offset.
+   * @param began Starting value compared against the caret's text offset.
+   * @param ended Ending value compared against the caret's text offset.
+   * @return {@code true} when the caret's text offset is between the given
+   * values, inclusively (for either value).
    */
-  public boolean isBeforeText( final int offset ) {
-    return getTextOffset() < offset;
-  }
-
-  /**
-   * Answers whether the caret's offset into the text is before the given
-   * offset.
-   *
-   * @param offset Compared against the caret's text offset.
-   * @return {@code true} the caret's offset is after the given offset.
-   */
-  public boolean isAfterText( final int offset ) {
-    return getTextOffset() > offset;
+  public boolean isBetweenText( final int began, final int ended ) {
+    final int offset = getTextOffset();
+    return began <= offset && offset <= ended;
   }
 
   /**
@@ -105,20 +130,20 @@ public class CaretPosition {
     return getParaOffset() > offset;
   }
 
+  private int getParagraph() {
+    return mMutator.mParagraph.getValue();
+  }
+
+  private int getParagraphCount() {
+    return mMutator.mParagraphs.size() + 1;
+  }
+
   private int getTextOffset() {
-    return mMutator.mTextOffset;
+    return mMutator.mTextOffset.getValue();
   }
 
   private int getParaOffset() {
-    return mMutator.mParaOffset;
-  }
-
-  private int getMaxParagraph() {
-    return mMutator.mMaxParagraph;
-  }
-
-  private int getParagraph() {
-    return mMutator.mParagraph;
+    return mMutator.mParaOffset.getValue();
   }
 
   /**
@@ -132,7 +157,7 @@ public class CaretPosition {
   public String toString() {
     return get( STATUS_BAR_LINE,
                 getParagraph(),
-                getMaxParagraph(),
+                getParagraphCount(),
                 getTextOffset() );
   }
 }

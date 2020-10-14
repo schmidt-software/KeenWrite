@@ -41,7 +41,6 @@ import com.keenwrite.preview.HTMLPreviewPane;
 import com.keenwrite.processors.Processor;
 import com.keenwrite.processors.ProcessorContext;
 import com.keenwrite.processors.ProcessorFactory;
-import com.keenwrite.processors.markdown.CaretPosition;
 import com.keenwrite.processors.markdown.MarkdownProcessor;
 import com.keenwrite.service.Options;
 import com.keenwrite.service.Snitch;
@@ -460,7 +459,7 @@ public class MainWindow implements Observer {
     synchronized( mMutex ) {
       final var previewPane = getPreviewPane();
 
-      previewPane.scrollTo( "caret" );
+      previewPane.scrollTo( CARET_ID );
       previewPane.repaintScrollPane();
     }
   }

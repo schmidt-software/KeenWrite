@@ -84,6 +84,11 @@ public final class FileEditorTab extends Tab {
    */
   private Path mPath;
 
+  /**
+   * Dynamically updated position of the caret within the text editor.
+   */
+  private final CaretPosition mCaretPosition;
+
   public FileEditorTab( final Path path ) {
     setPath( path );
 
@@ -95,6 +100,24 @@ public final class FileEditorTab extends Tab {
         requestFocus();
       }
     } );
+
+    mCaretPosition = createCaretPosition( getEditor() );
+  }
+
+  private CaretPosition createCaretPosition(
+      final StyleClassedTextArea editor ) {
+    final var propParaIndex = editor.currentParagraphProperty();
+    final var propParagraphs = editor.getParagraphs();
+    final var propParaOffset = editor.caretColumnProperty();
+    final var propTextOffset = editor.caretPositionProperty();
+
+    return CaretPosition
+        .builder()
+        .with( CaretPosition.Mutator::setParagraph, propParaIndex )
+        .with( CaretPosition.Mutator::setParagraphs, propParagraphs )
+        .with( CaretPosition.Mutator::setParaOffset, propParaOffset )
+        .with( CaretPosition.Mutator::setTextOffset, propTextOffset )
+        .build();
   }
 
   private void updateTab() {
@@ -208,19 +231,7 @@ public final class FileEditorTab extends Tab {
    * @return The current values for the caret's position within the editor.
    */
   public CaretPosition getCaretPosition() {
-    final var editor = getEditor();
-    final var paraIndex = editor.getCurrentParagraph() + 1;
-    final var maxParaIndex = editor.getParagraphs().size();
-    final var paraOffset = editor.getCaretColumn();
-    final var textOffset = editor.getCaretPosition();
-
-    return CaretPosition
-        .builder()
-        .with( CaretPosition.Mutator::setParagraph, paraIndex )
-        .with( CaretPosition.Mutator::setMaxParagraph, maxParaIndex )
-        .with( CaretPosition.Mutator::setParaOffset, paraOffset )
-        .with( CaretPosition.Mutator::setTextOffset, textOffset )
-        .build();
+    return mCaretPosition;
   }
 
   /**

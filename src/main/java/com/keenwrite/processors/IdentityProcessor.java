@@ -32,12 +32,13 @@ package com.keenwrite.processors;
  * end of a processing chain when no more processing is required.
  */
 public class IdentityProcessor extends AbstractProcessor<String> {
+  public static final IdentityProcessor INSTANCE = new IdentityProcessor();
 
   /**
-   * Constructs a new instance having no successor.
+   * Constructs a new instance having no successor (the default successor is
+   * {@code null}).
    */
-  public IdentityProcessor() {
-    super( null );
+  private IdentityProcessor() {
   }
 
   /**

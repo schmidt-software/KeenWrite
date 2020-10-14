@@ -29,6 +29,7 @@ package com.keenwrite.processors.markdown;
 
 import com.keenwrite.ExportFormat;
 import com.keenwrite.processors.AbstractProcessor;
+import com.keenwrite.processors.IdentityProcessor;
 import com.keenwrite.processors.Processor;
 import com.keenwrite.processors.ProcessorContext;
 import com.vladsch.flexmark.ext.definition.DefinitionExtension;
@@ -46,7 +47,6 @@ import com.vladsch.flexmark.util.misc.Extension;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Optional;
 
 import static com.keenwrite.Constants.USER_DIRECTORY;
 import static com.keenwrite.ExportFormat.NONE;
@@ -58,53 +58,74 @@ public class MarkdownProcessor extends AbstractProcessor<String> {
 
   private final IRender mRenderer;
   private final IParse mParser;
-  private final ProcessorContext mContext;
 
   public static MarkdownProcessor create() {
-    return create( null, Path.of( USER_DIRECTORY ) );
+    return create( IdentityProcessor.INSTANCE, Path.of( USER_DIRECTORY ) );
   }
 
   public static MarkdownProcessor create(
       final Processor<String> successor, final Path path ) {
     final var extensions = createExtensions( path, NONE );
-
-    return new MarkdownProcessor( successor, extensions, null );
+    return new MarkdownProcessor( successor, extensions );
   }
 
   public static MarkdownProcessor create(
       final Processor<String> successor, final ProcessorContext context ) {
     final var extensions = createExtensions( context );
-    return new MarkdownProcessor( successor, extensions, context );
+    return new MarkdownProcessor( successor, extensions );
   }
 
+  /**
+   * Creating extensions based using an instance of {@link ProcessorContext}
+   * indicates that the {@link CaretExtension} should be used to inject the
+   * caret position into the final HTML document. This enables the HTML
+   * preview pane to scroll to the same position, relatively speaking, within
+   * the main document. Scrolling is developed this way to decouple the
+   * document being edited from the preview pane so that multiple document
+   * formats can be edited.
+   *
+   * @param context Contains necessary information needed to create extensions
+   *                used by the Markdown parser.
+   * @return {@link Collection} of extensions invoked when parsing Markdown.
+   */
   private static Collection<Extension> createExtensions(
       final ProcessorContext context ) {
-    return createExtensions( context.getPath(), context.getExportFormat() );
+    final var path = context.getPath();
+    final var format = context.getExportFormat();
+    final var extensions = createExtensions( path, format );
+
+    extensions.add( CaretExtension.create( context.getCaretPosition() ) );
+
+    return extensions;
   }
 
+  /**
+   * Creates extensions for images and TeX.
+   *
+   * @param path   Path name for referencing image files via relative paths
+   *               and dynamic file types.
+   * @param format TeX export format to use when generating HTMl documents.
+   * @return {@link Collection} of extensions invoked when parsing Markdown.
+   */
   private static Collection<Extension> createExtensions(
       final Path path, final ExportFormat format ) {
     final var extensions = createDefaultExtensions();
 
-    // Allows referencing image files via relative paths and dynamic file types.
     extensions.add( ImageLinkExtension.create( path ) );
     extensions.add( TeXExtension.create( format ) );
-    //extensions.add( CaretExtension.create() );
 
     return extensions;
   }
 
   public MarkdownProcessor(
       final Processor<String> successor,
-      final Collection<Extension> extensions,
-      final ProcessorContext context ) {
+      final Collection<Extension> extensions ) {
     super( successor );
 
     // TODO: https://github.com/FAlthausen/Vollkorn-Typeface/issues/38
     // TODO: Uncomment when ligatures are fixed.
     // extensions.add( LigatureExtension.create() );
 
-    mContext = context;
     mRenderer = HtmlRenderer.builder().extensions( extensions ).build();
     mParser = Parser.builder().extensions( extensions ).build();
   }
@@ -158,26 +179,7 @@ public class MarkdownProcessor extends AbstractProcessor<String> {
    * @return The root node of the markdown tree.
    */
   private Node parse( final String markdown ) {
-    //System.out.println( "Parse, caret @: " + getCaretPosition() );
     return getParser().parse( markdown );
-  }
-
-  private CaretPosition getCaretPosition() {
-    final var context = getProcessorContext();
-    return context.isPresent()
-        ? context.get().getCaretPosition()
-        : CaretPosition.builder().build();
-  }
-
-  /**
-   * If no {@link ProcessorContext} is available, then parsing the text
-   * from Markdown to HTML will use the default caret position (index 0,
-   * paragraph 0).
-   *
-   * @return The {@link ProcessorContext} to configure the Markdown parser.
-   */
-  private Optional<ProcessorContext> getProcessorContext() {
-    return Optional.of( mContext );
   }
 
   /**

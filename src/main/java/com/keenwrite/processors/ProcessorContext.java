@@ -91,6 +91,12 @@ public class ProcessorContext {
     return mExportFormat;
   }
 
+  /**
+   * Returns the current caret position in the document being edited and is
+   * always up-to-date.
+   *
+   * @return Caret position in the document.
+   */
   public CaretPosition getCaretPosition() {
     return mTab.getCaretPosition();
   }
