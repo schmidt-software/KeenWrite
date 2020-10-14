@@ -46,8 +46,6 @@ public class ProcessorContext {
   private final Map<String, String> mResolvedMap;
   private final ExportFormat mExportFormat;
   private final FileEditorTab mTab;
-  private final Path mPath;
-  private final FileType mFileType;
 
   /**
    * Creates a new context for use by the {@link ProcessorFactory} when
@@ -65,12 +63,20 @@ public class ProcessorContext {
       final Map<String, String> resolvedMap,
       final FileEditorTab tab,
       final ExportFormat format ) {
+    assert previewPane != null;
+    assert resolvedMap != null;
+    assert tab != null;
+    assert format != null;
+
     mPreviewPane = previewPane;
     mResolvedMap = resolvedMap;
     mTab = tab;
-    mPath = mTab.getPath();
-    mFileType = lookup( mPath );
     mExportFormat = format;
+  }
+
+  @SuppressWarnings("SameParameterValue")
+  boolean isExportFormat( final ExportFormat format ) {
+    return mExportFormat == format;
   }
 
   HTMLPreviewPane getPreviewPane() {
@@ -81,24 +87,19 @@ public class ProcessorContext {
     return mResolvedMap;
   }
 
-  public Path getPath() {
-    return mPath;
+  public ExportFormat getExportFormat() {
+    return mExportFormat;
   }
 
   public CaretPosition getCaretPosition() {
     return mTab.getCaretPosition();
   }
 
+  public Path getPath() {
+    return mTab.getPath();
+  }
+
   FileType getFileType() {
-    return mFileType;
-  }
-
-  public ExportFormat getExportFormat() {
-    return mExportFormat;
-  }
-
-  @SuppressWarnings("SameParameterValue")
-  boolean isExportFormat( final ExportFormat format ) {
-    return mExportFormat == format;
+    return lookup( getPath() );
   }
 }
