@@ -71,13 +71,19 @@ public class CaretExtension implements HtmlRendererExtension {
     }
 
     @Override
-    public void setAttributes( @NotNull Node node,
+    public void setAttributes( @NotNull Node curr,
                                @NotNull AttributablePart part,
                                @NotNull MutableAttributes attributes ) {
-      final var began = node.getStartOffset();
-      final var ended = node.getEndOffset();
+      final var began = curr.getStartOffset();
+      final var ended = curr.getEndOffset();
+      final var prev = curr.getPrevious();
 
-      if( mCaret.isBetweenText( began, ended ) ) {
+      // If the caret is within the bounds of the current node or the
+      // caret is within the bounds of the end of the previous node and
+      // the start of the current node, then mark the current node with
+      // a caret indicator.
+      if( mCaret.isBetweenText( began, ended ) ||
+          prev != null && mCaret.isBetweenText( prev.getEndOffset(), began ) ) {
         attributes.addValue( AttributeImpl.of( "id", CARET_ID ) );
       }
     }
@@ -92,7 +98,8 @@ public class CaretExtension implements HtmlRendererExtension {
   @Override
   public void extend(
       final Builder builder, @NotNull final String rendererType ) {
-    builder.attributeProviderFactory( IdAttributeProvider.createFactory( mCaret ) );
+    builder.attributeProviderFactory(
+        IdAttributeProvider.createFactory( mCaret ) );
   }
 
   public static CaretExtension create( final CaretPosition caret ) {

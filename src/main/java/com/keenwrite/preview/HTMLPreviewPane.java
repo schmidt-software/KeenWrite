@@ -299,7 +299,7 @@ public final class HTMLPreviewPane extends SwingNode {
   }
 
   public void repaintScrollPane() {
-    getScrollPane().repaint();
+    invokeLater( () -> getScrollPane().repaint() );
   }
 
   public JScrollBar getVerticalScrollBar() {
