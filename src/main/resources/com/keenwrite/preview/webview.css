@@ -23,12 +23,14 @@ body>*:last-child {
   margin-bottom: 0 !important;
 }
 
-/* BLOCKS ***/
+#caret {
+  background: #fcfeff;
+}
+
 p, blockquote, ul, ol, dl, table, pre {
   margin: 1em 0;
 }
 
-/* HEADINGS ***/
 h1, h2, h3, h4, h5, h6 {
   font-weight: bold;
   margin: 1em 0 .5em;
@@ -127,7 +129,6 @@ dl dd {
   margin-left: 0;
 }
 
-/* CODE ***/
 pre, code, tt {
   /* Must be bundled in JAR file. */
   font-family: "Fira Code", monospace;
@@ -145,7 +146,6 @@ code, tt {
 }
 
 pre > code {
-  /* Reset the padding. */
   padding: 0;
   border: none;
   background: transparent;
@@ -154,7 +154,6 @@ pre > code {
 pre {
   border: .125em solid #ccc;
   overflow: auto;
-  /* Assign the new padding, independently from previous. */
   padding: .25em .5em;
 }
 
@@ -163,7 +162,6 @@ pre code, pre tt {
   border: none;
 }
 
-/* QUOTES ***/
 blockquote {
   border-left: .25em solid #ccc;
   padding: 0 1em;
@@ -178,7 +176,6 @@ blockquote>:last-child {
   margin-bottom: 0;
 }
 
-/* HORIZONTAL RULES ***/
 hr {
   clear: both;
   margin: 1.5em 0 1.5em;
@@ -189,7 +186,6 @@ hr {
   border-bottom: .125em solid #ccc;
 }
 
-/* TABLES ***/
 table {
   width: 100%;
 }
@@ -208,7 +204,6 @@ th, td {
   padding: 0 1em;
 }
 
-/* IMAGES ***/
 img {
   max-width: 100%;
 }

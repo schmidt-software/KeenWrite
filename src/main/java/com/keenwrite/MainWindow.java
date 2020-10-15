@@ -170,8 +170,7 @@ public class MainWindow implements Observer {
 
   private final ChangeListener<Integer> mCaretPositionListener =
       ( observable, oldPosition, newPosition ) -> {
-        updateCaretStatus( getActiveFileEditorTab() );
-        scrollToCaret();
+        processActiveTab();
       };
 
   private DefinitionSource mDefinitionSource = createDefaultDefinitionSource();
@@ -296,7 +295,7 @@ public class MainWindow implements Observer {
     runLater(
         () -> {
           resetProcessors();
-          renderActiveTab();
+          processActiveTab();
         }
     );
   }
@@ -503,7 +502,7 @@ public class MainWindow implements Observer {
     }
   }
 
-  private void renderActiveTab() {
+  private void processActiveTab() {
     process( getActiveFileEditorTab() );
   }
 
