@@ -43,7 +43,6 @@ import static com.keenwrite.ExportFormat.NONE;
 public class ProcessorFactory extends AbstractFileFactory {
 
   private final ProcessorContext mProcessorContext;
-  private final Processor<String> mMarkdownProcessor;
 
   /**
    * Constructs a factory with the ability to create processors that can perform
@@ -53,7 +52,6 @@ public class ProcessorFactory extends AbstractFileFactory {
    */
   private ProcessorFactory( final ProcessorContext processorContext ) {
     mProcessorContext = processorContext;
-    mMarkdownProcessor = createMarkdownProcessor();
   }
 
   private Processor<String> createProcessor() {
@@ -70,16 +68,12 @@ public class ProcessorFactory extends AbstractFileFactory {
     // to SVG. Without conversion would require client-side rendering of
     // math (such as using the JavaScript-based KaTeX engine).
     final Processor<String> successor = context.isExportFormat( NONE )
-        ? getCommonProcessor()
-        :
-        switch( context.getExportFormat() ) {
-          case HTML_TEX_SVG, HTML_TEX_DELIMITED -> createHtmlProcessor();
-          case MARKDOWN_PLAIN, NONE -> createIdentityProcessor();
-        };
+        ? createHtmlPreviewProcessor()
+        : createIdentityProcessor();
 
     return switch( context.getFileType() ) {
       case RMARKDOWN -> createRProcessor( successor );
-      case SOURCE -> createMarkdownDefinitionProcessor( successor );
+      case SOURCE -> createMarkdownProcessor( successor );
       case RXML -> createRXMLProcessor( successor );
       case XML -> createXMLProcessor( successor );
       default -> createPreformattedProcessor();
@@ -130,18 +124,21 @@ public class ProcessorFactory extends AbstractFileFactory {
    *
    * @return An instance of {@link Processor} that forwards HTML for display.
    */
-  private Processor<String> createHTMLPreviewProcessor() {
+  private Processor<String> createHtmlPreviewProcessor() {
     return new HtmlPreviewProcessor( getPreviewPane() );
   }
 
   /**
-   * Instantiates {@link Processor} instances that end the processing chain.
+   * Instantiates a {@link Processor} responsible for parsing Markdown and
+   * definitions.
    *
-   * @return A chain of {@link Processor}s that convert Markdown to HTML.
+   * @return A chain of {@link Processor}s for processing Markdown and
+   * definitions.
    */
-  private Processor<String> createMarkdownProcessor() {
-    final var hpp = createHTMLPreviewProcessor();
-    return MarkdownProcessor.create( hpp, getProcessorContext() );
+  private Processor<String> createMarkdownProcessor(
+      final Processor<String> successor ) {
+    final var dpp = createDefinitionProcessor( successor );
+    return MarkdownProcessor.create( dpp, getProcessorContext() );
   }
 
   private Processor<String> createPreformattedProcessor(
@@ -150,7 +147,7 @@ public class ProcessorFactory extends AbstractFileFactory {
   }
 
   private Processor<String> createPreformattedProcessor() {
-    return createPreformattedProcessor( createHTMLPreviewProcessor() );
+    return createPreformattedProcessor( createHtmlPreviewProcessor() );
   }
 
   private Processor<String> createDefinitionProcessor(
@@ -164,11 +161,6 @@ public class ProcessorFactory extends AbstractFileFactory {
     return new RVariableProcessor( rp, getResolvedMap() );
   }
 
-  private Processor<String> createMarkdownDefinitionProcessor(
-      final Processor<String> successor ) {
-    return createDefinitionProcessor( successor );
-  }
-
   protected Processor<String> createRXMLProcessor(
       final Processor<String> successor ) {
     final var xmlp = new XmlProcessor( successor, getPath() );
@@ -180,21 +172,6 @@ public class ProcessorFactory extends AbstractFileFactory {
       final Processor<String> successor ) {
     final var xmlp = new XmlProcessor( successor, getPath() );
     return createDefinitionProcessor( xmlp );
-  }
-
-  private Processor<String> createHtmlProcessor() {
-    final Processor<String> successor = createIdentityProcessor();
-    return MarkdownProcessor.create( successor, getProcessorContext() );
-  }
-
-  /**
-   * Returns the {@link Processor} common to all {@link Processor}s: markdown
-   * and an HTML preview renderer.
-   *
-   * @return {@link Processor}s at the end of the processing chain.
-   */
-  private Processor<String> getCommonProcessor() {
-    return mMarkdownProcessor;
   }
 
   private ProcessorContext getProcessorContext() {

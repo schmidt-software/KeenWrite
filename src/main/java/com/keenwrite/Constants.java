@@ -134,14 +134,16 @@ public class Constants {
   public static final Path DEFAULT_DIRECTORY = Paths.get( USER_DIRECTORY );
 
   /**
-   * Default starting delimiter for definition variables.
+   * Default starting delimiter for definition variables. This value must
+   * not overlap math delimiters, so do not use $ tokens as the first
+   * delimiter.
    */
-  public static final String DEF_DELIM_BEGAN_DEFAULT = "${";
+  public static final String DEF_DELIM_BEGAN_DEFAULT = "{{";
 
   /**
    * Default ending delimiter for definition variables.
    */
-  public static final String DEF_DELIM_ENDED_DEFAULT = "}";
+  public static final String DEF_DELIM_ENDED_DEFAULT = "}}";
 
   /**
    * Default starting delimiter when inserting R variables.

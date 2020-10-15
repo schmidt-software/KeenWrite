@@ -88,10 +88,10 @@ public class UserPreferences {
   private final ObjectProperty<File> mPropImagesDirectory;
   private final StringProperty mPropImagesOrder;
   private final ObjectProperty<File> mPropDefinitionPath;
-  private final StringProperty mRDelimiterBegan;
-  private final StringProperty mRDelimiterEnded;
-  private final StringProperty mDefDelimiterBegan;
-  private final StringProperty mDefDelimiterEnded;
+  private final StringProperty mPropRDelimBegan;
+  private final StringProperty mPropRDelimEnded;
+  private final StringProperty mPropDefDelimBegan;
+  private final StringProperty mPropDefDelimEnded;
   private final IntegerProperty mPropFontsSizeEditor;
 
   private UserPreferences() {
@@ -105,11 +105,11 @@ public class UserPreferences {
         getSetting( "file.definition.default", DEFINITION_NAME )
     );
 
-    mDefDelimiterBegan = new SimpleStringProperty( DEF_DELIM_BEGAN_DEFAULT );
-    mDefDelimiterEnded = new SimpleStringProperty( DEF_DELIM_ENDED_DEFAULT );
+    mPropDefDelimBegan = new SimpleStringProperty( DEF_DELIM_BEGAN_DEFAULT );
+    mPropDefDelimEnded = new SimpleStringProperty( DEF_DELIM_ENDED_DEFAULT );
 
-    mRDelimiterBegan = new SimpleStringProperty( R_DELIM_BEGAN_DEFAULT );
-    mRDelimiterEnded = new SimpleStringProperty( R_DELIM_ENDED_DEFAULT );
+    mPropRDelimBegan = new SimpleStringProperty( R_DELIM_BEGAN_DEFAULT );
+    mPropRDelimEnded = new SimpleStringProperty( R_DELIM_ENDED_DEFAULT );
 
     mPropFontsSizeEditor = new SimpleIntegerProperty( (int) FONT_SIZE_EDITOR );
 
@@ -165,12 +165,12 @@ public class UserPreferences {
             Group.of(
                 get( "Preferences.r.delimiter.began" ),
                 Setting.of( label( "Preferences.r.delimiter.began.desc" ) ),
-                Setting.of( "Opening", mRDelimiterBegan )
+                Setting.of( "Opening", mPropRDelimBegan )
             ),
             Group.of(
                 get( "Preferences.r.delimiter.ended" ),
                 Setting.of( label( "Preferences.r.delimiter.ended.desc" ) ),
-                Setting.of( "Closing", mRDelimiterEnded )
+                Setting.of( "Closing", mPropRDelimEnded )
             )
         ),
         Category.of(
@@ -197,13 +197,13 @@ public class UserPreferences {
                 get( "Preferences.definitions.delimiter.began" ),
                 Setting.of( label(
                     "Preferences.definitions.delimiter.began.desc" ) ),
-                Setting.of( "Opening", mDefDelimiterBegan )
+                Setting.of( "Opening", mPropDefDelimBegan )
             ),
             Group.of(
                 get( "Preferences.definitions.delimiter.ended" ),
                 Setting.of( label(
                     "Preferences.definitions.delimiter.ended.desc" ) ),
-                Setting.of( "Closing", mDefDelimiterEnded )
+                Setting.of( "Closing", mPropDefDelimEnded )
             )
         ),
         Category.of(
@@ -286,7 +286,7 @@ public class UserPreferences {
   }
 
   private StringProperty defDelimiterBegan() {
-    return mDefDelimiterBegan;
+    return mPropDefDelimBegan;
   }
 
   public String getDefDelimiterBegan() {
@@ -294,7 +294,7 @@ public class UserPreferences {
   }
 
   private StringProperty defDelimiterEnded() {
-    return mDefDelimiterEnded;
+    return mPropDefDelimEnded;
   }
 
   public String getDefDelimiterEnded() {
@@ -318,7 +318,7 @@ public class UserPreferences {
   }
 
   private StringProperty rDelimiterBegan() {
-    return mRDelimiterBegan;
+    return mPropRDelimBegan;
   }
 
   public String getRDelimiterBegan() {
@@ -326,7 +326,7 @@ public class UserPreferences {
   }
 
   private StringProperty rDelimiterEnded() {
-    return mRDelimiterEnded;
+    return mPropRDelimEnded;
   }
 
   public String getRDelimiterEnded() {
