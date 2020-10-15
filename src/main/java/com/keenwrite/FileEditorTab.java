@@ -27,6 +27,8 @@ package com.keenwrite;
 
 import com.keenwrite.editors.EditorPane;
 import com.keenwrite.editors.markdown.MarkdownEditorPane;
+import com.keenwrite.processors.Processor;
+import com.keenwrite.processors.markdown.CaretPosition;
 import com.keenwrite.service.events.Notification;
 import com.keenwrite.service.events.Notifier;
 import javafx.beans.binding.Bindings;
@@ -82,6 +84,11 @@ public final class FileEditorTab extends Tab {
    */
   private Path mPath;
 
+  /**
+   * Dynamically updated position of the caret within the text editor.
+   */
+  private final CaretPosition mCaretPosition;
+
   public FileEditorTab( final Path path ) {
     setPath( path );
 
@@ -93,6 +100,24 @@ public final class FileEditorTab extends Tab {
         requestFocus();
       }
     } );
+
+    mCaretPosition = createCaretPosition( getEditor() );
+  }
+
+  private CaretPosition createCaretPosition(
+      final StyleClassedTextArea editor ) {
+    final var propParaIndex = editor.currentParagraphProperty();
+    final var propParagraphs = editor.getParagraphs();
+    final var propParaOffset = editor.caretColumnProperty();
+    final var propTextOffset = editor.caretPositionProperty();
+
+    return CaretPosition
+        .builder()
+        .with( CaretPosition.Mutator::setParagraph, propParaIndex )
+        .with( CaretPosition.Mutator::setParagraphs, propParagraphs )
+        .with( CaretPosition.Mutator::setParaOffset, propParaOffset )
+        .with( CaretPosition.Mutator::setTextOffset, propTextOffset )
+        .build();
   }
 
   private void updateTab() {
@@ -174,7 +199,7 @@ public final class FileEditorTab extends Tab {
    */
   public void searchNext( final String needle ) {
     final String haystack = getEditorText();
-    int index = haystack.indexOf( needle, getCaretPosition() );
+    int index = haystack.indexOf( needle, getCaretTextOffset() );
 
     // Wrap around.
     if( index == -1 ) {
@@ -182,7 +207,7 @@ public final class FileEditorTab extends Tab {
     }
 
     if( index >= 0 ) {
-      setCaretPosition( index );
+      setCaretTextOffset( index );
       getEditor().selectRange( index, index + needle.length() );
     }
   }
@@ -197,11 +222,24 @@ public final class FileEditorTab extends Tab {
   }
 
   /**
+   * Returns an instance of {@link CaretPosition} that contains information
+   * about the caret, including the offset into the text, the paragraph into
+   * the text, maximum number of paragraphs, and more. This allows the main
+   * application and the {@link Processor} instances to get the current
+   * caret position.
+   *
+   * @return The current values for the caret's position within the editor.
+   */
+  public CaretPosition getCaretPosition() {
+    return mCaretPosition;
+  }
+
+  /**
    * Returns the index into the text where the caret blinks happily away.
    *
    * @return A number from 0 to the editor's document text length.
    */
-  public int getCaretPosition() {
+  private int getCaretTextOffset() {
     return getEditor().getCaretPosition();
   }
 
@@ -210,7 +248,7 @@ public final class FileEditorTab extends Tab {
    *
    * @param offset The new caret offset.
    */
-  private void setCaretPosition( final int offset ) {
+  private void setCaretTextOffset( final int offset ) {
     getEditor().moveTo( offset );
     getEditor().requestFollowCaret();
   }
@@ -421,16 +459,6 @@ public final class FileEditorTab extends Tab {
   public void addCaretPositionListener(
       final ChangeListener<? super Integer> listener ) {
     getEditorPane().addCaretPositionListener( listener );
-  }
-
-  /**
-   * Forwards to the editor pane's listeners for paragraph index change events.
-   *
-   * @param listener Notified when the caret's paragraph index changes.
-   */
-  public void addCaretParagraphListener(
-      final ChangeListener<? super Integer> listener ) {
-    getEditorPane().addCaretParagraphListener( listener );
   }
 
   public <T extends Event> void addEventFilter(

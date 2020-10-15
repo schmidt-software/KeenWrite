@@ -82,19 +82,15 @@ public final class FileEditorTabPane extends TabPane {
   private final ReadOnlyBooleanWrapper mAnyFileEditorModified =
       new ReadOnlyBooleanWrapper();
   private final ChangeListener<Integer> mCaretPositionListener;
-  private final ChangeListener<Integer> mCaretParagraphListener;
 
   /**
    * Constructs a new file editor tab pane.
    *
    * @param caretPositionListener  Listens for changes to caret position so
    *                               that the status bar can update.
-   * @param caretParagraphListener Listens for changes to the caret's paragraph
-   *                               so that scrolling may occur.
    */
   public FileEditorTabPane(
-      final ChangeListener<Integer> caretPositionListener,
-      final ChangeListener<Integer> caretParagraphListener ) {
+      final ChangeListener<Integer> caretPositionListener ) {
     final ObservableList<Tab> tabs = getTabs();
 
     setFocusTraversable( false );
@@ -145,7 +141,6 @@ public final class FileEditorTabPane extends TabPane {
     );
 
     mCaretPositionListener = caretPositionListener;
-    mCaretParagraphListener = caretParagraphListener;
   }
 
   /**
@@ -209,7 +204,6 @@ public final class FileEditorTabPane extends TabPane {
     } );
 
     tab.addCaretPositionListener( mCaretPositionListener );
-    tab.addCaretParagraphListener( mCaretParagraphListener );
 
     return tab;
   }

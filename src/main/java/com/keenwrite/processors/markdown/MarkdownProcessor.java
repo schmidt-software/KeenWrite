@@ -29,6 +29,7 @@ package com.keenwrite.processors.markdown;
 
 import com.keenwrite.ExportFormat;
 import com.keenwrite.processors.AbstractProcessor;
+import com.keenwrite.processors.IdentityProcessor;
 import com.keenwrite.processors.Processor;
 import com.keenwrite.processors.ProcessorContext;
 import com.vladsch.flexmark.ext.definition.DefinitionExtension;
@@ -59,13 +60,12 @@ public class MarkdownProcessor extends AbstractProcessor<String> {
   private final IParse mParser;
 
   public static MarkdownProcessor create() {
-    return create( null, Path.of( USER_DIRECTORY ) );
+    return create( IdentityProcessor.INSTANCE, Path.of( USER_DIRECTORY ) );
   }
 
   public static MarkdownProcessor create(
       final Processor<String> successor, final Path path ) {
     final var extensions = createExtensions( path, NONE );
-
     return new MarkdownProcessor( successor, extensions );
   }
 
@@ -75,18 +75,43 @@ public class MarkdownProcessor extends AbstractProcessor<String> {
     return new MarkdownProcessor( successor, extensions );
   }
 
+  /**
+   * Creating extensions based using an instance of {@link ProcessorContext}
+   * indicates that the {@link CaretExtension} should be used to inject the
+   * caret position into the final HTML document. This enables the HTML
+   * preview pane to scroll to the same position, relatively speaking, within
+   * the main document. Scrolling is developed this way to decouple the
+   * document being edited from the preview pane so that multiple document
+   * formats can be edited.
+   *
+   * @param context Contains necessary information needed to create extensions
+   *                used by the Markdown parser.
+   * @return {@link Collection} of extensions invoked when parsing Markdown.
+   */
   private static Collection<Extension> createExtensions(
       final ProcessorContext context ) {
-    return createExtensions( context.getPath(), context.getExportFormat() );
+    final var path = context.getPath();
+    final var format = context.getExportFormat();
+    final var extensions = createExtensions( path, format );
+
+    extensions.add( CaretExtension.create( context.getCaretPosition() ) );
+
+    return extensions;
   }
 
+  /**
+   * Creates extensions for images and TeX.
+   *
+   * @param path   Path name for referencing image files via relative paths
+   *               and dynamic file types.
+   * @param format TeX export format to use when generating HTMl documents.
+   * @return {@link Collection} of extensions invoked when parsing Markdown.
+   */
   private static Collection<Extension> createExtensions(
       final Path path, final ExportFormat format ) {
     final var extensions = createDefaultExtensions();
 
-    // Allows referencing image files via relative paths and dynamic file types.
     extensions.add( ImageLinkExtension.create( path ) );
-    extensions.add( BlockExtension.create() );
     extensions.add( TeXExtension.create( format ) );
 
     return extensions;

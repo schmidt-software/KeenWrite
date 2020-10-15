@@ -167,16 +167,6 @@ public class EditorPane extends Pane {
   }
 
   /**
-   * Notifies observers when the caret changes paragraph.
-   *
-   * @param listener Receives change event.
-   */
-  public void addCaretParagraphListener(
-      final ChangeListener<? super Integer> listener ) {
-    getEditor().currentParagraphProperty().addListener( listener );
-  }
-
-  /**
    * Notifies observers when the caret changes position.
    *
    * @param listener Receives change event.

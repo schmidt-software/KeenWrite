@@ -34,7 +34,6 @@ import com.keenwrite.definition.DefinitionSource;
 import com.keenwrite.definition.MapInterpolator;
 import com.keenwrite.definition.yaml.YamlDefinitionSource;
 import com.keenwrite.editors.DefinitionNameInjector;
-import com.keenwrite.editors.EditorPane;
 import com.keenwrite.editors.markdown.MarkdownEditorPane;
 import com.keenwrite.exceptions.MissingFileException;
 import com.keenwrite.preferences.UserPreferences;
@@ -50,7 +49,6 @@ import com.keenwrite.spelling.api.SpellChecker;
 import com.keenwrite.spelling.impl.PermissiveSpeller;
 import com.keenwrite.spelling.impl.SymSpellSpeller;
 import com.keenwrite.util.Action;
-import com.keenwrite.util.ActionBuilder;
 import com.keenwrite.util.ActionUtils;
 import com.keenwrite.util.SeparatorAction;
 import com.vladsch.flexmark.parser.Parser;
@@ -172,29 +170,14 @@ public class MainWindow implements Observer {
 
   private final ChangeListener<Integer> mCaretPositionListener =
       ( observable, oldPosition, newPosition ) -> {
-        final FileEditorTab tab = getActiveFileEditorTab();
-        final EditorPane pane = tab.getEditorPane();
-        final StyleClassedTextArea editor = pane.getEditor();
-
-        getLineNumberText().setText(
-            get( STATUS_BAR_LINE,
-                 editor.getCurrentParagraph() + 1,
-                 editor.getParagraphs().size(),
-                 editor.getCaretPosition()
-            )
-        );
+        processActiveTab();
       };
-
-  private final ChangeListener<Integer> mCaretParagraphListener =
-      ( observable, oldIndex, newIndex ) ->
-          scrollToParagraph( newIndex, true );
 
   private DefinitionSource mDefinitionSource = createDefaultDefinitionSource();
   private final DefinitionPane mDefinitionPane = createDefinitionPane();
   private final HTMLPreviewPane mPreviewPane = createHTMLPreviewPane();
   private final FileEditorTabPane mFileEditorPane = new FileEditorTabPane(
-      mCaretPositionListener,
-      mCaretParagraphListener );
+      mCaretPositionListener );
 
   /**
    * Listens on the definition pane for double-click events.
@@ -312,7 +295,7 @@ public class MainWindow implements Observer {
     runLater(
         () -> {
           resetProcessors();
-          renderActiveTab();
+          processActiveTab();
         }
     );
   }
@@ -351,7 +334,6 @@ public class MainWindow implements Observer {
     tab.addTextChangeListener(
         ( __, ov, nv ) -> {
           process( tab );
-          scrollToParagraph( getCurrentParagraphIndex() );
         }
     );
   }
@@ -414,7 +396,7 @@ public class MainWindow implements Observer {
 
     // Update the preview pane changing tabs.
     editorPane.addTabSelectionListener(
-        ( tabPane, oldTab, newTab ) -> {
+        ( __, oldTab, newTab ) -> {
           if( newTab == null ) {
             // Clear the preview pane when closing an editor. When the last
             // tab is closed, this ensures that the preview pane is empty.
@@ -472,37 +454,27 @@ public class MainWindow implements Observer {
        .addListener( listener );
   }
 
-  private void scrollToParagraph( final int id ) {
-    scrollToParagraph( id, false );
-  }
-
-  /**
-   * @param id    The paragraph to scroll to, will be approximated if it doesn't
-   *              exist.
-   * @param force {@code true} means to force scrolling immediately, which
-   *              should only be attempted when it is known that the document
-   *              has been fully rendered. Otherwise the internal map of ID
-   *              attributes will be incomplete and scrolling will flounder.
-   */
-  private void scrollToParagraph( final int id, final boolean force ) {
+  private void scrollToCaret() {
     synchronized( mMutex ) {
       final var previewPane = getPreviewPane();
-      final var scrollPane = previewPane.getScrollPane();
-      final int approxId = getActiveEditorPane().approximateParagraphId( id );
 
-      if( force ) {
-        previewPane.scrollTo( approxId );
-      }
-      else {
-        previewPane.tryScrollTo( approxId );
-      }
-
-      scrollPane.repaint();
+      previewPane.scrollTo( CARET_ID );
+      previewPane.repaintScrollPane();
     }
   }
 
   private void updateVariableNameInjector( final FileEditorTab tab ) {
     getDefinitionNameInjector().addListener( tab );
+  }
+
+  /**
+   * Called to update the status bar's caret position when a new tab is added
+   * or the active tab is switched.
+   *
+   * @param tab The active tab containing a caret position to show.
+   */
+  private void updateCaretStatus( final FileEditorTab tab ) {
+    getLineNumberText().setText( tab.getCaretPosition().toString() );
   }
 
   /**
@@ -521,14 +493,16 @@ public class MainWindow implements Observer {
       );
 
       try {
+        updateCaretStatus( tab );
         processChain( processor, tab.getEditorText() );
+        scrollToCaret();
       } catch( final Exception ex ) {
         clue( ex );
       }
     }
   }
 
-  private void renderActiveTab() {
+  private void processActiveTab() {
     process( getActiveFileEditorTab() );
   }
 
@@ -785,8 +759,7 @@ public class MainWindow implements Observer {
       final FileEditorTab tab, final ExportFormat format ) {
     final var pane = getPreviewPane();
     final var map = getResolvedMap();
-    final var path = tab.getPath();
-    return new ProcessorContext( pane, map, path, format );
+    return new ProcessorContext( pane, map, tab, format );
   }
 
   private ProcessorContext createProcessorContext( final FileEditorTab tab ) {
@@ -855,7 +828,7 @@ public class MainWindow implements Observer {
     if( SystemUtils.IS_OS_WINDOWS ) {
       splitPane.getDividers().get( 1 ).positionProperty().addListener(
           ( l, oValue, nValue ) -> runLater(
-              () -> getPreviewPane().getScrollPane().repaint()
+              () -> getPreviewPane().repaintScrollPane()
           )
       );
     }
@@ -872,61 +845,72 @@ public class MainWindow implements Observer {
         getFileEditorPane().activeFileEditorProperty().isNull();
 
     // File actions
-    final Action fileNewAction = new ActionBuilder()
+    final Action fileNewAction = Action
+        .builder()
         .setText( "Main.menu.file.new" )
         .setAccelerator( "Shortcut+N" )
         .setIcon( FILE_ALT )
         .setAction( e -> fileNew() )
         .build();
-    final Action fileOpenAction = new ActionBuilder()
+    final Action fileOpenAction = Action
+        .builder()
         .setText( "Main.menu.file.open" )
         .setAccelerator( "Shortcut+O" )
         .setIcon( FOLDER_OPEN_ALT )
         .setAction( e -> fileOpen() )
         .build();
-    final Action fileCloseAction = new ActionBuilder()
+    final Action fileCloseAction = Action
+        .builder()
         .setText( "Main.menu.file.close" )
         .setAccelerator( "Shortcut+W" )
         .setAction( e -> fileClose() )
-        .setDisable( activeFileEditorIsNull )
+        .setDisabled( activeFileEditorIsNull )
         .build();
-    final Action fileCloseAllAction = new ActionBuilder()
+    final Action fileCloseAllAction = Action
+        .builder()
         .setText( "Main.menu.file.close_all" )
         .setAction( e -> fileCloseAll() )
-        .setDisable( activeFileEditorIsNull )
+        .setDisabled( activeFileEditorIsNull )
         .build();
-    final Action fileSaveAction = new ActionBuilder()
+    final Action fileSaveAction = Action
+        .builder()
         .setText( "Main.menu.file.save" )
         .setAccelerator( "Shortcut+S" )
         .setIcon( FLOPPY_ALT )
         .setAction( e -> fileSave() )
-        .setDisable( createActiveBooleanProperty(
+        .setDisabled( createActiveBooleanProperty(
             FileEditorTab::modifiedProperty ).not() )
         .build();
-    final Action fileSaveAsAction = new ActionBuilder()
+    final Action fileSaveAsAction = Action
+        .builder()
         .setText( "Main.menu.file.save_as" )
         .setAction( e -> fileSaveAs() )
-        .setDisable( activeFileEditorIsNull )
+        .setDisabled( activeFileEditorIsNull )
         .build();
-    final Action fileSaveAllAction = new ActionBuilder()
+    final Action fileSaveAllAction = Action
+        .builder()
         .setText( "Main.menu.file.save_all" )
         .setAccelerator( "Shortcut+Shift+S" )
         .setAction( e -> fileSaveAll() )
-        .setDisable( Bindings.not(
+        .setDisabled( Bindings.not(
             getFileEditorPane().anyFileEditorModifiedProperty() ) )
         .build();
-    final Action fileExportAction = new ActionBuilder()
+    final Action fileExportAction = Action
+        .builder()
         .setText( "Main.menu.file.export" )
         .build();
-    final Action fileExportHtmlSvgAction = new ActionBuilder()
+    final Action fileExportHtmlSvgAction = Action
+        .builder()
         .setText( "Main.menu.file.export.html_svg" )
         .setAction( e -> fileExport( HTML_TEX_SVG ) )
         .build();
-    final Action fileExportHtmlTexAction = new ActionBuilder()
+    final Action fileExportHtmlTexAction = Action
+        .builder()
         .setText( "Main.menu.file.export.html_tex" )
         .setAction( e -> fileExport( HTML_TEX_DELIMITED ) )
         .build();
-    final Action fileExportMarkdownAction = new ActionBuilder()
+    final Action fileExportMarkdownAction = Action
+        .builder()
         .setText( "Main.menu.file.export.markdown" )
         .setAction( e -> fileExport( MARKDOWN_PLAIN ) )
         .build();
@@ -935,129 +919,147 @@ public class MainWindow implements Observer {
         fileExportHtmlTexAction,
         fileExportMarkdownAction );
 
-    final Action fileExitAction = new ActionBuilder()
+    final Action fileExitAction = Action
+        .builder()
         .setText( "Main.menu.file.exit" )
         .setAction( e -> fileExit() )
         .build();
 
     // Edit actions
-    final Action editUndoAction = new ActionBuilder()
+    final Action editUndoAction = Action
+        .builder()
         .setText( "Main.menu.edit.undo" )
         .setAccelerator( "Shortcut+Z" )
         .setIcon( UNDO )
         .setAction( e -> getActiveEditorPane().undo() )
-        .setDisable( createActiveBooleanProperty(
+        .setDisabled( createActiveBooleanProperty(
             FileEditorTab::canUndoProperty ).not() )
         .build();
-    final Action editRedoAction = new ActionBuilder()
+    final Action editRedoAction = Action
+        .builder()
         .setText( "Main.menu.edit.redo" )
         .setAccelerator( "Shortcut+Y" )
         .setIcon( REPEAT )
         .setAction( e -> getActiveEditorPane().redo() )
-        .setDisable( createActiveBooleanProperty(
+        .setDisabled( createActiveBooleanProperty(
             FileEditorTab::canRedoProperty ).not() )
         .build();
 
-    final Action editCutAction = new ActionBuilder()
+    final Action editCutAction = Action
+        .builder()
         .setText( "Main.menu.edit.cut" )
         .setAccelerator( "Shortcut+X" )
         .setIcon( CUT )
         .setAction( e -> getActiveEditorPane().cut() )
-        .setDisable( activeFileEditorIsNull )
+        .setDisabled( activeFileEditorIsNull )
         .build();
-    final Action editCopyAction = new ActionBuilder()
+    final Action editCopyAction = Action
+        .builder()
         .setText( "Main.menu.edit.copy" )
         .setAccelerator( "Shortcut+C" )
         .setIcon( COPY )
         .setAction( e -> getActiveEditorPane().copy() )
-        .setDisable( activeFileEditorIsNull )
+        .setDisabled( activeFileEditorIsNull )
         .build();
-    final Action editPasteAction = new ActionBuilder()
+    final Action editPasteAction = Action
+        .builder()
         .setText( "Main.menu.edit.paste" )
         .setAccelerator( "Shortcut+V" )
         .setIcon( PASTE )
         .setAction( e -> getActiveEditorPane().paste() )
-        .setDisable( activeFileEditorIsNull )
+        .setDisabled( activeFileEditorIsNull )
         .build();
-    final Action editSelectAllAction = new ActionBuilder()
+    final Action editSelectAllAction = Action
+        .builder()
         .setText( "Main.menu.edit.selectAll" )
         .setAccelerator( "Shortcut+A" )
         .setAction( e -> getActiveEditorPane().selectAll() )
-        .setDisable( activeFileEditorIsNull )
+        .setDisabled( activeFileEditorIsNull )
         .build();
 
-    final Action editFindAction = new ActionBuilder()
+    final Action editFindAction = Action
+        .builder()
         .setText( "Main.menu.edit.find" )
         .setAccelerator( "Ctrl+F" )
         .setIcon( SEARCH )
         .setAction( e -> editFind() )
-        .setDisable( activeFileEditorIsNull )
+        .setDisabled( activeFileEditorIsNull )
         .build();
-    final Action editFindNextAction = new ActionBuilder()
+    final Action editFindNextAction = Action
+        .builder()
         .setText( "Main.menu.edit.find.next" )
         .setAccelerator( "F3" )
         .setAction( e -> editFindNext() )
-        .setDisable( activeFileEditorIsNull )
+        .setDisabled( activeFileEditorIsNull )
         .build();
-    final Action editPreferencesAction = new ActionBuilder()
+    final Action editPreferencesAction = Action
+        .builder()
         .setText( "Main.menu.edit.preferences" )
         .setAccelerator( "Ctrl+Alt+S" )
         .setAction( e -> editPreferences() )
         .build();
 
     // Format actions
-    final Action formatBoldAction = new ActionBuilder()
+    final Action formatBoldAction = Action
+        .builder()
         .setText( "Main.menu.format.bold" )
         .setAccelerator( "Shortcut+B" )
         .setIcon( BOLD )
         .setAction( e -> insertMarkdown( "**", "**" ) )
-        .setDisable( activeFileEditorIsNull )
+        .setDisabled( activeFileEditorIsNull )
         .build();
-    final Action formatItalicAction = new ActionBuilder()
+    final Action formatItalicAction = Action
+        .builder()
         .setText( "Main.menu.format.italic" )
         .setAccelerator( "Shortcut+I" )
         .setIcon( ITALIC )
         .setAction( e -> insertMarkdown( "*", "*" ) )
-        .setDisable( activeFileEditorIsNull )
+        .setDisabled( activeFileEditorIsNull )
         .build();
-    final Action formatSuperscriptAction = new ActionBuilder()
+    final Action formatSuperscriptAction = Action
+        .builder()
         .setText( "Main.menu.format.superscript" )
         .setAccelerator( "Shortcut+[" )
         .setIcon( SUPERSCRIPT )
         .setAction( e -> insertMarkdown( "^", "^" ) )
-        .setDisable( activeFileEditorIsNull )
+        .setDisabled( activeFileEditorIsNull )
         .build();
-    final Action formatSubscriptAction = new ActionBuilder()
+    final Action formatSubscriptAction = Action
+        .builder()
         .setText( "Main.menu.format.subscript" )
         .setAccelerator( "Shortcut+]" )
         .setIcon( SUBSCRIPT )
         .setAction( e -> insertMarkdown( "~", "~" ) )
-        .setDisable( activeFileEditorIsNull )
+        .setDisabled( activeFileEditorIsNull )
         .build();
-    final Action formatStrikethroughAction = new ActionBuilder()
+    final Action formatStrikethroughAction = Action
+        .builder()
         .setText( "Main.menu.format.strikethrough" )
         .setAccelerator( "Shortcut+T" )
         .setIcon( STRIKETHROUGH )
         .setAction( e -> insertMarkdown( "~~", "~~" ) )
-        .setDisable( activeFileEditorIsNull )
+        .setDisabled( activeFileEditorIsNull )
         .build();
 
     // Insert actions
-    final Action insertBlockquoteAction = new ActionBuilder()
+    final Action insertBlockquoteAction = Action
+        .builder()
         .setText( "Main.menu.insert.blockquote" )
         .setAccelerator( "Ctrl+Q" )
         .setIcon( QUOTE_LEFT )
         .setAction( e -> insertMarkdown( "\n\n> ", "" ) )
-        .setDisable( activeFileEditorIsNull )
+        .setDisabled( activeFileEditorIsNull )
         .build();
-    final Action insertCodeAction = new ActionBuilder()
+    final Action insertCodeAction = Action
+        .builder()
         .setText( "Main.menu.insert.code" )
         .setAccelerator( "Shortcut+K" )
         .setIcon( CODE )
         .setAction( e -> insertMarkdown( "`", "`" ) )
-        .setDisable( activeFileEditorIsNull )
+        .setDisabled( activeFileEditorIsNull )
         .build();
-    final Action insertFencedCodeBlockAction = new ActionBuilder()
+    final Action insertFencedCodeBlockAction = Action
+        .builder()
         .setText( "Main.menu.insert.fenced_code_block" )
         .setAccelerator( "Shortcut+Shift+K" )
         .setIcon( FILE_CODE_ALT )
@@ -1065,21 +1067,23 @@ public class MainWindow implements Observer {
             "\n\n```\n",
             "\n```\n\n",
             get( "Main.menu.insert.fenced_code_block.prompt" ) ) )
-        .setDisable( activeFileEditorIsNull )
+        .setDisabled( activeFileEditorIsNull )
         .build();
-    final Action insertLinkAction = new ActionBuilder()
+    final Action insertLinkAction = Action
+        .builder()
         .setText( "Main.menu.insert.link" )
         .setAccelerator( "Shortcut+L" )
         .setIcon( LINK )
         .setAction( e -> getActiveEditorPane().insertLink() )
-        .setDisable( activeFileEditorIsNull )
+        .setDisabled( activeFileEditorIsNull )
         .build();
-    final Action insertImageAction = new ActionBuilder()
+    final Action insertImageAction = Action
+        .builder()
         .setText( "Main.menu.insert.image" )
         .setAccelerator( "Shortcut+G" )
         .setIcon( PICTURE_ALT )
         .setAction( e -> getActiveEditorPane().insertImage() )
-        .setDisable( activeFileEditorIsNull )
+        .setDisabled( activeFileEditorIsNull )
         .build();
 
     // Number of heading actions (H1 ... H3)
@@ -1093,45 +1097,51 @@ public class MainWindow implements Observer {
       final String accelerator = "Shortcut+" + i;
       final String prompt = text + ".prompt";
 
-      headings[ i - 1 ] = new ActionBuilder()
+      headings[ i - 1 ] = Action
+          .builder()
           .setText( text )
           .setAccelerator( accelerator )
           .setIcon( HEADER )
           .setAction( e -> insertMarkdown( markup, "", get( prompt ) ) )
-          .setDisable( activeFileEditorIsNull )
+          .setDisabled( activeFileEditorIsNull )
           .build();
     }
 
-    final Action insertUnorderedListAction = new ActionBuilder()
+    final Action insertUnorderedListAction = Action
+        .builder()
         .setText( "Main.menu.insert.unordered_list" )
         .setAccelerator( "Shortcut+U" )
         .setIcon( LIST_UL )
         .setAction( e -> insertMarkdown( "\n\n* ", "" ) )
-        .setDisable( activeFileEditorIsNull )
+        .setDisabled( activeFileEditorIsNull )
         .build();
-    final Action insertOrderedListAction = new ActionBuilder()
+    final Action insertOrderedListAction = Action
+        .builder()
         .setText( "Main.menu.insert.ordered_list" )
         .setAccelerator( "Shortcut+Shift+O" )
         .setIcon( LIST_OL )
         .setAction( e -> insertMarkdown(
             "\n\n1. ", "" ) )
-        .setDisable( activeFileEditorIsNull )
+        .setDisabled( activeFileEditorIsNull )
         .build();
-    final Action insertHorizontalRuleAction = new ActionBuilder()
+    final Action insertHorizontalRuleAction = Action
+        .builder()
         .setText( "Main.menu.insert.horizontal_rule" )
         .setAccelerator( "Shortcut+H" )
         .setAction( e -> insertMarkdown(
             "\n\n---\n\n", "" ) )
-        .setDisable( activeFileEditorIsNull )
+        .setDisabled( activeFileEditorIsNull )
         .build();
 
     // Definition actions
-    final Action definitionCreateAction = new ActionBuilder()
+    final Action definitionCreateAction = Action
+        .builder()
         .setText( "Main.menu.definition.create" )
         .setIcon( TREE )
         .setAction( e -> getDefinitionPane().addItem() )
         .build();
-    final Action definitionInsertAction = new ActionBuilder()
+    final Action definitionInsertAction = Action
+        .builder()
         .setText( "Main.menu.definition.insert" )
         .setAccelerator( "Ctrl+Space" )
         .setIcon( STAR )
@@ -1139,7 +1149,8 @@ public class MainWindow implements Observer {
         .build();
 
     // Help actions
-    final Action helpAboutAction = new ActionBuilder()
+    final Action helpAboutAction = Action
+        .builder()
         .setText( "Main.menu.help.about" )
         .setAction( e -> helpAbout() )
         .build();

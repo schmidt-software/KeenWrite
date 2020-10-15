@@ -30,12 +30,8 @@ package com.keenwrite.editors.markdown;
 import com.keenwrite.dialogs.ImageDialog;
 import com.keenwrite.dialogs.LinkDialog;
 import com.keenwrite.editors.EditorPane;
-import com.keenwrite.processors.markdown.BlockExtension;
 import com.keenwrite.processors.markdown.MarkdownProcessor;
 import com.vladsch.flexmark.ast.Link;
-import com.vladsch.flexmark.html.renderer.AttributablePart;
-import com.vladsch.flexmark.util.ast.Node;
-import com.vladsch.flexmark.util.html.MutableAttributes;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.IndexRange;
 import javafx.scene.input.KeyCode;
@@ -44,8 +40,6 @@ import javafx.stage.Window;
 import org.fxmisc.richtext.StyleClassedTextArea;
 
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -62,13 +56,6 @@ import static org.fxmisc.wellbehaved.event.EventPattern.keyPressed;
 public class MarkdownEditorPane extends EditorPane {
   private static final Pattern PATTERN_AUTO_INDENT = Pattern.compile(
       "(\\s*[*+-]\\s+|\\s*[0-9]+\\.\\s+|\\s+)(.*)" );
-
-  /**
-   * Any of these followed by a space and a letter produce a line
-   * by themselves. The ">" need not be followed by a space.
-   */
-  private static final Pattern PATTERN_NEW_LINE = Pattern.compile(
-      "^>|(((#+)|([*+\\-])|([1-9]\\.))\\s+).+" );
 
   public MarkdownEditorPane() {
     initEditor();
@@ -91,77 +78,6 @@ public class MarkdownEditorPane extends EditorPane {
 
   public void insertImage() {
     insertObject( createImageDialog() );
-  }
-
-  /**
-   * Returns the editor's paragraph number that will be close to its HTML
-   * paragraph ID. Ultimately this solution is flawed because there isn't
-   * a straightforward correlation between the document being edited and
-   * what is rendered. XML documents transformed through stylesheets have
-   * no readily determined correlation. Images, tables, and other
-   * objects affect the relative location of the current paragraph being
-   * edited with respect to the preview pane.
-   * <p>
-   * See
-   * {@link BlockExtension.IdAttributeProvider#setAttributes(Node, AttributablePart, MutableAttributes)}}
-   * for details.
-   * </p>
-   * <p>
-   * Injecting a token into the document, as per a previous version of the
-   * application, can instruct the preview pane where to shift the viewport.
-   * </p>
-   *
-   * @param paraIndex The paragraph index from the editor pane to scroll to
-   *                  in the preview pane, which  will be approximated if an
-   *                  equivalent cannot be found.
-   * @return A unique identifier that correlates to an equivalent paragraph
-   * number once the Markdown is rendered into HTML.
-   */
-  public int approximateParagraphId( final int paraIndex ) {
-    final StyleClassedTextArea editor = getEditor();
-    final List<String> lines = new ArrayList<>( 4096 );
-
-    int i = 0;
-    String prevText = "";
-    boolean withinFencedBlock = false;
-    boolean withinCodeBlock = false;
-
-    for( final var p : editor.getParagraphs() ) {
-      if( i > paraIndex ) {
-        break;
-      }
-
-      String text = p.getText().replace( '>', ' ' );
-      if( text.startsWith( "```" ) ) {
-        if( withinFencedBlock = !withinFencedBlock ) {
-          lines.add( text );
-        }
-      }
-
-      if( !withinFencedBlock ) {
-        if( text.startsWith( "    " ) ) {
-          if( !withinCodeBlock ) {
-            lines.add( text );
-            withinCodeBlock = true;
-          }
-        }
-        else {
-          withinCodeBlock = false;
-        }
-      }
-
-      if( !withinFencedBlock && !withinCodeBlock &&
-          ((!text.isBlank() && prevText.isBlank()) ||
-              PATTERN_NEW_LINE.matcher( text ).matches()) ) {
-        lines.add( text );
-      }
-
-      prevText = text;
-      i++;
-    }
-
-    // Scrolling index is 1-based.
-    return Math.max( lines.size() - 1, 0 );
   }
 
   /**
@@ -314,16 +230,16 @@ public class MarkdownEditorPane extends EditorPane {
    * @return An instance containing the link URL and display text.
    */
   private HyperlinkModel getHyperlink() {
-    final StyleClassedTextArea textArea = getEditor();
-    final String selectedText = textArea.getSelectedText();
+    final var textArea = getEditor();
+    final var selectedText = textArea.getSelectedText();
 
     // Get the current paragraph, convert to Markdown nodes.
-    final MarkdownProcessor mp = MarkdownProcessor.create();
-    final int p = textArea.getCurrentParagraph();
-    final String paragraph = textArea.getText( p );
-    final Node node = mp.toNode( paragraph );
-    final LinkVisitor visitor = new LinkVisitor( textArea.getCaretColumn() );
-    final Link link = visitor.process( node );
+    final var mp = MarkdownProcessor.create();
+    final var p = textArea.getCurrentParagraph();
+    final var paragraph = textArea.getText( p );
+    final var node = mp.toNode( paragraph );
+    final var visitor = new LinkVisitor( textArea.getCaretColumn() );
+    final var link = visitor.process( node );
 
     if( link != null ) {
       textArea.selectRange( p, link.getStartOffset(), p, link.getEndOffset() );
@@ -345,7 +261,7 @@ public class MarkdownEditorPane extends EditorPane {
 
   private Path getParentPath() {
     final Path path = getPath();
-    return (path != null) ? path.getParent() : null;
+    return path != null ? path.getParent() : null;
   }
 
   private Dialog<String> createLinkDialog() {

@@ -89,21 +89,6 @@ public class StatusBarNotifier {
   }
 
   /**
-   * Updates the status bar to show the first line of the given message.
-   *
-   * @param message The message to show in the status bar.
-   */
-  private static void update( final String message ) {
-    runLater(
-        () -> {
-          final var s = message == null ? "" : message;
-          final var i = s.indexOf( '\n' );
-          sStatusBar.setText( s.substring( 0, i > 0 ? i : s.length() ) );
-        }
-    );
-  }
-
-  /**
    * Returns the global {@link Notifier} instance that can be used for opening
    * pop-up alert messages.
    *
@@ -111,5 +96,26 @@ public class StatusBarNotifier {
    */
   public static Notifier getNotifier() {
     return sNotifier;
+  }
+
+  /**
+   * Updates the status bar to show the first line of the given message.
+   *
+   * @param message The message to show in the status bar.
+   */
+  private static void update( final String message ) {
+    try {
+      throw new RuntimeException();
+    } catch( final Exception e ) {
+      e.printStackTrace();
+    }
+
+    runLater(
+        () -> {
+          final var s = message == null ? "" : message;
+          final var i = s.indexOf( '\n' );
+          sStatusBar.setText( s.substring( 0, i > 0 ? i : s.length() ) );
+        }
+    );
   }
 }

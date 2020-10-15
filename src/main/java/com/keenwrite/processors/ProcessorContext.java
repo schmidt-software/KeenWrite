@@ -28,8 +28,10 @@
 package com.keenwrite.processors;
 
 import com.keenwrite.ExportFormat;
+import com.keenwrite.FileEditorTab;
 import com.keenwrite.FileType;
 import com.keenwrite.preview.HTMLPreviewPane;
+import com.keenwrite.processors.markdown.CaretPosition;
 
 import java.nio.file.Path;
 import java.util.Map;
@@ -43,9 +45,7 @@ public class ProcessorContext {
   private final HTMLPreviewPane mPreviewPane;
   private final Map<String, String> mResolvedMap;
   private final ExportFormat mExportFormat;
-  private final FileType mFileType;
-  private final Path mPath;
-
+  private final FileEditorTab mTab;
 
   /**
    * Creates a new context for use by the {@link ProcessorFactory} when
@@ -55,19 +55,28 @@ public class ProcessorContext {
    *
    * @param previewPane Where to display the final (HTML) output.
    * @param resolvedMap Fully expanded interpolated strings.
-   * @param path        Path to the document to process.
+   * @param tab         Tab containing path to the document to process.
    * @param format      Indicate configuration options for export format.
    */
   public ProcessorContext(
       final HTMLPreviewPane previewPane,
       final Map<String, String> resolvedMap,
-      final Path path,
+      final FileEditorTab tab,
       final ExportFormat format ) {
+    assert previewPane != null;
+    assert resolvedMap != null;
+    assert tab != null;
+    assert format != null;
+
     mPreviewPane = previewPane;
     mResolvedMap = resolvedMap;
-    mPath = path;
-    mFileType = lookup( path );
+    mTab = tab;
     mExportFormat = format;
+  }
+
+  @SuppressWarnings("SameParameterValue")
+  boolean isExportFormat( final ExportFormat format ) {
+    return mExportFormat == format;
   }
 
   HTMLPreviewPane getPreviewPane() {
@@ -78,20 +87,25 @@ public class ProcessorContext {
     return mResolvedMap;
   }
 
-  public Path getPath() {
-    return mPath;
-  }
-
-  FileType getFileType() {
-    return mFileType;
-  }
-
   public ExportFormat getExportFormat() {
     return mExportFormat;
   }
 
-  @SuppressWarnings("SameParameterValue")
-  boolean isExportFormat( final ExportFormat format ) {
-    return mExportFormat == format;
+  /**
+   * Returns the current caret position in the document being edited and is
+   * always up-to-date.
+   *
+   * @return Caret position in the document.
+   */
+  public CaretPosition getCaretPosition() {
+    return mTab.getCaretPosition();
+  }
+
+  public Path getPath() {
+    return mTab.getPath();
+  }
+
+  FileType getFileType() {
+    return lookup( getPath() );
   }
 }

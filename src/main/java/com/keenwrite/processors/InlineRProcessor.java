@@ -41,7 +41,6 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.keenwrite.Constants.STATUS_PARSE_ERROR;
-import static com.keenwrite.StatusBarNotifier.clue;
 import static com.keenwrite.processors.text.TextReplacementFactory.replace;
 import static com.keenwrite.sigils.RSigilOperator.PREFIX;
 import static com.keenwrite.sigils.RSigilOperator.SUFFIX;
