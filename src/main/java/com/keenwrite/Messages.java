@@ -68,6 +68,12 @@ public class Messages {
         case '$': {
           if( i + 1 < len && s.charAt( i + 1 ) == '{' ) {
             stack.push( sb );
+
+            if( stack.size() > 20 ) {
+              final var m = get( "Main.status.error.messages.recursion", s );
+              throw new IllegalArgumentException( m );
+            }
+
             sb = new StringBuilder( 256 );
             i++;
             open = true;
@@ -95,7 +101,8 @@ public class Messages {
     }
 
     if( open ) {
-      throw new IllegalArgumentException( "missing '}'" );
+      final var m = get( "Main.status.error.messages.syntax", s );
+      throw new IllegalArgumentException( m );
     }
 
     return sb.toString();

@@ -28,10 +28,8 @@
 package com.keenwrite.processors.markdown;
 
 import com.keenwrite.ExportFormat;
-import com.keenwrite.processors.AbstractProcessor;
-import com.keenwrite.processors.IdentityProcessor;
-import com.keenwrite.processors.Processor;
-import com.keenwrite.processors.ProcessorContext;
+import com.keenwrite.processors.*;
+import com.keenwrite.processors.markdown.r.RExtension;
 import com.vladsch.flexmark.ext.definition.DefinitionExtension;
 import com.vladsch.flexmark.ext.gfm.strikethrough.StrikethroughSubscriptExtension;
 import com.vladsch.flexmark.ext.superscript.SuperscriptExtension;
@@ -48,6 +46,7 @@ import java.nio.file.Path;
 import java.util.Collection;
 import java.util.HashSet;
 
+import static com.keenwrite.AbstractFileFactory.lookup;
 import static com.keenwrite.Constants.USER_DIRECTORY;
 import static com.keenwrite.ExportFormat.NONE;
 
@@ -56,8 +55,21 @@ import static com.keenwrite.ExportFormat.NONE;
  */
 public class MarkdownProcessor extends AbstractProcessor<String> {
 
-  private final IRender mRenderer;
   private final IParse mParser;
+  private final IRender mRenderer;
+
+  private MarkdownProcessor(
+      final Processor<String> successor,
+      final Collection<Extension> extensions ) {
+    super( successor );
+
+    // TODO: https://github.com/FAlthausen/Vollkorn-Typeface/issues/38
+    // TODO: Uncomment when ligatures are fixed.
+    // extensions.add( LigatureExtension.create() );
+
+    mParser = Parser.builder().extensions( extensions ).build();
+    mRenderer = HtmlRenderer.builder().extensions( extensions ).build();
+  }
 
   public static MarkdownProcessor create() {
     return create( IdentityProcessor.INSTANCE, Path.of( USER_DIRECTORY ) );
@@ -100,7 +112,12 @@ public class MarkdownProcessor extends AbstractProcessor<String> {
   }
 
   /**
-   * Creates extensions for images and TeX.
+   * Creates parser extensions that tweak the parsing engine based on various
+   * conditions. For example, this will add a new {@link TeXExtension} that
+   * can export TeX as either SVG or TeX macros. The tweak also includes the
+   * ability to keep inline R statements, rather than convert them to inline
+   * code elements, so that the {@link InlineRProcessor} can interpret the
+   * R statements.
    *
    * @param path   Path name for referencing image files via relative paths
    *               and dynamic file types.
@@ -114,20 +131,11 @@ public class MarkdownProcessor extends AbstractProcessor<String> {
     extensions.add( ImageLinkExtension.create( path ) );
     extensions.add( TeXExtension.create( format ) );
 
+    if( lookup( path ).isR() ) {
+      extensions.add( RExtension.create() );
+    }
+
     return extensions;
-  }
-
-  public MarkdownProcessor(
-      final Processor<String> successor,
-      final Collection<Extension> extensions ) {
-    super( successor );
-
-    // TODO: https://github.com/FAlthausen/Vollkorn-Typeface/issues/38
-    // TODO: Uncomment when ligatures are fixed.
-    // extensions.add( LigatureExtension.create() );
-
-    mRenderer = HtmlRenderer.builder().extensions( extensions ).build();
-    mParser = Parser.builder().extensions( extensions ).build();
   }
 
   /**
@@ -195,7 +203,7 @@ public class MarkdownProcessor extends AbstractProcessor<String> {
   /**
    * Creates the Markdown document processor.
    *
-   * @return A Parser that can build an abstract syntax tree.
+   * @return An instance of {@link IParse} for building abstract syntax trees.
    */
   private IParse getParser() {
     return mParser;

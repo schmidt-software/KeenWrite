@@ -76,7 +76,7 @@ public class ProcessorFactory extends AbstractFileFactory {
       case SOURCE -> createMarkdownProcessor( successor );
       case RXML -> createRXMLProcessor( successor );
       case XML -> createXMLProcessor( successor );
-      default -> createPreformattedProcessor();
+      default -> createPreformattedProcessor( successor );
     };
   }
 
@@ -137,17 +137,8 @@ public class ProcessorFactory extends AbstractFileFactory {
    */
   private Processor<String> createMarkdownProcessor(
       final Processor<String> successor ) {
-    final var dpp = createDefinitionProcessor( successor );
-    return MarkdownProcessor.create( dpp, getProcessorContext() );
-  }
-
-  private Processor<String> createPreformattedProcessor(
-      final Processor<String> successor ) {
-    return new PreformattedProcessor( successor );
-  }
-
-  private Processor<String> createPreformattedProcessor() {
-    return createPreformattedProcessor( createHtmlPreviewProcessor() );
+    final var dp = createDefinitionProcessor( successor );
+    return MarkdownProcessor.create( dp, getProcessorContext() );
   }
 
   private Processor<String> createDefinitionProcessor(
@@ -157,21 +148,26 @@ public class ProcessorFactory extends AbstractFileFactory {
 
   private Processor<String> createRProcessor(
       final Processor<String> successor ) {
-    final var rp = new InlineRProcessor( successor, getResolvedMap() );
-    return new RVariableProcessor( rp, getResolvedMap() );
+    final var irp = new InlineRProcessor( successor, getResolvedMap() );
+    final var rvp = new RVariableProcessor( irp, getResolvedMap() );
+    return MarkdownProcessor.create( rvp, getProcessorContext() );
   }
 
   protected Processor<String> createRXMLProcessor(
       final Processor<String> successor ) {
     final var xmlp = new XmlProcessor( successor, getPath() );
-    final var rp = new InlineRProcessor( xmlp, getResolvedMap() );
-    return new RVariableProcessor( rp, getResolvedMap() );
+    return createRProcessor( xmlp );
   }
 
   private Processor<String> createXMLProcessor(
       final Processor<String> successor ) {
     final var xmlp = new XmlProcessor( successor, getPath() );
     return createDefinitionProcessor( xmlp );
+  }
+
+  private Processor<String> createPreformattedProcessor(
+      final Processor<String> successor ) {
+    return new PreformattedProcessor( successor );
   }
 
   private ProcessorContext getProcessorContext() {

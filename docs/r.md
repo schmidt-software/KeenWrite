@@ -89,7 +89,7 @@ directory. Accomplish this as follows:
 1. Click **R → Script**.
 1. Set the **R Startup Script** contents to:
     ``` r
-    setwd( '$application.r.working.directory$' );
+    setwd( '{{application.r.working.directory}}' );
     source( 'library.R' );
     ```
 1. Change `sum.Rmd` to:
@@ -106,7 +106,7 @@ The preview panel shows:
 25.0
 ```
 
-Calling `setwd` using `'$application.r.working.directory$'` changes the
+Calling `setwd` using `'{{application.r.working.directory}}'` changes the
 working directory where the R engine searches for source files.
 
 # YAML definitions

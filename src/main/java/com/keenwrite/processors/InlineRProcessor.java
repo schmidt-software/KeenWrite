@@ -114,7 +114,11 @@ public final class InlineRProcessor extends DefinitionProcessor {
       final var wd = getWorkingDirectory();
       final var dir = wd.toString().replace( '\\', '/' );
       final var map = getDefinitions();
-      map.put( "$application.r.working.directory$", dir );
+      final var prefs = UserPreferences.getInstance();
+      final var defBegan = prefs.getDefDelimiterBegan();
+      final var defEnded = prefs.getDefDelimiterEnded();
+
+      map.put( defBegan + "application.r.working.directory" + defEnded, dir );
 
       eval( replace( bootstrap, map ) );
     }
@@ -187,7 +191,9 @@ public final class InlineRProcessor extends DefinitionProcessor {
           sb.append( PREFIX ).append( r ).append( SUFFIX );
 
           // Tell the user that there was a problem.
-          StatusBarNotifier.clue( STATUS_PARSE_ERROR, e.getMessage(), currIndex );
+          StatusBarNotifier.clue( STATUS_PARSE_ERROR,
+                                  e.getMessage(),
+                                  currIndex );
         }
 
         // Retain the R statement's ending position in the text.

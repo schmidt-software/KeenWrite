@@ -17,12 +17,12 @@ key_1: Value 1
 key_2: Value 2
 ```
 
-Variables can reference other variables by enclosing the key name within dollar symbols:
+Variables can reference other variables by bookending the key name within symbols:
 
 ```
 key: Value
-key_1: $key$ 1
-key_2: $key$ 2
+key_1: {{key}} 1
+key_2: {{key}} 2
 ```
 
 Variables can use a nested structure to help group related information:
@@ -40,7 +40,7 @@ Use a period to reference nested keys, such as:
 novel:
   author: Author Name
 copyright:
-  owner: $novel.author$
+  owner: {{novel.author}}
 ```
 
 Save the variable definitions in a file having an extension of `.yaml` or `.yml`.
@@ -77,14 +77,14 @@ Let's assume that the variable definitions loaded into the application include:
 
 ```
 novel:
-  title: Diary of $novel.author$
+  title: Diary of {{novel.author}}
   author: Anne Frank
 ```
 
 To reference a variable, type in the key name enclosed within dollar symbols, such as:
 
 ```
-The novel "$novel.title$" is one of the most widely read books in the world.
+The novel "{{novel.title}}" is one of the most widely read books in the world.
 ```
 
 The preview pane shows:
@@ -100,7 +100,7 @@ As it is laborious to type in variable names, it is possible to inject the varia
 The editor shows:
 
 ```
-$novel.title$
+{{novel.title}}
 ```
 
 The preview pane shows:
