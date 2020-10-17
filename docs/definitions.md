@@ -81,7 +81,7 @@ novel:
   author: Anne Frank
 ```
 
-To reference a variable, type in the key name enclosed within dollar symbols, such as:
+To reference a variable, type in the key name enclosed within double braces, such as:
 
 ```
 The novel "{{novel.title}}" is one of the most widely read books in the world.
