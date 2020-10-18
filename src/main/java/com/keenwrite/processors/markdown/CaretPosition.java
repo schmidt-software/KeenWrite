@@ -47,12 +47,18 @@ public class CaretPosition {
     return GenericBuilder.of( CaretPosition.Mutator::new, CaretPosition::new );
   }
 
+  /**
+   * Used for building a new {@link CaretPosition} instance.
+   */
   public static class Mutator {
     /**
      * Caret's current paragraph index (i.e., current caret line number).
      */
     private ObservableValue<Integer> mParagraph;
 
+    /**
+     * Used to count the number of lines in the text editor document.
+     */
     private LiveList<Paragraph<Collection<String>, String,
         Collection<String>>> mParagraphs;
 
@@ -134,14 +140,31 @@ public class CaretPosition {
     return mMutator.mParagraph.getValue();
   }
 
+  /**
+   * Returns the number of lines in the text editor.
+   *
+   * @return The size of the text editor's paragraph list plus one.
+   */
   private int getParagraphCount() {
     return mMutator.mParagraphs.size() + 1;
   }
 
+  /**
+   * Returns the absolute position of the caret within the entire document.
+   *
+   * @return A zero-based index of the caret position.
+   */
   private int getTextOffset() {
     return mMutator.mTextOffset.getValue();
   }
 
+  /**
+   * Returns the position of the caret within the current paragraph being
+   * edited.
+   *
+   * @return A zero-based index of the caret position relative to the
+   * current paragraph.
+   */
   private int getParaOffset() {
     return mMutator.mParaOffset.getValue();
   }

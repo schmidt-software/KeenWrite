@@ -27,6 +27,7 @@
  */
 package com.keenwrite.processors.markdown;
 
+import com.keenwrite.Constants;
 import com.vladsch.flexmark.html.AttributeProvider;
 import com.vladsch.flexmark.html.AttributeProviderFactory;
 import com.vladsch.flexmark.html.IndependentAttributeProviderFactory;
@@ -50,7 +51,7 @@ public class CaretExtension implements HtmlRendererExtension {
 
   /**
    * Responsible for creating the id attribute. This class is instantiated
-   * each time the document is rendered, thereby resetting the count to zero.
+   * once: for the HTML element containing the {@link Constants#CARET_ID}.
    */
   public static class IdAttributeProvider implements AttributeProvider {
     private final CaretPosition mCaret;
@@ -84,6 +85,8 @@ public class CaretExtension implements HtmlRendererExtension {
       // a caret indicator.
       if( mCaret.isBetweenText( began, ended ) ||
           prev != null && mCaret.isBetweenText( prev.getEndOffset(), began ) ) {
+
+        // This magic line enables synchronizing the text editor with preview.
         attributes.addValue( AttributeImpl.of( "id", CARET_ID ) );
       }
     }

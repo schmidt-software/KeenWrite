@@ -118,7 +118,8 @@ public final class RExtension implements Parser.ParserExtension {
   }
 
   /**
-   * Creates an extension capable of handling delimited TeX code in Markdown.
+   * Creates an extension capable of intercepting R code blocks and preventing
+   * them from being converted into HTML {@code <code>} elements.
    */
   public static RExtension create() {
     return new RExtension();
