@@ -104,12 +104,6 @@ public class StatusBarNotifier {
    * @param message The message to show in the status bar.
    */
   private static void update( final String message ) {
-    try {
-      throw new RuntimeException();
-    } catch( final Exception e ) {
-      e.printStackTrace();
-    }
-
     runLater(
         () -> {
           final var s = message == null ? "" : message;
