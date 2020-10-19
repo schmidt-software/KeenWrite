@@ -63,11 +63,6 @@ import static org.xhtmlrenderer.swing.ImageResourceLoader.NO_OP_REPAINT_LISTENER
  */
 public final class HTMLPreviewPane extends SwingNode {
   /**
-   * Used to scroll to the top of the preview pane.
-   */
-  private static final Point POINT_TOP = new Point( 0, 0 );
-
-  /**
    * Suppresses scrolling to the top on every key press.
    */
   private static class HTMLPanel extends XHTMLPanel {
@@ -260,12 +255,24 @@ public final class HTMLPreviewPane extends SwingNode {
     scrollTo( getBoxById( id ) );
   }
 
+  /**
+   * Scrolls to the location specified by the {@link Box} that corresponds
+   * to a point somewhere in the preview pane. If there is no caret, then
+   * this will not change the scroll position. Changing the scroll position
+   * to the top if the {@link Box} instance is {@code null} will result in
+   * jumping around a lot and inconsistent synchronization issues.
+   *
+   * @param box The rectangular region containing the caret, or {@code null}
+   *            if the HTML does not have a caret.
+   */
   private void scrollTo( final Box box ) {
-    scrollTo( box == null ? POINT_TOP : createPoint( box ) );
+    if( box != null ) {
+      scrollTo( createPoint( box ) );
+    }
   }
 
   private void scrollTo( final Point point ) {
-    invokeLater( () -> mHtmlRenderer.scrollTo( point ) );
+    mHtmlRenderer.scrollTo( point );
   }
 
   private Box getBoxById( final String id ) {
@@ -299,7 +306,7 @@ public final class HTMLPreviewPane extends SwingNode {
   }
 
   public void repaintScrollPane() {
-    invokeLater( () -> getScrollPane().repaint() );
+    getScrollPane().repaint();
   }
 
   public JScrollBar getVerticalScrollBar() {

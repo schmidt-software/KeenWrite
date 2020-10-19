@@ -34,7 +34,7 @@ import com.vladsch.flexmark.parser.InlineParserExtensionFactory;
 import com.vladsch.flexmark.parser.InlineParserFactory;
 import com.vladsch.flexmark.parser.Parser;
 import com.vladsch.flexmark.parser.delimiter.DelimiterProcessor;
-import com.vladsch.flexmark.parser.internal.CommonmarkInlineParser;
+import com.vladsch.flexmark.parser.internal.InlineParserImpl;
 import com.vladsch.flexmark.parser.internal.LinkRefProcessorData;
 import com.vladsch.flexmark.util.data.DataHolder;
 import com.vladsch.flexmark.util.data.MutableDataHolder;
@@ -66,7 +66,7 @@ public final class RExtension implements Parser.ParserExtension {
    * {@link InlineRProcessor}.
    * </p>
    */
-  private static class RInlineParser extends CommonmarkInlineParser {
+  private static class RInlineParser extends InlineParserImpl {
     private RInlineParser(
         final DataHolder options,
         final BitSet specialCharacters,
