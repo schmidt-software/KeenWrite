@@ -81,15 +81,6 @@ public class MarkdownEditorPane extends EditorPane {
   }
 
   /**
-   * Gets the index of the paragraph where the caret is positioned.
-   *
-   * @return The paragraph number for the caret.
-   */
-  public int getCurrentParagraphIndex() {
-    return getEditor().getCurrentParagraph();
-  }
-
-  /**
    * @param leading  Characters to insert at the beginning of the current
    *                 selection (or paragraph).
    * @param trailing Characters to insert at the end of the current selection

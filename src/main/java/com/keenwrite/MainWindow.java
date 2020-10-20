@@ -331,11 +331,7 @@ public class MainWindow implements Observer {
   }
 
   private void initTextChangeListener( final FileEditorTab tab ) {
-    tab.addTextChangeListener(
-        ( __, ov, nv ) -> {
-          process( tab );
-        }
-    );
+    tab.addTextChangeListener( ( __, ov, nv ) -> process( tab ) );
   }
 
   private void initScrollEventListener( final FileEditorTab tab ) {
@@ -1314,10 +1310,6 @@ public class MainWindow implements Observer {
 
   private Preferences getPreferences() {
     return sOptions.getState();
-  }
-
-  private int getCurrentParagraphIndex() {
-    return getActiveEditorPane().getCurrentParagraphIndex();
   }
 
   private float getFloat( final String key, final float defaultValue ) {
