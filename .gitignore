@@ -1,6 +1,7 @@
 dist
 *.bin
 *.exe
+*.jar
 build
 .gradle
 contacted.csv
