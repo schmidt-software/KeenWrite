@@ -40,10 +40,17 @@ public class DefinitionProcessor extends AbstractProcessor<String> {
 
   private final Map<String, String> mDefinitions;
 
+  /**
+   * Constructs a processor capable of interpolating string definitions.
+   *
+   * @param successor Subsequent link in the processing chain.
+   * @param context   Contains resolved definitions map.
+   */
   public DefinitionProcessor(
-      final Processor<String> successor, final Map<String, String> map ) {
+      final Processor<String> successor,
+      final ProcessorContext context ) {
     super( successor );
-    mDefinitions = map;
+    mDefinitions = context.getResolvedMap();
   }
 
   /**

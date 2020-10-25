@@ -32,7 +32,6 @@ import com.keenwrite.preview.HTMLPreviewPane;
 import com.keenwrite.processors.markdown.MarkdownProcessor;
 
 import java.nio.file.Path;
-import java.util.Map;
 
 import static com.keenwrite.ExportFormat.NONE;
 
@@ -42,16 +41,16 @@ import static com.keenwrite.ExportFormat.NONE;
  */
 public class ProcessorFactory extends AbstractFileFactory {
 
-  private final ProcessorContext mProcessorContext;
+  private final ProcessorContext mContext;
 
   /**
    * Constructs a factory with the ability to create processors that can perform
    * text and caret processing to generate a final preview.
    *
-   * @param processorContext Parameters needed to construct various processors.
+   * @param context Parameters needed to construct various processors.
    */
-  private ProcessorFactory( final ProcessorContext processorContext ) {
-    mProcessorContext = processorContext;
+  private ProcessorFactory( final ProcessorContext context ) {
+    mContext = context;
   }
 
   private Processor<String> createProcessor() {
@@ -143,25 +142,25 @@ public class ProcessorFactory extends AbstractFileFactory {
 
   private Processor<String> createDefinitionProcessor(
       final Processor<String> successor ) {
-    return new DefinitionProcessor( successor, getResolvedMap() );
+    return new DefinitionProcessor( successor, getProcessorContext() );
   }
 
   private Processor<String> createRProcessor(
       final Processor<String> successor ) {
-    final var irp = new InlineRProcessor( successor, getResolvedMap() );
-    final var rvp = new RVariableProcessor( irp, getResolvedMap() );
+    final var irp = new InlineRProcessor( successor, getProcessorContext() );
+    final var rvp = new RVariableProcessor( irp, getProcessorContext() );
     return MarkdownProcessor.create( rvp, getProcessorContext() );
   }
 
   protected Processor<String> createRXMLProcessor(
       final Processor<String> successor ) {
-    final var xmlp = new XmlProcessor( successor, getPath() );
+    final var xmlp = new XmlProcessor( successor, getProcessorContext() );
     return createRProcessor( xmlp );
   }
 
   private Processor<String> createXMLProcessor(
       final Processor<String> successor ) {
-    final var xmlp = new XmlProcessor( successor, getPath() );
+    final var xmlp = new XmlProcessor( successor, getProcessorContext() );
     return createDefinitionProcessor( xmlp );
   }
 
@@ -171,20 +170,11 @@ public class ProcessorFactory extends AbstractFileFactory {
   }
 
   private ProcessorContext getProcessorContext() {
-    return mProcessorContext;
+    return mContext;
   }
 
   private HTMLPreviewPane getPreviewPane() {
     return getProcessorContext().getPreviewPane();
-  }
-
-  /**
-   * Returns the variable map of interpolated definitions.
-   *
-   * @return A map to help dereference variables.
-   */
-  private Map<String, String> getResolvedMap() {
-    return getProcessorContext().getResolvedMap();
   }
 
   /**

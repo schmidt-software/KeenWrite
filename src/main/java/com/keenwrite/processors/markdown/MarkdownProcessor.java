@@ -75,6 +75,10 @@ public class MarkdownProcessor extends AbstractProcessor<String> {
     return create( IdentityProcessor.INSTANCE, Path.of( USER_DIRECTORY ) );
   }
 
+  public static MarkdownProcessor create( final ProcessorContext context ) {
+    return create( IdentityProcessor.INSTANCE, context );
+  }
+
   public static MarkdownProcessor create(
       final Processor<String> successor, final Path path ) {
     final var extensions = createExtensions( path, NONE );
@@ -181,6 +185,16 @@ public class MarkdownProcessor extends AbstractProcessor<String> {
   }
 
   /**
+   * Returns the result of converting the given AST into an HTML string.
+   *
+   * @param node The AST {@link Node} to convert to an HTML string.
+   * @return The given {@link Node} as an HTML string.
+   */
+  public String toHtml( final Node node ) {
+    return getRenderer().render( node );
+  }
+
+  /**
    * Helper method to create an AST given some markdown.
    *
    * @param markdown The markdown to parse.
@@ -197,7 +211,7 @@ public class MarkdownProcessor extends AbstractProcessor<String> {
    * @return The markdown rendered as an HTML document.
    */
   private String toHtml( final String markdown ) {
-    return getRenderer().render( parse( markdown ) );
+    return toHtml( parse( markdown ) );
   }
 
   /**

@@ -40,8 +40,8 @@ import java.util.Map;
 public class RVariableProcessor extends DefinitionProcessor {
 
   public RVariableProcessor(
-      final Processor<String> rp, final Map<String, String> map ) {
-    super( rp, map );
+      final InlineRProcessor irp, final ProcessorContext context ) {
+    super( irp, context );
   }
 
   /**
@@ -96,7 +96,7 @@ public class RVariableProcessor extends DefinitionProcessor {
     int start = 0;
 
     // Replace up to 32 occurrences before the string reallocates its buffer.
-    final StringBuilder sb = new StringBuilder( length + 32 );
+    final var sb = new StringBuilder( length + 32 );
 
     while( end >= 0 ) {
       sb.append( haystack, start, end ).append( thread );

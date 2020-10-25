@@ -1291,7 +1291,7 @@ public class MainWindow implements Observer {
     }
 
     getFileEditorPane().activeFileEditorProperty().addListener(
-        ( observable, oldFileEditor, newFileEditor ) -> {
+        ( __, oldFileEditor, newFileEditor ) -> {
           b.unbind();
 
           if( newFileEditor == null ) {

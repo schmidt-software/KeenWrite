@@ -83,6 +83,11 @@ public class ProcessorContext {
     return mPreviewPane;
   }
 
+  /**
+   * Returns the variable map of interpolated definitions.
+   *
+   * @return A map to help dereference variables.
+   */
   Map<String, String> getResolvedMap() {
     return mResolvedMap;
   }

@@ -27,8 +27,10 @@
  */
 package com.keenwrite.processors;
 
-import com.keenwrite.StatusBarNotifier;
 import com.keenwrite.preferences.UserPreferences;
+import com.keenwrite.processors.markdown.MarkdownProcessor;
+import com.vladsch.flexmark.ast.Paragraph;
+import com.vladsch.flexmark.ast.Text;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.StringProperty;
 
@@ -41,6 +43,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.keenwrite.Constants.STATUS_PARSE_ERROR;
+import static com.keenwrite.StatusBarNotifier.clue;
 import static com.keenwrite.processors.text.TextReplacementFactory.replace;
 import static com.keenwrite.sigils.RSigilOperator.PREFIX;
 import static com.keenwrite.sigils.RSigilOperator.SUFFIX;
@@ -55,13 +58,15 @@ public final class InlineRProcessor extends DefinitionProcessor {
    */
   private static final int MAX_CACHED_R_STATEMENTS = 512;
 
+  private final MarkdownProcessor mMarkdownProcessor;
+
   /**
    * Where to put document inline evaluated R expressions.
    */
-  private final Map<String, Object> mEvalCache = new LinkedHashMap<>() {
+  private final Map<String, String> mEvalCache = new LinkedHashMap<>() {
     @Override
     protected boolean removeEldestEntry(
-        final Map.Entry<String, Object> eldest ) {
+        final Map.Entry<String, String> eldest ) {
       return size() > MAX_CACHED_R_STATEMENTS;
     }
   };
@@ -80,17 +85,19 @@ public final class InlineRProcessor extends DefinitionProcessor {
    * Constructs a processor capable of evaluating R statements.
    *
    * @param successor Subsequent link in the processing chain.
-   * @param map       Resolved definitions map.
+   * @param context   Contains resolved definitions map.
    */
   public InlineRProcessor(
       final Processor<String> successor,
-      final Map<String, String> map ) {
-    super( successor, map );
+      final ProcessorContext context ) {
+    super( successor, context );
+
+    mMarkdownProcessor = MarkdownProcessor.create( context );
 
     bootstrapScriptProperty().addListener(
-        ( ob, oldScript, newScript ) -> setDirty( true ) );
+        ( __, oldScript, newScript ) -> setDirty( true ) );
     workingDirectoryProperty().addListener(
-        ( ob, oldScript, newScript ) -> setDirty( true ) );
+        ( __, oldScript, newScript ) -> setDirty( true ) );
 
     getUserPreferences().addSaveEventHandler( ( handler ) -> {
       if( isDirty() ) {
@@ -165,13 +172,13 @@ public final class InlineRProcessor extends DefinitionProcessor {
     int currIndex = text.indexOf( PREFIX );
 
     while( currIndex >= 0 ) {
-      // Copy everything up to, but not including, an R statement (`r#).
+      // Copy everything up to, but not including, the opening token.
       sb.append( text, prevIndex, currIndex );
 
       // Jump to the start of the R statement.
       prevIndex = currIndex + PREFIX_LENGTH;
 
-      // Find the statement ending (`), without indexing past the text boundary.
+      // Find the closing token, without indexing past the text boundary.
       currIndex = text.indexOf( SUFFIX, min( currIndex + 1, length ) );
 
       // Only evaluate inline R statements that have end delimiters.
@@ -181,7 +188,7 @@ public final class InlineRProcessor extends DefinitionProcessor {
 
         // Pass the R statement into the R engine for evaluation.
         try {
-          final Object result = evalText( r );
+          final var result = evalCached( r );
 
           // Append the string representation of the result into the text.
           sb.append( result );
@@ -191,9 +198,9 @@ public final class InlineRProcessor extends DefinitionProcessor {
           sb.append( PREFIX ).append( r ).append( SUFFIX );
 
           // Tell the user that there was a problem.
-          StatusBarNotifier.clue( STATUS_PARSE_ERROR,
-                                  e.getMessage(),
-                                  currIndex );
+          clue( STATUS_PARSE_ERROR,
+                e.getMessage(),
+                currIndex );
         }
 
         // Retain the R statement's ending position in the text.
@@ -215,8 +222,29 @@ public final class InlineRProcessor extends DefinitionProcessor {
    * @param r The expression to evaluate.
    * @return The object resulting from the evaluation.
    */
-  private Object evalText( final String r ) {
-    return mEvalCache.computeIfAbsent( r, v -> eval( r ) );
+  private String evalCached( final String r ) {
+    return mEvalCache.computeIfAbsent( r, v -> evalHtml( r ) );
+  }
+
+  /**
+   * Converts the given string to HTML, trimming new lines, and inlining
+   * the text if it is a paragraph. Otherwise, the resulting HTML is most likely
+   * complex (e.g., a Markdown table) and should be rendered as its HTML
+   * equivalent.
+   *
+   * @param r The R expression to evaluate then convert to HTML.
+   * @return The result from the R expression as an HTML element.
+   */
+  private String evalHtml( final String r ) {
+    final var markdown = eval( r );
+    var node = mMarkdownProcessor.toNode( markdown ).getFirstChild();
+
+    if( node != null && node.isOrDescendantOfType( Paragraph.class ) ) {
+      node = new Text( node.getChars() );
+    }
+
+    // Trimming prevents displaced commas and unwanted newlines.
+    return mMarkdownProcessor.toHtml( node ).trim();
   }
 
   /**
@@ -225,15 +253,14 @@ public final class InlineRProcessor extends DefinitionProcessor {
    * @param r The expression to evaluate.
    * @return The object resulting from the evaluation.
    */
-  private Object eval( final String r ) {
+  private String eval( final String r ) {
     try {
-      return getScriptEngine().eval( r );
+      return ENGINE.eval( r ).toString();
     } catch( final Exception ex ) {
-      final String expr = r.substring( 0, min( r.length(), 30 ) );
-      StatusBarNotifier.clue( "Main.status.error.r", expr, ex.getMessage() );
+      final var expr = r.substring( 0, min( r.length(), 30 ) );
+      clue( "Main.status.error.r", expr, ex.getMessage() );
+      return "";
     }
-
-    return "";
   }
 
   /**
@@ -265,9 +292,5 @@ public final class InlineRProcessor extends DefinitionProcessor {
 
   private UserPreferences getUserPreferences() {
     return UserPreferences.getInstance();
-  }
-
-  private ScriptEngine getScriptEngine() {
-    return ENGINE;
   }
 }

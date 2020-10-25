@@ -77,12 +77,14 @@ public class XmlProcessor extends AbstractProcessor<String>
    * path must point to the directory where the XSL file is found, which implies
    * that they must be in the same directory.
    *
-   * @param processor Next link in the processing chain.
-   * @param path      The path to the XML file content to be processed.
+   * @param successor Next link in the processing chain.
+   * @param context   Contains path to the XML file content to be processed.
    */
-  public XmlProcessor( final Processor<String> processor, final Path path ) {
-    super( processor );
-    setPath( path );
+  public XmlProcessor(
+      final Processor<String> successor,
+      final ProcessorContext context ) {
+    super( successor );
+    setPath( context.getPath() );
   }
 
   /**
