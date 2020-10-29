@@ -212,8 +212,10 @@ public class MainWindow implements Observer {
 
   private void initLayout() {
     final var scene = getScene();
+    final var stylesheets = scene.getStylesheets();
 
-    scene.getStylesheets().add( STYLESHEET_SCENE );
+    stylesheets.add( STYLESHEET_DOCK );
+    stylesheets.add( STYLESHEET_SCENE );
     scene.windowProperty().addListener(
         ( unused, oldWindow, newWindow ) ->
             newWindow.setOnCloseRequest(

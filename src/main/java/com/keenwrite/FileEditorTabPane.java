@@ -27,6 +27,7 @@
  */
 package com.keenwrite;
 
+import com.keenwrite.dock.control.DetachableTabPane;
 import com.keenwrite.service.Options;
 import com.keenwrite.service.Settings;
 import com.keenwrite.service.events.Notification;
@@ -67,7 +68,7 @@ import static com.keenwrite.service.events.Notifier.YES;
 /**
  * Tab pane for file editors.
  */
-public final class FileEditorTabPane extends TabPane {
+public final class FileEditorTabPane extends DetachableTabPane {
 
   private static final String FILTER_EXTENSION_TITLES =
       "Dialog.file.choose.filter";

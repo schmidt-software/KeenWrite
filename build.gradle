@@ -99,7 +99,7 @@ dependencies {
   implementation "org.apache.xmlgraphics:batik-util:${v_batik}"
   implementation "org.apache.xmlgraphics:batik-xml:${v_batik}"
 
-  // Spelling, TeX
+  // Spelling, TeX, Docking
   implementation fileTree(include: ['**/*.jar'], dir: 'libs')
 
   // Misc.
