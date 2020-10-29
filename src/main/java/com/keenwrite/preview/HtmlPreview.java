@@ -59,9 +59,9 @@ import static javax.swing.SwingUtilities.invokeLater;
 import static org.xhtmlrenderer.swing.ImageResourceLoader.NO_OP_REPAINT_LISTENER;
 
 /**
- * HTML preview pane is responsible for rendering an HTML document.
+ * Responsible for rendering an HTML document.
  */
-public final class HTMLPreviewPane extends SwingNode {
+public final class HtmlPreview extends SwingNode {
   /**
    * Suppresses scrolling to the top on every key press.
    */
@@ -107,7 +107,7 @@ public final class HTMLPreviewPane extends SwingNode {
     }
 
     /**
-     * Sets the width of the {@link HTMLPreviewPane} so that images can be
+     * Sets the width of the {@link HtmlPreview} so that images can be
      * scaled to fit. The scale factor is adjusted a bit below the full width
      * to prevent the horizontal scrollbar from appearing.
      *
@@ -115,7 +115,7 @@ public final class HTMLPreviewPane extends SwingNode {
      */
     private void setWidth( final ComponentEvent event ) {
       final int width = (int) (event.getComponent().getWidth() * .95);
-      HTMLPreviewPane.this.mImageLoader.widthProperty().set( width );
+      HtmlPreview.this.mImageLoader.widthProperty().set( width );
     }
   }
 
@@ -157,7 +157,7 @@ public final class HTMLPreviewPane extends SwingNode {
           + "<link rel='stylesheet' href='%s'/>"
           + "</head>"
           + "<body>",
-      HTMLPreviewPane.class.getResource( STYLESHEET_PREVIEW )
+      HtmlPreview.class.getResource( STYLESHEET_PREVIEW )
   );
 
   private static final String HTML_SUFFIX = "</body></html>";
@@ -187,7 +187,7 @@ public final class HTMLPreviewPane extends SwingNode {
    * Creates a new preview pane that can scroll to the caret position within the
    * document.
    */
-  public HTMLPreviewPane() {
+  public HtmlPreview() {
     setStyle( "-fx-background-color: white;" );
 
     // No need to append same prefix each time the HTML content is updated.
@@ -253,6 +253,7 @@ public final class HTMLPreviewPane extends SwingNode {
    */
   public void scrollTo( final String id ) {
     scrollTo( getBoxById( id ) );
+    repaintScrollPane();
   }
 
   /**

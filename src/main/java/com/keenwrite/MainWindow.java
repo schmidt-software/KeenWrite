@@ -33,11 +33,13 @@ import com.keenwrite.definition.DefinitionPane;
 import com.keenwrite.definition.DefinitionSource;
 import com.keenwrite.definition.MapInterpolator;
 import com.keenwrite.definition.yaml.YamlDefinitionSource;
+import com.keenwrite.dock.control.DetachableTab;
+import com.keenwrite.dock.control.DetachableTabPane;
 import com.keenwrite.editors.DefinitionNameInjector;
 import com.keenwrite.editors.markdown.MarkdownEditorPane;
 import com.keenwrite.exceptions.MissingFileException;
 import com.keenwrite.preferences.UserPreferences;
-import com.keenwrite.preview.HTMLPreviewPane;
+import com.keenwrite.preview.HtmlPreview;
 import com.keenwrite.processors.Processor;
 import com.keenwrite.processors.ProcessorContext;
 import com.keenwrite.processors.ProcessorFactory;
@@ -175,7 +177,8 @@ public class MainWindow implements Observer {
 
   private DefinitionSource mDefinitionSource = createDefaultDefinitionSource();
   private final DefinitionPane mDefinitionPane = createDefinitionPane();
-  private final HTMLPreviewPane mPreviewPane = createHTMLPreviewPane();
+  private final HtmlPreview mPreviewPane = createHtmlPreviewPane();
+  private final DetachableTabPane mPreviewTabPane = createPreviewTabPane();
   private final FileEditorTabPane mFileEditorPane = new FileEditorTabPane(
       mCaretPositionListener );
 
@@ -454,10 +457,7 @@ public class MainWindow implements Observer {
 
   private void scrollToCaret() {
     synchronized( mMutex ) {
-      final var previewPane = getPreviewPane();
-
-      previewPane.scrollTo( CARET_ID );
-      previewPane.repaintScrollPane();
+      getPreviewPane().scrollTo( CARET_ID );
     }
   }
 
@@ -755,9 +755,9 @@ public class MainWindow implements Observer {
 
   private ProcessorContext createProcessorContext(
       final FileEditorTab tab, final ExportFormat format ) {
-    final var pane = getPreviewPane();
+    final var preview = getPreviewPane();
     final var map = getResolvedMap();
-    return new ProcessorContext( pane, map, tab, format );
+    return new ProcessorContext( preview, map, tab, format );
   }
 
   private ProcessorContext createProcessorContext( final FileEditorTab tab ) {
@@ -768,8 +768,16 @@ public class MainWindow implements Observer {
     return new DefinitionPane();
   }
 
-  private HTMLPreviewPane createHTMLPreviewPane() {
-    return new HTMLPreviewPane();
+  private HtmlPreview createHtmlPreviewPane() {
+    return new HtmlPreview();
+  }
+
+  private DetachableTabPane createPreviewTabPane() {
+    final var previewTabPane = new DetachableTabPane();
+    final var previewTab = new DetachableTab( "HTML", getPreviewPane() );
+    previewTabPane.getTabs().add( previewTab );
+
+    return previewTabPane;
   }
 
   private DefinitionSource createDefaultDefinitionSource() {
@@ -798,10 +806,10 @@ public class MainWindow implements Observer {
   }
 
   private Scene createScene() {
-    final SplitPane splitPane = new SplitPane(
+    final var splitPane = new SplitPane(
         getDefinitionPane(),
         getFileEditorPane(),
-        getPreviewPane() );
+        getPreviewTabPane() );
 
     splitPane.setDividerPositions(
         getFloat( K_PANE_SPLIT_DEFINITION, .22f ),
@@ -1348,7 +1356,11 @@ public class MainWindow implements Observer {
     return mFileEditorPane;
   }
 
-  private HTMLPreviewPane getPreviewPane() {
+  private DetachableTabPane getPreviewTabPane() {
+    return mPreviewTabPane;
+  }
+
+  private HtmlPreview getPreviewPane() {
     return mPreviewPane;
   }
 

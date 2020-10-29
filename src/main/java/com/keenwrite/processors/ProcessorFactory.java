@@ -28,7 +28,7 @@
 package com.keenwrite.processors;
 
 import com.keenwrite.AbstractFileFactory;
-import com.keenwrite.preview.HTMLPreviewPane;
+import com.keenwrite.preview.HtmlPreview;
 import com.keenwrite.processors.markdown.MarkdownProcessor;
 
 import java.nio.file.Path;
@@ -173,8 +173,8 @@ public class ProcessorFactory extends AbstractFileFactory {
     return mContext;
   }
 
-  private HTMLPreviewPane getPreviewPane() {
-    return getProcessorContext().getPreviewPane();
+  private HtmlPreview getPreviewPane() {
+    return getProcessorContext().getPreview();
   }
 
   /**

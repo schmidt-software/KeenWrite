@@ -44,7 +44,6 @@ import javafx.event.Event;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Tab;
-import javafx.scene.control.TabPane;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Window;
@@ -92,7 +91,7 @@ public final class FileEditorTabPane extends DetachableTabPane {
    */
   public FileEditorTabPane(
       final ChangeListener<Integer> caretPositionListener ) {
-    final ObservableList<Tab> tabs = getTabs();
+    final var tabs = getTabs();
 
     setFocusTraversable( false );
     setTabClosingPolicy( TabClosingPolicy.ALL_TABS );

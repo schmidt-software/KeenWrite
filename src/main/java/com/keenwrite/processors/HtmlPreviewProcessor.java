@@ -27,7 +27,7 @@
  */
 package com.keenwrite.processors;
 
-import com.keenwrite.preview.HTMLPreviewPane;
+import com.keenwrite.preview.HtmlPreview;
 
 /**
  * Responsible for notifying the HTMLPreviewPane when the succession chain has
@@ -39,14 +39,14 @@ import com.keenwrite.preview.HTMLPreviewPane;
 public class HtmlPreviewProcessor extends AbstractProcessor<String> {
 
   // There is only one preview panel.
-  private static HTMLPreviewPane sHtmlPreviewPane;
+  private static HtmlPreview sHtmlPreviewPane;
 
   /**
    * Constructs the end of a processing chain.
    *
    * @param htmlPreviewPane The pane to update with the post-processed document.
    */
-  public HtmlPreviewProcessor( final HTMLPreviewPane htmlPreviewPane ) {
+  public HtmlPreviewProcessor( final HtmlPreview htmlPreviewPane ) {
     sHtmlPreviewPane = htmlPreviewPane;
   }
 
@@ -66,7 +66,7 @@ public class HtmlPreviewProcessor extends AbstractProcessor<String> {
     return null;
   }
 
-  private HTMLPreviewPane getHtmlPreviewPane() {
+  private HtmlPreview getHtmlPreviewPane() {
     return sHtmlPreviewPane;
   }
 }

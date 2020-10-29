@@ -30,7 +30,7 @@ package com.keenwrite.processors;
 import com.keenwrite.ExportFormat;
 import com.keenwrite.FileEditorTab;
 import com.keenwrite.FileType;
-import com.keenwrite.preview.HTMLPreviewPane;
+import com.keenwrite.preview.HtmlPreview;
 import com.keenwrite.processors.markdown.CaretPosition;
 
 import java.nio.file.Path;
@@ -42,7 +42,7 @@ import static com.keenwrite.AbstractFileFactory.lookup;
  * Provides a context for configuring a chain of {@link Processor} instances.
  */
 public class ProcessorContext {
-  private final HTMLPreviewPane mPreviewPane;
+  private final HtmlPreview mHtmlPreview;
   private final Map<String, String> mResolvedMap;
   private final ExportFormat mExportFormat;
   private final FileEditorTab mTab;
@@ -53,22 +53,22 @@ public class ProcessorContext {
    * parameters are required, not all {@link Processor} instances will use
    * all parameters.
    *
-   * @param previewPane Where to display the final (HTML) output.
+   * @param htmlPreview Where to display the final (HTML) output.
    * @param resolvedMap Fully expanded interpolated strings.
    * @param tab         Tab containing path to the document to process.
    * @param format      Indicate configuration options for export format.
    */
   public ProcessorContext(
-      final HTMLPreviewPane previewPane,
+      final HtmlPreview htmlPreview,
       final Map<String, String> resolvedMap,
       final FileEditorTab tab,
       final ExportFormat format ) {
-    assert previewPane != null;
+    assert htmlPreview != null;
     assert resolvedMap != null;
     assert tab != null;
     assert format != null;
 
-    mPreviewPane = previewPane;
+    mHtmlPreview = htmlPreview;
     mResolvedMap = resolvedMap;
     mTab = tab;
     mExportFormat = format;
@@ -79,8 +79,8 @@ public class ProcessorContext {
     return mExportFormat == format;
   }
 
-  HTMLPreviewPane getPreviewPane() {
-    return mPreviewPane;
+  HtmlPreview getPreview() {
+    return mHtmlPreview;
   }
 
   /**

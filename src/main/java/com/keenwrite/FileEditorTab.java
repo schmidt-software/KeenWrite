@@ -25,6 +25,7 @@
  */
 package com.keenwrite;
 
+import com.keenwrite.dock.control.DetachableTab;
 import com.keenwrite.editors.EditorPane;
 import com.keenwrite.editors.markdown.MarkdownEditorPane;
 import com.keenwrite.processors.Processor;
@@ -41,7 +42,6 @@ import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.event.EventType;
 import javafx.scene.Scene;
-import javafx.scene.control.Tab;
 import javafx.scene.control.Tooltip;
 import javafx.scene.text.Text;
 import javafx.stage.Window;
@@ -66,7 +66,7 @@ import static javafx.application.Platform.runLater;
 /**
  * Editor for a single file.
  */
-public final class FileEditorTab extends Tab {
+public final class FileEditorTab extends DetachableTab {
 
   private final MarkdownEditorPane mEditorPane = new MarkdownEditorPane();
 
