@@ -1,11 +1,11 @@
 dist
 *.bin
 *.exe
-*.jar
+/*.jar
 build
 .gradle
 contacted.csv
 video
 .settings
 .classpath
-.idea/
+.idea
