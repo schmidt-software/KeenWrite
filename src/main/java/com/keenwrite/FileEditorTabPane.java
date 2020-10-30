@@ -86,8 +86,8 @@ public final class FileEditorTabPane extends DetachableTabPane {
   /**
    * Constructs a new file editor tab pane.
    *
-   * @param caretPositionListener  Listens for changes to caret position so
-   *                               that the status bar can update.
+   * @param caretPositionListener Listens for changes to caret position so
+   *                              that the status bar can update.
    */
   public FileEditorTabPane(
       final ChangeListener<Integer> caretPositionListener ) {
@@ -338,20 +338,6 @@ public final class FileEditorTabPane extends DetachableTabPane {
   }
 
   /**
-   * Called when the contents of the editor are to be saved.
-   *
-   * @param tab The tab containing content to save.
-   * @return true The contents were saved (or needn't be saved).
-   */
-  public boolean saveEditor( final FileEditorTab tab ) {
-    if( tab == null || !tab.isModified() ) {
-      return true;
-    }
-
-    return tab.getPath() == null ? saveEditorAs( tab ) : tab.save();
-  }
-
-  /**
    * Opens the Save As dialog for the user to save the content under a new
    * path.
    *
@@ -365,22 +351,22 @@ public final class FileEditorTabPane extends DetachableTabPane {
 
     getSelectionModel().select( tab );
 
-    final FileChooser chooser = createFileChooser(
-        "Dialog.file.choose.save.title" );
-    final File file = chooser.showSaveDialog( getWindow() );
+    final var chooser = createFileChooser( "Dialog.file.choose.save.title" );
+    final var file = chooser.showSaveDialog( getWindow() );
+
     if( file == null ) {
       return false;
     }
 
     saveLastDirectory( file );
-    tab.setPath( file.toPath() );
+    tab.setPath( file );
 
     return tab.save();
   }
 
   void saveAllEditors() {
-    for( final FileEditorTab fileEditor : getAllEditors() ) {
-      saveEditor( fileEditor );
+    for( final var fileEditorTab : getAllEditors() ) {
+      fileEditorTab.save();
     }
   }
 
@@ -409,7 +395,7 @@ public final class FileEditorTabPane extends DetachableTabPane {
 
       buttonType.ifPresent(
           save -> canClose.set(
-              save == YES ? saveEditor( tab ) : save == ButtonType.NO
+              save == YES ? tab.save() : save == ButtonType.NO
           )
       );
     }

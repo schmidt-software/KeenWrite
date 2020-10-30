@@ -619,10 +619,6 @@ public class MainWindow implements Observer {
     getFileEditorPane().closeAllEditors();
   }
 
-  private void fileSave() {
-    getFileEditorPane().saveEditor( getActiveFileEditorTab() );
-  }
-
   private void fileSaveAs() {
     final FileEditorTab editor = getActiveFileEditorTab();
     getFileEditorPane().saveEditorAs( editor );
@@ -883,7 +879,7 @@ public class MainWindow implements Observer {
         .setText( "Main.menu.file.save" )
         .setAccelerator( "Shortcut+S" )
         .setIcon( FLOPPY_ALT )
-        .setAction( e -> fileSave() )
+        .setAction( e -> getActiveFileEditorTab().save() )
         .setDisabled( createActiveBooleanProperty(
             FileEditorTab::modifiedProperty ).not() )
         .build();

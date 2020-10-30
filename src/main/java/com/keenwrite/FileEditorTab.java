@@ -30,8 +30,6 @@ import com.keenwrite.editors.EditorPane;
 import com.keenwrite.editors.markdown.MarkdownEditorPane;
 import com.keenwrite.processors.Processor;
 import com.keenwrite.processors.markdown.CaretPosition;
-import com.keenwrite.service.events.Notification;
-import com.keenwrite.service.events.Notifier;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyBooleanProperty;
@@ -301,16 +299,19 @@ public final class FileEditorTab extends DetachableTab {
   /**
    * Saves the entire file contents from the path associated with this tab.
    *
-   * @return true The file has been saved.
+   * @return true The file has been saved or wasn't modified.
    */
   public boolean save() {
     try {
-      final EditorPane editor = getEditorPane();
-      Files.write( getPath(), asBytes( editor.getText() ) );
-      editor.getUndoManager().mark();
+      if( isModified() ) {
+        final var editor = getEditorPane();
+        Files.write( getPath(), asBytes( editor.getText() ) );
+        editor.getUndoManager().mark();
+      }
+
       return true;
     } catch( final Exception ex ) {
-      return popupAlert(
+      return alert(
           "FileEditor.saveFailed.title",
           "FileEditor.saveFailed.message",
           ex
@@ -327,16 +328,11 @@ public final class FileEditorTab extends DetachableTab {
    * @return false
    */
   @SuppressWarnings("SameParameterValue")
-  private boolean popupAlert(
+  private boolean alert(
       final String titleKey, final String messageKey, final Exception e ) {
-    final Notifier service = getNotifier();
-    final Path filePath = getPath();
-
-    final Notification message = service.createNotification(
-        get( titleKey ),
-        get( messageKey ),
-        filePath == null ? "" : filePath,
-        e.getMessage()
+    final var service = getNotifier();
+    final var message = service.createNotification(
+        get( titleKey ), get( messageKey ), getPath(), e.getMessage()
     );
 
     try {
@@ -420,6 +416,16 @@ public final class FileEditorTab extends DetachableTab {
     mPath = path;
 
     updateTab();
+  }
+
+  /**
+   * Convenience method to set the path based on an instance of {@link File}.
+   *
+   * @param file A non-null instance.
+   */
+  public void setPath( final File file ) {
+    assert file != null;
+    setPath( file.toPath() );
   }
 
   public boolean isModified() {
