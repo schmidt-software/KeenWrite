@@ -28,6 +28,7 @@
 package com.keenwrite.processors;
 
 import com.keenwrite.preferences.UserPreferences;
+import com.keenwrite.preferences.UserPreferencesView;
 import com.keenwrite.processors.markdown.MarkdownProcessor;
 import com.vladsch.flexmark.ast.Paragraph;
 import com.vladsch.flexmark.ast.Text;
@@ -99,7 +100,7 @@ public final class InlineRProcessor extends DefinitionProcessor {
     workingDirectoryProperty().addListener(
         ( __, oldScript, newScript ) -> setDirty( true ) );
 
-    getUserPreferences().addSaveEventHandler( ( handler ) -> {
+    getUserPreferencesView().addSaveEventHandler( ( handler ) -> {
       if( isDirty() ) {
         init();
         setDirty( false );
@@ -270,11 +271,11 @@ public final class InlineRProcessor extends DefinitionProcessor {
    * @return A non-null path.
    */
   private Path getWorkingDirectory() {
-    return getUserPreferences().getRDirectory().toPath();
+    return getUserPreferencesView().rDirectoryProperty().getValue().toPath();
   }
 
   private ObjectProperty<File> workingDirectoryProperty() {
-    return getUserPreferences().rDirectoryProperty();
+    return getUserPreferencesView().rDirectoryProperty();
   }
 
   /**
@@ -283,14 +284,14 @@ public final class InlineRProcessor extends DefinitionProcessor {
    * @return A non-null string, possibly empty.
    */
   private String getBootstrapScript() {
-    return getUserPreferences().getRScript();
+    return getUserPreferencesView().rScriptProperty().getValue();
   }
 
   private StringProperty bootstrapScriptProperty() {
-    return getUserPreferences().rScriptProperty();
+    return getUserPreferencesView().rScriptProperty();
   }
 
-  private UserPreferences getUserPreferences() {
-    return UserPreferences.getInstance();
+  private UserPreferencesView getUserPreferencesView() {
+    return UserPreferencesView.getInstance();
   }
 }

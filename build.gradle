@@ -35,7 +35,7 @@ javafx {
 }
 
 dependencies {
-  def v_junit = '5.4.2'
+  def v_junit = '5.5.1'
   def v_flexmark = '0.62.2'
   def v_jackson = '2.11.2'
   def v_batik = '1.13'
@@ -118,8 +118,9 @@ dependencies {
     }
   }
 
-  testImplementation "org.junit.jupiter:junit-jupiter-api:${v_junit}"
   testRuntime "org.junit.jupiter:junit-jupiter-engine:${v_junit}"
+  testCompile "org.junit.jupiter:junit-jupiter-api:${v_junit}"
+  testCompile "org.testfx:testfx-junit5:4.0.16-alpha"
 }
 
 compileJava {

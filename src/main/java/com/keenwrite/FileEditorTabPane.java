@@ -30,7 +30,6 @@ package com.keenwrite;
 import com.keenwrite.dock.control.DetachableTabPane;
 import com.keenwrite.service.Options;
 import com.keenwrite.service.Settings;
-import com.keenwrite.service.events.Notification;
 import com.keenwrite.service.events.Notifier;
 import com.keenwrite.util.Utils;
 import javafx.beans.property.ReadOnlyBooleanProperty;
@@ -39,10 +38,7 @@ import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.ListChangeListener;
-import javafx.collections.ObservableList;
 import javafx.event.Event;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
 import javafx.scene.control.Tab;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
@@ -52,7 +48,6 @@ import java.io.File;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.prefs.Preferences;
 import java.util.stream.Collectors;
@@ -63,6 +58,7 @@ import static com.keenwrite.FileType.*;
 import static com.keenwrite.Messages.get;
 import static com.keenwrite.predicates.PredicateFactory.createFileTypePredicate;
 import static com.keenwrite.service.events.Notifier.YES;
+import static javafx.scene.control.ButtonType.NO;
 
 /**
  * Tab pane for file editors.
@@ -378,25 +374,21 @@ public final class FileEditorTabPane extends DetachableTabPane {
    */
   @SuppressWarnings("BooleanMethodIsAlwaysInverted")
   boolean canCloseEditor( final FileEditorTab tab ) {
-    final AtomicReference<Boolean> canClose = new AtomicReference<>();
-    canClose.set( true );
+    final var service = getNotifyService();
+    final var canClose = new AtomicReference<>(true);
 
     if( tab.isModified() ) {
-      final Notification message = getNotifyService().createNotification(
+      final var message = service.createNotification(
           Messages.get( "Alert.file.close.title" ),
           Messages.get( "Alert.file.close.text" ),
           tab.getText()
       );
 
-      final Alert confirmSave = getNotifyService().createConfirmation(
+      final var confirmSave = service.createConfirmation(
           getWindow(), message );
 
-      final Optional<ButtonType> buttonType = confirmSave.showAndWait();
-
-      buttonType.ifPresent(
-          save -> canClose.set(
-              save == YES ? tab.save() : save == ButtonType.NO
-          )
+      confirmSave.showAndWait().ifPresent(
+          save -> canClose.set( save == YES ? tab.save() : save == NO )
       );
     }
 
@@ -469,9 +461,9 @@ public final class FileEditorTabPane extends DetachableTabPane {
   }
 
   private FileEditorTab[] getAllEditors() {
-    final ObservableList<Tab> tabs = getTabs();
+    final var tabs = getTabs();
     final int length = tabs.size();
-    final FileEditorTab[] allEditors = new FileEditorTab[ length ];
+    final var allEditors = new FileEditorTab[ length ];
 
     for( int i = 0; i < length; i++ ) {
       allEditors[ i ] = (FileEditorTab) tabs.get( i );

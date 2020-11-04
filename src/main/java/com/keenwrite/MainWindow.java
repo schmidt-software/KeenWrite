@@ -33,13 +33,13 @@ import com.keenwrite.definition.DefinitionPane;
 import com.keenwrite.definition.DefinitionSource;
 import com.keenwrite.definition.MapInterpolator;
 import com.keenwrite.definition.yaml.YamlDefinitionSource;
-import com.keenwrite.dock.control.DetachableTab;
-import com.keenwrite.dock.control.DetachableTabPane;
 import com.keenwrite.editors.DefinitionNameInjector;
 import com.keenwrite.editors.markdown.MarkdownEditorPane;
 import com.keenwrite.exceptions.MissingFileException;
 import com.keenwrite.preferences.UserPreferences;
+import com.keenwrite.preferences.UserPreferencesView;
 import com.keenwrite.preview.HtmlPreview;
+import com.keenwrite.preview.OutputTabPane;
 import com.keenwrite.processors.Processor;
 import com.keenwrite.processors.ProcessorContext;
 import com.keenwrite.processors.ProcessorFactory;
@@ -130,7 +130,6 @@ public class MainWindow implements Observer {
   private static final Snitch SNITCH = Services.load( Snitch.class );
 
   private final Scene mScene;
-  private final StatusBar mStatusBar;
   private final Text mLineNumberText;
   private final TextField mFindTextField;
   private final SpellChecker mSpellChecker;
@@ -177,8 +176,7 @@ public class MainWindow implements Observer {
 
   private DefinitionSource mDefinitionSource = createDefaultDefinitionSource();
   private final DefinitionPane mDefinitionPane = createDefinitionPane();
-  private final HtmlPreview mPreviewPane = createHtmlPreviewPane();
-  private final DetachableTabPane mPreviewTabPane = createPreviewTabPane();
+  private final OutputTabPane mOutputPane = createOutputTabPane();
   private final FileEditorTabPane mFileEditorPane = new FileEditorTabPane(
       mCaretPositionListener );
 
@@ -189,7 +187,6 @@ public class MainWindow implements Observer {
       = new DefinitionNameInjector( mDefinitionPane );
 
   public MainWindow() {
-    mStatusBar = createStatusBar();
     mLineNumberText = createLineNumberText();
     mFindTextField = createFindTextField();
     mScene = createScene();
@@ -197,7 +194,6 @@ public class MainWindow implements Observer {
 
     // Add the close request listener before the window is shown.
     initLayout();
-    StatusBarNotifier.setStatusBar( mStatusBar );
   }
 
   /**
@@ -341,7 +337,7 @@ public class MainWindow implements Observer {
 
   private void initScrollEventListener( final FileEditorTab tab ) {
     final var scrollPane = tab.getScrollPane();
-    final var scrollBar = getPreviewPane().getVerticalScrollBar();
+    final var scrollBar = getHtmlPreview().getVerticalScrollBar();
 
     addShowListener( scrollPane, ( __ ) -> {
       final var handler = new ScrollEventHandler( scrollPane, scrollBar );
@@ -401,7 +397,7 @@ public class MainWindow implements Observer {
           if( newTab == null ) {
             // Clear the preview pane when closing an editor. When the last
             // tab is closed, this ensures that the preview pane is empty.
-            getPreviewPane().clear();
+            getHtmlPreview().clear();
           }
           else {
             final var tab = (FileEditorTab) newTab;
@@ -418,7 +414,7 @@ public class MainWindow implements Observer {
   private void initPreferences() {
     initDefinitionPane();
     getFileEditorPane().initPreferences();
-    getUserPreferences().addSaveEventHandler( mRPreferencesListener );
+    getUserPreferencesView().addSaveEventHandler( mRPreferencesListener );
   }
 
   private void initVariableNameInjector() {
@@ -457,7 +453,7 @@ public class MainWindow implements Observer {
 
   private void scrollToCaret() {
     synchronized( mMutex ) {
-      getPreviewPane().scrollTo( CARET_ID );
+      getHtmlPreview().scrollTo( CARET_ID );
     }
   }
 
@@ -484,7 +480,7 @@ public class MainWindow implements Observer {
    */
   private void process( final FileEditorTab tab ) {
     if( tab != null ) {
-      getPreviewPane().setPath( tab.getPath() );
+      getHtmlPreview().setPath( tab.getPath() );
 
       final Processor<String> processor = getProcessors().computeIfAbsent(
           tab, p -> createProcessors( tab )
@@ -514,7 +510,7 @@ public class MainWindow implements Observer {
       final var ds = createDefinitionSource( path );
       setDefinitionSource( ds );
 
-      final var prefs = getUserPreferences();
+      final var prefs = getUserPreferencesView();
       prefs.definitionPathProperty().setValue( path.toFile() );
       prefs.save();
 
@@ -691,7 +687,7 @@ public class MainWindow implements Observer {
   }
 
   public void editPreferences() {
-    getUserPreferences().show();
+    getUserPreferencesView().show();
   }
 
   //---- Insert actions -----------------------------------------------------
@@ -751,7 +747,7 @@ public class MainWindow implements Observer {
 
   private ProcessorContext createProcessorContext(
       final FileEditorTab tab, final ExportFormat format ) {
-    final var preview = getPreviewPane();
+    final var preview = getHtmlPreview();
     final var map = getResolvedMap();
     return new ProcessorContext( preview, map, tab, format );
   }
@@ -764,16 +760,8 @@ public class MainWindow implements Observer {
     return new DefinitionPane();
   }
 
-  private HtmlPreview createHtmlPreviewPane() {
-    return new HtmlPreview();
-  }
-
-  private DetachableTabPane createPreviewTabPane() {
-    final var previewTabPane = new DetachableTabPane();
-    final var previewTab = new DetachableTab( "HTML", getPreviewPane() );
-    previewTabPane.getTabs().add( previewTab );
-
-    return previewTabPane;
+  private OutputTabPane createOutputTabPane() {
+    return new OutputTabPane();
   }
 
   private DefinitionSource createDefaultDefinitionSource() {
@@ -805,7 +793,7 @@ public class MainWindow implements Observer {
     final var splitPane = new SplitPane(
         getDefinitionPane(),
         getFileEditorPane(),
-        getPreviewTabPane() );
+        getOutputPane() );
 
     splitPane.setDividerPositions(
         getFloat( K_PANE_SPLIT_DEFINITION, .22f ),
@@ -830,7 +818,7 @@ public class MainWindow implements Observer {
     if( SystemUtils.IS_OS_WINDOWS ) {
       splitPane.getDividers().get( 1 ).positionProperty().addListener(
           ( l, oValue, nValue ) -> runLater(
-              () -> getPreviewPane().repaintScrollPane()
+              () -> getHtmlPreview().repaintScrollPane()
           )
       );
     }
@@ -1352,12 +1340,12 @@ public class MainWindow implements Observer {
     return mFileEditorPane;
   }
 
-  private DetachableTabPane getPreviewTabPane() {
-    return mPreviewTabPane;
+  private OutputTabPane getOutputPane() {
+    return mOutputPane;
   }
 
-  private HtmlPreview getPreviewPane() {
-    return mPreviewPane;
+  private HtmlPreview getHtmlPreview() {
+    return getOutputPane().getHtmlPreview();
   }
 
   private void setDefinitionSource(
@@ -1379,7 +1367,7 @@ public class MainWindow implements Observer {
   }
 
   private StatusBar getStatusBar() {
-    return mStatusBar;
+    return StatusBarNotifier.getStatusBar();
   }
 
   private TextField getFindTextField() {
@@ -1403,6 +1391,10 @@ public class MainWindow implements Observer {
 
   private UserPreferences getUserPreferences() {
     return UserPreferences.getInstance();
+  }
+
+  private UserPreferencesView getUserPreferencesView() {
+    return UserPreferencesView.getInstance();
   }
 
   private Path getDefinitionPath() {

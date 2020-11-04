@@ -27,22 +27,13 @@
  */
 package com.keenwrite.preferences;
 
-import com.dlsc.formsfx.model.structure.StringField;
 import com.dlsc.preferencesfx.PreferencesFx;
-import com.dlsc.preferencesfx.PreferencesFxEvent;
-import com.dlsc.preferencesfx.model.Category;
-import com.dlsc.preferencesfx.model.Group;
-import com.dlsc.preferencesfx.model.Setting;
 import javafx.beans.property.*;
-import javafx.event.EventHandler;
-import javafx.scene.Node;
-import javafx.scene.control.Label;
 
 import java.io.File;
 import java.nio.file.Path;
 
 import static com.keenwrite.Constants.*;
-import static com.keenwrite.Messages.get;
 
 /**
  * Responsible for user preferences that can be changed from the GUI. The
@@ -50,38 +41,25 @@ import static com.keenwrite.Messages.get;
  */
 public class UserPreferences {
   /**
-   * Implementation of the  initialization-on-demand holder design pattern,
+   * Implementation of the initialization-on-demand holder design pattern,
    * an for a lazy-loaded singleton. In all versions of Java, the idiom enables
    * a safe, highly concurrent lazy initialization of static fields with good
    * performance. The implementation relies upon the initialization phase of
    * execution within the Java Virtual Machine (JVM) as specified by the Java
-   * Language Specification. When the class {@link UserPreferencesContainer}
-   * is loaded, its initialization completes trivially because there are no
-   * static variables to initialize.
-   * <p>
-   * The static class definition {@link UserPreferencesContainer} within the
-   * {@link UserPreferences} is not initialized until such time that
-   * {@link UserPreferencesContainer} must be executed. The static
-   * {@link UserPreferencesContainer} class executes when
-   * {@link #getInstance} is called. The first call will trigger loading and
-   * initialization of the {@link UserPreferencesContainer} thereby
-   * instantiating the {@link #INSTANCE}.
-   * </p>
-   * <p>
-   * This indirection is necessary because the {@link UserPreferences} class
-   * references {@link PreferencesFx}, which must not be instantiated until the
-   * UI is ready.
-   * </p>
+   * Language Specification.
    */
   private static class UserPreferencesContainer {
-    private static final UserPreferences INSTANCE = new UserPreferences();
+    private final static UserPreferences INSTANCE = new UserPreferences();
   }
 
+  /**
+   * Returns the singleton instance for rendering math symbols.
+   *
+   * @return A non-null instance, loaded, configured, and ready to render math.
+   */
   public static UserPreferences getInstance() {
     return UserPreferencesContainer.INSTANCE;
   }
-
-  private final PreferencesFx mPreferencesFx;
 
   private final ObjectProperty<File> mPropRDirectory;
   private final StringProperty mPropRScript;
@@ -112,110 +90,6 @@ public class UserPreferences {
     mPropRDelimEnded = new SimpleStringProperty( R_DELIM_ENDED_DEFAULT );
 
     mPropFontsSizeEditor = new SimpleIntegerProperty( (int) FONT_SIZE_EDITOR );
-
-    // All properties must be initialized before creating the dialog.
-    mPreferencesFx = createPreferencesFx();
-  }
-
-  /**
-   * Display the user preferences settings dialog (non-modal).
-   */
-  public void show() {
-    getPreferencesFx().show( false );
-  }
-
-  /**
-   * Call to persist the settings. Strictly speaking, this could watch on
-   * all values for external changes then save automatically.
-   */
-  public void save() {
-    getPreferencesFx().saveSettings();
-  }
-
-  /**
-   * Creates the preferences dialog.
-   * <p>
-   * TODO: Make this dynamic by iterating over all "Preferences.*" values
-   * that follow a particular naming pattern.
-   * </p>
-   *
-   * @return A new instance of preferences for users to edit.
-   */
-  @SuppressWarnings("unchecked")
-  private PreferencesFx createPreferencesFx() {
-    final Setting<StringField, StringProperty> scriptSetting =
-        Setting.of( "Script", mPropRScript );
-    final StringField field = scriptSetting.getElement();
-    field.multiline( true );
-
-    return PreferencesFx.of(
-        UserPreferences.class,
-        Category.of(
-            get( "Preferences.r" ),
-            Group.of(
-                get( "Preferences.r.directory" ),
-                Setting.of( label( "Preferences.r.directory.desc", false ) ),
-                Setting.of( "Directory", mPropRDirectory, true )
-            ),
-            Group.of(
-                get( "Preferences.r.script" ),
-                Setting.of( label( "Preferences.r.script.desc" ) ),
-                scriptSetting
-            ),
-            Group.of(
-                get( "Preferences.r.delimiter.began" ),
-                Setting.of( label( "Preferences.r.delimiter.began.desc" ) ),
-                Setting.of( "Opening", mPropRDelimBegan )
-            ),
-            Group.of(
-                get( "Preferences.r.delimiter.ended" ),
-                Setting.of( label( "Preferences.r.delimiter.ended.desc" ) ),
-                Setting.of( "Closing", mPropRDelimEnded )
-            )
-        ),
-        Category.of(
-            get( "Preferences.images" ),
-            Group.of(
-                get( "Preferences.images.directory" ),
-                Setting.of( label( "Preferences.images.directory.desc" ) ),
-                Setting.of( "Directory", mPropImagesDirectory, true )
-            ),
-            Group.of(
-                get( "Preferences.images.suffixes" ),
-                Setting.of( label( "Preferences.images.suffixes.desc" ) ),
-                Setting.of( "Extensions", mPropImagesOrder )
-            )
-        ),
-        Category.of(
-            get( "Preferences.definitions" ),
-            Group.of(
-                get( "Preferences.definitions.path" ),
-                Setting.of( label( "Preferences.definitions.path.desc" ) ),
-                Setting.of( "Path", mPropDefinitionPath, false )
-            ),
-            Group.of(
-                get( "Preferences.definitions.delimiter.began" ),
-                Setting.of( label(
-                    "Preferences.definitions.delimiter.began.desc" ) ),
-                Setting.of( "Opening", mPropDefDelimBegan )
-            ),
-            Group.of(
-                get( "Preferences.definitions.delimiter.ended" ),
-                Setting.of( label(
-                    "Preferences.definitions.delimiter.ended.desc" ) ),
-                Setting.of( "Closing", mPropDefDelimEnded )
-            )
-        ),
-        Category.of(
-            get( "Preferences.fonts" ),
-            Group.of(
-                get( "Preferences.fonts.size_editor" ),
-                Setting.of( label( "Preferences.fonts.size_editor.desc" ) ),
-                Setting.of( "Points", mPropFontsSizeEditor )
-            )
-        )
-    ).instantPersistent( false )
-                        .dialogIcon( ICON_DIALOG );
   }
 
   /**
@@ -227,41 +101,6 @@ public class UserPreferences {
    */
   private SimpleObjectProperty<File> simpleFile( final String path ) {
     return new SimpleObjectProperty<>( new File( path ) );
-  }
-
-  /**
-   * Creates a label for the given key after interpolating its value.
-   *
-   * @param key The key to find in the resource bundle.
-   * @return The value of the key as a label.
-   */
-  private Node label( final String key ) {
-    return new Label( get( key, true ) );
-  }
-
-  /**
-   * Creates a label for the given key.
-   *
-   * @param key         The key to find in the resource bundle.
-   * @param interpolate {@code true} means to interpolate the value.
-   * @return The value of the key, interpolated if {@code interpolate} is
-   * {@code true}.
-   */
-  @SuppressWarnings("SameParameterValue")
-  private Node label( final String key, final boolean interpolate ) {
-    return new Label( get( key, interpolate ) );
-  }
-
-  /**
-   * Delegates to the {@link PreferencesFx} event handler for monitoring
-   * save events.
-   *
-   * @param eventHandler The handler to call when the preferences are saved.
-   */
-  public void addSaveEventHandler(
-      final EventHandler<? super PreferencesFxEvent> eventHandler ) {
-    final var eventType = PreferencesFxEvent.EVENT_PREFERENCES_SAVED;
-    getPreferencesFx().addEventHandler( eventType, eventHandler );
   }
 
   /**
@@ -285,20 +124,20 @@ public class UserPreferences {
     return definitionPathProperty().getValue().toPath();
   }
 
-  private StringProperty defDelimiterBegan() {
+  public StringProperty defDelimiterBeganProperty() {
     return mPropDefDelimBegan;
   }
 
   public String getDefDelimiterBegan() {
-    return defDelimiterBegan().get();
+    return defDelimiterBeganProperty().get();
   }
 
-  private StringProperty defDelimiterEnded() {
+  public StringProperty defDelimiterEndedProperty() {
     return mPropDefDelimEnded;
   }
 
   public String getDefDelimiterEnded() {
-    return defDelimiterEnded().get();
+    return defDelimiterEndedProperty().get();
   }
 
   public ObjectProperty<File> rDirectoryProperty() {
@@ -317,23 +156,23 @@ public class UserPreferences {
     return rScriptProperty().getValue();
   }
 
-  private StringProperty rDelimiterBegan() {
+  public StringProperty rDelimiterBeganProperty() {
     return mPropRDelimBegan;
   }
 
   public String getRDelimiterBegan() {
-    return rDelimiterBegan().get();
+    return rDelimiterBeganProperty().get();
   }
 
-  private StringProperty rDelimiterEnded() {
+  public StringProperty rDelimiterEndedProperty() {
     return mPropRDelimEnded;
   }
 
   public String getRDelimiterEnded() {
-    return rDelimiterEnded().get();
+    return rDelimiterEndedProperty().get();
   }
 
-  private ObjectProperty<File> imagesDirectoryProperty() {
+  public ObjectProperty<File> imagesDirectoryProperty() {
     return mPropImagesDirectory;
   }
 
@@ -341,7 +180,7 @@ public class UserPreferences {
     return imagesDirectoryProperty().getValue();
   }
 
-  private StringProperty imagesOrderProperty() {
+  StringProperty imagesOrderProperty() {
     return mPropImagesOrder;
   }
 
@@ -360,9 +199,5 @@ public class UserPreferences {
    */
   public int getFontsSizeEditor() {
     return mPropFontsSizeEditor.intValue();
-  }
-
-  private PreferencesFx getPreferencesFx() {
-    return mPreferencesFx;
   }
 }

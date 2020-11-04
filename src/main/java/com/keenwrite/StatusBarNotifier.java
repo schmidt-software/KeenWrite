@@ -43,11 +43,7 @@ public class StatusBarNotifier {
   private static final String OK = get( STATUS_BAR_OK, "OK" );
 
   private static final Notifier sNotifier = Services.load( Notifier.class );
-  private static StatusBar sStatusBar;
-
-  public static void setStatusBar( final StatusBar statusBar ) {
-    sStatusBar = statusBar;
-  }
+  private static final StatusBar sStatusBar = new StatusBar();
 
   /**
    * Resets the status bar to a default message.
@@ -96,6 +92,10 @@ public class StatusBarNotifier {
    */
   public static Notifier getNotifier() {
     return sNotifier;
+  }
+
+  public static StatusBar getStatusBar() {
+    return sStatusBar;
   }
 
   /**

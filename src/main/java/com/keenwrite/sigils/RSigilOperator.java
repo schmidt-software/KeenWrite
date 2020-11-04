@@ -27,6 +27,8 @@
  */
 package com.keenwrite.sigils;
 
+import javafx.beans.property.StringProperty;
+
 import static com.keenwrite.sigils.YamlSigilOperator.KEY_SEPARATOR_DEF;
 
 /**
@@ -38,10 +40,10 @@ public class RSigilOperator extends SigilOperator {
   public static final String PREFIX = "`r#";
   public static final char SUFFIX = '`';
 
-  private final String mDelimiterBegan =
-      getUserPreferences().getRDelimiterBegan();
-  private final String mDelimiterEnded =
-      getUserPreferences().getRDelimiterEnded();
+  private final StringProperty mDelimiterBegan =
+      getUserPreferences().rDelimiterBeganProperty();
+  private final StringProperty mDelimiterEnded =
+      getUserPreferences().rDelimiterEndedProperty();
 
   /**
    * Returns the given string R-escaping backticks prepended and appended. This
@@ -55,9 +57,9 @@ public class RSigilOperator extends SigilOperator {
     assert key != null;
 
     return PREFIX
-        + mDelimiterBegan
+        + mDelimiterBegan.getValue()
         + entoken( key )
-        + mDelimiterEnded
+        + mDelimiterEnded.getValue()
         + SUFFIX;
   }
 
