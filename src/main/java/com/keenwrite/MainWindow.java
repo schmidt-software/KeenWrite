@@ -785,10 +785,6 @@ public class MainWindow implements Observer {
     return new DefinitionFactory();
   }
 
-  private StatusBar createStatusBar() {
-    return new StatusBar();
-  }
-
   private Scene createScene() {
     final var splitPane = new SplitPane(
         getDefinitionPane(),
