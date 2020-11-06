@@ -18,6 +18,9 @@ import java.io.File;
 import static com.keenwrite.Constants.ICON_DIALOG;
 import static com.keenwrite.Messages.get;
 
+/**
+ * Responsible for configuring the {@link UserPreferences} user interface.
+ */
 public class UserPreferencesView {
   /**
    * Implementation of the initialization-on-demand holder design pattern,

@@ -221,16 +221,15 @@ public final class FileEditorTabPane extends DetachableTabPane {
    * Called to add a new {@link FileEditorTab} to the tab pane.
    */
   void newEditor() {
-    final FileEditorTab tab = createFileEditor( getDefaultPath() );
+    final var tab = createFileEditor( getDefaultPath() );
 
     getTabs().add( tab );
     getSelectionModel().select( tab );
   }
 
   void openFileDialog() {
-    final FileChooser dialog = createFileChooser(
-        "Dialog.file.choose.open.title" );
-    final List<File> files = dialog.showOpenMultipleDialog( getWindow() );
+    final var dialog = createFileChooser( "Dialog.file.choose.open.title" );
+    final var files = dialog.showOpenMultipleDialog( getWindow() );
 
     if( files != null ) {
       openFiles( files );
@@ -247,8 +246,7 @@ public final class FileEditorTabPane extends DetachableTabPane {
    *              open.
    */
   private void openFiles( final List<File> files ) {
-    final List<String> extensions =
-        createExtensionFilter( DEFINITION ).getExtensions();
+    final var extensions = createExtensionFilter( DEFINITION ).getExtensions();
     final var predicate = createFileTypePredicate( extensions );
 
     // The user might have opened multiple definitions files. These will
@@ -375,7 +373,7 @@ public final class FileEditorTabPane extends DetachableTabPane {
   @SuppressWarnings("BooleanMethodIsAlwaysInverted")
   boolean canCloseEditor( final FileEditorTab tab ) {
     final var service = getNotifyService();
-    final var canClose = new AtomicReference<>(true);
+    final var canClose = new AtomicReference<>( true );
 
     if( tab.isModified() ) {
       final var message = service.createNotification(

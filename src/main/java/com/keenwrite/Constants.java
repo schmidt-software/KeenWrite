@@ -31,7 +31,6 @@ import com.keenwrite.service.Settings;
 import javafx.scene.image.Image;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import static com.keenwrite.Bootstrap.APP_TITLE_LOWERCASE;
 import static java.lang.String.format;
@@ -132,7 +131,7 @@ public class Constants {
   /**
    * Default path to use for an untitled (pathless) file.
    */
-  public static final Path DEFAULT_DIRECTORY = Paths.get( USER_DIRECTORY );
+  public static final Path DEFAULT_DIRECTORY = Path.of( USER_DIRECTORY );
 
   /**
    * Default starting delimiter for definition variables. This value must

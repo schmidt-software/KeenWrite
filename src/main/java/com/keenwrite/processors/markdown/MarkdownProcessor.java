@@ -47,7 +47,7 @@ import java.util.Collection;
 import java.util.HashSet;
 
 import static com.keenwrite.AbstractFileFactory.lookup;
-import static com.keenwrite.Constants.USER_DIRECTORY;
+import static com.keenwrite.Constants.DEFAULT_DIRECTORY;
 import static com.keenwrite.ExportFormat.NONE;
 
 /**
@@ -72,7 +72,7 @@ public class MarkdownProcessor extends AbstractProcessor<String> {
   }
 
   public static MarkdownProcessor create() {
-    return create( IdentityProcessor.INSTANCE, Path.of( USER_DIRECTORY ) );
+    return create( IdentityProcessor.INSTANCE, DEFAULT_DIRECTORY );
   }
 
   public static MarkdownProcessor create( final ProcessorContext context ) {
@@ -106,7 +106,7 @@ public class MarkdownProcessor extends AbstractProcessor<String> {
    */
   private static Collection<Extension> createExtensions(
       final ProcessorContext context ) {
-    final var path = context.getPath();
+    final var path = context.getBasePath();
     final var format = context.getExportFormat();
     final var extensions = createExtensions( path, format );
 

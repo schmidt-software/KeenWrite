@@ -45,30 +45,21 @@ public class ProtocolResolver {
    * @return The protocol for the given resource.
    */
   public static ProtocolScheme getProtocol( final String resource ) {
-    String protocol;
-
     try {
       final URI uri = new URI( resource );
-
-      if( uri.isAbsolute() ) {
-        protocol = uri.getScheme();
-      }
-      else {
-        final URL url = new URL( resource );
-        protocol = url.getProtocol();
-      }
+      return ProtocolScheme.valueFrom(
+          uri.isAbsolute()
+              ? uri.getScheme().toUpperCase()
+              : new URL( resource ).getProtocol()
+      );
     } catch( final Exception e ) {
-      // Could be HTTP, HTTPS?
-      if( resource.startsWith( "//" ) ) {
-        throw new IllegalArgumentException( "Relative context: " + resource );
-      }
-      else {
-        final File file = new File( resource );
-        protocol = getProtocol( file );
-      }
+      // Using double-slashes is a short-hand to instruct the browser to
+      // reference a resource using the parent URL's security model. This
+      // is known as a protocol-relative URL.
+      return resource.startsWith( "//" )
+          ? ProtocolScheme.HTTP
+          : getProtocol( new File( resource ) );
     }
-
-    return ProtocolScheme.valueFrom( protocol );
   }
 
   /**
@@ -78,12 +69,12 @@ public class ProtocolResolver {
    * @return The protocol for the given file, or {@link ProtocolScheme#UNKNOWN}
    * if the protocol cannot be determined.
    */
-  private static String getProtocol( final File file ) {
+  private static ProtocolScheme getProtocol( final File file ) {
     try {
-      return file.toURI().toURL().getProtocol();
+      return ProtocolScheme.valueFrom( file.toURI().toURL().getProtocol() );
     } catch( final MalformedURLException ex ) {
       // Return a protocol guaranteed to be undefined.
-      return UNKNOWN.toString();
+      return UNKNOWN;
     }
   }
 }

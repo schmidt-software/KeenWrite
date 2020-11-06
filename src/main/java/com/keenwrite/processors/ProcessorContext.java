@@ -106,6 +106,15 @@ public class ProcessorContext {
     return mTab.getCaretPosition();
   }
 
+  /**
+   * Returns the directory that contains the file being edited.
+   *
+   * @return Path to the directory containing a file being edited.
+   */
+  public Path getBasePath() {
+    return getPath().getParent();
+  }
+
   public Path getPath() {
     return mTab.getPath();
   }

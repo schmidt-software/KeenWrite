@@ -49,8 +49,6 @@ import static com.keenwrite.util.ProtocolResolver.getProtocol;
 import static com.vladsch.flexmark.html.HtmlRenderer.Builder;
 import static com.vladsch.flexmark.html.HtmlRenderer.HtmlRendererExtension;
 import static java.lang.String.format;
-import static org.apache.commons.io.FilenameUtils.getExtension;
-import static org.apache.commons.io.FilenameUtils.removeExtension;
 
 /**
  * Responsible for ensuring that images can be rendered relative to a path.
@@ -61,12 +59,12 @@ public class ImageLinkExtension implements HtmlRendererExtension {
   /**
    * Creates an extension capable of using a relative path to embed images.
    *
-   * @param path The {@link Path} to the file being edited; the parent path
-   *             is the starting location of the relative image directory.
-   * @return The new {@link ImageLinkExtension}, never {@code null}.
+   * @param basePath The directory to search for images, either directly or
+   *                 through the images directory setting, not {@code null}.
+   * @return The new {@link ImageLinkExtension}, not {@code null}.
    */
-  public static ImageLinkExtension create( @NotNull final Path path ) {
-    return new ImageLinkExtension( path );
+  public static ImageLinkExtension create( @NotNull final Path basePath ) {
+    return new ImageLinkExtension( basePath );
   }
 
   private class Factory extends IndependentLinkResolverFactory {
@@ -100,68 +98,50 @@ public class ImageLinkExtension implements HtmlRendererExtension {
     }
 
     private ResolvedLink resolve( final ResolvedLink link ) {
-      var url = link.getUrl();
-      final var protocol = getProtocol( url );
+      var uri = link.getUrl();
+      final var protocol = getProtocol( uri );
 
-      try {
-        if( protocol.isHttp() ) {
-          return valid( link, url );
-        }
-      } catch( final Exception ignored ) {
-        // Try to resolve the image path, dynamically.
+      if( protocol.isHttp() ) {
+        return valid( link, uri );
       }
 
+      // Determine the fully-qualified filename (fqfn).
+      final var fqfn = Paths.get( getBasePath().toString(), uri ).toFile();
+
+      if( fqfn.isFile() ) {
+        return valid( link, uri );
+      }
+
+      // At this point either the image directory is qualified or needs to be
+      // qualified using the image prefix, as set in the user preferences.
+
       try {
-        final Path imagePrefix = getImagePrefix().toPath();
+        final var imagePrefix = getImagePrefix();
+        final var basePath = getBasePath().resolve( imagePrefix );
 
-        // Path to the file being edited.
-        Path editPath = getEditPath();
-
-        // If there is no parent path to the file, it means the file has not
-        // been saved. Default to using the value from the user's preferences.
-        // The user's preferences will be defaulted to a the application's
-        // starting directory.
-        editPath = editPath == null
-            ? imagePrefix
-            : Path.of( editPath.toString(), imagePrefix.toString() );
-
-        final var urlExt = getExtension( url );
-        url = removeExtension( url );
-
-        final var suffixes = urlExt + ' ' + getImageExtensions();
-        final var imagePathPrefix = Path.of( editPath.toString(), url );
-        var suffix = ".*";
+        final var imagePathPrefix = Path.of( basePath.toString(), uri );
+        final var suffixes = getImageExtensions();
         boolean missing = true;
 
         // Iterate over the user's preferred image file type extensions.
-        for( final String ext : Splitter.on( ' ' ).split( suffixes ) ) {
-          final String imagePath = format( "%s.%s", imagePathPrefix, ext );
-          final File file = new File( imagePath );
+        for( final var ext : Splitter.on( ' ' ).split( suffixes ) ) {
+          final var imagePath = format( "%s.%s", imagePathPrefix, ext );
+          final var file = new File( imagePath );
 
           if( file.exists() ) {
-            url = file.toString();
+            uri += '.' + ext;
+            final var path = Path.of( imagePrefix.toString(), uri );
+            uri = path.normalize().toString();
             missing = false;
-            break;
-          }
-          else if( !urlExt.isBlank() ) {
-            // The file is missing because the user specified a prefix.
-            suffix = urlExt;
             break;
           }
         }
 
         if( missing ) {
-          throw new MissingFileException( imagePathPrefix + suffix );
+          throw new MissingFileException( imagePathPrefix + ".*" );
         }
 
-        if( protocol.isFile() ) {
-          // When generating an HTML document, ensure images use a path that's
-          // relative to the source document. This handles displaying within
-          // the application and when exporting to an HTML file.
-          url = editPath.relativize( Paths.get( url ) ).toString();
-        }
-
-        return valid( link, url );
+        return valid( link, uri );
       } catch( final Exception ex ) {
         clue( ex );
       }
@@ -173,23 +153,23 @@ public class ImageLinkExtension implements HtmlRendererExtension {
       return link.withStatus( LinkStatus.VALID ).withUrl( url );
     }
 
-    private File getImagePrefix() {
-      return mImagesUserPrefix;
+    private Path getImagePrefix() {
+      return mImagesUserPrefix.toPath();
     }
 
     private String getImageExtensions() {
       return mImageExtensions;
     }
 
-    private Path getEditPath() {
-      return mPath.getParent();
+    private Path getBasePath() {
+      return mBasePath;
     }
   }
 
-  private final Path mPath;
+  private final Path mBasePath;
 
-  private ImageLinkExtension( @NotNull final Path path ) {
-    mPath = path;
+  private ImageLinkExtension( @NotNull final Path basePath ) {
+    mBasePath = basePath;
   }
 
   @Override

@@ -70,19 +70,17 @@ public enum ProtocolScheme {
    * @return {@link #UNKNOWN} if the protocol is unrecognized, otherwise a
    * valid value from this enumeration.
    */
-  public static ProtocolScheme valueFrom( String protocol ) {
-    ProtocolScheme result = UNKNOWN;
-    protocol = sanitize( protocol );
+  public static ProtocolScheme valueFrom( final String protocol ) {
+    final var sanitized = sanitize( protocol );
 
     for( final var scheme : values() ) {
       // This will match HTTP/HTTPS as well as FILE*, which may be inaccurate.
-      if( protocol.startsWith( scheme.name() ) ) {
-        result = scheme;
-        break;
+      if( sanitized.startsWith( scheme.name() ) ) {
+        return scheme;
       }
     }
 
-    return result;
+    return UNKNOWN;
   }
 
   /**
