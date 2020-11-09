@@ -103,7 +103,6 @@ import static com.keenwrite.Constants.*;
 import static com.keenwrite.ExportFormat.*;
 import static com.keenwrite.Messages.get;
 import static com.keenwrite.StatusBarNotifier.clue;
-import static com.keenwrite.processors.ProcessorFactory.processChain;
 import static com.keenwrite.util.StageState.*;
 import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.*;
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -488,7 +487,7 @@ public class MainWindow implements Observer {
 
       try {
         updateCaretStatus( tab );
-        processChain( processor, tab.getEditorText() );
+        processor.apply( tab.getEditorText() );
         scrollToCaret();
       } catch( final Exception ex ) {
         clue( ex );
@@ -642,7 +641,7 @@ public class MainWindow implements Observer {
     final var context = createProcessorContext( tab, format );
     final var chain = ProcessorFactory.createProcessors( context );
     final var doc = tab.getEditorText();
-    final var export = processChain( chain, doc );
+    final var export = chain.apply( doc );
 
     final var filename = format.toExportFilename( tab.getPath().toFile() );
     final var dir = getPreferences().get( "lastDirectory", null );

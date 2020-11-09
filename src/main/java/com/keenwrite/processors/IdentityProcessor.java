@@ -31,7 +31,7 @@ package com.keenwrite.processors;
  * Responsible for transforming a string into itself. This is used at the
  * end of a processing chain when no more processing is required.
  */
-public class IdentityProcessor extends AbstractProcessor<String> {
+public class IdentityProcessor extends ExecutorProcessor<String> {
   public static final IdentityProcessor INSTANCE = new IdentityProcessor();
 
   /**

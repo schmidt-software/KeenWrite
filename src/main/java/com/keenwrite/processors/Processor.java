@@ -27,27 +27,26 @@
  */
 package com.keenwrite.processors;
 
+import java.util.Optional;
 import java.util.function.UnaryOperator;
 
 /**
  * Responsible for processing documents from one known format to another.
  * Processes the given content providing a transformation from one document
- * format into another. For example, this could convert from XML to text using
- * an XSLT processor, or from markdown to HTML.
+ * format into another. For example, this could convert Markdown to HTML.
  *
- * @param <T> The type of processor to create.
+ * @param <T> The data type to process.
  */
 public interface Processor<T> extends UnaryOperator<T> {
 
   /**
-   * Adds a document processor to call after this processor finishes processing
-   * the document given to the process method.
+   * Returns the next link in the processor chain.
    *
-   * @return The processor that should transform the document after this
-   * instance has finished processing, or {@code null} if this is the last
-   * processor in the chain.
+   * @return The processor intended to transform the data after this instance
+   * has finished processing, or {@link Optional#empty} if this is the last
+   * link in the chain.
    */
-  default Processor<T> next() {
-    return null;
+  default Optional<Processor<T>> next() {
+    return Optional.empty();
   }
 }

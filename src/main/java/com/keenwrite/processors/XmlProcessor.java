@@ -36,11 +36,9 @@ import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.ProcessingInstruction;
-import javax.xml.stream.events.XMLEvent;
 import javax.xml.transform.*;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
-import java.io.File;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -60,16 +58,18 @@ import static net.sf.saxon.tree.util.ProcInstParser.getPseudoAttribute;
  * recognized by the next link on the chain.
  * </p>
  */
-public class XmlProcessor extends AbstractProcessor<String>
+public class XmlProcessor extends ExecutorProcessor<String>
     implements ErrorListener {
 
-  private final Snitch snitch = Services.load( Snitch.class );
+  private final Snitch mSnitch = Services.load( Snitch.class );
 
-  private XMLInputFactory xmlInputFactory;
-  private TransformerFactory transformerFactory;
-  private Transformer transformer;
+  private final XMLInputFactory mXmlInputFactory =
+      XMLInputFactory.newInstance();
+  private final TransformerFactory mTransformerFactory =
+      new TransformerFactoryImpl();
+  private Transformer mTransformer;
 
-  private Path path;
+  private final Path mPath;
 
   /**
    * Constructs an XML processor that can transform an XML document into another
@@ -84,7 +84,10 @@ public class XmlProcessor extends AbstractProcessor<String>
       final Processor<String> successor,
       final ProcessorContext context ) {
     super( successor );
-    setPath( context.getPath() );
+    mPath = context.getPath();
+
+    // Bubble problems up to the user interface, rather than standard error.
+    mTransformerFactory.setErrorListener( this );
   }
 
   /**
@@ -120,7 +123,7 @@ public class XmlProcessor extends AbstractProcessor<String>
         final StringReader input = new StringReader( text ) ) {
 
       // Listen for external file modification events.
-      getSnitch().listen( xsl );
+      mSnitch.listen( xsl );
 
       getTransformer( xsl ).transform(
           new StreamSource( input ),
@@ -142,13 +145,13 @@ public class XmlProcessor extends AbstractProcessor<String>
    * @throws TransformerConfigurationException Could not instantiate the
    *                                           transformer.
    */
-  private Transformer getTransformer( final Path xsl )
+  private synchronized Transformer getTransformer( final Path xsl )
       throws TransformerConfigurationException {
-    if( this.transformer == null ) {
-      this.transformer = createTransformer( xsl );
+    if( mTransformer == null ) {
+      mTransformer = createTransformer( xsl );
     }
 
-    return this.transformer;
+    return mTransformer;
   }
 
   /**
@@ -161,14 +164,13 @@ public class XmlProcessor extends AbstractProcessor<String>
    */
   protected Transformer createTransformer( final Path xsl )
       throws TransformerConfigurationException {
-    final Source xslt = new StreamSource( xsl.toFile() );
+    final var xslt = new StreamSource( xsl.toFile() );
 
     return getTransformerFactory().newTransformer( xslt );
   }
 
   private Path getXslPath( final String filename ) {
-    final Path xmlPath = getPath();
-    final File xmlDirectory = xmlPath.toFile().getParentFile();
+    final var xmlDirectory = mPath.toFile().getParentFile();
 
     return Paths.get( xmlDirectory.getPath(), filename );
   }
@@ -184,22 +186,21 @@ public class XmlProcessor extends AbstractProcessor<String>
    */
   private String getXsltFilename( final String xml )
       throws XMLStreamException, XPathException {
-
     String result = "";
 
     try( final StringReader sr = new StringReader( xml ) ) {
+      final XMLEventReader reader = createXmlEventReader( sr );
       boolean found = false;
       int count = 0;
-      final XMLEventReader reader = createXMLEventReader( sr );
 
       // If the processing instruction wasn't found in the first 10 lines,
       // fail fast. This should iterate twice through the loop.
       while( !found && reader.hasNext() && count++ < 10 ) {
-        final XMLEvent event = reader.nextEvent();
+        final var event = reader.nextEvent();
 
         if( event.isProcessingInstruction() ) {
-          final ProcessingInstruction pi = (ProcessingInstruction) event;
-          final String target = pi.getTarget();
+          final var pi = (ProcessingInstruction) event;
+          final var target = pi.getTarget();
 
           if( "xml-stylesheet".equalsIgnoreCase( target ) ) {
             result = getPseudoAttribute( pi.getData(), "href" );
@@ -212,43 +213,13 @@ public class XmlProcessor extends AbstractProcessor<String>
     return result;
   }
 
-  private XMLEventReader createXMLEventReader( final Reader reader )
+  private XMLEventReader createXmlEventReader( final Reader reader )
       throws XMLStreamException {
-    return getXMLInputFactory().createXMLEventReader( reader );
-  }
-
-  private synchronized XMLInputFactory getXMLInputFactory() {
-    if( this.xmlInputFactory == null ) {
-      this.xmlInputFactory = createXMLInputFactory();
-    }
-
-    return this.xmlInputFactory;
-  }
-
-  private XMLInputFactory createXMLInputFactory() {
-    return XMLInputFactory.newInstance();
+    return mXmlInputFactory.createXMLEventReader( reader );
   }
 
   private synchronized TransformerFactory getTransformerFactory() {
-    if( this.transformerFactory == null ) {
-      this.transformerFactory = createTransformerFactory();
-    }
-
-    return this.transformerFactory;
-  }
-
-  /**
-   * Returns a high-performance XSLT 2 transformation engine.
-   *
-   * @return An XSL transforming engine.
-   */
-  private TransformerFactory createTransformerFactory() {
-    final TransformerFactory factory = new TransformerFactoryImpl();
-
-    // Bubble problems up to the user interface, rather than standard error.
-    factory.setErrorListener( this );
-
-    return factory;
+    return mTransformerFactory;
   }
 
   /**
@@ -280,17 +251,5 @@ public class XmlProcessor extends AbstractProcessor<String>
   @Override
   public void fatalError( final TransformerException ex ) {
     throw new RuntimeException( ex );
-  }
-
-  private void setPath( final Path path ) {
-    this.path = path;
-  }
-
-  private Path getPath() {
-    return this.path;
-  }
-
-  private Snitch getSnitch() {
-    return this.snitch;
   }
 }

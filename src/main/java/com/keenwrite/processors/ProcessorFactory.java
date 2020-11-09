@@ -52,7 +52,7 @@ public class ProcessorFactory extends AbstractFileFactory {
   }
 
   private Processor<String> createProcessor() {
-    final ProcessorContext context = getProcessorContext();
+    final var context = getProcessorContext();
 
     // If the content is not to be exported, then the successor processor
     // is one that parses Markdown into HTML and passes the string to the
@@ -64,17 +64,19 @@ public class ProcessorFactory extends AbstractFileFactory {
     // with embedded SVG representing formulas, or without any conversion
     // to SVG. Without conversion would require client-side rendering of
     // math (such as using the JavaScript-based KaTeX engine).
-    final Processor<String> successor = context.isExportFormat( NONE )
+    final var successor = context.isExportFormat( NONE )
         ? createHtmlPreviewProcessor()
         : createIdentityProcessor();
 
-    return switch( context.getFileType() ) {
+    final var processor = switch( context.getFileType() ) {
       case RMARKDOWN -> createRProcessor( successor );
       case SOURCE -> createMarkdownProcessor( successor );
       case RXML -> createRXMLProcessor( successor );
       case XML -> createXMLProcessor( successor );
       default -> createPreformattedProcessor( successor );
     };
+
+    return new ExecutorProcessor<>( processor );
   }
 
   /**
@@ -87,22 +89,6 @@ public class ProcessorFactory extends AbstractFileFactory {
   public static Processor<String> createProcessors(
       final ProcessorContext context ) {
     return new ProcessorFactory( context ).createProcessor();
-  }
-
-  /**
-   * Executes the processing chain, operating on the given string.
-   *
-   * @param handler The first processor in the chain to call.
-   * @param text    The initial value of the text to process.
-   * @return The final value of the text that was processed by the chain.
-   */
-  public static String processChain( Processor<String> handler, String text ) {
-    while( handler != null && text != null ) {
-      text = handler.apply( text );
-      handler = handler.next();
-    }
-
-    return text;
   }
 
   /**

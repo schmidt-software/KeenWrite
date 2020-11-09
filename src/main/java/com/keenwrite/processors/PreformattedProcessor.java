@@ -32,7 +32,7 @@ package com.keenwrite.processors;
  * encountered. It processes the text by enclosing it in an HTML {@code <pre>}
  * element.
  */
-public class PreformattedProcessor extends AbstractProcessor<String> {
+public class PreformattedProcessor extends ExecutorProcessor<String> {
 
   /**
    * Passes the link to the super constructor.

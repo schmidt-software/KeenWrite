@@ -36,7 +36,7 @@ import static com.keenwrite.processors.text.TextReplacementFactory.replace;
  * their values into the post-processed text. The default variable syntax is
  * {@code $variable$}.
  */
-public class DefinitionProcessor extends AbstractProcessor<String> {
+public class DefinitionProcessor extends ExecutorProcessor<String> {
 
   private final Map<String, String> mDefinitions;
 

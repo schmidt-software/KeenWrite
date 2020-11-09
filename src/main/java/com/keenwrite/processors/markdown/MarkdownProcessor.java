@@ -53,7 +53,7 @@ import static com.keenwrite.ExportFormat.NONE;
 /**
  * Responsible for parsing a Markdown document and rendering it as HTML.
  */
-public class MarkdownProcessor extends AbstractProcessor<String> {
+public class MarkdownProcessor extends ExecutorProcessor<String> {
 
   private final IParse mParser;
   private final IRender mRenderer;
