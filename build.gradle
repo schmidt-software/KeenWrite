@@ -29,7 +29,7 @@ if (project.hasProperty('targetOs')) {
 }
 
 javafx {
-  version = "14"
+  version = "15"
   modules = ['javafx.controls', 'javafx.swing']
   configuration = 'compileOnly'
 }
@@ -99,8 +99,11 @@ dependencies {
   implementation "org.apache.xmlgraphics:batik-util:${v_batik}"
   implementation "org.apache.xmlgraphics:batik-xml:${v_batik}"
 
-  // Spelling, TeX, Docking
+  // Spelling, TeX
   implementation fileTree(include: ['**/*.jar'], dir: 'libs')
+
+  // Docking
+  implementation 'com.panemu:tiwulfx-dock:0.1'
 
   // Misc.
   implementation 'org.ahocorasick:ahocorasick:0.4.0'
@@ -118,9 +121,9 @@ dependencies {
     }
   }
 
-  testRuntime "org.junit.jupiter:junit-jupiter-engine:${v_junit}"
-  testCompile "org.junit.jupiter:junit-jupiter-api:${v_junit}"
-  testCompile "org.testfx:testfx-junit5:4.0.16-alpha"
+  testImplementation "org.junit.jupiter:junit-jupiter-engine:${v_junit}"
+  testImplementation "org.junit.jupiter:junit-jupiter-api:${v_junit}"
+  testImplementation "org.testfx:testfx-junit5:4.0.16-alpha"
 }
 
 compileJava {

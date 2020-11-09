@@ -65,7 +65,7 @@ public final class HtmlPreview extends SwingNode {
   /**
    * Suppresses scrolling to the top on every key press.
    */
-  private static class HTMLPanel extends XHTMLPanel {
+  private static class HtmlPanel extends XHTMLPanel {
     @Override
     public void resetScrollPosition() {
     }
@@ -177,7 +177,7 @@ public final class HtmlPreview extends SwingNode {
    */
   private final StringBuilder mHtmlDocument = new StringBuilder( 65536 );
 
-  private final HTMLPanel mHtmlRenderer = new HTMLPanel();
+  private final HtmlPanel mHtmlRenderer = new HtmlPanel();
   private final JScrollPane mScrollPane = new JScrollPane( mHtmlRenderer );
   private final CustomImageLoader mImageLoader = new CustomImageLoader();
 

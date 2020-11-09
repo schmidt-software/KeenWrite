@@ -27,11 +27,11 @@
  */
 package com.keenwrite;
 
-import com.keenwrite.dock.control.DetachableTabPane;
 import com.keenwrite.service.Options;
 import com.keenwrite.service.Settings;
 import com.keenwrite.service.events.Notifier;
 import com.keenwrite.util.Utils;
+import com.panemu.tiwulfx.control.dock.DetachableTabPane;
 import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.property.ReadOnlyBooleanWrapper;
 import javafx.beans.property.ReadOnlyObjectProperty;
@@ -40,6 +40,7 @@ import javafx.beans.value.ChangeListener;
 import javafx.collections.ListChangeListener;
 import javafx.event.Event;
 import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Window;

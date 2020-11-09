@@ -25,11 +25,11 @@
  */
 package com.keenwrite;
 
-import com.keenwrite.dock.control.DetachableTab;
 import com.keenwrite.editors.EditorPane;
 import com.keenwrite.editors.markdown.MarkdownEditorPane;
 import com.keenwrite.processors.Processor;
 import com.keenwrite.processors.markdown.CaretPosition;
+import com.panemu.tiwulfx.control.dock.DetachableTab;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyBooleanProperty;

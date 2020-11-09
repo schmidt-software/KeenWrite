@@ -40,16 +40,6 @@ import java.util.function.UnaryOperator;
 public interface Processor<T> extends UnaryOperator<T> {
 
   /**
-   * Removes the given processor from the chain, returning a new immutable
-   * chain equivalent to this chain, but without the given processor.
-   *
-   * @param processor The {@link Processor} to remove from the chain.
-   * @return A delegating processor chain starting from this processor
-   * onwards with the given processor removed from the chain.
-   */
-  Processor<T> remove( Class<? extends Processor<T>> processor );
-
-  /**
    * Adds a document processor to call after this processor finishes processing
    * the document given to the process method.
    *

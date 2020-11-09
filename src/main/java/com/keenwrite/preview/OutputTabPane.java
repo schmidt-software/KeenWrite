@@ -27,8 +27,8 @@
  */
 package com.keenwrite.preview;
 
-import com.keenwrite.dock.control.DetachableTab;
-import com.keenwrite.dock.control.DetachableTabPane;
+import com.panemu.tiwulfx.control.dock.DetachableTab;
+import com.panemu.tiwulfx.control.dock.DetachableTabPane;
 
 /**
  * Responsible for displaying output in tabs, such as {@link HtmlPreview}.

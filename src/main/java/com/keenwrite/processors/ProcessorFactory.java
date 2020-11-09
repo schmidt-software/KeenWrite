@@ -31,8 +31,6 @@ import com.keenwrite.AbstractFileFactory;
 import com.keenwrite.preview.HtmlPreview;
 import com.keenwrite.processors.markdown.MarkdownProcessor;
 
-import java.nio.file.Path;
-
 import static com.keenwrite.ExportFormat.NONE;
 
 /**
@@ -175,14 +173,5 @@ public class ProcessorFactory extends AbstractFileFactory {
 
   private HtmlPreview getPreviewPane() {
     return getProcessorContext().getPreview();
-  }
-
-  /**
-   * Returns the {@link Path} from the {@link ProcessorContext}.
-   *
-   * @return A non-null {@link Path} instance.
-   */
-  private Path getPath() {
-    return getProcessorContext().getPath();
   }
 }
