@@ -47,7 +47,6 @@ import java.awt.event.ComponentEvent;
 import java.net.URI;
 import java.nio.file.Path;
 
-import static com.keenwrite.Constants.DEFAULT_DIRECTORY;
 import static com.keenwrite.Constants.STYLESHEET_PREVIEW;
 import static com.keenwrite.StatusBarNotifier.clue;
 import static com.keenwrite.util.ProtocolResolver.getProtocol;
@@ -150,23 +149,27 @@ public final class HtmlPreview extends SwingNode {
    * Render CSS using points (pt) not pixels (px) to reduce the chance of
    * poor rendering.
    */
-  private static final String HTML_PREFIX = format(
-      "<!DOCTYPE html>"
-          + "<html lang='en'>"
-          + "<head><title> </title><meta charset='utf-8'/>"
-          + "<link rel='stylesheet' href='%s'/>"
-          + "</head>"
-          + "<body>",
+  private static final String HTML_HEAD_OPEN = format(
+      """
+          <!DOCTYPE html>
+          <html lang='en'><head><title> </title><meta charset='utf-8'/>
+          <link rel='stylesheet' href='%s'/>
+          """,
       HtmlPreview.class.getResource( STYLESHEET_PREVIEW )
   );
 
-  private static final String HTML_SUFFIX = "</body></html>";
+  /**
+   * Used by SVG rendering when resolving local image files.
+   */
+  private static final String HTML_BASE = "<base href='%s'>";
+  private static final String HTML_HEAD_CLOSE = "</head><body>";
+  private static final String HTML_TAIL = "</body></html>";
 
   /**
    * Used to reset the {@link #mHtmlDocument} buffer so that the
-   * {@link #HTML_PREFIX} need not be appended all the time.
+   * {@link #HTML_HEAD_OPEN} need not be appended all the time.
    */
-  private static final int HTML_PREFIX_LENGTH = HTML_PREFIX.length();
+  private static final int HTML_PREFIX_LENGTH = HTML_HEAD_OPEN.length();
 
   private static final W3CDom W3C_DOM = new W3CDom();
   private static final XhtmlNamespaceHandler NS_HANDLER =
@@ -181,7 +184,8 @@ public final class HtmlPreview extends SwingNode {
   private final JScrollPane mScrollPane = new JScrollPane( mHtmlRenderer );
   private final CustomImageLoader mImageLoader = new CustomImageLoader();
 
-  private Path mPath = DEFAULT_DIRECTORY;
+  private String mBaseUriPath = "";
+  private String mBaseUriHtml = "";
 
   /**
    * Creates a new preview pane that can scroll to the caret position within the
@@ -191,7 +195,7 @@ public final class HtmlPreview extends SwingNode {
     setStyle( "-fx-background-color: white;" );
 
     // No need to append same prefix each time the HTML content is updated.
-    mHtmlDocument.append( HTML_PREFIX );
+    mHtmlDocument.append( HTML_HEAD_OPEN );
 
     // Inject an SVG renderer that produces high-quality SVG buffered images.
     final var factory = new ChainedReplacedElementFactory();
@@ -233,7 +237,7 @@ public final class HtmlPreview extends SwingNode {
     // Access to a Swing component must occur from the Event Dispatch
     // Thread (EDT) according to Swing threading restrictions.
     invokeLater(
-        () -> mHtmlRenderer.setDocument( docW3c, getBaseUrl(), NS_HANDLER )
+        () -> mHtmlRenderer.setDocument( docW3c, getBaseUri(), NS_HANDLER )
     );
   }
 
@@ -285,16 +289,23 @@ public final class HtmlPreview extends SwingNode {
     mHtmlDocument.setLength( HTML_PREFIX_LENGTH );
 
     // Write the HTML body element followed by closing tags.
-    return mHtmlDocument.append( html ).append( HTML_SUFFIX ).toString();
+    return mHtmlDocument.append( HTML_HEAD_OPEN )
+                        .append( mBaseUriHtml )
+                        .append( HTML_HEAD_CLOSE )
+                        .append( html )
+                        .append( HTML_TAIL )
+                        .toString();
   }
 
-  public Path getPath() {
-    return mPath;
-  }
-
-  public void setPath( final Path path ) {
-    assert path != null;
-    mPath = path;
+  /**
+   * Sets the base URI to the containing directory the file being edited.
+   *
+   * @param path The path to the file being edited.
+   */
+  public void setBaseUri( final Path path ) {
+    final var parent = path.getParent();
+    mBaseUriPath = parent == null ? "" : parent.toUri().toString();
+    mBaseUriHtml = format( HTML_BASE, mBaseUriPath );
   }
 
   /**
@@ -344,15 +355,12 @@ public final class HtmlPreview extends SwingNode {
     return new Point( x, y );
   }
 
-  private JScrollPane getScrollPane() {
-    return mScrollPane;
+  private String getBaseUri() {
+    return mBaseUriPath;
   }
 
-  private String getBaseUrl() {
-    final var basePath = getPath();
-    final var parent = basePath == null ? null : basePath.getParent();
-
-    return parent == null ? "" : parent.toUri().toString();
+  private JScrollPane getScrollPane() {
+    return mScrollPane;
   }
 
   private SharedContext getSharedContext() {

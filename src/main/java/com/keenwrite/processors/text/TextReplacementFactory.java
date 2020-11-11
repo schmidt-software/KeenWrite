@@ -46,10 +46,8 @@ public final class TextReplacementFactory {
    * @return A class that can search and replace text with utmost expediency.
    */
   public static TextReplacer getTextReplacer( final int length ) {
-    // After about 1,500 characters, the StringUtils implementation is less
-    // performant than the Aho-Corsick implementation.
-    //
-    // See http://stackoverflow.com/a/40836618/59087
+    // After about 1,500 characters, the StringUtils implementation is slower
+    // than the Aho-Corsick algorithm implementation.
     return length < 1500 ? APACHE : AHO_CORASICK;
   }
 

@@ -206,10 +206,17 @@ th, td {
 
 img {
   max-width: 100%;
+
+  /**
+   * Required for FlyingSaucer to treat images
+   * as block elements. See SvhReplacedElementFactory
+   * for details.
+   */
+  display: inline-block;
 }
 
 /* Required for FlyingSaucer to detect the node.
- * See SVGReplacedElementFactory for details.
+ * See SvhReplacedElementFactory for details.
  */
 tex {
   /* Ensure the formulas can be inlined with text. */

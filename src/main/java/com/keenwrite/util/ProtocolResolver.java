@@ -49,7 +49,7 @@ public class ProtocolResolver {
       final URI uri = new URI( resource );
       return ProtocolScheme.valueFrom(
           uri.isAbsolute()
-              ? uri.getScheme().toUpperCase()
+              ? uri.getScheme()
               : new URL( resource ).getProtocol()
       );
     } catch( final Exception e ) {

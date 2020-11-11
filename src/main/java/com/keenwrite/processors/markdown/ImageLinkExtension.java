@@ -33,7 +33,6 @@ import com.vladsch.flexmark.ast.Image;
 import com.vladsch.flexmark.html.IndependentLinkResolverFactory;
 import com.vladsch.flexmark.html.LinkResolver;
 import com.vladsch.flexmark.html.renderer.LinkResolverBasicContext;
-import com.vladsch.flexmark.html.renderer.LinkStatus;
 import com.vladsch.flexmark.html.renderer.ResolvedLink;
 import com.vladsch.flexmark.util.ast.Node;
 import com.vladsch.flexmark.util.data.MutableDataHolder;
@@ -48,6 +47,7 @@ import static com.keenwrite.StatusBarNotifier.clue;
 import static com.keenwrite.util.ProtocolResolver.getProtocol;
 import static com.vladsch.flexmark.html.HtmlRenderer.Builder;
 import static com.vladsch.flexmark.html.HtmlRenderer.HtmlRendererExtension;
+import static com.vladsch.flexmark.html.renderer.LinkStatus.VALID;
 import static java.lang.String.format;
 
 /**
@@ -150,7 +150,7 @@ public class ImageLinkExtension implements HtmlRendererExtension {
     }
 
     private ResolvedLink valid( final ResolvedLink link, final String url ) {
-      return link.withStatus( LinkStatus.VALID ).withUrl( url );
+      return link.withStatus( VALID ).withUrl( url );
     }
 
     private Path getImagePrefix() {

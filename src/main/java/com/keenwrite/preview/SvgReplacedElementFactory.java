@@ -28,7 +28,6 @@
 package com.keenwrite.preview;
 
 import com.keenwrite.util.BoundedCache;
-import org.apache.commons.io.FilenameUtils;
 import org.w3c.dom.Element;
 import org.xhtmlrenderer.extend.ReplacedElement;
 import org.xhtmlrenderer.extend.ReplacedElementFactory;
@@ -39,10 +38,15 @@ import org.xhtmlrenderer.simple.extend.FormSubmissionListener;
 import org.xhtmlrenderer.swing.ImageReplacedElement;
 
 import java.awt.image.BufferedImage;
+import java.net.URI;
+import java.nio.file.Paths;
 import java.util.Map;
 import java.util.function.Function;
 
 import static com.keenwrite.StatusBarNotifier.clue;
+import static com.keenwrite.io.File.getMediaType;
+import static com.keenwrite.io.MediaType.IMAGE_SVG_XML;
+import static com.keenwrite.preview.SvgRasterizer.BROKEN_IMAGE_PLACEHOLDER;
 import static com.keenwrite.preview.SvgRasterizer.rasterize;
 import static com.keenwrite.processors.markdown.tex.TexNode.HTML_TEX;
 
@@ -73,11 +77,6 @@ public class SvgReplacedElementFactory implements ReplacedElementFactory {
     return MathRendererContainer.INSTANCE;
   }
 
-  /**
-   * SVG filename extension maps to an SVG image element.
-   */
-  private static final String SVG_FILE = "svg";
-
   private static final String HTML_IMAGE = "img";
   private static final String HTML_IMAGE_SRC = "src";
 
@@ -100,27 +99,32 @@ public class SvgReplacedElementFactory implements ReplacedElementFactory {
     final var e = box.getElement();
 
     if( e != null ) {
-      try {
-        final var nodeName = e.getNodeName();
-
-        if( HTML_IMAGE.equals( nodeName ) ) {
+      switch( e.getNodeName() ) {
+        case HTML_IMAGE -> {
           final var src = e.getAttribute( HTML_IMAGE_SRC );
-          final var ext = FilenameUtils.getExtension( src );
 
-          if( SVG_FILE.equalsIgnoreCase( ext ) ) {
-            image = getCachedImage(
-                src, svg -> rasterize( svg, box.getContentWidth() ) );
+          if( getMediaType( src ) == IMAGE_SVG_XML ) {
+            try {
+              final var baseUri = getBaseUri( e );
+              final var uri = new URI( baseUri ).getPath();
+              final var path = Paths.get( uri, src );
+              System.out.println( "SVG PATH: " + path );
+
+              image = getCachedImage(
+                  src, svg -> rasterize( path, box.getContentWidth() ) );
+            } catch( final Exception ex ) {
+              image = BROKEN_IMAGE_PLACEHOLDER;
+              clue( ex );
+            }
           }
         }
-        else if( HTML_TEX.equals( nodeName ) ) {
+        case HTML_TEX -> {
           // Convert the TeX element to a raster graphic if not yet cached.
           final var src = e.getTextContent();
           image = getCachedImage(
               src, __ -> rasterize( getInstance().render( src ) )
           );
         }
-      } catch( final Exception ex ) {
-        clue( ex );
       }
     }
 
@@ -132,6 +136,31 @@ public class SvgReplacedElementFactory implements ReplacedElementFactory {
     }
 
     return null;
+  }
+
+  private String getBaseUri( final Element e ) {
+    try {
+      final var doc = e.getOwnerDocument();
+      final var html = doc.getDocumentElement();
+      final var head = html.getFirstChild();
+      final var children = head.getChildNodes();
+
+      for( int i = children.getLength() - 1; i >= 0; i-- ) {
+        final var child = children.item( i );
+        final var name = child.getLocalName();
+
+        if( "base".equalsIgnoreCase( name ) ) {
+          final var attrs = child.getAttributes();
+          final var item = attrs.getNamedItem( "href" );
+
+          return item.getNodeValue();
+        }
+      }
+    } catch( final Exception ex ) {
+      clue( ex );
+    }
+
+    return "";
   }
 
   @Override

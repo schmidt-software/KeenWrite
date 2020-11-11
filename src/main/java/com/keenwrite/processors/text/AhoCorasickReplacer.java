@@ -28,8 +28,7 @@
 package com.keenwrite.processors.text;
 
 import java.util.Map;
-import org.ahocorasick.trie.Emit;
-import org.ahocorasick.trie.Trie.TrieBuilder;
+
 import static org.ahocorasick.trie.Trie.builder;
 
 /**
@@ -46,20 +45,16 @@ public class AhoCorasickReplacer extends AbstractTextReplacer {
   @Override
   public String replace( final String text, final Map<String, String> map ) {
     // Create a buffer sufficiently large that re-allocations are minimized.
-    final StringBuilder sb = new StringBuilder( (int)(text.length() * 1.25) );
+    final var sb = new StringBuilder( (int)(text.length() * 1.25) );
 
-    // The TrieBuilder should only match whole words and ignore overlaps (there
-    // shouldn't be any).
-    final TrieBuilder builder = builder().onlyWholeWords().ignoreOverlaps();
-
-    for( final String key : keys( map ) ) {
-      builder.addKeyword( key );
-    }
+    // Definition names cannot overlap.
+    final var builder = builder().ignoreOverlaps();
+    builder.addKeywords( keys( map ) );
 
     int index = 0;
 
     // Replace all instances with dereferenced variables.
-    for( final Emit emit : builder.build().parseText( text ) ) {
+    for( final var emit : builder.build().parseText( text ) ) {
       sb.append( text, index, emit.getStart() );
       sb.append( map.get( emit.getKeyword() ) );
       index = emit.getEnd() + 1;

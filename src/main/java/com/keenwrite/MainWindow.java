@@ -479,7 +479,7 @@ public class MainWindow implements Observer {
    */
   private void process( final FileEditorTab tab ) {
     if( tab != null ) {
-      getHtmlPreview().setPath( tab.getPath() );
+      getHtmlPreview().setBaseUri( tab.getPath() );
 
       final Processor<String> processor = getProcessors().computeIfAbsent(
           tab, p -> createProcessors( tab )
@@ -1464,7 +1464,7 @@ public class MainWindow implements Observer {
   @SuppressWarnings("SameParameterValue")
   private Collection<String> readLexicon( final String filename )
       throws Exception {
-    final var path = "/" + LEXICONS_DIRECTORY + "/" + filename;
+    final var path = '/' + LEXICONS_DIRECTORY + '/' + filename;
 
     try( final var resource = getClass().getResourceAsStream( path ) ) {
       if( resource == null ) {

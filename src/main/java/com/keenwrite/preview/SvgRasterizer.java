@@ -29,7 +29,6 @@ package com.keenwrite.preview;
 
 import org.apache.batik.anim.dom.SAXSVGDocumentFactory;
 import org.apache.batik.gvt.renderer.ImageRenderer;
-import org.apache.batik.transcoder.TranscoderException;
 import org.apache.batik.transcoder.TranscoderInput;
 import org.apache.batik.transcoder.TranscoderOutput;
 import org.apache.batik.transcoder.image.ImageTranscoder;
@@ -43,10 +42,11 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
+import java.io.File;
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.net.URL;
+import java.net.URI;
+import java.nio.file.Path;
 import java.text.NumberFormat;
 
 import static com.keenwrite.StatusBarNotifier.clue;
@@ -176,29 +176,9 @@ public class SvgRasterizer {
       final ImageRenderer renderer = super.createRenderer();
       final RenderingHints hints = renderer.getRenderingHints();
       hints.putAll( RENDERING_HINTS );
-
       renderer.setRenderingHints( hints );
 
       return renderer;
-    }
-  }
-
-  /**
-   * Rasterizes the vector graphic file at the given URL. If any exception
-   * happens, a red circle is returned instead.
-   *
-   * @param url   The URL to a vector graphic file, which must include the
-   *              protocol scheme (such as file:// or https://).
-   * @param width The number of pixels wide to render the image. The aspect
-   *              ratio is maintained.
-   * @return Either the rasterized image upon success or a red circle.
-   */
-  public static BufferedImage rasterize( final String url, final int width ) {
-    try {
-      return rasterize( new URL( url ), width );
-    } catch( final Exception ex ) {
-      clue( ex );
-      return BROKEN_IMAGE_PLACEHOLDER;
     }
   }
 
@@ -208,34 +188,20 @@ public class SvgRasterizer {
    * @param svg   The SVG {@link Document} to rasterize.
    * @param width The rasterized image's width (in pixels).
    * @return The rasterized image.
-   * @throws TranscoderException Signifies an issue with the input document.
    */
-  public static BufferedImage rasterize( final Document svg, final int width )
-      throws TranscoderException {
-    final var transcoder = new BufferedImageTranscoder();
-    final var input = new TranscoderInput( svg );
+  public static BufferedImage rasterize( final Document svg, final int width ) {
+    try {
+      final var transcoder = new BufferedImageTranscoder();
+      final var input = new TranscoderInput( svg );
 
-    transcoder.addTranscodingHint( KEY_WIDTH, (float) width );
-    transcoder.transcode( input, null );
+      transcoder.addTranscodingHint( KEY_WIDTH, (float) width );
+      transcoder.transcode( input, null );
+      return transcoder.getImage();
+    } catch( final Exception ex ) {
+      clue( ex );
+    }
 
-    return transcoder.getImage();
-  }
-
-  /**
-   * Converts an SVG drawing into a rasterized image that can be drawn on
-   * a graphics context.
-   *
-   * @param url   The path to the image (can be web address).
-   * @param width Scale the image width to this size (aspect ratio is
-   *              maintained).
-   * @return The vector graphic transcoded into a raster image format.
-   * @throws IOException         Could not read the vector graphic.
-   * @throws TranscoderException Could not convert the vector graphic to an
-   *                             instance of {@link Image}.
-   */
-  public static BufferedImage rasterize( final URL url, final int width )
-      throws IOException, TranscoderException {
-    return rasterize( FACTORY_DOM.createDocument( url.toString() ), width );
+    return BROKEN_IMAGE_PLACEHOLDER;
   }
 
   public static BufferedImage rasterize( final Document document ) {
@@ -245,24 +211,55 @@ public class SvgRasterizer {
       return rasterize( document, INT_FORMAT.parse( width ).intValue() );
     } catch( final Exception ex ) {
       clue( ex );
-      return BROKEN_IMAGE_PLACEHOLDER;
     }
+
+    return BROKEN_IMAGE_PLACEHOLDER;
   }
 
   /**
-   * Converts an SVG string into a rasterized image that can be drawn on
+   * Rasterizes the vector graphic file at the given URI. If any exception
+   * happens, a broken image icon is returned instead.
+   *
+   * @param path  The {@link Path} to a vector graphic file.
+   * @param width Scale the image to the given width (px); aspect ratio is
+   *              maintained.
+   * @return A rasterized image as an instance of {@link BufferedImage}.
+   */
+  public static BufferedImage rasterize( final Path path, final int width ) {
+    return rasterize( path.toUri(), width );
+  }
+
+  /**
+   * Rasterizes the vector graphic file at the given URI. If any exception
+   * happens, a broken image icon is returned instead.
+   *
+   * @param uri   The URI to a vector graphic file, which must include the
+   *              protocol scheme (such as file:// or https://).
+   * @param width Scale the image to the given width (px); aspect ratio is
+   *              maintained.
+   * @return A rasterized image as an instance of {@link BufferedImage}.
+   */
+  public static BufferedImage rasterize( final String uri, final int width ) {
+    return rasterize( new File( uri ).toURI(), width );
+  }
+
+  /**
+   * Converts an SVG drawing into a rasterized image that can be drawn on
    * a graphics context.
    *
-   * @param svg The SVG xml document.
-   * @param w   Scale the image width to this size (aspect ratio is
-   *            maintained).
+   * @param uri   The path to the image (can be web address).
+   * @param width Scale the image to the given width (px); aspect ratio is
+   *              maintained.
    * @return The vector graphic transcoded into a raster image format.
-   * @throws TranscoderException Could not convert the vector graphic to an
-   *                             instance of {@link Image}.
    */
-  public static BufferedImage rasterizeString( final String svg, final int w )
-      throws IOException, TranscoderException {
-    return rasterize( toDocument( svg ), w );
+  public static BufferedImage rasterize( final URI uri, final int width ) {
+    try {
+      return rasterize( FACTORY_DOM.createDocument( uri.toString() ), width );
+    } catch( final Exception ex ) {
+      clue( ex );
+    }
+
+    return BROKEN_IMAGE_PLACEHOLDER;
   }
 
   /**
@@ -280,22 +277,22 @@ public class SvgRasterizer {
       return rasterizeString( xml, INT_FORMAT.parse( width ).intValue() );
     } catch( final Exception ex ) {
       clue( ex );
-      return BROKEN_IMAGE_PLACEHOLDER;
     }
+
+    return BROKEN_IMAGE_PLACEHOLDER;
   }
 
   /**
-   * Converts an SVG XML string into a new {@link Document} instance.
+   * Converts an SVG string into a rasterized image that can be drawn on
+   * a graphics context.
    *
-   * @param xml The XML containing SVG elements.
-   * @return The SVG contents parsed into a {@link Document} object model.
-   * @throws IOException Could
+   * @param svg The SVG xml document.
+   * @param w   Scale the image width to this size (aspect ratio is
+   *            maintained).
+   * @return The vector graphic transcoded into a raster image format.
    */
-  private static Document toDocument( final String xml ) throws IOException {
-    try( final var reader = new StringReader( xml ) ) {
-      return FACTORY_DOM.createSVGDocument(
-          "http://www.w3.org/2000/svg", reader );
-    }
+  public static BufferedImage rasterizeString( final String svg, final int w ) {
+    return rasterize( toDocument( svg ), w );
   }
 
   /**
@@ -314,5 +311,20 @@ public class SvgRasterizer {
     }
 
     return BROKEN_IMAGE_SVG;
+  }
+
+  /**
+   * Converts an SVG XML string into a new {@link Document} instance.
+   *
+   * @param xml The XML containing SVG elements.
+   * @return The SVG contents parsed into a {@link Document} object model.
+   */
+  private static Document toDocument( final String xml ) {
+    try( final var reader = new StringReader( xml ) ) {
+      return FACTORY_DOM.createSVGDocument(
+          "http://www.w3.org/2000/svg", reader );
+    } catch( final Exception ex ) {
+      throw new IllegalArgumentException( ex );
+    }
   }
 }
