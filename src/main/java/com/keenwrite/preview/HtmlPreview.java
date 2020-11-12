@@ -28,7 +28,6 @@
 package com.keenwrite.preview;
 
 import javafx.embed.swing.SwingNode;
-import javafx.scene.Node;
 import org.xhtmlrenderer.render.Box;
 import org.xhtmlrenderer.swing.SwingReplacedElementFactory;
 
@@ -134,6 +133,21 @@ public final class HtmlPreview extends SwingNode {
   }
 
   /**
+   * Sets the base URI to the containing directory the file being edited.
+   *
+   * @param path The path to the file being edited.
+   */
+  public void setBaseUri( final Path path ) {
+    final var parent = path.getParent();
+    mBaseUriPath = parent == null ? "" : parent.toUri().toString();
+    mBaseUriHtml = format( HTML_BASE, mBaseUriPath );
+  }
+
+  public void repaintScrollPane() {
+    getScrollPane().repaint();
+  }
+
+  /**
    * Scrolls to the closest element matching the given identifier without
    * waiting for the document to be ready. Be sure the document is ready
    * before calling this method.
@@ -165,42 +179,6 @@ public final class HtmlPreview extends SwingNode {
     mView.scrollTo( point );
   }
 
-  private String decorate( final String html ) {
-    // Trim the HTML back to only the prefix.
-    mHtmlDocument.setLength( HTML_PREFIX_LENGTH );
-
-    // Write the HTML body element followed by closing tags.
-    return mHtmlDocument.append( mBaseUriHtml )
-                        .append( HTML_HEAD_CLOSE )
-                        .append( html )
-                        .append( HTML_TAIL )
-                        .toString();
-  }
-
-  /**
-   * Sets the base URI to the containing directory the file being edited.
-   *
-   * @param path The path to the file being edited.
-   */
-  public void setBaseUri( final Path path ) {
-    final var parent = path.getParent();
-    mBaseUriPath = parent == null ? "" : parent.toUri().toString();
-    mBaseUriHtml = format( HTML_BASE, mBaseUriPath );
-  }
-
-  /**
-   * Content to embed in a panel.
-   *
-   * @return The content to display to the user.
-   */
-  public Node getNode() {
-    return this;
-  }
-
-  public void repaintScrollPane() {
-    getScrollPane().repaint();
-  }
-
   /**
    * Creates a {@link Point} to use as a reference for scrolling to the area
    * described by the given {@link Box}. The {@link Box} coordinates are used
@@ -226,6 +204,18 @@ public final class HtmlPreview extends SwingNode {
     }
 
     return new Point( x, y );
+  }
+
+  private String decorate( final String html ) {
+    // Trim the HTML back to only the prefix.
+    mHtmlDocument.setLength( HTML_PREFIX_LENGTH );
+
+    // Write the HTML body element followed by closing tags.
+    return mHtmlDocument.append( mBaseUriHtml )
+                        .append( HTML_HEAD_CLOSE )
+                        .append( html )
+                        .append( HTML_TAIL )
+                        .toString();
   }
 
   private String getBaseUri() {

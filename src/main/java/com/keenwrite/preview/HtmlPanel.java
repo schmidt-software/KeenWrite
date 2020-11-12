@@ -3,7 +3,6 @@ package com.keenwrite.preview;
 import com.keenwrite.adapters.DocumentAdapter;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-import org.jsoup.helper.W3CDom;
 import org.xhtmlrenderer.layout.SharedContext;
 import org.xhtmlrenderer.render.Box;
 import org.xhtmlrenderer.simple.XHTMLPanel;
@@ -52,21 +51,21 @@ public class HtmlPanel extends XHTMLPanel {
    * the system's default browser; local file system links are opened in the
    * editor.
    */
-  private static class HyperlinkListener extends LinkListener {
+  private static final class HyperlinkListener extends LinkListener {
     @Override
     public void linkClicked( final BasicPanel panel, final String link ) {
       try {
         switch( getProtocol( link ) ) {
-          case HTTP:
+          case HTTP -> {
             final var desktop = getDesktop();
 
             if( desktop.isSupported( BROWSE ) ) {
               desktop.browse( new URI( link ) );
             }
-            break;
-          case FILE:
+          }
+          case FILE -> {
             // TODO: #88 -- publish a message to the event bus.
-            break;
+          }
         }
       } catch( final Exception ex ) {
         clue( ex );
@@ -74,17 +73,27 @@ public class HtmlPanel extends XHTMLPanel {
     }
   }
 
-  private static final W3CDom W3C_DOM = new W3CDom();
+  private static final DomConverter CONVERTER = new DomConverter();
   private static final XhtmlNamespaceHandler XNH = new XhtmlNamespaceHandler();
 
+  /**
+   *
+   */
   public HtmlPanel() {
     addDocumentListener( new DocumentEventHandler() );
     removeMouseTrackingListeners();
     addMouseTrackingListener( new HyperlinkListener() );
   }
 
+  /**
+   * Updates the document model displayed by the renderer. Effectively, this
+   * updates the HTML document to provide new content.
+   *
+   * @param html    A complete HTML5 document, including doctype.
+   * @param baseUri URI to use for finding relative files, such as images.
+   */
   public void render( final String html, final String baseUri ) {
-    setDocument( W3C_DOM.fromJsoup( parse( html ) ), baseUri, XNH );
+    setDocument( CONVERTER.fromJsoup( parse( html ) ), baseUri, XNH );
   }
 
   /**
