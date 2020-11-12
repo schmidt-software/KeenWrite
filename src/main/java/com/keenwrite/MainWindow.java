@@ -126,7 +126,7 @@ public class MainWindow implements Observer {
    * preferences.
    */
   private static final Options sOptions = Services.load( Options.class );
-  private static final Snitch SNITCH = Services.load( Snitch.class );
+  private static final Snitch sSnitch = Services.load( Snitch.class );
 
   private final Scene mScene;
   private final Text mLineNumberText;
@@ -169,9 +169,7 @@ public class MainWindow implements Observer {
       };
 
   private final ChangeListener<Integer> mCaretPositionListener =
-      ( observable, oldPosition, newPosition ) -> {
-        processActiveTab();
-      };
+      ( observable, oldPosition, newPosition ) -> processActiveTab();
 
   private DefinitionSource mDefinitionSource = createDefaultDefinitionSource();
   private final DefinitionPane mDefinitionPane = createDefinitionPane();
@@ -203,9 +201,13 @@ public class MainWindow implements Observer {
     initSnitch();
     initDefinitionListener();
     initTabAddedListener();
-    initTabChangedListener();
+
     initPreferences();
     initVariableNameInjector();
+
+    addShowListener(getScene().getRoot(), ( __ ) -> {
+      initTabChangedListener();
+    });
   }
 
   private void initLayout() {
@@ -269,7 +271,7 @@ public class MainWindow implements Observer {
    * date with what's on the file system.
    */
   private void initSnitch() {
-    SNITCH.addObserver( this );
+    sSnitch.addObserver( this );
   }
 
   /**
@@ -302,7 +304,7 @@ public class MainWindow implements Observer {
 
   /**
    * When tabs are added, hook the various change listeners onto the new
-   * tab sothat the preview pane refreshes as necessary.
+   * tab so that the preview pane refreshes as necessary.
    */
   private void initTabAddedListener() {
     final FileEditorTabPane editorPane = getFileEditorPane();
@@ -310,7 +312,6 @@ public class MainWindow implements Observer {
     // Make sure the text processor kicks off when new files are opened.
     final ObservableList<Tab> tabs = editorPane.getTabs();
 
-    // Update the preview pane on tab changes.
     tabs.addListener(
         ( final Change<? extends Tab> change ) -> {
           while( change.next() ) {
@@ -319,12 +320,35 @@ public class MainWindow implements Observer {
               for( final Tab newTab : change.getAddedSubList() ) {
                 final FileEditorTab tab = (FileEditorTab) newTab;
 
-                initTextChangeListener( tab );
                 initScrollEventListener( tab );
                 initSpellCheckListener( tab );
+                initTextChangeListener( tab );
 //              initSyntaxListener( tab );
               }
             }
+          }
+        }
+    );
+  }
+
+  /**
+   * Listen for new tab selection events.
+   */
+  private void initTabChangedListener() {
+    final FileEditorTabPane editorPane = getFileEditorPane();
+
+    // Update the preview pane changing tabs.
+    editorPane.addTabSelectionListener(
+        ( __, oldTab, newTab ) -> {
+          if( newTab == null ) {
+            // Clear the preview pane when closing an editor. When the last
+            // tab is closed, this ensures that the preview pane is empty.
+            getHtmlPreview().clear();
+          }
+          else {
+            final var tab = (FileEditorTab) newTab;
+            updateVariableNameInjector( tab );
+            process( tab );
           }
         }
     );
@@ -369,42 +393,18 @@ public class MainWindow implements Observer {
     editor.plainTextChanges()
           .filter( p -> !p.isIdentity() ).subscribe( change -> {
 
-      // Only perform a spell check on the current paragraph. The
-      // entire document is processed once, when opened.
+      // Check current paragraph; the whole document was checked upon opening.
       final var offset = change.getPosition();
       final var position = editor.offsetToPosition( offset, Forward );
       final var paraId = position.getMajor();
       final var paragraph = editor.getParagraph( paraId );
       final var text = paragraph.getText();
 
-      // Ensure that styles aren't doubled-up.
+      // Prevent doubling-up styles.
       editor.clearStyle( paraId );
 
       spellcheck( editor, text, paraId );
     } );
-  }
-
-  /**
-   * Listen for new tab selection events.
-   */
-  private void initTabChangedListener() {
-    final FileEditorTabPane editorPane = getFileEditorPane();
-
-    // Update the preview pane changing tabs.
-    editorPane.addTabSelectionListener(
-        ( __, oldTab, newTab ) -> {
-          if( newTab == null ) {
-            // Clear the preview pane when closing an editor. When the last
-            // tab is closed, this ensures that the preview pane is empty.
-            getHtmlPreview().clear();
-          }
-          else {
-            final var tab = (FileEditorTab) newTab;
-            updateVariableNameInjector( tab );
-            process( tab );
-          }
-        }
-    );
   }
 
   /**

@@ -40,7 +40,6 @@ import javafx.beans.value.ChangeListener;
 import javafx.collections.ListChangeListener;
 import javafx.event.Event;
 import javafx.scene.control.Tab;
-import javafx.scene.control.TabPane;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Window;
@@ -83,7 +82,7 @@ public final class FileEditorTabPane extends DetachableTabPane {
   /**
    * Constructs a new file editor tab pane.
    *
-   * @param caretPositionListener Listens for changes to caret position so
+   * @param caretPositionListener Listens for caret position changes so
    *                              that the status bar can update.
    */
   public FileEditorTabPane(

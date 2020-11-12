@@ -1,7 +1,5 @@
-/* RESET ***/
 html{box-sizing:border-box;font-size:12pt}body,h1,h2,h3,h4,h5,h6,ol,p,ul{margin:0;padding:0}img{max-width:100%;height:auto}table{table-collapse:collapse;table-spacing:0;border-spacing:0}
 
-/* BODY ***/
 body {
   /* Must be bundled in JAR file. */
   font-family: "Vollkorn", serif;
@@ -206,8 +204,7 @@ th, td {
 img {
   max-width: 100%;
 
-  /**
-   * Required for FlyingSaucer to treat images
+  /* Required for FlyingSaucer to treat images
    * as block elements. See SvhReplacedElementFactory
    * for details.
    */

@@ -62,6 +62,8 @@ public class HtmlPreviewProcessor extends ExecutorProcessor<String> {
    */
   @Override
   public String apply( final String html ) {
+    assert html != null;
+
     getHtmlPreviewPane().process( html );
     return html;
   }
