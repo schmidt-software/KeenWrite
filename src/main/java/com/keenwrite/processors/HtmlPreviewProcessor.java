@@ -33,12 +33,14 @@ import com.keenwrite.preview.HtmlPreview;
  * Responsible for notifying the HTMLPreviewPane when the succession chain has
  * updated. This decouples knowledge of changes to the editor panel from the
  * HTML preview panel as well as any processing that takes place before the
- * final HTML preview is rendered. This should be the last link in the processor
+ * final HTML preview is rendered. This is the last link in the processor
  * chain.
  */
 public class HtmlPreviewProcessor extends ExecutorProcessor<String> {
 
-  // There is only one preview panel.
+  /**
+   * There is only one preview panel.
+   */
   private static HtmlPreview sHtmlPreviewPane;
 
   /**
@@ -56,14 +58,12 @@ public class HtmlPreviewProcessor extends ExecutorProcessor<String> {
    * @param html The document content to render in the preview pane. The HTML
    *             should not contain a doctype, head, or body tag, only
    *             content to render within the body.
-   * @return {@code null} to indicate no more processors in the chain.
+   * @return The given {@code html} string.
    */
   @Override
   public String apply( final String html ) {
     getHtmlPreviewPane().process( html );
-
-    // No more processing required.
-    return null;
+    return html;
   }
 
   private HtmlPreview getHtmlPreviewPane() {

@@ -108,7 +108,6 @@ public class SvgReplacedElementFactory implements ReplacedElementFactory {
               final var baseUri = getBaseUri( e );
               final var uri = new URI( baseUri ).getPath();
               final var path = Paths.get( uri, src );
-              System.out.println( "SVG PATH: " + path );
 
               image = getCachedImage(
                   src, svg -> rasterize( path, box.getContentWidth() ) );
