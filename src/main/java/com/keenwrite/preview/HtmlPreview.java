@@ -79,6 +79,7 @@ public final class HtmlPreview extends SwingNode {
   private final StringBuilder mHtmlDocument = new StringBuilder( 65536 );
 
   private HtmlPanel mView;
+  private JScrollPane mScrollPane;
 
   private String mBaseUriPath = "";
   private String mBaseUriHtml = "";
@@ -93,18 +94,18 @@ public final class HtmlPreview extends SwingNode {
     // No need to append same prefix each time the HTML content is updated.
     mHtmlDocument.append( HTML_HEAD_OPEN );
 
-    // Inject an SVG renderer that produces high-quality SVG buffered images.
-    final var factory = new ChainedReplacedElementFactory();
-    factory.addFactory( new SvgReplacedElementFactory() );
-    factory.addFactory( new SwingReplacedElementFactory() );
-
     invokeLater( () -> {
       mView = new HtmlPanel();
-      final var scrollPane = new JScrollPane( mView );
+      mScrollPane = new JScrollPane( mView );
 
-      setContent( scrollPane );
+      // Enabling the cache eliminates black background flashes.
       setCache( true );
       setCacheHint( SPEED );
+      setContent( mScrollPane );
+
+      final var factory = new ChainedReplacedElementFactory();
+      factory.addFactory( new SvgReplacedElementFactory() );
+      factory.addFactory( new SwingReplacedElementFactory() );
 
       final var context = mView.getSharedContext();
       final var textRenderer = context.getTextRenderer();
@@ -200,10 +201,6 @@ public final class HtmlPreview extends SwingNode {
     getScrollPane().repaint();
   }
 
-  public JScrollBar getVerticalScrollBar() {
-    return getScrollPane().getVerticalScrollBar();
-  }
-
   /**
    * Creates a {@link Point} to use as a reference for scrolling to the area
    * described by the given {@link Box}. The {@link Box} coordinates are used
@@ -236,10 +233,14 @@ public final class HtmlPreview extends SwingNode {
   }
 
   private JScrollPane getScrollPane() {
-    return (JScrollPane) getContent();
+    return mScrollPane;
+  }
+
+  public JScrollBar getVerticalScrollBar() {
+    return getScrollPane().getVerticalScrollBar();
   }
 
   private int getVerticalScrollBarHeight() {
-    return getScrollPane().getVerticalScrollBar().getHeight();
+    return getVerticalScrollBar().getHeight();
   }
 }

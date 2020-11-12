@@ -30,6 +30,10 @@ import org.xhtmlrenderer.render.BlockBox;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * Responsible for running one or more factories to perform post-processing on
+ * the HTML document prior to displaying it.
+ */
 public class ChainedReplacedElementFactory extends ReplacedElementAdapter {
   private final Set<ReplacedElementFactory> mFactoryList = new HashSet<>();
 
@@ -40,12 +44,12 @@ public class ChainedReplacedElementFactory extends ReplacedElementAdapter {
       final UserAgentCallback uac,
       final int cssWidth,
       final int cssHeight ) {
-    for( final var f : mFactoryList ) {
-      final var r = f.createReplacedElement(
-          c, box, uac, cssWidth, cssHeight );
+    for( final var factory : mFactoryList ) {
+      final var element =
+          factory.createReplacedElement( c, box, uac, cssWidth, cssHeight );
 
-      if( r != null ) {
-        return r;
+      if( element != null ) {
+        return element;
       }
     }
 
