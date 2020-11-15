@@ -111,7 +111,6 @@ import static javafx.event.Event.fireEvent;
 import static javafx.geometry.Pos.BASELINE_CENTER;
 import static javafx.scene.control.Alert.AlertType.INFORMATION;
 import static javafx.scene.input.KeyCode.ENTER;
-import static javafx.scene.input.KeyEvent.KEY_PRESSED;
 import static javafx.stage.WindowEvent.WINDOW_CLOSE_REQUEST;
 import static org.apache.commons.lang3.SystemUtils.IS_OS_WINDOWS;
 import static org.fxmisc.richtext.model.TwoDimensional.Bias.Forward;
@@ -119,7 +118,7 @@ import static org.fxmisc.richtext.model.TwoDimensional.Bias.Forward;
 /**
  * Main window containing a tab pane in the center for file editors.
  */
-public class MainWindow implements Observer {
+public class MainView implements Observer {
   /**
    * The {@code OPTIONS} variable must be declared before all other variables
    * to prevent subsequent initializations from failing due to missing user
@@ -183,7 +182,7 @@ public class MainWindow implements Observer {
   private final DefinitionNameInjector mDefinitionNameInjector
       = new DefinitionNameInjector( mDefinitionPane );
 
-  public MainWindow() {
+  public MainView() {
     mLineNumberText = createLineNumberText();
     mFindTextField = createFindTextField();
     mScene = createScene();

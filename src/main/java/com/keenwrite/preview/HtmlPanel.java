@@ -54,21 +54,21 @@ public class HtmlPanel extends XHTMLPanel {
   private static final class HyperlinkListener extends LinkListener {
     @Override
     public void linkClicked( final BasicPanel panel, final String link ) {
-      try {
-        switch( getProtocol( link ) ) {
-          case HTTP -> {
-            final var desktop = getDesktop();
+      switch( getProtocol( link ) ) {
+        case HTTP -> {
+          final var desktop = getDesktop();
 
-            if( desktop.isSupported( BROWSE ) ) {
+          if( desktop.isSupported( BROWSE ) ) {
+            try {
               desktop.browse( new URI( link ) );
+            } catch( final Exception ex ) {
+              clue( ex );
             }
           }
-          case FILE -> {
-            // TODO: #88 -- publish a message to the event bus.
-          }
         }
-      } catch( final Exception ex ) {
-        clue( ex );
+        case FILE -> {
+          // TODO: #88 -- publish a message to the event bus.
+        }
       }
     }
   }
@@ -76,9 +76,6 @@ public class HtmlPanel extends XHTMLPanel {
   private static final DomConverter CONVERTER = new DomConverter();
   private static final XhtmlNamespaceHandler XNH = new XhtmlNamespaceHandler();
 
-  /**
-   *
-   */
   public HtmlPanel() {
     addDocumentListener( new DocumentEventHandler() );
     removeMouseTrackingListeners();

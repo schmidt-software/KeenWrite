@@ -119,7 +119,7 @@ public final class HtmlPreview extends SwingNode {
    *
    * @param html The new HTML document to display.
    */
-  public void process( final String html ) {
+  public void render( final String html ) {
     // Access to a Swing component must occur from the Event Dispatch
     // Thread (EDT) according to Swing threading restrictions.
     invokeLater( () -> mView.render( decorate( html ), getBaseUri() ) );
@@ -129,7 +129,7 @@ public final class HtmlPreview extends SwingNode {
    * Clears the preview pane by rendering an empty string.
    */
   public void clear() {
-    process( "" );
+    render( "" );
   }
 
   /**

@@ -47,10 +47,9 @@ public class DefaultSettings implements Settings {
 
   private static final char VALUE_SEPARATOR = ',';
 
-  private PropertiesConfiguration mProperties;
+  private final PropertiesConfiguration mProperties = createProperties();
 
   public DefaultSettings() {
-    setProperties( createProperties() );
   }
 
   /**
@@ -139,10 +138,6 @@ public class DefaultSettings implements Settings {
 
   private URL getPropertySource() {
     return DefaultSettings.class.getResource( PATH_PROPERTIES_SETTINGS );
-  }
-
-  private void setProperties( final PropertiesConfiguration properties ) {
-    mProperties = properties;
   }
 
   private PropertiesConfiguration getSettings() {

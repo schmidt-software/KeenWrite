@@ -30,26 +30,18 @@ package com.keenwrite;
 import com.keenwrite.preferences.FilePreferencesFactory;
 import com.keenwrite.service.Options;
 import com.keenwrite.service.Snitch;
-import com.keenwrite.util.ResourceWalker;
 import com.keenwrite.util.StageState;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
-import java.awt.*;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URI;
-import java.util.Map;
 import java.util.logging.LogManager;
 
 import static com.keenwrite.Bootstrap.APP_TITLE;
 import static com.keenwrite.Constants.*;
 import static com.keenwrite.StatusBarNotifier.clue;
-import static java.awt.GraphicsEnvironment.getLocalGraphicsEnvironment;
-import static java.awt.font.TextAttribute.*;
+import static com.keenwrite.util.FontLoader.initFonts;
 import static javafx.scene.input.KeyCode.F11;
 import static javafx.scene.input.KeyEvent.KEY_PRESSED;
 
@@ -72,9 +64,9 @@ public final class Main extends Application {
   private final Snitch mSnitch = Services.load( Snitch.class );
 
   private final Thread mSnitchThread = new Thread( getSnitch() );
-  private final MainWindow mMainWindow = new MainWindow();
+  private final MainView mMainView = new MainView();
 
-  @SuppressWarnings({"FieldCanBeLocal"})
+  @SuppressWarnings({"FieldCanBeLocal", "unused", "RedundantSuppression"})
   private StageState mStageState;
 
   /**
@@ -103,45 +95,7 @@ public final class Main extends Application {
 
     // After the stage is visible, the panel dimensions are
     // known, which allows scaling images to fit the preview panel.
-    getMainWindow().init();
-  }
-
-  /**
-   * This needs to run before the windowing system kicks in, otherwise the
-   * fonts will not be found.
-   */
-  @SuppressWarnings({"rawtypes", "unchecked"})
-  public static void initFonts() {
-    final var ge = getLocalGraphicsEnvironment();
-
-    try {
-      ResourceWalker.walk(
-          FONT_DIRECTORY, path -> {
-            final var uri = path.toUri();
-            final var filename = path.toString();
-
-            try( final var is = openFont( uri, filename ) ) {
-              final var font = Font.createFont( Font.TRUETYPE_FONT, is );
-              final Map attributes = font.getAttributes();
-
-              attributes.put( LIGATURES, LIGATURES_ON );
-              attributes.put( KERNING, KERNING_ON );
-              ge.registerFont( font.deriveFont( attributes ) );
-            } catch( final Exception e ) {
-              clue( e );
-            }
-          }
-      );
-    } catch( final Exception e ) {
-      clue( e );
-    }
-  }
-
-  private static InputStream openFont( final URI uri, final String filename )
-      throws IOException {
-    return uri.getScheme().equals( "jar" )
-        ? Main.class.getResourceAsStream( filename )
-        : new FileInputStream( filename );
+    getMainView().init();
   }
 
   /**
@@ -208,22 +162,15 @@ public final class Main extends Application {
     return mOptions;
   }
 
-  private MainWindow getMainWindow() {
-    return mMainWindow;
+  private MainView getMainView() {
+    return mMainView;
   }
 
   private Scene getScene() {
-    return getMainWindow().getScene();
+    return getMainView().getScene();
   }
 
   private Image createImage( final String filename ) {
     return new Image( filename );
-  }
-
-  /**
-   * This is here to suppress an IDE warning, the method is not used.
-   */
-  public StageState getStageState() {
-    return mStageState;
   }
 }
