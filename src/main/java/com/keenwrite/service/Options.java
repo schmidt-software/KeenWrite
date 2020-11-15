@@ -77,4 +77,22 @@ public interface Options extends Service {
    * @return A non-null, possibly empty value for the key.
    */
   String get( String key );
+
+  /**
+   * Retrieves the values for a key in the user preferences. This will return
+   * an empty string array if the value cannot be found.
+   *
+   * @param key The key to find in the preferences.
+   * @return A non-null, possibly empty array of values for the key.
+   */
+  String[] getStrings( final String key );
+
+  /**
+   * Stores the key and values into the user preferences to be loaded the next
+   * time the application is launched.
+   *
+   * @param key   Name of the key to persist along with its value.
+   * @param value Values to associate with the key.
+   */
+  void putStrings( final String key, final String[] value );
 }

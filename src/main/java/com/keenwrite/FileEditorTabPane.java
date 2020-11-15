@@ -30,7 +30,6 @@ package com.keenwrite;
 import com.keenwrite.service.Options;
 import com.keenwrite.service.Settings;
 import com.keenwrite.service.events.Notifier;
-import com.keenwrite.util.Utils;
 import com.panemu.tiwulfx.control.dock.DetachableTabPane;
 import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.property.ReadOnlyBooleanWrapper;
@@ -547,9 +546,8 @@ public final class FileEditorTabPane extends DetachableTabPane {
   public void initPreferences() {
     int activeIndex = 0;
 
-    final Preferences preferences = getPreferences();
-    final String[] fileNames = Utils.getPrefsStrings( preferences, "file" );
-    final String activeFileName = preferences.get( "activeFile", null );
+    final String[] fileNames = sOptions.getStrings( "file" );
+    final String activeFileName = sOptions.get( "activeFile", null );
 
     final List<File> files = new ArrayList<>( fileNames.length );
 
@@ -587,9 +585,7 @@ public final class FileEditorTabPane extends DetachableTabPane {
     }
 
     final var preferences = getPreferences();
-    Utils.putPrefsStrings( preferences,
-                           "file",
-                           fileNames.toArray( new String[ 0 ] ) );
+    sOptions.putStrings( "file", fileNames.toArray( new String[ 0 ] ) );
 
     final var activeEditor = getActiveFileEditor();
     final var filePath = activeEditor == null ? null : activeEditor.getPath();

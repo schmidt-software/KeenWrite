@@ -99,11 +99,11 @@ dependencies {
   implementation "org.apache.xmlgraphics:batik-util:${v_batik}"
   implementation "org.apache.xmlgraphics:batik-xml:${v_batik}"
 
-  // Spelling, TeX
+  // Spelling, TeX, Docking
   implementation fileTree(include: ['**/*.jar'], dir: 'libs')
 
   // Docking
-  implementation 'com.panemu:tiwulfx-dock:0.1'
+  //implementation 'com.panemu:tiwulfx-dock:0.1'
 
   // Misc.
   implementation 'org.ahocorasick:ahocorasick:0.4.0'

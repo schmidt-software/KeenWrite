@@ -28,6 +28,7 @@ package com.keenwrite.service.impl;
 
 import com.keenwrite.service.Options;
 
+import java.util.ArrayList;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
@@ -74,5 +75,37 @@ public class DefaultOptions implements Options {
   @Override
   public Preferences getState() {
     return getRootPreferences().node( PREFS_STATE );
+  }
+
+  @Override
+  public String[] getStrings( final String key ) {
+    final Preferences preferences = getState();
+    final ArrayList<String> arr = new ArrayList<>( 256 );
+
+    for( int i = 0; i < 10000; i++ ) {
+      final String s = preferences.get( key + (i + 1), null );
+
+      if( s == null ) {
+        break;
+      }
+
+      arr.add( s );
+    }
+
+    return arr.toArray( new String[ 0 ] );
+  }
+
+  @Override
+  public void putStrings( final String key, final String[] strings ) {
+    final Preferences preferences = getState();
+
+    for( int i = 0; i < strings.length; i++ ) {
+      preferences.put( key + (i + 1), strings[ i ] );
+    }
+
+    for( int i = strings.length;
+         preferences.get( key + (i + 1), null ) != null; i++ ) {
+      preferences.remove( key + (i + 1) );
+    }
   }
 }

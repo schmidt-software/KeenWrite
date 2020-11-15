@@ -67,7 +67,6 @@ import javafx.collections.ListChangeListener.Change;
 import javafx.collections.ObservableList;
 import javafx.event.Event;
 import javafx.event.EventHandler;
-import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -80,7 +79,6 @@ import javafx.stage.FileChooser;
 import javafx.stage.Window;
 import javafx.stage.WindowEvent;
 import javafx.util.Duration;
-import org.apache.commons.lang3.SystemUtils;
 import org.controlsfx.control.StatusBar;
 import org.fxmisc.richtext.StyleClassedTextArea;
 import org.fxmisc.richtext.model.StyleSpansBuilder;
@@ -93,7 +91,6 @@ import java.io.InputStreamReader;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.prefs.Preferences;
 import java.util.stream.Collectors;
@@ -111,9 +108,12 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.singleton;
 import static javafx.application.Platform.runLater;
 import static javafx.event.Event.fireEvent;
+import static javafx.geometry.Pos.BASELINE_CENTER;
 import static javafx.scene.control.Alert.AlertType.INFORMATION;
 import static javafx.scene.input.KeyCode.ENTER;
+import static javafx.scene.input.KeyEvent.KEY_PRESSED;
 import static javafx.stage.WindowEvent.WINDOW_CLOSE_REQUEST;
+import static org.apache.commons.lang3.SystemUtils.IS_OS_WINDOWS;
 import static org.fxmisc.richtext.model.TwoDimensional.Bias.Forward;
 
 /**
@@ -205,16 +205,14 @@ public class MainWindow implements Observer {
     initPreferences();
     initVariableNameInjector();
 
-    addShowListener(getScene().getRoot(), ( __ ) -> {
-      initTabChangedListener();
-    });
+    addShowListener( getScene().getRoot(), this::initTabChangedListener );
   }
 
   private void initLayout() {
     final var scene = getScene();
     final var stylesheets = scene.getStylesheets();
 
-    stylesheets.add( STYLESHEET_DOCK );
+    //stylesheets.add( STYLESHEET_DOCK );
     stylesheets.add( STYLESHEET_SCENE );
     scene.windowProperty().addListener(
         ( unused, oldWindow, newWindow ) ->
@@ -362,7 +360,7 @@ public class MainWindow implements Observer {
     final var scrollPane = tab.getScrollPane();
     final var scrollBar = getHtmlPreview().getVerticalScrollBar();
 
-    addShowListener( scrollPane, ( __ ) -> {
+    addShowListener( scrollPane, () -> {
       final var handler = new ScrollEventHandler( scrollPane, scrollBar );
       handler.enabledProperty().bind( tab.selectedProperty() );
     } );
@@ -383,9 +381,7 @@ public class MainWindow implements Observer {
     // When the editor first appears, run a full spell check. This allows
     // spell checking while typing to be restricted to the active paragraph,
     // which is usually substantially smaller than the whole document.
-    addShowListener(
-        editor, ( __ ) -> spellcheck( editor, editor.getText() )
-    );
+    addShowListener( editor, () -> spellcheck( editor, editor.getText() ) );
 
     // Use the plain text changes so that notifications of style changes
     // are suppressed. Checking against the identity ensures that only
@@ -433,17 +429,17 @@ public class MainWindow implements Observer {
    * @param consumer The consumer to invoke when the event fires.
    */
   private void addShowListener(
-      final Node node, final Consumer<Void> consumer ) {
-    final ChangeListener<? super Boolean> listener = ( o, oldShow, newShow ) ->
-        runLater( () -> {
+      final Node node, final Runnable consumer ) {
+    final ChangeListener<? super Boolean> listener =
+        ( o, oldShow, newShow ) -> {
           if( newShow != null && newShow ) {
             try {
-              consumer.accept( null );
+              consumer.run();
             } catch( final Exception ex ) {
               clue( ex );
             }
           }
-        } );
+        };
 
     Val.flatMap( node.sceneProperty(), Scene::windowProperty )
        .flatMap( Window::showingProperty )
@@ -805,12 +801,12 @@ public class MainWindow implements Observer {
     borderPane.setCenter( splitPane );
 
     final VBox statusBar = new VBox();
-    statusBar.setAlignment( Pos.BASELINE_CENTER );
+    statusBar.setAlignment( BASELINE_CENTER );
     statusBar.getChildren().add( getLineNumberText() );
     getStatusBar().getRightItems().add( statusBar );
 
     // Force preview pane refresh on Windows.
-    if( SystemUtils.IS_OS_WINDOWS ) {
+    if( IS_OS_WINDOWS ) {
       splitPane.getDividers().get( 1 ).positionProperty().addListener(
           ( l, oValue, nValue ) -> runLater(
               () -> getHtmlPreview().repaintScrollPane()

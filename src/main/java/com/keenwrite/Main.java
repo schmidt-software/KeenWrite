@@ -54,8 +54,9 @@ import static javafx.scene.input.KeyCode.F11;
 import static javafx.scene.input.KeyEvent.KEY_PRESSED;
 
 /**
- * Application entry point. The application allows users to edit Markdown
- * files and see a real-time preview of the edits.
+ * Application entry point. The application allows users to edit plain text
+ * files in a markup notation and see a real-time preview of the formatted
+ * output.
  */
 public final class Main extends Application {
 

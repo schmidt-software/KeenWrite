@@ -44,10 +44,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.keenwrite.Constants.STYLESHEET_MARKDOWN;
-import static com.keenwrite.util.Utils.ltrim;
-import static com.keenwrite.util.Utils.rtrim;
 import static javafx.scene.input.KeyCode.ENTER;
 import static javafx.scene.input.KeyCombination.CONTROL_DOWN;
+import static org.apache.commons.lang3.StringUtils.stripEnd;
+import static org.apache.commons.lang3.StringUtils.stripStart;
 import static org.fxmisc.wellbehaved.event.EventPattern.keyPressed;
 
 /**
@@ -118,13 +118,13 @@ public class MarkdownEditorPane extends EditorPane {
 
     // remove leading whitespaces from leading text if selection starts at zero
     if( start == 0 ) {
-      leading = ltrim( leading );
+      leading = stripStart( leading, null );
     }
 
     // remove trailing whitespaces from trailing text if selection ends at
     // text end
     if( end == textArea.getLength() ) {
-      trailing = rtrim( trailing );
+      trailing = stripEnd( trailing, null );
     }
 
     // remove leading line separators from leading text

@@ -56,7 +56,7 @@ public class Constants {
    */
   public static final Settings SETTINGS = Services.load( Settings.class );
 
-  public static final String DEFINITION_NAME = "variables.yaml";
+  public static final String DEFINITION_NAME = get( "file.definition.default" );
 
   public static final String APP_BUNDLE_NAME = get( "application.messages" );
 
