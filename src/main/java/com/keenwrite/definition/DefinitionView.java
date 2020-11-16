@@ -1,5 +1,4 @@
-/*
- * Copyright 2020 White Magic Software, Ltd.
+/* Copyright 2020 White Magic Software, Ltd.
  *
  * All rights reserved.
  *
@@ -29,13 +28,10 @@ package com.keenwrite.definition;
 
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.event.EventHandler;
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
@@ -56,7 +52,7 @@ import static javafx.scene.input.KeyEvent.KEY_PRESSED;
  * allows users to interact with key/value pairs loaded from the
  * {@link DocumentParser} and adapted using a {@link TreeAdapter}.
  */
-public final class DefinitionPane extends BorderPane {
+public final class DefinitionView extends BorderPane {
 
   /**
    * Contains a view of the definitions.
@@ -70,16 +66,9 @@ public final class DefinitionPane extends BorderPane {
       = new HashSet<>();
 
   /**
-   * Definition file name shown in the title of the pane.
-   */
-  private final StringProperty mFilename = new SimpleStringProperty();
-
-  private final TitledPane mTitledPane = new TitledPane();
-
-  /**
    * Constructs a definition pane with a given tree view root.
    */
-  public DefinitionPane() {
+  public DefinitionView() {
     final var treeView = getTreeView();
     treeView.setEditable( true );
     treeView.setCellFactory( cell -> createTreeCell() );
@@ -100,26 +89,11 @@ public final class DefinitionPane extends BorderPane {
     buttonBar.setAlignment( CENTER );
     buttonBar.setSpacing( 10 );
 
-    final var titledPane = getTitledPane();
-    titledPane.textProperty().bind( mFilename );
-    titledPane.setContent( treeView );
-    titledPane.setCollapsible( false );
-    titledPane.setPadding( new Insets( 0, 0, 0, 0 ) );
-
     setTop( buttonBar );
-    setCenter( titledPane );
+    setCenter( treeView );
     setAlignment( buttonBar, Pos.TOP_CENTER );
-    setAlignment( titledPane, Pos.TOP_CENTER );
 
-    titledPane.prefHeightProperty().bind( this.heightProperty() );
-  }
-
-  public void setTooltip( final Tooltip tooltip ) {
-    getTitledPane().setTooltip( tooltip );
-  }
-
-  private TitledPane getTitledPane() {
-    return mTitledPane;
+    treeView.prefHeightProperty().bind( this.heightProperty() );
   }
 
   private Button createButton(
@@ -495,15 +469,6 @@ public final class DefinitionPane extends BorderPane {
    */
   public Node getNode() {
     return this;
-  }
-
-  /**
-   * Returns the property used to set the title of the pane: the file name.
-   *
-   * @return A non-null property used for showing the definition file name.
-   */
-  public StringProperty filenameProperty() {
-    return mFilename;
   }
 
   /**

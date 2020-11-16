@@ -25,10 +25,12 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.keenwrite.util;
+package com.keenwrite.ui;
 
 import com.keenwrite.Messages;
+import com.keenwrite.util.GenericBuilder;
 import de.jensd.fx.glyphs.GlyphIcons;
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import javafx.beans.value.ObservableBooleanValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -75,24 +77,61 @@ public abstract class Action {
     private ObservableBooleanValue mDisabled;
 
     /**
+     * Sets the text, icon, and accelerator for a given action identifier.
+     * See the "App.action" entries in the messages properties file for details.
+     *
+     * @param id The identifier to look up in the properties file.
+     * @return An instance of {@link Builder} that can be built into an
+     * instance of {@link Action}.
+     */
+    public Builder setId( final String id ) {
+      final var prefix = "App.action." + id + ".";
+      final var text = prefix + "text";
+      final var icon = prefix + "icon";
+      final var accelerator = prefix + "accelerator";
+      final var builder = setText( text ).setIcon( icon );
+
+      return Messages.containsKey( accelerator )
+          ? builder.setAccelerator( Messages.get( accelerator ) )
+          : builder;
+    }
+
+    /**
      * Sets the action text based on a resource bundle key.
      *
      * @param key The key to look up in the {@link Messages}.
      * @return The corresponding value, or the key name if none found.
+     * TODO: Make private or delete and merge into setId
      */
     public Builder setText( final String key ) {
       mText = Messages.get( key, key );
       return this;
     }
 
+    /**
+     * TODO: Make private or delete and merge into setId
+     */
     public Builder setAccelerator( final String accelerator ) {
       mAccelerator = accelerator;
       return this;
     }
 
+    /**
+     * TODO: Make private or delete and merge into setId
+     */
     public Builder setIcon( final GlyphIcons icon ) {
       mIcon = icon;
       return this;
+    }
+
+    private Builder setIcon( final String iconKey ) {
+      assert iconKey != null;
+
+      final var iconValue = Messages.get( iconKey );
+
+      return iconKey.equals( iconValue )
+          ? this
+          : setIcon( getIcon( iconValue ) );
     }
 
     public Builder setAction( final EventHandler<ActionEvent> action ) {
@@ -107,6 +146,10 @@ public abstract class Action {
 
     public Action build() {
       return new MenuAction( mText, mAccelerator, mIcon, mAction, mDisabled );
+    }
+
+    private GlyphIcons getIcon( final String name ) {
+      return FontAwesomeIcon.valueOf( name.toUpperCase() );
     }
   }
 }

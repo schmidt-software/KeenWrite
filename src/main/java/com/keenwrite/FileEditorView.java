@@ -39,6 +39,8 @@ import javafx.beans.value.ChangeListener;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.event.EventType;
+import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Tooltip;
 import javafx.scene.text.Text;
@@ -64,7 +66,7 @@ import static javafx.application.Platform.runLater;
 /**
  * Editor for a single file.
  */
-public final class FileEditorTab extends DetachableTab {
+public final class FileEditorView extends Parent {
 
   private final MarkdownEditorPane mEditorPane = new MarkdownEditorPane();
 
@@ -87,17 +89,17 @@ public final class FileEditorTab extends DetachableTab {
    */
   private final CaretPosition mCaretPosition;
 
-  public FileEditorTab( final Path path ) {
+  public FileEditorView( final Path path ) {
     setPath( path );
 
     mModified.addListener( ( observable, oldPath, newPath ) -> updateTab() );
 
-    setOnSelectionChanged( e -> {
-      if( isSelected() ) {
-        runLater( this::activated );
-        requestFocus();
-      }
-    } );
+//    setOnSelectionChanged( e -> {
+//      if( isSelected() ) {
+//        runLater( this::activated );
+//        requestFocus();
+//      }
+//    } );
 
     mCaretPosition = createCaretPosition( getEditor() );
   }
@@ -119,9 +121,9 @@ public final class FileEditorTab extends DetachableTab {
   }
 
   private void updateTab() {
-    setText( getTabTitle() );
-    setGraphic( getModifiedMark() );
-    setTooltip( getTabTooltip() );
+//    setText( getTabTitle() );
+//    setGraphic( getModifiedMark() );
+//    setTooltip( getTabTooltip() );
   }
 
   /**
@@ -157,20 +159,20 @@ public final class FileEditorTab extends DetachableTab {
    */
   private void activated() {
     // Tab is closed or no longer active.
-    if( getTabPane() == null || !isSelected() ) {
-      return;
-    }
+//    if( getTabPane() == null || !isSelected() ) {
+//      return;
+//    }
 
     // If the tab is devoid of content, load it.
-    if( getContent() == null ) {
-      readFile();
-      initLayout();
-      initUndoManager();
-    }
+//    if( getContent() == null ) {
+//      readFile();
+//      initLayout();
+//      initUndoManager();
+//    }
   }
 
   private void initLayout() {
-    setContent( getScrollPane() );
+    getChildren().add( getScrollPane() );
   }
 
   /**
@@ -186,7 +188,7 @@ public final class FileEditorTab extends DetachableTab {
     canRedo.bind( undoManager.redoAvailableProperty() );
   }
 
-  private void requestFocus() {
+  public void requestFocus() {
     getEditorPane().requestFocus();
   }
 
@@ -467,11 +469,11 @@ public final class FileEditorTab extends DetachableTab {
     getEditorPane().addCaretPositionListener( listener );
   }
 
-  public <T extends Event> void addEventFilter(
-      final EventType<T> eventType,
-      final EventHandler<? super T> eventFilter ) {
-    getEditor().addEventFilter( eventType, eventFilter );
-  }
+//  public <T extends Event> void addEventFilter(
+//      final EventType<T> eventType,
+//      final EventHandler<? super T> eventFilter ) {
+//    getEditor().addEventFilter( eventType, eventFilter );
+//  }
 
   /**
    * Forwards the request to the editor pane.

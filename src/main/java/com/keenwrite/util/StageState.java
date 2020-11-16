@@ -37,11 +37,6 @@ import javafx.stage.WindowEvent;
  * Saves and restores Stage state (window bounds, maximized, fullScreen).
  */
 public class StageState {
-
-  public static final String K_PANE_SPLIT_DEFINITION = "pane.split.definition";
-  public static final String K_PANE_SPLIT_EDITOR = "pane.split.editor";
-  public static final String K_PANE_SPLIT_PREVIEW = "pane.split.preview";
-
   private final Stage mStage;
   private final Preferences mState;
 

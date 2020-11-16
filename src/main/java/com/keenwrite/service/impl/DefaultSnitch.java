@@ -38,6 +38,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static com.keenwrite.Constants.APP_WATCHDOG_TIMEOUT;
+import static com.keenwrite.StatusBarNotifier.clue;
 import static java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY;
 
 /**
@@ -45,6 +46,7 @@ import static java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY;
  * and listen for changes to those paths.
  */
 public class DefaultSnitch extends Observable implements Snitch {
+  private final Thread mSnitchThread = new Thread( this );
 
   /**
    * Service for listening to directories for modifications.
@@ -70,8 +72,20 @@ public class DefaultSnitch extends Observable implements Snitch {
   }
 
   @Override
+  public void start() {
+    mSnitchThread.start();
+  }
+
+  @Override
   public void stop() {
     setListening( false );
+
+    try {
+      mSnitchThread.interrupt();
+      mSnitchThread.join();
+    } catch( final Exception ex ) {
+      clue( ex );
+    }
   }
 
   /**
@@ -156,7 +170,7 @@ public class DefaultSnitch extends Observable implements Snitch {
         if( !key.reset() ) {
           ignore( path );
         }
-      } catch( final IOException | InterruptedException ex ) {
+      } catch( final Exception ex ) {
         // Stop eavesdropping.
         setListening( false );
       }

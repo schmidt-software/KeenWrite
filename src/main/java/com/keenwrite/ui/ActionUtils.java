@@ -1,6 +1,5 @@
 /*
- * Copyright 2016 David Croft and White Magic Software, Ltd.
- *
+ * Copyright 2020 Karl Tauber and White Magic Software, Ltd.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -25,56 +24,44 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.keenwrite.preferences;
+package com.keenwrite.ui;
 
-import java.io.File;
-import java.util.prefs.Preferences;
-import java.util.prefs.PreferencesFactory;
-
-import static com.keenwrite.Bootstrap.APP_TITLE_LOWERCASE;
-import static java.io.File.separator;
-import static java.lang.System.getProperty;
+import com.keenwrite.ui.Action;
+import javafx.scene.Node;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.ToolBar;
 
 /**
- * PreferencesFactory implementation that stores the preferences in a
- * user-defined file. Usage:
- * <pre>
- * System.setProperty( "java.util.prefs.PreferencesFactory",
- * FilePreferencesFactory.class.getName() );
- * </pre>
+ * Responsible for creating menu items and toolbar buttons.
  */
-public class FilePreferencesFactory implements PreferencesFactory {
+public class ActionUtils {
 
-  private static File sPreferencesFile;
-  private Preferences rootPreferences;
-
-  @Override
-  public Preferences systemRoot() {
-    return userRoot();
+  public static Menu createMenu( final String text, final Action... actions ) {
+    return new Menu( text, null, createMenuItems( actions ) );
   }
 
-  @Override
-  public Preferences userRoot() {
-    final var prefs = rootPreferences;
+  public static MenuItem[] createMenuItems( final Action... actions ) {
+    final var menuItems = new MenuItem[ actions.length ];
 
-    if( prefs == null ) {
-      rootPreferences = new FilePreferences( null, "" );
+    for( int i = 0; i < actions.length; i++ ) {
+      menuItems[ i ] = actions[ i ].createMenuItem();
     }
 
-    return rootPreferences;
+    return menuItems;
   }
 
-  public static File getPreferencesFile() {
-    final var prefs = sPreferencesFile;
+  public static ToolBar createToolBar( final Action... actions ) {
+    return new ToolBar( createToolBarButtons( actions ) );
+  }
 
-    if( prefs == null ) {
-      sPreferencesFile = new File( getPreferencesFilename() ).getAbsoluteFile();
+  public static Node[] createToolBarButtons( final Action... actions ) {
+    final var buttons = new Node[ actions.length ];
+
+    for( int i = 0; i < actions.length; i++ ) {
+      buttons[ i ] = actions[ i ].createToolBarButton();
     }
 
-    return sPreferencesFile;
-  }
-
-  public static String getPreferencesFilename() {
-    return getProperty( "user.home" ) + separator + '.' + APP_TITLE_LOWERCASE;
+    return buttons;
   }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 David Croft and White Magic Software, Ltd.
+ * Copyright 2020 White Magic Software, Ltd.
  *
  * All rights reserved.
  *
@@ -25,56 +25,26 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.keenwrite.preferences;
+package com.keenwrite.ui;
 
-import java.io.File;
-import java.util.prefs.Preferences;
-import java.util.prefs.PreferencesFactory;
-
-import static com.keenwrite.Bootstrap.APP_TITLE_LOWERCASE;
-import static java.io.File.separator;
-import static java.lang.System.getProperty;
+import javafx.scene.Node;
+import javafx.scene.control.MenuBar;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.Separator;
+import javafx.scene.control.SeparatorMenuItem;
 
 /**
- * PreferencesFactory implementation that stores the preferences in a
- * user-defined file. Usage:
- * <pre>
- * System.setProperty( "java.util.prefs.PreferencesFactory",
- * FilePreferencesFactory.class.getName() );
- * </pre>
+ * Represents a {@link MenuBar} action that has no operation, acting as a
+ * placeholder for line separators.
  */
-public class FilePreferencesFactory implements PreferencesFactory {
-
-  private static File sPreferencesFile;
-  private Preferences rootPreferences;
-
+public class SeparatorAction extends Action {
   @Override
-  public Preferences systemRoot() {
-    return userRoot();
+  public MenuItem createMenuItem() {
+    return new SeparatorMenuItem();
   }
 
   @Override
-  public Preferences userRoot() {
-    final var prefs = rootPreferences;
-
-    if( prefs == null ) {
-      rootPreferences = new FilePreferences( null, "" );
-    }
-
-    return rootPreferences;
-  }
-
-  public static File getPreferencesFile() {
-    final var prefs = sPreferencesFile;
-
-    if( prefs == null ) {
-      sPreferencesFile = new File( getPreferencesFilename() ).getAbsoluteFile();
-    }
-
-    return sPreferencesFile;
-  }
-
-  public static String getPreferencesFilename() {
-    return getProperty( "user.home" ) + separator + '.' + APP_TITLE_LOWERCASE;
+  public Node createToolBarButton() {
+    return new Separator();
   }
 }

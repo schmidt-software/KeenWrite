@@ -1,5 +1,4 @@
-/*
- * Copyright 2020 White Magic Software, Ltd.
+/* Copyright 2020 White Magic Software, Ltd.
  *
  * All rights reserved.
  *
@@ -57,6 +56,7 @@ public class Constants {
   public static final Settings SETTINGS = Services.load( Settings.class );
 
   public static final String DEFINITION_NAME = get( "file.definition.default" );
+  public static final String DOCUMENT_NAME = get( "file.document.default" );
 
   public static final String APP_BUNDLE_NAME = get( "application.messages" );
 
@@ -64,7 +64,6 @@ public class Constants {
   public static final int APP_WATCHDOG_TIMEOUT = get(
       "application.watchdog.timeout", 200 );
 
-  public static final String STYLESHEET_DOCK = get( "file.stylesheet.dock" );
   public static final String STYLESHEET_MARKDOWN = get(
       "file.stylesheet.markdown" );
   public static final String STYLESHEET_PREVIEW = get(

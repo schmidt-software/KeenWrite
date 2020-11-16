@@ -27,6 +27,7 @@
 package com.keenwrite;
 
 import java.text.MessageFormat;
+import java.util.Enumeration;
 import java.util.ResourceBundle;
 import java.util.Stack;
 
@@ -140,5 +141,26 @@ public class Messages {
    */
   public static String get( final String key, final Object... args ) {
     return MessageFormat.format( get( key ), args );
+  }
+
+  /**
+   * Answers whether the given key is contained in the application's messages
+   * properties file.
+   *
+   * @param key The key to look for in the {@link ResourceBundle}.
+   * @return {@code true} when the key exists as an exact match.
+   */
+  public static boolean containsKey( final String key ) {
+    return RESOURCE_BUNDLE.containsKey( key );
+  }
+
+  /**
+   * Returns all key names in the application's messages properties file.
+   *
+   * @return All key names in the {@link ResourceBundle} encapsulated by
+   * this class.
+   */
+  public static Enumeration<String> getKeys() {
+    return RESOURCE_BUNDLE.getKeys();
   }
 }

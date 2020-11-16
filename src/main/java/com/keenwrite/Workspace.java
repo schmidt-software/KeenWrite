@@ -1,5 +1,5 @@
-/*
- * Copyright 2020 Karl Tauber and White Magic Software, Ltd.
+/* Copyright 2020 White Magic Software, Ltd.
+ *
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -24,43 +24,54 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.keenwrite.util;
+package com.keenwrite;
 
-import javafx.scene.Node;
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.ToolBar;
+import com.keenwrite.io.File;
+import com.keenwrite.service.Options;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
- * Responsible for creating menu items and toolbar buttons.
+ * Responsible for defining behaviours for workspaces. A workspace has the
+ * ability to save and restore a session, including the window dimensions,
+ * tab setup, files, and user preferences.
  */
-public class ActionUtils {
+public class Workspace {
+  /**
+   * This variable must be declared before all other variables to prevent
+   * subsequent initializations from failing due to missing user preferences.
+   */
+  private static final Options sOptions = Services.load( Options.class );
 
-  public static Menu createMenu( final String text, final Action... actions ) {
-    return new Menu( text, null, createMenuItems( actions ) );
+  /**
+   * Constructs a new workspace with the given identifier.
+   *
+   * @param name The unique identifier for this workspace.
+   */
+  public Workspace( final String name ) {
   }
 
-  public static MenuItem[] createMenuItems( final Action... actions ) {
-    final var menuItems = new MenuItem[ actions.length ];
+  /**
+   * Saves the current workspace.
+   */
+  public void save() {
+  }
 
-    for( int i = 0; i < actions.length; i++ ) {
-      menuItems[ i ] = actions[ i ].createMenuItem();
+  /**
+   * Returns the list of files opened for this {@link Workspace}.
+   *
+   * @return A non-null, possibly empty list of {@link File} instances.
+   */
+  public List<File> restoreFiles() {
+    final var filenames = sOptions.getStrings( "file" );
+    final var files = new ArrayList<File>();
+
+    for( final var filename : filenames ) {
+      files.add( new File( filename ) );
     }
 
-    return menuItems;
-  }
-
-  public static ToolBar createToolBar( final Action... actions ) {
-    return new ToolBar( createToolBarButtons( actions ) );
-  }
-
-  public static Node[] createToolBarButtons( final Action... actions ) {
-    Node[] buttons = new Node[ actions.length ];
-
-    for( int i = 0; i < actions.length; i++ ) {
-      buttons[ i ] = actions[ i ].createToolBarButton();
-    }
-
-    return buttons;
+    return files;
   }
 }

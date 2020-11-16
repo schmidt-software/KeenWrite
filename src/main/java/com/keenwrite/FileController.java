@@ -1,5 +1,4 @@
-/*
- * Copyright 2020 White Magic Software, Ltd.
+/* Copyright 2020 White Magic Software, Ltd.
  *
  * All rights reserved.
  *
@@ -25,25 +24,39 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.keenwrite.util;
+package com.keenwrite;
 
 import javafx.scene.Node;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.Separator;
-import javafx.scene.control.SeparatorMenuItem;
+
+import java.nio.file.Path;
 
 /**
- * Represents a menu bar action that has no operation, acting as a placeholder
- * for line separators.
+ * Responsible for communications between the definition model (the source)
+ * and the definition view (the on-screen hierarchical editor). A definition
+ * editor edits a model and is decoupled from where the model's data is loaded.
  */
-public class SeparatorAction extends Action {
-  @Override
-  public MenuItem createMenuItem() {
-    return new SeparatorMenuItem();
+public class FileController<View extends Node> {
+  private final Path mPath;
+  private final View mView;
+
+  public FileController( final Path path, final View view ) {
+    assert path != null;
+    assert view != null;
+
+    mPath = path;
+    mView = view;
   }
 
-  @Override
-  public Node createToolBarButton() {
-    return new Separator();
+  protected String getFilename() {
+    final var filename = getPath().getFileName();
+    return filename == null ? "" : filename.toString();
+  }
+
+  protected Path getPath() {
+    return mPath;
+  }
+
+  protected View getView() {
+    return mView;
   }
 }

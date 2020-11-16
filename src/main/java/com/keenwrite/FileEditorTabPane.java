@@ -51,8 +51,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.prefs.Preferences;
 import java.util.stream.Collectors;
 
-import static com.keenwrite.Constants.GLOB_PREFIX_FILE;
-import static com.keenwrite.Constants.SETTINGS;
+import static com.keenwrite.Constants.*;
 import static com.keenwrite.FileType.*;
 import static com.keenwrite.Messages.get;
 import static com.keenwrite.predicates.PredicateFactory.createFileTypePredicate;
@@ -72,7 +71,7 @@ public final class FileEditorTabPane extends DetachableTabPane {
 
   private final ReadOnlyObjectWrapper<Path> mOpenDefinition =
       new ReadOnlyObjectWrapper<>();
-  private final ReadOnlyObjectWrapper<FileEditorTab> mActiveFileEditor =
+  private final ReadOnlyObjectWrapper<FileEditorView> mActiveFileEditor =
       new ReadOnlyObjectWrapper<>();
   private final ReadOnlyBooleanWrapper mAnyFileEditorModified =
       new ReadOnlyBooleanWrapper();
@@ -94,7 +93,8 @@ public final class FileEditorTabPane extends DetachableTabPane {
     addTabSelectionListener(
         ( tabPane, oldTab, newTab ) -> {
           if( newTab != null ) {
-            mActiveFileEditor.set( (FileEditorTab) newTab );
+            // TODO: FIXME REFACTOR TABS
+//            mActiveFileEditor.set( (FileEditorView) newTab );
           }
         }
     );
@@ -102,10 +102,11 @@ public final class FileEditorTabPane extends DetachableTabPane {
     final ChangeListener<Boolean> modifiedListener =
         ( observable, oldValue, newValue ) -> {
           for( final Tab tab : tabs ) {
-            if( ((FileEditorTab) tab).isModified() ) {
-              mAnyFileEditorModified.set( true );
-              break;
-            }
+            // TODO: FIXME REFACTOR TABS
+//            if( ((FileEditorView) tab).isModified() ) {
+//              mAnyFileEditorModified.set( true );
+//              break;
+//            }
           }
         };
 
@@ -115,15 +116,17 @@ public final class FileEditorTabPane extends DetachableTabPane {
             if( change.wasAdded() ) {
               change.getAddedSubList().forEach(
                   ( tab ) -> {
-                    final var fet = (FileEditorTab) tab;
-                    fet.modifiedProperty().addListener( modifiedListener );
+                    // TODO: FIXME REFACTOR TABS
+//                    final var fet = (FileEditorView) tab;
+//                    fet.modifiedProperty().addListener( modifiedListener );
                   } );
             }
             else if( change.wasRemoved() ) {
               change.getRemoved().forEach(
                   ( tab ) -> {
-                    final var fet = (FileEditorTab) tab;
-                    fet.modifiedProperty().removeListener( modifiedListener );
+                    // TODO: FIXME REFACTOR TABS
+//                    final var fet = (FileEditorView) tab;
+//                    fet.modifiedProperty().removeListener( modifiedListener );
                   }
               );
             }
@@ -154,7 +157,7 @@ public final class FileEditorTabPane extends DetachableTabPane {
    *
    * @return A non-null instance.
    */
-  public FileEditorTab getActiveFileEditor() {
+  public FileEditorView getActiveFileEditor() {
     return mActiveFileEditor.get();
   }
 
@@ -163,7 +166,7 @@ public final class FileEditorTabPane extends DetachableTabPane {
    *
    * @return A non-null instance.
    */
-  public ReadOnlyObjectProperty<FileEditorTab> activeFileEditorProperty() {
+  public ReadOnlyObjectProperty<FileEditorView> activeFileEditorProperty() {
     return mActiveFileEditor.getReadOnlyProperty();
   }
 
@@ -182,48 +185,45 @@ public final class FileEditorTabPane extends DetachableTabPane {
    * @param path The file to open.
    * @return A non-null instance.
    */
-  private FileEditorTab createFileEditor( final Path path ) {
+  private FileEditorView createFileEditor( final Path path ) {
     assert path != null;
 
-    final FileEditorTab tab = new FileEditorTab( path );
+    final FileEditorView tab = new FileEditorView( path );
 
-    tab.setOnCloseRequest( e -> {
-      if( !canCloseEditor( tab ) ) {
-        e.consume();
-      }
-      else if( isActiveFileEditor( tab ) ) {
-        // Prevent prompting the user to save when there are no file editor
-        // tabs open.
-        mActiveFileEditor.set( null );
-      }
-    } );
+    // TODO: FIXME REFACTOR TABS
+//    tab.setOnCloseRequest( e -> {
+//      if( !canCloseEditor( tab ) ) {
+//        e.consume();
+//      }
+//      else if( isActiveFileEditor( tab ) ) {
+//        // Prevent prompting the user to save when there are no file editor
+//        // tabs open.
+//        mActiveFileEditor.set( null );
+//      }
+//    } );
 
     tab.addCaretPositionListener( mCaretPositionListener );
 
     return tab;
   }
 
-  private boolean isActiveFileEditor( final FileEditorTab tab ) {
+  private boolean isActiveFileEditor( final FileEditorView tab ) {
     return getActiveFileEditor() == tab;
   }
 
   private Path getDefaultPath() {
-    final String filename = getDefaultFilename();
-    return (new File( filename )).toPath();
-  }
-
-  private String getDefaultFilename() {
-    return getSettings().getSetting( "file.default", "untitled.md" );
+    return (new File( DOCUMENT_NAME )).toPath();
   }
 
   /**
-   * Called to add a new {@link FileEditorTab} to the tab pane.
+   * Called to add a new {@link FileEditorView} to the tab pane.
    */
   void newEditor() {
     final var tab = createFileEditor( getDefaultPath() );
 
-    getTabs().add( tab );
-    getSelectionModel().select( tab );
+    // TODO: FIXME REFACTOR TABS
+//    getTabs().add( tab );
+//    getSelectionModel().select( tab );
   }
 
   void openFileDialog() {
@@ -279,7 +279,8 @@ public final class FileEditorTabPane extends DetachableTabPane {
 
     // Close single unmodified "Untitled" tab.
     if( tabs.size() == 1 ) {
-      final FileEditorTab fileEditor = (FileEditorTab) (tabs.get( 0 ));
+      // TODO: FIXME REFACTOR TABS
+      final FileEditorView fileEditor = null; //(FileEditorView) (tabs.get( 0 ));
 
       if( fileEditor.getPath() == null && !fileEditor.isModified() ) {
         closeEditor( fileEditor, false );
@@ -289,17 +290,19 @@ public final class FileEditorTabPane extends DetachableTabPane {
     for( int i = 0; i < fileTally; i++ ) {
       final Path path = files.get( i ).toPath();
 
-      FileEditorTab fileEditorTab = findEditor( path );
+      FileEditorView fileEditorTab = findEditor( path );
 
       // Only open new files.
       if( fileEditorTab == null ) {
         fileEditorTab = createFileEditor( path );
-        getTabs().add( fileEditorTab );
+        // TODO: FIXME REFACTOR TABS
+        //getTabs().add( fileEditorTab );
       }
 
       // Select the first file in the list.
       if( i == activeIndex ) {
-        getSelectionModel().select( fileEditorTab );
+        // TODO: FIXME REFACTOR TABS
+        //getSelectionModel().select( fileEditorTab );
       }
     }
   }
@@ -337,12 +340,13 @@ public final class FileEditorTabPane extends DetachableTabPane {
    * @param tab The tab with contents to save.
    * @return true The contents were saved, or the tab was null.
    */
-  public boolean saveEditorAs( final FileEditorTab tab ) {
+  public boolean saveEditorAs( final FileEditorView tab ) {
     if( tab == null ) {
       return true;
     }
 
-    getSelectionModel().select( tab );
+    // TODO: FIXME REFACTOR TABS
+//    getSelectionModel().select( tab );
 
     final var chooser = createFileChooser( "Dialog.file.choose.save.title" );
     final var file = chooser.showSaveDialog( getWindow() );
@@ -370,15 +374,16 @@ public final class FileEditorTabPane extends DetachableTabPane {
    * @return false The file is unmodified.
    */
   @SuppressWarnings("BooleanMethodIsAlwaysInverted")
-  boolean canCloseEditor( final FileEditorTab tab ) {
+  boolean canCloseEditor( final FileEditorView tab ) {
     final var service = getNotifyService();
     final var canClose = new AtomicReference<>( true );
 
     if( tab.isModified() ) {
+      // TODO: FIXME REFACTOR TABS
       final var message = service.createNotification(
           Messages.get( "Alert.file.close.title" ),
           Messages.get( "Alert.file.close.text" ),
-          tab.getText()
+          ""//tab.getText()
       );
 
       final var confirmSave = service.createConfirmation(
@@ -392,7 +397,7 @@ public final class FileEditorTabPane extends DetachableTabPane {
     return canClose.get();
   }
 
-  boolean closeEditor( final FileEditorTab tab, final boolean save ) {
+  boolean closeEditor( final FileEditorView tab, final boolean save ) {
     if( tab == null ) {
       return true;
     }
@@ -408,16 +413,17 @@ public final class FileEditorTabPane extends DetachableTabPane {
 
     getTabs().remove( tab );
 
-    if( tab.getOnClosed() != null ) {
-      Event.fireEvent( tab, new Event( Tab.CLOSED_EVENT ) );
-    }
+    // TODO: FIXME REFACTOR TABS
+//    if( tab.getOnClosed() != null ) {
+//      Event.fireEvent( tab, new Event( Tab.CLOSED_EVENT ) );
+//    }
 
     return true;
   }
 
   boolean closeAllEditors() {
-    final FileEditorTab[] allEditors = getAllEditors();
-    final FileEditorTab activeEditor = getActiveFileEditor();
+    final FileEditorView[] allEditors = getAllEditors();
+    final FileEditorView activeEditor = getActiveFileEditor();
 
     // try to save active tab first because in case the user decides to cancel,
     // then it stays active
@@ -430,7 +436,7 @@ public final class FileEditorTabPane extends DetachableTabPane {
 
     // save modified tabs
     for( int i = 0; i < allEditors.length; i++ ) {
-      final FileEditorTab fileEditor = allEditors[ i ];
+      final FileEditorView fileEditor = allEditors[ i ];
 
       if( fileEditor == activeEditor ) {
         continue;
@@ -448,7 +454,7 @@ public final class FileEditorTabPane extends DetachableTabPane {
     }
 
     // Close all tabs.
-    for( final FileEditorTab fileEditor : allEditors ) {
+    for( final FileEditorView fileEditor : allEditors ) {
       if( !closeEditor( fileEditor, false ) ) {
         return false;
       }
@@ -457,13 +463,14 @@ public final class FileEditorTabPane extends DetachableTabPane {
     return getTabs().isEmpty();
   }
 
-  private FileEditorTab[] getAllEditors() {
+  private FileEditorView[] getAllEditors() {
     final var tabs = getTabs();
     final int length = tabs.size();
-    final var allEditors = new FileEditorTab[ length ];
+    final var allEditors = new FileEditorView[ length ];
 
     for( int i = 0; i < length; i++ ) {
-      allEditors[ i ] = (FileEditorTab) tabs.get( i );
+      // TODO: FIXME REFACTOR TABS
+//      allEditors[ i ] = (FileEditorView) tabs.get( i );
     }
 
     return allEditors;
@@ -474,9 +481,10 @@ public final class FileEditorTabPane extends DetachableTabPane {
    *
    * @return null No file editor tab for the given path was found.
    */
-  private FileEditorTab findEditor( final Path path ) {
+  private FileEditorView findEditor( final Path path ) {
     for( final Tab tab : getTabs() ) {
-      final FileEditorTab fileEditor = (FileEditorTab) tab;
+      // TODO: FIXME REFACTOR TABS
+      final FileEditorView fileEditor = null;// (FileEditorView) tab;
 
       if( fileEditor.isPath( path ) ) {
         return fileEditor;
@@ -576,7 +584,8 @@ public final class FileEditorTabPane extends DetachableTabPane {
     final List<String> fileNames = new ArrayList<>( allEditors.size() );
 
     for( final var tab : allEditors ) {
-      final var fileEditor = (FileEditorTab) tab;
+      // TODO: FIXME REFACTOR TABS
+      final FileEditorView fileEditor = null;//(FileEditorView) tab;
       final var filePath = fileEditor.getPath();
 
       if( filePath != null ) {

@@ -66,6 +66,11 @@ public interface Snitch extends Service, Runnable {
   void ignore( Path file );
 
   /**
+   * Start listening for events on a new thread.
+   */
+  void start();
+
+  /**
    * Stop listening for events.
    */
   void stop();

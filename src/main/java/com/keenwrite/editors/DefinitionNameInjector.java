@@ -27,8 +27,8 @@
  */
 package com.keenwrite.editors;
 
-import com.keenwrite.FileEditorTab;
-import com.keenwrite.definition.DefinitionPane;
+import com.keenwrite.FileEditorView;
+import com.keenwrite.definition.DefinitionView;
 import com.keenwrite.definition.DefinitionTreeItem;
 import com.keenwrite.sigils.SigilOperator;
 import javafx.scene.control.TreeItem;
@@ -53,19 +53,19 @@ public final class DefinitionNameInjector {
   /**
    * Recipient of name injections.
    */
-  private FileEditorTab mTab;
+  private FileEditorView mTab;
 
   /**
    * Initiates double-click events.
    */
-  private final DefinitionPane mDefinitionPane;
+  private final DefinitionView mDefinitionPane;
 
   /**
    * Initializes the variable name injector against the given pane.
    *
    * @param pane The definition panel to listen to for double-click events.
    */
-  public DefinitionNameInjector( final DefinitionPane pane ) {
+  public DefinitionNameInjector( final DefinitionView pane ) {
     mDefinitionPane = pane;
   }
 
@@ -74,7 +74,7 @@ public final class DefinitionNameInjector {
    *
    * @param tab Editor where variable names get injected.
    */
-  public void addListener( final FileEditorTab tab ) {
+  public void addListener( final FileEditorView tab ) {
     assert tab != null;
     mTab = tab;
 
@@ -85,7 +85,7 @@ public final class DefinitionNameInjector {
   }
 
   /**
-   * Inserts the currently selected variable from the {@link DefinitionPane}.
+   * Inserts the currently selected variable from the {@link DefinitionView}.
    */
   public void injectSelectedItem() {
     final var pane = getDefinitionPane();
@@ -282,7 +282,7 @@ public final class DefinitionNameInjector {
    * @param node The node to expand.
    */
   private void expand( final TreeItem<String> node ) {
-    final DefinitionPane pane = getDefinitionPane();
+    final DefinitionView pane = getDefinitionPane();
     pane.collapse();
     pane.expand( node );
     pane.select( node );
@@ -307,11 +307,11 @@ public final class DefinitionNameInjector {
     return getEditorPane().getEditor();
   }
 
-  public FileEditorTab getFileEditorTab() {
+  public FileEditorView getFileEditorTab() {
     return mTab;
   }
 
-  private DefinitionPane getDefinitionPane() {
+  private DefinitionView getDefinitionPane() {
     return mDefinitionPane;
   }
 }

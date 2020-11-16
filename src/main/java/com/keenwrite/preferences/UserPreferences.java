@@ -61,6 +61,16 @@ public class UserPreferences {
     return UserPreferencesContainer.INSTANCE;
   }
 
+  /**
+   * Initializes the user preferences from a file resource.
+   */
+  public static void initPreferences() {
+    System.setProperty(
+        "java.util.prefs.PreferencesFactory",
+        FilePreferencesFactory.class.getName()
+    );
+  }
+
   private final ObjectProperty<File> mPropRDirectory;
   private final StringProperty mPropRScript;
   private final ObjectProperty<File> mPropImagesDirectory;

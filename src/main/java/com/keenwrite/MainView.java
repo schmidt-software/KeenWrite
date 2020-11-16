@@ -29,8 +29,8 @@ package com.keenwrite;
 
 import com.dlsc.preferencesfx.PreferencesFxEvent;
 import com.keenwrite.definition.DefinitionFactory;
-import com.keenwrite.definition.DefinitionPane;
 import com.keenwrite.definition.DefinitionSource;
+import com.keenwrite.definition.DefinitionView;
 import com.keenwrite.definition.MapInterpolator;
 import com.keenwrite.definition.yaml.YamlDefinitionSource;
 import com.keenwrite.editors.DefinitionNameInjector;
@@ -50,9 +50,9 @@ import com.keenwrite.spelling.api.SpellCheckListener;
 import com.keenwrite.spelling.api.SpellChecker;
 import com.keenwrite.spelling.impl.PermissiveSpeller;
 import com.keenwrite.spelling.impl.SymSpellSpeller;
-import com.keenwrite.util.Action;
-import com.keenwrite.util.ActionUtils;
-import com.keenwrite.util.SeparatorAction;
+import com.keenwrite.ui.Action;
+import com.keenwrite.ui.ActionUtils;
+import com.keenwrite.ui.SeparatorAction;
 import com.vladsch.flexmark.parser.Parser;
 import com.vladsch.flexmark.util.ast.NodeVisitor;
 import com.vladsch.flexmark.util.ast.VisitHandler;
@@ -100,7 +100,6 @@ import static com.keenwrite.Constants.*;
 import static com.keenwrite.ExportFormat.*;
 import static com.keenwrite.Messages.get;
 import static com.keenwrite.StatusBarNotifier.clue;
-import static com.keenwrite.util.StageState.*;
 import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.*;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.nio.file.Files.writeString;
@@ -119,10 +118,13 @@ import static org.fxmisc.richtext.model.TwoDimensional.Bias.Forward;
  * Main window containing a tab pane in the center for file editors.
  */
 public class MainView implements Observer {
+  private static final String K_PANE_SPLIT_DEFINITION = "pane.split.definition";
+  private static final String K_PANE_SPLIT_EDITOR = "pane.split.editor";
+  private static final String K_PANE_SPLIT_PREVIEW = "pane.split.preview";
+
   /**
-   * The {@code OPTIONS} variable must be declared before all other variables
-   * to prevent subsequent initializations from failing due to missing user
-   * preferences.
+   * This variable must be declared before all other variables to prevent
+   * subsequent initializations from failing due to missing user preferences.
    */
   private static final Options sOptions = Services.load( Options.class );
   private static final Snitch sSnitch = Services.load( Snitch.class );
@@ -137,7 +139,7 @@ public class MainView implements Observer {
   /**
    * Prevents re-instantiation of processing classes.
    */
-  private final Map<FileEditorTab, Processor<String>> mProcessors =
+  private final Map<FileEditorView, Processor<String>> mProcessors =
       new HashMap<>();
 
   private final Map<String, String> mResolvedMap =
@@ -171,7 +173,7 @@ public class MainView implements Observer {
       ( observable, oldPosition, newPosition ) -> processActiveTab();
 
   private DefinitionSource mDefinitionSource = createDefaultDefinitionSource();
-  private final DefinitionPane mDefinitionPane = createDefinitionPane();
+  private final DefinitionView mDefinitionPane = createDefinitionPane();
   private final OutputTabPane mOutputPane = createOutputTabPane();
   private final FileEditorTabPane mFileEditorPane = new FileEditorTabPane(
       mCaretPositionListener );
@@ -211,10 +213,9 @@ public class MainView implements Observer {
     final var scene = getScene();
     final var stylesheets = scene.getStylesheets();
 
-    //stylesheets.add( STYLESHEET_DOCK );
     stylesheets.add( STYLESHEET_SCENE );
     scene.windowProperty().addListener(
-        ( unused, oldWindow, newWindow ) ->
+        ( __, oldWindow, newWindow ) ->
             newWindow.setOnCloseRequest(
                 e -> {
                   if( !getFileEditorPane().closeAllEditors() ) {
@@ -315,7 +316,8 @@ public class MainView implements Observer {
             if( change.wasAdded() ) {
               // Multiple tabs can be added simultaneously.
               for( final Tab newTab : change.getAddedSubList() ) {
-                final FileEditorTab tab = (FileEditorTab) newTab;
+                // TODO: FIXME REFACTOR TABS
+                final FileEditorView tab = null;// (FileEditorView) newTab;
 
                 initScrollEventListener( tab );
                 initSpellCheckListener( tab );
@@ -343,7 +345,8 @@ public class MainView implements Observer {
             getHtmlPreview().clear();
           }
           else {
-            final var tab = (FileEditorTab) newTab;
+            // TODO: FIXME REFACTOR TABS
+            final FileEditorView tab = null;// (FileEditorView) newTab;
             updateVariableNameInjector( tab );
             process( tab );
           }
@@ -351,17 +354,18 @@ public class MainView implements Observer {
     );
   }
 
-  private void initTextChangeListener( final FileEditorTab tab ) {
+  private void initTextChangeListener( final FileEditorView tab ) {
     tab.addTextChangeListener( ( __, ov, nv ) -> process( tab ) );
   }
 
-  private void initScrollEventListener( final FileEditorTab tab ) {
+  private void initScrollEventListener( final FileEditorView tab ) {
     final var scrollPane = tab.getScrollPane();
     final var scrollBar = getHtmlPreview().getVerticalScrollBar();
 
     addShowListener( scrollPane, () -> {
-      final var handler = new ScrollEventHandler( scrollPane, scrollBar );
-      handler.enabledProperty().bind( tab.selectedProperty() );
+      // TODO: FIXME REFACTOR TABS
+//      final var handler = new ScrollEventHandler( scrollPane, scrollBar );
+//      handler.enabledProperty().bind( tab.selectedProperty() );
     } );
   }
 
@@ -374,7 +378,7 @@ public class MainView implements Observer {
    *
    * @param tab The tab to spellcheck.
    */
-  private void initSpellCheckListener( final FileEditorTab tab ) {
+  private void initSpellCheckListener( final FileEditorView tab ) {
     final var editor = tab.getEditorPane().getEditor();
 
     // When the editor first appears, run a full spell check. This allows
@@ -451,7 +455,7 @@ public class MainView implements Observer {
     }
   }
 
-  private void updateVariableNameInjector( final FileEditorTab tab ) {
+  private void updateVariableNameInjector( final FileEditorView tab ) {
     getDefinitionNameInjector().addListener( tab );
   }
 
@@ -461,7 +465,7 @@ public class MainView implements Observer {
    *
    * @param tab The active tab containing a caret position to show.
    */
-  private void updateCaretStatus( final FileEditorTab tab ) {
+  private void updateCaretStatus( final FileEditorView tab ) {
     getLineNumberText().setText( tab.getCaretPosition().toString() );
   }
 
@@ -472,7 +476,7 @@ public class MainView implements Observer {
    *
    * @param tab The file editor tab that has been changed in some fashion.
    */
-  private void process( final FileEditorTab tab ) {
+  private void process( final FileEditorView tab ) {
     if( tab != null ) {
       getHtmlPreview().setBaseUri( tab.getPath() );
 
@@ -515,8 +519,6 @@ public class MainView implements Observer {
       pane.update( ds );
       pane.addTreeChangeHandler( mTreeHandler );
       pane.addKeyEventHandler( mDefinitionKeyHandler );
-      pane.filenameProperty().setValue( path.getFileName().toString() );
-      pane.setTooltip( tooltipPath );
 
       interpolateResolvedMap();
     } catch( final Exception ex ) {
@@ -610,7 +612,7 @@ public class MainView implements Observer {
   }
 
   private void fileSaveAs() {
-    final FileEditorTab editor = getActiveFileEditorTab();
+    final FileEditorView editor = getActiveFileEditorTab();
     getFileEditorPane().saveEditorAs( editor );
     getProcessors().remove( editor );
 
@@ -734,24 +736,24 @@ public class MainView implements Observer {
    * @param tab The tab that is subjected to processing.
    * @return A processor suited to the file type specified by the tab's path.
    */
-  private Processor<String> createProcessors( final FileEditorTab tab ) {
+  private Processor<String> createProcessors( final FileEditorView tab ) {
     final var context = createProcessorContext( tab );
     return ProcessorFactory.createProcessors( context );
   }
 
   private ProcessorContext createProcessorContext(
-      final FileEditorTab tab, final ExportFormat format ) {
+      final FileEditorView tab, final ExportFormat format ) {
     final var preview = getHtmlPreview();
     final var map = getResolvedMap();
     return new ProcessorContext( preview, map, tab, format );
   }
 
-  private ProcessorContext createProcessorContext( final FileEditorTab tab ) {
+  private ProcessorContext createProcessorContext( final FileEditorView tab ) {
     return createProcessorContext( tab, NONE );
   }
 
-  private DefinitionPane createDefinitionPane() {
-    return new DefinitionPane();
+  private DefinitionView createDefinitionPane() {
+    return new DefinitionView();
   }
 
   private OutputTabPane createOutputTabPane() {
@@ -859,7 +861,7 @@ public class MainView implements Observer {
         .setIcon( FLOPPY_ALT )
         .setAction( e -> getActiveFileEditorTab().save() )
         .setDisabled( createActiveBooleanProperty(
-            FileEditorTab::modifiedProperty ).not() )
+            FileEditorView::modifiedProperty ).not() )
         .build();
     final Action fileSaveAsAction = Action
         .builder()
@@ -913,7 +915,7 @@ public class MainView implements Observer {
         .setIcon( UNDO )
         .setAction( e -> getActiveEditorPane().undo() )
         .setDisabled( createActiveBooleanProperty(
-            FileEditorTab::canUndoProperty ).not() )
+            FileEditorView::canUndoProperty ).not() )
         .build();
     final Action editRedoAction = Action
         .builder()
@@ -922,7 +924,7 @@ public class MainView implements Observer {
         .setIcon( REPEAT )
         .setAction( e -> getActiveEditorPane().redo() )
         .setDisabled( createActiveBooleanProperty(
-            FileEditorTab::canRedoProperty ).not() )
+            FileEditorView::canRedoProperty ).not() )
         .build();
 
     final Action editCutAction = Action
@@ -967,7 +969,7 @@ public class MainView implements Observer {
         .build();
     final Action editFindNextAction = Action
         .builder()
-        .setText( "Main.menu.edit.find.next" )
+        .setText( "Main.menu.edit.find_next" )
         .setAccelerator( "F3" )
         .setAction( e -> editFindNext() )
         .setDisabled( activeFileEditorIsNull )
@@ -1073,7 +1075,7 @@ public class MainView implements Observer {
     for( int i = 1; i <= HEADINGS; i++ ) {
       final String hashes = new String( new char[ i ] ).replace( "\0", "#" );
       final String markup = String.format( "%n%n%s ", hashes );
-      final String text = "Main.menu.insert.heading." + i;
+      final String text = "Main.menu.insert.heading_" + i;
       final String accelerator = "Shortcut+" + i;
       final String prompt = text + ".prompt";
 
@@ -1265,10 +1267,10 @@ public class MainView implements Observer {
    * active editor.
    */
   private BooleanProperty createActiveBooleanProperty(
-      final Function<FileEditorTab, ObservableBooleanValue> func ) {
+      final Function<FileEditorView, ObservableBooleanValue> func ) {
 
     final BooleanProperty b = new SimpleBooleanProperty();
-    final FileEditorTab tab = getActiveFileEditorTab();
+    final FileEditorView tab = getActiveFileEditorTab();
 
     if( tab != null ) {
       b.bind( func.apply( tab ) );
@@ -1308,7 +1310,7 @@ public class MainView implements Observer {
     return getActiveFileEditorTab().getEditorPane();
   }
 
-  private FileEditorTab getActiveFileEditorTab() {
+  private FileEditorView getActiveFileEditorTab() {
     return getFileEditorPane().getActiveFileEditor();
   }
 
@@ -1322,7 +1324,7 @@ public class MainView implements Observer {
     return mSpellChecker;
   }
 
-  private Map<FileEditorTab, Processor<String>> getProcessors() {
+  private Map<FileEditorView, Processor<String>> getProcessors() {
     return mProcessors;
   }
 
@@ -1348,7 +1350,7 @@ public class MainView implements Observer {
     return mDefinitionSource;
   }
 
-  private DefinitionPane getDefinitionPane() {
+  private DefinitionView getDefinitionPane() {
     return mDefinitionPane;
   }
 

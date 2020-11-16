@@ -24,8 +24,9 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.keenwrite.util;
+package com.keenwrite.ui;
 
+import com.keenwrite.ui.Action;
 import de.jensd.fx.glyphs.GlyphIcons;
 import javafx.beans.value.ObservableBooleanValue;
 import javafx.event.ActionEvent;

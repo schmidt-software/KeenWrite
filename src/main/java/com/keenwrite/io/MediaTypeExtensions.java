@@ -12,6 +12,7 @@ enum MediaTypeExtensions {
   MEDIA_TEXT_MARKDOWN( TEXT_MARKDOWN, of(
       "md", "markdown", "mdown", "mdtxt", "mdtext", "mdwn", "mkd", "mkdown",
       "mkdn", "text", "txt" ) ),
+  MEDIA_TEXT_YAML( TEXT_YAML, of( "yaml", "yml" ) ),
   MEDIA_IMAGE_APNG( IMAGE_APNG, of( "apng" ) ),
   MEDIA_IMAGE_BMP( IMAGE_BMP, of( "bmp" ) ),
   MEDIA_IMAGE_GIF( IMAGE_GIF, of( "gif" ) ),
@@ -60,7 +61,7 @@ enum MediaTypeExtensions {
       }
     }
 
-    return MediaType.UNDEFINED;
+    return UNDEFINED;
   }
 
   private boolean isType( final String extension ) {
