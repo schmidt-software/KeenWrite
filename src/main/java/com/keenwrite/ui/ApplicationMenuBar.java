@@ -51,8 +51,6 @@ public class ApplicationMenuBar {
     //@formatter:off
     putAction( "file.new", e -> mActions.file‿new() );
     putAction( "file.open", e -> mActions.file‿open() );
-    putAction( "file.new", e -> mActions.file‿new() );
-    putAction( "file.open", e -> mActions.file‿open() );
     putAction( "file.close", e -> mActions.file‿close() );
     putAction( "file.close_all", e -> mActions.file‿close_all() );
     putAction( "file.save", e -> mActions.file‿save() );
@@ -87,9 +85,11 @@ public class ApplicationMenuBar {
     putAction( "insert.unordered_list", e -> mActions.insert‿unordered_list() );
     putAction( "insert.ordered_list", e -> mActions.insert‿ordered_list() );
     putAction( "insert.horizontal_rule", e -> mActions.insert‿horizontal_rule() );
-    putAction( "help.about", e -> mActions.help‿about() );
     putAction( "definition.create", e -> mActions.definition‿create() );
     putAction( "definition.insert", e -> mActions.definition‿insert() );
+    putAction( "view.refresh", e -> mActions.view‿refresh() );
+    putAction( "view.preview", e -> mActions.view‿preview() );
+    putAction( "help.about", e -> mActions.help‿about() );
     //@formatter:on
 
     final var menuFile = ActionUtils.createMenu(
@@ -145,10 +145,9 @@ public class ApplicationMenuBar {
         getAction( "insert.link" ),
         getAction( "insert.image" ),
         SEPARATOR_ACTION,
-        // TODO: FIXME Insert headings
-//        headings[ 0 ],
-//        headings[ 1 ],
-//        headings[ 2 ],
+        getAction( "insert.heading_1" ),
+        getAction( "insert.heading_2" ),
+        getAction( "insert.heading_3" ),
         SEPARATOR_ACTION,
         getAction( "insert.unordered_list" ),
         getAction( "insert.ordered_list" ),
@@ -161,6 +160,13 @@ public class ApplicationMenuBar {
         getAction( "definition.insert" )
     );
 
+    final var menuView = ActionUtils.createMenu(
+        get( "Main.menu.view" ),
+        getAction( "view.refresh" ),
+        SEPARATOR_ACTION,
+        getAction( "view.preview" )
+    );
+
     final var menuHelp = ActionUtils.createMenu(
         get( "Main.menu.help" ),
         getAction( "help.about" ) );
@@ -171,6 +177,7 @@ public class ApplicationMenuBar {
         menuFormat,
         menuInsert,
         menuDefinition,
+        menuView,
         menuHelp );
 
     final var toolBar = ActionUtils.createToolBar(
@@ -195,8 +202,7 @@ public class ApplicationMenuBar {
         getAction( "insert.link" ),
         getAction( "insert.image" ),
         SEPARATOR_ACTION,
-        // TODO: FIXME Insert heading 1
-        //headings[ 0 ],
+        getAction( "insert.heading_1" ),
         SEPARATOR_ACTION,
         getAction( "insert.unordered_list" ),
         getAction( "insert.ordered_list" ) );

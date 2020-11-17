@@ -178,6 +178,17 @@ public final class Main extends Application {
     cTabPane.addTab( "HTML", new HtmlPreview() );
     splitPane.getItems().add( cTabPane );
 
+    final var items = splitPane.getItems();
+    final var ratio = 100f / items.size() / 100;
+    final var positions = splitPane.getDividerPositions();
+
+    for( int i = 0; i < positions.length; i++ ) {
+      positions[ i ] = ratio * i;
+    }
+
+    // TODO: Load divider positions from exported settings, see bin() comment.
+    splitPane.setDividerPositions( positions );
+
     return splitPane;
   }
 

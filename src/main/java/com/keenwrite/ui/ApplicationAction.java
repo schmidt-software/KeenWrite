@@ -73,7 +73,9 @@ public class ApplicationAction {
   public void insert‿unordered_list() {}
   public void insert‿ordered_list() {}
   public void insert‿horizontal_rule() {}
-  public void help‿about() {}
   public void definition‿create() {}
   public void definition‿insert() {}
+  public void view‿refresh() {}
+  public void view‿preview() {}
+  public void help‿about() {}
 }
