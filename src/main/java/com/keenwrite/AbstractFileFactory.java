@@ -77,7 +77,7 @@ public abstract class AbstractFileFactory {
       if( found = predicate.test( path.toFile() ) ) {
         // Remove the EXTENSIONS_PREFIX to get the filename extension mapped
         // to a standard name (as defined in the settings.properties file).
-        final String suffix = key.replace( prefix + ".", "" );
+        final String suffix = key.replace( prefix + '.', "" );
         fileType = FileType.from( suffix );
       }
     }

@@ -62,7 +62,8 @@ public abstract class Action {
    *
    * @param action Actions that only exist with respect to this action.
    */
-  public void addSubActions( Action... action ) {
+  public Action addSubActions( Action... action ) {
+    return this;
   }
 
   /**

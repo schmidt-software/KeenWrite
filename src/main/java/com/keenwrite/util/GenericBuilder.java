@@ -43,6 +43,9 @@ public class GenericBuilder<MT, IT> {
    */
   protected GenericBuilder(
       final Supplier<MT> mutator, final Function<MT, IT> immutable ) {
+    assert mutator != null;
+    assert immutable != null;
+
     mMutable = mutator;
     mImmutable = immutable;
   }

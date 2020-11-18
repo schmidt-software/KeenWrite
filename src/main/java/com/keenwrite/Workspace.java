@@ -29,6 +29,7 @@ package com.keenwrite;
 import com.keenwrite.io.File;
 import com.keenwrite.service.Options;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -56,6 +57,7 @@ public class Workspace {
    * Saves the current workspace.
    */
   public void save() {
+    saveCaretPositions();
   }
 
   /**
@@ -75,10 +77,31 @@ public class Workspace {
   }
 
   /**
-   * Updates the dictionary to include project-specific words.
+   * Restores the caret position for the given path.
    *
+   * @param path The path to a file that was opened previously.
+   * @return The stored caret position or 0 if the path has no associated
+   * caret position persisted.
+   */
+  public int restoreCaretPosition( final Path path ) {
+    return 0;
+  }
+
+  /**
+   * Updates the dictionary to include project-specific words.
+   * <p>
    * TODO: Implementation
    */
   public void restoreDictionary() {
+  }
+
+  /**
+   * Stores all the caret positions for all the existing paths. If the caret
+   * position is 0 for a given file, this will remove its entry from the
+   * persistent store---the default position is 0 in the absence of a path.
+   * <p>
+   * TODO: Implementation
+   */
+  private void saveCaretPositions() {
   }
 }

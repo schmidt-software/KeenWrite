@@ -26,6 +26,9 @@
  */
 package com.keenwrite;
 
+import com.keenwrite.processors.markdown.CaretPosition;
+import javafx.scene.Node;
+
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -40,7 +43,7 @@ import static com.keenwrite.StatusBarNotifier.clue;
  * the main application provides a tab-based user interface.
  * </p>
  */
-public class EditorController<View extends TextResource> {
+public class EditorController<View extends Node & TextResource> {
   /**
    * The "model" of the MVC pattern.
    */
@@ -50,6 +53,11 @@ public class EditorController<View extends TextResource> {
    * The "view" of the MVC pattern.
    */
   private final View mView;
+
+  /**
+   * The location of the caret in the view.
+   */
+  private final CaretPosition mCaretPosition;
 
   /**
    * Constructs a controller responsible for reading and writing the contents
@@ -67,6 +75,19 @@ public class EditorController<View extends TextResource> {
     mView = view;
 
     mView.setText( read( path ) );
+    mView.setInsertionPoint( 0 );
+
+    CaretPosition caret = null;
+
+    try {
+      caret = mView.createCaretPosition();
+    } catch( final Exception ignored ) {
+      // Indicates the view is not a plain text document editor, but probably a
+      // definition panel editor. The definition panel doesn't have a caret,
+      // so there shall be no calls to get the caret position.
+    }
+
+    mCaretPosition = caret;
   }
 
   protected View getView() {
@@ -76,6 +97,10 @@ public class EditorController<View extends TextResource> {
   protected String getFilename() {
     final var filename = getPath().getFileName();
     return filename == null ? "" : filename.toString();
+  }
+
+  protected CaretPosition getCaretPosition() {
+    return mCaretPosition;
   }
 
   private Path getPath() {
@@ -91,4 +116,5 @@ public class EditorController<View extends TextResource> {
 
     return "";
   }
+
 }

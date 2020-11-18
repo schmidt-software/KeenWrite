@@ -26,7 +26,9 @@
  */
 package com.keenwrite.ui;
 
-import net.sf.saxon.expr.instruct.Copy;
+import com.keenwrite.ExportFormat;
+
+import static com.keenwrite.ExportFormat.*;
 
 /**
  * Responsible for abstracting how functionality is mapped to the application.
@@ -36,46 +38,137 @@ import net.sf.saxon.expr.instruct.Copy;
  */
 @SuppressWarnings("NonAsciiCharacters")
 public class ApplicationAction {
-  public void file‿new() {}
-  public void file‿open() {}
-  public void file‿close() {}
-  public void file‿close_all() {}
-  public void file‿save() {}
-  public void file‿save_as() {}
-  public void file‿save_all() {}
-  public void file‿export‿html_svg() {}
-  public void file‿export‿html_tex() {}
-  public void file‿export‿markdown() {}
-  public void file‿exit() {}
-  public void edit‿undo() {}
-  public void edit‿redo() {}
-  public void edit‿cut() {}
-  public void edit‿copy() {}
-  public void edit‿paste() {}
-  public void edit‿select_all() {}
-  public void edit‿find() {}
-  public void edit‿find_next() {}
-  public void edit‿preferences() {}
-  public void format‿bold() {}
-  public void format‿italic() {}
-  public void format‿superscript() {}
-  public void format‿subscript() {}
-  public void format‿strikethrough() {}
-  public void insert‿blockquote() {}
-  public void insert‿code() {}
-  public void insert‿fenced_code_block() {}
-  public void insert‿link() {}
-  public void insert‿image() {}
-  public void insert‿heading() {}
-  public void insert‿heading_1() {}
-  public void insert‿heading_2() {}
-  public void insert‿heading_3() {}
-  public void insert‿unordered_list() {}
-  public void insert‿ordered_list() {}
-  public void insert‿horizontal_rule() {}
-  public void definition‿create() {}
-  public void definition‿insert() {}
-  public void view‿refresh() {}
-  public void view‿preview() {}
-  public void help‿about() {}
+
+
+  public void file‿new() {
+  }
+
+  public void file‿open() {
+  }
+
+  public void file‿close() {
+  }
+
+  public void file‿close_all() {
+  }
+
+  public void file‿save() {
+  }
+
+  public void file‿save_as() {
+  }
+
+  public void file‿save_all() {
+  }
+
+  public void file‿export‿html_svg() {
+    file‿export( HTML_TEX_SVG );
+  }
+
+  public void file‿export‿html_tex() {
+    file‿export( HTML_TEX_DELIMITED );
+  }
+
+  public void file‿export‿markdown() {
+    file‿export( MARKDOWN_PLAIN );
+  }
+
+  public void file‿exit() {
+  }
+
+  public void edit‿undo() {
+  }
+
+  public void edit‿redo() {
+  }
+
+  public void edit‿cut() {
+  }
+
+  public void edit‿copy() {
+  }
+
+  public void edit‿paste() {
+  }
+
+  public void edit‿select_all() {
+  }
+
+  public void edit‿find() {
+  }
+
+  public void edit‿find_next() {
+  }
+
+  public void edit‿preferences() {
+  }
+
+  public void format‿bold() {
+  }
+
+  public void format‿italic() {
+  }
+
+  public void format‿superscript() {
+  }
+
+  public void format‿subscript() {
+  }
+
+  public void format‿strikethrough() {
+  }
+
+  public void insert‿blockquote() {
+  }
+
+  public void insert‿code() {
+  }
+
+  public void insert‿fenced_code_block() {
+  }
+
+  public void insert‿link() {
+  }
+
+  public void insert‿image() {
+  }
+
+  public void insert‿heading() {
+  }
+
+  public void insert‿heading_1() {
+  }
+
+  public void insert‿heading_2() {
+  }
+
+  public void insert‿heading_3() {
+  }
+
+  public void insert‿unordered_list() {
+  }
+
+  public void insert‿ordered_list() {
+  }
+
+  public void insert‿horizontal_rule() {
+  }
+
+  public void definition‿create() {
+  }
+
+  public void definition‿insert() {
+  }
+
+  public void view‿refresh() {
+  }
+
+  public void view‿preview() {
+  }
+
+  public void help‿about() {
+  }
+
+  private void file‿export( final ExportFormat format ) {
+  }
 }

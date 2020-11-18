@@ -29,6 +29,7 @@ package com.keenwrite.editors;
 
 import com.keenwrite.TextResource;
 import com.keenwrite.preferences.UserPreferences;
+import com.keenwrite.processors.markdown.CaretPosition;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -52,7 +53,8 @@ import static org.fxmisc.wellbehaved.event.InputMap.consume;
 /**
  * Represents common editing features for various types of text editors.
  */
-public class EditorPane extends StyleClassedTextArea implements TextResource {
+public class PlainTextEditor extends StyleClassedTextArea
+    implements TextResource {
 
   /**
    * Used when changing the text area font size.
@@ -63,7 +65,7 @@ public class EditorPane extends StyleClassedTextArea implements TextResource {
       new VirtualizedScrollPane<>( this );
   private final ObjectProperty<Path> mPath = new SimpleObjectProperty<>();
 
-  public EditorPane() {
+  public PlainTextEditor() {
     super( false );
     getScrollPane().setVbarPolicy( ScrollPane.ScrollBarPolicy.ALWAYS );
     fontsSizeProperty().addListener(
@@ -84,7 +86,7 @@ public class EditorPane extends StyleClassedTextArea implements TextResource {
   }
 
   /**
-   * There's a race-condition between displaying the {@link EditorPane}
+   * There's a race-condition between displaying the {@link PlainTextEditor}
    * and giving the editor focus. Try to focus up to {@code max} times before
    * giving up.
    *
@@ -155,6 +157,22 @@ public class EditorPane extends StyleClassedTextArea implements TextResource {
   @Override
   public String getText() {
     return getEditor().getText();
+  }
+
+  @Override
+  public CaretPosition createCaretPosition() {
+    final var propParaIndex = currentParagraphProperty();
+    final var propParagraphs = getParagraphs();
+    final var propParaOffset = caretColumnProperty();
+    final var propTextOffset = caretPositionProperty();
+
+    return CaretPosition
+        .builder()
+        .with( CaretPosition.Mutator::setParagraph, propParaIndex )
+        .with( CaretPosition.Mutator::setParagraphs, propParagraphs )
+        .with( CaretPosition.Mutator::setParaOffset, propParaOffset )
+        .with( CaretPosition.Mutator::setTextOffset, propTextOffset )
+        .build();
   }
 
   /**

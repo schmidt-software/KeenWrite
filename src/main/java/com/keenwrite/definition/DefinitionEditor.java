@@ -27,6 +27,7 @@
 package com.keenwrite.definition;
 
 import com.keenwrite.TextResource;
+import com.keenwrite.processors.markdown.CaretPosition;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
 import javafx.collections.ObservableList;
@@ -41,8 +42,6 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.util.StringConverter;
 
-import java.io.IOException;
-import java.net.URI;
 import java.util.*;
 
 import static com.keenwrite.Messages.get;
@@ -55,7 +54,7 @@ import static javafx.scene.input.KeyEvent.KEY_PRESSED;
  * allows users to interact with key/value pairs loaded from the
  * {@link DocumentParser} and adapted using a {@link TreeAdapter}.
  */
-public final class DefinitionView extends BorderPane implements TextResource {
+public final class DefinitionEditor extends BorderPane implements TextResource {
 
   /**
    * Contains a view of the definitions.
@@ -71,7 +70,7 @@ public final class DefinitionView extends BorderPane implements TextResource {
   /**
    * Constructs a definition pane with a given tree view root.
    */
-  public DefinitionView() {
+  public DefinitionEditor() {
     final var treeView = getTreeView();
     treeView.setEditable( true );
     treeView.setCellFactory( cell -> createTreeCell() );
@@ -536,5 +535,13 @@ public final class DefinitionView extends BorderPane implements TextResource {
   @Override
   public String getText() {
     return "";
+  }
+
+  /**
+   * @throws UnsupportedOperationException There is no caret position here.
+   */
+  @Override
+  public CaretPosition createCaretPosition() {
+    throw new UnsupportedOperationException();
   }
 }

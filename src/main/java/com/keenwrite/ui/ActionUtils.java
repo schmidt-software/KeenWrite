@@ -51,10 +51,18 @@ public class ActionUtils {
     return menuItems;
   }
 
+  /**
+   * TODO: Delete
+   * @deprecated Moved into ApplicationMenuBar
+   */
   public static ToolBar createToolBar( final Action... actions ) {
     return new ToolBar( createToolBarButtons( actions ) );
   }
 
+  /**
+   * TODO: Delete
+   * @deprecated Moved into ApplicationMenuBar
+   */
   public static Node[] createToolBarButtons( final Action... actions ) {
     final var buttons = new Node[ actions.length ];
 

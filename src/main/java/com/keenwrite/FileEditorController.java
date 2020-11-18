@@ -25,7 +25,7 @@
  */
 package com.keenwrite;
 
-import com.keenwrite.editors.EditorPane;
+import com.keenwrite.editors.PlainTextEditor;
 import com.keenwrite.editors.markdown.MarkdownEditorPane;
 import com.keenwrite.processors.Processor;
 import com.keenwrite.processors.markdown.CaretPosition;
@@ -253,7 +253,7 @@ public final class FileEditorController {
     try {
       if( file.exists() ) {
         if( file.canWrite() && file.canRead() ) {
-          final EditorPane pane = getEditorPane();
+          final PlainTextEditor pane = getEditorPane();
           pane.setText( asString( Files.readAllBytes( path ) ) );
           pane.scrollToTop();
         }

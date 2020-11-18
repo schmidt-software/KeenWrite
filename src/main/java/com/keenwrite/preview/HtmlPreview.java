@@ -97,7 +97,7 @@ public final class HtmlPreview extends SwingNode {
       mView = new HtmlPanel();
       mScrollPane = new JScrollPane( mView );
 
-      // Enabling the cache eliminates black background flashes.
+      // Enabling the cache eliminates black background flashes when resizing.
       setCache( true );
       setCacheHint( SPEED );
       setContent( mScrollPane );

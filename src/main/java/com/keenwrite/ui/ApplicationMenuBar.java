@@ -30,6 +30,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.control.MenuBar;
+import javafx.scene.control.ToolBar;
 import javafx.scene.layout.VBox;
 
 import java.util.HashMap;
@@ -44,9 +45,17 @@ public class ApplicationMenuBar {
   private final ApplicationAction mActions = new ApplicationAction();
   private final Map<String, Action> mMap = new HashMap<>( 64 );
 
+  /**
+   * Empty constructor.
+   */
   public ApplicationMenuBar() {
   }
 
+  /**
+   * Creates the main application affordances.
+   *
+   * @return An instance of {@link Node} that contains the menu and toolbar.
+   */
   public Node createMenuBar() {
     //@formatter:off
     putAction( "file.new", e -> mActions.file‿new() );
@@ -93,13 +102,6 @@ public class ApplicationMenuBar {
     putAction( "help.about", e -> mActions.help‿about() );
     //@formatter:on
 
-    // Create File > Export submenu.
-    getAction("file.export").addSubActions(
-        getAction( "file.export.html_svg"),
-        getAction( "file.export.html_tex"),
-        getAction( "file.export.markdown")
-    );
-
     final var menuFile = ActionUtils.createMenu(
         get( "Main.menu.file" ),
         getAction( "file.new" ),
@@ -112,7 +114,12 @@ public class ApplicationMenuBar {
         getAction( "file.save_as" ),
         getAction( "file.save_all" ),
         SEPARATOR_ACTION,
-        getAction( "file.export" ),
+        getAction( "file.export" )
+            .addSubActions(
+                getAction( "file.export.html_svg" ),
+                getAction( "file.export.html_tex" ),
+                getAction( "file.export.markdown" )
+            ),
         SEPARATOR_ACTION,
         getAction( "file.exit" )
     );
@@ -187,7 +194,7 @@ public class ApplicationMenuBar {
         menuView,
         menuHelp );
 
-    final var toolBar = ActionUtils.createToolBar(
+    final var toolBar = createToolBar(
         getAction( "file.new" ),
         getAction( "file.open" ),
         getAction( "file.save" ),
@@ -230,5 +237,20 @@ public class ApplicationMenuBar {
 
   private Action getAction( final String key ) {
     return mMap.get( key );
+  }
+
+  private static ToolBar createToolBar( final Action... actions ) {
+    return new ToolBar( createToolBarButtons( actions ) );
+  }
+
+  private static Node[] createToolBarButtons( final Action... actions ) {
+    final int len = actions.length;
+    final var buttons = new Node[ len ];
+
+    for( int i = 0; i < len; i++ ) {
+      buttons[ i ] = actions[ i ].createToolBarButton();
+    }
+
+    return buttons;
   }
 }

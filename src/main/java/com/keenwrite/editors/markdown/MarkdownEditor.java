@@ -27,6 +27,7 @@
 package com.keenwrite.editors.markdown;
 
 import com.keenwrite.TextResource;
+import com.keenwrite.processors.markdown.CaretPosition;
 import javafx.scene.layout.BorderPane;
 import org.fxmisc.flowless.VirtualizedScrollPane;
 import org.fxmisc.richtext.StyleClassedTextArea;
@@ -47,6 +48,7 @@ public class MarkdownEditor extends BorderPane implements TextResource {
     mTextArea.setWrapText( true );
     mTextArea.getStyleClass().add( "markdown" );
     mTextArea.getStylesheets().add( STYLESHEET_MARKDOWN );
+    mTextArea.requestFollowCaret();
 
     mScrollPane.setVbarPolicy( ALWAYS );
 
@@ -70,5 +72,33 @@ public class MarkdownEditor extends BorderPane implements TextResource {
   @Override
   public String getText() {
     return mTextArea.getText();
+  }
+
+  /**
+   * Changes the absolute position of the caret within the editor. This will
+   * update the view port to follow the caret position because of the call
+   * to {@link StyleClassedTextArea#requestFollowCaret()}.
+   *
+   * @param position The new caret position.
+   */
+  @Override
+  public void setInsertionPoint( final int position ) {
+    mTextArea.moveTo( position );
+  }
+
+  @Override
+  public CaretPosition createCaretPosition() {
+    final var propParaIndex = mTextArea.currentParagraphProperty();
+    final var propParagraphs = mTextArea.getParagraphs();
+    final var propParaOffset = mTextArea.caretColumnProperty();
+    final var propTextOffset = mTextArea.caretPositionProperty();
+
+    return CaretPosition
+        .builder()
+        .with( CaretPosition.Mutator::setParagraph, propParaIndex )
+        .with( CaretPosition.Mutator::setParagraphs, propParagraphs )
+        .with( CaretPosition.Mutator::setParaOffset, propParaOffset )
+        .with( CaretPosition.Mutator::setTextOffset, propTextOffset )
+        .build();
   }
 }

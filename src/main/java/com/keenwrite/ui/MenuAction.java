@@ -139,7 +139,8 @@ public class MenuAction extends Action {
   }
 
   @Override
-  public void addSubActions( final Action... action ) {
+  public Action addSubActions( final Action... action ) {
     mSubActions.addAll( List.of( action ) );
+    return this;
   }
 }

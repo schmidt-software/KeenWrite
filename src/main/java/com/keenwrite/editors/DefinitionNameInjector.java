@@ -28,7 +28,7 @@
 package com.keenwrite.editors;
 
 import com.keenwrite.FileEditorController;
-import com.keenwrite.definition.DefinitionView;
+import com.keenwrite.definition.DefinitionEditor;
 import com.keenwrite.definition.DefinitionTreeItem;
 import com.keenwrite.sigils.SigilOperator;
 import javafx.scene.control.TreeItem;
@@ -58,14 +58,14 @@ public final class DefinitionNameInjector {
   /**
    * Initiates double-click events.
    */
-  private final DefinitionView mDefinitionPane;
+  private final DefinitionEditor mDefinitionPane;
 
   /**
    * Initializes the variable name injector against the given pane.
    *
    * @param pane The definition panel to listen to for double-click events.
    */
-  public DefinitionNameInjector( final DefinitionView pane ) {
+  public DefinitionNameInjector( final DefinitionEditor pane ) {
     mDefinitionPane = pane;
   }
 
@@ -85,7 +85,7 @@ public final class DefinitionNameInjector {
   }
 
   /**
-   * Inserts the currently selected variable from the {@link DefinitionView}.
+   * Inserts the currently selected variable from the {@link DefinitionEditor}.
    */
   public void injectSelectedItem() {
     final var pane = getDefinitionPane();
@@ -282,7 +282,7 @@ public final class DefinitionNameInjector {
    * @param node The node to expand.
    */
   private void expand( final TreeItem<String> node ) {
-    final DefinitionView pane = getDefinitionPane();
+    final DefinitionEditor pane = getDefinitionPane();
     pane.collapse();
     pane.expand( node );
     pane.select( node );
@@ -299,7 +299,7 @@ public final class DefinitionNameInjector {
     return getFileEditorTab().getPath();
   }
 
-  private EditorPane getEditorPane() {
+  private PlainTextEditor getEditorPane() {
     return getFileEditorTab().getEditorPane();
   }
 
@@ -311,7 +311,7 @@ public final class DefinitionNameInjector {
     return mTab;
   }
 
-  private DefinitionView getDefinitionPane() {
+  private DefinitionEditor getDefinitionPane() {
     return mDefinitionPane;
   }
 }

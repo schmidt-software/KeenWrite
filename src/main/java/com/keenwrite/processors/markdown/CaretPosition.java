@@ -97,6 +97,8 @@ public class CaretPosition {
    * Force using the builder pattern.
    */
   private CaretPosition( final Mutator mutator ) {
+    assert mutator != null;
+
     mMutator = mutator;
   }
 
@@ -134,6 +136,10 @@ public class CaretPosition {
    */
   public boolean isAfterColumn( final int offset ) {
     return getParaOffset() > offset;
+  }
+
+  public ObservableValue<Integer> textOffsetProperty() {
+    return mMutator.mTextOffset;
   }
 
   private int getParagraph() {
@@ -178,6 +184,8 @@ public class CaretPosition {
    */
   @Override
   public String toString() {
+
+
     return get( STATUS_BAR_LINE,
                 getParagraph(),
                 getParagraphCount(),

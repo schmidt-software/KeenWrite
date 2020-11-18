@@ -29,7 +29,7 @@ package com.keenwrite.editors.markdown;
 
 import com.keenwrite.dialogs.ImageDialog;
 import com.keenwrite.dialogs.LinkDialog;
-import com.keenwrite.editors.EditorPane;
+import com.keenwrite.editors.PlainTextEditor;
 import com.keenwrite.processors.markdown.MarkdownProcessor;
 import com.vladsch.flexmark.ast.Link;
 import javafx.scene.control.Dialog;
@@ -53,7 +53,7 @@ import static org.fxmisc.wellbehaved.event.EventPattern.keyPressed;
 /**
  * Provides the ability to edit a text document.
  */
-public class MarkdownEditorPane extends EditorPane {
+public class MarkdownEditorPane extends PlainTextEditor {
   private static final Pattern PATTERN_AUTO_INDENT = Pattern.compile(
       "(\\s*[*+-]\\s+|\\s*[0-9]+\\.\\s+|\\s+)(.*)" );
 

@@ -45,7 +45,8 @@ public class ProcessorContext {
   private final HtmlPreview mHtmlPreview;
   private final Map<String, String> mResolvedMap;
   private final ExportFormat mExportFormat;
-  private final FileEditorController mTab;
+  private final Path mPath;
+  private final CaretPosition mCaretPosition;
 
   /**
    * Creates a new context for use by the {@link ProcessorFactory} when
@@ -53,25 +54,54 @@ public class ProcessorContext {
    * parameters are required, not all {@link Processor} instances will use
    * all parameters.
    *
-   * @param htmlPreview Where to display the final (HTML) output.
-   * @param resolvedMap Fully expanded interpolated strings.
-   * @param tab         Tab containing path to the document to process.
-   * @param format      Indicate configuration options for export format.
+   * @param htmlPreview  Where to display the final (HTML) output.
+   * @param resolvedMap  Fully expanded interpolated strings.
+   * @param tab          Tab containing path to the document to process.
+   * @param exportFormat Indicate configuration options for export format.
+   * @deprecated Use {@link ProcessorContext} with {@link Path}.
    */
   public ProcessorContext(
       final HtmlPreview htmlPreview,
       final Map<String, String> resolvedMap,
       final FileEditorController tab,
-      final ExportFormat format ) {
+      final ExportFormat exportFormat ) {
+    this( htmlPreview,
+          resolvedMap,
+          tab.getPath(),
+          tab.getCaretPosition(),
+          exportFormat );
+  }
+
+  /**
+   * Creates a new context for use by the {@link ProcessorFactory} when
+   * instantiating new {@link Processor} instances. Although all the
+   * parameters are required, not all {@link Processor} instances will use
+   * all parameters.
+   *
+   * @param htmlPreview   Where to display the final (HTML) output.
+   * @param resolvedMap   Fully expanded interpolated strings.
+   * @param path          Path to the document to process.
+   * @param caretPosition Location of the caret in the edited document, which is
+   *                      used to synchronize the scrollbars.
+   * @param exportFormat  Indicate configuration options for export format.
+   */
+  public ProcessorContext(
+      final HtmlPreview htmlPreview,
+      final Map<String, String> resolvedMap,
+      final Path path,
+      final CaretPosition caretPosition,
+      final ExportFormat exportFormat ) {
     assert htmlPreview != null;
     assert resolvedMap != null;
-    assert tab != null;
-    assert format != null;
+    assert path != null;
+    assert caretPosition != null;
+    assert exportFormat != null;
 
     mHtmlPreview = htmlPreview;
     mResolvedMap = resolvedMap;
-    mTab = tab;
-    mExportFormat = format;
+    mPath = path;
+    mCaretPosition = caretPosition;
+    mExportFormat = exportFormat;
   }
 
   @SuppressWarnings("SameParameterValue")
@@ -103,7 +133,7 @@ public class ProcessorContext {
    * @return Caret position in the document.
    */
   public CaretPosition getCaretPosition() {
-    return mTab.getCaretPosition();
+    return mCaretPosition;
   }
 
   /**
@@ -116,7 +146,7 @@ public class ProcessorContext {
   }
 
   public Path getPath() {
-    return mTab.getPath();
+    return mPath;
   }
 
   FileType getFileType() {
