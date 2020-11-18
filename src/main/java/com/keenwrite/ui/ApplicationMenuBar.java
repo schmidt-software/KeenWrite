@@ -56,6 +56,7 @@ public class ApplicationMenuBar {
     putAction( "file.save", e -> mActions.file‿save() );
     putAction( "file.save_as", e -> mActions.file‿save_as() );
     putAction( "file.save_all", e -> mActions.file‿save_all() );
+    putAction( "file.export", e -> {} );
     putAction( "file.export.html_svg", e -> mActions.file‿export‿html_svg() );
     putAction( "file.export.html_tex", e -> mActions.file‿export‿html_tex() );
     putAction( "file.export.markdown", e -> mActions.file‿export‿markdown() );
@@ -92,6 +93,13 @@ public class ApplicationMenuBar {
     putAction( "help.about", e -> mActions.help‿about() );
     //@formatter:on
 
+    // Create File > Export submenu.
+    getAction("file.export").addSubActions(
+        getAction( "file.export.html_svg"),
+        getAction( "file.export.html_tex"),
+        getAction( "file.export.markdown")
+    );
+
     final var menuFile = ActionUtils.createMenu(
         get( "Main.menu.file" ),
         getAction( "file.new" ),
@@ -104,8 +112,7 @@ public class ApplicationMenuBar {
         getAction( "file.save_as" ),
         getAction( "file.save_all" ),
         SEPARATOR_ACTION,
-        // TODO: FIXME Export as HTML+SVG/HTML+TeX
-        //actions.get( "file.export" ),
+        getAction( "file.export" ),
         SEPARATOR_ACTION,
         getAction( "file.exit" )
     );

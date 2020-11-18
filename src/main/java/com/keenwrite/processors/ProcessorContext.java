@@ -28,7 +28,7 @@
 package com.keenwrite.processors;
 
 import com.keenwrite.ExportFormat;
-import com.keenwrite.FileEditorView;
+import com.keenwrite.FileEditorController;
 import com.keenwrite.FileType;
 import com.keenwrite.preview.HtmlPreview;
 import com.keenwrite.processors.markdown.CaretPosition;
@@ -45,7 +45,7 @@ public class ProcessorContext {
   private final HtmlPreview mHtmlPreview;
   private final Map<String, String> mResolvedMap;
   private final ExportFormat mExportFormat;
-  private final FileEditorView mTab;
+  private final FileEditorController mTab;
 
   /**
    * Creates a new context for use by the {@link ProcessorFactory} when
@@ -61,7 +61,7 @@ public class ProcessorContext {
   public ProcessorContext(
       final HtmlPreview htmlPreview,
       final Map<String, String> resolvedMap,
-      final FileEditorView tab,
+      final FileEditorController tab,
       final ExportFormat format ) {
     assert htmlPreview != null;
     assert resolvedMap != null;

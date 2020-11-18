@@ -38,6 +38,8 @@ import org.xhtmlrenderer.swing.FSMouseListener;
 import org.xhtmlrenderer.swing.HoverListener;
 import org.xhtmlrenderer.swing.LinkListener;
 
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.net.URI;
 
 import static com.keenwrite.StatusBarNotifier.clue;
@@ -69,6 +71,18 @@ public class HtmlPanel extends XHTMLPanel {
     @Override
     public void documentLoaded() {
       mReadyProperty.setValue( Boolean.TRUE );
+    }
+  }
+
+  /**
+   * Ensures that the preview panel fills its container's area completely.
+   */
+  private final class ComponentEventHandler extends ComponentAdapter {
+    /**
+     * Invoked when the component's size changes.
+     */
+    public void componentResized( final ComponentEvent e ) {
+      setPreferredSize( e.getComponent().getPreferredSize() );
     }
   }
 
@@ -106,6 +120,7 @@ public class HtmlPanel extends XHTMLPanel {
     addDocumentListener( new DocumentEventHandler() );
     removeMouseTrackingListeners();
     addMouseTrackingListener( new HyperlinkListener() );
+    addComponentListener( new ComponentEventHandler() );
   }
 
   /**

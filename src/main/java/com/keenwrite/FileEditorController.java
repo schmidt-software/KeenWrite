@@ -29,20 +29,13 @@ import com.keenwrite.editors.EditorPane;
 import com.keenwrite.editors.markdown.MarkdownEditorPane;
 import com.keenwrite.processors.Processor;
 import com.keenwrite.processors.markdown.CaretPosition;
-import com.panemu.tiwulfx.control.dock.DetachableTab;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.property.ReadOnlyBooleanWrapper;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
-import javafx.event.Event;
-import javafx.event.EventHandler;
-import javafx.event.EventType;
-import javafx.scene.Node;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Tooltip;
 import javafx.scene.text.Text;
 import javafx.stage.Window;
 import org.fxmisc.flowless.VirtualizedScrollPane;
@@ -61,12 +54,11 @@ import static com.keenwrite.StatusBarNotifier.clue;
 import static com.keenwrite.StatusBarNotifier.getNotifier;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Locale.ENGLISH;
-import static javafx.application.Platform.runLater;
 
 /**
  * Editor for a single file.
  */
-public final class FileEditorView extends Parent {
+public final class FileEditorController {
 
   private final MarkdownEditorPane mEditorPane = new MarkdownEditorPane();
 
@@ -89,8 +81,8 @@ public final class FileEditorView extends Parent {
    */
   private final CaretPosition mCaretPosition;
 
-  public FileEditorView( final Path path ) {
-    setPath( path );
+  public FileEditorController() {
+    //getChildren().add( mEditorPane.getScrollPane() );
 
     mModified.addListener( ( observable, oldPath, newPath ) -> updateTab() );
 
@@ -123,26 +115,6 @@ public final class FileEditorView extends Parent {
   private void updateTab() {
 //    setText( getTabTitle() );
 //    setGraphic( getModifiedMark() );
-//    setTooltip( getTabTooltip() );
-  }
-
-  /**
-   * Returns the base filename (without the directory names).
-   *
-   * @return The untitled text if the path hasn't been set.
-   */
-  private String getTabTitle() {
-    return getPath().getFileName().toString();
-  }
-
-  /**
-   * Returns the full filename represented by the path.
-   *
-   * @return The untitled text if the path hasn't been set.
-   */
-  private Tooltip getTabTooltip() {
-    final Path filePath = getPath();
-    return new Tooltip( filePath == null ? "" : filePath.toString() );
   }
 
   /**
@@ -171,9 +143,6 @@ public final class FileEditorView extends Parent {
 //    }
   }
 
-  private void initLayout() {
-    getChildren().add( getScrollPane() );
-  }
 
   /**
    * Tracks undo requests, but can only be called <em>after</em> load.
@@ -507,15 +476,5 @@ public final class FileEditorView extends Parent {
   private void setEncoding( final Charset encoding ) {
     assert encoding != null;
     mEncoding = encoding;
-  }
-
-  /**
-   * Returns the tab title, without any modified indicators.
-   *
-   * @return The tab title.
-   */
-  @Override
-  public String toString() {
-    return getTabTitle();
   }
 }

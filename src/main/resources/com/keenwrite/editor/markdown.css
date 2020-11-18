@@ -26,22 +26,22 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-.markdown-editor {
+.markdown {
   -fx-font-size: 11pt;
 }
 
 /* Subtly highlight the current paragraph. */
-.markdown-editor .paragraph-box:has-caret {
+.markdown .paragraph-box:has-caret {
   -fx-background-color: #fcfeff;
 }
 
 /* Light colour for selection highlight. */
-.markdown-editor .selection {
+.markdown .selection {
   -fx-fill: #a6d2ff;
 }
 
 /* Decoration for words not found in the lexicon. */
-.markdown-editor .spelling {
+.markdown .spelling {
   -rtfx-underline-color: rgba(255, 131, 67, .7);
   -rtfx-underline-dash-array: 4, 2;
   -rtfx-underline-width: 2;

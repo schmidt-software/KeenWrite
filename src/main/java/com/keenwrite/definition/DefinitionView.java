@@ -26,6 +26,7 @@
  */
 package com.keenwrite.definition;
 
+import com.keenwrite.TextResource;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
 import javafx.collections.ObservableList;
@@ -40,6 +41,8 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.util.StringConverter;
 
+import java.io.IOException;
+import java.net.URI;
 import java.util.*;
 
 import static com.keenwrite.Messages.get;
@@ -52,7 +55,7 @@ import static javafx.scene.input.KeyEvent.KEY_PRESSED;
  * allows users to interact with key/value pairs loaded from the
  * {@link DocumentParser} and adapted using a {@link TreeAdapter}.
  */
-public final class DefinitionView extends BorderPane {
+public final class DefinitionView extends BorderPane implements TextResource {
 
   /**
    * Contains a view of the definitions.
@@ -523,5 +526,15 @@ public final class DefinitionView extends BorderPane {
    */
   public boolean isEmpty() {
     return getTreeRoot().isEmpty();
+  }
+
+  @Override
+  public void setText( final String string ) {
+
+  }
+
+  @Override
+  public String getText() {
+    return "";
   }
 }

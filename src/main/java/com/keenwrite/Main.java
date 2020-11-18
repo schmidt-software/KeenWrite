@@ -27,6 +27,8 @@
 package com.keenwrite;
 
 import com.keenwrite.definition.DefinitionView;
+import com.keenwrite.editors.EditorPane;
+import com.keenwrite.editors.markdown.MarkdownEditor;
 import com.keenwrite.io.File;
 import com.keenwrite.io.MediaType;
 import com.keenwrite.preview.HtmlPreview;
@@ -39,6 +41,7 @@ import javafx.application.Application;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.SplitPane;
+import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
@@ -54,6 +57,7 @@ import static com.keenwrite.Constants.*;
 import static com.keenwrite.io.MediaType.*;
 import static com.keenwrite.preferences.UserPreferences.initPreferences;
 import static com.keenwrite.util.FontLoader.initFonts;
+import static javafx.application.Platform.runLater;
 import static javafx.scene.input.KeyCode.F11;
 import static javafx.scene.input.KeyEvent.KEY_PRESSED;
 
@@ -161,20 +165,22 @@ public final class Main extends Application {
     final var workspace = new Workspace( "default" );
     final var files = bin( workspace.restoreFiles() );
     MediaType cMediaType = UNDEFINED;
-    DetachableTabPane cTabPane = new DetachableTabPane();
+    DetachableTabPane cTabPane = createDetachableTabPane();
 
     for( final var file : files ) {
       if( !file.isMediaType( cMediaType ) ) {
-        cTabPane = new DetachableTabPane();
+        cTabPane = createDetachableTabPane();
         splitPane.getItems().add( cTabPane );
         cMediaType = file.getMediaType();
       }
 
       final var controller = createController( file );
-      cTabPane.addTab( controller.getFilename(), controller.getView() );
+      final var tab =
+          cTabPane.addTab( controller.getFilename(), controller.getView() );
+      tab.setTooltip( createTooltip( file ) );
     }
 
-    cTabPane = new DetachableTabPane();
+    cTabPane = createDetachableTabPane();
     cTabPane.addTab( "HTML", new HtmlPreview() );
     splitPane.getItems().add( cTabPane );
 
@@ -190,6 +196,33 @@ public final class Main extends Application {
     splitPane.setDividerPositions( positions );
 
     return splitPane;
+  }
+
+  /**
+   * Creates a preconfigured {@link DetachableTabPane} that handles focus
+   * requests by delegating to the selected tab's content.
+   *
+   * @return An instance of {@link DetachableTabPane} that will handle
+   * docking of tabs.
+   */
+  private DetachableTabPane createDetachableTabPane() {
+    final var pane = new DetachableTabPane();
+    final var model = pane.getSelectionModel();
+
+    // When the tab is clicked or selected using Ctrl+PgUp/Ctrl+PgDn, this
+    // ensures that the tab content retains focus.
+    model.selectedIndexProperty().addListener(
+        ( c, o, n ) -> runLater(
+            () -> model.getSelectedItem().getContent().requestFocus()
+        )
+    );
+
+    return pane;
+  }
+
+  private Tooltip createTooltip( final File file ) {
+    final var path = file.toPath();
+    return new Tooltip( path.toString() );
   }
 
   /**
@@ -246,14 +279,14 @@ public final class Main extends Application {
     return result;
   }
 
-  private FileController<? extends Node> createController( final File file ) {
+  private EditorController<? extends Node> createController( final File file ) {
     return switch( file.getMediaType() ) {
-      case TEXT_YAML -> new FileController<>(
+      case TEXT_YAML -> new EditorController<>(
           file.toPath(), new DefinitionView() );
-      case TEXT_MARKDOWN -> new FileController<>(
-          file.toPath(), new FileEditorView( file.toPath() ) );
-      default -> new FileController<>(
-          file.toPath(), new FileEditorView( file.toPath() ) );
+      case TEXT_MARKDOWN -> new EditorController<>(
+          file.toPath(), new MarkdownEditor() );
+      default -> new EditorController<>(
+          file.toPath(), new EditorPane() );
     };
   }
 

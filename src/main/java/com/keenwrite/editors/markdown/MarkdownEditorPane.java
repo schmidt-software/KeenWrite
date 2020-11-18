@@ -58,11 +58,7 @@ public class MarkdownEditorPane extends EditorPane {
       "(\\s*[*+-]\\s+|\\s*[0-9]+\\.\\s+|\\s+)(.*)" );
 
   public MarkdownEditorPane() {
-    initEditor();
-  }
-
-  private void initEditor() {
-    final StyleClassedTextArea textArea = getEditor();
+    final var textArea = getEditor();
 
     textArea.setWrapText( true );
     textArea.getStyleClass().add( "markdown-editor" );
@@ -270,6 +266,6 @@ public class MarkdownEditorPane extends EditorPane {
   }
 
   private Window getWindow() {
-    return getScrollPane().getScene().getWindow();
+    return getScene().getWindow();
   }
 }

@@ -24,39 +24,51 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.keenwrite;
+package com.keenwrite.editors.markdown;
 
-import javafx.scene.Node;
+import com.keenwrite.TextResource;
+import javafx.scene.layout.BorderPane;
+import org.fxmisc.flowless.VirtualizedScrollPane;
+import org.fxmisc.richtext.StyleClassedTextArea;
 
-import java.nio.file.Path;
+import static com.keenwrite.Constants.STYLESHEET_MARKDOWN;
+import static javafx.scene.control.ScrollPane.ScrollBarPolicy.ALWAYS;
 
 /**
- * Responsible for communications between the definition model (the source)
- * and the definition view (the on-screen hierarchical editor). A definition
- * editor edits a model and is decoupled from where the model's data is loaded.
+ * Responsible for editing Markdown documents.
  */
-public class FileController<View extends Node> {
-  private final Path mPath;
-  private final View mView;
+public class MarkdownEditor extends BorderPane implements TextResource {
+  private final StyleClassedTextArea mTextArea =
+      new StyleClassedTextArea( false );
+  private final VirtualizedScrollPane<StyleClassedTextArea> mScrollPane =
+      new VirtualizedScrollPane<>( mTextArea );
 
-  public FileController( final Path path, final View view ) {
-    assert path != null;
-    assert view != null;
+  public MarkdownEditor() {
+    mTextArea.setWrapText( true );
+    mTextArea.getStyleClass().add( "markdown" );
+    mTextArea.getStylesheets().add( STYLESHEET_MARKDOWN );
 
-    mPath = path;
-    mView = view;
+    mScrollPane.setVbarPolicy( ALWAYS );
+
+    setCenter( mScrollPane );
   }
 
-  protected String getFilename() {
-    final var filename = getPath().getFileName();
-    return filename == null ? "" : filename.toString();
+  /**
+   * Delegate the focus request to the text area itself.
+   */
+  @Override
+  public void requestFocus() {
+    mTextArea.requestFocus();
   }
 
-  protected Path getPath() {
-    return mPath;
+  @Override
+  public void setText( final String text ) {
+    mTextArea.clear();
+    mTextArea.appendText( text );
   }
 
-  protected View getView() {
-    return mView;
+  @Override
+  public String getText() {
+    return mTextArea.getText();
   }
 }

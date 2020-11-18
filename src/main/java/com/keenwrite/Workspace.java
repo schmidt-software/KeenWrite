@@ -30,12 +30,11 @@ import com.keenwrite.io.File;
 import com.keenwrite.service.Options;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
- * Responsible for defining behaviours for workspaces. A workspace has the
- * ability to save and restore a session, including the window dimensions,
+ * Responsible for defining behaviours for separate projects. A workspace has
+ * the ability to save and restore a session, including the window dimensions,
  * tab setup, files, and user preferences.
  */
 public class Workspace {
@@ -73,5 +72,13 @@ public class Workspace {
     }
 
     return files;
+  }
+
+  /**
+   * Updates the dictionary to include project-specific words.
+   *
+   * TODO: Implementation
+   */
+  public void restoreDictionary() {
   }
 }

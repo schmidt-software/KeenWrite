@@ -139,7 +139,7 @@ public class MainView implements Observer {
   /**
    * Prevents re-instantiation of processing classes.
    */
-  private final Map<FileEditorView, Processor<String>> mProcessors =
+  private final Map<FileEditorController, Processor<String>> mProcessors =
       new HashMap<>();
 
   private final Map<String, String> mResolvedMap =
@@ -317,7 +317,7 @@ public class MainView implements Observer {
               // Multiple tabs can be added simultaneously.
               for( final Tab newTab : change.getAddedSubList() ) {
                 // TODO: FIXME REFACTOR TABS
-                final FileEditorView tab = null;// (FileEditorView) newTab;
+                final FileEditorController tab = null;// (FileEditorView) newTab;
 
                 initScrollEventListener( tab );
                 initSpellCheckListener( tab );
@@ -346,7 +346,7 @@ public class MainView implements Observer {
           }
           else {
             // TODO: FIXME REFACTOR TABS
-            final FileEditorView tab = null;// (FileEditorView) newTab;
+            final FileEditorController tab = null;// (FileEditorView) newTab;
             updateVariableNameInjector( tab );
             process( tab );
           }
@@ -354,11 +354,11 @@ public class MainView implements Observer {
     );
   }
 
-  private void initTextChangeListener( final FileEditorView tab ) {
+  private void initTextChangeListener( final FileEditorController tab ) {
     tab.addTextChangeListener( ( __, ov, nv ) -> process( tab ) );
   }
 
-  private void initScrollEventListener( final FileEditorView tab ) {
+  private void initScrollEventListener( final FileEditorController tab ) {
     final var scrollPane = tab.getScrollPane();
     final var scrollBar = getHtmlPreview().getVerticalScrollBar();
 
@@ -378,7 +378,7 @@ public class MainView implements Observer {
    *
    * @param tab The tab to spellcheck.
    */
-  private void initSpellCheckListener( final FileEditorView tab ) {
+  private void initSpellCheckListener( final FileEditorController tab ) {
     final var editor = tab.getEditorPane().getEditor();
 
     // When the editor first appears, run a full spell check. This allows
@@ -455,7 +455,7 @@ public class MainView implements Observer {
     }
   }
 
-  private void updateVariableNameInjector( final FileEditorView tab ) {
+  private void updateVariableNameInjector( final FileEditorController tab ) {
     getDefinitionNameInjector().addListener( tab );
   }
 
@@ -465,7 +465,7 @@ public class MainView implements Observer {
    *
    * @param tab The active tab containing a caret position to show.
    */
-  private void updateCaretStatus( final FileEditorView tab ) {
+  private void updateCaretStatus( final FileEditorController tab ) {
     getLineNumberText().setText( tab.getCaretPosition().toString() );
   }
 
@@ -476,7 +476,7 @@ public class MainView implements Observer {
    *
    * @param tab The file editor tab that has been changed in some fashion.
    */
-  private void process( final FileEditorView tab ) {
+  private void process( final FileEditorController tab ) {
     if( tab != null ) {
       getHtmlPreview().setBaseUri( tab.getPath() );
 
@@ -600,7 +600,8 @@ public class MainView implements Observer {
   }
 
   private void fileClose() {
-    getFileEditorPane().closeEditor( getActiveFileEditorTab(), true );
+    // TODO: FIXME REFACTOR TABS
+//    getFileEditorPane().closeEditor( getActiveFileEditorTab(), true );
   }
 
   /**
@@ -612,7 +613,7 @@ public class MainView implements Observer {
   }
 
   private void fileSaveAs() {
-    final FileEditorView editor = getActiveFileEditorTab();
+    final FileEditorController editor = getActiveFileEditorTab();
     getFileEditorPane().saveEditorAs( editor );
     getProcessors().remove( editor );
 
@@ -736,19 +737,19 @@ public class MainView implements Observer {
    * @param tab The tab that is subjected to processing.
    * @return A processor suited to the file type specified by the tab's path.
    */
-  private Processor<String> createProcessors( final FileEditorView tab ) {
+  private Processor<String> createProcessors( final FileEditorController tab ) {
     final var context = createProcessorContext( tab );
     return ProcessorFactory.createProcessors( context );
   }
 
   private ProcessorContext createProcessorContext(
-      final FileEditorView tab, final ExportFormat format ) {
+      final FileEditorController tab, final ExportFormat format ) {
     final var preview = getHtmlPreview();
     final var map = getResolvedMap();
     return new ProcessorContext( preview, map, tab, format );
   }
 
-  private ProcessorContext createProcessorContext( final FileEditorView tab ) {
+  private ProcessorContext createProcessorContext( final FileEditorController tab ) {
     return createProcessorContext( tab, NONE );
   }
 
@@ -861,7 +862,7 @@ public class MainView implements Observer {
         .setIcon( FLOPPY_ALT )
         .setAction( e -> getActiveFileEditorTab().save() )
         .setDisabled( createActiveBooleanProperty(
-            FileEditorView::modifiedProperty ).not() )
+            FileEditorController::modifiedProperty ).not() )
         .build();
     final Action fileSaveAsAction = Action
         .builder()
@@ -915,7 +916,7 @@ public class MainView implements Observer {
         .setIcon( UNDO )
         .setAction( e -> getActiveEditorPane().undo() )
         .setDisabled( createActiveBooleanProperty(
-            FileEditorView::canUndoProperty ).not() )
+            FileEditorController::canUndoProperty ).not() )
         .build();
     final Action editRedoAction = Action
         .builder()
@@ -924,7 +925,7 @@ public class MainView implements Observer {
         .setIcon( REPEAT )
         .setAction( e -> getActiveEditorPane().redo() )
         .setDisabled( createActiveBooleanProperty(
-            FileEditorView::canRedoProperty ).not() )
+            FileEditorController::canRedoProperty ).not() )
         .build();
 
     final Action editCutAction = Action
@@ -1267,10 +1268,10 @@ public class MainView implements Observer {
    * active editor.
    */
   private BooleanProperty createActiveBooleanProperty(
-      final Function<FileEditorView, ObservableBooleanValue> func ) {
+      final Function<FileEditorController, ObservableBooleanValue> func ) {
 
     final BooleanProperty b = new SimpleBooleanProperty();
-    final FileEditorView tab = getActiveFileEditorTab();
+    final FileEditorController tab = getActiveFileEditorTab();
 
     if( tab != null ) {
       b.bind( func.apply( tab ) );
@@ -1310,7 +1311,7 @@ public class MainView implements Observer {
     return getActiveFileEditorTab().getEditorPane();
   }
 
-  private FileEditorView getActiveFileEditorTab() {
+  private FileEditorController getActiveFileEditorTab() {
     return getFileEditorPane().getActiveFileEditor();
   }
 
@@ -1324,7 +1325,7 @@ public class MainView implements Observer {
     return mSpellChecker;
   }
 
-  private Map<FileEditorView, Processor<String>> getProcessors() {
+  private Map<FileEditorController, Processor<String>> getProcessors() {
     return mProcessors;
   }
 

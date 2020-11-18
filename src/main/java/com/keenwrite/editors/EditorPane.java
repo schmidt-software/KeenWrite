@@ -27,6 +27,7 @@
  */
 package com.keenwrite.editors;
 
+import com.keenwrite.TextResource;
 import com.keenwrite.preferences.UserPreferences;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
@@ -34,7 +35,6 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.event.Event;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.layout.Pane;
 import org.fxmisc.flowless.VirtualizedScrollPane;
 import org.fxmisc.richtext.StyleClassedTextArea;
 import org.fxmisc.undo.UndoManager;
@@ -52,20 +52,19 @@ import static org.fxmisc.wellbehaved.event.InputMap.consume;
 /**
  * Represents common editing features for various types of text editors.
  */
-public class EditorPane extends Pane {
+public class EditorPane extends StyleClassedTextArea implements TextResource {
 
   /**
    * Used when changing the text area font size.
    */
   private static final String FMT_CSS_FONT_SIZE = "-fx-font-size: %dpt;";
 
-  private final StyleClassedTextArea mEditor =
-      new StyleClassedTextArea( false );
   private final VirtualizedScrollPane<StyleClassedTextArea> mScrollPane =
-      new VirtualizedScrollPane<>( mEditor );
+      new VirtualizedScrollPane<>( this );
   private final ObjectProperty<Path> mPath = new SimpleObjectProperty<>();
 
   public EditorPane() {
+    super( false );
     getScrollPane().setVbarPolicy( ScrollPane.ScrollBarPolicy.ALWAYS );
     fontsSizeProperty().addListener(
         ( l, o, n ) -> setFontSize( n.intValue() )
@@ -74,7 +73,7 @@ public class EditorPane extends Pane {
     // Clear out any previous alerts after the user has typed. If the problem
     // persists, re-rendering the document will re-raise the error. If there
     // was no previous error, clearing the alert is essentially a no-op.
-    mEditor.textProperty().addListener(
+    textProperty().addListener(
         ( l, o, n ) -> clearClue()
     );
   }
@@ -86,8 +85,8 @@ public class EditorPane extends Pane {
 
   /**
    * There's a race-condition between displaying the {@link EditorPane}
-   * and giving the {@link #mEditor} focus. Try to focus up to {@code max}
-   * times before giving up.
+   * and giving the editor focus. Try to focus up to {@code max} times before
+   * giving up.
    *
    * @param max The number of attempts to try to request focus.
    */
@@ -145,15 +144,17 @@ public class EditorPane extends Pane {
     return getEditor().getUndoManager();
   }
 
-  public String getText() {
-    return getEditor().getText();
-  }
-
+  @Override
   public void setText( final String text ) {
     final var editor = getEditor();
     editor.deselect();
     editor.replaceText( text );
     getUndoManager().mark();
+  }
+
+  @Override
+  public String getText() {
+    return getEditor().getText();
   }
 
   /**
@@ -199,7 +200,7 @@ public class EditorPane extends Pane {
   }
 
   public StyleClassedTextArea getEditor() {
-    return mEditor;
+    return this;
   }
 
   /**
@@ -215,17 +216,13 @@ public class EditorPane extends Pane {
     return mPath.get();
   }
 
-  public void setPath( final Path path ) {
-    mPath.set( path );
-  }
-
   /**
    * Sets the font size in points.
    *
    * @param size The new font size to use for the text editor.
    */
   private void setFontSize( final int size ) {
-    mEditor.setStyle( format( FMT_CSS_FONT_SIZE, size ) );
+    setStyle( format( FMT_CSS_FONT_SIZE, size ) );
   }
 
   /**

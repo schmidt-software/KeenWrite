@@ -27,7 +27,7 @@
  */
 package com.keenwrite.editors;
 
-import com.keenwrite.FileEditorView;
+import com.keenwrite.FileEditorController;
 import com.keenwrite.definition.DefinitionView;
 import com.keenwrite.definition.DefinitionTreeItem;
 import com.keenwrite.sigils.SigilOperator;
@@ -53,7 +53,7 @@ public final class DefinitionNameInjector {
   /**
    * Recipient of name injections.
    */
-  private FileEditorView mTab;
+  private FileEditorController mTab;
 
   /**
    * Initiates double-click events.
@@ -74,7 +74,7 @@ public final class DefinitionNameInjector {
    *
    * @param tab Editor where variable names get injected.
    */
-  public void addListener( final FileEditorView tab ) {
+  public void addListener( final FileEditorController tab ) {
     assert tab != null;
     mTab = tab;
 
@@ -307,7 +307,7 @@ public final class DefinitionNameInjector {
     return getEditorPane().getEditor();
   }
 
-  public FileEditorView getFileEditorTab() {
+  public FileEditorController getFileEditorTab() {
     return mTab;
   }
 
