@@ -29,6 +29,7 @@ package com.keenwrite.processors.markdown;
 
 import com.keenwrite.util.GenericBuilder;
 import javafx.beans.value.ObservableValue;
+import org.fxmisc.richtext.StyleClassedTextArea;
 import org.fxmisc.richtext.model.Paragraph;
 import org.reactfx.collection.LiveList;
 
@@ -72,22 +73,16 @@ public class CaretPosition {
      */
     private ObservableValue<Integer> mParaOffset;
 
-    public void setParagraph( final ObservableValue<Integer> paragraph ) {
-      mParagraph = paragraph;
-    }
-
-    public void setParagraphs(
-        final LiveList<Paragraph<Collection<String>, String,
-            Collection<String>>> paragraphs ) {
-      mParagraphs = paragraphs;
-    }
-
-    public void setTextOffset( final ObservableValue<Integer> textOffset ) {
-      mTextOffset = textOffset;
-    }
-
-    public void setParaOffset( final ObservableValue<Integer> paraOffset ) {
-      mParaOffset = paraOffset;
+    /**
+     * Configures this caret position using properties from the given editor.
+     *
+     * @param editor The text editor that has a caret with position properties.
+     */
+    public void setEditor( final StyleClassedTextArea editor ) {
+      mParagraph = editor.currentParagraphProperty();
+      mParagraphs = editor.getParagraphs();
+      mParaOffset = editor.caretColumnProperty();
+      mTextOffset = editor.caretPositionProperty();
     }
   }
 
@@ -184,8 +179,6 @@ public class CaretPosition {
    */
   @Override
   public String toString() {
-
-
     return get( STATUS_BAR_LINE,
                 getParagraph(),
                 getParagraphCount(),

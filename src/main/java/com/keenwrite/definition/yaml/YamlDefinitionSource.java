@@ -1,5 +1,4 @@
-/*
- * Copyright 2020 White Magic Software, Ltd.
+/* Copyright 2020 White Magic Software, Ltd.
  *
  * All rights reserved.
  *
@@ -34,6 +33,8 @@ import java.nio.file.Path;
 
 /**
  * Represents a definition data source for YAML files.
+ *
+ * @deprecated Use a {@link TreeAdapter} instead, directly.
  */
 public class YamlDefinitionSource implements DefinitionSource {
 
@@ -47,7 +48,7 @@ public class YamlDefinitionSource implements DefinitionSource {
   public YamlDefinitionSource( final Path path ) {
     assert path != null;
 
-    mYamlTreeAdapter = new YamlTreeAdapter( path );
+    mYamlTreeAdapter = new YamlTreeAdapter();
   }
 
   @Override

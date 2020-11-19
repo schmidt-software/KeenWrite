@@ -37,7 +37,6 @@ import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.ListChangeListener;
-import javafx.event.Event;
 import javafx.scene.control.Tab;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
@@ -512,8 +511,8 @@ public final class FileEditorTabPane extends DetachableTabPane {
     fileChooser.getExtensionFilters().addAll(
         createExtensionFilters() );
 
-    final String lastDirectory = getPreferences().get( "lastDirectory", null );
-    File file = new File( (lastDirectory != null) ? lastDirectory : "." );
+    final var lastDirectory = getPreferences().get( "lastDirectory", null );
+    var file = new File( (lastDirectory != null) ? lastDirectory : "." );
 
     if( !file.isDirectory() ) {
       file = new File( "." );
@@ -622,7 +621,7 @@ public final class FileEditorTabPane extends DetachableTabPane {
   }
 
   private Settings getSettings() {
-    return SETTINGS;
+    return sSettings;
   }
 
   private Window getWindow() {

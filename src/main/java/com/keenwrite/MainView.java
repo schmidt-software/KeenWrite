@@ -27,6 +27,7 @@
 package com.keenwrite;
 
 import com.keenwrite.definition.DefinitionEditor;
+import com.keenwrite.definition.yaml.YamlTreeAdapter;
 import com.keenwrite.editors.PlainTextEditor;
 import com.keenwrite.editors.markdown.MarkdownEditor;
 import com.keenwrite.io.File;
@@ -61,36 +62,53 @@ public class MainView extends SplitPane {
   private final Map<Node, Processor<String>> mProcessors =
       new HashMap<>();
 
-  private final HtmlPreview mHtmlPreview = new HtmlPreview();
+  /**
+   * Groups similar file type tabs together.
+   */
+  private final Map<MediaType, DetachableTabPane> mTabPanes = new HashMap<>();
+
+  /**
+   * Stores definition names and values.
+   */
   private final Map<String, String> mResolvedMap =
       new HashMap<>( DEFAULT_MAP_SIZE );
+
+  /**
+   * Renders the actively selected plain text editor tab.
+   */
+  private final HtmlPreview mHtmlPreview = new HtmlPreview();
 
   public MainView() {
     initLayout();
   }
 
-  public void initLayout() {
-    final var workspace = new Workspace( "default" );
-    final var files = bin( workspace.restoreFiles() );
-    MediaType cMediaType = UNDEFINED;
-    DetachableTabPane cTabPane = createDetachableTabPane();
-
+  /**
+   * Opens all the files into the application, provided the paths are unique.
+   *
+   * @param files The list of files to open.
+   */
+  public void open( final List<File> files ) {
     for( final var file : files ) {
-      if( !file.isMediaType( cMediaType ) ) {
-        cTabPane = createDetachableTabPane();
-        getItems().add( cTabPane );
-        cMediaType = file.getMediaType();
-      }
-
       final var controller = createController( file );
+      final var mediaType = file.getMediaType();
+      final var tabPane = obtainDetachableTabPane( mediaType );
       final var tab =
-          cTabPane.addTab( controller.getFilename(), controller.getView() );
+          tabPane.addTab( controller.getFilename(), controller.getView() );
       tab.setTooltip( createTooltip( file ) );
     }
+  }
 
-    cTabPane = createDetachableTabPane();
+  /**
+   * Adds all content panels to the main user interface. This will load the
+   * configuration settings from the workspace to reproduce the settings from
+   * a previous session.
+   */
+  private void initLayout() {
+    final var workspace = new Workspace( "default" );
+    open( bin( workspace.restoreFiles() ) );
+
+    final var cTabPane = obtainDetachableTabPane( TEXT_HTML );
     cTabPane.addTab( "HTML", mHtmlPreview );
-    getItems().add( cTabPane );
 
     final var items = getItems();
     final var ratio = 100f / items.size() / 100;
@@ -170,29 +188,41 @@ public class MainView extends SplitPane {
   }
 
   /**
-   * Creates a preconfigured {@link DetachableTabPane} that handles focus
-   * requests by delegating to the selected tab's content.
+   * Lazily creates a {@link DetachableTabPane} configured to handle focus
+   * requests by delegating to the selected tab's content. The tab pane is
+   * associated with a given media type so that similar files can be grouped
+   * together.
    *
+   * @param mediaType The media type to associate with the tab pane.
    * @return An instance of {@link DetachableTabPane} that will handle
    * docking of tabs.
    */
-  private DetachableTabPane createDetachableTabPane() {
-    final var pane = new DetachableTabPane();
-    final var model = pane.getSelectionModel();
+  private DetachableTabPane obtainDetachableTabPane(
+      final MediaType mediaType ) {
+    var tabPane = mTabPanes.get( mediaType );
 
-    // When a tab is clicked or selected using Ctrl+PgUp/Ctrl+PgDn, this
-    // ensures that the tab content retains focus.
-    model.selectedIndexProperty().addListener(
-        ( c, o, n ) -> runLater(
-            () -> {
-              final var node = model.getSelectedItem().getContent();
-              node.requestFocus();
-              refresh( node );
-            }
-        )
-    );
+    if( tabPane == null ) {
+      tabPane = new DetachableTabPane();
+      mTabPanes.put( mediaType, tabPane );
 
-    return pane;
+      final var model = tabPane.getSelectionModel();
+
+      // When a tab is clicked or selected using Ctrl+PgUp/Ctrl+PgDn, this
+      // ensures that the tab content retains focus.
+      model.selectedIndexProperty().addListener(
+          ( c, o, n ) -> runLater(
+              () -> {
+                final var node = model.getSelectedItem().getContent();
+                node.requestFocus();
+                refresh( node );
+              }
+          )
+      );
+
+      getItems().add( tabPane );
+    }
+
+    return tabPane;
   }
 
   @SuppressWarnings({"unchecked", "RedundantSuppression"})
@@ -228,7 +258,7 @@ public class MainView extends SplitPane {
   private <V extends Node & TextResource> V createView(
       final MediaType mediaType ) {
     return (V) switch( mediaType ) {
-      case TEXT_YAML -> new DefinitionEditor();
+      case TEXT_YAML -> new DefinitionEditor( new YamlTreeAdapter() );
       case TEXT_MARKDOWN -> new MarkdownEditor();
       default -> new PlainTextEditor();
     };

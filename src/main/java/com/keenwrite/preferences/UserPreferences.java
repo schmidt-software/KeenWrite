@@ -123,7 +123,7 @@ public class UserPreferences {
    */
   @SuppressWarnings("SameParameterValue")
   private String getSetting( final String key, final String value ) {
-    return SETTINGS.getSetting( key, value );
+    return sSettings.getSetting( key, value );
   }
 
   public ObjectProperty<File> definitionPathProperty() {

@@ -161,17 +161,9 @@ public class PlainTextEditor extends StyleClassedTextArea
 
   @Override
   public CaretPosition createCaretPosition() {
-    final var propParaIndex = currentParagraphProperty();
-    final var propParagraphs = getParagraphs();
-    final var propParaOffset = caretColumnProperty();
-    final var propTextOffset = caretPositionProperty();
-
     return CaretPosition
         .builder()
-        .with( CaretPosition.Mutator::setParagraph, propParaIndex )
-        .with( CaretPosition.Mutator::setParagraphs, propParagraphs )
-        .with( CaretPosition.Mutator::setParaOffset, propParaOffset )
-        .with( CaretPosition.Mutator::setTextOffset, propTextOffset )
+        .with( CaretPosition.Mutator::setEditor, this )
         .build();
   }
 

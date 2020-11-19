@@ -1,5 +1,4 @@
-/*
- * Copyright 2020 White Magic Software, Ltd.
+/* Copyright 2020 White Magic Software, Ltd.
  *
  * All rights reserved.
  *
@@ -40,5 +39,5 @@ public interface DocumentParser<T> {
    *
    * @return The document's root node, which may be empty but never null.
    */
-  T getDocumentRoot();
+  T parse( String document );
 }

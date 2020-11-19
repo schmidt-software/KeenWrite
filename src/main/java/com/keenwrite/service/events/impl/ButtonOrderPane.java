@@ -31,7 +31,7 @@ import javafx.scene.Node;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.DialogPane;
 
-import static com.keenwrite.Constants.SETTINGS;
+import static com.keenwrite.Constants.sSettings;
 import static javafx.scene.control.ButtonBar.BUTTON_ORDER_WINDOWS;
 
 /**
@@ -54,6 +54,6 @@ public class ButtonOrderPane extends DialogPane {
 
   @SuppressWarnings("SameParameterValue")
   private String getSetting( final String key, final String defaultValue ) {
-    return SETTINGS.getSetting( key, defaultValue );
+    return sSettings.getSetting( key, defaultValue );
   }
 }

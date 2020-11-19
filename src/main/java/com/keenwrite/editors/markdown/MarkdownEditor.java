@@ -88,17 +88,7 @@ public class MarkdownEditor extends BorderPane implements TextResource {
 
   @Override
   public CaretPosition createCaretPosition() {
-    final var propParaIndex = mTextArea.currentParagraphProperty();
-    final var propParagraphs = mTextArea.getParagraphs();
-    final var propParaOffset = mTextArea.caretColumnProperty();
-    final var propTextOffset = mTextArea.caretPositionProperty();
-
     return CaretPosition
-        .builder()
-        .with( CaretPosition.Mutator::setParagraph, propParaIndex )
-        .with( CaretPosition.Mutator::setParagraphs, propParagraphs )
-        .with( CaretPosition.Mutator::setParaOffset, propParaOffset )
-        .with( CaretPosition.Mutator::setTextOffset, propTextOffset )
-        .build();
+        .builder().with( CaretPosition.Mutator::setEditor, mTextArea ).build();
   }
 }

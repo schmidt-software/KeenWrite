@@ -1,5 +1,4 @@
-/*
- * Copyright 2020 White Magic Software, Ltd.
+/* Copyright 2020 White Magic Software, Ltd.
  *
  * All rights reserved.
  *
@@ -30,9 +29,9 @@ package com.keenwrite.definition.yaml;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
+import com.keenwrite.definition.DefinitionTreeItem;
 import com.keenwrite.definition.RootTreeItem;
 import com.keenwrite.definition.TreeAdapter;
-import com.keenwrite.definition.DefinitionTreeItem;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 
@@ -45,16 +44,12 @@ import java.util.Map.Entry;
  * interface and vice-versa.
  */
 public class YamlTreeAdapter implements TreeAdapter {
-  private final YamlParser mParser;
 
   /**
    * Constructs a new instance that will use the given path to read
    * the object hierarchy from a data source.
-   *
-   * @param path Path to YAML contents to parse.
    */
-  public YamlTreeAdapter( final Path path ) {
-    mParser = new YamlParser( path );
+  public YamlTreeAdapter() {
   }
 
   @Override
@@ -91,7 +86,7 @@ public class YamlTreeAdapter implements TreeAdapter {
       node = node.putObject( item.getValue() );
     }
 
-    for( final TreeItem<String> child : children ) {
+    for( final var child : children ) {
       if( child.isLeaf() ) {
         node.put( item.getValue(), child.getValue() );
       }
@@ -109,9 +104,11 @@ public class YamlTreeAdapter implements TreeAdapter {
    * @return A {@link TreeItem} populated with all the keys in the YAML
    * document.
    */
-  public TreeItem<String> adapt( final String root ) {
-    final JsonNode rootNode = getYamlParser().getDocumentRoot();
-    final TreeItem<String> rootItem = createRootTreeItem( root );
+  @Override
+  public TreeItem<String> adapt( final String root, final String document ) {
+    final var parser = new YamlParser();
+    final var rootNode = parser.parse( document );
+    final var rootItem = createRootTreeItem( root );
 
     rootItem.setExpanded( true );
     adapt( rootNode, rootItem );
@@ -177,9 +174,5 @@ public class YamlTreeAdapter implements TreeAdapter {
    */
   private TreeItem<String> createRootTreeItem( final String value ) {
     return new RootTreeItem<>( value );
-  }
-
-  public YamlParser getYamlParser() {
-    return mParser;
   }
 }

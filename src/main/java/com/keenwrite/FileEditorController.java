@@ -98,18 +98,8 @@ public final class FileEditorController {
 
   private CaretPosition createCaretPosition(
       final StyleClassedTextArea editor ) {
-    final var propParaIndex = editor.currentParagraphProperty();
-    final var propParagraphs = editor.getParagraphs();
-    final var propParaOffset = editor.caretColumnProperty();
-    final var propTextOffset = editor.caretPositionProperty();
-
     return CaretPosition
-        .builder()
-        .with( CaretPosition.Mutator::setParagraph, propParaIndex )
-        .with( CaretPosition.Mutator::setParagraphs, propParagraphs )
-        .with( CaretPosition.Mutator::setParaOffset, propParaOffset )
-        .with( CaretPosition.Mutator::setTextOffset, propTextOffset )
-        .build();
+        .builder().with( CaretPosition.Mutator::setEditor, editor ).build();
   }
 
   private void updateTab() {

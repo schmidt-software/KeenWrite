@@ -517,7 +517,7 @@ public class MainWindow implements Observer {
       tooltipPath.setShowDelay( Duration.millis( 200 ) );
 
       final var pane = getDefinitionPane();
-      pane.update( ds );
+      //pane.update( ds );
       pane.addTreeChangeHandler( mTreeHandler );
       pane.addKeyEventHandler( mDefinitionKeyHandler );
 
@@ -755,7 +755,7 @@ public class MainWindow implements Observer {
   }
 
   private DefinitionEditor createDefinitionPane() {
-    return new DefinitionEditor();
+    return null;//new DefinitionEditor();
   }
 
   private OutputTabPane createOutputTabPane() {

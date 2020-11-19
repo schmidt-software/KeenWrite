@@ -27,15 +27,12 @@
 package com.keenwrite.definition;
 
 import com.keenwrite.TextResource;
-import com.keenwrite.processors.markdown.CaretPosition;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.event.EventHandler;
-import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
@@ -47,6 +44,7 @@ import java.util.*;
 import static com.keenwrite.Messages.get;
 import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.*;
 import static javafx.geometry.Pos.CENTER;
+import static javafx.geometry.Pos.TOP_CENTER;
 import static javafx.scene.input.KeyEvent.KEY_PRESSED;
 
 /**
@@ -62,6 +60,11 @@ public final class DefinitionEditor extends BorderPane implements TextResource {
   private final TreeView<String> mTreeView = new TreeView<>();
 
   /**
+   * Used to adapt the structured document into a {@link TreeView}.
+   */
+  private final TreeAdapter mTreeAdapter;
+
+  /**
    * Handlers for key press events.
    */
   private final Set<EventHandler<? super KeyEvent>> mKeyEventHandlers
@@ -70,7 +73,9 @@ public final class DefinitionEditor extends BorderPane implements TextResource {
   /**
    * Constructs a definition pane with a given tree view root.
    */
-  public DefinitionEditor() {
+  public DefinitionEditor( final TreeAdapter treeAdapter ) {
+    mTreeAdapter = treeAdapter;
+
     final var treeView = getTreeView();
     treeView.setEditable( true );
     treeView.setCellFactory( cell -> createTreeCell() );
@@ -93,9 +98,21 @@ public final class DefinitionEditor extends BorderPane implements TextResource {
 
     setTop( buttonBar );
     setCenter( treeView );
-    setAlignment( buttonBar, Pos.TOP_CENTER );
+    setAlignment( buttonBar, TOP_CENTER );
+  }
 
-    treeView.prefHeightProperty().bind( this.heightProperty() );
+  @Override
+  public void setText( final String document ) {
+    final TreeItem<String> root = mTreeAdapter.adapt(
+        get( "Pane.definition.node.root.title" ), document
+    );
+
+    getTreeView().setRoot( root );
+  }
+
+  @Override
+  public String getText() {
+    return "";
   }
 
   private Button createButton(
@@ -112,24 +129,6 @@ public final class DefinitionEditor extends BorderPane implements TextResource {
     button.setTooltip( new Tooltip( get( keyPrefix + ".tooltip" ) ) );
 
     return button;
-  }
-
-  /**
-   * Changes the root of the {@link TreeView} to the root of the
-   * {@link TreeView} from the {@link DefinitionSource}.
-   *
-   * @param definitionSource Container for the hierarchy of key/value pairs
-   *                         to replace the existing hierarchy.
-   */
-  public void update( final DefinitionSource definitionSource ) {
-    assert definitionSource != null;
-
-    final TreeAdapter treeAdapter = definitionSource.getTreeAdapter();
-    final TreeItem<String> root = treeAdapter.adapt(
-        get( "Pane.definition.node.root.title" )
-    );
-
-    getTreeView().setRoot( root );
   }
 
   public Map<String, String> toMap() {
@@ -465,15 +464,6 @@ public final class DefinitionEditor extends BorderPane implements TextResource {
   }
 
   /**
-   * Returns this pane.
-   *
-   * @return this
-   */
-  public Node getNode() {
-    return this;
-  }
-
-  /**
    * Returns the root of the tree.
    *
    * @return The first node added to the definition tree.
@@ -525,23 +515,5 @@ public final class DefinitionEditor extends BorderPane implements TextResource {
    */
   public boolean isEmpty() {
     return getTreeRoot().isEmpty();
-  }
-
-  @Override
-  public void setText( final String string ) {
-
-  }
-
-  @Override
-  public String getText() {
-    return "";
-  }
-
-  /**
-   * @throws UnsupportedOperationException There is no caret position here.
-   */
-  @Override
-  public CaretPosition createCaretPosition() {
-    throw new UnsupportedOperationException();
   }
 }

@@ -30,7 +30,7 @@ package com.keenwrite;
 import java.nio.file.Path;
 
 import static com.keenwrite.Constants.GLOB_PREFIX_FILE;
-import static com.keenwrite.Constants.SETTINGS;
+import static com.keenwrite.Constants.sSettings;
 import static com.keenwrite.FileType.UNKNOWN;
 import static com.keenwrite.predicates.PredicateFactory.createFileTypePredicate;
 
@@ -64,14 +64,14 @@ public abstract class AbstractFileFactory {
     assert path != null;
     assert prefix != null;
 
-    final var keys = SETTINGS.getKeys( prefix );
+    final var keys = sSettings.getKeys( prefix );
 
     var found = false;
     var fileType = UNKNOWN;
 
     while( keys.hasNext() && !found ) {
       final var key = keys.next();
-      final var patterns = SETTINGS.getStringSettingList( key );
+      final var patterns = sSettings.getStringSettingList( key );
       final var predicate = createFileTypePredicate( patterns );
 
       if( found = predicate.test( path.toFile() ) ) {

@@ -1,5 +1,4 @@
-/*
- * Copyright 2020 White Magic Software, Ltd.
+/* Copyright 2020 White Magic Software, Ltd.
  *
  * All rights reserved.
  *
@@ -41,11 +40,12 @@ public interface TreeAdapter {
    * Adapts the document produced by the given parser into a {@link TreeItem}
    * object that can be presented to the user within a GUI.
    *
-   * @param root The default root node name.
+   * @param root     The default root node name.
+   * @param document The document to adapt.
    * @return The parsed document in a {@link TreeItem} that can be displayed
    * in a panel.
    */
-  TreeItem<String> adapt( String root );
+  TreeItem<String> adapt( String root, String document );
 
   /**
    * Exports the given root node to the given path.

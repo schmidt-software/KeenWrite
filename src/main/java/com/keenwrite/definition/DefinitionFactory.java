@@ -29,13 +29,11 @@ package com.keenwrite.definition;
 
 import com.keenwrite.AbstractFileFactory;
 import com.keenwrite.FileType;
-import com.keenwrite.definition.yaml.YamlDefinitionSource;
 import com.keenwrite.util.ProtocolScheme;
 
 import java.nio.file.Path;
 
 import static com.keenwrite.Constants.GLOB_PREFIX_DEFINITION;
-import static com.keenwrite.FileType.YAML;
 import static com.keenwrite.util.ProtocolResolver.getProtocol;
 import static java.lang.String.format;
 
@@ -93,10 +91,6 @@ public class DefinitionFactory extends AbstractFileFactory {
       final FileType filetype, final Path path ) {
     assert filetype != null;
     assert path != null;
-
-    if( filetype == YAML ) {
-      return new YamlDefinitionSource( path );
-    }
 
     throw new IllegalArgumentException( filetype.toString() );
   }

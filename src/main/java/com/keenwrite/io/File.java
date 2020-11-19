@@ -43,6 +43,16 @@ public class File extends java.io.File {
   }
 
   /**
+   * Constructs a new instance based on an existing {@link java.io.File}
+   * instance.
+   *
+   * @param file The absolute path from this object is used for construction.
+   */
+  public File( final java.io.File file ) {
+    this( file.getAbsolutePath() );
+  }
+
+  /**
    * Returns the {@link MediaType} associated with this file.
    *
    * @return {@link MediaType#UNDEFINED} if the extension has not been

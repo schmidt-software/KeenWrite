@@ -39,9 +39,10 @@ public interface TextResource {
    * this will return a default implementation whose behaviour is undefined.
    *
    * @return An instance of {@link CaretPosition} that reflects the position
-   * of the caret in the document being edited, or a default implementation if
-   * the document has no caret.
-   * @throws UnsupportedOperationException There is no associated caret.
+   * of the caret in the document being edited, or {@code null} if the document
+   * has no caret.
    */
-  CaretPosition createCaretPosition() throws UnsupportedOperationException;
+  default CaretPosition createCaretPosition() {
+    return null;
+  }
 }

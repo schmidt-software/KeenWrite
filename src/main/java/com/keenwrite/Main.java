@@ -28,6 +28,7 @@ package com.keenwrite;
 
 import com.keenwrite.service.Options;
 import com.keenwrite.service.Snitch;
+import com.keenwrite.ui.ApplicationActions;
 import com.keenwrite.ui.ApplicationMenuBar;
 import com.keenwrite.util.StageState;
 import javafx.application.Application;
@@ -128,18 +129,22 @@ public final class Main extends Application {
   }
 
   private void initScene( final Stage stage ) {
-    final var applicationView = new BorderPane();
+    final var appPane = new BorderPane();
+    final var mainView = createMainView();
+    final var actions = new ApplicationActions( mainView );
+    final var menuBar = createMenuBar( actions );
+    final var statusBar = getStatusBar();
 
-    applicationView.setTop( createMenuBar() );
-    applicationView.setCenter( createMainView() );
-    applicationView.setBottom( getStatusBar() );
+    appPane.setTop( menuBar );
+    appPane.setCenter( mainView );
+    appPane.setBottom( statusBar );
 
-    final var scene = new Scene( applicationView );
+    final var scene = new Scene( appPane );
     stage.setScene( scene );
   }
 
-  private Node createMenuBar() {
-    final var menuBar = new ApplicationMenuBar();
+  private Node createMenuBar( final ApplicationActions actions ) {
+    final var menuBar = new ApplicationMenuBar( actions );
     return menuBar.createMenuBar();
   }
 

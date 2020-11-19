@@ -42,13 +42,14 @@ public class ApplicationMenuBar {
 
   private static final Action SEPARATOR_ACTION = new SeparatorAction();
 
-  private final ApplicationAction mActions = new ApplicationAction();
+  private final ApplicationActions mActions;
   private final Map<String, Action> mMap = new HashMap<>( 64 );
 
   /**
    * Empty constructor.
    */
-  public ApplicationMenuBar() {
+  public ApplicationMenuBar( final ApplicationActions actions ) {
+    mActions = actions;
   }
 
   /**

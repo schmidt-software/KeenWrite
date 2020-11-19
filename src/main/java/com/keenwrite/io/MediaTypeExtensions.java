@@ -9,10 +9,6 @@ import static java.util.Set.of;
  * Responsible for associating file extensions with {@link MediaType} instances.
  */
 enum MediaTypeExtensions {
-  MEDIA_TEXT_MARKDOWN( TEXT_MARKDOWN, of(
-      "md", "markdown", "mdown", "mdtxt", "mdtext", "mdwn", "mkd", "mkdown",
-      "mkdn", "text", "txt" ) ),
-  MEDIA_TEXT_YAML( TEXT_YAML, of( "yaml", "yml" ) ),
   MEDIA_IMAGE_APNG( IMAGE_APNG, of( "apng" ) ),
   MEDIA_IMAGE_BMP( IMAGE_BMP, of( "bmp" ) ),
   MEDIA_IMAGE_GIF( IMAGE_GIF, of( "gif" ) ),
@@ -21,7 +17,12 @@ enum MediaTypeExtensions {
   MEDIA_IMAGE_PNG( IMAGE_PNG, of( "png" ) ),
   MEDIA_IMAGE_SVG( IMAGE_SVG_XML, of( "svg" ) ),
   MEDIA_IMAGE_TIFF( IMAGE_TIFF, of( "tif", "tiff" ) ),
-  MEDIA_IMAGE_WEBP( IMAGE_WEBP, of( "webp" ) );
+  MEDIA_IMAGE_WEBP( IMAGE_WEBP, of( "webp" ) ),
+
+  MEDIA_TEXT_MARKDOWN( TEXT_MARKDOWN, of(
+      "md", "markdown", "mdown", "mdtxt", "mdtext", "mdwn", "mkd", "mkdown",
+      "mkdn", "text", "txt" ) ),
+  MEDIA_TEXT_YAML( TEXT_YAML, of( "yaml", "yml" ) );
 
   private final MediaType mMediaType;
   private final Set<String> mExtensions;

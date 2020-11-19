@@ -1,5 +1,4 @@
-/*
- * Copyright 2020 White Magic Software, Ltd.
+/* Copyright 2020 White Magic Software, Ltd.
  *
  * All rights reserved.
  *
@@ -42,30 +41,21 @@ import java.nio.file.Path;
 public class YamlParser implements DocumentParser<JsonNode> {
 
   /**
-   * Start of the Universe (the YAML document node that contains all others).
+   * Creates a new instance that can parse the contents of a YAML
+   * document.
    */
-  private final JsonNode mDocumentRoot;
-
-  /**
-   * Creates a new YamlParser instance that attempts to parse the contents
-   * of the YAML document given from a path. In the event that the file either
-   * does not exist or is empty, a fake
-   *
-   * @param path Path to a file containing YAML data to parse.
-   */
-  public YamlParser( final Path path ) {
-    assert path != null;
-    mDocumentRoot = parse( path );
+  public YamlParser() {
   }
 
-  /**
-   * Returns the parent node for the entire YAML document tree.
-   *
-   * @return The document root, never {@code null}.
-   */
   @Override
-  public JsonNode getDocumentRoot() {
-    return mDocumentRoot;
+  public JsonNode parse( final String yaml ) {
+    try {
+      return new ObjectMapper( new YAMLFactory() ).readTree( yaml );
+    } catch( final Exception ex ) {
+      // Ensure that a document root node exists by relying on the
+      // default failure condition when processing.
+      return new ObjectMapper().createObjectNode();
+    }
   }
 
   /**
@@ -73,6 +63,7 @@ public class YamlParser implements DocumentParser<JsonNode> {
    *
    * @param path {@link Path} to the YAML resource to parse.
    * @return The parsed contents, or an empty object hierarchy.
+   * @deprecated Use parse(String) instead.
    */
   private JsonNode parse( final Path path ) {
     try( final InputStream in = Files.newInputStream( path ) ) {

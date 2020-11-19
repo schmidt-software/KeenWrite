@@ -45,9 +45,9 @@ import static com.keenwrite.StatusBarNotifier.clue;
  */
 public class EditorController<View extends Node & TextResource> {
   /**
-   * The "model" of the MVC pattern.
+   * The location of the caret in the view.
    */
-  private final Path mPath;
+  private final CaretPosition mCaretPosition;
 
   /**
    * The "view" of the MVC pattern.
@@ -55,9 +55,9 @@ public class EditorController<View extends Node & TextResource> {
   private final View mView;
 
   /**
-   * The location of the caret in the view.
+   * The "model" of the MVC pattern.
    */
-  private final CaretPosition mCaretPosition;
+  private final Path mPath;
 
   /**
    * Constructs a controller responsible for reading and writing the contents
@@ -71,27 +71,14 @@ public class EditorController<View extends Node & TextResource> {
     assert path != null;
     assert view != null;
 
-    mPath = path;
+    // This will be null if there is no caret position for the editor, such as
+    // when the editor is for a structured document format (XML, YAML, etc.).
+    mCaretPosition = view.createCaretPosition();
     mView = view;
+    mPath = path;
 
     mView.setText( read( path ) );
     mView.setInsertionPoint( 0 );
-
-    CaretPosition caret = null;
-
-    try {
-      caret = mView.createCaretPosition();
-    } catch( final Exception ignored ) {
-      // Indicates the view is not a plain text document editor, but probably a
-      // definition panel editor. The definition panel doesn't have a caret,
-      // so there shall be no calls to get the caret position.
-    }
-
-    mCaretPosition = caret;
-  }
-
-  protected View getView() {
-    return mView;
   }
 
   protected String getFilename() {
@@ -101,6 +88,10 @@ public class EditorController<View extends Node & TextResource> {
 
   protected CaretPosition getCaretPosition() {
     return mCaretPosition;
+  }
+
+  protected View getView() {
+    return mView;
   }
 
   private Path getPath() {
@@ -116,5 +107,4 @@ public class EditorController<View extends Node & TextResource> {
 
     return "";
   }
-
 }

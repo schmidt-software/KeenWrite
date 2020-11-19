@@ -53,7 +53,7 @@ public class Constants {
   /**
    * The {@link Settings} uses {@link #PATH_PROPERTIES_SETTINGS}.
    */
-  public static final Settings SETTINGS = Services.load( Settings.class );
+  public static final Settings sSettings = Services.load( Settings.class );
 
   public static final String DEFINITION_NAME = get( "file.definition.default" );
   public static final String DOCUMENT_NAME = get( "file.document.default" );
@@ -181,11 +181,11 @@ public class Constants {
   }
 
   private static String get( final String key ) {
-    return SETTINGS.getSetting( key, "" );
+    return sSettings.getSetting( key, "" );
   }
 
   @SuppressWarnings("SameParameterValue")
   private static int get( final String key, final int defaultValue ) {
-    return SETTINGS.getSetting( key, defaultValue );
+    return sSettings.getSetting( key, defaultValue );
   }
 }

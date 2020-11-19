@@ -27,6 +27,12 @@
 package com.keenwrite.ui;
 
 import com.keenwrite.ExportFormat;
+import com.keenwrite.MainView;
+import com.keenwrite.io.File;
+import javafx.scene.Scene;
+import javafx.stage.Window;
+
+import java.util.ArrayList;
 
 import static com.keenwrite.ExportFormat.*;
 
@@ -37,13 +43,24 @@ import static com.keenwrite.ExportFormat.*;
  * using their respective syntax.
  */
 @SuppressWarnings("NonAsciiCharacters")
-public class ApplicationAction {
+public class ApplicationActions {
+  /**
+   * When an action is executed, this is one of the recipients.
+   */
+  private final MainView mMainView;
 
+  public ApplicationActions( final MainView mainView ) {
+    mMainView = mainView;
+  }
 
   public void file‿new() {
   }
 
   public void file‿open() {
+    final var chooser = new FileChooserCommand( getWindow() );
+    final var files = chooser.openFiles();
+
+    mMainView.open( files );
   }
 
   public void file‿close() {
@@ -170,5 +187,13 @@ public class ApplicationAction {
   }
 
   private void file‿export( final ExportFormat format ) {
+  }
+
+  private Scene getScene() {
+    return mMainView.getScene();
+  }
+
+  private Window getWindow() {
+    return getScene().getWindow();
   }
 }
