@@ -31,10 +31,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.keenwrite.definition.DocumentParser;
 
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-
 /**
  * Responsible for reading a YAML document into an object hierarchy.
  */
@@ -52,26 +48,7 @@ public class YamlParser implements DocumentParser<JsonNode> {
     try {
       return new ObjectMapper( new YAMLFactory() ).readTree( yaml );
     } catch( final Exception ex ) {
-      // Ensure that a document root node exists by relying on the
-      // default failure condition when processing.
-      return new ObjectMapper().createObjectNode();
-    }
-  }
-
-  /**
-   * Parses the given path containing YAML data into an object hierarchy.
-   *
-   * @param path {@link Path} to the YAML resource to parse.
-   * @return The parsed contents, or an empty object hierarchy.
-   * @deprecated Use parse(String) instead.
-   */
-  private JsonNode parse( final Path path ) {
-    try( final InputStream in = Files.newInputStream( path ) ) {
-      return new ObjectMapper( new YAMLFactory() ).readTree( in );
-    } catch( final Exception e ) {
-      // Ensure that a document root node exists by relying on the
-      // default failure condition when processing. This is required
-      // because the input stream could not be read.
+      // Ensure that a document root node exists.
       return new ObjectMapper().createObjectNode();
     }
   }

@@ -33,13 +33,20 @@ import com.keenwrite.editors.markdown.MarkdownEditor;
 import com.keenwrite.io.File;
 import com.keenwrite.io.MediaType;
 import com.keenwrite.preview.HtmlPreview;
+import com.keenwrite.processors.IdentityProcessor;
 import com.keenwrite.processors.Processor;
 import com.keenwrite.processors.ProcessorContext;
 import com.keenwrite.processors.markdown.CaretPosition;
 import com.panemu.tiwulfx.control.dock.DetachableTabPane;
+import com.sun.source.tree.Tree;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.event.Event;
+import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.Tooltip;
+import javafx.scene.control.TreeItem;
+import javafx.scene.control.TreeItem.TreeModificationEvent;
 
 import java.nio.file.Path;
 import java.util.*;
@@ -49,6 +56,7 @@ import static com.keenwrite.ExportFormat.NONE;
 import static com.keenwrite.io.MediaType.*;
 import static com.keenwrite.processors.ProcessorFactory.createProcessors;
 import static javafx.application.Platform.runLater;
+import static javafx.util.Duration.millis;
 
 /**
  * Responsible for wiring together the main application components for a
@@ -77,6 +85,12 @@ public class MainView extends SplitPane {
    * Renders the actively selected plain text editor tab.
    */
   private final HtmlPreview mHtmlPreview = new HtmlPreview();
+
+  /**
+   * Text editor the user most recently activated.
+   */
+  private final SimpleObjectProperty<Node> mTextEditor =
+      new SimpleObjectProperty<>();
 
   public MainView() {
     initLayout();
@@ -183,8 +197,25 @@ public class MainView extends SplitPane {
    * @param node Contains the source document to update in the preview pane.
    */
   private void refresh( final Node node ) {
-    final var processor = mProcessors.get( node );
-    processor.apply( ((TextResource) node).getText() );
+    mProcessors.getOrDefault( node, IdentityProcessor.INSTANCE )
+               .apply( ((TextResource) node).getText() );
+  }
+
+  /*
+   * Refresh the text editor that has focus.
+   */
+//  private void refresh() {
+//    final var node = getActiveNode();
+//    refresh( node );
+//  }
+
+  /**
+   * Returns a text editor node that most recently had focus.
+   *
+   * @return The last known active text editor to have focus.
+   */
+  private Node getActiveNode() {
+    return null;
   }
 
   /**
@@ -258,14 +289,39 @@ public class MainView extends SplitPane {
   private <V extends Node & TextResource> V createView(
       final MediaType mediaType ) {
     return (V) switch( mediaType ) {
-      case TEXT_YAML -> new DefinitionEditor( new YamlTreeAdapter() );
+      case TEXT_YAML -> createDefinitionEditor();
       case TEXT_MARKDOWN -> new MarkdownEditor();
       default -> new PlainTextEditor();
     };
   }
 
+  /**
+   * Called when the definition data is changed.
+   */
+  private final EventHandler<TreeModificationEvent<Event>> mTreeHandler =
+      event -> refresh( mTextEditor.get() );
+
+  private DefinitionEditor createDefinitionEditor() {
+    final var editor = new DefinitionEditor( new YamlTreeAdapter() );
+
+    // FIXME: Called too early, no tree root exists.
+    editor.addTreeChangeHandler( mTreeHandler );
+
+//    editor.addTreeChangeHandler( event -> {
+//      //exportDefinitions( getDefinitionPath() );
+//      //interpolateResolvedMap();
+//      //refresh( mTextEditor.get() );
+//      System.out.println( "TREE CHANGEDDD" );
+//    } );
+
+    return editor;
+  }
+
   private Tooltip createTooltip( final File file ) {
     final var path = file.toPath();
-    return new Tooltip( path.toString() );
+    final var tooltip = new Tooltip( path.toString() );
+
+    tooltip.setShowDelay( millis( 200 ) );
+    return tooltip;
   }
 }

@@ -37,7 +37,6 @@ import javafx.scene.control.*;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
-import javafx.util.StringConverter;
 
 import java.util.*;
 
@@ -45,6 +44,9 @@ import static com.keenwrite.Messages.get;
 import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.*;
 import static javafx.geometry.Pos.CENTER;
 import static javafx.geometry.Pos.TOP_CENTER;
+import static javafx.scene.control.SelectionMode.MULTIPLE;
+import static javafx.scene.control.TreeItem.childrenModificationEvent;
+import static javafx.scene.control.TreeItem.valueChangedEvent;
 import static javafx.scene.input.KeyEvent.KEY_PRESSED;
 
 /**
@@ -53,11 +55,45 @@ import static javafx.scene.input.KeyEvent.KEY_PRESSED;
  * {@link DocumentParser} and adapted using a {@link TreeAdapter}.
  */
 public final class DefinitionEditor extends BorderPane implements TextResource {
+  private final String yaml = """
+apps:
+  language:
+    name:
+      full: "{{apps.language.name.base}}"
+      base: "Liberica JDK"
+  builder: "Gradle"
+  ide: "IntelliJ IDEA"
+paths:
+  download: "$(logname)/downloads"
+  jdk: "jdk"
+  install: "/opt"
+  builder: "gradle"
+  ide: "idea"
+  app: "mdtexfx"
+  project: "$HOME/dev/java/{{paths.app}}"
+  launcher:
+    dir: "dist"
+    script: "run.sh"
+    full: "{{paths.launcher.dir}}/{{paths.launcher.script}}"
+files:
+  jdk: "bellsoft-jdk15+36-linux-amd64-full.tar.gz"
+java:
+  processor:
+    base: "ExecutorProcessor"
+    factory: "ProcessorFactory"
+    markdown: "MarkdownProcessor"
+      """;
+
 
   /**
    * Contains a view of the definitions.
    */
-  private final TreeView<String> mTreeView = new TreeView<>();
+  private final TreeView<String> mTreeView;
+
+  /**
+   * Contains the root that is added to the view.
+   */
+  private final DefinitionTreeItem<String> mTreeRoot;
 
   /**
    * Used to adapt the structured document into a {@link TreeView}.
@@ -75,14 +111,17 @@ public final class DefinitionEditor extends BorderPane implements TextResource {
    */
   public DefinitionEditor( final TreeAdapter treeAdapter ) {
     mTreeAdapter = treeAdapter;
+    mTreeRoot = createRootTreeItem();
+    mTreeView = new TreeView<>( mTreeRoot );
 
-    final var treeView = getTreeView();
-    treeView.setEditable( true );
-    treeView.setCellFactory( cell -> createTreeCell() );
-    treeView.setContextMenu( createContextMenu() );
-    treeView.addEventFilter( KEY_PRESSED, this::keyEventFilter );
-    treeView.setShowRoot( false );
-    getSelectionModel().setSelectionMode( SelectionMode.MULTIPLE );
+    setText( yaml );
+
+    mTreeView.setEditable( true );
+    mTreeView.setCellFactory( new TreeCellFactory( this ) );
+    mTreeView.setContextMenu( createContextMenu() );
+    mTreeView.addEventFilter( KEY_PRESSED, this::keyEventFilter );
+    mTreeView.setShowRoot( false );
+    getSelectionModel().setSelectionMode( MULTIPLE );
 
     final var bCreate = createButton(
         "create", TREE, e -> addItem() );
@@ -97,17 +136,20 @@ public final class DefinitionEditor extends BorderPane implements TextResource {
     buttonBar.setSpacing( 10 );
 
     setTop( buttonBar );
-    setCenter( treeView );
+    setCenter( mTreeView );
     setAlignment( buttonBar, TOP_CENTER );
   }
 
   @Override
   public void setText( final String document ) {
-    final TreeItem<String> root = mTreeAdapter.adapt(
-        get( "Pane.definition.node.root.title" ), document
-    );
+    final var foster = mTreeAdapter.adapt( document );
+    final var biological = getTreeRoot();
 
-    getTreeView().setRoot( root );
+    for( final var child : foster.getChildren() ) {
+      biological.getChildren().add( child );
+    }
+
+    getTreeView().refresh();
   }
 
   @Override
@@ -148,9 +190,9 @@ public final class DefinitionEditor extends BorderPane implements TextResource {
    */
   public void addTreeChangeHandler(
       final EventHandler<TreeItem.TreeModificationEvent<Event>> handler ) {
-    final TreeItem<String> root = getTreeView().getRoot();
-    root.addEventHandler( TreeItem.valueChangedEvent(), handler );
-    root.addEventHandler( TreeItem.childrenModificationEvent(), handler );
+    final var root = getTreeView().getRoot();
+    root.addEventHandler( valueChangedEvent(), handler );
+    root.addEventHandler( childrenModificationEvent(), handler );
   }
 
   public void addKeyEventHandler(
@@ -197,7 +239,7 @@ public final class DefinitionEditor extends BorderPane implements TextResource {
     int childLeafs = 0;
     int childBranches = 0;
 
-    for( final TreeItem<String> child : item.getChildren() ) {
+    for( final var child : item.getChildren() ) {
       if( child.isLeaf() ) {
         childLeafs++;
       }
@@ -344,7 +386,7 @@ public final class DefinitionEditor extends BorderPane implements TextResource {
    * root must contain two items: a key and a value.
    */
   public void addItem() {
-    final var value = createTreeItem();
+    final var value = createDefinitionTreeItem();
     getSelectedItem().getChildren().add( value );
     expand( value );
     select( value );
@@ -419,19 +461,20 @@ public final class DefinitionEditor extends BorderPane implements TextResource {
     return new MenuItem( get( labelKey ) );
   }
 
-  private DefinitionTreeItem<String> createTreeItem() {
-    return new DefinitionTreeItem<>( get( "Definition.menu.add.default" ) );
+  /**
+   * Creates a new {@link TreeItem} that is intended to be the root-level item
+   * added to the {@link TreeView}. This allows the root item to be
+   * distinguished from the other items so that reference keys do not include
+   * "Definition" as part of their name.
+   *
+   * @return A new {@link TreeItem}, never {@code null}.
+   */
+  private RootTreeItem<String> createRootTreeItem() {
+    return new RootTreeItem<>( get( "Pane.definition.node.root.title" ) );
   }
 
-  private TreeCell<String> createTreeCell() {
-    return new FocusAwareTextFieldTreeCell( createStringConverter() ) {
-      @Override
-      public void commitEdit( final String newValue ) {
-        super.commitEdit( newValue );
-        select( getTreeItem() );
-        requestFocus();
-      }
-    };
+  private DefinitionTreeItem<String> createDefinitionTreeItem() {
+    return new DefinitionTreeItem<>( get( "Definition.menu.add.default" ) );
   }
 
   @Override
@@ -440,26 +483,32 @@ public final class DefinitionEditor extends BorderPane implements TextResource {
     getTreeView().requestFocus();
   }
 
-  private StringConverter<String> createStringConverter() {
-    return new StringConverter<>() {
-      @Override
-      public String toString( final String object ) {
-        return object == null ? "" : object;
-      }
-
-      @Override
-      public String fromString( final String string ) {
-        return string == null ? "" : string;
-      }
-    };
+  /**
+   * Answers whether there are any definitions in the tree.
+   *
+   * @return {@code true} when there are no definitions; {@code false} when
+   * there's at least one definition.
+   */
+  public boolean isEmpty() {
+    return getTreeRoot().isEmpty();
   }
 
   /**
-   * Returns the tree view that contains the definition hierarchy.
+   * Returns the actively selected item in the tree.
+   *
+   * @return The selected item, or the tree root item if no item is selected.
+   */
+  public TreeItem<String> getSelectedItem() {
+    final var item = getSelectionModel().getSelectedItem();
+    return item == null ? getTreeRoot() : item;
+  }
+
+  /**
+   * Returns the {@link TreeView} that contains the definition hierarchy.
    *
    * @return A non-null instance.
    */
-  public TreeView<String> getTreeView() {
+  private TreeView<String> getTreeView() {
     return mTreeView;
   }
 
@@ -469,11 +518,7 @@ public final class DefinitionEditor extends BorderPane implements TextResource {
    * @return The first node added to the definition tree.
    */
   private DefinitionTreeItem<String> getTreeRoot() {
-    final var root = getTreeView().getRoot();
-
-    return root instanceof DefinitionTreeItem
-        ? (DefinitionTreeItem<String>) root
-        : new DefinitionTreeItem<>( "root" );
+    return mTreeRoot;
   }
 
   private ObservableList<TreeItem<String>> getSiblings(
@@ -498,22 +543,7 @@ public final class DefinitionEditor extends BorderPane implements TextResource {
     return new ArrayList<>( getSelectionModel().getSelectedItems() );
   }
 
-  public TreeItem<String> getSelectedItem() {
-    final var item = getSelectionModel().getSelectedItem();
-    return item == null ? getTreeView().getRoot() : item;
-  }
-
   private Set<EventHandler<? super KeyEvent>> getKeyEventHandlers() {
     return mKeyEventHandlers;
-  }
-
-  /**
-   * Answers whether there are any definitions in the tree.
-   *
-   * @return {@code true} when there are no definitions; {@code false} when
-   * there's at least one definition.
-   */
-  public boolean isEmpty() {
-    return getTreeRoot().isEmpty();
   }
 }

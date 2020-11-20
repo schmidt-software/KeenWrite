@@ -39,11 +39,11 @@ import static com.keenwrite.sigils.YamlSigilOperator.REGEX_PATTERN;
  * in a map. The values in the map can use a delimited syntax to refer to
  * keys in the map.
  */
-public class MapInterpolator {
+public final class MapInterpolator {
   private static final int GROUP_DELIMITED = 1;
 
   /**
-   * Empty.
+   * Prevent instantiation.
    */
   private MapInterpolator() {
   }

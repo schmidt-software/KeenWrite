@@ -41,6 +41,10 @@ public enum MediaType {
       TypeName.APPLICATION, format( "vnd.%s.project", APP_TITLE_LOWERCASE )
   ),
 
+  APP_JAVA_OBJECT(
+      TypeName.APPLICATION, "x-java-serialized-object"
+  ),
+
   IMAGE_APNG( "apng" ),
   IMAGE_ACES( "aces" ),
   IMAGE_AVCI( "avci" ),

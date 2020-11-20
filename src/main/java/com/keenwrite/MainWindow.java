@@ -28,11 +28,10 @@
 package com.keenwrite;
 
 import com.dlsc.preferencesfx.PreferencesFxEvent;
+import com.keenwrite.definition.DefinitionEditor;
 import com.keenwrite.definition.DefinitionFactory;
 import com.keenwrite.definition.DefinitionSource;
-import com.keenwrite.definition.DefinitionEditor;
 import com.keenwrite.definition.MapInterpolator;
-import com.keenwrite.definition.yaml.YamlDefinitionSource;
 import com.keenwrite.editors.DefinitionNameInjector;
 import com.keenwrite.editors.markdown.MarkdownEditorPane;
 import com.keenwrite.exceptions.MissingFileException;
@@ -70,6 +69,7 @@ import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.control.TreeItem.TreeModificationEvent;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
@@ -116,6 +116,7 @@ import static org.fxmisc.richtext.model.TwoDimensional.Bias.Forward;
 
 /**
  * Main window containing a tab pane in the center for file editors.
+ *
  * @deprecated Use {@link MainView}.
  */
 public class MainWindow implements Observer {
@@ -152,12 +153,12 @@ public class MainWindow implements Observer {
   /**
    * Called when the definition data is changed.
    */
-  private final EventHandler<TreeItem.TreeModificationEvent<Event>>
-      mTreeHandler = event -> {
-    exportDefinitions( getDefinitionPath() );
-    interpolateResolvedMap();
-    rerender();
-  };
+  private final EventHandler<TreeModificationEvent<Event>> mTreeHandler =
+      event -> {
+        exportDefinitions( getDefinitionPath() );
+        interpolateResolvedMap();
+        rerender();
+      };
 
   /**
    * Called to inject the selected item when the user presses ENTER in the
@@ -173,7 +174,6 @@ public class MainWindow implements Observer {
   private final ChangeListener<Integer> mCaretPositionListener =
       ( observable, oldPosition, newPosition ) -> processActiveTab();
 
-  private DefinitionSource mDefinitionSource = createDefaultDefinitionSource();
   private final DefinitionEditor mDefinitionPane = createDefinitionPane();
   private final OutputTabPane mOutputPane = createOutputTabPane();
   private final FileEditorTabPane mFileEditorPane = new FileEditorTabPane(
@@ -318,7 +318,8 @@ public class MainWindow implements Observer {
               // Multiple tabs can be added simultaneously.
               for( final Tab newTab : change.getAddedSubList() ) {
                 // TODO: FIXME REFACTOR TABS
-                final FileEditorController tab = null;// (FileEditorView) newTab;
+                final FileEditorController tab = null;// (FileEditorView)
+                // newTab;
 
                 initScrollEventListener( tab );
                 initSpellCheckListener( tab );
@@ -506,9 +507,6 @@ public class MainWindow implements Observer {
    */
   private void openDefinitions( final Path path ) {
     try {
-      final var ds = createDefinitionSource( path );
-      setDefinitionSource( ds );
-
       final var prefs = getUserPreferencesView();
       prefs.definitionPathProperty().setValue( path.toFile() );
       prefs.save();
@@ -530,11 +528,11 @@ public class MainWindow implements Observer {
   private void exportDefinitions( final Path path ) {
     try {
       final var pane = getDefinitionPane();
-      final var root = pane.getTreeView().getRoot();
+      //final var root = pane.getTreeView().getRoot();
       final var problemChild = pane.isTreeWellFormed();
 
       if( problemChild == null ) {
-        getDefinitionSource().getTreeAdapter().export( root, path );
+        //getDefinitionSource().getTreeAdapter().export( root, path );
       }
       else {
         clue( "yaml.error.tree.form", problemChild.getValue() );
@@ -750,7 +748,8 @@ public class MainWindow implements Observer {
     return new ProcessorContext( preview, map, tab, format );
   }
 
-  private ProcessorContext createProcessorContext( final FileEditorController tab ) {
+  private ProcessorContext createProcessorContext(
+      final FileEditorController tab ) {
     return createProcessorContext( tab, NONE );
   }
 
@@ -760,19 +759,6 @@ public class MainWindow implements Observer {
 
   private OutputTabPane createOutputTabPane() {
     return new OutputTabPane();
-  }
-
-  private DefinitionSource createDefaultDefinitionSource() {
-    return new YamlDefinitionSource( getDefinitionPath() );
-  }
-
-  private DefinitionSource createDefinitionSource( final Path path ) {
-    try {
-      return createDefinitionFactory().createDefinitionSource( path );
-    } catch( final Exception ex ) {
-      clue( ex );
-      return createDefaultDefinitionSource();
-    }
   }
 
   private TextField createFindTextField() {
@@ -1340,16 +1326,6 @@ public class MainWindow implements Observer {
 
   private HtmlPreview getHtmlPreview() {
     return getOutputPane().getHtmlPreview();
-  }
-
-  private void setDefinitionSource(
-      final DefinitionSource definitionSource ) {
-    assert definitionSource != null;
-    mDefinitionSource = definitionSource;
-  }
-
-  private DefinitionSource getDefinitionSource() {
-    return mDefinitionSource;
   }
 
   private DefinitionEditor getDefinitionPane() {

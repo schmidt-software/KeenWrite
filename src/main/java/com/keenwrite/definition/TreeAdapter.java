@@ -38,14 +38,12 @@ import java.nio.file.Path;
 public interface TreeAdapter {
   /**
    * Adapts the document produced by the given parser into a {@link TreeItem}
-   * object that can be presented to the user within a GUI.
+   * object that can be presented to the user within a GUI. The root of the
+   * tree must be merged by the view layer.
    *
-   * @param root     The default root node name.
    * @param document The document to adapt.
-   * @return The parsed document in a {@link TreeItem} that can be displayed
-   * in a panel.
    */
-  TreeItem<String> adapt( String root, String document );
+  TreeItem<String> adapt( String document );
 
   /**
    * Exports the given root node to the given path.

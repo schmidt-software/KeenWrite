@@ -30,7 +30,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import com.keenwrite.definition.DefinitionTreeItem;
-import com.keenwrite.definition.RootTreeItem;
 import com.keenwrite.definition.TreeAdapter;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
@@ -67,6 +66,8 @@ public class YamlTreeAdapter implements TreeAdapter {
 
     // Writes as UTF8 by default.
     mapper.writeValue( path.toFile(), root );
+
+    //TODO: call writeValueAsString and return a string, nix the Path param.
   }
 
   /**
@@ -98,20 +99,20 @@ public class YamlTreeAdapter implements TreeAdapter {
 
   /**
    * Converts a YAML document to a {@link TreeItem} based on the document
-   * keys. Only the first document in the stream is adapted.
+   * keys.
    *
-   * @param root Root {@link TreeItem} node name.
-   * @return A {@link TreeItem} populated with all the keys in the YAML
-   * document.
+   * @param document The YAML document to convert to a hierarchy of
+   *                 {@link TreeItem} instances.
+   * @throws StackOverflowError If infinite recursion is encountered.
    */
   @Override
-  public TreeItem<String> adapt( final String root, final String document ) {
+  public TreeItem<String> adapt( final String document ) {
     final var parser = new YamlParser();
-    final var rootNode = parser.parse( document );
-    final var rootItem = createRootTreeItem( root );
+    final var jsonNode = parser.parse( document );
+    final var rootItem = createTreeItem( "root" );
 
-    rootItem.setExpanded( true );
-    adapt( rootNode, rootItem );
+    adapt( jsonNode, rootItem );
+
     return rootItem;
   }
 
@@ -119,34 +120,32 @@ public class YamlTreeAdapter implements TreeAdapter {
    * Iterate over a given root node (at any level of the tree) and adapt each
    * leaf node.
    *
-   * @param rootNode A JSON node (YAML node) to adapt.
-   * @param rootItem The tree item to use as the root when processing the node.
+   * @param node A JSON node (YAML node) to adapt.
+   * @param item The tree item to use as the root when processing the node.
+   * @throws StackOverflowError If infinite recursion is encountered.
    */
-  private void adapt(
-      final JsonNode rootNode, final TreeItem<String> rootItem ) {
-    rootNode.fields().forEachRemaining(
-        ( Entry<String, JsonNode> leaf ) -> adapt( leaf, rootItem )
-    );
+  private void adapt( final JsonNode node, final TreeItem<String> item ) {
+    node.fields().forEachRemaining( leaf -> adapt( leaf, item ) );
   }
 
   /**
    * Recursively adapt each rootNode to a corresponding rootItem.
    *
-   * @param rootNode The node to adapt.
-   * @param rootItem The item to adapt using the node's key.
+   * @param node The node to adapt.
+   * @param item The item to adapt using the node's key.
+   * @throws StackOverflowError If infinite recursion is encountered.
    */
   private void adapt(
-      final Entry<String, JsonNode> rootNode,
-      final TreeItem<String> rootItem ) {
-    final JsonNode leafNode = rootNode.getValue();
-    final String key = rootNode.getKey();
-    final TreeItem<String> leaf = createTreeItem( key );
+      final Entry<String, JsonNode> node, final TreeItem<String> item ) {
+    final var leafNode = node.getValue();
+    final var key = node.getKey();
+    final var leaf = createTreeItem( key );
 
     if( leafNode.isValueNode() ) {
-      leaf.getChildren().add( createTreeItem( rootNode.getValue().asText() ) );
+      leaf.getChildren().add( createTreeItem( node.getValue().asText() ) );
     }
 
-    rootItem.getChildren().add( leaf );
+    item.getChildren().add( leaf );
 
     if( leafNode.isObject() ) {
       adapt( leafNode, leaf );
@@ -161,18 +160,5 @@ public class YamlTreeAdapter implements TreeAdapter {
    */
   private TreeItem<String> createTreeItem( final String value ) {
     return new DefinitionTreeItem<>( value );
-  }
-
-  /**
-   * Creates a new {@link TreeItem} that is intended to be the root-level item
-   * added to the {@link TreeView}. This allows the root item to be
-   * distinguished from the other items so that reference keys do not include
-   * "Definition" as part of their name.
-   *
-   * @param value The node's value.
-   * @return A new {@link TreeItem}, never {@code null}.
-   */
-  private TreeItem<String> createRootTreeItem( final String value ) {
-    return new RootTreeItem<>( value );
   }
 }
