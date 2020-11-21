@@ -1,5 +1,4 @@
-/*
- * Copyright 2020 White Magic Software, Ltd.
+/* Copyright 2020 White Magic Software, Ltd.
  *
  * All rights reserved.
  *
@@ -58,7 +57,7 @@ import static com.keenwrite.Constants.DEFAULT_MAP_SIZE;
  * Reloading the definition file would work, but has a number of drawbacks.
  * </p>
  */
-public class TreeItemAdapter {
+public class TreeItemMapper {
   /**
    * Separates YAML definition keys (e.g., the dots in {@code $root.node.var$}).
    */
@@ -99,7 +98,10 @@ public class TreeItemAdapter {
     }
   }
 
-  private TreeItemAdapter() {
+  /**
+   * Prevent direct instantiation.
+   */
+  private TreeItemMapper() {
   }
 
   /**

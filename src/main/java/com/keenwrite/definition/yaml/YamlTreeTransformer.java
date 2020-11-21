@@ -30,11 +30,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import com.keenwrite.definition.DefinitionTreeItem;
-import com.keenwrite.definition.TreeAdapter;
+import com.keenwrite.definition.TreeTransformer;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 
-import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Map.Entry;
 
@@ -42,32 +41,35 @@ import java.util.Map.Entry;
  * Transforms a JsonNode hierarchy into a tree that can be displayed in a user
  * interface and vice-versa.
  */
-public class YamlTreeAdapter implements TreeAdapter {
+public final class YamlTreeTransformer implements TreeTransformer {
 
   /**
-   * Constructs a new instance that will use the given path to read
-   * the object hierarchy from a data source.
+   * Constructs a new instance that will use the given path to read the object
+   * hierarchy from a data source.
    */
-  public YamlTreeAdapter() {
+  public YamlTreeTransformer() {
   }
 
   @Override
-  public void export( final TreeItem<String> treeItem, final Path path )
-      throws IOException {
-    final YAMLMapper mapper = new YAMLMapper();
-    final ObjectNode root = mapper.createObjectNode();
+  public void accept( final TreeItem<String> treeItem, final Path path ) {
+    try {
+      final YAMLMapper mapper = new YAMLMapper();
+      final ObjectNode root = mapper.createObjectNode();
 
-    // Iterate over the root item's children. The root item is used by the
-    // application to ensure definitions can always be added to a tree, as
-    // such it is not meant to be exported, only its children.
-    for( final TreeItem<String> child : treeItem.getChildren() ) {
-      export( child, root );
+      // Iterate over the root item's children. The root item is used by the
+      // application to ensure definitions can always be added to a tree, as
+      // such it is not meant to be exported, only its children.
+      for( final TreeItem<String> child : treeItem.getChildren() ) {
+        export( child, root );
+      }
+
+      // Writes as UTF8 by default.
+      mapper.writeValue( path.toFile(), root );
+
+      //TODO: call writeValueAsString and return a string, nix the Path param.
+    } catch( final Exception ex ) {
+      throw new RuntimeException( ex );
     }
-
-    // Writes as UTF8 by default.
-    mapper.writeValue( path.toFile(), root );
-
-    //TODO: call writeValueAsString and return a string, nix the Path param.
   }
 
   /**
@@ -106,12 +108,12 @@ public class YamlTreeAdapter implements TreeAdapter {
    * @throws StackOverflowError If infinite recursion is encountered.
    */
   @Override
-  public TreeItem<String> adapt( final String document ) {
+  public TreeItem<String> apply( final String document ) {
     final var parser = new YamlParser();
-    final var jsonNode = parser.parse( document );
+    final var jsonNode = parser.apply( document );
     final var rootItem = createTreeItem( "root" );
 
-    adapt( jsonNode, rootItem );
+    transform( jsonNode, rootItem );
 
     return rootItem;
   }
@@ -124,8 +126,8 @@ public class YamlTreeAdapter implements TreeAdapter {
    * @param item The tree item to use as the root when processing the node.
    * @throws StackOverflowError If infinite recursion is encountered.
    */
-  private void adapt( final JsonNode node, final TreeItem<String> item ) {
-    node.fields().forEachRemaining( leaf -> adapt( leaf, item ) );
+  private void transform( final JsonNode node, final TreeItem<String> item ) {
+    node.fields().forEachRemaining( leaf -> transform( leaf, item ) );
   }
 
   /**
@@ -135,7 +137,7 @@ public class YamlTreeAdapter implements TreeAdapter {
    * @param item The item to adapt using the node's key.
    * @throws StackOverflowError If infinite recursion is encountered.
    */
-  private void adapt(
+  private void transform(
       final Entry<String, JsonNode> node, final TreeItem<String> item ) {
     final var leafNode = node.getValue();
     final var key = node.getKey();
@@ -148,7 +150,7 @@ public class YamlTreeAdapter implements TreeAdapter {
     item.getChildren().add( leaf );
 
     if( leafNode.isObject() ) {
-      adapt( leafNode, leaf );
+      transform( leafNode, leaf );
     }
   }
 

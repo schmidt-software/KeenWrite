@@ -52,53 +52,53 @@ import static javafx.scene.input.KeyEvent.KEY_PRESSED;
 /**
  * Provides the user interface that holds a {@link TreeView}, which
  * allows users to interact with key/value pairs loaded from the
- * {@link DocumentParser} and adapted using a {@link TreeAdapter}.
+ * document parser and adapted using a {@link TreeTransformer}.
  */
 public final class DefinitionEditor extends BorderPane implements TextResource {
   private final String yaml = """
-apps:
-  language:
-    name:
-      full: "{{apps.language.name.base}}"
-      base: "Liberica JDK"
-  builder: "Gradle"
-  ide: "IntelliJ IDEA"
-paths:
-  download: "$(logname)/downloads"
-  jdk: "jdk"
-  install: "/opt"
-  builder: "gradle"
-  ide: "idea"
-  app: "mdtexfx"
-  project: "$HOME/dev/java/{{paths.app}}"
-  launcher:
-    dir: "dist"
-    script: "run.sh"
-    full: "{{paths.launcher.dir}}/{{paths.launcher.script}}"
-files:
-  jdk: "bellsoft-jdk15+36-linux-amd64-full.tar.gz"
-java:
-  processor:
-    base: "ExecutorProcessor"
-    factory: "ProcessorFactory"
-    markdown: "MarkdownProcessor"
-      """;
+      apps:
+        language:
+          name:
+            full: "{{apps.language.name.base}}"
+            base: "Liberica JDK"
+        builder: "Gradle"
+        ide: "IntelliJ IDEA"
+      paths:
+        download: "$(logname)/downloads"
+        jdk: "jdk"
+        install: "/opt"
+        builder: "gradle"
+        ide: "idea"
+        app: "mdtexfx"
+        project: "$HOME/dev/java/{{paths.app}}"
+        launcher:
+          dir: "dist"
+          script: "run.sh"
+          full: "{{paths.launcher.dir}}/{{paths.launcher.script}}"
+      files:
+        jdk: "bellsoft-jdk15+36-linux-amd64-full.tar.gz"
+      java:
+        processor:
+          base: "ExecutorProcessor"
+          factory: "ProcessorFactory"
+          markdown: "MarkdownProcessor"
+            """;
 
-
-  /**
-   * Contains a view of the definitions.
-   */
-  private final TreeView<String> mTreeView;
 
   /**
    * Contains the root that is added to the view.
    */
-  private final DefinitionTreeItem<String> mTreeRoot;
+  private final DefinitionTreeItem<String> mTreeRoot = createRootTreeItem();
+
+  /**
+   * Contains a view of the definitions.
+   */
+  private final TreeView<String> mTreeView = new TreeView<>( mTreeRoot );
 
   /**
    * Used to adapt the structured document into a {@link TreeView}.
    */
-  private final TreeAdapter mTreeAdapter;
+  private final TreeTransformer mTreeTransformer;
 
   /**
    * Handlers for key press events.
@@ -109,10 +109,8 @@ java:
   /**
    * Constructs a definition pane with a given tree view root.
    */
-  public DefinitionEditor( final TreeAdapter treeAdapter ) {
-    mTreeAdapter = treeAdapter;
-    mTreeRoot = createRootTreeItem();
-    mTreeView = new TreeView<>( mTreeRoot );
+  public DefinitionEditor( final TreeTransformer treeTransformer ) {
+    mTreeTransformer = treeTransformer;
 
     setText( yaml );
 
@@ -142,7 +140,7 @@ java:
 
   @Override
   public void setText( final String document ) {
-    final var foster = mTreeAdapter.adapt( document );
+    final var foster = mTreeTransformer.apply( document );
     final var biological = getTreeRoot();
 
     for( final var child : foster.getChildren() ) {
@@ -174,7 +172,7 @@ java:
   }
 
   public Map<String, String> toMap() {
-    return TreeItemAdapter.toMap( getTreeView().getRoot() );
+    return TreeItemMapper.toMap( getTreeView().getRoot() );
   }
 
   /**
@@ -416,25 +414,19 @@ java:
   private void keyEventFilter( final KeyEvent event ) {
     if( !isEditingTreeItem() ) {
       switch( event.getCode() ) {
-        case ENTER:
+        case ENTER -> {
           expand( getSelectedItem() );
           event.consume();
-          break;
+        }
 
-        case DELETE:
-          deleteSelectedItems();
-          break;
+        case DELETE -> deleteSelectedItems();
+        case INSERT -> addItem();
 
-        case INSERT:
-          addItem();
-          break;
-
-        case R:
+        case R -> {
           if( event.isControlDown() ) {
             editSelectedItem();
           }
-
-          break;
+        }
       }
 
       for( final var handler : getKeyEventHandlers() ) {

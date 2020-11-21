@@ -29,8 +29,6 @@ package com.keenwrite;
 
 import com.dlsc.preferencesfx.PreferencesFxEvent;
 import com.keenwrite.definition.DefinitionEditor;
-import com.keenwrite.definition.DefinitionFactory;
-import com.keenwrite.definition.DefinitionSource;
 import com.keenwrite.definition.MapInterpolator;
 import com.keenwrite.editors.DefinitionNameInjector;
 import com.keenwrite.editors.markdown.MarkdownEditorPane;
@@ -560,8 +558,7 @@ public class MainWindow implements Observer {
   /**
    * Called when an {@link Observable} instance has changed. This is called
    * by both the {@link Snitch} service and the notify service. The @link
-   * Snitch} service can be called for different file types, including
-   * {@link DefinitionSource} instances.
+   * Snitch} service can be called for different file types.
    *
    * @param observable The observed instance.
    * @param value      The noteworthy item.
@@ -763,10 +760,6 @@ public class MainWindow implements Observer {
 
   private TextField createFindTextField() {
     return new TextField();
-  }
-
-  private DefinitionFactory createDefinitionFactory() {
-    return new DefinitionFactory();
   }
 
   private Scene createScene() {

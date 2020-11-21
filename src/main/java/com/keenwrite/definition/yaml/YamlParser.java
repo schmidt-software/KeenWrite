@@ -29,22 +29,23 @@ package com.keenwrite.definition.yaml;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import com.keenwrite.definition.DocumentParser;
+
+import java.util.function.Function;
 
 /**
  * Responsible for reading a YAML document into an object hierarchy.
  */
-public class YamlParser implements DocumentParser<JsonNode> {
+class YamlParser implements Function<String, JsonNode> {
 
   /**
    * Creates a new instance that can parse the contents of a YAML
    * document.
    */
-  public YamlParser() {
+  YamlParser() {
   }
 
   @Override
-  public JsonNode parse( final String yaml ) {
+  public JsonNode apply( final String yaml ) {
     try {
       return new ObjectMapper( new YAMLFactory() ).readTree( yaml );
     } catch( final Exception ex ) {

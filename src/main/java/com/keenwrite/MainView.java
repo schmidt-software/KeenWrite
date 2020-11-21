@@ -27,7 +27,7 @@
 package com.keenwrite;
 
 import com.keenwrite.definition.DefinitionEditor;
-import com.keenwrite.definition.yaml.YamlTreeAdapter;
+import com.keenwrite.definition.yaml.YamlTreeTransformer;
 import com.keenwrite.editors.PlainTextEditor;
 import com.keenwrite.editors.markdown.MarkdownEditor;
 import com.keenwrite.io.File;
@@ -38,14 +38,12 @@ import com.keenwrite.processors.Processor;
 import com.keenwrite.processors.ProcessorContext;
 import com.keenwrite.processors.markdown.CaretPosition;
 import com.panemu.tiwulfx.control.dock.DetachableTabPane;
-import com.sun.source.tree.Tree;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.Tooltip;
-import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeItem.TreeModificationEvent;
 
 import java.nio.file.Path;
@@ -302,7 +300,7 @@ public class MainView extends SplitPane {
       event -> refresh( mTextEditor.get() );
 
   private DefinitionEditor createDefinitionEditor() {
-    final var editor = new DefinitionEditor( new YamlTreeAdapter() );
+    final var editor = new DefinitionEditor( new YamlTreeTransformer() );
 
     // FIXME: Called too early, no tree root exists.
     editor.addTreeChangeHandler( mTreeHandler );

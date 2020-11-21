@@ -1,5 +1,4 @@
-/*
- * Copyright 2020 White Magic Software, Ltd.
+/* Copyright 2020 White Magic Software, Ltd.
  *
  * All rights reserved.
  *
@@ -27,20 +26,37 @@
  */
 package com.keenwrite.definition;
 
+import javafx.scene.control.TreeItem;
+
+import java.io.IOException;
+import java.nio.file.Path;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
+
 /**
- * Represents behaviours for reading and writing string definitions. This
- * class cannot have any direct hooks into the user interface, as it defines
- * entry points into the definition data model loaded into an object
- * hierarchy. That hierarchy is converted to a UI model using an adapter
- * pattern.
+ * Responsible for converting an object hierarchy into a {@link TreeItem}
+ * hierarchy.
  */
-public interface DefinitionSource {
+public interface TreeTransformer extends
+    Function<String, TreeItem<String>>,
+    BiConsumer<TreeItem<String>, Path> {
+  /**
+   * Adapts the document produced by the given parser into a {@link TreeItem}
+   * object that can be presented to the user within a GUI. The root of the
+   * tree must be merged by the view layer.
+   *
+   * @param document The document to transform into a viewable hierarchy.
+   */
+  @Override
+  TreeItem<String> apply( String document );
 
   /**
-   * Creates an object capable of producing view-based objects from this
-   * definition source.
+   * Exports the given root node to the given path.
    *
-   * @return A hierarchical tree suitable for displaying in the definition pane.
+   * @param root The root node to export.
+   * @param path Where to persist the data.
+   * @throws RuntimeException Could not write the data to the given path.
    */
-  TreeAdapter getTreeAdapter();
+  @Override
+  void accept( TreeItem<String> root, Path path );
 }

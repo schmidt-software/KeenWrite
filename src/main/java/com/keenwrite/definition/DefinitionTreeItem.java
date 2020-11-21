@@ -170,8 +170,8 @@ public class DefinitionTreeItem<T> extends TreeItem<T> {
    * @return true Node is a leaf and its value contains the given value.
    */
   private boolean valueContainsNoCase( final String s ) {
-    return isLeaf() && getDiacriticlessValue()
-        .toLowerCase().contains( s.toLowerCase() );
+    return isLeaf() &&
+        getDiacriticlessValue().toLowerCase().contains( s.toLowerCase() );
   }
 
   /**
@@ -193,7 +193,7 @@ public class DefinitionTreeItem<T> extends TreeItem<T> {
    * @return A non-null string, possibly empty.
    */
   public String toPath() {
-    return TreeItemAdapter.toPath( getParent() );
+    return TreeItemMapper.toPath( getParent() );
   }
 
   /**
