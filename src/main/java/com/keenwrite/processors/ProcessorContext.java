@@ -27,6 +27,7 @@
  */
 package com.keenwrite.processors;
 
+import com.keenwrite.Constants;
 import com.keenwrite.ExportFormat;
 import com.keenwrite.FileEditorController;
 import com.keenwrite.FileType;
@@ -37,6 +38,7 @@ import java.nio.file.Path;
 import java.util.Map;
 
 import static com.keenwrite.AbstractFileFactory.lookup;
+import static com.keenwrite.Constants.DEFAULT_DIRECTORY;
 
 /**
  * Provides a context for configuring a chain of {@link Processor} instances.
@@ -138,11 +140,19 @@ public class ProcessorContext {
 
   /**
    * Returns the directory that contains the file being edited.
+   * When {@link Constants#DEFAULT_DOCUMENT} is created, the parent path is
+   * {@code null}. This will get absolute path to the file before trying to
+   * get te parent path, which should always be a valid path. In the unlikely
+   * event that the base path cannot be determined by the path alone, the
+   * default user directory is returned. This is necessary for the creation
+   * of new files.
    *
-   * @return Path to the directory containing a file being edited.
+   * @return Path to the directory containing a file being edited, or the
+   * default user directory if the base path cannot be determined.
    */
   public Path getBasePath() {
-    return getPath().getParent();
+    final var path = getPath().toAbsolutePath().getParent();
+    return path == null ? DEFAULT_DIRECTORY : path;
   }
 
   public Path getPath() {

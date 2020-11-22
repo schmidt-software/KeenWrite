@@ -25,7 +25,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.keenwrite.controls;
+package com.keenwrite.ui.controls;
 
 import com.keenwrite.Messages;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;

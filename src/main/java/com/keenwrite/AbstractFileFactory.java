@@ -50,6 +50,8 @@ public abstract class AbstractFileFactory {
    * @return The FileType for the given path.
    */
   public static FileType lookup( final Path path ) {
+    assert path != null;
+
     return lookup( path, GLOB_PREFIX_FILE );
   }
 

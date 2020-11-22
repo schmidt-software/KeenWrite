@@ -1,6 +1,5 @@
 /*
- * Copyright 2016 Karl Tauber and White Magic Software, Ltd.
- *
+ * Copyright 2015 Karl Tauber <karl at jformdesigner dot com>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -25,58 +24,61 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.keenwrite.dialogs;
+package com.keenwrite.ui.dialogs;
 
-import com.keenwrite.controls.EscapeTextField;
-import com.keenwrite.editors.markdown.HyperlinkModel;
+import static com.keenwrite.Messages.get;
+import com.keenwrite.ui.controls.BrowseFileButton;
+import com.keenwrite.ui.controls.EscapeTextField;
+import java.nio.file.Path;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.scene.control.ButtonBar.ButtonData;
+import static javafx.scene.control.ButtonType.OK;
 import javafx.scene.control.DialogPane;
 import javafx.scene.control.Label;
+import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Window;
 import org.tbee.javafx.scene.layout.fxml.MigPane;
 
-import static com.keenwrite.Messages.get;
-import static javafx.scene.control.ButtonType.OK;
-
 /**
- * Dialog to enter a markdown link.
+ * Dialog to enter a markdown image.
  */
-public class LinkDialog extends AbstractDialog<String> {
+public class ImageDialog extends AbstractDialog<String> {
 
-  private final StringProperty link = new SimpleStringProperty();
+  private final StringProperty image = new SimpleStringProperty();
 
-  public LinkDialog(
-    final Window owner, final HyperlinkModel hyperlink ) {
-    super( owner, "Dialog.link.title" );
-
+  public ImageDialog( final Window owner, final Path basePath ) {
+    super(owner, "Dialog.image.title" );
+    
     final DialogPane dialogPane = getDialogPane();
     dialogPane.setContent( pane );
 
+    linkBrowseFileButton.setBasePath( basePath );
+    linkBrowseFileButton.addExtensionFilter( new ExtensionFilter( get( "Dialog.image.chooser.imagesFilter" ), "*.png", "*.gif", "*.jpg" ) );
+    linkBrowseFileButton.urlProperty().bindBidirectional( urlField.escapedTextProperty() );
+
     dialogPane.lookupButton( OK ).disableProperty().bind(
-      urlField.escapedTextProperty().isEmpty() );
+      urlField.escapedTextProperty().isEmpty()
+      .or( textField.escapedTextProperty().isEmpty() ) );
 
-    textField.setText( hyperlink.getText() );
-    urlField.setText( hyperlink.getUrl() );
-    titleField.setText( hyperlink.getTitle() );
-
-    link.bind( Bindings.when( titleField.escapedTextProperty().isNotEmpty() )
-      .then( Bindings.format( "[%s](%s \"%s\")", textField.escapedTextProperty(), urlField.escapedTextProperty(), titleField.escapedTextProperty() ) )
-      .otherwise( Bindings.when( textField.escapedTextProperty().isNotEmpty() )
-        .then( Bindings.format( "[%s](%s)", textField.escapedTextProperty(), urlField.escapedTextProperty() ) )
-        .otherwise( urlField.escapedTextProperty() ) ) );
+    image.bind( Bindings.when( titleField.escapedTextProperty().isNotEmpty() )
+      .then( Bindings.format( "![%s](%s \"%s\")", textField.escapedTextProperty(), urlField.escapedTextProperty(), titleField.escapedTextProperty() ) )
+      .otherwise( Bindings.format( "![%s](%s)", textField.escapedTextProperty(), urlField.escapedTextProperty() ) ) );
+    previewField.textProperty().bind( image );
 
     setResultConverter( dialogButton -> {
       ButtonData data = (dialogButton != null) ? dialogButton.getButtonData() : null;
-      return (data == ButtonData.OK_DONE) ? link.get() : null;
+      return (data == ButtonData.OK_DONE) ? image.get() : null;
     } );
 
     Platform.runLater( () -> {
       urlField.requestFocus();
-      urlField.selectRange( 0, urlField.getLength() );
+
+      if( urlField.getText().startsWith( "http://" ) ) {
+        urlField.selectRange( "http://".length(), urlField.getLength() );
+      }
     } );
   }
 
@@ -86,36 +88,47 @@ public class LinkDialog extends AbstractDialog<String> {
     pane = new MigPane();
     Label urlLabel = new Label();
     urlField = new EscapeTextField();
+    linkBrowseFileButton = new BrowseFileButton();
     Label textLabel = new Label();
     textField = new EscapeTextField();
     Label titleLabel = new Label();
     titleField = new EscapeTextField();
+    Label previewLabel = new Label();
+    previewField = new Label();
 
     //======== pane ========
     {
-      pane.setCols( "[shrink 0,fill][300,grow,fill][fill][fill]" );
+      pane.setCols( "[shrink 0,fill][300,grow,fill][fill]" );
       pane.setRows( "[][][][]" );
 
       //---- urlLabel ----
-      urlLabel.setText( get( "Dialog.link.urlLabel.text" ) );
+      urlLabel.setText( get( "Dialog.image.urlLabel.text" ) );
       pane.add( urlLabel, "cell 0 0" );
 
       //---- urlField ----
       urlField.setEscapeCharacters( "()" );
+      urlField.setText( "http://yourlink.com" );
+      urlField.setPromptText( "http://yourlink.com" );
       pane.add( urlField, "cell 1 0" );
+      pane.add( linkBrowseFileButton, "cell 2 0" );
 
       //---- textLabel ----
-      textLabel.setText( get( "Dialog.link.textLabel.text" ) );
+      textLabel.setText( get( "Dialog.image.textLabel.text" ) );
       pane.add( textLabel, "cell 0 1" );
 
       //---- textField ----
       textField.setEscapeCharacters( "[]" );
-      pane.add( textField, "cell 1 1 3 1" );
+      pane.add( textField, "cell 1 1 2 1" );
 
       //---- titleLabel ----
-      titleLabel.setText( get( "Dialog.link.titleLabel.text" ) );
+      titleLabel.setText( get( "Dialog.image.titleLabel.text" ) );
       pane.add( titleLabel, "cell 0 2" );
-      pane.add( titleField, "cell 1 2 3 1" );
+      pane.add( titleField, "cell 1 2 2 1" );
+
+      //---- previewLabel ----
+      previewLabel.setText( get( "Dialog.image.previewLabel.text" ) );
+      pane.add( previewLabel, "cell 0 3" );
+      pane.add( previewField, "cell 1 3 2 1" );
     }
     // JFormDesigner - End of component initialization  //GEN-END:initComponents
   }
@@ -123,7 +136,9 @@ public class LinkDialog extends AbstractDialog<String> {
   // JFormDesigner - Variables declaration - DO NOT MODIFY  //GEN-BEGIN:variables
   private MigPane pane;
   private EscapeTextField urlField;
+  private BrowseFileButton linkBrowseFileButton;
   private EscapeTextField textField;
   private EscapeTextField titleField;
-  // JFormDesigner - End of variables declaration  //GEN-END:variables
+  private Label previewField;
+	// JFormDesigner - End of variables declaration  //GEN-END:variables
 }

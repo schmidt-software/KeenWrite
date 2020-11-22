@@ -211,7 +211,7 @@ public final class FileEditorTabPane extends DetachableTabPane {
   }
 
   private Path getDefaultPath() {
-    return (new File( DOCUMENT_NAME )).toPath();
+    return DEFAULT_DOCUMENT.toPath();
   }
 
   /**
@@ -281,7 +281,8 @@ public final class FileEditorTabPane extends DetachableTabPane {
 
     // Close single unmodified "Untitled" tab.
     if( tabs.size() == 1 ) {
-      final FileEditorController fileEditor = (FileEditorController) (tabs.get( 0 ));
+      final FileEditorController fileEditor = (FileEditorController) (tabs
+      .get( 0 ));
 
       if( fileEditor.getPath() == null && !fileEditor.isModified() ) {
         closeEditor( fileEditor, false );

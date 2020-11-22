@@ -52,20 +52,14 @@ public class TreeCellFactory
   private static final DataFormat JAVA_FORMAT =
       new DataFormat( APP_JAVA_OBJECT.toString() );
 
-  private final DefinitionEditor mEditor;
-
   private TreeItem<String> mDraggedTreeItem;
   private TreeCell<String> mTargetCell;
 
   /**
    * Constructs a new {@link TreeCell} manufacturing facility called when
    * a new {@link TreeItem} is added to one of the editor's {@link TreeView}s.
-   *
-   * @param editor The editor that houses one or more {@link TreeView} instances
-   *               having {@link TreeItem}s that can be edited or moved.
    */
-  public TreeCellFactory( final DefinitionEditor editor ) {
-    mEditor = editor;
+  public TreeCellFactory() {
   }
 
   @Override
@@ -85,7 +79,7 @@ public class TreeCellFactory
       @Override
       public void commitEdit( final String newValue ) {
         super.commitEdit( newValue );
-        mEditor.select( getTreeItem() );
+        //mEditor.select( getTreeItem() );
         requestFocus();
       }
     };
@@ -182,6 +176,7 @@ public class TreeCellFactory
     final var sourceItem = mDraggedTreeItem;
     final var sourceItemParent = mDraggedTreeItem.getParent();
     final var targetItem = treeCell.getTreeItem();
+    final var targetItemParent = targetItem.getParent();
 
     sourceItemParent.getChildren().remove( sourceItem );
 
@@ -193,10 +188,13 @@ public class TreeCellFactory
       children = targetItem.getChildren();
       index = 0;
     }
-    else {
-      final var targetItemParent = targetItem.getParent();
+    else if( targetItemParent != null) {
       children = targetItemParent.getChildren();
       index = children.indexOf( targetItem ) + 1;
+    }
+    else {
+      children = sourceItemParent.getChildren();
+      index = 0;
     }
 
     children.add( index, sourceItem );

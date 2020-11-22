@@ -25,7 +25,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.keenwrite.dialogs;
+package com.keenwrite.ui.dialogs;
 
 import static com.keenwrite.Messages.get;
 import com.keenwrite.service.events.impl.ButtonOrderPane;

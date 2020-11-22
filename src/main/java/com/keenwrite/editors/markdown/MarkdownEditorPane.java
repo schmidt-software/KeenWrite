@@ -27,8 +27,8 @@
  */
 package com.keenwrite.editors.markdown;
 
-import com.keenwrite.dialogs.ImageDialog;
-import com.keenwrite.dialogs.LinkDialog;
+import com.keenwrite.ui.dialogs.ImageDialog;
+import com.keenwrite.ui.dialogs.LinkDialog;
 import com.keenwrite.editors.PlainTextEditor;
 import com.keenwrite.processors.markdown.MarkdownProcessor;
 import com.vladsch.flexmark.ast.Link;

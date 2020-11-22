@@ -24,9 +24,8 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.keenwrite.ui;
+package com.keenwrite.ui.actions;
 
-import com.keenwrite.ui.Action;
 import de.jensd.fx.glyphs.GlyphIcons;
 import javafx.beans.value.ObservableBooleanValue;
 import javafx.event.ActionEvent;
@@ -105,8 +104,6 @@ public class MenuAction extends Action {
     if( mDisabled != null ) {
       menuItem.disableProperty().bind( mDisabled );
     }
-
-    menuItem.setMnemonicParsing( true );
 
     return menuItem;
   }

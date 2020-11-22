@@ -28,8 +28,8 @@ package com.keenwrite;
 
 import com.keenwrite.service.Options;
 import com.keenwrite.service.Snitch;
-import com.keenwrite.ui.ApplicationActions;
-import com.keenwrite.ui.ApplicationMenuBar;
+import com.keenwrite.ui.actions.ApplicationActions;
+import com.keenwrite.ui.actions.ApplicationMenuBar;
 import com.keenwrite.util.StageState;
 import javafx.application.Application;
 import javafx.scene.Node;
@@ -57,10 +57,10 @@ public final class Main extends Application {
 
   static {
     // Suppress logging to standard output.
-    LogManager.getLogManager().reset();
+    //LogManager.getLogManager().reset();
 
     // Suppress logging to standard error.
-    System.err.close();
+    //System.err.close();
   }
 
   private final Options mOptions = Services.load( Options.class );

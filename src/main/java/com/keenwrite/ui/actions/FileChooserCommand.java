@@ -24,7 +24,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.keenwrite.ui;
+package com.keenwrite.ui.actions;
 
 import com.keenwrite.FileType;
 import com.keenwrite.Messages;

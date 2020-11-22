@@ -1,5 +1,6 @@
 /*
- * Copyright 2020 Karl Tauber and White Magic Software, Ltd.
+ * Copyright 2020 White Magic Software, Ltd.
+ *
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -24,52 +25,31 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.keenwrite.ui;
+package com.keenwrite.ui.adapters;
 
-import com.keenwrite.ui.Action;
-import javafx.scene.Node;
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.ToolBar;
+import org.xhtmlrenderer.event.DocumentListener;
+
+import static com.keenwrite.StatusBarNotifier.clue;
 
 /**
- * Responsible for creating menu items and toolbar buttons.
+ * Allows subclasses to implement only specific events of interest.
  */
-public class ActionUtils {
-
-  public static Menu createMenu( final String text, final Action... actions ) {
-    return new Menu( text, null, createMenuItems( actions ) );
+public class DocumentAdapter implements DocumentListener {
+  @Override
+  public void documentStarted() {
   }
 
-  public static MenuItem[] createMenuItems( final Action... actions ) {
-    final var menuItems = new MenuItem[ actions.length ];
-
-    for( int i = 0; i < actions.length; i++ ) {
-      menuItems[ i ] = actions[ i ].createMenuItem();
-    }
-
-    return menuItems;
+  @Override
+  public void documentLoaded() {
   }
 
-  /**
-   * TODO: Delete
-   * @deprecated Moved into ApplicationMenuBar
-   */
-  public static ToolBar createToolBar( final Action... actions ) {
-    return new ToolBar( createToolBarButtons( actions ) );
+  @Override
+  public void onLayoutException( final Throwable t ) {
+    clue( t );
   }
 
-  /**
-   * TODO: Delete
-   * @deprecated Moved into ApplicationMenuBar
-   */
-  public static Node[] createToolBarButtons( final Action... actions ) {
-    final var buttons = new Node[ actions.length ];
-
-    for( int i = 0; i < actions.length; i++ ) {
-      buttons[ i ] = actions[ i ].createToolBarButton();
-    }
-
-    return buttons;
+  @Override
+  public void onRenderException( final Throwable t ) {
+    clue( t );
   }
 }

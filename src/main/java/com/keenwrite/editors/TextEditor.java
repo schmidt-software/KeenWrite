@@ -1,5 +1,4 @@
-/*
- * Copyright 2020 White Magic Software, Ltd.
+/* Copyright 2020 White Magic Software, Ltd.
  *
  * All rights reserved.
  *
@@ -25,31 +24,14 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.keenwrite.adapters;
+package com.keenwrite.editors;
 
-import org.xhtmlrenderer.event.DocumentListener;
-
-import static com.keenwrite.StatusBarNotifier.clue;
+import com.keenwrite.TextResource;
+import com.keenwrite.editors.markdown.MarkdownEditor;
 
 /**
- * Allows subclasses to implement only specific events of interest.
+ * Marker interface to differentiate an instance of {@link TextResource} from
+ * a text editor such as {@link PlainTextEditor} or {@link MarkdownEditor}.
  */
-public class DocumentAdapter implements DocumentListener {
-  @Override
-  public void documentStarted() {
-  }
-
-  @Override
-  public void documentLoaded() {
-  }
-
-  @Override
-  public void onLayoutException( final Throwable t ) {
-    clue( t );
-  }
-
-  @Override
-  public void onRenderException( final Throwable t ) {
-    clue( t );
-  }
+public interface TextEditor extends TextResource {
 }

@@ -25,26 +25,26 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.keenwrite.adapters;
+package com.keenwrite.ui.actions;
 
-import org.w3c.dom.Element;
-import org.xhtmlrenderer.extend.ReplacedElementFactory;
-import org.xhtmlrenderer.simple.extend.FormSubmissionListener;
+import javafx.scene.Node;
+import javafx.scene.control.MenuBar;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.Separator;
+import javafx.scene.control.SeparatorMenuItem;
 
 /**
- * Allows subclasses to implement only specific events of interest.
+ * Represents a {@link MenuBar} action that has no operation, acting as a
+ * placeholder for line separators.
  */
-public abstract class ReplacedElementAdapter implements ReplacedElementFactory {
+public class SeparatorAction extends Action {
   @Override
-  public void reset() {
+  public MenuItem createMenuItem() {
+    return new SeparatorMenuItem();
   }
 
   @Override
-  public void remove( final Element e ) {
-  }
-
-  @Override
-  public void setFormSubmissionListener(
-      final FormSubmissionListener listener ) {
+  public Node createToolBarButton() {
+    return new Separator();
   }
 }

@@ -26,6 +26,7 @@
  */
 package com.keenwrite;
 
+import com.keenwrite.io.File;
 import com.keenwrite.service.Settings;
 import javafx.scene.image.Image;
 
@@ -55,8 +56,8 @@ public class Constants {
    */
   public static final Settings sSettings = Services.load( Settings.class );
 
-  public static final String DEFINITION_NAME = get( "file.definition.default" );
-  public static final String DOCUMENT_NAME = get( "file.document.default" );
+  public static final File DEFAULT_DEFINITION = getFile( "definition" );
+  public static final File DEFAULT_DOCUMENT = getFile( "document" );
 
   public static final String APP_BUNDLE_NAME = get( "application.messages" );
 
@@ -125,12 +126,13 @@ public class Constants {
   /**
    * Default working directory to use for R startup script.
    */
-  public static final String USER_DIRECTORY = System.getProperty( "user.dir" );
+  public static final File USER_DIRECTORY =
+      new File( System.getProperty( "user.dir" ) );
 
   /**
    * Default path to use for an untitled (pathless) file.
    */
-  public static final Path DEFAULT_DIRECTORY = Path.of( USER_DIRECTORY );
+  public static final Path DEFAULT_DIRECTORY = USER_DIRECTORY.toPath();
 
   /**
    * Default starting delimiter for definition variables. This value must
@@ -187,5 +189,15 @@ public class Constants {
   @SuppressWarnings("SameParameterValue")
   private static int get( final String key, final int defaultValue ) {
     return sSettings.getSetting( key, defaultValue );
+  }
+
+  /**
+   * Returns a default {@link File} instance based on the given key suffix.
+   *
+   * @param suffix Appended to {@code "file.default."}.
+   * @return A new {@link File} instance that references the settings file name.
+   */
+  private static File getFile( final String suffix ) {
+    return new File( get( "file.default." + suffix ) );
   }
 }

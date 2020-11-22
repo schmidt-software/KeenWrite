@@ -26,7 +26,7 @@
  */
 package com.keenwrite.preview;
 
-import com.keenwrite.adapters.DocumentAdapter;
+import com.keenwrite.ui.adapters.DocumentAdapter;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import org.xhtmlrenderer.layout.SharedContext;

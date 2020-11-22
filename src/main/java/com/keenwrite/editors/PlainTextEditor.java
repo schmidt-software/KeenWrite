@@ -27,7 +27,6 @@
  */
 package com.keenwrite.editors;
 
-import com.keenwrite.TextResource;
 import com.keenwrite.preferences.UserPreferences;
 import com.keenwrite.processors.markdown.CaretPosition;
 import javafx.beans.property.IntegerProperty;
@@ -54,7 +53,7 @@ import static org.fxmisc.wellbehaved.event.InputMap.consume;
  * Represents common editing features for various types of text editors.
  */
 public class PlainTextEditor extends StyleClassedTextArea
-    implements TextResource {
+    implements TextEditor {
 
   /**
    * Used when changing the text area font size.

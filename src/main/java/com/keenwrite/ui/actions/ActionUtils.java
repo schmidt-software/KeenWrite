@@ -1,6 +1,5 @@
 /*
- * Copyright 2020 White Magic Software, Ltd.
- *
+ * Copyright 2020 Karl Tauber and White Magic Software, Ltd.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -25,26 +24,51 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.keenwrite.ui;
+package com.keenwrite.ui.actions;
 
 import javafx.scene.Node;
-import javafx.scene.control.MenuBar;
+import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
-import javafx.scene.control.Separator;
-import javafx.scene.control.SeparatorMenuItem;
+import javafx.scene.control.ToolBar;
 
 /**
- * Represents a {@link MenuBar} action that has no operation, acting as a
- * placeholder for line separators.
+ * Responsible for creating menu items and toolbar buttons.
  */
-public class SeparatorAction extends Action {
-  @Override
-  public MenuItem createMenuItem() {
-    return new SeparatorMenuItem();
+public class ActionUtils {
+
+  public static Menu createMenu( final String text, final Action... actions ) {
+    return new Menu( text, null, createMenuItems( actions ) );
   }
 
-  @Override
-  public Node createToolBarButton() {
-    return new Separator();
+  public static MenuItem[] createMenuItems( final Action... actions ) {
+    final var menuItems = new MenuItem[ actions.length ];
+
+    for( int i = 0; i < actions.length; i++ ) {
+      menuItems[ i ] = actions[ i ].createMenuItem();
+    }
+
+    return menuItems;
+  }
+
+  /**
+   * TODO: Delete
+   * @deprecated Moved into ApplicationMenuBar
+   */
+  public static ToolBar createToolBar( final Action... actions ) {
+    return new ToolBar( createToolBarButtons( actions ) );
+  }
+
+  /**
+   * TODO: Delete
+   * @deprecated Moved into ApplicationMenuBar
+   */
+  public static Node[] createToolBarButtons( final Action... actions ) {
+    final var buttons = new Node[ actions.length ];
+
+    for( int i = 0; i < actions.length; i++ ) {
+      buttons[ i ] = actions[ i ].createToolBarButton();
+    }
+
+    return buttons;
   }
 }

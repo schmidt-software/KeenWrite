@@ -83,15 +83,13 @@ public class UserPreferences {
   private final IntegerProperty mPropFontsSizeEditor;
 
   private UserPreferences() {
-    mPropRDirectory = simpleFile( USER_DIRECTORY );
+    mPropRDirectory = new SimpleObjectProperty<>( USER_DIRECTORY );
     mPropRScript = new SimpleStringProperty( "" );
 
-    mPropImagesDirectory = simpleFile( USER_DIRECTORY );
+    mPropImagesDirectory = new SimpleObjectProperty<>( USER_DIRECTORY );
     mPropImagesOrder = new SimpleStringProperty( PERSIST_IMAGES_DEFAULT );
 
-    mPropDefinitionPath = simpleFile(
-        getSetting( "file.definition.default", DEFINITION_NAME )
-    );
+    mPropDefinitionPath = new SimpleObjectProperty<>( DEFAULT_DEFINITION );
 
     mPropDefDelimBegan = new SimpleStringProperty( DEF_DELIM_BEGAN_DEFAULT );
     mPropDefDelimEnded = new SimpleStringProperty( DEF_DELIM_ENDED_DEFAULT );
@@ -100,30 +98,6 @@ public class UserPreferences {
     mPropRDelimEnded = new SimpleStringProperty( R_DELIM_ENDED_DEFAULT );
 
     mPropFontsSizeEditor = new SimpleIntegerProperty( (int) FONT_SIZE_EDITOR );
-  }
-
-  /**
-   * Wraps a {@link File} inside a {@link SimpleObjectProperty}.
-   *
-   * @param path The file name to use when constructing the {@link File}.
-   * @return A new {@link SimpleObjectProperty} instance with a {@link File}
-   * that references the given {@code path}.
-   */
-  private SimpleObjectProperty<File> simpleFile( final String path ) {
-    return new SimpleObjectProperty<>( new File( path ) );
-  }
-
-  /**
-   * Returns the value for a key from the settings properties file.
-   *
-   * @param key   Key within the settings properties file to find.
-   * @param value Default value to return if the key is not found.
-   * @return The value for the given key from the settings file, or the
-   * given {@code value} if no key found.
-   */
-  @SuppressWarnings("SameParameterValue")
-  private String getSetting( final String key, final String value ) {
-    return sSettings.getSetting( key, value );
   }
 
   public ObjectProperty<File> definitionPathProperty() {

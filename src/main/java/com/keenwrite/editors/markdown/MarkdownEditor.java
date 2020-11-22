@@ -27,6 +27,7 @@
 package com.keenwrite.editors.markdown;
 
 import com.keenwrite.TextResource;
+import com.keenwrite.editors.TextEditor;
 import com.keenwrite.processors.markdown.CaretPosition;
 import javafx.scene.layout.BorderPane;
 import org.fxmisc.flowless.VirtualizedScrollPane;
@@ -38,7 +39,7 @@ import static javafx.scene.control.ScrollPane.ScrollBarPolicy.ALWAYS;
 /**
  * Responsible for editing Markdown documents.
  */
-public class MarkdownEditor extends BorderPane implements TextResource {
+public class MarkdownEditor extends BorderPane implements TextEditor {
   private final StyleClassedTextArea mTextArea =
       new StyleClassedTextArea( false );
   private final VirtualizedScrollPane<StyleClassedTextArea> mScrollPane =
@@ -60,6 +61,7 @@ public class MarkdownEditor extends BorderPane implements TextResource {
    */
   @Override
   public void requestFocus() {
+    System.out.println( "WE GOT FOCUS, SOUND THE ALARM" );
     mTextArea.requestFocus();
   }
 

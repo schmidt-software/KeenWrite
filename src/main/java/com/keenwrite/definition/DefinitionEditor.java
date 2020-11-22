@@ -115,7 +115,7 @@ public final class DefinitionEditor extends BorderPane implements TextResource {
     setText( yaml );
 
     mTreeView.setEditable( true );
-    mTreeView.setCellFactory( new TreeCellFactory( this ) );
+    mTreeView.setCellFactory( new TreeCellFactory(  ) );
     mTreeView.setContextMenu( createContextMenu() );
     mTreeView.addEventFilter( KEY_PRESSED, this::keyEventFilter );
     mTreeView.setShowRoot( false );

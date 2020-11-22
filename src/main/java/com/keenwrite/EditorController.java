@@ -45,7 +45,7 @@ import static com.keenwrite.StatusBarNotifier.clue;
  */
 public class EditorController<View extends Node & TextResource> {
   /**
-   * The location of the caret in the view.
+   * The current location of the caret in the view.
    */
   private final CaretPosition mCaretPosition;
 

@@ -24,15 +24,10 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.keenwrite.ui;
+package com.keenwrite.ui.actions;
 
 import com.keenwrite.ExportFormat;
 import com.keenwrite.MainView;
-import com.keenwrite.io.File;
-import javafx.scene.Scene;
-import javafx.stage.Window;
-
-import java.util.ArrayList;
 
 import static com.keenwrite.ExportFormat.*;
 
@@ -54,13 +49,11 @@ public class ApplicationActions {
   }
 
   public void file‿new() {
+    mMainView.newTextEditor();
   }
 
   public void file‿open() {
-    final var chooser = new FileChooserCommand( getWindow() );
-    final var files = chooser.openFiles();
-
-    mMainView.open( files );
+    mMainView.open();
   }
 
   public void file‿close() {
@@ -187,13 +180,5 @@ public class ApplicationActions {
   }
 
   private void file‿export( final ExportFormat format ) {
-  }
-
-  private Scene getScene() {
-    return mMainView.getScene();
-  }
-
-  private Window getWindow() {
-    return getScene().getWindow();
   }
 }
