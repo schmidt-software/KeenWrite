@@ -27,12 +27,14 @@
 package com.keenwrite.definition;
 
 import com.keenwrite.TextResource;
+import com.keenwrite.editors.TextDefinition;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.event.EventHandler;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
@@ -54,36 +56,8 @@ import static javafx.scene.input.KeyEvent.KEY_PRESSED;
  * allows users to interact with key/value pairs loaded from the
  * document parser and adapted using a {@link TreeTransformer}.
  */
-public final class DefinitionEditor extends BorderPane implements TextResource {
-  private final String yaml = """
-      apps:
-        language:
-          name:
-            full: "{{apps.language.name.base}}"
-            base: "Liberica JDK"
-        builder: "Gradle"
-        ide: "IntelliJ IDEA"
-      paths:
-        download: "$(logname)/downloads"
-        jdk: "jdk"
-        install: "/opt"
-        builder: "gradle"
-        ide: "idea"
-        app: "mdtexfx"
-        project: "$HOME/dev/java/{{paths.app}}"
-        launcher:
-          dir: "dist"
-          script: "run.sh"
-          full: "{{paths.launcher.dir}}/{{paths.launcher.script}}"
-      files:
-        jdk: "bellsoft-jdk15+36-linux-amd64-full.tar.gz"
-      java:
-        processor:
-          base: "ExecutorProcessor"
-          factory: "ProcessorFactory"
-          markdown: "MarkdownProcessor"
-            """;
-
+public final class DefinitionEditor extends BorderPane implements
+    TextDefinition {
 
   /**
    * Contains the root that is added to the view.
@@ -111,8 +85,6 @@ public final class DefinitionEditor extends BorderPane implements TextResource {
    */
   public DefinitionEditor( final TreeTransformer treeTransformer ) {
     mTreeTransformer = treeTransformer;
-
-    setText( yaml );
 
     mTreeView.setEditable( true );
     mTreeView.setCellFactory( new TreeCellFactory(  ) );
@@ -153,6 +125,11 @@ public final class DefinitionEditor extends BorderPane implements TextResource {
   @Override
   public String getText() {
     return "";
+  }
+
+  @Override
+  public Node getNode() {
+    return this;
   }
 
   private Button createButton(

@@ -29,6 +29,7 @@ package com.keenwrite;
 import com.keenwrite.definition.DefinitionEditor;
 import com.keenwrite.definition.yaml.YamlTreeTransformer;
 import com.keenwrite.editors.PlainTextEditor;
+import com.keenwrite.editors.TextDefinition;
 import com.keenwrite.editors.TextEditor;
 import com.keenwrite.editors.markdown.MarkdownEditor;
 import com.keenwrite.io.File;
@@ -39,21 +40,30 @@ import com.keenwrite.processors.Processor;
 import com.keenwrite.processors.ProcessorContext;
 import com.keenwrite.processors.markdown.CaretPosition;
 import com.keenwrite.ui.actions.FileChooserCommand;
+import com.panemu.tiwulfx.control.dock.DetachableTab;
 import com.panemu.tiwulfx.control.dock.DetachableTabPane;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ChangeListener;
 import javafx.event.Event;
 import javafx.event.EventHandler;
-import javafx.scene.Node;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.Tooltip;
 import javafx.scene.control.TreeItem.TreeModificationEvent;
+import javafx.stage.Window;
 
 import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static com.keenwrite.Constants.*;
 import static com.keenwrite.ExportFormat.NONE;
+import static com.keenwrite.definition.MapInterpolator.interpolate;
 import static com.keenwrite.io.MediaType.*;
 import static com.keenwrite.processors.ProcessorFactory.createProcessors;
+import static javafx.application.Platform.runLater;
 import static javafx.util.Duration.millis;
 
 /**
@@ -74,6 +84,12 @@ public class MainView extends SplitPane {
   private final Map<MediaType, DetachableTabPane> mTabPanes = new HashMap<>();
 
   /**
+   * Prevents multiple listeners from listening to the same detachable tab pane.
+   */
+  final Map<DetachableTabPane, ChangeListener<Number>> mTabPaneListeners =
+      new HashMap<>();
+
+  /**
    * Stores definition names and values.
    */
   private final Map<String, String> mResolvedMap =
@@ -85,14 +101,134 @@ public class MainView extends SplitPane {
   private final HtmlPreview mHtmlPreview = new HtmlPreview();
 
   /**
+   * Changing the active editor, even back to itself, will always fire the
+   * value changed event. This allows refreshes to happen when external
+   * definitions are modified and need to trigger the processing chain.
+   */
+  private final ObjectProperty<TextEditor> mActiveTextEditor =
+      new SimpleObjectProperty<>();
+
+  /**
+   * Changing the active definition editor, even back to itself, will always
+   * fire the value changed event. This allows refreshes to happen when external
+   * definitions are modified and need to trigger the processing chain.
+   */
+  private final ObjectProperty<DefinitionEditor> mActiveDefinitionEditor =
+      new SimpleObjectProperty<>();
+
+  /**
    * Called when the definition data is changed.
    */
   private final EventHandler<TreeModificationEvent<Event>> mTreeHandler =
-      event -> refresh();
+      event -> refreshTextEditor();
 
   public MainView() {
     initLayout();
+    initActiveTextEditorListener();
+    initActiveDefinitionEditorListener();
   }
+
+  /**
+   * Opens files selected by the user into the application.
+   */
+  public void open() {
+    final var chooser = new FileChooserCommand( getScene().getWindow() );
+    final var files = chooser.openFiles();
+
+    open( files );
+  }
+
+  /**
+   * Opens all the files into the application, provided the paths are unique.
+   * This may only be called for any type of files that a user can edit
+   * (i.e., update and persist), such as definitions and text files.
+   *
+   * @param files The list of files to open.
+   */
+  private void open( final List<File> files ) {
+    files.forEach( this::open );
+  }
+
+  /**
+   * This opens the given file. Since the preview pane is not a file that
+   * can be opened, it is safe to add a listener to the detachable pane.
+   *
+   * @param file The file to open.
+   */
+  private void open( final File file ) {
+    final var mediaType = file.getMediaType();
+    final var tab = createTab( file );
+    final var tabPane = obtainDetachableTabPane( mediaType );
+    tabPane.getTabs().add( tab );
+
+    tab.setTooltip( createTooltip( file ) );
+    tab.setOnCloseRequest( ( e ) -> {
+      final var pane = tab.getTabPane();
+      final var count = pane.getTabs().size();
+      final var content = tab.getContent();
+
+      // Ensure the last remaining tab is cleared, but remains open.
+      if( count <= 1 ) {
+        if( content instanceof TextEditor ) {
+          newTextEditor();
+        }
+        else if( content instanceof TextDefinition ) {
+          newDefinitionEditor();
+        }
+      }
+    } );
+
+    // When an editor is selected using Ctrl+PgUp/Ctrl+PgDn, this ensures
+    // that the tab content retains focus.
+    final var model = tabPane.getSelectionModel();
+
+    // Only create a new tab pane listener when needed. This works around a
+    // lack of API to query the number of listeners on an object.
+    final var listener = mTabPaneListeners.computeIfAbsent(
+        tabPane, p -> ( c, o, n ) -> runLater(
+            () -> {
+              final var selectedTab = model.getSelectedItem();
+
+              if( selectedTab != null ) {
+                final var node = selectedTab.getContent();
+
+                if( node instanceof TextEditor ) {
+                  // Changing the active node will fire an event, which will
+                  // update the preview panel and grab focus.
+                  mActiveTextEditor.set( (TextEditor) node );
+                }
+                else if( node instanceof TextDefinition ) {
+                  mActiveDefinitionEditor.set( (DefinitionEditor) node );
+                }
+              }
+            }
+        ) );
+
+    final var tabPaneIndex = model.selectedIndexProperty();
+    tabPaneIndex.removeListener( listener );
+    tabPaneIndex.addListener( listener );
+  }
+
+  private DetachableTab createTab( final File file ) {
+    final var controller = createController( file );
+    return new DetachableTab( controller.getFilename(), controller.getView() );
+  }
+
+  /**
+   * Opens a new text editor document using the default document file name.
+   */
+  public void newTextEditor() {
+    open( DEFAULT_DOCUMENT );
+  }
+
+  /**
+   * Opens a new definition editor document using the default definition
+   * file name.
+   */
+  public void newDefinitionEditor() {
+    open( DEFAULT_DEFINITION );
+  }
+
 
   /**
    * Adds all content panels to the main user interface. This will load the
@@ -119,48 +255,29 @@ public class MainView extends SplitPane {
   }
 
   /**
-   * Opens files selected by the user into the application.
+   * Called to update the preview pane when the active editor changes.
    */
-  public void open() {
-    final var chooser = new FileChooserCommand( getScene().getWindow() );
-    final var files = chooser.openFiles();
-
-    open( files );
+  private void initActiveTextEditorListener() {
+    mActiveTextEditor.addListener( ( c, o, n ) -> {
+      if( n != null ) {
+        n.getNode().requestFocus();
+        refresh( n );
+      }
+    } );
   }
 
-  /**
-   * Opens all the files into the application, provided the paths are unique.
-   * This may only be called for any type of files that a user can edit
-   * (i.e., update and persist), such as definitions and text files.
-   *
-   * @param files The list of files to open.
-   */
-  private void open( final List<File> files ) {
-    files.forEach( this::open );
+  private void initActiveDefinitionEditorListener() {
+    mActiveDefinitionEditor.addListener( ( c, o, n ) -> {
+      if( n != null ) {
+        refreshResolvedMap( n );
+        refreshTextEditor();
+      }
+    } );
   }
 
-  private void open( final File file ) {
-    final var mediaType = file.getMediaType();
-    final var controller = createController( file );
-    final var tabPane = obtainDetachableTabPane( mediaType );
-    final var tab =
-        tabPane.addTab( controller.getFilename(), controller.getView() );
-    tab.setTooltip( createTooltip( file ) );
-  }
-
-  /**
-   * Opens a new text editor document using the default document file name.
-   */
-  public void newTextEditor() {
-    open( DEFAULT_DOCUMENT );
-  }
-
-  /**
-   * Opens a new definition editor document using the default definition
-   * file name.
-   */
-  public void newDefinitionEditor() {
-    open( DEFAULT_DEFINITION );
+  private void refreshResolvedMap( final DefinitionEditor editor ) {
+    mResolvedMap.clear();
+    mResolvedMap.putAll( interpolate( new HashMap<>( editor.toMap() ) ) );
   }
 
   /**
@@ -184,22 +301,22 @@ public class MainView extends SplitPane {
    * then by plain text documents.
    */
   private List<File> bin( final List<File> files ) {
-    final var linkedMap = new LinkedHashMap<MediaType, List<File>>();
-    linkedMap.put( TEXT_YAML, new ArrayList<>() );
-    linkedMap.put( TEXT_MARKDOWN, new ArrayList<>() );
-    linkedMap.put( UNDEFINED, new ArrayList<>() );
+    final var map = new HashMap<MediaType, List<File>>();
+    map.put( TEXT_YAML, new ArrayList<>() );
+    map.put( TEXT_MARKDOWN, new ArrayList<>() );
+    map.put( UNDEFINED, new ArrayList<>() );
 
     for( final var file : files ) {
-      final var list = linkedMap.computeIfAbsent(
+      final var list = map.computeIfAbsent(
           file.getMediaType(), k -> new ArrayList<>()
       );
 
       list.add( file );
     }
 
-    final var definitions = linkedMap.get( TEXT_YAML );
-    final var documents = linkedMap.get( TEXT_MARKDOWN );
-    final var undefined = linkedMap.get( UNDEFINED );
+    final var definitions = map.get( TEXT_YAML );
+    final var documents = map.get( TEXT_MARKDOWN );
+    final var undefined = map.get( UNDEFINED );
 
     if( definitions.isEmpty() ) {
       definitions.add( DEFAULT_DEFINITION );
@@ -224,30 +341,20 @@ public class MainView extends SplitPane {
    * @param node Contains the source document to update in the preview pane.
    */
   private void refresh( final TextEditor node ) {
-    mProcessors.getOrDefault( node, IdentityProcessor.INSTANCE )
-               .apply( node.getText() );
-  }
-
-  private void refresh() {
-    getActiveTextEditor().ifPresent( this::refresh );
+    if( node != null ) {
+      mProcessors.getOrDefault( node, IdentityProcessor.INSTANCE )
+                 .apply( node.getText() );
+    }
   }
 
   /**
-   * Returns a text editor node that most recently had focus.
-   *
-   * @return The last known active text editor to have focus.
+   * Force the active editor to update, which will cause the processor
+   * to re-evaluate the interpolated definition map thereby updating the
+   * preview pane.
    */
-  private Optional<TextEditor> getActiveTextEditor() {
-    return Optional.empty();
+  private void refreshTextEditor() {
+    refresh( mActiveTextEditor.get() );
   }
-
-  /*
-   * Refresh the text editor that has focus.
-   */
-//  private void refresh() {
-//    final var node = getActiveNode();
-//    refresh( node );
-//  }
 
   /**
    * Lazily creates a {@link DetachableTabPane} configured to handle focus
@@ -270,8 +377,7 @@ public class MainView extends SplitPane {
     );
   }
 
-  @SuppressWarnings({"unchecked", "RedundantSuppression"})
-  private <V extends Node & TextResource> EditorController<V> createController(
+  private EditorController createController(
       final File file ) {
     final var view = createView( file.getMediaType() );
 
@@ -281,25 +387,9 @@ public class MainView extends SplitPane {
       final var caret = view.createCaretPosition();
       final var context = createProcessorContext( path, caret );
 
+      // FIXME: This must change when the text editor changes
       mHtmlPreview.setBaseUri( path );
       mProcessors.computeIfAbsent( editor, p -> createProcessors( context ) );
-
-      // When an editor is selected using Ctrl+PgUp/Ctrl+PgDn, this
-      // ensures that the tab content retains focus.
-//      editor.addActivationListener( (c, o, n) -> {
-//
-//      });
-//
-//      model.selectedIndexProperty().addListener(
-//          ( c, o, n ) -> runLater(
-//              () -> {
-//                final var node = model.getSelectedItem().getContent();
-//                node.requestFocus();
-//                refresh();
-//              }
-//          )
-//      );
-//
 
       // When the caret position changes, synchronize with the preview.
       context.getCaretPosition().textOffsetProperty().addListener(
@@ -307,7 +397,7 @@ public class MainView extends SplitPane {
       );
     }
 
-    return new EditorController<>( file.toPath(), (V) view );
+    return new EditorController( file.toPath(), view );
   }
 
   private ProcessorContext createProcessorContext(
@@ -318,9 +408,9 @@ public class MainView extends SplitPane {
   }
 
   @SuppressWarnings({"RedundantCast", "unchecked", "RedundantSuppression"})
-  private <V extends Node & TextResource> V createView(
+  private TextResource createView(
       final MediaType mediaType ) {
-    return (V) switch( mediaType ) {
+    return switch( mediaType ) {
       case TEXT_YAML -> createDefinitionEditor();
       case TEXT_MARKDOWN -> new MarkdownEditor();
       default -> new PlainTextEditor();
@@ -330,7 +420,6 @@ public class MainView extends SplitPane {
   private DefinitionEditor createDefinitionEditor() {
     final var editor = new DefinitionEditor( new YamlTreeTransformer() );
 
-    // FIXME: Called too early, no tree root exists.
     editor.addTreeChangeHandler( mTreeHandler );
 
 //    editor.addTreeChangeHandler( event -> {
@@ -349,5 +438,9 @@ public class MainView extends SplitPane {
 
     tooltip.setShowDelay( millis( 200 ) );
     return tooltip;
+  }
+
+  private Window getWindow() {
+    return getScene().getWindow();
   }
 }

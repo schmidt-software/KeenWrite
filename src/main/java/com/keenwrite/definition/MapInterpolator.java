@@ -54,8 +54,10 @@ public final class MapInterpolator {
    *
    * @param map Contains values that represent references to keys.
    */
-  public static void interpolate( final Map<String, String> map ) {
+  public static Map<String, String> interpolate(
+      final Map<String, String> map ) {
     map.replaceAll( ( k, v ) -> resolve( map, v ) );
+    return map;
   }
 
   /**

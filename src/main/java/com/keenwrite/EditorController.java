@@ -43,7 +43,7 @@ import static com.keenwrite.StatusBarNotifier.clue;
  * the main application provides a tab-based user interface.
  * </p>
  */
-public class EditorController<View extends Node & TextResource> {
+public class EditorController {
   /**
    * The current location of the caret in the view.
    */
@@ -52,7 +52,7 @@ public class EditorController<View extends Node & TextResource> {
   /**
    * The "view" of the MVC pattern.
    */
-  private final View mView;
+  private final TextResource mView;
 
   /**
    * The "model" of the MVC pattern.
@@ -67,7 +67,7 @@ public class EditorController<View extends Node & TextResource> {
    * @param path The path to the data source to read into the view.
    * @param view The user interface component for editing the data.
    */
-  public EditorController( final Path path, final View view ) {
+  public EditorController( final Path path, final TextResource view ) {
     assert path != null;
     assert view != null;
 
@@ -90,8 +90,8 @@ public class EditorController<View extends Node & TextResource> {
     return mCaretPosition;
   }
 
-  protected View getView() {
-    return mView;
+  protected Node getView() {
+    return mView.getNode();
   }
 
   private Path getPath() {

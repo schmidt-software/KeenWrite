@@ -27,6 +27,7 @@
 package com.keenwrite;
 
 import com.keenwrite.processors.markdown.CaretPosition;
+import javafx.scene.Node;
 
 /**
  * A text resource can be persisted and retrieved from its persisted location.
@@ -71,4 +72,11 @@ public interface TextResource {
   default CaretPosition createCaretPosition() {
     return null;
   }
+
+  /**
+   * Returns the node associated with this {@link TextResource}.
+   *
+   * @return The view component for the {@link TextResource}.
+   */
+  Node getNode();
 }

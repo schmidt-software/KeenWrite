@@ -34,6 +34,7 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.event.Event;
+import javafx.scene.Node;
 import javafx.scene.control.ScrollPane;
 import org.fxmisc.flowless.VirtualizedScrollPane;
 import org.fxmisc.richtext.StyleClassedTextArea;
@@ -164,6 +165,11 @@ public class PlainTextEditor extends StyleClassedTextArea
         .builder()
         .with( CaretPosition.Mutator::setEditor, this )
         .build();
+  }
+
+  @Override
+  public Node getNode() {
+    return this;
   }
 
   /**
