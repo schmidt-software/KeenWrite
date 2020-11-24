@@ -122,10 +122,17 @@ public class MainView extends SplitPane {
   private final EventHandler<TreeModificationEvent<Event>> mTreeHandler =
       event -> refreshTextEditor();
 
+  private final DefinitionTabSceneFactory definitionTabSceneFactory = new DefinitionTabSceneFactory();
   public MainView() {
     initLayout();
     initActiveTextEditorListener();
     initActiveDefinitionEditorListener();
+	 definitionTabSceneFactory.setOnTabSelected((t) -> {
+		 var node = t.getContent();
+		 if (node instanceof TextDefinition) {
+			 mActiveDefinitionEditor.set((DefinitionEditor) node);
+		 }
+	 });
   }
 
   /**
@@ -159,6 +166,13 @@ public class MainView extends SplitPane {
     final var mediaType = file.getMediaType();
     final var tab = createTab( file );
     final var tabPane = obtainDetachableTabPane( mediaType );
+	 if (!getItems().contains(tabPane)) {
+		 if (mediaType == MediaType.TEXT_YAML) {
+			 getItems().add(0, tabPane);
+		 } else {
+			 getItems().add(tabPane);
+		 }
+	 }
     tabPane.getTabs().add( tab );
 
     tab.setTooltip( createTooltip( file ) );
@@ -372,6 +386,9 @@ public class MainView extends SplitPane {
         mediaType, ( mt ) -> {
           final var tabPane = new DetachableTabPane();
           getItems().add( tabPane );
+			 if (mt == MediaType.TEXT_YAML) {
+				 tabPane.setSceneFactory(definitionTabSceneFactory::create);
+			 }
           return tabPane;
         }
     );
