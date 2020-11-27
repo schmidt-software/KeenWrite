@@ -121,7 +121,10 @@ public class MainView extends SplitPane {
    * TODO: Export the YAML file on change.
    */
   private final EventHandler<TreeModificationEvent<Event>> mTreeHandler =
-      event -> refresh( mActiveTextEditor );
+      event -> {
+        refreshResolvedMap( mActiveDefinitionEditor.get() );
+        refresh( mActiveTextEditor );
+      };
 
   /**
    * Adds all content panels to the main user interface. This will load the
@@ -252,11 +255,22 @@ public class MainView extends SplitPane {
     return new DetachableTab( controller.getFilename(), controller.getView() );
   }
 
+  /**
+   * Removes all definition values from the resolved map.
+   */
   private void clearResolvedMap() {
     mResolvedMap.clear();
   }
 
+  /**
+   * Uses the given {@link TextDefinition} instance to update the resolved
+   * map.
+   *
+   * @param editor A non-null, possibly empty definition editor.
+   */
   private void refreshResolvedMap( final TextDefinition editor ) {
+    assert editor != null;
+
     clearResolvedMap();
     mResolvedMap.putAll( interpolate( new HashMap<>( editor.toMap() ) ) );
   }
@@ -364,7 +378,7 @@ public class MainView extends SplitPane {
               final var node = o.getContent();
 
               if( node instanceof TextDefinition ) {
-                mActiveDefinitionEditor.set( null );
+                mActiveDefinitionEditor.set( createDefinitionEditor() );
               }
             }
             else if( n != null ) {
@@ -407,7 +421,7 @@ public class MainView extends SplitPane {
       // THe active editor must be set for the preview panel to refresh.
       mActiveTextEditor.set( editor );
 
-      // FIXME: This must change when the text editor changes
+      // TODO: Change base URI when the text editor tab changes
       mHtmlPreview.setBaseUri( path );
       mProcessors.computeIfAbsent( editor, p -> createProcessors( context ) );
 
