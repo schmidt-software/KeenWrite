@@ -106,43 +106,60 @@ public class MainView extends SplitPane {
    * definitions are modified and need to trigger the processing chain.
    */
   private final ObjectProperty<TextEditor> mActiveTextEditor =
-      new SimpleObjectProperty<>();
+      createActiveTextEditorListener();
 
   /**
    * Changing the active definition editor, even back to itself, will always
    * fire the value changed event. This allows refreshes to happen when external
    * definitions are modified and need to trigger the processing chain.
    */
-  private final ObjectProperty<DefinitionEditor> mActiveDefinitionEditor =
-      new SimpleObjectProperty<>();
+  private final ObjectProperty<TextDefinition> mActiveDefinitionEditor =
+      createActiveDefinitionEditorListener( mActiveTextEditor );
+
+  /**
+   * Responsible for creating a new scene when a tab is detached into
+   * its own window frame.
+   */
+  private final DefinitionTabSceneFactory mDefinitionTabSceneFactory =
+      createDefinitionTabSceneFactory( mActiveDefinitionEditor );
 
   /**
    * Called when the definition data is changed.
+   * <p>
+   * TODO: Export the YAML file on change.
    */
   private final EventHandler<TreeModificationEvent<Event>> mTreeHandler =
-      event -> refreshTextEditor();
+      event -> refresh( mActiveTextEditor );
 
-  private final DefinitionTabSceneFactory definitionTabSceneFactory = new DefinitionTabSceneFactory();
+  /**
+   * Adds all content panels to the main user interface. This will load the
+   * configuration settings from the workspace to reproduce the settings from
+   * a previous session.
+   */
   public MainView() {
-    initLayout();
-    initActiveTextEditorListener();
-    initActiveDefinitionEditorListener();
-	 definitionTabSceneFactory.setOnTabSelected((t) -> {
-		 var node = t.getContent();
-		 if (node instanceof TextDefinition) {
-			 mActiveDefinitionEditor.set((DefinitionEditor) node);
-		 }
-	 });
+    final var workspace = new Workspace( "default" );
+    open( bin( workspace.restoreFiles() ) );
+
+    final var cTabPane = obtainDetachableTabPane( TEXT_HTML );
+    cTabPane.addTab( "HTML", mHtmlPreview );
+
+    final var items = getItems();
+    final var ratio = 100f / items.size() / 100;
+    final var positions = getDividerPositions();
+
+    for( int i = 0; i < positions.length; i++ ) {
+      positions[ i ] = ratio * i;
+    }
+
+    // TODO: Load divider positions from exported settings, see bin() comment.
+    setDividerPositions( positions );
   }
 
   /**
    * Opens files selected by the user into the application.
    */
   public void open() {
-    final var chooser = new FileChooserCommand( getScene().getWindow() );
-    final var files = chooser.openFiles();
-
-    open( files );
+    open( createFileChooser().openFiles() );
   }
 
   /**
@@ -166,31 +183,21 @@ public class MainView extends SplitPane {
     final var mediaType = file.getMediaType();
     final var tab = createTab( file );
     final var tabPane = obtainDetachableTabPane( mediaType );
-	 if (!getItems().contains(tabPane)) {
-		 if (mediaType == MediaType.TEXT_YAML) {
-			 getItems().add(0, tabPane);
-		 } else {
-			 getItems().add(tabPane);
-		 }
-	 }
+
+    if( !getItems().contains( tabPane ) ) {
+      // FIXME: No YAML-specific stuff
+      if( mediaType == MediaType.TEXT_YAML ) {
+        tabPane.setSceneFactory( mDefinitionTabSceneFactory::create );
+        getItems().add( 0, tabPane );
+      }
+      else {
+        getItems().add( tabPane );
+      }
+    }
+
     tabPane.getTabs().add( tab );
 
     tab.setTooltip( createTooltip( file ) );
-    tab.setOnCloseRequest( ( e ) -> {
-      final var pane = tab.getTabPane();
-      final var count = pane.getTabs().size();
-      final var content = tab.getContent();
-
-      // Ensure the last remaining tab is cleared, but remains open.
-      if( count <= 1 ) {
-        if( content instanceof TextEditor ) {
-          newTextEditor();
-        }
-        else if( content instanceof TextDefinition ) {
-          newDefinitionEditor();
-        }
-      }
-    } );
 
     // When an editor is selected using Ctrl+PgUp/Ctrl+PgDn, this ensures
     // that the tab content retains focus.
@@ -243,53 +250,42 @@ public class MainView extends SplitPane {
     open( DEFAULT_DEFINITION );
   }
 
+  private ObjectProperty<TextDefinition> createActiveDefinitionEditorListener(
+      final ObjectProperty<TextEditor> editor ) {
+    final var definitions = new SimpleObjectProperty<TextDefinition>();
+    definitions.addListener( ( c, o, n ) -> {
+      if( n != null ) {
+        refreshResolvedMap( n );
+        refresh( editor );
+      }
+    } );
 
-  /**
-   * Adds all content panels to the main user interface. This will load the
-   * configuration settings from the workspace to reproduce the settings from
-   * a previous session.
-   */
-  private void initLayout() {
-    final var workspace = new Workspace( "default" );
-    open( bin( workspace.restoreFiles() ) );
-
-    final var cTabPane = obtainDetachableTabPane( TEXT_HTML );
-    cTabPane.addTab( "HTML", mHtmlPreview );
-
-    final var items = getItems();
-    final var ratio = 100f / items.size() / 100;
-    final var positions = getDividerPositions();
-
-    for( int i = 0; i < positions.length; i++ ) {
-      positions[ i ] = ratio * i;
-    }
-
-    // TODO: Load divider positions from exported settings, see bin() comment.
-    setDividerPositions( positions );
+    return definitions;
   }
 
-  /**
-   * Called to update the preview pane when the active editor changes.
-   */
-  private void initActiveTextEditorListener() {
-    mActiveTextEditor.addListener( ( c, o, n ) -> {
+  private ObjectProperty<TextEditor> createActiveTextEditorListener() {
+    final var editor = new SimpleObjectProperty<TextEditor>();
+    editor.addListener( ( c, o, n ) -> {
       if( n != null ) {
         n.getNode().requestFocus();
         refresh( n );
       }
     } );
+
+    return editor;
   }
 
-  private void initActiveDefinitionEditorListener() {
-    mActiveDefinitionEditor.addListener( ( c, o, n ) -> {
-      if( n != null ) {
-        refreshResolvedMap( n );
-        refreshTextEditor();
+  private DefinitionTabSceneFactory createDefinitionTabSceneFactory(
+      final ObjectProperty<TextDefinition> activeDefinitionEditor ) {
+    return new DefinitionTabSceneFactory( ( t ) -> {
+      var node = t.getContent();
+      if( node instanceof TextDefinition ) {
+        activeDefinitionEditor.set( (DefinitionEditor) node );
       }
     } );
   }
 
-  private void refreshResolvedMap( final DefinitionEditor editor ) {
+  private void refreshResolvedMap( final TextDefinition editor ) {
     mResolvedMap.clear();
     mResolvedMap.putAll( interpolate( new HashMap<>( editor.toMap() ) ) );
   }
@@ -352,22 +348,25 @@ public class MainView extends SplitPane {
    * Re-run the processor for the selected node so that the rendered view of
    * the document contents are updated.
    *
-   * @param node Contains the source document to update in the preview pane.
+   * @param editor Contains the source document to update in the preview pane.
    */
-  private void refresh( final TextEditor node ) {
-    if( node != null ) {
-      mProcessors.getOrDefault( node, IdentityProcessor.INSTANCE )
-                 .apply( node.getText() );
-    }
+  private void refresh( final ObjectProperty<TextEditor> editor ) {
+    assert editor != null;
+    refresh( editor.get() );
   }
 
   /**
    * Force the active editor to update, which will cause the processor
    * to re-evaluate the interpolated definition map thereby updating the
    * preview pane.
+   *
+   * @param editor Contains the source document to update in the preview pane.
    */
-  private void refreshTextEditor() {
-    refresh( mActiveTextEditor.get() );
+  private void refresh( final TextEditor editor ) {
+    if( editor != null ) {
+      mProcessors.getOrDefault( editor, IdentityProcessor.INSTANCE )
+                 .apply( editor.getText() );
+    }
   }
 
   /**
@@ -386,9 +385,7 @@ public class MainView extends SplitPane {
         mediaType, ( mt ) -> {
           final var tabPane = new DetachableTabPane();
           getItems().add( tabPane );
-			 if (mt == MediaType.TEXT_YAML) {
-				 tabPane.setSceneFactory(definitionTabSceneFactory::create);
-			 }
+
           return tabPane;
         }
     );
@@ -404,13 +401,16 @@ public class MainView extends SplitPane {
       final var caret = view.createCaretPosition();
       final var context = createProcessorContext( path, caret );
 
+      // THe active editor must be set for the preview panel to refresh.
+      mActiveTextEditor.set( editor );
+
       // FIXME: This must change when the text editor changes
       mHtmlPreview.setBaseUri( path );
       mProcessors.computeIfAbsent( editor, p -> createProcessors( context ) );
 
       // When the caret position changes, synchronize with the preview.
       context.getCaretPosition().textOffsetProperty().addListener(
-          ( c, o, n ) -> refresh( editor )
+          ( c, o, n ) -> refresh( mActiveTextEditor )
       );
     }
 
@@ -439,13 +439,6 @@ public class MainView extends SplitPane {
 
     editor.addTreeChangeHandler( mTreeHandler );
 
-//    editor.addTreeChangeHandler( event -> {
-//      //exportDefinitions( getDefinitionPath() );
-//      //interpolateResolvedMap();
-//      //refresh( mTextEditor.get() );
-//      System.out.println( "TREE CHANGEDDD" );
-//    } );
-
     return editor;
   }
 
@@ -455,6 +448,10 @@ public class MainView extends SplitPane {
 
     tooltip.setShowDelay( millis( 200 ) );
     return tooltip;
+  }
+
+  private FileChooserCommand createFileChooser() {
+    return new FileChooserCommand( getWindow() );
   }
 
   private Window getWindow() {
