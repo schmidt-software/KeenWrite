@@ -44,7 +44,6 @@ import com.panemu.tiwulfx.control.dock.DetachableTab;
 import com.panemu.tiwulfx.control.dock.DetachableTabPane;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.value.ChangeListener;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.scene.control.SplitPane;
@@ -63,7 +62,6 @@ import static com.keenwrite.ExportFormat.NONE;
 import static com.keenwrite.definition.MapInterpolator.interpolate;
 import static com.keenwrite.io.MediaType.*;
 import static com.keenwrite.processors.ProcessorFactory.createProcessors;
-import static javafx.application.Platform.runLater;
 import static javafx.util.Duration.millis;
 
 /**
@@ -82,12 +80,6 @@ public class MainView extends SplitPane {
    * Groups similar file type tabs together.
    */
   private final Map<MediaType, DetachableTabPane> mTabPanes = new HashMap<>();
-
-  /**
-   * Prevents multiple listeners from listening to the same detachable tab pane.
-   */
-  final Map<DetachableTabPane, ChangeListener<Number>> mTabPaneListeners =
-      new HashMap<>();
 
   /**
    * Stores definition names and values.
@@ -140,11 +132,11 @@ public class MainView extends SplitPane {
     final var workspace = new Workspace( "default" );
     open( bin( workspace.restoreFiles() ) );
 
-    final var cTabPane = obtainDetachableTabPane( TEXT_HTML );
-    cTabPane.addTab( "HTML", mHtmlPreview );
+    final var tabPane = obtainDetachableTabPane( TEXT_HTML );
+    tabPane.addTab( "HTML", mHtmlPreview );
+    addTabPane( tabPane );
 
-    final var items = getItems();
-    final var ratio = 100f / items.size() / 100;
+    final var ratio = 100f / getItems().size() / 100;
     final var positions = getDividerPositions();
 
     for( int i = 0; i < positions.length; i++ ) {
@@ -182,57 +174,23 @@ public class MainView extends SplitPane {
   private void open( final File file ) {
     final var mediaType = file.getMediaType();
     final var tab = createTab( file );
+    final var node = tab.getContent();
     final var tabPane = obtainDetachableTabPane( mediaType );
-
-    if( !getItems().contains( tabPane ) ) {
-      // FIXME: No YAML-specific stuff
-      if( mediaType == MediaType.TEXT_YAML ) {
-        tabPane.setSceneFactory( mDefinitionTabSceneFactory::create );
-        getItems().add( 0, tabPane );
-      }
-      else {
-        getItems().add( tabPane );
-      }
-    }
-
-    tabPane.getTabs().add( tab );
+    final var newTabPane = !getItems().contains( tabPane );
 
     tab.setTooltip( createTooltip( file ) );
+    tabPane.getTabs().add( tab );
 
-    // When an editor is selected using Ctrl+PgUp/Ctrl+PgDn, this ensures
-    // that the tab content retains focus.
-    final var model = tabPane.getSelectionModel();
+    if( newTabPane ) {
+      var index = getItems().size();
 
-    // Only create a new tab pane listener when needed. This works around a
-    // lack of API to query the number of listeners on an object.
-    final var listener = mTabPaneListeners.computeIfAbsent(
-        tabPane, p -> ( c, o, n ) -> runLater(
-            () -> {
-              final var selectedTab = model.getSelectedItem();
+      if( node instanceof TextDefinition ) {
+        tabPane.setSceneFactory( mDefinitionTabSceneFactory::create );
+        index = 0;
+      }
 
-              if( selectedTab != null ) {
-                final var node = selectedTab.getContent();
-
-                if( node instanceof TextEditor ) {
-                  // Changing the active node will fire an event, which will
-                  // update the preview panel and grab focus.
-                  mActiveTextEditor.set( (TextEditor) node );
-                }
-                else if( node instanceof TextDefinition ) {
-                  mActiveDefinitionEditor.set( (DefinitionEditor) node );
-                }
-              }
-            }
-        ) );
-
-    final var tabPaneIndex = model.selectedIndexProperty();
-    tabPaneIndex.removeListener( listener );
-    tabPaneIndex.addListener( listener );
-  }
-
-  private DetachableTab createTab( final File file ) {
-    final var controller = createController( file );
-    return new DetachableTab( controller.getFilename(), controller.getView() );
+      addTabPane( index, tabPane );
+    }
   }
 
   /**
@@ -254,10 +212,14 @@ public class MainView extends SplitPane {
       final ObjectProperty<TextEditor> editor ) {
     final var definitions = new SimpleObjectProperty<TextDefinition>();
     definitions.addListener( ( c, o, n ) -> {
-      if( n != null ) {
-        refreshResolvedMap( n );
-        refresh( editor );
+      if( n == null ) {
+        clearResolvedMap();
       }
+      else {
+        refreshResolvedMap( n );
+      }
+
+      refresh( editor );
     } );
 
     return definitions;
@@ -285,8 +247,17 @@ public class MainView extends SplitPane {
     } );
   }
 
-  private void refreshResolvedMap( final TextDefinition editor ) {
+  private DetachableTab createTab( final File file ) {
+    final var controller = createController( file );
+    return new DetachableTab( controller.getFilename(), controller.getView() );
+  }
+
+  private void clearResolvedMap() {
     mResolvedMap.clear();
+  }
+
+  private void refreshResolvedMap( final TextDefinition editor ) {
+    clearResolvedMap();
     mResolvedMap.putAll( interpolate( new HashMap<>( editor.toMap() ) ) );
   }
 
@@ -384,11 +355,43 @@ public class MainView extends SplitPane {
     return mTabPanes.computeIfAbsent(
         mediaType, ( mt ) -> {
           final var tabPane = new DetachableTabPane();
-          getItems().add( tabPane );
+          final var model = tabPane.getSelectionModel();
+
+          model.selectedItemProperty().addListener( ( c, o, n ) -> {
+            // If the last definition editor in the active pane was closed,
+            // clear out the definitions then refresh the text editor.
+            if( o != null && n == null ) {
+              final var node = o.getContent();
+
+              if( node instanceof TextDefinition ) {
+                mActiveDefinitionEditor.set( null );
+              }
+            }
+            else if( n != null ) {
+              final var node = n.getContent();
+
+              if( node instanceof TextEditor ) {
+                // Changing the active node will fire an event, which will
+                // update the preview panel and grab focus.
+                mActiveTextEditor.set( (TextEditor) node );
+              }
+              else if( node instanceof TextDefinition ) {
+                mActiveDefinitionEditor.set( (DefinitionEditor) node );
+              }
+            }
+          } );
 
           return tabPane;
         }
     );
+  }
+
+  private void addTabPane( final int index, final DetachableTabPane tabPane ) {
+    getItems().add( index, tabPane );
+  }
+
+  private void addTabPane( final DetachableTabPane tabPane ) {
+    addTabPane( getItems().size(), tabPane );
   }
 
   private EditorController createController(
