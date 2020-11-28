@@ -39,8 +39,6 @@ import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import org.controlsfx.control.StatusBar;
 
-import java.util.logging.LogManager;
-
 import static com.keenwrite.Bootstrap.APP_TITLE;
 import static com.keenwrite.Constants.*;
 import static com.keenwrite.preferences.UserPreferences.initPreferences;

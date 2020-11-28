@@ -49,6 +49,7 @@ import javafx.event.EventHandler;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.Tooltip;
 import javafx.scene.control.TreeItem.TreeModificationEvent;
+import javafx.stage.Stage;
 import javafx.stage.Window;
 
 import java.nio.file.Path;
@@ -59,9 +60,11 @@ import java.util.Map;
 
 import static com.keenwrite.Constants.*;
 import static com.keenwrite.ExportFormat.NONE;
+import static com.keenwrite.Messages.get;
 import static com.keenwrite.definition.MapInterpolator.interpolate;
 import static com.keenwrite.io.MediaType.*;
 import static com.keenwrite.processors.ProcessorFactory.createProcessors;
+import static javafx.application.Platform.runLater;
 import static javafx.util.Duration.millis;
 
 /**
@@ -98,7 +101,7 @@ public class MainView extends SplitPane {
    * definitions are modified and need to trigger the processing chain.
    */
   private final ObjectProperty<TextEditor> mActiveTextEditor =
-      createActiveTextEditorListener();
+      createActiveTextEditor();
 
   /**
    * Changing the active definition editor, even back to itself, will always
@@ -106,7 +109,7 @@ public class MainView extends SplitPane {
    * definitions are modified and need to trigger the processing chain.
    */
   private final ObjectProperty<TextDefinition> mActiveDefinitionEditor =
-      createActiveDefinitionEditorListener( mActiveTextEditor );
+      createActiveDefinitionEditor( mActiveTextEditor );
 
   /**
    * Responsible for creating a new scene when a tab is detached into
@@ -116,14 +119,21 @@ public class MainView extends SplitPane {
       createDefinitionTabSceneFactory( mActiveDefinitionEditor );
 
   /**
+   * Tracks the number of detached tab panels opened into their own windows,
+   * which allows unique identification of subordinate windows by their title.
+   * It is doubtful more than 128 windows, much less 256, will be created.
+   */
+  private byte mWindowCount;
+
+  /**
    * Called when the definition data is changed.
    * <p>
    * TODO: Export the YAML file on change.
    */
   private final EventHandler<TreeModificationEvent<Event>> mTreeHandler =
       event -> {
-        refreshResolvedMap( mActiveDefinitionEditor.get() );
-        refresh( mActiveTextEditor );
+        resolve( mActiveDefinitionEditor.get() );
+        process( mActiveTextEditor );
       };
 
   /**
@@ -148,6 +158,24 @@ public class MainView extends SplitPane {
 
     // TODO: Load divider positions from exported settings, see bin() comment.
     setDividerPositions( positions );
+
+    // When the main scene's window regains focus, update the active definition
+    // editor to the currently selected tab.
+    runLater(
+        () -> getWindow().focusedProperty().addListener( ( c, o, n ) -> {
+          if( n != null && n ) {
+            final var pane = mTabPanes.get( TEXT_YAML );
+            final var model = pane.getSelectionModel();
+            final var tab = model.getSelectedItem();
+
+            if( tab != null ) {
+              final var editor = (TextDefinition) tab.getContent();
+
+              mActiveDefinitionEditor.set( editor );
+            }
+          }
+        } )
+    );
   }
 
   /**
@@ -211,39 +239,45 @@ public class MainView extends SplitPane {
     open( DEFAULT_DEFINITION );
   }
 
-  private ObjectProperty<TextDefinition> createActiveDefinitionEditorListener(
-      final ObjectProperty<TextEditor> editor ) {
-    final var definitions = new SimpleObjectProperty<TextDefinition>();
-    definitions.addListener( ( c, o, n ) -> {
-      if( n == null ) {
-        clearResolvedMap();
-      }
-      else {
-        refreshResolvedMap( n );
-      }
-
-      refresh( editor );
-    } );
-
-    return definitions;
-  }
-
-  private ObjectProperty<TextEditor> createActiveTextEditorListener() {
+  private ObjectProperty<TextEditor> createActiveTextEditor() {
     final var editor = new SimpleObjectProperty<TextEditor>();
     editor.addListener( ( c, o, n ) -> {
       if( n != null ) {
         n.getNode().requestFocus();
-        refresh( n );
+        process( n );
       }
     } );
 
     return editor;
   }
 
+  /**
+   * Creates a new {@link DefinitionEditor} wrapped in a listener that
+   * is used to detect when the active {@link DefinitionEditor} has changed.
+   * Upon changing, the {@link #mResolvedMap} is updated and the active
+   * text editor is refreshed.
+   *
+   * @param editor Text editor to update with the revised resolved map.
+   * @return A newly configured property that represents the active
+   * {@link DefinitionEditor}, never null.
+   */
+  private ObjectProperty<TextDefinition> createActiveDefinitionEditor(
+      final ObjectProperty<TextEditor> editor ) {
+    final var definitions = new SimpleObjectProperty<TextDefinition>();
+    definitions.addListener( ( c, o, n ) -> {
+      resolve( n == null ? createDefinitionEditor() : n );
+      process( editor );
+    } );
+
+    return definitions;
+  }
+
   private DefinitionTabSceneFactory createDefinitionTabSceneFactory(
       final ObjectProperty<TextDefinition> activeDefinitionEditor ) {
-    return new DefinitionTabSceneFactory( ( t ) -> {
-      var node = t.getContent();
+    return new DefinitionTabSceneFactory( ( tab ) -> {
+      assert tab != null;
+
+      var node = tab.getContent();
       if( node instanceof TextDefinition ) {
         activeDefinitionEditor.set( (DefinitionEditor) node );
       }
@@ -253,26 +287,6 @@ public class MainView extends SplitPane {
   private DetachableTab createTab( final File file ) {
     final var controller = createController( file );
     return new DetachableTab( controller.getFilename(), controller.getView() );
-  }
-
-  /**
-   * Removes all definition values from the resolved map.
-   */
-  private void clearResolvedMap() {
-    mResolvedMap.clear();
-  }
-
-  /**
-   * Uses the given {@link TextDefinition} instance to update the resolved
-   * map.
-   *
-   * @param editor A non-null, possibly empty definition editor.
-   */
-  private void refreshResolvedMap( final TextDefinition editor ) {
-    assert editor != null;
-
-    clearResolvedMap();
-    mResolvedMap.putAll( interpolate( new HashMap<>( editor.toMap() ) ) );
   }
 
   /**
@@ -330,14 +344,26 @@ public class MainView extends SplitPane {
   }
 
   /**
+   * Uses the given {@link TextDefinition} instance to update the
+   * {@link #mResolvedMap}.
+   *
+   * @param editor A non-null, possibly empty definition editor.
+   */
+  private void resolve( final TextDefinition editor ) {
+    assert editor != null;
+    mResolvedMap.clear();
+    mResolvedMap.putAll( interpolate( new HashMap<>( editor.toMap() ) ) );
+  }
+
+  /**
    * Re-run the processor for the selected node so that the rendered view of
    * the document contents are updated.
    *
    * @param editor Contains the source document to update in the preview pane.
    */
-  private void refresh( final ObjectProperty<TextEditor> editor ) {
+  private void process( final ObjectProperty<TextEditor> editor ) {
     assert editor != null;
-    refresh( editor.get() );
+    process( editor.get() );
   }
 
   /**
@@ -347,7 +373,7 @@ public class MainView extends SplitPane {
    *
    * @param editor Contains the source document to update in the preview pane.
    */
-  private void refresh( final TextEditor editor ) {
+  private void process( final TextEditor editor ) {
     if( editor != null ) {
       mProcessors.getOrDefault( editor, IdentityProcessor.INSTANCE )
                  .apply( editor.getText() );
@@ -369,6 +395,17 @@ public class MainView extends SplitPane {
     return mTabPanes.computeIfAbsent(
         mediaType, ( mt ) -> {
           final var tabPane = new DetachableTabPane();
+
+          // Derive the new title from the main window title.
+          tabPane.setStageOwnerFactory( ( stage ) -> {
+            final var title = get(
+                "Detach.tab.title",
+                ((Stage) getWindow()).getTitle(), ++mWindowCount
+            );
+            stage.setTitle( title );
+            return getScene().getWindow();
+          } );
+
           final var model = tabPane.getSelectionModel();
 
           model.selectedItemProperty().addListener( ( c, o, n ) -> {
@@ -427,7 +464,7 @@ public class MainView extends SplitPane {
 
       // When the caret position changes, synchronize with the preview.
       context.getCaretPosition().textOffsetProperty().addListener(
-          ( c, o, n ) -> refresh( mActiveTextEditor )
+          ( c, o, n ) -> process( mActiveTextEditor )
       );
     }
 
