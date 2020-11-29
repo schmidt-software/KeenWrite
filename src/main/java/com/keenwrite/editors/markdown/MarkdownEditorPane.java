@@ -27,10 +27,11 @@
  */
 package com.keenwrite.editors.markdown;
 
+import com.keenwrite.editors.PlainTextEditor;
+import com.keenwrite.io.File;
+import com.keenwrite.processors.markdown.MarkdownProcessor;
 import com.keenwrite.ui.dialogs.ImageDialog;
 import com.keenwrite.ui.dialogs.LinkDialog;
-import com.keenwrite.editors.PlainTextEditor;
-import com.keenwrite.processors.markdown.MarkdownProcessor;
 import com.vladsch.flexmark.ast.Link;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.IndexRange;
@@ -43,6 +44,7 @@ import java.nio.file.Path;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.keenwrite.Constants.DEFAULT_DOCUMENT;
 import static com.keenwrite.Constants.STYLESHEET_MARKDOWN;
 import static javafx.scene.input.KeyCode.ENTER;
 import static javafx.scene.input.KeyCombination.CONTROL_DOWN;
@@ -58,6 +60,11 @@ public class MarkdownEditorPane extends PlainTextEditor {
       "(\\s*[*+-]\\s+|\\s*[0-9]+\\.\\s+|\\s+)(.*)" );
 
   public MarkdownEditorPane() {
+    this( DEFAULT_DOCUMENT );
+  }
+
+  public MarkdownEditorPane( final File file ) {
+    super( file );
     final var textArea = getEditor();
 
     textArea.setWrapText( true );

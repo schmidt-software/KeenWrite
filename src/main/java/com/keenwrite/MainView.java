@@ -44,9 +44,11 @@ import com.panemu.tiwulfx.control.dock.DetachableTab;
 import com.panemu.tiwulfx.control.dock.DetachableTabPane;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.collections.ListChangeListener;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.scene.control.SplitPane;
+import javafx.scene.control.Tab;
 import javafx.scene.control.Tooltip;
 import javafx.scene.control.TreeItem.TreeModificationEvent;
 import javafx.stage.Stage;
@@ -243,6 +245,7 @@ public class MainView extends SplitPane {
     final var editor = new SimpleObjectProperty<TextEditor>();
     editor.addListener( ( c, o, n ) -> {
       if( n != null ) {
+        mHtmlPreview.setBaseUri( n.getPath() );
         n.getNode().requestFocus();
         process( n );
       }
@@ -285,8 +288,8 @@ public class MainView extends SplitPane {
   }
 
   private DetachableTab createTab( final File file ) {
-    final var controller = createController( file );
-    return new DetachableTab( controller.getFilename(), controller.getView() );
+    final var resource = createTextResource( file );
+    return new DetachableTab( resource.getFilename(), resource.getNode() );
   }
 
   /**
@@ -406,6 +409,35 @@ public class MainView extends SplitPane {
             return getScene().getWindow();
           } );
 
+          // Multiple tabs can be added simultaneously.
+          tabPane.getTabs().addListener(
+              ( final ListChangeListener.Change<? extends Tab> change ) -> {
+                while( change.next() ) {
+                  if( change.wasAdded() ) {
+                    final var tabs = change.getAddedSubList();
+
+                    for( final var tab : tabs ) {
+                      final var node = tab.getContent();
+
+                      if( node instanceof TextEditor ) {
+//                      initScrollEventListener( tab );
+//                      initSpellCheckListener( tab );
+//                      initTextChangeListener( tab );
+                      }
+                    }
+
+                    // Select the last tab opened.
+                    final var index = tabs.size() - 1;
+                    if( index >= 0 ) {
+                      final var tab = tabs.get( index );
+                      tabPane.getSelectionModel().select( tab );
+                      tab.getContent().requestFocus();
+                    }
+                  }
+                }
+              }
+          );
+
           final var model = tabPane.getSelectionModel();
 
           model.selectedItemProperty().addListener( ( c, o, n ) -> {
@@ -445,51 +477,49 @@ public class MainView extends SplitPane {
     addTabPane( getItems().size(), tabPane );
   }
 
-  private EditorController createController(
-      final File file ) {
-    final var view = createView( file.getMediaType() );
-
-    if( view instanceof TextEditor ) {
-      final var editor = (TextEditor) view;
-      final var path = file.toPath();
-      final var caret = view.createCaretPosition();
-      final var context = createProcessorContext( path, caret );
-
-      // THe active editor must be set for the preview panel to refresh.
-      mActiveTextEditor.set( editor );
-
-      // TODO: Change base URI when the text editor tab changes
-      mHtmlPreview.setBaseUri( path );
-      mProcessors.computeIfAbsent( editor, p -> createProcessors( context ) );
-
-      // When the caret position changes, synchronize with the preview.
-      context.getCaretPosition().textOffsetProperty().addListener(
-          ( c, o, n ) -> process( mActiveTextEditor )
-      );
-    }
-
-    return new EditorController( file.toPath(), view );
-  }
-
   private ProcessorContext createProcessorContext(
-      final Path path, final CaretPosition caretPosition ) {
+      final Path path, final CaretPosition caret ) {
     return new ProcessorContext(
-        mHtmlPreview, mResolvedMap, path, caretPosition, NONE
+        mHtmlPreview, mResolvedMap, path, caret, NONE
     );
   }
 
   @SuppressWarnings({"RedundantCast", "unchecked", "RedundantSuppression"})
-  private TextResource createView(
-      final MediaType mediaType ) {
+  private TextResource createTextResource( final File file ) {
+    final var mediaType = file.getMediaType();
+
     return switch( mediaType ) {
-      case TEXT_YAML -> createDefinitionEditor();
-      case TEXT_MARKDOWN -> new MarkdownEditor();
-      default -> new PlainTextEditor();
+      case TEXT_MARKDOWN -> createMarkdownEditor( file );
+      case TEXT_YAML -> createDefinitionEditor( file );
+      default -> new PlainTextEditor( file );
     };
   }
 
-  private DefinitionEditor createDefinitionEditor() {
-    final var editor = new DefinitionEditor( new YamlTreeTransformer() );
+  private TextResource createMarkdownEditor( final File file ) {
+    final var path = file.toPath();
+    final var editor = new MarkdownEditor( file );
+    final var caret = editor.createCaretPosition();
+    final var context = createProcessorContext( path, caret );
+
+    mProcessors.computeIfAbsent( editor, p -> createProcessors( context ) );
+
+    // When the caret position changes, update the preview.
+    caret.textOffsetProperty().addListener(
+        ( c, o, n ) -> process( mActiveTextEditor )
+    );
+
+    // Set the active editor to refresh the preview panel.
+    mActiveTextEditor.set( editor );
+
+    return editor;
+  }
+
+  private TextDefinition createDefinitionEditor() {
+    return createDefinitionEditor( DEFAULT_DEFINITION );
+  }
+
+  private TextDefinition createDefinitionEditor( final File file ) {
+    final var editor = new DefinitionEditor( file, new YamlTreeTransformer() );
 
     editor.addTreeChangeHandler( mTreeHandler );
 

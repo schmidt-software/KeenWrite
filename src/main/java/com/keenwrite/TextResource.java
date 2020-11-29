@@ -26,8 +26,13 @@
  */
 package com.keenwrite;
 
-import com.keenwrite.processors.markdown.CaretPosition;
+import com.keenwrite.io.File;
 import javafx.scene.Node;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
+
+import static com.keenwrite.StatusBarNotifier.clue;
 
 /**
  * A text resource can be persisted and retrieved from its persisted location.
@@ -52,25 +57,58 @@ public interface TextResource {
   String getText();
 
   /**
-   * Changes the caret position in implementations that support it. Performs
-   * no operation by default.
+   * Returns the file name, without any directory components, for this instance.
+   * Useful for showing as a tab title.
    *
-   * @param position The new caret position.
+   * @return The file name value returned from {@link #getFile()}.
    */
-  default void setInsertionPoint( final int position ) {
+  default String getFilename() {
+    final var filename = getFile().toPath().getFileName();
+    return filename == null ? "" : filename.toString();
   }
 
   /**
-   * Returns the container that represents the caret's position within the
-   * text editor. If this object has no editor that supports a caret, then
-   * this will return a default implementation whose behaviour is undefined.
+   * Returns the fully qualified {@link File} to the editable text resource.
+   * Useful for showing as a tab tooltip, saving the file, or reading it.
    *
-   * @return An instance of {@link CaretPosition} that reflects the position
-   * of the caret in the document being edited, or {@code null} if the document
-   * has no caret.
+   * @return A non-null {@link File} instance.
    */
-  default CaretPosition createCaretPosition() {
-    return null;
+  File getFile();
+
+  /**
+   * Returns the fully qualified {@link Path} to the editable text resource.
+   * This delegates to {@link #getFile()}.
+   *
+   * @return A non-null {@link Path} instance.
+   */
+  default Path getPath() {
+    return getFile().toPath();
+  }
+
+  /**
+   * Read the file contents and update the text accordingly. If the file
+   * cannot be read then no changes will happen to the text. Fails silently.
+   *
+   * @param path The fully qualified {@link Path}, including a file name, to
+   *             fully read into the editor.
+   */
+  default void readFile( final Path path ) {
+    try {
+      setText( Files.readString( path ) );
+    } catch( final Exception ex ) {
+      clue( ex );
+    }
+  }
+
+  /**
+   * Read the file contents and update the text accordingly. If the file
+   * cannot be read then no changes will happen to the text. This delegates
+   * to {@link #readFile(Path)}.
+   *
+   * @param file The {@link File} to fully read into the editor.
+   */
+  default void readFile( final File file ) {
+    readFile( file.toPath() );
   }
 
   /**

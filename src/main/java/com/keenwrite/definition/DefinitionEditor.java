@@ -26,8 +26,8 @@
  */
 package com.keenwrite.definition;
 
-import com.keenwrite.TextResource;
 import com.keenwrite.editors.TextDefinition;
+import com.keenwrite.io.File;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
 import javafx.collections.ObservableList;
@@ -42,6 +42,7 @@ import javafx.scene.layout.HBox;
 
 import java.util.*;
 
+import static com.keenwrite.Constants.DEFAULT_DEFINITION;
 import static com.keenwrite.Messages.get;
 import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.*;
 import static javafx.geometry.Pos.CENTER;
@@ -81,13 +82,33 @@ public final class DefinitionEditor extends BorderPane implements
       = new HashSet<>();
 
   /**
-   * Constructs a definition pane with a given tree view root.
+   * File being edited by this editor instance.
+   */
+  private final File mFile;
+
+  /**
+   * This is provided for unit tests that are not backed by files.
+   *
+   * @param treeTransformer The
    */
   public DefinitionEditor( final TreeTransformer treeTransformer ) {
+    this( DEFAULT_DEFINITION, treeTransformer );
+  }
+
+  /**
+   * Constructs a definition pane with a given tree view root.
+   * @param file The file to
+   */
+  public DefinitionEditor(
+      final File file, final TreeTransformer treeTransformer ) {
+    assert file != null;
+    assert treeTransformer != null;
+
+    mFile = file;
     mTreeTransformer = treeTransformer;
 
     mTreeView.setEditable( true );
-    mTreeView.setCellFactory( new TreeCellFactory(  ) );
+    mTreeView.setCellFactory( new TreeCellFactory() );
     mTreeView.setContextMenu( createContextMenu() );
     mTreeView.addEventFilter( KEY_PRESSED, this::keyEventFilter );
     mTreeView.setShowRoot( false );
@@ -108,6 +129,7 @@ public final class DefinitionEditor extends BorderPane implements
     setTop( buttonBar );
     setCenter( mTreeView );
     setAlignment( buttonBar, TOP_CENTER );
+    readFile( mFile );
   }
 
   @Override
@@ -125,6 +147,11 @@ public final class DefinitionEditor extends BorderPane implements
   @Override
   public String getText() {
     return "";
+  }
+
+  @Override
+  public File getFile() {
+    return mFile;
   }
 
   @Override

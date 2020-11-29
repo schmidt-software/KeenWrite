@@ -27,6 +27,7 @@
  */
 package com.keenwrite.editors;
 
+import com.keenwrite.io.File;
 import com.keenwrite.preferences.UserPreferences;
 import com.keenwrite.processors.markdown.CaretPosition;
 import javafx.beans.property.IntegerProperty;
@@ -65,7 +66,7 @@ public class PlainTextEditor extends StyleClassedTextArea
       new VirtualizedScrollPane<>( this );
   private final ObjectProperty<Path> mPath = new SimpleObjectProperty<>();
 
-  public PlainTextEditor() {
+  public PlainTextEditor( final File file ) {
     super( false );
     getScrollPane().setVbarPolicy( ScrollPane.ScrollBarPolicy.ALWAYS );
     fontsSizeProperty().addListener(
@@ -78,6 +79,8 @@ public class PlainTextEditor extends StyleClassedTextArea
     textProperty().addListener(
         ( l, o, n ) -> clearClue()
     );
+
+    mPath.set( file.toPath() );
   }
 
   @Override
@@ -159,7 +162,6 @@ public class PlainTextEditor extends StyleClassedTextArea
     return getEditor().getText();
   }
 
-  @Override
   public CaretPosition createCaretPosition() {
     return CaretPosition
         .builder()
@@ -227,8 +229,8 @@ public class PlainTextEditor extends StyleClassedTextArea
     return mScrollPane;
   }
 
-  public Path getPath() {
-    return mPath.get();
+  public File getFile() {
+    return new File( mPath.get().toFile() );
   }
 
   /**

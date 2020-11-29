@@ -27,12 +27,14 @@
 package com.keenwrite.editors.markdown;
 
 import com.keenwrite.editors.TextEditor;
+import com.keenwrite.io.File;
 import com.keenwrite.processors.markdown.CaretPosition;
 import javafx.scene.Node;
 import javafx.scene.layout.BorderPane;
 import org.fxmisc.flowless.VirtualizedScrollPane;
 import org.fxmisc.richtext.StyleClassedTextArea;
 
+import static com.keenwrite.Constants.DEFAULT_DOCUMENT;
 import static com.keenwrite.Constants.STYLESHEET_MARKDOWN;
 import static javafx.scene.control.ScrollPane.ScrollBarPolicy.ALWAYS;
 
@@ -45,11 +47,23 @@ public class MarkdownEditor extends BorderPane implements TextEditor {
   private final VirtualizedScrollPane<StyleClassedTextArea> mScrollPane =
       new VirtualizedScrollPane<>( mTextArea );
 
+  /**
+   * File being edited by this editor instance.
+   */
+  private final File mFile;
+
   public MarkdownEditor() {
+    this( DEFAULT_DOCUMENT );
+  }
+
+  public MarkdownEditor( final File file ) {
+    readFile( mFile = file );
+
     mTextArea.setWrapText( true );
     mTextArea.getStyleClass().add( "markdown" );
     mTextArea.getStylesheets().add( STYLESHEET_MARKDOWN );
     mTextArea.requestFollowCaret();
+    mTextArea.moveTo( 0 );
 
     mScrollPane.setVbarPolicy( ALWAYS );
 
@@ -75,22 +89,16 @@ public class MarkdownEditor extends BorderPane implements TextEditor {
     return mTextArea.getText();
   }
 
-  /**
-   * Changes the absolute position of the caret within the editor. This will
-   * update the view port to follow the caret position because of the call
-   * to {@link StyleClassedTextArea#requestFollowCaret()}.
-   *
-   * @param position The new caret position.
-   */
   @Override
-  public void setInsertionPoint( final int position ) {
-    mTextArea.moveTo( position );
+  public File getFile() {
+    return mFile;
   }
 
-  @Override
   public CaretPosition createCaretPosition() {
     return CaretPosition
-        .builder().with( CaretPosition.Mutator::setEditor, mTextArea ).build();
+        .builder()
+        .with( CaretPosition.Mutator::setEditor, mTextArea )
+        .build();
   }
 
   @Override
