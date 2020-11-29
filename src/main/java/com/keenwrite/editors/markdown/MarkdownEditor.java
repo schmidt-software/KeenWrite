@@ -68,7 +68,7 @@ public class MarkdownEditor extends BorderPane implements TextEditor {
     mScrollPane.setVbarPolicy( ALWAYS );
 
     setCenter( mScrollPane );
-  }
+   }
 
   /**
    * Delegate the focus request to the text area itself.
@@ -104,5 +104,10 @@ public class MarkdownEditor extends BorderPane implements TextEditor {
   @Override
   public Node getNode() {
     return this;
+  }
+
+  @Override
+  public VirtualizedScrollPane<StyleClassedTextArea> getScrollPane() {
+    return mScrollPane;
   }
 }

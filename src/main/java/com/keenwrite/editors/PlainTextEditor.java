@@ -225,6 +225,7 @@ public class PlainTextEditor extends StyleClassedTextArea
    *
    * @return The scroll pane that contains the content to edit.
    */
+  @Override
   public VirtualizedScrollPane<StyleClassedTextArea> getScrollPane() {
     return mScrollPane;
   }

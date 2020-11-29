@@ -319,7 +319,6 @@ public class MainWindow implements Observer {
                 final FileEditorController tab = null;// (FileEditorView)
                 // newTab;
 
-                initScrollEventListener( tab );
                 initSpellCheckListener( tab );
                 initTextChangeListener( tab );
 //              initSyntaxListener( tab );
@@ -356,17 +355,6 @@ public class MainWindow implements Observer {
 
   private void initTextChangeListener( final FileEditorController tab ) {
     tab.addTextChangeListener( ( __, ov, nv ) -> process( tab ) );
-  }
-
-  private void initScrollEventListener( final FileEditorController tab ) {
-    final var scrollPane = tab.getScrollPane();
-    final var scrollBar = getHtmlPreview().getVerticalScrollBar();
-
-    addShowListener( scrollPane, () -> {
-      // TODO: FIXME REFACTOR TABS
-//      final var handler = new ScrollEventHandler( scrollPane, scrollBar );
-//      handler.enabledProperty().bind( tab.selectedProperty() );
-    } );
   }
 
   /**

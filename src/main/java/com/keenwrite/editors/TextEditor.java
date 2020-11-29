@@ -27,11 +27,16 @@
 package com.keenwrite.editors;
 
 import com.keenwrite.TextResource;
-import com.keenwrite.editors.markdown.MarkdownEditor;
+import org.fxmisc.flowless.VirtualizedScrollPane;
+import org.fxmisc.richtext.StyleClassedTextArea;
 
 /**
- * Marker interface to differentiate an instance of {@link TextResource} from
- * a text editor such as {@link PlainTextEditor} or {@link MarkdownEditor}.
+ * Responsible for differentiating an instance of {@link TextResource} from
+ * other {@link TextResource} subtypes, such as a {@link TextDefinition}.
+ * This is primarily used as a marker interface, but also defines a minimal
+ * set of functionality required by all {@link TextEditor} instances, which
+ * includes scrolling facilities.
  */
 public interface TextEditor extends TextResource {
+  VirtualizedScrollPane<StyleClassedTextArea> getScrollPane();
 }

@@ -38,6 +38,8 @@ import com.keenwrite.preview.HtmlPreview;
 import com.keenwrite.processors.IdentityProcessor;
 import com.keenwrite.processors.Processor;
 import com.keenwrite.processors.ProcessorContext;
+import com.keenwrite.processors.ProcessorFactory;
+import com.keenwrite.processors.markdown.CaretExtension;
 import com.keenwrite.processors.markdown.CaretPosition;
 import com.keenwrite.ui.actions.FileChooserCommand;
 import com.panemu.tiwulfx.control.dock.DetachableTab;
@@ -73,6 +75,17 @@ import static javafx.util.Duration.millis;
  * Responsible for wiring together the main application components for a
  * particular workspace (project). These include the definition views,
  * text editors, and preview pane along with any corresponding controllers.
+ * <p>
+ * In particular, we update the preview pane whenever the caret position in
+ * the active text editor changes. In theory, we can either listen for caret
+ * position changes or text changes, but since text changes also implies caret
+ * movement, it suffices to listen only for caret position changes. This is
+ * true for reloading the document because appending new text will change the
+ * caret to the end, then the caret is forcibly moved to the top after loading
+ * is complete. Although this results in two updates, it only happens once,
+ * when a new document is loaded. As opposed to coordinating refresh events
+ * on text changes <em>and</em> caret changes, which requires a lot more code.
+ * </p>
  */
 public class MainView extends SplitPane {
   /**
@@ -420,9 +433,8 @@ public class MainView extends SplitPane {
                       final var node = tab.getContent();
 
                       if( node instanceof TextEditor ) {
-//                      initScrollEventListener( tab );
+                        initScrollEventListener( tab );
 //                      initSpellCheckListener( tab );
-//                      initTextChangeListener( tab );
                       }
                     }
 
@@ -469,6 +481,19 @@ public class MainView extends SplitPane {
     );
   }
 
+  /**
+   * Synchronizes scrollbar positions between the .
+   *
+   * @param tab
+   */
+  private void initScrollEventListener( final Tab tab ) {
+    final var editor = (TextEditor) tab.getContent();
+    final var scrollPane = editor.getScrollPane();
+    final var scrollBar = mHtmlPreview.getVerticalScrollBar();
+    final var handler = new ScrollEventHandler( scrollPane, scrollBar );
+    handler.enabledProperty().bind( tab.selectedProperty() );
+  }
+
   private void addTabPane( final int index, final DetachableTabPane tabPane ) {
     getItems().add( index, tabPane );
   }
@@ -477,6 +502,14 @@ public class MainView extends SplitPane {
     addTabPane( getItems().size(), tabPane );
   }
 
+  /**
+   * @param path  Used by {@link ProcessorFactory} to determine
+   *              {@link Processor} type to create based on file type.
+   * @param caret Used by {@link CaretExtension} to add ID attribute into
+   *              preview document for scrollbar synchronization.
+   * @return A new {@link ProcessorContext} to use when creating an instance of
+   * {@link Processor}.
+   */
   private ProcessorContext createProcessorContext(
       final Path path, final CaretPosition caret ) {
     return new ProcessorContext(
