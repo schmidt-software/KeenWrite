@@ -27,21 +27,28 @@
  */
 package com.keenwrite.spelling.impl;
 
+import com.keenwrite.exceptions.MissingFileException;
 import com.keenwrite.spelling.api.SpellCheckListener;
 import com.keenwrite.spelling.api.SpellChecker;
 import io.gitlab.rxp90.jsymspell.SuggestItem;
 import io.gitlab.rxp90.jsymspell.SymSpell;
 import io.gitlab.rxp90.jsymspell.SymSpellBuilder;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.text.BreakIterator;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
+import static com.keenwrite.Constants.LEXICONS_DIRECTORY;
+import static com.keenwrite.StatusBarNotifier.clue;
 import static io.gitlab.rxp90.jsymspell.SymSpell.Verbosity;
 import static io.gitlab.rxp90.jsymspell.SymSpell.Verbosity.ALL;
 import static io.gitlab.rxp90.jsymspell.SymSpell.Verbosity.CLOSEST;
 import static java.lang.Character.isLetter;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
  * Responsible for spell checking using {@link SymSpell}.
@@ -52,14 +59,25 @@ public class SymSpellSpeller implements SpellChecker {
   private final SymSpell mSymSpell;
 
   /**
-   * Creates a new lexicon for the given collection of lexemes.
+   * Creates a new spellchecker for a lexicon of words found in the specified
+   * file.
    *
-   * @param lexiconWords The words in the lexicon to add for spell checking,
-   *                     must not be empty.
+   * @param filename Lexicon language file (e.g., "en.txt").
    * @return An instance of {@link SpellChecker} that can check if a word
-   * is correct and suggest alternatives.
+   * is correct and suggest alternatives, or {@link PermissiveSpeller} if the
+   * lexicon cannot be loaded.
    */
-  public static SpellChecker forLexicon(
+  public static SpellChecker forLexicon( final String filename ) {
+    try {
+      final Collection<String> lexicon = readLexicon( filename );
+      return SymSpellSpeller.forLexicon( lexicon );
+    } catch( final Exception ex ) {
+      clue( ex );
+      return new PermissiveSpeller();
+    }
+  }
+
+  private static SpellChecker forLexicon(
       final Collection<String> lexiconWords ) {
     assert lexiconWords != null && !lexiconWords.isEmpty();
 
@@ -126,6 +144,24 @@ public class SymSpellSpeller implements SpellChecker {
 
       previousIndex = boundaryIndex;
       boundaryIndex = mBreakIterator.next();
+    }
+  }
+
+  @SuppressWarnings("SameParameterValue")
+  private static Collection<String> readLexicon( final String filename )
+      throws Exception {
+    final var path = '/' + LEXICONS_DIRECTORY + '/' + filename;
+
+    try( final var resource =
+             SymSpellSpeller.class.getResourceAsStream( path ) ) {
+      if( resource == null ) {
+        throw new MissingFileException( path );
+      }
+
+      try( final var isr = new InputStreamReader( resource, UTF_8 );
+           final var reader = new BufferedReader( isr ) ) {
+        return reader.lines().collect( Collectors.toList() );
+      }
     }
   }
 

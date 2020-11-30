@@ -186,7 +186,7 @@ public class MainView extends SplitPane {
    * Opens files selected by the user into the application.
    */
   public void open() {
-    open( createFileChooser().openFiles() );
+    open( new FileChooserCommand( getWindow() ).openFiles() );
   }
 
   /**
@@ -422,7 +422,6 @@ public class MainView extends SplitPane {
 
                       if( node instanceof TextEditor ) {
                         initScrollEventListener( tab );
-//                      initSpellCheckListener( tab );
                       }
                     }
 
@@ -534,7 +533,7 @@ public class MainView extends SplitPane {
 
     mProcessors.computeIfAbsent( editor, p -> createProcessors( context ) );
 
-    editor.dirtyProperty().addListener( ( c, o, n ) -> {
+    editor.addDirtyListener( ( c, o, n ) -> {
       if( n ) {
         process( mActiveTextEditor );
       }
@@ -564,10 +563,6 @@ public class MainView extends SplitPane {
 
     tooltip.setShowDelay( millis( 200 ) );
     return tooltip;
-  }
-
-  private FileChooserCommand createFileChooser() {
-    return new FileChooserCommand( getWindow() );
   }
 
   private Window getWindow() {

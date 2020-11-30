@@ -32,7 +32,6 @@ import com.keenwrite.definition.DefinitionEditor;
 import com.keenwrite.definition.MapInterpolator;
 import com.keenwrite.editors.DefinitionNameInjector;
 import com.keenwrite.editors.markdown.MarkdownEditorPane;
-import com.keenwrite.exceptions.MissingFileException;
 import com.keenwrite.preferences.UserPreferences;
 import com.keenwrite.preferences.UserPreferencesView;
 import com.keenwrite.preview.HtmlPreview;
@@ -43,16 +42,9 @@ import com.keenwrite.processors.ProcessorFactory;
 import com.keenwrite.processors.markdown.MarkdownProcessor;
 import com.keenwrite.service.Options;
 import com.keenwrite.service.Snitch;
-import com.keenwrite.spelling.api.SpellCheckListener;
-import com.keenwrite.spelling.api.SpellChecker;
-import com.keenwrite.spelling.impl.PermissiveSpeller;
-import com.keenwrite.spelling.impl.SymSpellSpeller;
 import com.keenwrite.ui.actions.Action;
 import com.keenwrite.ui.actions.ActionUtils;
 import com.keenwrite.ui.actions.SeparatorAction;
-import com.vladsch.flexmark.parser.Parser;
-import com.vladsch.flexmark.util.ast.NodeVisitor;
-import com.vladsch.flexmark.util.ast.VisitHandler;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.BooleanProperty;
@@ -78,20 +70,17 @@ import javafx.stage.Window;
 import javafx.stage.WindowEvent;
 import javafx.util.Duration;
 import org.controlsfx.control.StatusBar;
-import org.fxmisc.richtext.StyleClassedTextArea;
-import org.fxmisc.richtext.model.StyleSpansBuilder;
 import org.reactfx.value.Val;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.nio.file.Path;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Observable;
+import java.util.Observer;
 import java.util.function.Function;
 import java.util.prefs.Preferences;
-import java.util.stream.Collectors;
 
 import static com.keenwrite.Bootstrap.APP_TITLE;
 import static com.keenwrite.Constants.*;
@@ -101,15 +90,12 @@ import static com.keenwrite.StatusBarNotifier.clue;
 import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.*;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.nio.file.Files.writeString;
-import static java.util.Collections.emptyList;
-import static java.util.Collections.singleton;
 import static javafx.application.Platform.runLater;
 import static javafx.event.Event.fireEvent;
 import static javafx.geometry.Pos.BASELINE_CENTER;
 import static javafx.scene.control.Alert.AlertType.INFORMATION;
 import static javafx.scene.input.KeyCode.ENTER;
 import static javafx.stage.WindowEvent.WINDOW_CLOSE_REQUEST;
-import static org.fxmisc.richtext.model.TwoDimensional.Bias.Forward;
 
 /**
  * Main window containing a tab pane in the center for file editors.
@@ -131,7 +117,6 @@ public class MainWindow implements Observer {
   private final Scene mScene;
   private final Text mLineNumberText;
   private final TextField mFindTextField;
-  private final SpellChecker mSpellChecker;
 
   private final Object mMutex = new Object();
 
@@ -186,7 +171,6 @@ public class MainWindow implements Observer {
     mLineNumberText = createLineNumberText();
     mFindTextField = createFindTextField();
     mScene = createScene();
-    mSpellChecker = createSpellChecker();
 
     // Add the close request listener before the window is shown.
     initLayout();
@@ -318,7 +302,6 @@ public class MainWindow implements Observer {
                 final FileEditorController tab = null;// (FileEditorView)
                 // newTab;
 
-                initSpellCheckListener( tab );
                 initTextChangeListener( tab );
 //              initSyntaxListener( tab );
               }
@@ -354,43 +337,6 @@ public class MainWindow implements Observer {
 
   private void initTextChangeListener( final FileEditorController tab ) {
     tab.addTextChangeListener( ( __, ov, nv ) -> process( tab ) );
-  }
-
-  /**
-   * Listen for changes to the any particular paragraph and perform a quick
-   * spell check upon it. The style classes in the editor will be changed to
-   * mark any spelling mistakes in the paragraph. The user may then interact
-   * with any misspelled word (i.e., any piece of text that is marked) to
-   * revise the spelling.
-   *
-   * @param tab The tab to spellcheck.
-   */
-  private void initSpellCheckListener( final FileEditorController tab ) {
-    final var editor = tab.getEditorPane().getEditor();
-
-    // When the editor first appears, run a full spell check. This allows
-    // spell checking while typing to be restricted to the active paragraph,
-    // which is usually substantially smaller than the whole document.
-    addShowListener( editor, () -> spellcheck( editor, editor.getText() ) );
-
-    // Use the plain text changes so that notifications of style changes
-    // are suppressed. Checking against the identity ensures that only
-    // new text additions or deletions trigger proofreading.
-    editor.plainTextChanges()
-          .filter( p -> !p.isIdentity() ).subscribe( change -> {
-
-      // Check current paragraph; the whole document was checked upon opening.
-      final var offset = change.getPosition();
-      final var position = editor.offsetToPosition( offset, Forward );
-      final var paraId = position.getMajor();
-      final var paragraph = editor.getParagraph( paraId );
-      final var text = paragraph.getText();
-
-      // Prevent doubling-up styles.
-      editor.clearStyle( paraId );
-
-      spellcheck( editor, text, paraId );
-    } );
   }
 
   /**
@@ -703,16 +649,6 @@ public class MainWindow implements Observer {
   }
 
   //---- Member creators ----------------------------------------------------
-
-  private SpellChecker createSpellChecker() {
-    try {
-      final Collection<String> lexicon = readLexicon( "en.txt" );
-      return SymSpellSpeller.forLexicon( lexicon );
-    } catch( final Exception ex ) {
-      clue( ex );
-      return new PermissiveSpeller();
-    }
-  }
 
   /**
    * Creates processors suited to parsing and rendering different file types.
@@ -1288,10 +1224,6 @@ public class MainWindow implements Observer {
     return mScene;
   }
 
-  private SpellChecker getSpellChecker() {
-    return mSpellChecker;
-  }
-
   private Map<FileEditorController, Processor<String>> getProcessors() {
     return mProcessors;
   }
@@ -1351,113 +1283,4 @@ public class MainWindow implements Observer {
     return getUserPreferences().getDefinitionPath();
   }
 
-  //---- Spelling -----------------------------------------------------------
-
-  /**
-   * Delegates to {@link #spellcheck(StyleClassedTextArea, String, int)}.
-   * This is called to spell check the document, rather than a single paragraph.
-   *
-   * @param text The full document text.
-   */
-  private void spellcheck(
-      final StyleClassedTextArea editor, final String text ) {
-    spellcheck( editor, text, -1 );
-  }
-
-  /**
-   * Spellchecks a subset of the entire document.
-   *
-   * @param text   Look up words for this text in the lexicon.
-   * @param paraId Set to -1 to apply resulting style spans to the entire
-   *               text.
-   */
-  private void spellcheck(
-      final StyleClassedTextArea editor, final String text, final int paraId ) {
-    final var builder = new StyleSpansBuilder<Collection<String>>();
-    final var runningIndex = new AtomicInteger( 0 );
-    final var checker = getSpellChecker();
-
-    // The text nodes must be relayed through a contextual "visitor" that
-    // can return text in chunks with correlative offsets into the string.
-    // This allows Markdown, R Markdown, XML, and R XML documents to return
-    // sets of words to check.
-
-    final var node = mParser.parse( text );
-    final var visitor = new TextVisitor( ( visited, bIndex, eIndex ) -> {
-      // Treat hyphenated compound words as individual words.
-      final var check = visited.replace( '-', ' ' );
-
-      checker.proofread( check, ( misspelled, prevIndex, currIndex ) -> {
-        prevIndex += bIndex;
-        currIndex += bIndex;
-
-        // Clear styling between lexiconically absent words.
-        builder.add( emptyList(), prevIndex - runningIndex.get() );
-        builder.add( singleton( "spelling" ), currIndex - prevIndex );
-        runningIndex.set( currIndex );
-      } );
-    } );
-
-    visitor.visit( node );
-
-    // If the running index was set, at least one word triggered the listener.
-    if( runningIndex.get() > 0 ) {
-      // Clear styling after the last lexiconically absent word.
-      builder.add( emptyList(), text.length() - runningIndex.get() );
-
-      final var spans = builder.create();
-
-      if( paraId >= 0 ) {
-        editor.setStyleSpans( paraId, 0, spans );
-      }
-      else {
-        editor.setStyleSpans( 0, spans );
-      }
-    }
-  }
-
-  @SuppressWarnings("SameParameterValue")
-  private Collection<String> readLexicon( final String filename )
-      throws Exception {
-    final var path = '/' + LEXICONS_DIRECTORY + '/' + filename;
-
-    try( final var resource = getClass().getResourceAsStream( path ) ) {
-      if( resource == null ) {
-        throw new MissingFileException( path );
-      }
-
-      try( final var isr = new InputStreamReader( resource, UTF_8 );
-           final var reader = new BufferedReader( isr ) ) {
-        return reader.lines().collect( Collectors.toList() );
-      }
-    }
-  }
-
-  // TODO: #59 -- Replace using Markdown processor instantiated for Markdown
-  //  files.
-  private final Parser mParser = Parser.builder().build();
-
-  // TODO: #59 -- Replace with generic interface; provide Markdown/XML
-  //  implementations.
-  private static final class TextVisitor {
-    private final NodeVisitor mVisitor = new NodeVisitor( new VisitHandler<>(
-        com.vladsch.flexmark.ast.Text.class, this::visit )
-    );
-
-    private final SpellCheckListener mConsumer;
-
-    public TextVisitor( final SpellCheckListener consumer ) {
-      mConsumer = consumer;
-    }
-
-    private void visit( final com.vladsch.flexmark.util.ast.Node node ) {
-      if( node instanceof com.vladsch.flexmark.ast.Text ) {
-        mConsumer.accept( node.getChars().toString(),
-                          node.getStartOffset(),
-                          node.getEndOffset() );
-      }
-
-      mVisitor.visitChildren( node );
-    }
-  }
 }
