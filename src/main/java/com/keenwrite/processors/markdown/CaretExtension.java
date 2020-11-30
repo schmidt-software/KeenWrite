@@ -75,8 +75,9 @@ public class CaretExtension implements HtmlRendererExtension {
     public void setAttributes( @NotNull Node curr,
                                @NotNull AttributablePart part,
                                @NotNull MutableAttributes attributes ) {
+      final var outside = mCaret.isAfterText() ? 1 : 0;
       final var began = curr.getStartOffset();
-      final var ended = curr.getEndOffset();
+      final var ended = curr.getEndOffset() + outside;
       final var prev = curr.getPrevious();
 
       // If the caret is within the bounds of the current node or the
@@ -85,8 +86,7 @@ public class CaretExtension implements HtmlRendererExtension {
       // a caret indicator.
       if( mCaret.isBetweenText( began, ended ) ||
           prev != null && mCaret.isBetweenText( prev.getEndOffset(), began ) ) {
-
-        // This magic line enables synchronizing the text editor with preview.
+        // This line empowers synchronizing the text editor with the preview.
         attributes.addValue( AttributeImpl.of( "id", CARET_ID ) );
       }
     }

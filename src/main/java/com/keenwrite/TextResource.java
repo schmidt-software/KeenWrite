@@ -28,11 +28,16 @@ package com.keenwrite;
 
 import com.keenwrite.io.File;
 import javafx.scene.Node;
+import org.mozilla.universalchardet.UniversalDetector;
 
+import java.io.FileNotFoundException;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import static com.keenwrite.Messages.get;
 import static com.keenwrite.StatusBarNotifier.clue;
+import static java.util.Locale.ENGLISH;
 
 /**
  * A text resource can be persisted and retrieved from its persisted location.
@@ -93,11 +98,40 @@ public interface TextResource {
    *             fully read into the editor.
    */
   default void readFile( final Path path ) {
+    final var file = new File( path.toFile() );
+
     try {
-      setText( Files.readString( path ) );
+      if( file.exists() ) {
+        if( file.canWrite() && file.canRead() ) {
+          setText( asString( Files.readAllBytes( path ) ) );
+        }
+        else {
+          final String msg = get( "FileEditor.loadFailed.reason.permissions" );
+          clue( "FileEditor.loadFailed.message", file.toString(), msg );
+        }
+      }
+      else {
+        throw new FileNotFoundException( path.toString() );
+      }
     } catch( final Exception ex ) {
       clue( ex );
     }
+  }
+
+  private String asString( final byte[] text ) {
+    return new String( text, detectEncoding( text ) );
+  }
+
+  private Charset detectEncoding( final byte[] bytes ) {
+    final var detector = new UniversalDetector( null );
+    detector.handleData( bytes, 0, bytes.length );
+    detector.dataEnd();
+
+    final var charset = detector.getDetectedCharset();
+
+    return charset == null
+        ? Charset.defaultCharset()
+        : Charset.forName( charset.toUpperCase( ENGLISH ) );
   }
 
   /**

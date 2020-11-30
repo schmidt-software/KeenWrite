@@ -29,6 +29,9 @@ package com.keenwrite.editors.markdown;
 import com.keenwrite.editors.TextEditor;
 import com.keenwrite.io.File;
 import com.keenwrite.processors.markdown.CaretPosition;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.value.ObservableBooleanValue;
 import javafx.scene.Node;
 import javafx.scene.layout.BorderPane;
 import org.fxmisc.flowless.VirtualizedScrollPane;
@@ -52,6 +55,12 @@ public class MarkdownEditor extends BorderPane implements TextEditor {
    */
   private final File mFile;
 
+  /**
+   * Set to {@code true} upon text or caret position changes. Value is {@code
+   * false} by default.
+   */
+  private final BooleanProperty mDirty = new SimpleBooleanProperty();
+
   public MarkdownEditor() {
     this( DEFAULT_DOCUMENT );
   }
@@ -64,11 +73,33 @@ public class MarkdownEditor extends BorderPane implements TextEditor {
     mTextArea.getStylesheets().add( STYLESHEET_MARKDOWN );
     mTextArea.requestFollowCaret();
     mTextArea.moveTo( 0 );
+    mTextArea.textProperty().addListener( ( c, o, n ) -> {
+      // Fire, regardless of whether the caret position has changed.
+      mDirty.set( false );
+      mDirty.set( true );
+    } );
+    mTextArea.caretPositionProperty().addListener( ( c, o, n ) -> {
+      // Fire when the caret position has changed and the text has not.
+      mDirty.set( true );
+      mDirty.set( false );
+    } );
 
     mScrollPane.setVbarPolicy( ALWAYS );
 
     setCenter( mScrollPane );
-   }
+  }
+
+  /**
+   * Observers may listen for changes to the property returned from this method
+   * to receive notifications when either the text or caret have changed.
+   * This should not be used to track whether the text has been modified.
+   *
+   * @return An instance of {@link ObservableBooleanValue} that can be
+   * listened upon for changes to either the text content or caret position.
+   */
+  public ObservableBooleanValue dirtyProperty() {
+    return mDirty;
+  }
 
   /**
    * Delegate the focus request to the text area itself.
@@ -82,6 +113,7 @@ public class MarkdownEditor extends BorderPane implements TextEditor {
   public void setText( final String text ) {
     mTextArea.clear();
     mTextArea.appendText( text );
+    mTextArea.getUndoManager().forgetHistory();
   }
 
   @Override

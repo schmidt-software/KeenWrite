@@ -75,17 +75,6 @@ import static javafx.util.Duration.millis;
  * Responsible for wiring together the main application components for a
  * particular workspace (project). These include the definition views,
  * text editors, and preview pane along with any corresponding controllers.
- * <p>
- * In particular, we update the preview pane whenever the caret position in
- * the active text editor changes. In theory, we can either listen for caret
- * position changes or text changes, but since text changes also implies caret
- * movement, it suffices to listen only for caret position changes. This is
- * true for reloading the document because appending new text will change the
- * caret to the end, then the caret is forcibly moved to the top after loading
- * is complete. Although this results in two updates, it only happens once,
- * when a new document is loaded. As opposed to coordinating refresh events
- * on text changes <em>and</em> caret changes, which requires a lot more code.
- * </p>
  */
 public class MainView extends SplitPane {
   /**
@@ -174,7 +163,7 @@ public class MainView extends SplitPane {
     // TODO: Load divider positions from exported settings, see bin() comment.
     setDividerPositions( positions );
 
-    // When the main scene's window regains focus, update the active definition
+    // Once the main scene's window regains focus, update the active definition
     // editor to the currently selected tab.
     runLater(
         () -> getWindow().focusedProperty().addListener( ( c, o, n ) -> {
@@ -390,10 +379,9 @@ public class MainView extends SplitPane {
    * @param editor Contains the source document to update in the preview pane.
    */
   private void process( final TextEditor editor ) {
-    if( editor != null ) {
-      mProcessors.getOrDefault( editor, IdentityProcessor.INSTANCE )
-                 .apply( editor.getText() );
-    }
+    mProcessors.getOrDefault( editor, IdentityProcessor.INSTANCE )
+               .apply( editor == null ? "" : editor.getText() );
+    mHtmlPreview.scrollTo( CARET_ID );
   }
 
   /**
@@ -453,11 +441,11 @@ public class MainView extends SplitPane {
           final var model = tabPane.getSelectionModel();
 
           model.selectedItemProperty().addListener( ( c, o, n ) -> {
-            // If the last definition editor in the active pane was closed,
-            // clear out the definitions then refresh the text editor.
             if( o != null && n == null ) {
               final var node = o.getContent();
 
+              // If the last definition editor in the active pane was closed,
+              // clear out the definitions then refresh the text editor.
               if( node instanceof TextDefinition ) {
                 mActiveDefinitionEditor.set( createDefinitionEditor() );
               }
@@ -482,9 +470,10 @@ public class MainView extends SplitPane {
   }
 
   /**
-   * Synchronizes scrollbar positions between the .
+   * Synchronizes scrollbar positions between the given {@link Tab} that
+   * contains an instance of {@link TextEditor} and {@link HtmlPreview} pane.
    *
-   * @param tab
+   * @param tab The container for an instance of {@link TextEditor}.
    */
   private void initScrollEventListener( final Tab tab ) {
     final var editor = (TextEditor) tab.getContent();
@@ -528,6 +517,15 @@ public class MainView extends SplitPane {
     };
   }
 
+  /**
+   * Creates an instance of {@link MarkdownEditor} that listens for both
+   * caret change events and text change events. Text change events must
+   * take priority over caret change events because it's possible to change
+   * the text without moving the caret (e.g., delete selected text).
+   *
+   * @param file The file containing contents for the text editor.
+   * @return A non-null text editor.
+   */
   private TextResource createMarkdownEditor( final File file ) {
     final var path = file.toPath();
     final var editor = new MarkdownEditor( file );
@@ -536,12 +534,13 @@ public class MainView extends SplitPane {
 
     mProcessors.computeIfAbsent( editor, p -> createProcessors( context ) );
 
-    // When the caret position changes, update the preview.
-    caret.textOffsetProperty().addListener(
-        ( c, o, n ) -> process( mActiveTextEditor )
-    );
+    editor.dirtyProperty().addListener( ( c, o, n ) -> {
+      if( n ) {
+        process( mActiveTextEditor );
+      }
+    } );
 
-    // Set the active editor to refresh the preview panel.
+    // Set the active editor, which refreshes the preview panel.
     mActiveTextEditor.set( editor );
 
     return editor;

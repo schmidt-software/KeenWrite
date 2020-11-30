@@ -109,7 +109,6 @@ import static javafx.geometry.Pos.BASELINE_CENTER;
 import static javafx.scene.control.Alert.AlertType.INFORMATION;
 import static javafx.scene.input.KeyCode.ENTER;
 import static javafx.stage.WindowEvent.WINDOW_CLOSE_REQUEST;
-import static org.apache.commons.lang3.SystemUtils.IS_OS_WINDOWS;
 import static org.fxmisc.richtext.model.TwoDimensional.Bias.Forward;
 
 /**
@@ -776,13 +775,13 @@ public class MainWindow implements Observer {
     getStatusBar().getRightItems().add( statusBar );
 
     // Force preview pane refresh on Windows.
-    if( IS_OS_WINDOWS ) {
-      splitPane.getDividers().get( 1 ).positionProperty().addListener(
-          ( l, oValue, nValue ) -> runLater(
-              () -> getHtmlPreview().repaintScrollPane()
-          )
-      );
-    }
+//    if( IS_OS_WINDOWS ) {
+//      splitPane.getDividers().get( 1 ).positionProperty().addListener(
+//          ( l, oValue, nValue ) -> runLater(
+//              () -> getHtmlPreview().repaintScrollPane()
+//          )
+//      );
+//    }
 
     return new Scene( borderPane );
   }

@@ -114,15 +114,12 @@ public final class HtmlPreview extends SwingNode {
   }
 
   /**
-   * Updates the internal HTML source, loads it into the preview pane, then
-   * scrolls to the caret position.
+   * Updates the internal HTML source shown in the preview pane.
    *
    * @param html The new HTML document to display.
    */
   public void render( final String html ) {
-    // Access to a Swing component must occur from the Event Dispatch
-    // Thread (EDT) according to Swing threading restrictions.
-    invokeLater( () -> mView.render( decorate( html ), getBaseUri() ) );
+    mView.render( decorate( html ), getBaseUri() );
   }
 
   /**
@@ -143,10 +140,6 @@ public final class HtmlPreview extends SwingNode {
     mBaseUriHtml = format( HTML_BASE, mBaseUriPath );
   }
 
-  public void repaintScrollPane() {
-    getScrollPane().repaint();
-  }
-
   /**
    * Scrolls to the closest element matching the given identifier without
    * waiting for the document to be ready. Be sure the document is ready
@@ -156,7 +149,6 @@ public final class HtmlPreview extends SwingNode {
    */
   public void scrollTo( final String id ) {
     scrollTo( mView.getBoxById( id ) );
-    repaintScrollPane();
   }
 
   /**
@@ -176,7 +168,10 @@ public final class HtmlPreview extends SwingNode {
   }
 
   private void scrollTo( final Point point ) {
-    mView.scrollTo( point );
+    invokeLater( () -> {
+      mView.scrollTo( point );
+      getScrollPane().repaint();
+    } );
   }
 
   /**

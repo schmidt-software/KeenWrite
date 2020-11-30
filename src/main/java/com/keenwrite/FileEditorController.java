@@ -234,30 +234,6 @@ public final class FileEditorController {
   }
 
   /**
-   * Reads the entire file contents from the path associated with this tab.
-   */
-  private void readFile() {
-    final Path path = getPath();
-    final File file = path.toFile();
-
-    try {
-      if( file.exists() ) {
-        if( file.canWrite() && file.canRead() ) {
-          final PlainTextEditor pane = getEditorPane();
-          pane.setText( asString( Files.readAllBytes( path ) ) );
-          pane.scrollToTop();
-        }
-        else {
-          final String msg = get( "FileEditor.loadFailed.reason.permissions" );
-          clue( "FileEditor.loadFailed.message", file.toString(), msg );
-        }
-      }
-    } catch( final Exception ex ) {
-      clue( ex );
-    }
-  }
-
-  /**
    * Saves the entire file contents from the path associated with this tab.
    *
    * @return true The file has been saved or wasn't modified.
@@ -343,18 +319,6 @@ public final class FileEditorController {
    */
   private byte[] asBytes( final String text ) {
     return text.getBytes( getEncoding() );
-  }
-
-  /**
-   * Converts the given bytes into a Java String. This will call setEncoding
-   * with the encoding detected by the CharsetDetector.
-   *
-   * @param text The text of unknown character encoding.
-   * @return The text, in its auto-detected encoding, as a String.
-   */
-  private String asString( final byte[] text ) {
-    setEncoding( detectEncoding( text ) );
-    return new String( text, getEncoding() );
   }
 
   /**

@@ -46,6 +46,7 @@ import static com.keenwrite.StatusBarNotifier.clue;
 import static com.keenwrite.util.ProtocolResolver.getProtocol;
 import static java.awt.Desktop.Action.BROWSE;
 import static java.awt.Desktop.getDesktop;
+import static javax.swing.SwingUtilities.invokeLater;
 import static org.jsoup.Jsoup.parse;
 
 /**
@@ -131,7 +132,12 @@ public class HtmlPanel extends XHTMLPanel {
    * @param baseUri URI to use for finding relative files, such as images.
    */
   public void render( final String html, final String baseUri ) {
-    setDocument( CONVERTER.fromJsoup( parse( html ) ), baseUri, XNH );
+    final var doc = CONVERTER.fromJsoup( parse( html ) );
+
+    // Access to a Swing component must occur from the Event Dispatch
+    // Thread (EDT) according to Swing threading restrictions. Setting a new
+    // document invokes a Swing repaint operation.
+    invokeLater( () -> setDocument( doc, baseUri, XNH ) );
   }
 
   /**

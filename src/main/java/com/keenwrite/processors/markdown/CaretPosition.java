@@ -74,6 +74,11 @@ public class CaretPosition {
     private ObservableValue<Integer> mParaOffset;
 
     /**
+     * Total number of characters in the document.
+     */
+    private ObservableValue<Integer> mTextLength;
+
+    /**
      * Configures this caret position using properties from the given editor.
      *
      * @param editor The text editor that has a caret with position properties.
@@ -83,6 +88,7 @@ public class CaretPosition {
       mParagraphs = editor.getParagraphs();
       mParaOffset = editor.caretColumnProperty();
       mTextOffset = editor.caretPositionProperty();
+      mTextLength = editor.lengthProperty();
     }
   }
 
@@ -107,7 +113,7 @@ public class CaretPosition {
    * values, inclusively (for either value).
    */
   public boolean isBetweenText( final int began, final int ended ) {
-    final int offset = getTextOffset();
+    final var offset = getTextOffset();
     return began <= offset && offset <= ended;
   }
 
@@ -133,8 +139,18 @@ public class CaretPosition {
     return getParaOffset() > offset;
   }
 
-  public ObservableValue<Integer> textOffsetProperty() {
-    return mMutator.mTextOffset;
+  /**
+   * Answers whether the caret's offset into the text exceeds the length of
+   * the text.
+   *
+   * @return {@code true} when the caret is at the end of the text boundary.
+   */
+  public boolean isAfterText() {
+    return getTextOffset() >= getTextLength();
+  }
+
+  public boolean isAfter(final int offset) {
+    return offset >= getTextOffset();
   }
 
   private int getParagraph() {
@@ -168,6 +184,15 @@ public class CaretPosition {
    */
   private int getParaOffset() {
     return mMutator.mParaOffset.getValue();
+  }
+
+  /**
+   * Returns the total number of characters in the document being edited.
+   *
+   * @return A zero-based count of the total characters in the document.
+   */
+  private int getTextLength() {
+    return mMutator.mTextLength.getValue();
   }
 
   /**
