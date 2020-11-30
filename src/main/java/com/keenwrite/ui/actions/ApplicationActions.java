@@ -63,12 +63,15 @@ public class ApplicationActions {
   }
 
   public void file‿save() {
+    mMainView.save();
   }
 
   public void file‿save_as() {
+    mMainView.saveAs();
   }
 
   public void file‿save_all() {
+    mMainView.saveAll();
   }
 
   public void file‿export‿html_svg() {
@@ -81,6 +84,9 @@ public class ApplicationActions {
 
   public void file‿export‿markdown() {
     file‿export( MARKDOWN_PLAIN );
+  }
+
+  private void file‿export( final ExportFormat format ) {
   }
 
   public void file‿exit() {
@@ -177,8 +183,5 @@ public class ApplicationActions {
   }
 
   public void help‿about() {
-  }
-
-  private void file‿export( final ExportFormat format ) {
   }
 }

@@ -26,6 +26,7 @@
  */
 package com.keenwrite.editors.markdown;
 
+import com.keenwrite.Constants;
 import com.keenwrite.editors.TextEditor;
 import com.keenwrite.io.File;
 import com.keenwrite.processors.markdown.CaretPosition;
@@ -44,6 +45,7 @@ import org.fxmisc.flowless.VirtualizedScrollPane;
 import org.fxmisc.richtext.StyleClassedTextArea;
 import org.fxmisc.richtext.model.StyleSpansBuilder;
 
+import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -73,7 +75,7 @@ public class MarkdownEditor extends BorderPane implements TextEditor {
   /**
    * File being edited by this editor instance.
    */
-  private final File mFile;
+  private File mFile;
 
   /**
    * Set to {@code true} upon text or caret position changes. Value is {@code
@@ -86,12 +88,18 @@ public class MarkdownEditor extends BorderPane implements TextEditor {
    */
   private final SpellChecker mSpellChecker;
 
+  /**
+   * Opened file's character encoding, or {@link Constants#DEFAULT_CHARSET} if
+   * either no encoding could be determined or this is a new (empty) file.
+   */
+  private final Charset mEncoding;
+
   public MarkdownEditor() {
     this( DEFAULT_DOCUMENT );
   }
 
   public MarkdownEditor( final File file ) {
-    readFile( mFile = file );
+    mEncoding = open( mFile = file );
 
     mTextArea.setWrapText( true );
     mTextArea.getStyleClass().add( "markdown" );
@@ -112,12 +120,11 @@ public class MarkdownEditor extends BorderPane implements TextEditor {
     } );
 
     mScrollPane.setVbarPolicy( ALWAYS );
+    setCenter( mScrollPane );
 
     mSpellChecker = SymSpellSpeller.forLexicon( "en.txt" );
-
-    setCenter( mScrollPane );
-    spellcheck( mTextArea );
-    initSpellCheckListener( mTextArea );
+    spellcheckDocument( mTextArea );
+    spellcheckParagraphs( mTextArea );
   }
 
   /**
@@ -157,8 +164,18 @@ public class MarkdownEditor extends BorderPane implements TextEditor {
   }
 
   @Override
+  public Charset getEncoding() {
+    return mEncoding;
+  }
+
+  @Override
   public File getFile() {
     return mFile;
+  }
+
+  @Override
+  public void rename( final File file ) {
+    mFile = file;
   }
 
   @Override
@@ -178,9 +195,9 @@ public class MarkdownEditor extends BorderPane implements TextEditor {
    * with any misspelled word (i.e., any piece of text that is marked) to
    * revise the spelling.
    *
-   * @param editor
+   * @param editor The text area containing paragraphs to spellcheck.
    */
-  private void initSpellCheckListener( final StyleClassedTextArea editor ) {
+  private void spellcheckParagraphs( final StyleClassedTextArea editor ) {
 
     // Use the plain text changes so that notifications of style changes
     // are suppressed. Checking against the identity ensures that only
@@ -206,7 +223,7 @@ public class MarkdownEditor extends BorderPane implements TextEditor {
    * Delegates to {@link #spellcheck(StyleClassedTextArea, String, int)}.
    * call to spell check the entire document.
    */
-  private void spellcheck( final StyleClassedTextArea editor ) {
+  private void spellcheckDocument( final StyleClassedTextArea editor ) {
     spellcheck( editor, editor.getText(), -1 );
   }
 

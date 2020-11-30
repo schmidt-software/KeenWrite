@@ -182,7 +182,6 @@ public class MainWindow implements Observer {
   public void init() {
     initFindInput();
     initSnitch();
-    initDefinitionListener();
     initTabAddedListener();
 
     initPreferences();
@@ -252,20 +251,6 @@ public class MainWindow implements Observer {
    */
   private void initSnitch() {
     sSnitch.addObserver( this );
-  }
-
-  /**
-   * Listen for {@link FileEditorTabPane} to receive open definition file
-   * event.
-   */
-  private void initDefinitionListener() {
-    getFileEditorPane().onOpenDefinitionFileProperty().addListener(
-        ( final ObservableValue<? extends Path> file,
-          final Path oldPath, final Path newPath ) -> {
-          openDefinitions( newPath );
-          rerender();
-        }
-    );
   }
 
   /**
@@ -343,7 +328,6 @@ public class MainWindow implements Observer {
    * Reloads the preferences from the previous session.
    */
   private void initPreferences() {
-    initDefinitionPane();
     getFileEditorPane().initPreferences();
     getUserPreferencesView().addSaveEventHandler( mRPreferencesListener );
   }
@@ -431,31 +415,6 @@ public class MainWindow implements Observer {
     process( getActiveFileEditorTab() );
   }
 
-  /**
-   * Called when a definition source is opened.
-   *
-   * @param path Path to the definition source that was opened.
-   */
-  private void openDefinitions( final Path path ) {
-    try {
-      final var prefs = getUserPreferencesView();
-      prefs.definitionPathProperty().setValue( path.toFile() );
-      prefs.save();
-
-      final var tooltipPath = new Tooltip( path.toString() );
-      tooltipPath.setShowDelay( Duration.millis( 200 ) );
-
-      final var pane = getDefinitionPane();
-      //pane.update( ds );
-      pane.addTreeChangeHandler( mTreeHandler );
-      pane.addKeyEventHandler( mDefinitionKeyHandler );
-
-      interpolateResolvedMap();
-    } catch( final Exception ex ) {
-      clue( ex );
-    }
-  }
-
   private void exportDefinitions( final Path path ) {
     try {
       final var pane = getDefinitionPane();
@@ -480,10 +439,6 @@ public class MainWindow implements Observer {
 
     getResolvedMap().clear();
     getResolvedMap().putAll( map );
-  }
-
-  private void initDefinitionPane() {
-    openDefinitions( getDefinitionPath() );
   }
 
   //---- File actions -------------------------------------------------------
@@ -520,14 +475,6 @@ public class MainWindow implements Observer {
 
   //---- File actions -------------------------------------------------------
 
-  private void fileNew() {
-    getFileEditorPane().newEditor();
-  }
-
-  private void fileOpen() {
-    getFileEditorPane().openFileDialog();
-  }
-
   private void fileClose() {
     // TODO: FIXME REFACTOR TABS
 //    getFileEditorPane().closeEditor( getActiveFileEditorTab(), true );
@@ -539,22 +486,6 @@ public class MainWindow implements Observer {
    */
   private void fileCloseAll() {
     getFileEditorPane().closeAllEditors();
-  }
-
-  private void fileSaveAs() {
-    final FileEditorController editor = getActiveFileEditorTab();
-    getFileEditorPane().saveEditorAs( editor );
-    getProcessors().remove( editor );
-
-    try {
-      process( editor );
-    } catch( final Exception ex ) {
-      clue( ex );
-    }
-  }
-
-  private void fileSaveAll() {
-    getFileEditorPane().saveAllEditors();
   }
 
   /**
@@ -730,21 +661,6 @@ public class MainWindow implements Observer {
     final BooleanBinding activeFileEditorIsNull =
         getFileEditorPane().activeFileEditorProperty().isNull();
 
-    // File actions
-    final Action fileNewAction = Action
-        .builder()
-        .setText( "Main.menu.file.new" )
-        .setAccelerator( "Shortcut+N" )
-        .setIcon( FILE_ALT )
-        .setAction( e -> fileNew() )
-        .build();
-    final Action fileOpenAction = Action
-        .builder()
-        .setText( "Main.menu.file.open" )
-        .setAccelerator( "Shortcut+O" )
-        .setIcon( FOLDER_OPEN_ALT )
-        .setAction( e -> fileOpen() )
-        .build();
     final Action fileCloseAction = Action
         .builder()
         .setText( "Main.menu.file.close" )
@@ -757,29 +673,6 @@ public class MainWindow implements Observer {
         .setText( "Main.menu.file.close_all" )
         .setAction( e -> fileCloseAll() )
         .setDisabled( activeFileEditorIsNull )
-        .build();
-    final Action fileSaveAction = Action
-        .builder()
-        .setText( "Main.menu.file.save" )
-        .setAccelerator( "Shortcut+S" )
-        .setIcon( FLOPPY_ALT )
-        .setAction( e -> getActiveFileEditorTab().save() )
-        .setDisabled( createActiveBooleanProperty(
-            FileEditorController::modifiedProperty ).not() )
-        .build();
-    final Action fileSaveAsAction = Action
-        .builder()
-        .setText( "Main.menu.file.save_as" )
-        .setAction( e -> fileSaveAs() )
-        .setDisabled( activeFileEditorIsNull )
-        .build();
-    final Action fileSaveAllAction = Action
-        .builder()
-        .setText( "Main.menu.file.save_all" )
-        .setAccelerator( "Shortcut+Shift+S" )
-        .setAction( e -> fileSaveAll() )
-        .setDisabled( Bindings.not(
-            getFileEditorPane().anyFileEditorModifiedProperty() ) )
         .build();
     final Action fileExportAction = Action
         .builder()
@@ -1048,15 +941,9 @@ public class MainWindow implements Observer {
     // File Menu
     final var fileMenu = ActionUtils.createMenu(
         get( "Main.menu.file" ),
-        fileNewAction,
-        fileOpenAction,
         SEPARATOR_ACTION,
         fileCloseAction,
         fileCloseAllAction,
-        SEPARATOR_ACTION,
-        fileSaveAction,
-        fileSaveAsAction,
-        fileSaveAllAction,
         SEPARATOR_ACTION,
         fileExportAction,
         SEPARATOR_ACTION,
@@ -1130,10 +1017,6 @@ public class MainWindow implements Observer {
 
     //---- ToolBar ----
     final var toolBar = ActionUtils.createToolBar(
-        fileNewAction,
-        fileOpenAction,
-        fileSaveAction,
-        SEPARATOR_ACTION,
         editUndoAction,
         editRedoAction,
         editCutAction,

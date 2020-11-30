@@ -25,7 +25,6 @@
  */
 package com.keenwrite;
 
-import com.keenwrite.editors.PlainTextEditor;
 import com.keenwrite.editors.markdown.MarkdownEditorPane;
 import com.keenwrite.processors.Processor;
 import com.keenwrite.processors.markdown.CaretPosition;
@@ -35,25 +34,17 @@ import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.property.ReadOnlyBooleanWrapper;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
-import javafx.scene.Scene;
 import javafx.scene.text.Text;
-import javafx.stage.Window;
 import org.fxmisc.flowless.VirtualizedScrollPane;
 import org.fxmisc.richtext.StyleClassedTextArea;
 import org.fxmisc.undo.UndoManager;
 import org.jetbrains.annotations.NotNull;
-import org.mozilla.universalchardet.UniversalDetector;
 
 import java.io.File;
 import java.nio.charset.Charset;
-import java.nio.file.Files;
 import java.nio.file.Path;
 
-import static com.keenwrite.Messages.get;
-import static com.keenwrite.StatusBarNotifier.clue;
-import static com.keenwrite.StatusBarNotifier.getNotifier;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.util.Locale.ENGLISH;
 
 /**
  * Editor for a single file.
@@ -231,94 +222,6 @@ public final class FileEditorController {
     final Path filePath = getPath();
 
     return filePath != null && filePath.equals( check );
-  }
-
-  /**
-   * Saves the entire file contents from the path associated with this tab.
-   *
-   * @return true The file has been saved or wasn't modified.
-   */
-  public boolean save() {
-    try {
-      if( isModified() ) {
-        final var editor = getEditorPane();
-        Files.write( getPath(), asBytes( editor.getText() ) );
-        editor.getUndoManager().mark();
-      }
-
-      return true;
-    } catch( final Exception ex ) {
-      return alert(
-          "FileEditor.saveFailed.title",
-          "FileEditor.saveFailed.message",
-          ex
-      );
-    }
-  }
-
-  /**
-   * Creates an alert dialog and waits for it to close.
-   *
-   * @param titleKey   Resource bundle key for the alert dialog title.
-   * @param messageKey Resource bundle key for the alert dialog message.
-   * @param e          The unexpected happening.
-   * @return false
-   */
-  @SuppressWarnings("SameParameterValue")
-  private boolean alert(
-      final String titleKey, final String messageKey, final Exception e ) {
-    final var service = getNotifier();
-    final var message = service.createNotification(
-        get( titleKey ), get( messageKey ), getPath(), e.getMessage()
-    );
-
-    try {
-      service.createError( getWindow(), message ).showAndWait();
-    } catch( final Exception ex ) {
-      clue( ex );
-    }
-
-    return false;
-  }
-
-  private Window getWindow() {
-    final Scene scene = getEditorPane().getScene();
-
-    if( scene == null ) {
-      throw new UnsupportedOperationException( "No scene window available" );
-    }
-
-    return scene.getWindow();
-  }
-
-  /**
-   * Returns a best guess at the file encoding. If the encoding could not be
-   * detected, this will return the default charset for the JVM.
-   *
-   * @param bytes The bytes to perform character encoding detection.
-   * @return The character encoding.
-   */
-  private Charset detectEncoding( final byte[] bytes ) {
-    final var detector = new UniversalDetector( null );
-    detector.handleData( bytes, 0, bytes.length );
-    detector.dataEnd();
-
-    final String charset = detector.getDetectedCharset();
-
-    return charset == null
-        ? Charset.defaultCharset()
-        : Charset.forName( charset.toUpperCase( ENGLISH ) );
-  }
-
-  /**
-   * Converts the given string to an array of bytes using the encoding that was
-   * originally detected (if any) and associated with this file.
-   *
-   * @param text The text to convert into the original file encoding.
-   * @return A series of bytes ready for writing to a file.
-   */
-  private byte[] asBytes( final String text ) {
-    return text.getBytes( getEncoding() );
   }
 
   /**

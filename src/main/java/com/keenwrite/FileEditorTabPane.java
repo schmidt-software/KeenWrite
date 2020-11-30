@@ -48,14 +48,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.prefs.Preferences;
-import java.util.stream.Collectors;
 
-import static com.keenwrite.Constants.*;
+import static com.keenwrite.Constants.GLOB_PREFIX_FILE;
+import static com.keenwrite.Constants.sSettings;
 import static com.keenwrite.FileType.*;
 import static com.keenwrite.Messages.get;
-import static com.keenwrite.predicates.PredicateFactory.createFileTypePredicate;
-import static com.keenwrite.service.events.Notifier.YES;
-import static javafx.scene.control.ButtonType.NO;
 
 /**
  * Tab pane for file editors.
@@ -206,110 +203,6 @@ public final class FileEditorTabPane extends DetachableTabPane {
     return tab;
   }
 
-  private boolean isActiveFileEditor( final FileEditorController tab ) {
-    return getActiveFileEditor() == tab;
-  }
-
-  private Path getDefaultPath() {
-    return DEFAULT_DOCUMENT.toPath();
-  }
-
-  /**
-   * Called to add a new {@link FileEditorController} to the tab pane.
-   */
-  void newEditor() {
-    final var tab = createFileEditor( getDefaultPath() );
-
-    // TODO: FIXME REFACTOR TABS
-//    getTabs().add( tab );
-//    getSelectionModel().select( tab );
-  }
-
-  void openFileDialog() {
-    final var dialog = createFileChooser( "Dialog.file.choose.open.title" );
-    final var files = dialog.showOpenMultipleDialog( getWindow() );
-
-    if( files != null ) {
-      openFiles( files );
-    }
-  }
-
-  /**
-   * Opens the files into new editors, unless one of those files was a
-   * definition file. The definition file is loaded into the definition pane,
-   * but only the first one selected (multiple definition files will result in a
-   * warning).
-   *
-   * @param files The list of non-definition files that the were requested to
-   *              open.
-   */
-  private void openFiles( final List<File> files ) {
-    final var extensions = createExtensionFilter( DEFINITION ).getExtensions();
-    final var predicate = createFileTypePredicate( extensions );
-
-    // The user might have opened multiple definitions files. These will
-    // be discarded from the text editable files.
-    final var definitions
-        = files.stream().filter( predicate ).collect( Collectors.toList() );
-
-    // Create a modifiable list to remove any definition files that were
-    // opened.
-    final var editors = new ArrayList<>( files );
-
-    if( !editors.isEmpty() ) {
-      saveLastDirectory( editors.get( 0 ) );
-    }
-
-    editors.removeAll( definitions );
-
-    // Open editor-friendly files (e.g,. Markdown, XML) in new tabs.
-    if( !editors.isEmpty() ) {
-      // TODO: FIXME REFACTOR TABS
-      //openEditors( editors, 0 );
-    }
-
-    if( !definitions.isEmpty() ) {
-      openDefinition( definitions.get( 0 ) );
-    }
-  }
-
-  // TODO: FIXME REFACTOR TABS
-  /*
-  private void openEditors( final List<File> files, final int activeIndex ) {
-    final int fileTally = files.size();
-    final List<Tab> tabs = getTabs();
-
-    // Close single unmodified "Untitled" tab.
-    if( tabs.size() == 1 ) {
-      final FileEditorController fileEditor = (FileEditorController) (tabs
-      .get( 0 ));
-
-      if( fileEditor.getPath() == null && !fileEditor.isModified() ) {
-        closeEditor( fileEditor, false );
-      }
-    }
-
-    for( int i = 0; i < fileTally; i++ ) {
-      final Path path = files.get( i ).toPath();
-
-      FileEditorController fileEditorTab = findEditor( path );
-
-      // Only open new files.
-      if( fileEditorTab == null ) {
-        fileEditorTab = createFileEditor( path );
-        // TODO: FIXME REFACTOR TABS
-        //getTabs().add( fileEditorTab );
-      }
-
-      // Select the first file in the list.
-      if( i == activeIndex ) {
-        // TODO: FIXME REFACTOR TABS
-        //getSelectionModel().select( fileEditorTab );
-      }
-    }
-  }
-   */
-
   /**
    * Returns a property that changes when a new definition file is opened.
    *
@@ -344,30 +237,7 @@ public final class FileEditorTabPane extends DetachableTabPane {
    * @return true The contents were saved, or the tab was null.
    */
   public boolean saveEditorAs( final FileEditorController tab ) {
-    if( tab == null ) {
-      return true;
-    }
-
-    // TODO: FIXME REFACTOR TABS
-//    getSelectionModel().select( tab );
-
-    final var chooser = createFileChooser( "Dialog.file.choose.save.title" );
-    final var file = chooser.showSaveDialog( getWindow() );
-
-    if( file == null ) {
-      return false;
-    }
-
-    saveLastDirectory( file );
-    tab.setPath( file );
-
-    return tab.save();
-  }
-
-  void saveAllEditors() {
-    for( final var fileEditorTab : getAllEditors() ) {
-      fileEditorTab.save();
-    }
+    return false;
   }
 
   /**
@@ -392,9 +262,10 @@ public final class FileEditorTabPane extends DetachableTabPane {
       final var confirmSave = service.createConfirmation(
           getWindow(), message );
 
-      confirmSave.showAndWait().ifPresent(
-          save -> canClose.set( save == YES ? tab.save() : save == NO )
-      );
+      // TODO: FIXME REFACTOR TABS
+//      confirmSave.showAndWait().ifPresent(
+//          save -> canClose.set( save == YES ? tab.save() : save == NO )
+//      );
     }
 
     return canClose.get();
@@ -552,10 +423,6 @@ public final class FileEditorTabPane extends DetachableTabPane {
     return new ExtensionFilter( Messages.get( tKey ), getExtensions( eKey ) );
   }
 
-  private void saveLastDirectory( final File file ) {
-    getPreferences().put( "lastDirectory", file.getParent() );
-  }
-
   public void initPreferences() {
     int activeIndex = 0;
 
@@ -576,13 +443,10 @@ public final class FileEditorTabPane extends DetachableTabPane {
       }
     }
 
-    if( files.isEmpty() ) {
-      newEditor();
-    }
-    else {
-      // TODO: FIXME REFACTOR TABS
-      //openEditors( files, activeIndex );
-    }
+    // TODO: FIXME REFACTOR TABS
+//    if( files.isEmpty() ) {
+//      newEditor();
+//    }
   }
 
   public void persistPreferences() {

@@ -30,6 +30,7 @@ import com.keenwrite.io.File;
 import com.keenwrite.service.Settings;
 import javafx.scene.image.Image;
 
+import java.nio.charset.Charset;
 import java.nio.file.Path;
 
 import static com.keenwrite.Bootstrap.APP_TITLE_LOWERCASE;
@@ -133,6 +134,11 @@ public class Constants {
    * Default path to use for an untitled (pathless) file.
    */
   public static final Path DEFAULT_DIRECTORY = USER_DIRECTORY.toPath();
+
+  /**
+   * Default character set to use when reading/writing files.
+   */
+  public static final Charset DEFAULT_CHARSET = Charset.defaultCharset();
 
   /**
    * Default starting delimiter for definition variables. This value must

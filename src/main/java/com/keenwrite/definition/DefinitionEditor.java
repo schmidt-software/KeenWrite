@@ -26,6 +26,7 @@
  */
 package com.keenwrite.definition;
 
+import com.keenwrite.Constants;
 import com.keenwrite.editors.TextDefinition;
 import com.keenwrite.io.File;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
@@ -40,6 +41,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 
+import java.nio.charset.Charset;
 import java.util.*;
 
 import static com.keenwrite.Constants.DEFAULT_DEFINITION;
@@ -84,7 +86,13 @@ public final class DefinitionEditor extends BorderPane implements
   /**
    * File being edited by this editor instance.
    */
-  private final File mFile;
+  private File mFile;
+
+  /**
+   * Opened file's character encoding, or {@link Constants#DEFAULT_CHARSET} if
+   * either no encoding could be determined or this is a new (empty) file.
+   */
+  private final Charset mEncoding;
 
   /**
    * This is provided for unit tests that are not backed by files.
@@ -97,6 +105,7 @@ public final class DefinitionEditor extends BorderPane implements
 
   /**
    * Constructs a definition pane with a given tree view root.
+   *
    * @param file The file to
    */
   public DefinitionEditor(
@@ -129,7 +138,7 @@ public final class DefinitionEditor extends BorderPane implements
     setTop( buttonBar );
     setCenter( mTreeView );
     setAlignment( buttonBar, TOP_CENTER );
-    readFile( mFile );
+    mEncoding = open( mFile );
   }
 
   @Override
@@ -152,6 +161,16 @@ public final class DefinitionEditor extends BorderPane implements
   @Override
   public File getFile() {
     return mFile;
+  }
+
+  @Override
+  public void rename( final File file ) {
+    mFile = file;
+  }
+
+  @Override
+  public Charset getEncoding() {
+    return mEncoding;
   }
 
   @Override

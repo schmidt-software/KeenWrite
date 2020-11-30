@@ -41,6 +41,7 @@ import com.keenwrite.processors.ProcessorContext;
 import com.keenwrite.processors.ProcessorFactory;
 import com.keenwrite.processors.markdown.CaretExtension;
 import com.keenwrite.processors.markdown.CaretPosition;
+import com.keenwrite.service.Options;
 import com.keenwrite.ui.actions.FileChooserCommand;
 import com.panemu.tiwulfx.control.dock.DetachableTab;
 import com.panemu.tiwulfx.control.dock.DetachableTabPane;
@@ -57,14 +58,13 @@ import javafx.stage.Stage;
 import javafx.stage.Window;
 
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.prefs.Preferences;
 
 import static com.keenwrite.Constants.*;
 import static com.keenwrite.ExportFormat.NONE;
 import static com.keenwrite.Messages.get;
+import static com.keenwrite.StatusBarNotifier.getNotifier;
 import static com.keenwrite.definition.MapInterpolator.interpolate;
 import static com.keenwrite.io.MediaType.*;
 import static com.keenwrite.processors.ProcessorFactory.createProcessors;
@@ -77,6 +77,8 @@ import static javafx.util.Duration.millis;
  * text editors, and preview pane along with any corresponding controllers.
  */
 public class MainView extends SplitPane {
+  private static final Options sOptions = Services.load( Options.class );
+
   /**
    * Prevents re-instantiation of processing classes.
    */
@@ -186,7 +188,7 @@ public class MainView extends SplitPane {
    * Opens files selected by the user into the application.
    */
   public void open() {
-    open( new FileChooserCommand( getWindow() ).openFiles() );
+    open( createFileChooser().openFiles() );
   }
 
   /**
@@ -243,6 +245,65 @@ public class MainView extends SplitPane {
     open( DEFAULT_DEFINITION );
   }
 
+  /**
+   * Requests that the active {@link TextEditor} saves itself. Don't bother
+   * checking if modified first because if the user swaps external media from
+   * an external source (e.g., USB thumb drive), save should not second-guess
+   * the user: save always re-saves. Also, it's less code.
+   */
+  public void save() {
+    save( mActiveTextEditor.get() );
+  }
+
+  public void saveAs() {
+    final var file = createFileChooser().saveAs();
+    if( file != null ) {
+      saveAs( file );
+    }
+  }
+
+  private void saveAs( final File file ) {
+    assert file != null;
+    final var editor = mActiveTextEditor.get();
+    final var tab = getTab( editor );
+
+    editor.rename( file );
+    tab.ifPresent( t -> {
+      t.setText( editor.getFilename() );
+      t.setTooltip( createTooltip( file ) );
+    } );
+
+    save();
+  }
+
+  /**
+   * Iterates over all tab panes to find all {@link TextEditor}s and request
+   * that they save themselves.
+   */
+  public void saveAll() {
+    mTabPanes.forEach(
+        ( mt, tp ) -> tp.getTabs().forEach( ( tab ) -> {
+          final var node = tab.getContent();
+          if( node instanceof TextEditor ) {
+            save( ((TextEditor) node) );
+          }
+        } )
+    );
+  }
+
+  private void save( final TextEditor editor ) {
+    try {
+      editor.save();
+    } catch( final Exception ex ) {
+      alert(
+          editor.getPath(),
+          "FileEditor.saveFailed.title",
+          "FileEditor.saveFailed.message",
+          ex
+      );
+    }
+  }
+
   private ObjectProperty<TextEditor> createActiveTextEditor() {
     final var editor = new SimpleObjectProperty<TextEditor>();
     editor.addListener( ( c, o, n ) -> {
@@ -254,6 +315,20 @@ public class MainView extends SplitPane {
     } );
 
     return editor;
+  }
+
+  /**
+   * Returns the tab that contains the given {@link TextEditor}.
+   *
+   * @param editor The {@link TextEditor} instance to find amongst the tabs.
+   * @return The first tab having content that matches the given tab.
+   */
+  private Optional<Tab> getTab( final TextEditor editor ) {
+    return mTabPanes.values()
+                    .stream()
+                    .flatMap( pane -> pane.getTabs().stream() )
+                    .filter( tab -> editor.equals( tab.getContent() ) )
+                    .findFirst();
   }
 
   /**
@@ -565,7 +640,45 @@ public class MainView extends SplitPane {
     return tooltip;
   }
 
+  private FileChooserCommand createFileChooser() {
+    return new FileChooserCommand( getWindow() );
+  }
+
   private Window getWindow() {
     return getScene().getWindow();
+  }
+
+  private Preferences getPreferences() {
+    return sOptions.getState();
+  }
+
+  private void persistLastDirectory( final File file ) {
+    assert file != null;
+    getPreferences().put( "lastDirectory", file.getParent() );
+  }
+
+  private void persistLastDirectory( final Path path ) {
+    persistLastDirectory( new File( path.toFile() ) );
+  }
+
+  /**
+   * Creates an alert dialog and waits for it to close.
+   *
+   * @param titleKey   Resource bundle key for the alert dialog title.
+   * @param messageKey Resource bundle key for the alert dialog message.
+   * @param ex         The unexpected happening.
+   */
+  @SuppressWarnings("SameParameterValue")
+  private void alert(
+      final Path path,
+      final String titleKey,
+      final String messageKey,
+      final Exception ex ) {
+    final var service = getNotifier();
+    final var message = service.createNotification(
+        get( titleKey ), get( messageKey ), path, ex.getMessage()
+    );
+
+    service.createError( getWindow(), message ).showAndWait();
   }
 }

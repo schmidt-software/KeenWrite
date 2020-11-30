@@ -27,6 +27,7 @@
  */
 package com.keenwrite.editors;
 
+import com.keenwrite.Constants;
 import com.keenwrite.io.File;
 import com.keenwrite.preferences.UserPreferences;
 import com.keenwrite.processors.markdown.CaretPosition;
@@ -43,6 +44,7 @@ import org.fxmisc.undo.UndoManager;
 import org.fxmisc.wellbehaved.event.EventPattern;
 import org.fxmisc.wellbehaved.event.Nodes;
 
+import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.util.function.Consumer;
 
@@ -66,6 +68,12 @@ public class PlainTextEditor extends StyleClassedTextArea
       new VirtualizedScrollPane<>( this );
   private final ObjectProperty<Path> mPath = new SimpleObjectProperty<>();
 
+  /**
+   * Opened file's character encoding, or {@link Constants#DEFAULT_CHARSET} if
+   * either no encoding could be determined or this is a new (empty) file.
+   */
+  private final Charset mEncoding;
+
   public PlainTextEditor( final File file ) {
     super( false );
     getScrollPane().setVbarPolicy( ScrollPane.ScrollBarPolicy.ALWAYS );
@@ -81,6 +89,7 @@ public class PlainTextEditor extends StyleClassedTextArea
     );
 
     mPath.set( file.toPath() );
+    mEncoding = open(file);
   }
 
   @Override
@@ -160,6 +169,16 @@ public class PlainTextEditor extends StyleClassedTextArea
   @Override
   public String getText() {
     return getEditor().getText();
+  }
+
+  @Override
+  public Charset getEncoding() {
+    return mEncoding;
+  }
+
+  @Override
+  public void rename( final File file ) {
+
   }
 
   public CaretPosition createCaretPosition() {

@@ -31,12 +31,16 @@ import javafx.scene.Node;
 import org.mozilla.universalchardet.UniversalDetector;
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.nio.charset.Charset;
-import java.nio.file.Files;
 import java.nio.file.Path;
 
+import static com.keenwrite.Constants.DEFAULT_CHARSET;
 import static com.keenwrite.Messages.get;
 import static com.keenwrite.StatusBarNotifier.clue;
+import static java.nio.charset.Charset.forName;
+import static java.nio.file.Files.readAllBytes;
+import static java.nio.file.Files.write;
 import static java.util.Locale.ENGLISH;
 
 /**
@@ -60,6 +64,20 @@ public interface TextResource {
    * {@link #setText(String)}, but possibly mutated.
    */
   String getText();
+
+  /**
+   * Return the character encoding for this file.
+   *
+   * @return A non-null character set, primarily detected from file contents.
+   */
+  Charset getEncoding();
+
+  /**
+   * Renames the current file to the given fully qualified file name.
+   *
+   * @param file The new file name.
+   */
+  void rename( final File file );
 
   /**
    * Returns the file name, without any directory components, for this instance.
@@ -96,14 +114,19 @@ public interface TextResource {
    *
    * @param path The fully qualified {@link Path}, including a file name, to
    *             fully read into the editor.
+   * @return The character encoding for the file at the given {@link Path}.
    */
-  default void readFile( final Path path ) {
+  default Charset open( final Path path ) {
     final var file = new File( path.toFile() );
+    Charset encoding = DEFAULT_CHARSET;
 
     try {
       if( file.exists() ) {
         if( file.canWrite() && file.canRead() ) {
-          setText( asString( Files.readAllBytes( path ) ) );
+          final var bytes = readAllBytes( path );
+          encoding = detectEncoding( bytes );
+
+          setText( asString( bytes, encoding ) );
         }
         else {
           final String msg = get( "FileEditor.loadFailed.reason.permissions" );
@@ -116,10 +139,46 @@ public interface TextResource {
     } catch( final Exception ex ) {
       clue( ex );
     }
+
+    return encoding;
   }
 
-  private String asString( final byte[] text ) {
-    return new String( text, detectEncoding( text ) );
+  /**
+   * Read the file contents and update the text accordingly. If the file
+   * cannot be read then no changes will happen to the text. This delegates
+   * to {@link #open(Path)}.
+   *
+   * @param file The {@link File} to fully read into the editor.
+   * @return The file's character encoding.
+   */
+  default Charset open( final File file ) {
+    return open( file.toPath() );
+  }
+
+  default void save() throws IOException {
+    write( getPath(), asBytes( getText() ) );
+  }
+
+  /**
+   * Returns the node associated with this {@link TextResource}.
+   *
+   * @return The view component for the {@link TextResource}.
+   */
+  Node getNode();
+
+  private String asString( final byte[] text, final Charset encoding ) {
+    return new String( text, encoding );
+  }
+
+  /**
+   * Converts the given string to an array of bytes using the encoding that was
+   * originally detected (if any) and associated with this file.
+   *
+   * @param text The text to convert into the original file encoding.
+   * @return A series of bytes ready for writing to a file.
+   */
+  private byte[] asBytes( final String text ) {
+    return text.getBytes( getEncoding() );
   }
 
   private Charset detectEncoding( final byte[] bytes ) {
@@ -130,25 +189,7 @@ public interface TextResource {
     final var charset = detector.getDetectedCharset();
 
     return charset == null
-        ? Charset.defaultCharset()
-        : Charset.forName( charset.toUpperCase( ENGLISH ) );
+        ? DEFAULT_CHARSET
+        : forName( charset.toUpperCase( ENGLISH ) );
   }
-
-  /**
-   * Read the file contents and update the text accordingly. If the file
-   * cannot be read then no changes will happen to the text. This delegates
-   * to {@link #readFile(Path)}.
-   *
-   * @param file The {@link File} to fully read into the editor.
-   */
-  default void readFile( final File file ) {
-    readFile( file.toPath() );
-  }
-
-  /**
-   * Returns the node associated with this {@link TextResource}.
-   *
-   * @return The view component for the {@link TextResource}.
-   */
-  Node getNode();
 }
