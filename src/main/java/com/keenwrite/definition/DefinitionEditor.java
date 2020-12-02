@@ -46,6 +46,7 @@ import java.util.*;
 
 import static com.keenwrite.Constants.DEFAULT_DEFINITION;
 import static com.keenwrite.Messages.get;
+import static com.keenwrite.StatusBarNotifier.clue;
 import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.*;
 import static javafx.geometry.Pos.CENTER;
 import static javafx.geometry.Pos.TOP_CENTER;
@@ -155,6 +156,22 @@ public final class DefinitionEditor extends BorderPane implements
 
   @Override
   public String getText() {
+    try {
+      final var root = getTreeView().getRoot();
+      final var problemChild = isTreeWellFormed();
+
+      if( problemChild == null ) {
+        // TODO: nix the Path param, return a String for this method.
+        mTreeTransformer.accept( root, getPath() );
+      }
+      else {
+        clue( "yaml.error.tree.form", problemChild.getValue() );
+      }
+    } catch( final Exception ex ) {
+      clue( ex );
+    }
+
+    // TODO: Return that String ^^^^^^^^^^^^
     return "";
   }
 

@@ -1,5 +1,4 @@
-/*
- * Copyright 2020 White Magic Software, Ltd.
+/* Copyright 2020 White Magic Software, Ltd.
  *
  * All rights reserved.
  *
@@ -31,29 +30,111 @@ import com.keenwrite.Messages;
 import com.keenwrite.util.GenericBuilder;
 import de.jensd.fx.glyphs.GlyphIcons;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
-import javafx.beans.value.ObservableBooleanValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.scene.Node;
+import javafx.scene.control.Button;
+import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.Tooltip;
+import javafx.scene.input.KeyCombination;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory.get;
+import static javafx.scene.input.KeyCombination.valueOf;
 
 /**
- * Represents a menu action that can generate {@link MenuItem} instances and
- * and {@link Node} instances for a toolbar.
+ * Defines actions the user can take through GUI interactions
  */
-public abstract class Action {
-  /**
-   * TODO: Reuse the {@link GenericBuilder}.
-   *
-   * @return The {@link Builder} for an instance of {@link Action}.
-   */
-  public static Builder builder() {
-    return new Builder();
+public class Action implements MenuAction {
+  private final String mText;
+  private final KeyCombination mAccelerator;
+  private final GlyphIcons mIcon;
+  private final EventHandler<ActionEvent> mHandler;
+  private final List<MenuAction> mSubActions = new ArrayList<>();
+
+  public Action(
+      final String text,
+      final String accelerator,
+      final GlyphIcons icon,
+      final EventHandler<ActionEvent> handler ) {
+    mText = text;
+    mAccelerator = accelerator == null ? null : valueOf( accelerator );
+    mIcon = icon;
+    mHandler = handler;
   }
 
-  public abstract MenuItem createMenuItem();
+  /**
+   * Runs this action. Most actions are mapped to menu items, but some actions
+   * (such as the Insert key to toggle overwrite mode) are not.
+   */
+  public void execute() {
+    mHandler.handle( new ActionEvent() );
+  }
 
-  public abstract Node createToolBarButton();
+  @Override
+  public MenuItem createMenuItem() {
+    // This will either become a menu or a menu item, depending on whether
+    // sub-actions are defined.
+    final MenuItem menuItem;
+
+    if( mSubActions.isEmpty() ) {
+      // Regular menu item has no sub-menus.
+      menuItem = new MenuItem( mText );
+    }
+    else {
+      // Sub-actions are translated into sub-menu items beneath this action.
+      final var submenu = new Menu( mText );
+
+      for( final var action : mSubActions ) {
+        // Recursive call that creates a sub-menu hierarchy.
+        submenu.getItems().add( action.createMenuItem() );
+      }
+
+      menuItem = submenu;
+    }
+
+    if( mAccelerator != null ) {
+      menuItem.setAccelerator( mAccelerator );
+    }
+
+    if( mIcon != null ) {
+      menuItem.setGraphic( get().createIcon( mIcon ) );
+    }
+
+    if( mHandler != null ) {
+      menuItem.setOnAction( mHandler );
+    }
+
+    return menuItem;
+  }
+
+  @Override
+  public Button createToolBarNode() {
+    final var button = createIconButton();
+    var tooltip = mText;
+
+    if( tooltip.endsWith( "..." ) ) {
+      tooltip = tooltip.substring( 0, tooltip.length() - 3 );
+    }
+
+    if( mAccelerator != null ) {
+      tooltip += " (" + mAccelerator.getDisplayText() + ')';
+    }
+
+    button.setTooltip( new Tooltip( tooltip ) );
+    button.setFocusTraversable( false );
+    button.setOnAction( mHandler );
+
+    return button;
+  }
+
+  private Button createIconButton() {
+    final var button = new Button();
+    button.setGraphic( get().createIcon( mIcon, "1.2em" ) );
+    return button;
+  }
 
   /**
    * Adds subordinate actions to the menu. This is used to establish sub-menu
@@ -62,8 +143,18 @@ public abstract class Action {
    *
    * @param action Actions that only exist with respect to this action.
    */
-  public Action addSubActions( Action... action ) {
+  public MenuAction addSubActions( final MenuAction... action ) {
+    mSubActions.addAll( List.of( action ) );
     return this;
+  }
+
+  /**
+   * TODO: Reuse the {@link GenericBuilder}.
+   *
+   * @return The {@link Builder} for an instance of {@link Action}.
+   */
+  public static Builder builder() {
+    return new Builder();
   }
 
   /**
@@ -74,8 +165,7 @@ public abstract class Action {
     private String mText;
     private String mAccelerator;
     private GlyphIcons mIcon;
-    private EventHandler<ActionEvent> mAction;
-    private ObservableBooleanValue mDisabled;
+    private EventHandler<ActionEvent> mHandler;
 
     /**
      * Sets the text, icon, and accelerator for a given action identifier.
@@ -135,18 +225,13 @@ public abstract class Action {
           : setIcon( getIcon( iconValue ) );
     }
 
-    public Builder setAction( final EventHandler<ActionEvent> action ) {
-      mAction = action;
-      return this;
-    }
-
-    public Builder setDisabled( final ObservableBooleanValue disabled ) {
-      mDisabled = disabled;
+    public Builder setHandler( final EventHandler<ActionEvent> handler ) {
+      mHandler = handler;
       return this;
     }
 
     public Action build() {
-      return new MenuAction( mText, mAccelerator, mIcon, mAction, mDisabled );
+      return new Action( mText, mAccelerator, mIcon, mHandler );
     }
 
     private GlyphIcons getIcon( final String name ) {

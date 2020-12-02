@@ -29,7 +29,9 @@ package com.keenwrite.ui.actions;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
+import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.ToolBar;
 import javafx.scene.layout.VBox;
 
@@ -38,9 +40,11 @@ import java.util.Map;
 
 import static com.keenwrite.Messages.get;
 
+/**
+ * Responsible for wiring all application actions to menus, toolbar buttons,
+ * and keyboard shortcuts.
+ */
 public class ApplicationMenuBar {
-
-  private static final Action SEPARATOR_ACTION = new SeparatorAction();
 
   private final ApplicationActions mActions;
   private final Map<String, Action> mMap = new HashMap<>( 64 );
@@ -58,200 +62,184 @@ public class ApplicationMenuBar {
    * @return An instance of {@link Node} that contains the menu and toolbar.
    */
   public Node createMenuBar() {
+    final var SEPARATOR_ACTION = new SeparatorAction();
+
     //@formatter:off
-    putAction( "file.new", e -> mActions.file‿new() );
-    putAction( "file.open", e -> mActions.file‿open() );
-    putAction( "file.close", e -> mActions.file‿close() );
-    putAction( "file.close_all", e -> mActions.file‿close_all() );
-    putAction( "file.save", e -> mActions.file‿save() );
-    putAction( "file.save_as", e -> mActions.file‿save_as() );
-    putAction( "file.save_all", e -> mActions.file‿save_all() );
-    putAction( "file.export", e -> {} );
-    putAction( "file.export.html_svg", e -> mActions.file‿export‿html_svg() );
-    putAction( "file.export.html_tex", e -> mActions.file‿export‿html_tex() );
-    putAction( "file.export.markdown", e -> mActions.file‿export‿markdown() );
-    putAction( "file.exit", e -> mActions.file‿exit() );
-    putAction( "edit.undo", e -> mActions.edit‿undo() );
-    putAction( "edit.redo", e -> mActions.edit‿redo() );
-    putAction( "edit.cut", e -> mActions.edit‿cut() );
-    putAction( "edit.copy", e -> mActions.edit‿copy() );
-    putAction( "edit.paste", e -> mActions.edit‿paste() );
-    putAction( "edit.select_all", e -> mActions.edit‿select_all() );
-    putAction( "edit.find", e -> mActions.edit‿find() );
-    putAction( "edit.find_next", e -> mActions.edit‿find_next() );
-    putAction( "edit.preferences", e -> mActions.edit‿preferences() );
-    putAction( "format.bold", e -> mActions.format‿bold() );
-    putAction( "format.italic", e -> mActions.format‿italic() );
-    putAction( "format.superscript", e -> mActions.format‿superscript() );
-    putAction( "format.subscript", e -> mActions.format‿subscript() );
-    putAction( "format.strikethrough", e -> mActions.format‿strikethrough() );
-    putAction( "insert.blockquote", e -> mActions.insert‿blockquote() );
-    putAction( "insert.code", e -> mActions.insert‿code() );
-    putAction( "insert.fenced_code_block", e -> mActions.insert‿fenced_code_block() );
-    putAction( "insert.link", e -> mActions.insert‿link() );
-    putAction( "insert.image", e -> mActions.insert‿image() );
-    putAction( "insert.heading_1", e -> mActions.insert‿heading_1() );
-    putAction( "insert.heading_2", e -> mActions.insert‿heading_2() );
-    putAction( "insert.heading_3", e -> mActions.insert‿heading_3() );
-    putAction( "insert.unordered_list", e -> mActions.insert‿unordered_list() );
-    putAction( "insert.ordered_list", e -> mActions.insert‿ordered_list() );
-    putAction( "insert.horizontal_rule", e -> mActions.insert‿horizontal_rule() );
-    putAction( "definition.create", e -> mActions.definition‿create() );
-    putAction( "definition.insert", e -> mActions.definition‿insert() );
-    putAction( "view.refresh", e -> mActions.view‿refresh() );
-    putAction( "view.preview", e -> mActions.view‿preview() );
-    putAction( "help.about", e -> mActions.help‿about() );
-    //@formatter:on
-
-    final var menuFile = ActionUtils.createMenu(
-        get( "Main.menu.file" ),
-        getAction( "file.new" ),
-        getAction( "file.open" ),
-        SEPARATOR_ACTION,
-        getAction( "file.close" ),
-        getAction( "file.close_all" ),
-        SEPARATOR_ACTION,
-        getAction( "file.save" ),
-        getAction( "file.save_as" ),
-        getAction( "file.save_all" ),
-        SEPARATOR_ACTION,
-        getAction( "file.export" )
-            .addSubActions(
-                getAction( "file.export.html_svg" ),
-                getAction( "file.export.html_tex" ),
-                getAction( "file.export.markdown" )
-            ),
-        SEPARATOR_ACTION,
-        getAction( "file.exit" )
+    final var menuFile = createMenu(
+      get( "Main.menu.file" ),
+      addAction( "file.new", e -> mActions.file‿new() ),
+      addAction( "file.open", e -> mActions.file‿open() ),
+      SEPARATOR_ACTION,
+      addAction( "file.close", e -> mActions.file‿close() ),
+      addAction( "file.close_all", e -> mActions.file‿close_all() ),
+      SEPARATOR_ACTION,
+      addAction( "file.save", e -> mActions.file‿save() ),
+      addAction( "file.save_as", e -> mActions.file‿save_as() ),
+      addAction( "file.save_all", e -> mActions.file‿save_all() ),
+      SEPARATOR_ACTION,
+      addAction( "file.export", e -> {} )
+        .addSubActions(
+          addAction( "file.export.html_svg", e -> mActions.file‿export‿html_svg() ),
+          addAction( "file.export.html_tex", e -> mActions.file‿export‿html_tex() ),
+          addAction( "file.export.markdown", e -> mActions.file‿export‿markdown() )
+        ),
+      SEPARATOR_ACTION,
+      addAction( "file.exit", e -> mActions.file‿exit() )
     );
 
-    final var menuEdit = ActionUtils.createMenu(
-        get( "Main.menu.edit" ),
-        SEPARATOR_ACTION,
-        getAction( "edit.undo" ),
-        getAction( "edit.redo" ),
-        SEPARATOR_ACTION,
-        getAction( "edit.cut" ),
-        getAction( "edit.copy" ),
-        getAction( "edit.paste" ),
-        getAction( "edit.select_all" ),
-        SEPARATOR_ACTION,
-        getAction( "edit.find" ),
-        getAction( "edit.find_next" ),
-        SEPARATOR_ACTION,
-        getAction( "edit.preferences" )
+    final var menuEdit = createMenu(
+      get( "Main.menu.edit" ),
+      SEPARATOR_ACTION,
+      addAction( "edit.undo", e -> mActions.edit‿undo() ),
+      addAction( "edit.redo", e -> mActions.edit‿redo() ),
+      SEPARATOR_ACTION,
+      addAction( "edit.cut", e -> mActions.edit‿cut() ),
+      addAction( "edit.copy", e -> mActions.edit‿copy() ),
+      addAction( "edit.paste", e -> mActions.edit‿paste() ),
+      addAction( "edit.select_all", e -> mActions.edit‿select_all() ),
+      SEPARATOR_ACTION,
+      addAction( "edit.find", e -> mActions.edit‿find() ),
+      addAction( "edit.find_next", e -> mActions.edit‿find_next() ),
+      SEPARATOR_ACTION,
+      addAction( "edit.preferences", e -> mActions.edit‿preferences() )
     );
 
-    final var menuFormat = ActionUtils.createMenu(
-        get( "Main.menu.format" ),
-        getAction( "format.bold" ),
-        getAction( "format.italic" ),
-        getAction( "format.superscript" ),
-        getAction( "format.subscript" ),
-        getAction( "format.strikethrough" )
+    final var menuFormat = createMenu(
+      get( "Main.menu.format" ),
+      addAction( "format.bold", e -> mActions.format‿bold() ),
+      addAction( "format.italic", e -> mActions.format‿italic() ),
+      addAction( "format.superscript", e -> mActions.format‿superscript() ),
+      addAction( "format.subscript", e -> mActions.format‿subscript() ),
+      addAction( "format.strikethrough", e -> mActions.format‿strikethrough() )
     );
 
-    final var menuInsert = ActionUtils.createMenu(
-        get( "Main.menu.insert" ),
-        getAction( "insert.blockquote" ),
-        getAction( "insert.code" ),
-        getAction( "insert.fenced_code_block" ),
-        SEPARATOR_ACTION,
-        getAction( "insert.link" ),
-        getAction( "insert.image" ),
-        SEPARATOR_ACTION,
-        getAction( "insert.heading_1" ),
-        getAction( "insert.heading_2" ),
-        getAction( "insert.heading_3" ),
-        SEPARATOR_ACTION,
-        getAction( "insert.unordered_list" ),
-        getAction( "insert.ordered_list" ),
-        getAction( "insert.horizontal_rule" )
+    final var menuInsert = createMenu(
+      get( "Main.menu.insert" ),
+      addAction( "insert.blockquote", e -> mActions.insert‿blockquote() ),
+      addAction( "insert.code", e -> mActions.insert‿code() ),
+      addAction( "insert.fenced_code_block", e -> mActions.insert‿fenced_code_block() ),
+      SEPARATOR_ACTION,
+      addAction( "insert.link", e -> mActions.insert‿link() ),
+      addAction( "insert.image", e -> mActions.insert‿image() ),
+      SEPARATOR_ACTION,
+      addAction( "insert.heading_1", e -> mActions.insert‿heading_1() ),
+      addAction( "insert.heading_2", e -> mActions.insert‿heading_2() ),
+      addAction( "insert.heading_3", e -> mActions.insert‿heading_3() ),
+      SEPARATOR_ACTION,
+      addAction( "insert.unordered_list", e -> mActions.insert‿unordered_list() ),
+      addAction( "insert.ordered_list", e -> mActions.insert‿ordered_list() ),
+      addAction( "insert.horizontal_rule", e -> mActions.insert‿horizontal_rule() )
     );
 
-    final var menuDefinition = ActionUtils.createMenu(
-        get( "Main.menu.definition" ),
-        getAction( "definition.create" ),
-        getAction( "definition.insert" )
+    final var menuDefinition = createMenu(
+      get( "Main.menu.definition" ),
+      addAction( "definition.create", e -> mActions.definition‿create() ),
+      addAction( "definition.insert", e -> mActions.definition‿insert() )
     );
 
-    final var menuView = ActionUtils.createMenu(
-        get( "Main.menu.view" ),
-        getAction( "view.refresh" ),
-        SEPARATOR_ACTION,
-        getAction( "view.preview" )
+    final var menuView = createMenu(
+      get( "Main.menu.view" ),
+      addAction( "view.refresh", e -> mActions.view‿refresh() ),
+      SEPARATOR_ACTION,
+      addAction( "view.preview", e -> mActions.view‿preview() )
     );
 
-    final var menuHelp = ActionUtils.createMenu(
-        get( "Main.menu.help" ),
-        getAction( "help.about" ) );
+    final var menuHelp = createMenu(
+      get( "Main.menu.help" ),
+      addAction( "help.about", e -> mActions.help‿about() )
+    );
 
     final var menuBar = new MenuBar(
-        menuFile,
-        menuEdit,
-        menuFormat,
-        menuInsert,
-        menuDefinition,
-        menuView,
-        menuHelp );
+      menuFile,
+      menuEdit,
+      menuFormat,
+      menuInsert,
+      menuDefinition,
+      menuView,
+      menuHelp );
 
     final var toolBar = createToolBar(
-        getAction( "file.new" ),
-        getAction( "file.open" ),
-        getAction( "file.save" ),
-        SEPARATOR_ACTION,
-        getAction( "edit.undo" ),
-        getAction( "edit.redo" ),
-        getAction( "edit.cut" ),
-        getAction( "edit.copy" ),
-        getAction( "edit.paste" ),
-        SEPARATOR_ACTION,
-        getAction( "format.bold" ),
-        getAction( "format.italic" ),
-        getAction( "format.superscript" ),
-        getAction( "format.subscript" ),
-        getAction( "insert.blockquote" ),
-        getAction( "insert.code" ),
-        getAction( "insert.fenced_code_block" ),
-        SEPARATOR_ACTION,
-        getAction( "insert.link" ),
-        getAction( "insert.image" ),
-        SEPARATOR_ACTION,
-        getAction( "insert.heading_1" ),
-        SEPARATOR_ACTION,
-        getAction( "insert.unordered_list" ),
-        getAction( "insert.ordered_list" ) );
+      getAction( "file.new" ),
+      getAction( "file.open" ),
+      getAction( "file.save" ),
+      SEPARATOR_ACTION,
+      getAction( "edit.undo" ),
+      getAction( "edit.redo" ),
+      getAction( "edit.cut" ),
+      getAction( "edit.copy" ),
+      getAction( "edit.paste" ),
+      SEPARATOR_ACTION,
+      getAction( "format.bold" ),
+      getAction( "format.italic" ),
+      getAction( "format.superscript" ),
+      getAction( "format.subscript" ),
+      getAction( "insert.blockquote" ),
+      getAction( "insert.code" ),
+      getAction( "insert.fenced_code_block" ),
+      SEPARATOR_ACTION,
+      getAction( "insert.link" ),
+      getAction( "insert.image" ),
+      SEPARATOR_ACTION,
+      getAction( "insert.heading_1" ),
+      SEPARATOR_ACTION,
+      getAction( "insert.unordered_list" ),
+      getAction( "insert.ordered_list" ) );
+    //@formatter:on
 
     return new VBox( menuBar, toolBar );
   }
 
-  private void putAction(
+  /**
+   * Adds a new action to the list of actions.
+   *
+   * @param key     The name of the action to register in {@link #mMap}.
+   * @param handler Performs the action upon request.
+   * @return The newly registered action.
+   */
+  private Action addAction(
       final String key, final EventHandler<ActionEvent> handler ) {
     final var action = Action
         .builder()
         .setId( key )
-        .setAction( handler )
+        .setHandler( handler )
         .build();
 
     mMap.put( key, action );
+
+    return action;
   }
 
   private Action getAction( final String key ) {
     return mMap.get( key );
   }
 
-  private static ToolBar createToolBar( final Action... actions ) {
+  public static Menu createMenu(
+      final String text, final MenuAction... actions ) {
+    return new Menu( text, null, createMenuItems( actions ) );
+  }
+
+  public static MenuItem[] createMenuItems( final MenuAction... actions ) {
+    final var menuItems = new MenuItem[ actions.length ];
+
+    for( var i = 0; i < actions.length; i++ ) {
+      menuItems[ i ] = actions[ i ].createMenuItem();
+    }
+
+    return menuItems;
+  }
+
+  private static ToolBar createToolBar( final MenuAction... actions ) {
     return new ToolBar( createToolBarButtons( actions ) );
   }
 
-  private static Node[] createToolBarButtons( final Action... actions ) {
-    final int len = actions.length;
-    final var buttons = new Node[ len ];
+  private static Node[] createToolBarButtons( final MenuAction... actions ) {
+    final var len = actions.length;
+    final var nodes = new Node[ len ];
 
-    for( int i = 0; i < len; i++ ) {
-      buttons[ i ] = actions[ i ].createToolBarButton();
+    for( var i = 0; i < len; i++ ) {
+      nodes[ i ] = actions[ i ].createToolBarNode();
     }
 
-    return buttons;
+    return nodes;
   }
 }

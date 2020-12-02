@@ -28,23 +28,20 @@
 package com.keenwrite.ui.actions;
 
 import javafx.scene.Node;
-import javafx.scene.control.MenuBar;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.Separator;
-import javafx.scene.control.SeparatorMenuItem;
+import javafx.scene.control.*;
 
 /**
- * Represents a {@link MenuBar} action that has no operation, acting as a
- * placeholder for line separators.
+ * Represents a {@link MenuBar} or {@link ToolBar} action that has no
+ * operation, acting as a placeholder for line separators.
  */
-public class SeparatorAction extends Action {
+public class SeparatorAction implements MenuAction {
   @Override
   public MenuItem createMenuItem() {
     return new SeparatorMenuItem();
   }
 
   @Override
-  public Node createToolBarButton() {
+  public Node createToolBarNode() {
     return new Separator();
   }
 }

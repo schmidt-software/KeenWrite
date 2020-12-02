@@ -66,7 +66,7 @@ public final class YamlTreeTransformer implements TreeTransformer {
       // Writes as UTF8 by default.
       mapper.writeValue( path.toFile(), root );
 
-      //TODO: call writeValueAsString and return a string, nix the Path param.
+      // TODO: call writeValueAsString and return a string, nix the Path param.
     } catch( final Exception ex ) {
       throw new RuntimeException( ex );
     }

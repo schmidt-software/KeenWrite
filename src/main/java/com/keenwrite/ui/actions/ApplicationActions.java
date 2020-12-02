@@ -28,6 +28,12 @@ package com.keenwrite.ui.actions;
 
 import com.keenwrite.ExportFormat;
 import com.keenwrite.MainView;
+import com.keenwrite.Services;
+import com.keenwrite.io.File;
+import com.keenwrite.service.Options;
+
+import java.nio.file.Path;
+import java.util.prefs.Preferences;
 
 import static com.keenwrite.ExportFormat.*;
 
@@ -49,11 +55,11 @@ public class ApplicationActions {
   }
 
   public void file‿new() {
-    mMainView.newTextEditor();
+    getMainView().newTextEditor();
   }
 
   public void file‿open() {
-    mMainView.open();
+    getMainView().open( createFileChooser().openFiles() );
   }
 
   public void file‿close() {
@@ -63,15 +69,19 @@ public class ApplicationActions {
   }
 
   public void file‿save() {
-    mMainView.save();
+    getMainView().save();
   }
 
   public void file‿save_as() {
-    mMainView.saveAs();
+    final var file = createFileChooser().saveAs();
+
+    if( file != null ) {
+      getMainView().saveAs( file );
+    }
   }
 
   public void file‿save_all() {
-    mMainView.saveAll();
+    getMainView().saveAll();
   }
 
   public void file‿export‿html_svg() {
@@ -183,5 +193,13 @@ public class ApplicationActions {
   }
 
   public void help‿about() {
+  }
+
+  private FileChooserCommand createFileChooser() {
+    return new FileChooserCommand( getMainView().getWindow() );
+  }
+
+  private MainView getMainView() {
+    return mMainView;
   }
 }

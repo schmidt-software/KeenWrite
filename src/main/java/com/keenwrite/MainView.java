@@ -41,8 +41,6 @@ import com.keenwrite.processors.ProcessorContext;
 import com.keenwrite.processors.ProcessorFactory;
 import com.keenwrite.processors.markdown.CaretExtension;
 import com.keenwrite.processors.markdown.CaretPosition;
-import com.keenwrite.service.Options;
-import com.keenwrite.ui.actions.FileChooserCommand;
 import com.panemu.tiwulfx.control.dock.DetachableTab;
 import com.panemu.tiwulfx.control.dock.DetachableTabPane;
 import javafx.beans.property.ObjectProperty;
@@ -59,11 +57,11 @@ import javafx.stage.Window;
 
 import java.nio.file.Path;
 import java.util.*;
-import java.util.prefs.Preferences;
 
 import static com.keenwrite.Constants.*;
 import static com.keenwrite.ExportFormat.NONE;
 import static com.keenwrite.Messages.get;
+import static com.keenwrite.StatusBarNotifier.clue;
 import static com.keenwrite.StatusBarNotifier.getNotifier;
 import static com.keenwrite.definition.MapInterpolator.interpolate;
 import static com.keenwrite.io.MediaType.*;
@@ -77,7 +75,6 @@ import static javafx.util.Duration.millis;
  * text editors, and preview pane along with any corresponding controllers.
  */
 public class MainView extends SplitPane {
-  private static final Options sOptions = Services.load( Options.class );
 
   /**
    * Prevents re-instantiation of processing classes.
@@ -102,17 +99,17 @@ public class MainView extends SplitPane {
   private final HtmlPreview mHtmlPreview = new HtmlPreview();
 
   /**
-   * Changing the active editor, even back to itself, will always fire the
-   * value changed event. This allows refreshes to happen when external
-   * definitions are modified and need to trigger the processing chain.
+   * Changing the active editor fires the value changed event. This allows
+   * refreshes to happen when external definitions are modified and need to
+   * trigger the processing chain.
    */
   private final ObjectProperty<TextEditor> mActiveTextEditor =
       createActiveTextEditor();
 
   /**
-   * Changing the active definition editor, even back to itself, will always
-   * fire the value changed event. This allows refreshes to happen when external
-   * definitions are modified and need to trigger the processing chain.
+   * Changing the active definition editor fires the value changed event. This
+   * allows refreshes to happen when external definitions are modified and need
+   * to trigger the processing chain.
    */
   private final ObjectProperty<TextDefinition> mActiveDefinitionEditor =
       createActiveDefinitionEditor( mActiveTextEditor );
@@ -140,6 +137,7 @@ public class MainView extends SplitPane {
       event -> {
         resolve( mActiveDefinitionEditor.get() );
         process( mActiveTextEditor );
+        save( mActiveDefinitionEditor.get() );
       };
 
   /**
@@ -185,20 +183,13 @@ public class MainView extends SplitPane {
   }
 
   /**
-   * Opens files selected by the user into the application.
-   */
-  public void open() {
-    open( createFileChooser().openFiles() );
-  }
-
-  /**
    * Opens all the files into the application, provided the paths are unique.
    * This may only be called for any type of files that a user can edit
    * (i.e., update and persist), such as definitions and text files.
    *
    * @param files The list of files to open.
    */
-  private void open( final List<File> files ) {
+  public void open( final List<File> files ) {
     files.forEach( this::open );
   }
 
@@ -255,14 +246,7 @@ public class MainView extends SplitPane {
     save( mActiveTextEditor.get() );
   }
 
-  public void saveAs() {
-    final var file = createFileChooser().saveAs();
-    if( file != null ) {
-      saveAs( file );
-    }
-  }
-
-  private void saveAs( final File file ) {
+  public void saveAs( final File file ) {
     assert file != null;
     final var editor = mActiveTextEditor.get();
     final var tab = getTab( editor );
@@ -291,14 +275,21 @@ public class MainView extends SplitPane {
     );
   }
 
-  private void save( final TextEditor editor ) {
+  /**
+   * Saves the given {@link TextResource} to a file. This is typically used
+   * to save either an instance of {@link TextEditor} or {@link TextDefinition}.
+   *
+   * @param resource The resource to export.
+   */
+  private void save( final TextResource resource ) {
     try {
-      editor.save();
+      resource.save();
     } catch( final Exception ex ) {
+      clue( ex );
       alert(
-          editor.getPath(),
-          "FileEditor.saveFailed.title",
-          "FileEditor.saveFailed.message",
+          resource.getPath(),
+          "TextResource.saveFailed.title",
+          "TextResource.saveFailed.message",
           ex
       );
     }
@@ -352,6 +343,17 @@ public class MainView extends SplitPane {
     return definitions;
   }
 
+  /**
+   * Instantiates a factory that's responsible for creating new scenes when
+   * a tab is dropped outside of any application window. The definition tabs
+   * are fairly complex in that only one may be active at any time. When
+   * activated, the {@link #mResolvedMap} must be updated to reflect the
+   * hierarchy displayed in the {@link DefinitionEditor}.
+   *
+   * @param activeDefinitionEditor The current {@link DefinitionEditor}.
+   * @return An object that listens to {@link DefinitionEditor} tab focus
+   * changes.
+   */
   private DefinitionTabSceneFactory createDefinitionTabSceneFactory(
       final ObjectProperty<TextDefinition> activeDefinitionEditor ) {
     return new DefinitionTabSceneFactory( ( tab ) -> {
@@ -640,25 +642,8 @@ public class MainView extends SplitPane {
     return tooltip;
   }
 
-  private FileChooserCommand createFileChooser() {
-    return new FileChooserCommand( getWindow() );
-  }
-
-  private Window getWindow() {
+  public Window getWindow() {
     return getScene().getWindow();
-  }
-
-  private Preferences getPreferences() {
-    return sOptions.getState();
-  }
-
-  private void persistLastDirectory( final File file ) {
-    assert file != null;
-    getPreferences().put( "lastDirectory", file.getParent() );
-  }
-
-  private void persistLastDirectory( final Path path ) {
-    persistLastDirectory( new File( path.toFile() ) );
   }
 
   /**
