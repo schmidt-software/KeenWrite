@@ -119,10 +119,12 @@ public class PlainTextEditor extends StyleClassedTextArea
     }
   }
 
+  @Override
   public void undo() {
     getUndoManager().undo();
   }
 
+  @Override
   public void redo() {
     getUndoManager().redo();
   }
@@ -131,6 +133,7 @@ public class PlainTextEditor extends StyleClassedTextArea
    * Cuts the actively selected text; if no text is selected, this will cut
    * the entire paragraph.
    */
+  @Override
   public void cut() {
     final var editor = getEditor();
     final var selected = editor.getSelectedText();
@@ -142,20 +145,19 @@ public class PlainTextEditor extends StyleClassedTextArea
     editor.cut();
   }
 
+  @Override
   public void copy() {
     getEditor().copy();
   }
 
+  @Override
   public void paste() {
     getEditor().paste();
   }
 
+  @Override
   public void selectAll() {
     getEditor().selectAll();
-  }
-
-  public UndoManager<?> getUndoManager() {
-    return getEditor().getUndoManager();
   }
 
   @Override
@@ -178,7 +180,15 @@ public class PlainTextEditor extends StyleClassedTextArea
 
   @Override
   public void rename( final File file ) {
+  }
 
+  @Override
+  public Node getNode() {
+    return this;
+  }
+
+  public UndoManager<?> getUndoManager() {
+    return getEditor().getUndoManager();
   }
 
   public CaretPosition createCaretPosition() {
@@ -186,11 +196,6 @@ public class PlainTextEditor extends StyleClassedTextArea
         .builder()
         .with( CaretPosition.Mutator::setEditor, this )
         .build();
-  }
-
-  @Override
-  public Node getNode() {
-    return this;
   }
 
   /**

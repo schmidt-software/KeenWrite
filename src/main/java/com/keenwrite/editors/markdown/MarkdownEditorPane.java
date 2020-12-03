@@ -67,11 +67,6 @@ public class MarkdownEditorPane extends PlainTextEditor {
     super( file );
     final var textArea = getEditor();
 
-    textArea.setWrapText( true );
-    textArea.getStyleClass().add( "markdown-editor" );
-    textArea.getStylesheets().add( STYLESHEET_MARKDOWN );
-
-    addKeyboardListener( keyPressed( ENTER ), this::enterPressed );
     addKeyboardListener( keyPressed( KeyCode.X, CONTROL_DOWN ), this::cut );
   }
 

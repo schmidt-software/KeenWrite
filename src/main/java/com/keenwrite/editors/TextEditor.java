@@ -1,29 +1,4 @@
-/* Copyright 2020 White Magic Software, Ltd.
- *
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- *  o Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- *
- *  o Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+/* Copyright 2020 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.editors;
 
 import com.keenwrite.TextResource;
@@ -38,5 +13,121 @@ import org.fxmisc.richtext.StyleClassedTextArea;
  * includes scrolling facilities.
  */
 public interface TextEditor extends TextResource {
+
+  /**
+   * Returns the scrollbars associated with the editor's view so that they
+   * can be moved for synchronized scrolling.
+   *
+   * @return The initialized horizontal and vertical scrollbars.
+   */
   VirtualizedScrollPane<StyleClassedTextArea> getScrollPane();
+
+  /**
+   * Requests undoing the last text-changing action.
+   */
+  void undo();
+
+  /**
+   * Requests redoing the last text-changing action that was undone.
+   */
+  void redo();
+
+  /**
+   * Requests cutting the selected text, or the current line if none selected.
+   */
+  void cut();
+
+  /**
+   * Requests copying the selected text, or no operation if none selected.
+   */
+  void copy();
+
+  /**
+   * Requests pasting from the clipboard into the editor. This will replace
+   * text if selected, otherwise the clipboard contents are inserted at the
+   * cursor.
+   */
+  void paste();
+
+  /**
+   * Requests selecting the entire document. This will replace the existing
+   * selection, if any.
+   */
+  void selectAll();
+
+  /**
+   * Requests making the selected text, or word at caret, bold.
+   */
+  default void bold() {
+  }
+
+  /**
+   * Requests making the selected text, or word at caret, italic.
+   */
+  default void italic() {
+  }
+
+  /**
+   * Requests making the selected text, or word at caret, a superscript.
+   */
+  default void superscript() {
+  }
+
+  /**
+   * Requests making the selected text, or word at caret, a subscript.
+   */
+  default void subscript() {
+  }
+
+  /**
+   * Requests making the selected text, or word at caret, struck.
+   */
+  default void strikethrough() {
+  }
+
+  /**
+   * Requests making the selected text, or word at caret, a blockquote block.
+   */
+  default void blockquote() {
+  }
+
+  /**
+   * Requests making the selected text, or word at caret, inline code.
+   */
+  default void code() {
+  }
+
+  /**
+   * Requests making the selected text, or word at caret, a fenced code block.
+   */
+  default void fencedCodeBlock() {
+  }
+
+  /**
+   * Requests making the selected text, or word at caret, a heading.
+   *
+   * @param level The heading level to apply (typically 1 through 3).
+   */
+  default void heading( final int level ) {
+  }
+
+  /**
+   * Requests making the selected text, or word at caret, an unordered list
+   * block.
+   */
+  default void unorderedList() {
+  }
+
+  /**
+   * Requests making the selected text, or word at caret, an ordered list block.
+   */
+  default void orderedList() {
+  }
+
+  /**
+   * Requests making the selected text, or inserting at the caret, a
+   * horizontal rule.
+   */
+  default void horizontalRule() {
+  }
 }

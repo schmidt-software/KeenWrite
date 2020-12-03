@@ -31,7 +31,6 @@ import com.dlsc.preferencesfx.PreferencesFxEvent;
 import com.keenwrite.definition.DefinitionEditor;
 import com.keenwrite.editors.DefinitionNameInjector;
 import com.keenwrite.editors.markdown.MarkdownEditorPane;
-import com.keenwrite.preferences.UserPreferences;
 import com.keenwrite.preferences.UserPreferencesView;
 import com.keenwrite.preview.HtmlPreview;
 import com.keenwrite.preview.OutputTabPane;
@@ -44,25 +43,19 @@ import com.keenwrite.service.Snitch;
 import com.keenwrite.ui.actions.Action;
 import com.keenwrite.ui.actions.MenuAction;
 import com.keenwrite.ui.actions.SeparatorAction;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableBooleanValue;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.TextField;
-import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.Window;
-import javafx.stage.WindowEvent;
 import org.controlsfx.control.StatusBar;
 
 import java.io.File;
@@ -72,10 +65,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
-import java.util.function.Function;
 import java.util.prefs.Preferences;
 
-import static com.keenwrite.Bootstrap.APP_TITLE;
 import static com.keenwrite.Constants.*;
 import static com.keenwrite.ExportFormat.*;
 import static com.keenwrite.Messages.get;
@@ -85,10 +76,7 @@ import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.*;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.nio.file.Files.writeString;
 import static javafx.application.Platform.runLater;
-import static javafx.event.Event.fireEvent;
 import static javafx.geometry.Pos.BASELINE_CENTER;
-import static javafx.scene.control.Alert.AlertType.INFORMATION;
-import static javafx.stage.WindowEvent.WINDOW_CLOSE_REQUEST;
 
 /**
  * Main window containing a tab pane in the center for file editors.
@@ -373,11 +361,6 @@ public class MainWindow implements Observer {
     }
   }
 
-  private void fileExit() {
-    final Window window = getWindow();
-    fireEvent( window, new WindowEvent( window, WINDOW_CLOSE_REQUEST ) );
-  }
-
   //---- Edit actions -------------------------------------------------------
 
   /**
@@ -395,38 +378,6 @@ public class MainWindow implements Observer {
 
   public void editPreferences() {
     getUserPreferencesView().show();
-  }
-
-  //---- Insert actions -----------------------------------------------------
-
-  /**
-   * Delegates to the active editor to handle wrapping the current text
-   * selection with leading and trailing strings.
-   *
-   * @param leading  The string to put before the selection.
-   * @param trailing The string to put after the selection.
-   */
-  private void insertMarkdown(
-      final String leading, final String trailing ) {
-    getActiveEditorPane().surroundSelection( leading, trailing );
-  }
-
-  private void insertMarkdown(
-      final String leading, final String trailing, final String hint ) {
-    getActiveEditorPane().surroundSelection( leading, trailing, hint );
-  }
-
-  //---- Help actions -------------------------------------------------------
-
-  private void helpAbout() {
-    final Alert alert = new Alert( INFORMATION );
-    alert.setTitle( get( "Dialog.about.title", APP_TITLE ) );
-    alert.setHeaderText( get( "Dialog.about.header", APP_TITLE ) );
-    alert.setContentText( get( "Dialog.about.content" ) );
-    alert.setGraphic( new ImageView( ICON_DIALOG ) );
-    alert.initOwner( getWindow() );
-
-    alert.showAndWait();
   }
 
   //---- Member creators ----------------------------------------------------
@@ -538,56 +489,7 @@ public class MainWindow implements Observer {
         fileExportHtmlTexAction,
         fileExportMarkdownAction );
 
-    final Action fileExitAction = Action
-        .builder()
-        .setText( "Main.menu.file.exit" )
-        .setHandler( e -> fileExit() )
-        .build();
-
     // Edit actions
-    final Action editUndoAction = Action
-        .builder()
-        .setText( "Main.menu.edit.undo" )
-        .setAccelerator( "Shortcut+Z" )
-        .setIcon( UNDO )
-        .setHandler( e -> getActiveEditorPane().undo() )
-        .build();
-    final Action editRedoAction = Action
-        .builder()
-        .setText( "Main.menu.edit.redo" )
-        .setAccelerator( "Shortcut+Y" )
-        .setIcon( REPEAT )
-        .setHandler( e -> getActiveEditorPane().redo() )
-        .build();
-
-    final Action editCutAction = Action
-        .builder()
-        .setText( "Main.menu.edit.cut" )
-        .setAccelerator( "Shortcut+X" )
-        .setIcon( CUT )
-        .setHandler( e -> getActiveEditorPane().cut() )
-        .build();
-    final Action editCopyAction = Action
-        .builder()
-        .setText( "Main.menu.edit.copy" )
-        .setAccelerator( "Shortcut+C" )
-        .setIcon( COPY )
-        .setHandler( e -> getActiveEditorPane().copy() )
-        .build();
-    final Action editPasteAction = Action
-        .builder()
-        .setText( "Main.menu.edit.paste" )
-        .setAccelerator( "Shortcut+V" )
-        .setIcon( PASTE )
-        .setHandler( e -> getActiveEditorPane().paste() )
-        .build();
-    final Action editSelectAllAction = Action
-        .builder()
-        .setText( "Main.menu.edit.selectAll" )
-        .setAccelerator( "Shortcut+A" )
-        .setHandler( e -> getActiveEditorPane().selectAll() )
-        .build();
-
     final Action editFindAction = Action
         .builder()
         .setText( "Main.menu.edit.find" )
@@ -608,68 +510,7 @@ public class MainWindow implements Observer {
         .setHandler( e -> editPreferences() )
         .build();
 
-    // Format actions
-    final Action formatBoldAction = Action
-        .builder()
-        .setText( "Main.menu.format.bold" )
-        .setAccelerator( "Shortcut+B" )
-        .setIcon( BOLD )
-        .setHandler( e -> insertMarkdown( "**", "**" ) )
-        .build();
-    final Action formatItalicAction = Action
-        .builder()
-        .setText( "Main.menu.format.italic" )
-        .setAccelerator( "Shortcut+I" )
-        .setIcon( ITALIC )
-        .setHandler( e -> insertMarkdown( "*", "*" ) )
-        .build();
-    final Action formatSuperscriptAction = Action
-        .builder()
-        .setText( "Main.menu.format.superscript" )
-        .setAccelerator( "Shortcut+[" )
-        .setIcon( SUPERSCRIPT )
-        .setHandler( e -> insertMarkdown( "^", "^" ) )
-        .build();
-    final Action formatSubscriptAction = Action
-        .builder()
-        .setText( "Main.menu.format.subscript" )
-        .setAccelerator( "Shortcut+]" )
-        .setIcon( SUBSCRIPT )
-        .setHandler( e -> insertMarkdown( "~", "~" ) )
-        .build();
-    final Action formatStrikethroughAction = Action
-        .builder()
-        .setText( "Main.menu.format.strikethrough" )
-        .setAccelerator( "Shortcut+T" )
-        .setIcon( STRIKETHROUGH )
-        .setHandler( e -> insertMarkdown( "~~", "~~" ) )
-        .build();
-
     // Insert actions
-    final Action insertBlockquoteAction = Action
-        .builder()
-        .setText( "Main.menu.insert.blockquote" )
-        .setAccelerator( "Ctrl+Q" )
-        .setIcon( QUOTE_LEFT )
-        .setHandler( e -> insertMarkdown( "\n\n> ", "" ) )
-        .build();
-    final Action insertCodeAction = Action
-        .builder()
-        .setText( "Main.menu.insert.code" )
-        .setAccelerator( "Shortcut+K" )
-        .setIcon( CODE )
-        .setHandler( e -> insertMarkdown( "`", "`" ) )
-        .build();
-    final Action insertFencedCodeBlockAction = Action
-        .builder()
-        .setText( "Main.menu.insert.fenced_code_block" )
-        .setAccelerator( "Shortcut+Shift+K" )
-        .setIcon( FILE_CODE_ALT )
-        .setHandler( e -> insertMarkdown(
-            "\n\n```\n",
-            "\n```\n\n",
-            get( "Main.menu.insert.fenced_code_block.prompt" ) ) )
-        .build();
     final Action insertLinkAction = Action
         .builder()
         .setText( "Main.menu.insert.link" )
@@ -683,49 +524,6 @@ public class MainWindow implements Observer {
         .setAccelerator( "Shortcut+G" )
         .setIcon( PICTURE_ALT )
         .setHandler( e -> getActiveEditorPane().insertImage() )
-        .build();
-
-    // Number of heading actions (H1 ... H3)
-    final int HEADINGS = 3;
-    final Action[] headings = new Action[ HEADINGS ];
-
-    for( int i = 1; i <= HEADINGS; i++ ) {
-      final String hashes = new String( new char[ i ] ).replace( "\0", "#" );
-      final String markup = String.format( "%n%n%s ", hashes );
-      final String text = "Main.menu.insert.heading_" + i;
-      final String accelerator = "Shortcut+" + i;
-      final String prompt = text + ".prompt";
-
-      headings[ i - 1 ] = Action
-          .builder()
-          .setText( text )
-          .setAccelerator( accelerator )
-          .setIcon( HEADER )
-          .setHandler( e -> insertMarkdown( markup, "", get( prompt ) ) )
-          .build();
-    }
-
-    final Action insertUnorderedListAction = Action
-        .builder()
-        .setText( "Main.menu.insert.unordered_list" )
-        .setAccelerator( "Shortcut+U" )
-        .setIcon( LIST_UL )
-        .setHandler( e -> insertMarkdown( "\n\n* ", "" ) )
-        .build();
-    final Action insertOrderedListAction = Action
-        .builder()
-        .setText( "Main.menu.insert.ordered_list" )
-        .setAccelerator( "Shortcut+Shift+O" )
-        .setIcon( LIST_OL )
-        .setHandler( e -> insertMarkdown(
-            "\n\n1. ", "" ) )
-        .build();
-    final Action insertHorizontalRuleAction = Action
-        .builder()
-        .setText( "Main.menu.insert.horizontal_rule" )
-        .setAccelerator( "Shortcut+H" )
-        .setHandler( e -> insertMarkdown(
-            "\n\n---\n\n", "" ) )
         .build();
 
     // Definition actions
@@ -743,13 +541,6 @@ public class MainWindow implements Observer {
         .setHandler( e -> definitionInsert() )
         .build();
 
-    // Help actions
-    final Action helpAboutAction = Action
-        .builder()
-        .setText( "Main.menu.help.about" )
-        .setHandler( e -> helpAbout() )
-        .build();
-
     final MenuAction SEPARATOR_ACTION = new SeparatorAction();
 
     //---- MenuBar ----
@@ -761,54 +552,21 @@ public class MainWindow implements Observer {
         fileCloseAction,
         fileCloseAllAction,
         SEPARATOR_ACTION,
-        fileExportAction,
-        SEPARATOR_ACTION,
-        fileExitAction );
+        fileExportAction );
 
     // Edit Menu
     final var editMenu = createMenu(
         get( "Main.menu.edit" ),
-        SEPARATOR_ACTION,
-        editUndoAction,
-        editRedoAction,
-        SEPARATOR_ACTION,
-        editCutAction,
-        editCopyAction,
-        editPasteAction,
-        editSelectAllAction,
-        SEPARATOR_ACTION,
         editFindAction,
         editFindNextAction,
         SEPARATOR_ACTION,
         editPreferencesAction );
 
-    // Format Menu
-    final var formatMenu = createMenu(
-        get( "Main.menu.format" ),
-        formatBoldAction,
-        formatItalicAction,
-        formatSuperscriptAction,
-        formatSubscriptAction,
-        formatStrikethroughAction
-    );
-
     // Insert Menu
     final var insertMenu = createMenu(
         get( "Main.menu.insert" ),
-        insertBlockquoteAction,
-        insertCodeAction,
-        insertFencedCodeBlockAction,
-        SEPARATOR_ACTION,
         insertLinkAction,
-        insertImageAction,
-        SEPARATOR_ACTION,
-        headings[ 0 ],
-        headings[ 1 ],
-        headings[ 2 ],
-        SEPARATOR_ACTION,
-        insertUnorderedListAction,
-        insertOrderedListAction,
-        insertHorizontalRuleAction
+        insertImageAction
     );
 
     // Definition Menu
@@ -817,19 +575,12 @@ public class MainWindow implements Observer {
         definitionCreateAction,
         definitionInsertAction );
 
-    // Help Menu
-    final var helpMenu = createMenu(
-        get( "Main.menu.help" ),
-        helpAboutAction );
-
     //---- MenuBar ----
     final var menuBar = new MenuBar(
         fileMenu,
         editMenu,
-        formatMenu,
         insertMenu,
-        definitionMenu,
-        helpMenu );
+        definitionMenu );
 
     return new VBox( menuBar );
   }
@@ -841,44 +592,10 @@ public class MainWindow implements Observer {
     getDefinitionNameInjector().autoinsert();
   }
 
-  /**
-   * Creates a boolean property that is bound to another boolean value of the
-   * active editor.
-   */
-  private BooleanProperty createActiveBooleanProperty(
-      final Function<FileEditorController, ObservableBooleanValue> func ) {
-
-    final BooleanProperty b = new SimpleBooleanProperty();
-    final FileEditorController tab = getActiveFileEditorTab();
-
-    if( tab != null ) {
-      b.bind( func.apply( tab ) );
-    }
-
-    getFileEditorPane().activeFileEditorProperty().addListener(
-        ( __, oldFileEditor, newFileEditor ) -> {
-          b.unbind();
-
-          if( newFileEditor == null ) {
-            b.set( false );
-          }
-          else {
-            b.bind( func.apply( newFileEditor ) );
-          }
-        }
-    );
-
-    return b;
-  }
-
   //---- Convenience accessors ----------------------------------------------
 
   private Preferences getPreferences() {
     return sOptions.getState();
-  }
-
-  private float getFloat( final String key, final float defaultValue ) {
-    return getPreferences().getFloat( key, defaultValue );
   }
 
   public Window getWindow() {
@@ -946,16 +663,7 @@ public class MainWindow implements Observer {
 
   //---- Persistence accessors ----------------------------------------------
 
-  private UserPreferences getUserPreferences() {
-    return UserPreferences.getInstance();
-  }
-
   private UserPreferencesView getUserPreferencesView() {
     return UserPreferencesView.getInstance();
   }
-
-  private Path getDefinitionPath() {
-    return getUserPreferences().getDefinitionPath();
-  }
-
 }

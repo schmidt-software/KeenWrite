@@ -32,6 +32,7 @@ import com.keenwrite.ui.actions.ApplicationActions;
 import com.keenwrite.ui.actions.ApplicationMenuBar;
 import com.keenwrite.util.StageState;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
@@ -45,6 +46,7 @@ import static com.keenwrite.preferences.UserPreferences.initPreferences;
 import static com.keenwrite.util.FontLoader.initFonts;
 import static javafx.scene.input.KeyCode.F11;
 import static javafx.scene.input.KeyEvent.KEY_PRESSED;
+import static javafx.stage.WindowEvent.WINDOW_CLOSE_REQUEST;
 
 /**
  * Application entry point. The application allows users to edit plain text
@@ -100,6 +102,8 @@ public final class Main extends Application {
   @Override
   public void stop() {
     getSnitch().stop();
+    Platform.exit();
+    System.exit( 0 );
   }
 
   private void initState( final Stage stage ) {
@@ -114,6 +118,8 @@ public final class Main extends Application {
         stage.setFullScreen( !stage.isFullScreen() );
       }
     } );
+
+    stage.addEventHandler( WINDOW_CLOSE_REQUEST, event -> stop() );
   }
 
   private void initIcons( final Stage stage ) {

@@ -1,65 +1,49 @@
-/* Copyright 2020 White Magic Software, Ltd.
- *
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- *  o Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- *
- *  o Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+/* Copyright 2020 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.editors.markdown;
 
 import com.keenwrite.Constants;
 import com.keenwrite.editors.TextEditor;
 import com.keenwrite.io.File;
 import com.keenwrite.processors.markdown.CaretPosition;
-import com.keenwrite.spelling.api.SpellCheckListener;
-import com.keenwrite.spelling.api.SpellChecker;
-import com.keenwrite.spelling.impl.SymSpellSpeller;
-import com.vladsch.flexmark.parser.Parser;
-import com.vladsch.flexmark.util.ast.NodeVisitor;
-import com.vladsch.flexmark.util.ast.VisitHandler;
+import com.keenwrite.spelling.impl.TextEditorSpeller;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
+import javafx.event.Event;
 import javafx.scene.Node;
+import javafx.scene.control.IndexRange;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
 import org.fxmisc.flowless.VirtualizedScrollPane;
 import org.fxmisc.richtext.StyleClassedTextArea;
-import org.fxmisc.richtext.model.StyleSpansBuilder;
+import org.fxmisc.undo.UndoManager;
+import org.fxmisc.wellbehaved.event.EventPattern;
+import org.fxmisc.wellbehaved.event.Nodes;
 
 import java.nio.charset.Charset;
-import java.util.Collection;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.text.BreakIterator;
+import java.util.function.Consumer;
+import java.util.regex.Pattern;
 
 import static com.keenwrite.Constants.DEFAULT_DOCUMENT;
 import static com.keenwrite.Constants.STYLESHEET_MARKDOWN;
-import static java.util.Collections.emptyList;
-import static java.util.Collections.singleton;
+import static java.lang.Character.isWhitespace;
 import static javafx.scene.control.ScrollPane.ScrollBarPolicy.ALWAYS;
-import static org.fxmisc.richtext.model.TwoDimensional.Bias.Forward;
+import static javafx.scene.input.KeyCode.ENTER;
+import static org.fxmisc.wellbehaved.event.EventPattern.keyPressed;
+import static org.fxmisc.wellbehaved.event.InputMap.consume;
 
 /**
  * Responsible for editing Markdown documents.
  */
 public class MarkdownEditor extends BorderPane implements TextEditor {
+  /**
+   * Regular expression that matches the type of markup block. This is used
+   * when Enter is pressed to continue the block environment.
+   */
+  private static final Pattern PATTERN_AUTO_INDENT = Pattern.compile(
+      "(\\s*[*+-]\\s+|\\s*[0-9]+\\.\\s+|\\s+)(.*)" );
+
   /**
    * The text editor.
    */
@@ -84,11 +68,6 @@ public class MarkdownEditor extends BorderPane implements TextEditor {
   private final BooleanProperty mDirty = new SimpleBooleanProperty();
 
   /**
-   * Responsible for checking the spelling of the document being edited.
-   */
-  private final SpellChecker mSpellChecker;
-
-  /**
    * Opened file's character encoding, or {@link Constants#DEFAULT_CHARSET} if
    * either no encoding could be determined or this is a new (empty) file.
    */
@@ -106,6 +85,7 @@ public class MarkdownEditor extends BorderPane implements TextEditor {
     mTextArea.getStylesheets().add( STYLESHEET_MARKDOWN );
     mTextArea.requestFollowCaret();
     mTextArea.moveTo( 0 );
+
     mTextArea.textProperty().addListener( ( c, o, n ) -> {
       // Fire, regardless of whether the caret position has changed.
       mDirty.set( false );
@@ -122,25 +102,11 @@ public class MarkdownEditor extends BorderPane implements TextEditor {
     mScrollPane.setVbarPolicy( ALWAYS );
     setCenter( mScrollPane );
 
-    mSpellChecker = SymSpellSpeller.forLexicon( "en.txt" );
-    spellcheckDocument( mTextArea );
-    spellcheckParagraphs( mTextArea );
-  }
+    final var speller = new TextEditorSpeller();
+    speller.checkDocument( mTextArea );
+    speller.checkParagraphs( mTextArea );
 
-  /**
-   * Observers may listen for changes to the property returned from this method
-   * to receive notifications when either the text or caret have changed.
-   * This should not be used to track whether the text has been modified.
-   */
-  public void addDirtyListener( ChangeListener<Boolean> listener ) {
-    mDirty.addListener( listener );
-  }
-
-  public CaretPosition createCaretPosition() {
-    return CaretPosition
-        .builder()
-        .with( CaretPosition.Mutator::setEditor, mTextArea )
-        .build();
+    addListener( keyPressed( ENTER ), this::onEnterPressed );
   }
 
   /**
@@ -179,6 +145,111 @@ public class MarkdownEditor extends BorderPane implements TextEditor {
   }
 
   @Override
+  public void undo() {
+    getUndoManager().undo();
+  }
+
+  @Override
+  public void redo() {
+    getUndoManager().redo();
+  }
+
+  @Override
+  public void cut() {
+    final var editor = mTextArea;
+    final var selected = editor.getSelectedText();
+
+    if( selected == null || selected.isEmpty() ) {
+      editor.selectLine();
+    }
+
+    editor.cut();
+  }
+
+  @Override
+  public void copy() {
+    mTextArea.copy();
+  }
+
+  @Override
+  public void paste() {
+    mTextArea.paste();
+  }
+
+  @Override
+  public void selectAll() {
+    mTextArea.selectAll();
+  }
+
+  @Override
+  public void bold() {
+    enwrap( "**" );
+  }
+
+  @Override
+  public void italic() {
+    enwrap( "*" );
+  }
+
+  @Override
+  public void superscript() {
+    enwrap( "^" );
+  }
+
+  @Override
+  public void subscript() {
+    enwrap( "~" );
+  }
+
+  @Override
+  public void strikethrough() {
+    enwrap( "~~" );
+  }
+
+  @Override
+  public void blockquote() {
+    enwrap( "\n\n> ", "" );
+  }
+
+  @Override
+  public void code() {
+    enwrap( "`" );
+  }
+
+  @Override
+  public void fencedCodeBlock() {
+    final var key = "App.action.insert.fenced_code_block.prompt.text";
+
+    // TODO: Introduce sample text if nothing is selected.
+    //enwrap( "\n\n```\n", "\n```\n\n", get( key ) );
+  }
+
+  @Override
+  public void heading( final int level ) {
+    final var hashes = new String( new char[ level ] ).replace( "\0", "#" );
+    final var markup = String.format( "%n%n%s ", hashes );
+    final var key = "App.action.insert.heading_%d.prompt.text";
+
+    // TODO: Introduce sample text if nothing is selected.
+    //enwrap( markup, "", get( key, level ) );
+  }
+
+  @Override
+  public void unorderedList() {
+    enwrap( "\n\n* ", "" );
+  }
+
+  @Override
+  public void orderedList() {
+    enwrap( "\n\n1. ", "" );
+  }
+
+  @Override
+  public void horizontalRule() {
+    enwrap( "\n\n---\n\n", "" );
+  }
+
+  @Override
   public Node getNode() {
     return this;
   }
@@ -189,120 +260,180 @@ public class MarkdownEditor extends BorderPane implements TextEditor {
   }
 
   /**
-   * Listen for changes to the any particular paragraph and perform a quick
-   * spell check upon it. The style classes in the editor will be changed to
-   * mark any spelling mistakes in the paragraph. The user may then interact
-   * with any misspelled word (i.e., any piece of text that is marked) to
-   * revise the spelling.
+   * This method adds listeners to editor events.
    *
-   * @param editor The text area containing paragraphs to spellcheck.
+   * @param <T>      The event type.
+   * @param <U>      The consumer type for the given event type.
+   * @param event    The event of interest.
+   * @param consumer The method to call when the event happens.
    */
-  private void spellcheckParagraphs( final StyleClassedTextArea editor ) {
-
-    // Use the plain text changes so that notifications of style changes
-    // are suppressed. Checking against the identity ensures that only
-    // new text additions or deletions trigger proofreading.
-    editor.plainTextChanges()
-          .filter( p -> !p.isIdentity() ).subscribe( change -> {
-
-      // Check current paragraph; the whole document was checked upon opening.
-      final var offset = change.getPosition();
-      final var position = editor.offsetToPosition( offset, Forward );
-      final var paraId = position.getMajor();
-      final var paragraph = editor.getParagraph( paraId );
-      final var text = paragraph.getText();
-
-      // Prevent doubling-up styles.
-      editor.clearStyle( paraId );
-
-      spellcheck( editor, text, paraId );
-    } );
+  private <T extends Event, U extends T> void addListener(
+      final EventPattern<? super T, ? extends U> event,
+      final Consumer<? super U> consumer ) {
+    Nodes.addInputMap( mTextArea, consume( event, consumer ) );
   }
 
-  /**
-   * Delegates to {@link #spellcheck(StyleClassedTextArea, String, int)}.
-   * call to spell check the entire document.
-   */
-  private void spellcheckDocument( final StyleClassedTextArea editor ) {
-    spellcheck( editor, editor.getText(), -1 );
-  }
+  @SuppressWarnings("unused")
+  private void onEnterPressed( final KeyEvent event ) {
+    final var currentLine = getCaretParagraph();
+    final var matcher = PATTERN_AUTO_INDENT.matcher( currentLine );
 
-  /**
-   * Spellchecks a subset of the entire document.
-   *
-   * @param text   Look up words for this text in the lexicon.
-   * @param paraId Set to -1 to apply resulting style spans to the entire
-   *               text.
-   */
-  private void spellcheck(
-      final StyleClassedTextArea editor, final String text, final int paraId ) {
-    final var builder = new StyleSpansBuilder<Collection<String>>();
-    final var runningIndex = new AtomicInteger( 0 );
+    // By default, insert a new line by itself.
+    String newText = "\n";
 
-    // The text nodes must be relayed through a contextual "visitor" that
-    // can return text in chunks with correlative offsets into the string.
-    // This allows Markdown, R Markdown, XML, and R XML documents to return
-    // sets of words to check.
-
-    final var node = mParser.parse( text );
-    final var visitor = new TextVisitor( ( visited, bIndex, eIndex ) -> {
-      // Treat hyphenated compound words as individual words.
-      final var check = visited.replace( '-', ' ' );
-
-      mSpellChecker.proofread( check, ( misspelled, prevIndex, currIndex ) -> {
-        prevIndex += bIndex;
-        currIndex += bIndex;
-
-        // Clear styling between lexiconically absent words.
-        builder.add( emptyList(), prevIndex - runningIndex.get() );
-        builder.add( singleton( "spelling" ), currIndex - prevIndex );
-        runningIndex.set( currIndex );
-      } );
-    } );
-
-    visitor.visit( node );
-
-    // If the running index was set, at least one word triggered the listener.
-    if( runningIndex.get() > 0 ) {
-      // Clear styling after the last lexiconically absent word.
-      builder.add( emptyList(), text.length() - runningIndex.get() );
-
-      final var spans = builder.create();
-
-      if( paraId >= 0 ) {
-        editor.setStyleSpans( paraId, 0, spans );
+    // If the pattern was matched, then determine what block type to continue.
+    if( matcher.matches() ) {
+      if( matcher.group( 2 ).isEmpty() ) {
+        final var pos = mTextArea.getCaretPosition();
+        mTextArea.selectRange( pos - currentLine.length(), pos );
       }
       else {
-        editor.setStyleSpans( 0, spans );
+        // Indent the new line with the same whitespace characters and
+        // list markers as current line. This ensures that the indentation
+        // is propagated.
+        newText = newText.concat( matcher.group( 1 ) );
       }
     }
+
+    mTextArea.replaceSelection( newText );
+
+    // TODO: Confirm that this line isn't needed by pressing enter at the
+    // bottom of the editor.
+    //textArea.requestFollowCaret();
   }
 
-  // TODO: #59 -- Replace using Markdown processor instantiated for Markdown
-  //  files.
-  private final Parser mParser = Parser.builder().build();
+  /**
+   * Observers may listen for changes to the property returned from this method
+   * to receive notifications when either the text or caret have changed.
+   * This should not be used to track whether the text has been modified.
+   */
+  public void addDirtyListener( ChangeListener<Boolean> listener ) {
+    mDirty.addListener( listener );
+  }
 
-  // TODO: #59 -- Replace with generic interface; provide Markdown/XML
-  //  implementations.
-  private static final class TextVisitor {
-    private final NodeVisitor mVisitor = new NodeVisitor( new VisitHandler<>(
-        com.vladsch.flexmark.ast.Text.class, this::visit )
-    );
+  public CaretPosition createCaretPosition() {
+    return CaretPosition
+        .builder()
+        .with( CaretPosition.Mutator::setEditor, mTextArea )
+        .build();
+  }
 
-    private final SpellCheckListener mConsumer;
+  /**
+   * Wraps the selected text or word under the caret in Markdown markup.
+   *
+   * @param token The beginning and ending token for enclosing the text.
+   */
+  private void enwrap( final String token ) {
+    enwrap( token, token );
+  }
 
-    public TextVisitor( final SpellCheckListener consumer ) {
-      mConsumer = consumer;
+  /**
+   * Wraps the selected text or word under the caret in Markdown markup.
+   *
+   * @param began The beginning token for enclosing the text.
+   * @param ended The ending token for enclosing the text.
+   */
+  private void enwrap( final String began, String ended ) {
+    var range = mTextArea.getSelection();
+    String text;
+
+    if( range.getLength() > 0 ) {
+      text = getSelectedText();
+    }
+    else {
+      range = getCaretWord();
+      final var paragraph = getCaretParagraph();
+      text = paragraph.substring( range.getStart(), range.getEnd() );
     }
 
-    private void visit( final com.vladsch.flexmark.util.ast.Node node ) {
-      if( node instanceof com.vladsch.flexmark.ast.Text ) {
-        mConsumer.accept( node.getChars().toString(),
-                          node.getStartOffset(),
-                          node.getEndOffset() );
-      }
+    text = text.trim();
 
-      mVisitor.visitChildren( node );
+    System.out.printf( "ENWRAP: <<%s>>%n", text );
+
+    // Prevent undo from merging with any text entered previously.
+    //getUndoManager().preventMerge();
+  }
+
+  /**
+   * This will return the value of the selected text, sanitizing the input
+   * value to non-null.
+   *
+   * @return A non-null string instance.
+   */
+  private String getSelectedText() {
+    final var text = mTextArea.getSelectedText();
+    return text == null ? "" : text;
+  }
+
+  /**
+   * Returns the caret position within the current paragraph.
+   *
+   * @return A value from 0 to the length of the current paragraph.
+   */
+  private int getCaretColumn() {
+    return mTextArea.getCaretColumn();
+  }
+
+  /**
+   * Finds the start and end indexes for the word in the current paragraph
+   * where the caret is located. There are a few different scenarios, where
+   * the caret can be at: the start, end, or middle of a word; also, the
+   * caret can be at the end or beginning of a punctuated word; as well, the
+   * caret could be at the beginning or end of the line or document.
+   */
+  private IndexRange getCaretWord() {
+    final var paragraph = getCaretParagraph();
+    final var length = paragraph.length();
+    int offset = getCaretColumn();
+
+    int began = offset;
+    int ended = offset;
+
+    while( began > 0 && !isWhitespace( paragraph.charAt( began - 1 ) ) ) {
+      began--;
     }
+
+    while( ended < length && !isWhitespace( paragraph.charAt( ended ) ) ) {
+      ended++;
+    }
+
+    final var iterator = BreakIterator.getWordInstance();
+    iterator.setText( paragraph );
+
+    while( began < length && iterator.isBoundary( began + 1 ) ) {
+      began++;
+    }
+
+    while( ended > 0 && iterator.isBoundary( ended - 1 ) ) {
+      ended--;
+    }
+
+    return IndexRange.normalize( began, ended );
+  }
+
+  /**
+   * Returns the index of the paragraph where the caret resides.
+   *
+   * @return A number greater than or equal to 0.
+   */
+  private int getCurrentParagraph() {
+    return mTextArea.getCurrentParagraph();
+  }
+
+  /**
+   * Returns the text for the paragraph that contains the caret.
+   *
+   * @return A non-null string, possibly empty.
+   */
+  private String getCaretParagraph() {
+    return getText( getCurrentParagraph() );
+  }
+
+  private String getText( final int paragraph ) {
+    return mTextArea.getText( paragraph );
+  }
+
+  private UndoManager<?> getUndoManager() {
+    return mTextArea.getUndoManager();
   }
 }

@@ -75,7 +75,6 @@ import static javafx.util.Duration.millis;
  * text editors, and preview pane along with any corresponding controllers.
  */
 public class MainView extends SplitPane {
-
   /**
    * Prevents re-instantiation of processing classes.
    */
@@ -130,14 +129,14 @@ public class MainView extends SplitPane {
 
   /**
    * Called when the definition data is changed.
-   * <p>
-   * TODO: Export the YAML file on change.
    */
   private final EventHandler<TreeModificationEvent<Event>> mTreeHandler =
       event -> {
-        resolve( mActiveDefinitionEditor.get() );
-        process( mActiveTextEditor );
-        save( mActiveDefinitionEditor.get() );
+        final var editor = mActiveDefinitionEditor.get();
+
+        resolve( editor );
+        process( getActiveTextEditor() );
+        save( editor );
       };
 
   /**
@@ -243,12 +242,12 @@ public class MainView extends SplitPane {
    * the user: save always re-saves. Also, it's less code.
    */
   public void save() {
-    save( mActiveTextEditor.get() );
+    save( getActiveTextEditor() );
   }
 
   public void saveAs( final File file ) {
     assert file != null;
-    final var editor = mActiveTextEditor.get();
+    final var editor = getActiveTextEditor();
     final var tab = getTab( editor );
 
     editor.rename( file );
@@ -337,7 +336,7 @@ public class MainView extends SplitPane {
     final var definitions = new SimpleObjectProperty<TextDefinition>();
     definitions.addListener( ( c, o, n ) -> {
       resolve( n == null ? createDefinitionEditor() : n );
-      process( editor );
+      process( editor.get() );
     } );
 
     return definitions;
@@ -435,17 +434,6 @@ public class MainView extends SplitPane {
     assert editor != null;
     mResolvedMap.clear();
     mResolvedMap.putAll( interpolate( new HashMap<>( editor.toMap() ) ) );
-  }
-
-  /**
-   * Re-run the processor for the selected node so that the rendered view of
-   * the document contents are updated.
-   *
-   * @param editor Contains the source document to update in the preview pane.
-   */
-  private void process( final ObjectProperty<TextEditor> editor ) {
-    assert editor != null;
-    process( editor.get() );
   }
 
   /**
@@ -612,7 +600,7 @@ public class MainView extends SplitPane {
 
     editor.addDirtyListener( ( c, o, n ) -> {
       if( n ) {
-        process( mActiveTextEditor );
+        process( getActiveTextEditor() );
       }
     } );
 
@@ -640,6 +628,10 @@ public class MainView extends SplitPane {
 
     tooltip.setShowDelay( millis( 200 ) );
     return tooltip;
+  }
+  
+  public TextEditor getActiveTextEditor() {
+    return mActiveTextEditor.get();
   }
 
   public Window getWindow() {
