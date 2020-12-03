@@ -59,6 +59,9 @@ public class Action implements MenuAction {
       final String accelerator,
       final GlyphIcons icon,
       final EventHandler<ActionEvent> handler ) {
+    assert text != null;
+    assert handler != null;
+
     mText = text;
     mAccelerator = accelerator == null ? null : valueOf( accelerator );
     mIcon = icon;
@@ -103,9 +106,7 @@ public class Action implements MenuAction {
       menuItem.setGraphic( get().createIcon( mIcon ) );
     }
 
-    if( mHandler != null ) {
-      menuItem.setOnAction( mHandler );
-    }
+    menuItem.setOnAction( mHandler );
 
     return menuItem;
   }

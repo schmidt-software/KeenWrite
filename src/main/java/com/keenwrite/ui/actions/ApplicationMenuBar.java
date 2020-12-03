@@ -65,7 +65,8 @@ public class ApplicationMenuBar {
     final var SEPARATOR_ACTION = new SeparatorAction();
 
     //@formatter:off
-    final var menuFile = createMenu(
+    final var menuBar = new MenuBar(
+    createMenu(
       get( "Main.menu.file" ),
       addAction( "file.new", e -> mActions.file‿new() ),
       addAction( "file.open", e -> mActions.file‿open() ),
@@ -85,9 +86,8 @@ public class ApplicationMenuBar {
         ),
       SEPARATOR_ACTION,
       addAction( "file.exit", e -> mActions.file‿exit() )
-    );
-
-    final var menuEdit = createMenu(
+    ),
+    createMenu(
       get( "Main.menu.edit" ),
       SEPARATOR_ACTION,
       addAction( "edit.undo", e -> mActions.edit‿undo() ),
@@ -102,18 +102,16 @@ public class ApplicationMenuBar {
       addAction( "edit.find_next", e -> mActions.edit‿find_next() ),
       SEPARATOR_ACTION,
       addAction( "edit.preferences", e -> mActions.edit‿preferences() )
-    );
-
-    final var menuFormat = createMenu(
+    ),
+    createMenu(
       get( "Main.menu.format" ),
       addAction( "format.bold", e -> mActions.format‿bold() ),
       addAction( "format.italic", e -> mActions.format‿italic() ),
       addAction( "format.superscript", e -> mActions.format‿superscript() ),
       addAction( "format.subscript", e -> mActions.format‿subscript() ),
       addAction( "format.strikethrough", e -> mActions.format‿strikethrough() )
-    );
-
-    final var menuInsert = createMenu(
+    ),
+    createMenu(
       get( "Main.menu.insert" ),
       addAction( "insert.blockquote", e -> mActions.insert‿blockquote() ),
       addAction( "insert.code", e -> mActions.insert‿code() ),
@@ -129,35 +127,26 @@ public class ApplicationMenuBar {
       addAction( "insert.unordered_list", e -> mActions.insert‿unordered_list() ),
       addAction( "insert.ordered_list", e -> mActions.insert‿ordered_list() ),
       addAction( "insert.horizontal_rule", e -> mActions.insert‿horizontal_rule() )
-    );
-
-    final var menuDefinition = createMenu(
+    ),
+    createMenu(
       get( "Main.menu.definition" ),
       addAction( "definition.create", e -> mActions.definition‿create() ),
       addAction( "definition.insert", e -> mActions.definition‿insert() )
-    );
-
-    final var menuView = createMenu(
+    ),
+    createMenu(
       get( "Main.menu.view" ),
       addAction( "view.refresh", e -> mActions.view‿refresh() ),
       SEPARATOR_ACTION,
       addAction( "view.preview", e -> mActions.view‿preview() )
-    );
-
-    final var menuHelp = createMenu(
+    ),
+    createMenu(
       get( "Main.menu.help" ),
       addAction( "help.about", e -> mActions.help‿about() )
+    )
+    //@formatter:on
     );
 
-    final var menuBar = new MenuBar(
-      menuFile,
-      menuEdit,
-      menuFormat,
-      menuInsert,
-      menuDefinition,
-      menuView,
-      menuHelp );
-
+    //@formatter:off
     final var toolBar = createToolBar(
       getAction( "file.new" ),
       getAction( "file.open" ),
@@ -198,6 +187,9 @@ public class ApplicationMenuBar {
    */
   private Action addAction(
       final String key, final EventHandler<ActionEvent> handler ) {
+    assert key != null;
+    assert handler != null;
+
     final var action = Action
         .builder()
         .setId( key )

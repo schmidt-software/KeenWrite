@@ -2,7 +2,7 @@ html{box-sizing:border-box;font-size:12pt}body,h1,h2,h3,h4,h5,h6,ol,p,ul{margin:
 
 body {
   /* Must be bundled in JAR file. */
-  font-family: "Vollkorn", serif;
+  font-family: "Source Serif Pro", serif;
   background-color: #fff;
   margin: 0 auto;
   line-height: 1.6;
@@ -128,7 +128,7 @@ dl dd {
 
 pre, code, tt {
   /* Must be bundled in JAR file. */
-  font-family: "Fira Code", monospace;
+  font-family: "Source Code Pro", monospace;
   font-size: 10pt;
   background-color: #f8f8f8;
   text-decoration: none;
