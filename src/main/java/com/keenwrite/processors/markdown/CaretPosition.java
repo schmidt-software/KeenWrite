@@ -149,7 +149,7 @@ public class CaretPosition {
     return getTextOffset() >= getTextLength();
   }
 
-  public boolean isAfter(final int offset) {
+  public boolean isAfter( final int offset ) {
     return offset >= getTextOffset();
   }
 

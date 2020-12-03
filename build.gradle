@@ -41,7 +41,6 @@ dependencies {
   def v_batik = '1.13'
 
   // JavaFX
-  implementation 'org.reactfx:reactfx:1.4.1'
   implementation 'org.controlsfx:controlsfx:11.0.2'
   implementation 'org.fxmisc.richtext:richtextfx:0.10.5'
   implementation 'org.fxmisc.wellbehaved:wellbehavedfx:0.3.3'
