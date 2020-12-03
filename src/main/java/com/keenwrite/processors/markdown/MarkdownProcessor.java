@@ -63,9 +63,7 @@ public class MarkdownProcessor extends ExecutorProcessor<String> {
       final Collection<Extension> extensions ) {
     super( successor );
 
-    // TODO: https://github.com/FAlthausen/Vollkorn-Typeface/issues/38
-    // TODO: Uncomment when ligatures are fixed.
-    // extensions.add( LigatureExtension.create() );
+    extensions.add( LigatureExtension.create() );
 
     mParser = Parser.builder().extensions( extensions ).build();
     mRenderer = HtmlRenderer.builder().extensions( extensions ).build();

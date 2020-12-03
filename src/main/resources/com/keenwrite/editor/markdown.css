@@ -27,6 +27,7 @@
  */
 
 .markdown {
+  -fx-font-family: "Source Sans 3", sans-serif;
   -fx-font-size: 11pt;
 }
 

@@ -62,6 +62,7 @@ public class ProcessorContext {
    * @param exportFormat Indicate configuration options for export format.
    * @deprecated Use {@link ProcessorContext} with {@link Path}.
    */
+  @Deprecated
   public ProcessorContext(
       final HtmlPreview htmlPreview,
       final Map<String, String> resolvedMap,
