@@ -41,12 +41,9 @@ import javafx.stage.Window;
 import org.fxmisc.richtext.StyleClassedTextArea;
 
 import java.nio.file.Path;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.keenwrite.Constants.DEFAULT_DOCUMENT;
-import static com.keenwrite.Constants.STYLESHEET_MARKDOWN;
-import static javafx.scene.input.KeyCode.ENTER;
 import static javafx.scene.input.KeyCombination.CONTROL_DOWN;
 import static org.apache.commons.lang3.StringUtils.stripEnd;
 import static org.apache.commons.lang3.StringUtils.stripStart;
@@ -56,18 +53,12 @@ import static org.fxmisc.wellbehaved.event.EventPattern.keyPressed;
  * Provides the ability to edit a text document.
  */
 public class MarkdownEditorPane extends PlainTextEditor {
-  private static final Pattern PATTERN_AUTO_INDENT = Pattern.compile(
-      "(\\s*[*+-]\\s+|\\s*[0-9]+\\.\\s+|\\s+)(.*)" );
-
   public MarkdownEditorPane() {
     this( DEFAULT_DOCUMENT );
   }
 
   public MarkdownEditorPane( final File file ) {
     super( file );
-    final var textArea = getEditor();
-
-    addKeyboardListener( keyPressed( KeyCode.X, CONTROL_DOWN ), this::cut );
   }
 
   public void insertLink() {
@@ -76,140 +67,6 @@ public class MarkdownEditorPane extends PlainTextEditor {
 
   public void insertImage() {
     insertObject( createImageDialog() );
-  }
-
-  /**
-   * @param leading  Characters to insert at the beginning of the current
-   *                 selection (or paragraph).
-   * @param trailing Characters to insert at the end of the current selection
-   *                 (or paragraph).
-   */
-  public void surroundSelection( final String leading, final String trailing ) {
-    surroundSelection( leading, trailing, null );
-  }
-
-  /**
-   * @param leading  Characters to insert at the beginning of the current
-   *                 selection (or paragraph).
-   * @param trailing Characters to insert at the end of the current selection
-   *                 (or paragraph).
-   * @param hint     Instructional text inserted within the leading and
-   *                 trailing characters, provided no text is selected.
-   */
-  public void surroundSelection(
-      String leading, String trailing, final String hint ) {
-    final StyleClassedTextArea textArea = getEditor();
-
-    // Note: not using textArea.insertText() to insert leading and trailing
-    // because this would add two changes to undo history
-    final IndexRange selection = textArea.getSelection();
-    int start = selection.getStart();
-    int end = selection.getEnd();
-
-    final String selectedText = textArea.getSelectedText();
-
-    String trimmedText = selectedText.trim();
-    if( trimmedText.length() < selectedText.length() ) {
-      start += selectedText.indexOf( trimmedText );
-      end = start + trimmedText.length();
-    }
-
-    // remove leading whitespaces from leading text if selection starts at zero
-    if( start == 0 ) {
-      leading = stripStart( leading, null );
-    }
-
-    // remove trailing whitespaces from trailing text if selection ends at
-    // text end
-    if( end == textArea.getLength() ) {
-      trailing = stripEnd( trailing, null );
-    }
-
-    // remove leading line separators from leading text
-    // if there are line separators before the selected text
-    if( leading.startsWith( "\n" ) ) {
-      for( int i = start - 1; i >= 0 && leading.startsWith( "\n" ); i-- ) {
-        if( !"\n".equals( textArea.getText( i, i + 1 ) ) ) {
-          break;
-        }
-
-        leading = leading.substring( 1 );
-      }
-    }
-
-    // remove trailing line separators from trailing or leading text
-    // if there are line separators after the selected text
-    final boolean trailingIsEmpty = trailing.isEmpty();
-    String str = trailingIsEmpty ? leading : trailing;
-
-    if( str.endsWith( "\n" ) ) {
-      final int length = textArea.getLength();
-
-      for( int i = end; i < length && str.endsWith( "\n" ); i++ ) {
-        if( !"\n".equals( textArea.getText( i, i + 1 ) ) ) {
-          break;
-        }
-
-        str = str.substring( 0, str.length() - 1 );
-      }
-
-      if( trailingIsEmpty ) {
-        leading = str;
-      }
-      else {
-        trailing = str;
-      }
-    }
-
-    int selStart = start + leading.length();
-    int selEnd = end + leading.length();
-
-    // insert hint text if selection is empty
-    if( hint != null && trimmedText.isEmpty() ) {
-      trimmedText = hint;
-      selEnd = selStart + hint.length();
-    }
-
-    // prevent undo merging with previous text entered by user
-    getUndoManager().preventMerge();
-
-    // replace text and update selection
-    textArea.replaceText( start, end, leading + trimmedText + trailing );
-    textArea.selectRange( selStart, selEnd );
-  }
-
-  private void enterPressed( final KeyEvent e ) {
-    final StyleClassedTextArea textArea = getEditor();
-    final String currentLine =
-        textArea.getText( textArea.getCurrentParagraph() );
-    final Matcher matcher = PATTERN_AUTO_INDENT.matcher( currentLine );
-
-    String newText = "\n";
-
-    if( matcher.matches() ) {
-      if( !matcher.group( 2 ).isEmpty() ) {
-        // indent new line with same whitespace characters and list markers
-        // as current line
-        newText = newText.concat( matcher.group( 1 ) );
-      }
-      else {
-        // current line contains only whitespace characters and list markers
-        // --> empty current line
-        final int caretPosition = textArea.getCaretPosition();
-        textArea.selectRange( caretPosition - currentLine.length(),
-                              caretPosition );
-      }
-    }
-
-    textArea.replaceSelection( newText );
-
-    // Ensure that the window scrolls when Enter is pressed at the bottom of
-    // the pane.
-    textArea.requestFollowCaret();
-  }
-
-  private void cut( final KeyEvent event ) {
-    super.cut();
   }
 
   /**

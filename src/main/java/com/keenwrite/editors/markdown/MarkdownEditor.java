@@ -28,8 +28,13 @@ import java.util.regex.Pattern;
 import static com.keenwrite.Constants.DEFAULT_DOCUMENT;
 import static com.keenwrite.Constants.STYLESHEET_MARKDOWN;
 import static java.lang.Character.isWhitespace;
+import static java.lang.String.format;
 import static javafx.scene.control.ScrollPane.ScrollBarPolicy.ALWAYS;
-import static javafx.scene.input.KeyCode.ENTER;
+import static javafx.scene.input.KeyCode.*;
+import static javafx.scene.input.KeyCombination.CONTROL_DOWN;
+import static javafx.scene.input.KeyCombination.SHIFT_DOWN;
+import static org.apache.commons.lang3.StringUtils.stripEnd;
+import static org.apache.commons.lang3.StringUtils.stripStart;
 import static org.fxmisc.wellbehaved.event.EventPattern.keyPressed;
 import static org.fxmisc.wellbehaved.event.InputMap.consume;
 
@@ -37,6 +42,8 @@ import static org.fxmisc.wellbehaved.event.InputMap.consume;
  * Responsible for editing Markdown documents.
  */
 public class MarkdownEditor extends BorderPane implements TextEditor {
+  private static final String NEWLINE = System.lineSeparator();
+
   /**
    * Regular expression that matches the type of markup block. This is used
    * when Enter is pressed to continue the block environment.
@@ -107,6 +114,9 @@ public class MarkdownEditor extends BorderPane implements TextEditor {
     speller.checkParagraphs( mTextArea );
 
     addListener( keyPressed( ENTER ), this::onEnterPressed );
+    addListener( keyPressed( X, CONTROL_DOWN ), this::cut );
+    addListener( keyPressed( TAB ), this::tab );
+    addListener( keyPressed( TAB, SHIFT_DOWN ), this::untab );
   }
 
   /**
@@ -156,14 +166,13 @@ public class MarkdownEditor extends BorderPane implements TextEditor {
 
   @Override
   public void cut() {
-    final var editor = mTextArea;
-    final var selected = editor.getSelectedText();
+    final var selected = mTextArea.getSelectedText();
 
     if( selected == null || selected.isEmpty() ) {
-      editor.selectLine();
+      mTextArea.selectLine();
     }
 
-    editor.cut();
+    mTextArea.cut();
   }
 
   @Override
@@ -208,7 +217,7 @@ public class MarkdownEditor extends BorderPane implements TextEditor {
 
   @Override
   public void blockquote() {
-    enwrap( "\n\n> ", "" );
+    block( "> " );
   }
 
   @Override
@@ -227,26 +236,24 @@ public class MarkdownEditor extends BorderPane implements TextEditor {
   @Override
   public void heading( final int level ) {
     final var hashes = new String( new char[ level ] ).replace( "\0", "#" );
-    final var markup = String.format( "%n%n%s ", hashes );
-    final var key = "App.action.insert.heading_%d.prompt.text";
+    final var markup = format( "%s ", hashes );
 
-    // TODO: Introduce sample text if nothing is selected.
-    //enwrap( markup, "", get( key, level ) );
+    block( markup );
   }
 
   @Override
   public void unorderedList() {
-    enwrap( "\n\n* ", "" );
+    block( "* " );
   }
 
   @Override
   public void orderedList() {
-    enwrap( "\n\n1. ", "" );
+    block( "1. " );
   }
 
   @Override
   public void horizontalRule() {
-    enwrap( "\n\n---\n\n", "" );
+    block( format( "---%n%n" ) );
   }
 
   @Override
@@ -279,7 +286,7 @@ public class MarkdownEditor extends BorderPane implements TextEditor {
     final var matcher = PATTERN_AUTO_INDENT.matcher( currentLine );
 
     // By default, insert a new line by itself.
-    String newText = "\n";
+    String newText = NEWLINE;
 
     // If the pattern was matched, then determine what block type to continue.
     if( matcher.matches() ) {
@@ -296,10 +303,52 @@ public class MarkdownEditor extends BorderPane implements TextEditor {
     }
 
     mTextArea.replaceSelection( newText );
+  }
 
-    // TODO: Confirm that this line isn't needed by pressing enter at the
-    // bottom of the editor.
-    //textArea.requestFollowCaret();
+  private void cut( final KeyEvent event ) {
+    cut();
+  }
+
+  private void tab( final KeyEvent event ) {
+    final var range = mTextArea.selectionProperty().getValue();
+    final var sb = new StringBuilder( 1024 );
+
+    if( range.getLength() > 0 ) {
+      final var selection = mTextArea.getSelectedText();
+
+      selection.lines().forEach(
+          ( l ) -> sb.append( "\t" ).append( l ).append( NEWLINE )
+      );
+    }
+    else {
+      sb.append( "\t" );
+    }
+
+    mTextArea.replaceSelection( sb.toString() );
+  }
+
+  private void untab( final KeyEvent event ) {
+    final var range = mTextArea.selectionProperty().getValue();
+
+    if( range.getLength() > 0 ) {
+      final var selection = mTextArea.getSelectedText();
+      final var sb = new StringBuilder( selection.length() );
+
+      selection.lines().forEach(
+          ( l ) -> sb.append( l.startsWith( "\t" ) ? l.substring( 1 ) : l )
+                     .append( NEWLINE )
+      );
+
+      mTextArea.replaceSelection( sb.toString() );
+    }
+    else {
+      final var p = getCaretParagraph();
+
+      if( p.startsWith( "\t" ) ) {
+        mTextArea.selectParagraph();
+        mTextArea.replaceSelection( p.substring( 1 ) );
+      }
+    }
   }
 
   /**
@@ -319,7 +368,7 @@ public class MarkdownEditor extends BorderPane implements TextEditor {
   }
 
   /**
-   * Wraps the selected text or word under the caret in Markdown markup.
+   * Surrounds the selected text or word under the caret in Markdown markup.
    *
    * @param token The beginning and ending token for enclosing the text.
    */
@@ -328,41 +377,38 @@ public class MarkdownEditor extends BorderPane implements TextEditor {
   }
 
   /**
-   * Wraps the selected text or word under the caret in Markdown markup.
+   * Surrounds the selected text or word under the caret in Markdown markup.
    *
    * @param began The beginning token for enclosing the text.
    * @param ended The ending token for enclosing the text.
    */
   private void enwrap( final String began, String ended ) {
-    var range = mTextArea.getSelection();
-    String text;
+    final var range = mTextArea.getSelection();
+    String text = mTextArea.getText(
+        range.getLength() == 0 ? getCaretWord() : range
+    );
 
-    if( range.getLength() > 0 ) {
-      text = getSelectedText();
-    }
-    else {
-      range = getCaretWord();
-      final var paragraph = getCaretParagraph();
-      text = paragraph.substring( range.getStart(), range.getEnd() );
-    }
+    int length = range.getLength();
+    text = stripStart( text, null );
+    final int beganIndex = range.getStart() + (length - text.length());
 
-    text = text.trim();
+    length = text.length();
+    text = stripEnd( text, null );
+    final int endedIndex = range.getEnd() - (length - text.length());
 
-    System.out.printf( "ENWRAP: <<%s>>%n", text );
-
-    // Prevent undo from merging with any text entered previously.
-    //getUndoManager().preventMerge();
+    mTextArea.replaceText( beganIndex, endedIndex, began + text + ended );
   }
 
   /**
-   * This will return the value of the selected text, sanitizing the input
-   * value to non-null.
+   * Inserts the given block-level markup at the current caret position
+   * within the document. This will prepend two blank lines to ensure that
+   * the block element begins at the start of a new line.
    *
-   * @return A non-null string instance.
+   * @param markup The text to insert at the caret.
    */
-  private String getSelectedText() {
-    final var text = mTextArea.getSelectedText();
-    return text == null ? "" : text;
+  private void block( final String markup ) {
+    final int pos = mTextArea.getCaretPosition();
+    mTextArea.insertText( pos, format( "%n%n%s", markup ) );
   }
 
   /**
@@ -380,14 +426,16 @@ public class MarkdownEditor extends BorderPane implements TextEditor {
    * the caret can be at: the start, end, or middle of a word; also, the
    * caret can be at the end or beginning of a punctuated word; as well, the
    * caret could be at the beginning or end of the line or document.
+   *
+   * @return The
    */
   private IndexRange getCaretWord() {
     final var paragraph = getCaretParagraph();
     final var length = paragraph.length();
-    int offset = getCaretColumn();
+    final var column = getCaretColumn();
 
-    int began = offset;
-    int ended = offset;
+    var began = column;
+    var ended = column;
 
     while( began > 0 && !isWhitespace( paragraph.charAt( began - 1 ) ) ) {
       began--;
@@ -408,7 +456,13 @@ public class MarkdownEditor extends BorderPane implements TextEditor {
       ended--;
     }
 
-    return IndexRange.normalize( began, ended );
+    final var offset = getCaretDocumentOffset( column );
+
+    return IndexRange.normalize( began + offset, ended + offset );
+  }
+
+  private int getCaretDocumentOffset( final int column ) {
+    return mTextArea.getCaretPosition() - column;
   }
 
   /**
