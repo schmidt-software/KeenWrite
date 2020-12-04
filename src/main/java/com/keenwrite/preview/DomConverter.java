@@ -1,3 +1,4 @@
+/* Copyright 2020 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.preview;
 
 import org.jsoup.helper.W3CDom;

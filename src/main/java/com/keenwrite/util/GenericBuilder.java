@@ -1,3 +1,4 @@
+/* Copyright 2020 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.util;
 
 import java.util.ArrayList;

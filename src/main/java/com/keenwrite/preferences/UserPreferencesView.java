@@ -1,3 +1,4 @@
+/* Copyright 2020 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.preferences;
 
 import com.dlsc.formsfx.model.structure.StringField;

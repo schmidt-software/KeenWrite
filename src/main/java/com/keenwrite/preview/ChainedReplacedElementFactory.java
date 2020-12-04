@@ -1,5 +1,4 @@
-/*
- * Copyright 2006 Patrick Wright
+/* Copyright 2006 Patrick Wright
  * Copyright 2007 Wisconsin Court System
  * Copyright 2020 White Magic Software, Ltd.
  *
