@@ -1,10 +1,9 @@
 /* Copyright 2020 White Magic Software, Ltd. -- All rights reserved. */
 
 body {
-  font-family: 'Source Han Serif CN';
+  font-family: 'Noto Serif CJK TC';
 }
 
 pre, code, tt {
-  /* Traditional Chinese (TC) */
-  font-family: 'Source Han Mono TC';
+  font-family: 'Noto Sans Mono CJK TC';
 }

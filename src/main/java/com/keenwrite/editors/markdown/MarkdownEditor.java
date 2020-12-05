@@ -29,8 +29,8 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
-import static com.keenwrite.Constants.DEFAULT_DOCUMENT;
-import static com.keenwrite.Constants.STYLESHEET_MARKDOWN;
+import static com.keenwrite.Constants.*;
+import static com.keenwrite.Messages.get;
 import static com.keenwrite.StatusBarNotifier.clue;
 import static java.lang.Character.isWhitespace;
 import static java.lang.String.format;
@@ -131,12 +131,22 @@ public class MarkdownEditor extends BorderPane implements TextEditor {
    * Returns the ISO 639 alpha-2 or alpha-3 language code followed by a hyphen
    * followed by the ISO 3166 alpha-2 country code or UN M.49 numeric-3 area
    * code.
+   * <p>
+   * TODO: Override default locale user's workspace locale preference.
+   * </p>
    *
    * @return Unique identifier for language and country.
    */
   private String getLocaleStylesheet() {
-    final var locale = Locale.getDefault();
-    return format( "%s-%s", locale.getLanguage(), locale.getCountry() );
+    return getLocaleStylesheet( Locale.getDefault() );
+  }
+
+  private String getLocaleStylesheet( final Locale locale ) {
+    return get(
+        sSettings.getSetting( STYLESHEET_MARKDOWN_LOCALE, "" ),
+        locale.getLanguage(),
+        locale.getCountry()
+    );
   }
 
   private void initScrollPane(

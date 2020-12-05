@@ -43,8 +43,12 @@ public class Constants {
 
   public static final String STYLESHEET_MARKDOWN = get(
       "file.stylesheet.markdown" );
+  public static final String STYLESHEET_MARKDOWN_LOCALE =
+      "file.stylesheet.markdown.locale";
   public static final String STYLESHEET_PREVIEW = get(
       "file.stylesheet.preview" );
+  public static final String STYLESHEET_PREVIEW_LOCALE =
+      "file.stylesheet.preview.locale";
   public static final String STYLESHEET_SCENE = get( "file.stylesheet.scene" );
 
   public static final String FILE_LOGO_16 = get( "file.logo.16" );

@@ -34,8 +34,10 @@ import org.xhtmlrenderer.swing.SwingReplacedElementFactory;
 import javax.swing.*;
 import java.awt.*;
 import java.nio.file.Path;
+import java.util.Locale;
 
-import static com.keenwrite.Constants.STYLESHEET_PREVIEW;
+import static com.keenwrite.Constants.*;
+import static com.keenwrite.Messages.get;
 import static java.lang.Math.max;
 import static java.lang.String.format;
 import static javafx.scene.CacheHint.SPEED;
@@ -55,8 +57,10 @@ public final class HtmlPreview extends SwingNode {
           <!DOCTYPE html>
           <html lang='en'><head><title> </title><meta charset='utf-8'/>
           <link rel='stylesheet' href='%s'/>
+          <link rel='stylesheet' href='%s'/>
           """,
-      HtmlPreview.class.getResource( STYLESHEET_PREVIEW )
+      HtmlPreview.class.getResource( STYLESHEET_PREVIEW ),
+      HtmlPreview.class.getResource( getLocaleStylesheet() )
   );
 
   /**
@@ -227,5 +231,28 @@ public final class HtmlPreview extends SwingNode {
 
   private int getVerticalScrollBarHeight() {
     return getVerticalScrollBar().getHeight();
+  }
+
+  /**
+   * Returns the ISO 639 alpha-2 or alpha-3 language code followed by a hyphen
+   * followed by the ISO 3166 alpha-2 country code or UN M.49 numeric-3 area
+   * code.
+   * <p>
+   * TODO: Override default locale user's workspace locale preference.
+   * </p>
+   *
+   * @return Unique identifier for language and country.
+   */
+  private static String getLocaleStylesheet() {
+    //return getLocaleStylesheet( Locale.getDefault() );
+    return getLocaleStylesheet( Locale.CHINA );
+  }
+
+  private static String getLocaleStylesheet( final Locale locale ) {
+    return get(
+        sSettings.getSetting( STYLESHEET_PREVIEW_LOCALE, "" ),
+        locale.getLanguage(),
+        locale.getCountry()
+    );
   }
 }

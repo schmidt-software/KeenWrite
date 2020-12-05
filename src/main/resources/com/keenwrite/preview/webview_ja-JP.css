@@ -1,10 +1,9 @@
 /* Copyright 2020 White Magic Software, Ltd. -- All rights reserved. */
 
 body {
-  font-family: 'Source Han Serif JP';
+  font-family: 'Noto Serif CJK JP';
 }
 
 pre, code, tt {
-  /* Japanese (default Han) */
-  font-family: 'Source Han Mono';
+  font-family: 'Noto Sans Mono CJK JP';
 }

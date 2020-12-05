@@ -15,8 +15,8 @@ import static com.keenwrite.Constants.*;
  */
 public class UserPreferences {
   /**
-   * Implementation of the initialization-on-demand holder design pattern,
-   * an for a lazy-loaded singleton. In all versions of Java, the idiom enables
+   * Implementation of the initialization-on-demand holder design pattern
+   * for a lazily-loaded singleton. In all versions of Java, the idiom enables
    * a safe, highly concurrent lazy initialization of static fields with good
    * performance. The implementation relies upon the initialization phase of
    * execution within the Java Virtual Machine (JVM) as specified by the Java

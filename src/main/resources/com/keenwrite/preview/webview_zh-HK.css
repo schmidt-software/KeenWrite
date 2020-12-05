@@ -1,10 +1,9 @@
 /* Copyright 2020 White Magic Software, Ltd. -- All rights reserved. */
 
 body {
-  font-family: 'Source Han Serif CN';
+  font-family: 'Noto Serif CJK SC';
 }
 
 pre, code, tt {
-  /* Hong Kong (HC) */
-  font-family: 'Source Han Mono HC';
+  font-family: 'Noto Sans Mono CJK HK';
 }
