@@ -2,6 +2,7 @@
 package com.keenwrite;
 
 import com.keenwrite.io.File;
+import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.scene.Node;
 import org.mozilla.universalchardet.UniversalDetector;
 
@@ -132,6 +133,7 @@ public interface TextResource {
 
   default void save() throws IOException {
     write( getPath(), asBytes( getText() ) );
+    clearModifiedProperty();
   }
 
   /**
@@ -140,6 +142,22 @@ public interface TextResource {
    * @return The view component for the {@link TextResource}.
    */
   Node getNode();
+
+  /**
+   * Returns a property that answers whether this text resource has been
+   * changed from the original text that was opened.
+   *
+   * @return A property representing the modified state of this
+   * {@link TextResource}.
+   */
+  ReadOnlyBooleanProperty modifiedProperty();
+
+  /**
+   * Lowers the modified flag such that listeners to the modified property
+   * will be informed that the text that's being edited no longer differs
+   * from what's persisted.
+   */
+  void clearModifiedProperty();
 
   private String asString( final byte[] text, final Charset encoding ) {
     return new String( text, encoding );

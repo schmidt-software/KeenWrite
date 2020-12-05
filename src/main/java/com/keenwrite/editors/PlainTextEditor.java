@@ -31,9 +31,7 @@ import com.keenwrite.Constants;
 import com.keenwrite.io.File;
 import com.keenwrite.preferences.UserPreferences;
 import com.keenwrite.processors.markdown.CaretPosition;
-import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.*;
 import javafx.beans.value.ChangeListener;
 import javafx.event.Event;
 import javafx.scene.Node;
@@ -73,6 +71,8 @@ public class PlainTextEditor extends StyleClassedTextArea
    * either no encoding could be determined or this is a new (empty) file.
    */
   private final Charset mEncoding;
+
+  private final BooleanProperty mModified = new SimpleBooleanProperty();
 
   public PlainTextEditor( final File file ) {
     super( false );
@@ -185,6 +185,17 @@ public class PlainTextEditor extends StyleClassedTextArea
   @Override
   public Node getNode() {
     return this;
+  }
+
+
+  @Override
+  public ReadOnlyBooleanProperty modifiedProperty() {
+    return mModified;
+  }
+
+  @Override
+  public void clearModifiedProperty() {
+    mModified.setValue( false );
   }
 
   public UndoManager<?> getUndoManager() {

@@ -78,12 +78,12 @@ public class StatusBarNotifier {
    * @param message The message to show in the status bar.
    */
   private static void update( final String message ) {
-    runLater(
-        () -> {
+//    runLater(
+//        () -> {
           final var s = message == null ? "" : message;
           final var i = s.indexOf( '\n' );
           sStatusBar.setText( s.substring( 0, i > 0 ? i : s.length() ) );
-        }
-    );
+//        }
+//    );
   }
 }

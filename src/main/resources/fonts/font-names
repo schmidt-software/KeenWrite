@@ -2,6 +2,6 @@
 
 # Writes the name for all OTF files found in the current directory or lower
 
-find . -type f -name "*otf" -exec \
+find . -type f \( -name "*otf" -o -name "*ttf" \) -exec \
   fc-scan --format "%{foundry}: %{family}\n" {} \; | uniq | sort
 

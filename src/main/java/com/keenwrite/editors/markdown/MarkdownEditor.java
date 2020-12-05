@@ -6,7 +6,9 @@ import com.keenwrite.editors.TextEditor;
 import com.keenwrite.io.File;
 import com.keenwrite.processors.markdown.CaretPosition;
 import com.keenwrite.spelling.impl.TextEditorSpeller;
+import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.event.Event;
@@ -23,10 +25,12 @@ import org.fxmisc.wellbehaved.event.Nodes;
 import java.nio.charset.Charset;
 import java.text.BreakIterator;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
 import static com.keenwrite.Constants.DEFAULT_DOCUMENT;
 import static com.keenwrite.Constants.STYLESHEET_MARKDOWN;
+import static com.keenwrite.StatusBarNotifier.clue;
 import static java.lang.Character.isWhitespace;
 import static java.lang.String.format;
 import static javafx.scene.control.ScrollPane.ScrollBarPolicy.ALWAYS;
@@ -80,6 +84,12 @@ public class MarkdownEditor extends BorderPane implements TextEditor {
    */
   private final Charset mEncoding;
 
+  /**
+   * Tracks whether the in-memory definitions have changed with respect to the
+   * persisted definitions.
+   */
+  private final BooleanProperty mModified = new SimpleBooleanProperty();
+
   public MarkdownEditor() {
     this( DEFAULT_DOCUMENT );
   }
@@ -87,36 +97,60 @@ public class MarkdownEditor extends BorderPane implements TextEditor {
   public MarkdownEditor( final File file ) {
     mEncoding = open( mFile = file );
 
-    mTextArea.setWrapText( true );
-    mTextArea.getStyleClass().add( "markdown" );
-    mTextArea.getStylesheets().add( STYLESHEET_MARKDOWN );
-    mTextArea.requestFollowCaret();
-    mTextArea.moveTo( 0 );
+    initTextArea( mTextArea );
+    initScrollPane( mScrollPane );
+    initSpellchecker( mTextArea );
+    initHotKeys();
+    initUndoManager();
+  }
 
-    mTextArea.textProperty().addListener( ( c, o, n ) -> {
+  private void initTextArea( final StyleClassedTextArea textArea ) {
+    textArea.setWrapText( true );
+    textArea.getStyleClass().add( "markdown" );
+    textArea.getStylesheets().add( STYLESHEET_MARKDOWN );
+    textArea.requestFollowCaret();
+    textArea.moveTo( 0 );
+
+    textArea.textProperty().addListener( ( c, o, n ) -> {
       // Fire, regardless of whether the caret position has changed.
       mDirty.set( false );
 
       // Prevent a caret position change from raising the dirty bits.
       mDirty.set( true );
     } );
-    mTextArea.caretPositionProperty().addListener( ( c, o, n ) -> {
+    textArea.caretPositionProperty().addListener( ( c, o, n ) -> {
       // Fire when the caret position has changed and the text has not.
       mDirty.set( true );
       mDirty.set( false );
     } );
+  }
 
-    mScrollPane.setVbarPolicy( ALWAYS );
-    setCenter( mScrollPane );
+  private void initScrollPane(
+      final VirtualizedScrollPane<StyleClassedTextArea> scrollpane ) {
+    scrollpane.setVbarPolicy( ALWAYS );
+    setCenter( scrollpane );
+  }
 
+  private void initSpellchecker( final StyleClassedTextArea textarea ) {
     final var speller = new TextEditorSpeller();
-    speller.checkDocument( mTextArea );
-    speller.checkParagraphs( mTextArea );
+    speller.checkDocument( textarea );
+    speller.checkParagraphs( textarea );
+  }
 
+  private void initHotKeys() {
     addListener( keyPressed( ENTER ), this::onEnterPressed );
     addListener( keyPressed( X, CONTROL_DOWN ), this::cut );
     addListener( keyPressed( TAB ), this::tab );
     addListener( keyPressed( TAB, SHIFT_DOWN ), this::untab );
+  }
+
+  private void initUndoManager() {
+    final var undoManager = getUndoManager();
+    final var markedPosition = undoManager.atMarkedPositionProperty();
+    undoManager.forgetHistory();
+    undoManager.mark();
+
+    mModified.bind( Bindings.not( markedPosition ) );
   }
 
   /**
@@ -131,7 +165,7 @@ public class MarkdownEditor extends BorderPane implements TextEditor {
   public void setText( final String text ) {
     mTextArea.clear();
     mTextArea.appendText( text );
-    mTextArea.getUndoManager().forgetHistory();
+    mTextArea.getUndoManager().mark();
   }
 
   @Override
@@ -156,12 +190,33 @@ public class MarkdownEditor extends BorderPane implements TextEditor {
 
   @Override
   public void undo() {
-    getUndoManager().undo();
+    final var manager = getUndoManager();
+    doit( manager::isUndoAvailable, manager::undo, "Main.status.error.undo" );
   }
 
   @Override
   public void redo() {
-    getUndoManager().redo();
+    final var manager = getUndoManager();
+    doit( manager::isRedoAvailable, manager::redo, "Main.status.error.redo" );
+  }
+
+  /**
+   * Performs an undo or redo action, if possible, otherwise displays an error
+   * message to the user.
+   *
+   * @param ready  Answers whether the action can be executed.
+   * @param action The action to execute.
+   * @param key    The informational message key having a value to display if
+   *               the {@link Supplier} is not ready.
+   */
+  private void doit(
+      final Supplier<Boolean> ready, final Runnable action, final String key ) {
+    if( ready.get() ) {
+      action.run();
+    }
+    else {
+      clue( key );
+    }
   }
 
   @Override
@@ -262,6 +317,16 @@ public class MarkdownEditor extends BorderPane implements TextEditor {
   }
 
   @Override
+  public ReadOnlyBooleanProperty modifiedProperty() {
+    return mModified;
+  }
+
+  @Override
+  public void clearModifiedProperty() {
+    getUndoManager().mark();
+  }
+
+  @Override
   public VirtualizedScrollPane<StyleClassedTextArea> getScrollPane() {
     return mScrollPane;
   }
@@ -288,7 +353,7 @@ public class MarkdownEditor extends BorderPane implements TextEditor {
     // By default, insert a new line by itself.
     String newText = NEWLINE;
 
-    // If the pattern was matched, then determine what block type to continue.
+    // If the pattern was matched then determine what block type to continue.
     if( matcher.matches() ) {
       if( matcher.group( 2 ).isEmpty() ) {
         final var pos = mTextArea.getCaretPosition();

@@ -42,7 +42,7 @@
 	-fx-color: -fx-pressed-base;
 }
 
-/* Drag and drop target.
+/* Definition editor drag and drop target.
  */
 .drop-target {
   -fx-border-color: #eea82f;

@@ -49,8 +49,8 @@ public class LigatureExtension implements HtmlRendererExtension {
     // Discretionary
 
     // Antiquated
-    LIGATURES.put( "AE", "\u00C6" );
-    LIGATURES.put( "OE", "\u0152" );
+//    LIGATURES.put( "AE", "\u00C6" );
+//    LIGATURES.put( "OE", "\u0152" );
 //    LIGATURES.put( "ae", "\u00E6" );
 //    LIGATURES.put( "oe", "\u0153" );
   }

@@ -65,12 +65,8 @@ public final class FileEditorTabPane extends DetachableTabPane {
   private static final Options sOptions = Services.load( Options.class );
   private static final Notifier sNotifier = Services.load( Notifier.class );
 
-  private final ReadOnlyObjectWrapper<Path> mOpenDefinition =
-      new ReadOnlyObjectWrapper<>();
   private final ReadOnlyObjectWrapper<FileEditorController> mActiveFileEditor =
       new ReadOnlyObjectWrapper<>();
-  private final ReadOnlyBooleanWrapper mAnyFileEditorModified =
-      new ReadOnlyBooleanWrapper();
   private final ChangeListener<Integer> mCaretPositionListener;
 
   /**
@@ -167,15 +163,6 @@ public final class FileEditorTabPane extends DetachableTabPane {
   }
 
   /**
-   * Property that can answer whether the text has been modified.
-   *
-   * @return A non-null instance, true meaning the content has not been saved.
-   */
-  ReadOnlyBooleanProperty anyFileEditorModifiedProperty() {
-    return mAnyFileEditorModified.getReadOnlyProperty();
-  }
-
-  /**
    * Creates a new editor instance from the given path.
    *
    * @param path The file to open.
@@ -201,43 +188,6 @@ public final class FileEditorTabPane extends DetachableTabPane {
     tab.addCaretPositionListener( mCaretPositionListener );
 
     return tab;
-  }
-
-  /**
-   * Returns a property that changes when a new definition file is opened.
-   *
-   * @return The path to a definition file that was opened.
-   */
-  public ReadOnlyObjectProperty<Path> onOpenDefinitionFileProperty() {
-    return getOnOpenDefinitionFile().getReadOnlyProperty();
-  }
-
-  private ReadOnlyObjectWrapper<Path> getOnOpenDefinitionFile() {
-    return mOpenDefinition;
-  }
-
-  /**
-   * Called when the user has opened a definition file (using the file open
-   * dialog box). This will replace the current set of definitions for the
-   * active tab.
-   *
-   * @param definition The file to open.
-   */
-  private void openDefinition( final File definition ) {
-    // TODO: Prevent reading this file twice when a new text document is opened.
-    // (might be a matter of checking the value first).
-    getOnOpenDefinitionFile().set( definition.toPath() );
-  }
-
-  /**
-   * Opens the Save As dialog for the user to save the content under a new
-   * path.
-   *
-   * @param tab The tab with contents to save.
-   * @return true The contents were saved, or the tab was null.
-   */
-  public boolean saveEditorAs( final FileEditorController tab ) {
-    return false;
   }
 
   /**
@@ -350,48 +300,6 @@ public final class FileEditorTabPane extends DetachableTabPane {
     }
 
     return allEditors;
-  }
-
-  /**
-   * Returns the file editor tab that has the given path.
-   *
-   * @return null No file editor tab for the given path was found.
-   */
-  private FileEditorController findEditor( final Path path ) {
-    for( final Tab tab : getTabs() ) {
-      // TODO: FIXME REFACTOR TABS
-      final FileEditorController fileEditor = null;// (FileEditorView) tab;
-
-      if( fileEditor.isPath( path ) ) {
-        return fileEditor;
-      }
-    }
-
-    return null;
-  }
-
-  /**
-   * Opens a new {@link FileChooser} at the previously selected directory.
-   *
-   * @param key Message key from resource bundle.
-   * @return {@link FileChooser} GUI allowing the user to pick a file.
-   */
-  private FileChooser createFileChooser( final String key ) {
-    final FileChooser fileChooser = new FileChooser();
-
-    fileChooser.setTitle( get( key ) );
-    fileChooser.getExtensionFilters().addAll(
-        createExtensionFilters() );
-
-    final var lastDirectory = getPreferences().get( "lastDirectory", null );
-    var file = new File( (lastDirectory != null) ? lastDirectory : "." );
-
-    if( !file.isDirectory() ) {
-      file = new File( "." );
-    }
-
-    fileChooser.setInitialDirectory( file );
-    return fileChooser;
   }
 
   private List<ExtensionFilter> createExtensionFilters() {

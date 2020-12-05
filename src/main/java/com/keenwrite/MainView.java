@@ -341,8 +341,15 @@ public class MainView extends SplitPane {
   }
 
   private DetachableTab createTab( final File file ) {
-    final var resource = createTextResource( file );
-    return new DetachableTab( resource.getFilename(), resource.getNode() );
+    final var r = createTextResource( file );
+    final var filename = r.getFilename();
+    final var tab = new DetachableTab( filename, r.getNode() );
+
+    r.modifiedProperty().addListener(
+        ( c, o, n ) -> tab.setText( filename + (n ? "*" : "") )
+    );
+
+    return tab;
   }
 
   /**
@@ -604,7 +611,7 @@ public class MainView extends SplitPane {
     tooltip.setShowDelay( millis( 200 ) );
     return tooltip;
   }
-  
+
   public TextEditor getActiveTextEditor() {
     return mActiveTextEditor.get();
   }

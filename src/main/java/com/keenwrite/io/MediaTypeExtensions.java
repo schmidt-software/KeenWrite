@@ -10,15 +10,18 @@ import static java.util.Set.of;
  * Responsible for associating file extensions with {@link MediaType} instances.
  */
 enum MediaTypeExtensions {
-  MEDIA_IMAGE_APNG( IMAGE_APNG, of( "apng" ) ),
-  MEDIA_IMAGE_BMP( IMAGE_BMP, of( "bmp" ) ),
-  MEDIA_IMAGE_GIF( IMAGE_GIF, of( "gif" ) ),
+  MEDIA_FONT_OTF( FONT_OTF ),
+  MEDIA_FONT_TTF( FONT_TTF ),
+
+  MEDIA_IMAGE_APNG( IMAGE_APNG ),
+  MEDIA_IMAGE_BMP( IMAGE_BMP ),
+  MEDIA_IMAGE_GIF( IMAGE_GIF ),
   MEDIA_IMAGE_ICO( IMAGE_X_ICON, of( "ico", ".cur" ) ),
   MEDIA_IMAGE_JPEG( IMAGE_JPEG, of( "jpg", "jpeg", "jfif", "pjpeg", "pjp" ) ),
-  MEDIA_IMAGE_PNG( IMAGE_PNG, of( "png" ) ),
+  MEDIA_IMAGE_PNG( IMAGE_PNG ),
   MEDIA_IMAGE_SVG( IMAGE_SVG_XML, of( "svg" ) ),
   MEDIA_IMAGE_TIFF( IMAGE_TIFF, of( "tif", "tiff" ) ),
-  MEDIA_IMAGE_WEBP( IMAGE_WEBP, of( "webp" ) ),
+  MEDIA_IMAGE_WEBP( IMAGE_WEBP ),
 
   MEDIA_TEXT_MARKDOWN( TEXT_MARKDOWN, of(
       "md", "markdown", "mdown", "mdtxt", "mdtext", "mdwn", "mkd", "mkdown",
@@ -27,6 +30,19 @@ enum MediaTypeExtensions {
 
   private final MediaType mMediaType;
   private final Set<String> mExtensions;
+
+  /**
+   * Several media types have only one corresponding standard filename
+   * extension; this constructor calls {@link MediaType#toString()} to obtain
+   * said extension. Some {@link MediaType}s have a single extension but their
+   * assigned IANA name differs (e.g., {@code svg} maps to {@code svg+xml})
+   * and thus must not use this constructor.
+   *
+   * @param mediaType The {@link MediaType} containing only one extension.
+   */
+  MediaTypeExtensions( final MediaType mediaType ) {
+    this( mediaType, of( mediaType.toString() ) );
+  }
 
   /**
    * Constructs an association of file name extensions to a single {@link

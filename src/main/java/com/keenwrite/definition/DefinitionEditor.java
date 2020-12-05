@@ -6,6 +6,9 @@ import com.keenwrite.editors.TextDefinition;
 import com.keenwrite.io.File;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.ReadOnlyBooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
@@ -71,6 +74,12 @@ public final class DefinitionEditor extends BorderPane implements
   private final Charset mEncoding;
 
   /**
+   * Tracks whether the in-memory definitions have changed with respect to the
+   * persisted definitions.
+   */
+  private final BooleanProperty mModified = new SimpleBooleanProperty();
+
+  /**
    * This is provided for unit tests that are not backed by files.
    *
    * @param treeTransformer The
@@ -114,6 +123,7 @@ public final class DefinitionEditor extends BorderPane implements
     setTop( buttonBar );
     setCenter( mTreeView );
     setAlignment( buttonBar, TOP_CENTER );
+    addTreeChangeHandler( event -> mModified.set( true ) );
     mEncoding = open( mFile );
   }
 
@@ -168,6 +178,16 @@ public final class DefinitionEditor extends BorderPane implements
   @Override
   public Node getNode() {
     return this;
+  }
+
+  @Override
+  public ReadOnlyBooleanProperty modifiedProperty() {
+    return mModified;
+  }
+
+  @Override
+  public void clearModifiedProperty() {
+    mModified.setValue( false );
   }
 
   private Button createButton(

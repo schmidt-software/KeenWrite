@@ -119,6 +119,8 @@ public final class Main extends Application {
     appPane.setBottom( statusBar );
 
     final var scene = new Scene( appPane );
+    final var stylesheets = scene.getStylesheets();
+    stylesheets.add( STYLESHEET_SCENE );
     stage.setScene( scene );
   }
 

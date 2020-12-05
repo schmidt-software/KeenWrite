@@ -20,6 +20,9 @@ public enum MediaType {
       TypeName.APPLICATION, "x-java-serialized-object"
   ),
 
+  FONT_OTF( "otf"),
+  FONT_TTF( "ttf"),
+
   IMAGE_APNG( "apng" ),
   IMAGE_ACES( "aces" ),
   IMAGE_AVCI( "avci" ),
