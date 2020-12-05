@@ -13,6 +13,7 @@ import java.util.Map;
 
 import static com.keenwrite.Constants.FONT_DIRECTORY;
 import static com.keenwrite.StatusBarNotifier.clue;
+import static com.keenwrite.util.ProtocolScheme.valueFrom;
 import static com.keenwrite.util.ResourceWalker.GLOB_FONTS;
 import static com.keenwrite.util.ResourceWalker.walk;
 import static java.awt.Font.TRUETYPE_FONT;
@@ -28,9 +29,9 @@ import static java.awt.font.TextAttribute.*;
 public class FontLoader {
 
   /**
-   * Walks the resources associated with the application to load all
-   * TrueType font resources found. This method must run before the windowing
-   * system kicks in, otherwise the fonts will not be found.
+   * Walks the resources associated with the application to load all TrueType
+   * font resources found. This method must run before the windowing system
+   * kicks in, otherwise the fonts will not be found.
    * <p>
    * All fonts must be TrueType fonts. No PostScript Type 1 fonts are
    * supported.
@@ -54,7 +55,6 @@ public class FontLoader {
               attributes.put( LIGATURES, LIGATURES_ON );
               attributes.put( KERNING, KERNING_ON );
               ge.registerFont( font.deriveFont( attributes ) );
-              System.out.println( "REGISTERED: " + font );
             } catch( final Exception e ) {
               clue( e );
             }
@@ -76,7 +76,7 @@ public class FontLoader {
    */
   private static InputStream openFont( final URI uri, final String filename )
       throws IOException {
-    return uri.getScheme().equals( "jar" )
+    return valueFrom( uri ).isJar()
         ? FontLoader.class.getResourceAsStream( filename )
         : new FileInputStream( filename );
   }

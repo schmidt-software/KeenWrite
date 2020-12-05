@@ -24,6 +24,7 @@ import org.fxmisc.wellbehaved.event.Nodes;
 
 import java.nio.charset.Charset;
 import java.text.BreakIterator;
+import java.util.Locale;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
@@ -105,9 +106,10 @@ public class MarkdownEditor extends BorderPane implements TextEditor {
   }
 
   private void initTextArea( final StyleClassedTextArea textArea ) {
-    textArea.setWrapText( true );
     textArea.getStyleClass().add( "markdown" );
     textArea.getStylesheets().add( STYLESHEET_MARKDOWN );
+    textArea.getStylesheets().add( getLocaleStylesheet() );
+    textArea.setWrapText( true );
     textArea.requestFollowCaret();
     textArea.moveTo( 0 );
 
@@ -123,6 +125,18 @@ public class MarkdownEditor extends BorderPane implements TextEditor {
       mDirty.set( true );
       mDirty.set( false );
     } );
+  }
+
+  /**
+   * Returns the ISO 639 alpha-2 or alpha-3 language code followed by a hyphen
+   * followed by the ISO 3166 alpha-2 country code or UN M.49 numeric-3 area
+   * code.
+   *
+   * @return Unique identifier for language and country.
+   */
+  private String getLocaleStylesheet() {
+    final var locale = Locale.getDefault();
+    return format( "%s-%s", locale.getLanguage(), locale.getCountry() );
   }
 
   private void initScrollPane(

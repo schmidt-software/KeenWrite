@@ -1,0 +1,10 @@
+/* Copyright 2020 White Magic Software, Ltd. -- All rights reserved. */
+
+body {
+  font-family: 'Source Han Serif KR';
+}
+
+pre, code, tt {
+  /* Korean (K) */
+  font-family: 'Source Han Mono K';
+}
