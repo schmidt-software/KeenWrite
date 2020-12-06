@@ -17,7 +17,7 @@ import static com.keenwrite.Constants.PATH_PROPERTIES_SETTINGS;
 /**
  * Responsible for loading settings that help avoid hard-coded assumptions.
  */
-public class DefaultSettings implements Settings {
+public final class DefaultSettings implements Settings {
 
   private static final char VALUE_SEPARATOR = ',';
 

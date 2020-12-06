@@ -45,7 +45,7 @@ import static com.keenwrite.StatusBarNotifier.clue;
  * problems. This class sidesteps the issue entirely by writing to the user's
  * home directory, where permissions should be a bit more lax.
  */
-public class FilePreferences extends AbstractPreferences {
+public final class FilePreferences extends AbstractPreferences {
 
   private final Map<String, String> mRoot = new TreeMap<>();
   private final Map<String, FilePreferences> mChildren = new TreeMap<>();
@@ -167,14 +167,14 @@ public class FilePreferences extends AbstractPreferences {
   }
 
   private String getPath() {
-    final FilePreferences parent = (FilePreferences) parent();
+    final var parent = (FilePreferences) parent();
 
     return parent == null ? "" : parent.getPath() + name() + '.';
   }
 
   @Override
   protected void flushSpi() {
-    final File file = FilePreferencesFactory.getPreferencesFile();
+    final var file = FilePreferencesFactory.getPreferencesFile();
 
     synchronized( mMutex ) {
       final Properties p = new Properties();

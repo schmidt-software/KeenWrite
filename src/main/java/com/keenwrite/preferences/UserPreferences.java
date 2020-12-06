@@ -6,6 +6,7 @@ import javafx.beans.property.*;
 
 import java.io.File;
 import java.nio.file.Path;
+import java.util.Locale;
 
 import static com.keenwrite.Constants.*;
 
@@ -13,7 +14,7 @@ import static com.keenwrite.Constants.*;
  * Responsible for user preferences that can be changed from the GUI. The
  * settings are displayed and persisted using {@link PreferencesFx}.
  */
-public class UserPreferences {
+public final class UserPreferences {
   /**
    * Implementation of the initialization-on-demand holder design pattern
    * for a lazily-loaded singleton. In all versions of Java, the idiom enables
@@ -55,22 +56,22 @@ public class UserPreferences {
   private final StringProperty mPropDefDelimBegan;
   private final StringProperty mPropDefDelimEnded;
   private final IntegerProperty mPropFontsSizeEditor;
+  private final ObjectProperty<Locale> mPropFontsLocale;
 
   private UserPreferences() {
-    mPropRDirectory = new SimpleObjectProperty<>( USER_DIRECTORY );
-    mPropRScript = new SimpleStringProperty( "" );
-
     mPropImagesDirectory = new SimpleObjectProperty<>( USER_DIRECTORY );
     mPropImagesOrder = new SimpleStringProperty( PERSIST_IMAGES_DEFAULT );
 
     mPropDefinitionPath = new SimpleObjectProperty<>( DEFAULT_DEFINITION );
-
     mPropDefDelimBegan = new SimpleStringProperty( DEF_DELIM_BEGAN_DEFAULT );
     mPropDefDelimEnded = new SimpleStringProperty( DEF_DELIM_ENDED_DEFAULT );
 
+    mPropRDirectory = new SimpleObjectProperty<>( USER_DIRECTORY );
+    mPropRScript = new SimpleStringProperty( "" );
     mPropRDelimBegan = new SimpleStringProperty( R_DELIM_BEGAN_DEFAULT );
     mPropRDelimEnded = new SimpleStringProperty( R_DELIM_ENDED_DEFAULT );
 
+    mPropFontsLocale = new SimpleObjectProperty<>( DEFAULT_LOCALE );
     mPropFontsSizeEditor = new SimpleIntegerProperty( (int) FONT_SIZE_EDITOR );
   }
 
@@ -103,7 +104,7 @@ public class UserPreferences {
   }
 
   public File getRDirectory() {
-    return rDirectoryProperty().getValue();
+    return rDirectoryProperty().get();
   }
 
   public StringProperty rScriptProperty() {
@@ -111,7 +112,7 @@ public class UserPreferences {
   }
 
   public String getRScript() {
-    return rScriptProperty().getValue();
+    return rScriptProperty().get();
   }
 
   public StringProperty rDelimiterBeganProperty() {
@@ -135,7 +136,7 @@ public class UserPreferences {
   }
 
   public File getImagesDirectory() {
-    return imagesDirectoryProperty().getValue();
+    return imagesDirectoryProperty().get();
   }
 
   StringProperty imagesOrderProperty() {
@@ -143,7 +144,7 @@ public class UserPreferences {
   }
 
   public String getImagesOrder() {
-    return imagesOrderProperty().getValue();
+    return imagesOrderProperty().get();
   }
 
   public IntegerProperty fontsSizeEditorProperty() {
@@ -157,5 +158,18 @@ public class UserPreferences {
    */
   public int getFontsSizeEditor() {
     return mPropFontsSizeEditor.intValue();
+  }
+
+  public ObjectProperty<Locale> fontsLocaleProperty() {
+    return mPropFontsLocale;
+  }
+
+  /**
+   * Returns the user's preferred locale.
+   *
+   * @return A non-null {@link Locale} instance.
+   */
+  public Locale getFontsLocale() {
+    return mPropFontsLocale.get();
   }
 }

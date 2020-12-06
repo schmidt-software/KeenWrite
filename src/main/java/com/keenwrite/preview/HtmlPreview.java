@@ -33,6 +33,7 @@ import org.xhtmlrenderer.swing.SwingReplacedElementFactory;
 
 import javax.swing.*;
 import java.awt.*;
+import java.net.URL;
 import java.nio.file.Path;
 import java.util.Locale;
 
@@ -52,29 +53,20 @@ public final class HtmlPreview extends SwingNode {
    * Render CSS using points (pt) not pixels (px) to reduce the chance of
    * poor rendering.
    */
-  private static final String HTML_HEAD_OPEN = format(
+  private static final String HTML_HEAD =
       """
           <!DOCTYPE html>
-          <html lang='en'><head><title> </title><meta charset='utf-8'/>
-          <link rel='stylesheet' href='%s'/>
-          <link rel='stylesheet' href='%s'/>
-          """,
-      HtmlPreview.class.getResource( STYLESHEET_PREVIEW ),
-      HtmlPreview.class.getResource( getLocaleStylesheet() )
-  );
+          <html lang='%s'><head><title> </title><meta charset='utf-8'>
+          <link rel='stylesheet' href='%s'>
+          <link rel='stylesheet' href='%s'>
+          <base href='%s'>
+          </head><body>
+          """;
 
-  /**
-   * Used by SVG rendering when resolving local image files.
-   */
-  private static final String HTML_BASE = "<base href='%s'>";
-  private static final String HTML_HEAD_CLOSE = "</head><body>";
   private static final String HTML_TAIL = "</body></html>";
 
-  /**
-   * Used to reset the {@link #mHtmlDocument} buffer so that the
-   * {@link #HTML_HEAD_OPEN} need not be appended all the time.
-   */
-  private static final int HTML_PREFIX_LENGTH = HTML_HEAD_OPEN.length();
+  private static final URL HTML_STYLE_PREVIEW =
+      HtmlPreview.class.getResource( STYLESHEET_PREVIEW );
 
   /**
    * The buffer is reused so that previous memory allocations need not repeat.
@@ -85,23 +77,20 @@ public final class HtmlPreview extends SwingNode {
   private JScrollPane mScrollPane;
 
   private String mBaseUriPath = "";
-  private String mBaseUriHtml = "";
 
   /**
    * Creates a new preview pane that can scroll to the caret position within the
    * document.
    */
   public HtmlPreview() {
+    // Attempts to prevent a flash of black un-styled content upon load.
     setStyle( "-fx-background-color: white;" );
-
-    // No need to append same prefix each time the HTML content is updated.
-    mHtmlDocument.append( HTML_HEAD_OPEN );
 
     invokeLater( () -> {
       mView = new HtmlPanel();
       mScrollPane = new JScrollPane( mView );
 
-      // Enabling the cache eliminates black background flashes when resizing.
+      // Enabling the cache attempts to prevent black flashes when resizing.
       setCache( true );
       setCacheHint( SPEED );
       setContent( mScrollPane );
@@ -141,7 +130,6 @@ public final class HtmlPreview extends SwingNode {
   public void setBaseUri( final Path path ) {
     final var parent = path.getParent();
     mBaseUriPath = parent == null ? "" : parent.toUri().toString();
-    mBaseUriHtml = format( HTML_BASE, mBaseUriPath );
   }
 
   /**
@@ -206,12 +194,20 @@ public final class HtmlPreview extends SwingNode {
   }
 
   private String decorate( final String html ) {
-    // Trim the HTML back to only the prefix.
-    mHtmlDocument.setLength( HTML_PREFIX_LENGTH );
+    mHtmlDocument.setLength( 0 );
+
+    final var locale = Locale.getDefault();
+
+    final var head = format(
+        HTML_HEAD,
+        locale.getLanguage(),
+        HTML_STYLE_PREVIEW,
+        getLocaleStylesheet( locale ),
+        mBaseUriPath
+    );
 
     // Write the HTML body element followed by closing tags.
-    return mHtmlDocument.append( mBaseUriHtml )
-                        .append( HTML_HEAD_CLOSE )
+    return mHtmlDocument.append( head )
                         .append( html )
                         .append( HTML_TAIL )
                         .toString();
@@ -243,11 +239,6 @@ public final class HtmlPreview extends SwingNode {
    *
    * @return Unique identifier for language and country.
    */
-  private static String getLocaleStylesheet() {
-    //return getLocaleStylesheet( Locale.getDefault() );
-    return getLocaleStylesheet( Locale.CHINA );
-  }
-
   private static String getLocaleStylesheet( final Locale locale ) {
     return get(
         sSettings.getSetting( STYLESHEET_PREVIEW_LOCALE, "" ),

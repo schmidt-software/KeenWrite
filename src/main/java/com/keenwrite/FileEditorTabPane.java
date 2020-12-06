@@ -31,18 +31,14 @@ import com.keenwrite.service.Options;
 import com.keenwrite.service.Settings;
 import com.keenwrite.service.events.Notifier;
 import com.panemu.tiwulfx.control.dock.DetachableTabPane;
-import javafx.beans.property.ReadOnlyBooleanProperty;
-import javafx.beans.property.ReadOnlyBooleanWrapper;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.ListChangeListener;
 import javafx.scene.control.Tab;
-import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Window;
 
-import java.io.File;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -52,7 +48,6 @@ import java.util.prefs.Preferences;
 import static com.keenwrite.Constants.GLOB_PREFIX_FILE;
 import static com.keenwrite.Constants.sSettings;
 import static com.keenwrite.FileType.*;
-import static com.keenwrite.Messages.get;
 
 /**
  * Tab pane for file editors.
@@ -332,24 +327,7 @@ public final class FileEditorTabPane extends DetachableTabPane {
   }
 
   public void initPreferences() {
-    int activeIndex = 0;
-
-    final String[] fileNames = sOptions.getStrings( "file" );
     final String activeFileName = sOptions.get( "activeFile", null );
-
-    final List<File> files = new ArrayList<>( fileNames.length );
-
-    for( final String fileName : fileNames ) {
-      final File file = new File( fileName );
-
-      if( file.exists() ) {
-        files.add( file );
-
-        if( fileName.equals( activeFileName ) ) {
-          activeIndex = files.size() - 1;
-        }
-      }
-    }
 
     // TODO: FIXME REFACTOR TABS
 //    if( files.isEmpty() ) {
@@ -372,7 +350,7 @@ public final class FileEditorTabPane extends DetachableTabPane {
     }
 
     final var preferences = getPreferences();
-    sOptions.putStrings( "file", fileNames.toArray( new String[ 0 ] ) );
+    sOptions.putStrings( "file", fileNames );
 
     final var activeEditor = getActiveFileEditor();
     final var filePath = activeEditor == null ? null : activeEditor.getPath();

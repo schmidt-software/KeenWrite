@@ -49,7 +49,7 @@ import static javafx.util.Duration.millis;
  * particular workspace (project). These include the definition views,
  * text editors, and preview pane along with any corresponding controllers.
  */
-public class MainView extends SplitPane {
+public final class MainView extends SplitPane {
   /**
    * Prevents re-instantiation of processing classes.
    */
@@ -342,11 +342,10 @@ public class MainView extends SplitPane {
 
   private DetachableTab createTab( final File file ) {
     final var r = createTextResource( file );
-    final var filename = r.getFilename();
-    final var tab = new DetachableTab( filename, r.getNode() );
+    final var tab = new DetachableTab( r.getFilename(), r.getNode() );
 
     r.modifiedProperty().addListener(
-        ( c, o, n ) -> tab.setText( filename + (n ? "*" : "") )
+        ( c, o, n ) -> tab.setText( r.getFilename() + (n ? "*" : "") )
     );
 
     return tab;

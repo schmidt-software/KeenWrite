@@ -29,6 +29,7 @@ package com.keenwrite.service.impl;
 import com.keenwrite.service.Options;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
@@ -78,32 +79,33 @@ public class DefaultOptions implements Options {
   }
 
   @Override
-  public String[] getStrings( final String key ) {
-    final Preferences preferences = getState();
-    final ArrayList<String> arr = new ArrayList<>( 256 );
+  public List<String> getStrings( final String key ) {
+    final var preferences = getState();
+    final List<String> results = new ArrayList<>( 256 );
 
-    for( int i = 0; i < 10000; i++ ) {
-      final String s = preferences.get( key + (i + 1), null );
+    for( int i = 1; i < 10000; i++ ) {
+      final var value = preferences.get( key + i, null );
 
-      if( s == null ) {
+      if( value == null ) {
         break;
       }
 
-      arr.add( s );
+      results.add( value );
     }
 
-    return arr.toArray( new String[ 0 ] );
+    return results;
   }
 
   @Override
-  public void putStrings( final String key, final String[] strings ) {
-    final Preferences preferences = getState();
+  public void putStrings( final String key, final List<String> strings ) {
+    final var preferences = getState();
+    final var length = strings.size();
 
-    for( int i = 0; i < strings.length; i++ ) {
-      preferences.put( key + (i + 1), strings[ i ] );
+    for( int i = 0; i < length; i++ ) {
+      preferences.put( key + (i + 1), strings.get( i ) );
     }
 
-    for( int i = strings.length;
+    for( int i = length;
          preferences.get( key + (i + 1), null ) != null; i++ ) {
       preferences.remove( key + (i + 1) );
     }

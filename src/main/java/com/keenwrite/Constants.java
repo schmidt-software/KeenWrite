@@ -7,6 +7,7 @@ import javafx.scene.image.Image;
 
 import java.nio.charset.Charset;
 import java.nio.file.Path;
+import java.util.Locale;
 
 import static com.keenwrite.Bootstrap.APP_TITLE_LOWERCASE;
 import static java.lang.String.format;
@@ -155,6 +156,11 @@ public class Constants {
    * Default text editor font size, in points.
    */
   public static final float FONT_SIZE_EDITOR = 12f;
+
+  /**
+   * Default locale for font loading.
+   */
+  public static final Locale DEFAULT_LOCALE = Locale.getDefault();
 
   /**
    * Default identifier to use for synchronized scrolling.

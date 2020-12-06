@@ -7,13 +7,14 @@ import com.keenwrite.service.Options;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 
 /**
  * Responsible for defining behaviours for separate projects. A workspace has
  * the ability to save and restore a session, including the window dimensions,
  * tab setup, files, and user preferences.
  */
-public class Workspace {
+public final class Workspace {
   /**
    * This variable must be declared before all other variables to prevent
    * subsequent initializations from failing due to missing user preferences.
@@ -41,14 +42,20 @@ public class Workspace {
    * @return A non-null, possibly empty list of {@link File} instances.
    */
   public List<File> restoreFiles() {
-    final var filenames = sOptions.getStrings( "file" );
-    final var files = new ArrayList<File>();
+    return restoreList( "file", File::new );
+  }
 
-    for( final var filename : filenames ) {
-      files.add( new File( filename ) );
+  @SuppressWarnings("SameParameterValue")
+  private <T> List<T> restoreList(
+      final String key, final Function<String, T> f ) {
+    final var values = sOptions.getStrings( key );
+    final var result = new ArrayList<T>();
+
+    for( final var value : values ) {
+      result.add( f.apply( value ) );
     }
 
-    return files;
+    return result;
   }
 
   /**

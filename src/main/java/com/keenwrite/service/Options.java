@@ -3,6 +3,7 @@ package com.keenwrite.service;
 
 import com.dlsc.preferencesfx.PreferencesFx;
 
+import java.util.List;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
@@ -54,12 +55,12 @@ public interface Options extends Service {
 
   /**
    * Retrieves the values for a key in the user preferences. This will return
-   * an empty string array if the value cannot be found.
+   * an empty {@link List} if the value cannot be found.
    *
    * @param key The key to find in the preferences.
-   * @return A non-null, possibly empty array of values for the key.
+   * @return A non-null, possibly empty {@link List} of values for the key.
    */
-  String[] getStrings( final String key );
+  List<String> getStrings( final String key );
 
   /**
    * Stores the key and values into the user preferences to be loaded the next
@@ -68,5 +69,5 @@ public interface Options extends Service {
    * @param key   Name of the key to persist along with its value.
    * @param value Values to associate with the key.
    */
-  void putStrings( final String key, final String[] value );
+  void putStrings( final String key, final List<String> value );
 }
