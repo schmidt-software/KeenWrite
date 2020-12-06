@@ -129,7 +129,7 @@ public final class DefinitionEditor extends BorderPane implements
 
   @Override
   public void setText( final String document ) {
-    final var foster = mTreeTransformer.apply( document );
+    final var foster = mTreeTransformer.transform( document );
     final var biological = getTreeRoot();
 
     for( final var child : foster.getChildren() ) {
@@ -141,23 +141,23 @@ public final class DefinitionEditor extends BorderPane implements
 
   @Override
   public String getText() {
+    final var result = new StringBuilder( 32768 );
+
     try {
       final var root = getTreeView().getRoot();
-      final var problemChild = isTreeWellFormed();
+      final var problem = isTreeWellFormed();
 
-      if( problemChild == null ) {
-        // TODO: nix the Path param, return a String for this method.
-        mTreeTransformer.accept( root, getPath() );
-      }
-      else {
-        clue( "yaml.error.tree.form", problemChild.getValue() );
-      }
+      problem.ifPresentOrElse(
+          ( node ) -> clue( "yaml.error.tree.form", node ),
+          () -> result.append( mTreeTransformer.transform( root ) )
+      );
     } catch( final Exception ex ) {
+      // Catch errors while checking for a well-formed tree (e.g., stack smash).
+      // Also catch any transformation exceptions (e.g., Json processing).
       clue( ex );
     }
 
-    // TODO: Return that String ^^^^^^^^^^^^
-    return "";
+    return result.toString();
   }
 
   @Override
@@ -246,18 +246,18 @@ public final class DefinitionEditor extends BorderPane implements
    * @return {@code null} if the document is well-formed, otherwise the
    * problematic child {@link TreeItem}.
    */
-  public TreeItem<String> isTreeWellFormed() {
+  public Optional<TreeItem<String>> isTreeWellFormed() {
     final var root = getTreeView().getRoot();
 
     for( final var child : root.getChildren() ) {
       final var problemChild = isWellFormed( child );
 
       if( child.isLeaf() || problemChild != null ) {
-        return problemChild;
+        return Optional.ofNullable( problemChild );
       }
     }
 
-    return null;
+    return Optional.empty();
   }
 
   /**

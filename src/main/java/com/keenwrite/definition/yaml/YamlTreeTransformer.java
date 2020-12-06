@@ -26,7 +26,7 @@ public final class YamlTreeTransformer implements TreeTransformer {
   }
 
   @Override
-  public void accept( final TreeItem<String> treeItem, final Path path ) {
+  public String transform( final TreeItem<String> treeItem ) {
     try {
       final YAMLMapper mapper = new YAMLMapper();
       final ObjectNode root = mapper.createObjectNode();
@@ -35,13 +35,10 @@ public final class YamlTreeTransformer implements TreeTransformer {
       // application to ensure definitions can always be added to a tree, as
       // such it is not meant to be exported, only its children.
       for( final TreeItem<String> child : treeItem.getChildren() ) {
-        export( child, root );
+        transform( child, root );
       }
 
-      // Writes as UTF8 by default.
-      mapper.writeValue( path.toFile(), root );
-
-      // TODO: call writeValueAsString and return a string, nix the Path param.
+      return mapper.writeValueAsString( root );
     } catch( final Exception ex ) {
       throw new RuntimeException( ex );
     }
@@ -55,7 +52,7 @@ public final class YamlTreeTransformer implements TreeTransformer {
    * @param node The {@link ObjectNode} to update to reflect the
    *             {@link TreeItem} hierarchy.
    */
-  private void export( final TreeItem<String> item, ObjectNode node ) {
+  private void transform( final TreeItem<String> item, ObjectNode node ) {
     final var children = item.getChildren();
 
     // If the current item has more than one non-leaf child, it's an
@@ -69,7 +66,7 @@ public final class YamlTreeTransformer implements TreeTransformer {
         node.put( item.getValue(), child.getValue() );
       }
       else {
-        export( child, node );
+        transform( child, node );
       }
     }
   }
@@ -83,7 +80,7 @@ public final class YamlTreeTransformer implements TreeTransformer {
    * @throws StackOverflowError If infinite recursion is encountered.
    */
   @Override
-  public TreeItem<String> apply( final String document ) {
+  public TreeItem<String> transform( final String document ) {
     final var parser = new YamlParser();
     final var jsonNode = parser.apply( document );
     final var rootItem = createTreeItem( "root" );
