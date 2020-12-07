@@ -23,7 +23,7 @@ public class TextEditorSpeller {
   /**
    * Only load the dictionary into memory once, because it's huge.
    */
-  private final static SpellChecker mSpellChecker =
+  private static final SpellChecker mSpellChecker =
       SymSpellSpeller.forLexicon( "en.txt" );
 
   public TextEditorSpeller() {

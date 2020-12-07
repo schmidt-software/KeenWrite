@@ -1,6 +1,7 @@
 /* Copyright 2020 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite;
 
+import com.keenwrite.preferences.Workspace;
 import com.keenwrite.service.Options;
 import com.keenwrite.service.Snitch;
 import com.keenwrite.ui.actions.ApplicationActions;
@@ -30,19 +31,13 @@ import static javafx.stage.WindowEvent.WINDOW_CLOSE_REQUEST;
  */
 public final class Main extends Application {
 
-  static {
-    // Suppress logging to standard output.
-    //LogManager.getLogManager().reset();
-
-    // Suppress logging to standard error.
-    //System.err.close();
-  }
-
   private final Options mOptions = Services.load( Options.class );
   private final Snitch mSnitch = Services.load( Snitch.class );
 
   @SuppressWarnings({"FieldCanBeLocal", "unused", "RedundantSuppression"})
   private StageState mStageState;
+
+  private final Workspace mWorkspace = new Workspace( "default" );
 
   /**
    * Application entry point.
@@ -50,6 +45,7 @@ public final class Main extends Application {
    * @param args Command-line arguments.
    */
   public static void main( final String[] args ) {
+    initLogging();
     initPreferences();
     initFonts();
     launch( args );
@@ -72,10 +68,11 @@ public final class Main extends Application {
   }
 
   /**
-   * Stops the snitch service, if its running.
+   * Saves the workspace then terminates the application.
    */
   @Override
   public void stop() {
+    mWorkspace.save();
     getSnitch().stop();
     Platform.exit();
     System.exit( 0 );
@@ -97,6 +94,14 @@ public final class Main extends Application {
     stage.addEventHandler( WINDOW_CLOSE_REQUEST, event -> stop() );
   }
 
+  private static void initLogging() {
+    // Suppress logging to standard output.
+    //LogManager.getLogManager().reset();
+
+    // Suppress logging to standard error.
+    //System.err.close();
+  }
+
   private void initIcons( final Stage stage ) {
     stage.getIcons().addAll(
         createImage( FILE_LOGO_16 ),
@@ -109,7 +114,7 @@ public final class Main extends Application {
 
   private void initScene( final Stage stage ) {
     final var appPane = new BorderPane();
-    final var mainView = createMainView();
+    final var mainView = createMainView( mWorkspace );
     final var actions = new ApplicationActions( mainView );
     final var menuBar = createMenuBar( actions );
     final var statusBar = getStatusBar();
@@ -129,8 +134,8 @@ public final class Main extends Application {
     return menuBar.createMenuBar();
   }
 
-  private MainView createMainView() {
-    return new MainView();
+  private MainView createMainView( final Workspace workspace ) {
+    return new MainView( workspace );
   }
 
   private StatusBar getStatusBar() {

@@ -39,32 +39,23 @@ import com.keenwrite.processors.ProcessorContext;
 import com.keenwrite.processors.ProcessorFactory;
 import com.keenwrite.processors.markdown.MarkdownProcessor;
 import com.keenwrite.service.Options;
-import com.keenwrite.service.Snitch;
 import com.keenwrite.ui.actions.Action;
 import com.keenwrite.ui.actions.MenuAction;
 import com.keenwrite.ui.actions.SeparatorAction;
-import javafx.beans.value.ChangeListener;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
-import javafx.scene.Scene;
 import javafx.scene.control.MenuBar;
-import javafx.scene.control.SplitPane;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
-import javafx.stage.Window;
 import org.controlsfx.control.StatusBar;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Observable;
-import java.util.Observer;
 import java.util.prefs.Preferences;
 
 import static com.keenwrite.Constants.*;
@@ -76,7 +67,6 @@ import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.*;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.nio.file.Files.writeString;
 import static javafx.application.Platform.runLater;
-import static javafx.geometry.Pos.BASELINE_CENTER;
 
 /**
  * Main window containing a tab pane in the center for file editors.
@@ -84,16 +74,14 @@ import static javafx.geometry.Pos.BASELINE_CENTER;
  * @deprecated Use {@link MainView}.
  */
 @Deprecated
-public class MainWindow implements Observer {
+public class MainWindow {
 
   /**
    * This variable must be declared before all other variables to prevent
    * subsequent initializations from failing due to missing user preferences.
    */
   private static final Options sOptions = Services.load( Options.class );
-  private static final Snitch sSnitch = Services.load( Snitch.class );
 
-  private final Scene mScene;
   private final Text mLineNumberText;
   private final TextField mFindTextField;
 
@@ -109,13 +97,9 @@ public class MainWindow implements Observer {
   private final EventHandler<PreferencesFxEvent> mRPreferencesListener =
       event -> rerender();
 
-  private final ChangeListener<Integer> mCaretPositionListener =
-      ( observable, oldPosition, newPosition ) -> processActiveTab();
-
-  private final DefinitionEditor mDefinitionPane = createDefinitionPane();
+  private final DefinitionEditor mDefinitionPane = new DefinitionEditor( null );
   private final OutputTabPane mOutputPane = createOutputTabPane();
-  private final FileEditorTabPane mFileEditorPane = new FileEditorTabPane(
-      mCaretPositionListener );
+  private final FileEditorTabPane mFileEditorPane = new FileEditorTabPane();
 
   /**
    * Listens on the definition pane for double-click events.
@@ -126,10 +110,6 @@ public class MainWindow implements Observer {
   public MainWindow() {
     mLineNumberText = createLineNumberText();
     mFindTextField = createFindTextField();
-    mScene = createScene();
-
-    // Add the close request listener before the window is shown.
-    initLayout();
   }
 
   /**
@@ -137,27 +117,9 @@ public class MainWindow implements Observer {
    */
   public void init() {
     initFindInput();
-    initSnitch();
 
     initPreferences();
     initVariableNameInjector();
-  }
-
-  private void initLayout() {
-    final var scene = getScene();
-    final var stylesheets = scene.getStylesheets();
-
-    stylesheets.add( STYLESHEET_SCENE );
-    scene.windowProperty().addListener(
-        ( __, oldWindow, newWindow ) ->
-            newWindow.setOnCloseRequest(
-                e -> {
-                  if( !getFileEditorPane().closeAllEditors() ) {
-                    e.consume();
-                  }
-                }
-            )
-    );
   }
 
   /**
@@ -192,18 +154,6 @@ public class MainWindow implements Observer {
           }
         }
     );
-  }
-
-  /**
-   * Watch for changes to external files. In particular, this awaits
-   * modifications to any XSL files associated with XML files being edited.
-   * When
-   * an XSL file is modified (external to the application), the snitch's ears
-   * perk up and the file is reloaded. This keeps the XSL transformation up to
-   * date with what's on the file system.
-   */
-  private void initSnitch() {
-    sSnitch.addObserver( this );
   }
 
   /**
@@ -282,28 +232,6 @@ public class MainWindow implements Observer {
   //---- File actions -------------------------------------------------------
 
   /**
-   * Called when an {@link Observable} instance has changed. This is called
-   * by both the {@link Snitch} service and the notify service. The @link
-   * Snitch} service can be called for different file types.
-   *
-   * @param observable The observed instance.
-   * @param value      The noteworthy item.
-   */
-  @Override
-  public void update( final Observable observable, final Object value ) {
-    if( value instanceof Path && observable instanceof Snitch ) {
-      updateSelectedTab();
-    }
-  }
-
-  /**
-   * Called when a file has been modified.
-   */
-  private void updateSelectedTab() {
-    rerender();
-  }
-
-  /**
    * After resetting the processors, they will refresh anew to be up-to-date
    * with the files (text and definition) currently loaded into the editor.
    */
@@ -312,19 +240,6 @@ public class MainWindow implements Observer {
   }
 
   //---- File actions -------------------------------------------------------
-
-  private void fileClose() {
-    // TODO: FIXME REFACTOR TABS
-//    getFileEditorPane().closeEditor( getActiveFileEditorTab(), true );
-  }
-
-  /**
-   * TODO: Upon closing, first remove the tab change listeners. (There's no
-   * need to re-render each tab when all are being closed.)
-   */
-  private void fileCloseAll() {
-    getFileEditorPane().closeAllEditors();
-  }
 
   /**
    * Exports the contents of the current tab according to the given
@@ -348,7 +263,7 @@ public class MainWindow implements Observer {
     chooser.setInitialFileName( filename.getName() );
     chooser.setInitialDirectory( lastDir );
 
-    final File file = chooser.showSaveDialog( getWindow() );
+    final File file = null;
 
     if( file != null ) {
       try {
@@ -405,10 +320,6 @@ public class MainWindow implements Observer {
     return createProcessorContext( tab, NONE );
   }
 
-  private DefinitionEditor createDefinitionPane() {
-    return null;//new DefinitionEditor();
-  }
-
   private OutputTabPane createOutputTabPane() {
     return new OutputTabPane();
   }
@@ -417,54 +328,11 @@ public class MainWindow implements Observer {
     return new TextField();
   }
 
-  private Scene createScene() {
-    final var splitPane = new SplitPane(
-        getDefinitionPane(),
-        getFileEditorPane(),
-        getOutputPane() );
-
-    getDefinitionPane().prefHeightProperty()
-                       .bind( splitPane.heightProperty() );
-
-    final BorderPane borderPane = new BorderPane();
-    borderPane.setPrefSize( 1280, 800 );
-    borderPane.setTop( createMenuBar() );
-    borderPane.setBottom( getStatusBar() );
-    borderPane.setCenter( splitPane );
-
-    final VBox statusBar = new VBox();
-    statusBar.setAlignment( BASELINE_CENTER );
-    statusBar.getChildren().add( getLineNumberText() );
-    getStatusBar().getRightItems().add( statusBar );
-
-    // Force preview pane refresh on Windows.
-//    if( IS_OS_WINDOWS ) {
-//      splitPane.getDividers().get( 1 ).positionProperty().addListener(
-//          ( l, oValue, nValue ) -> runLater(
-//              () -> getHtmlPreview().repaintScrollPane()
-//          )
-//      );
-//    }
-
-    return new Scene( borderPane );
-  }
-
   private Text createLineNumberText() {
     return new Text( get( STATUS_BAR_LINE, 1, 1, 1 ) );
   }
 
   private Node createMenuBar() {
-    final Action fileCloseAction = Action
-        .builder()
-        .setText( "Main.menu.file.close" )
-        .setAccelerator( "Shortcut+W" )
-        .setHandler( e -> fileClose() )
-        .build();
-    final Action fileCloseAllAction = Action
-        .builder()
-        .setText( "Main.menu.file.close_all" )
-        .setHandler( e -> fileCloseAll() )
-        .build();
     final Action fileExportAction = Action
         .builder()
         .setText( "Main.menu.file.export" )
@@ -548,10 +416,6 @@ public class MainWindow implements Observer {
     // File Menu
     final var fileMenu = createMenu(
         get( "Main.menu.file" ),
-        SEPARATOR_ACTION,
-        fileCloseAction,
-        fileCloseAllAction,
-        SEPARATOR_ACTION,
         fileExportAction );
 
     // Edit Menu
@@ -598,10 +462,6 @@ public class MainWindow implements Observer {
     return sOptions.getState();
   }
 
-  public Window getWindow() {
-    return getScene().getWindow();
-  }
-
   private MarkdownEditorPane getActiveEditorPane() {
     return getActiveFileEditorTab().getEditorPane();
   }
@@ -611,10 +471,6 @@ public class MainWindow implements Observer {
   }
 
   //---- Member accessors ---------------------------------------------------
-
-  protected Scene getScene() {
-    return mScene;
-  }
 
   private Map<FileEditorController, Processor<String>> getProcessors() {
     return mProcessors;

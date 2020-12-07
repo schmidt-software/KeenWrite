@@ -55,13 +55,13 @@ public class FontLoader {
               attributes.put( LIGATURES, LIGATURES_ON );
               attributes.put( KERNING, KERNING_ON );
               ge.registerFont( font.deriveFont( attributes ) );
-            } catch( final Exception e ) {
-              clue( e );
+            } catch( final Exception ex ) {
+              clue( ex );
             }
           }
       );
-    } catch( final Exception e ) {
-      clue( e );
+    } catch( final Exception ex ) {
+      clue( ex );
     }
   }
 

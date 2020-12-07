@@ -7,7 +7,6 @@ import javafx.scene.Node;
 import org.mozilla.universalchardet.UniversalDetector;
 
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
 
@@ -131,9 +130,22 @@ public interface TextResource {
     return open( file.toPath() );
   }
 
-  default void save() throws IOException {
-    write( getPath(), asBytes( getText() ) );
-    clearModifiedProperty();
+  /**
+   * Save the file contents and clear the modified flag. If the file cannot
+   * be saved, the exception is swallowed and this method returns {@code false}.
+   *
+   * @return {@code true} the file was saved; {@code false} if upon exception.
+   */
+  default boolean save() {
+    try {
+      write( getPath(), asBytes( getText() ) );
+      clearModifiedProperty();
+      return true;
+    } catch( final Exception ex ) {
+      clue( ex );
+    }
+
+    return false;
   }
 
   /**
@@ -142,6 +154,16 @@ public interface TextResource {
    * @return The view component for the {@link TextResource}.
    */
   Node getNode();
+
+  /**
+   * Answers whether the resource has been modified.
+   *
+   * @return {@code true} the resource has changed; {@code false} means that
+   * no changes to the resource have been made.
+   */
+  default boolean isModified() {
+    return modifiedProperty().get();
+  }
 
   /**
    * Returns a property that answers whether this text resource has been

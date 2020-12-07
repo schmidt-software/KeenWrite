@@ -10,7 +10,9 @@ import java.nio.file.Path;
 import java.util.Locale;
 
 import static com.keenwrite.Bootstrap.APP_TITLE_LOWERCASE;
+import static java.io.File.separator;
 import static java.lang.String.format;
+import static java.lang.System.getProperty;
 
 /**
  * Defines application-wide default values.
@@ -60,16 +62,16 @@ public class Constants {
 
   public static final Image ICON_DIALOG = new Image( FILE_LOGO_32 );
 
+  public static final String FILE_PREFERENCES = getPreferencesFilename();
+
   public static final String PREFS_ROOT = get( "preferences.root" );
   public static final String PREFS_STATE = get( "preferences.root.state" );
 
   /**
    * Refer to filename extension settings in the configuration file. Do not
-   * terminate these prefixes with a period.
+   * terminate with a period.
    */
   public static final String GLOB_PREFIX_FILE = "file.ext";
-  public static final String GLOB_PREFIX_DEFINITION =
-      "definition." + GLOB_PREFIX_FILE;
 
   /**
    * Three parameters: line number, column number, and offset.
@@ -190,5 +192,17 @@ public class Constants {
    */
   private static File getFile( final String suffix ) {
     return new File( get( "file.default." + suffix ) );
+  }
+
+  /**
+   * Returns the equivalent of {@code $HOME/.filename.xml}.
+   */
+  private static String getPreferencesFilename() {
+    return format(
+        "%s%s.%s.xml",
+        getProperty( "user.home" ),
+        separator,
+        APP_TITLE_LOWERCASE
+    );
   }
 }

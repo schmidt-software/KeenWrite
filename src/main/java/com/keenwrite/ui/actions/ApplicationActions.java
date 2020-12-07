@@ -43,9 +43,11 @@ public class ApplicationActions {
   }
 
   public void file‿close() {
+    getMainView().close();
   }
 
   public void file‿close_all() {
+    getMainView().closeAll();
   }
 
   public void file‿save() {

@@ -24,7 +24,7 @@ public class ProtocolResolver {
       return uri.isAbsolute()
           ? valueFrom( uri )
           : valueFrom( new URL( resource ) );
-    } catch( final Exception e ) {
+    } catch( final Exception ex ) {
       // Using double-slashes is a short-hand to instruct the browser to
       // reference a resource using the parent URL's security model. This
       // is known as a protocol-relative URL.

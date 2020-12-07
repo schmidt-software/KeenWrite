@@ -51,7 +51,7 @@ import java.util.Map;
  * is previewed (or exported).
  */
 public final class RExtension implements Parser.ParserExtension {
-  private final static InlineParserFactory R_INLINE_PARSER_FACTORY =
+  private static final InlineParserFactory R_INLINE_PARSER_FACTORY =
       RInlineParser::new;
 
   /**

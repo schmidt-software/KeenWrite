@@ -9,7 +9,6 @@ import com.keenwrite.definition.TreeTransformer;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 
-import java.nio.file.Path;
 import java.util.Map.Entry;
 
 /**

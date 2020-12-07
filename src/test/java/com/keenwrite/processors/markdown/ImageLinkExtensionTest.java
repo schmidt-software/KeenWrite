@@ -28,28 +28,28 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @SuppressWarnings("SameParameterValue")
 public class ImageLinkExtensionTest {
 
-  private final static Map<String, String> IMAGES = new HashMap<>();
+  private static final Map<String, String> IMAGES = new HashMap<>();
 
-  private final static String URI_WEB = "placekitten.com/200/200";
-  private final static String URI_DIRNAME = "images";
-  private final static String URI_FILENAME = "kitten";
+  private static final String URI_WEB = "placekitten.com/200/200";
+  private static final String URI_DIRNAME = "images";
+  private static final String URI_FILENAME = "kitten";
 
   /**
    * Path to use for testing image filename resolution. Note that resources use
    * forward slashes, regardless of OS.
    */
-  private final static String URI_PATH = URI_DIRNAME + '/' + URI_FILENAME;
+  private static final String URI_PATH = URI_DIRNAME + '/' + URI_FILENAME;
 
   /**
    * Extension for the first existing image that matches the preferred image
    * extension order.
    */
-  private final static String URI_IMAGE_EXT = ".png";
+  private static final String URI_IMAGE_EXT = ".png";
 
   /**
    * Relative path to an image that exists.
    */
-  private final static String URI_IMAGE = URI_PATH + URI_IMAGE_EXT;
+  private static final String URI_IMAGE = URI_PATH + URI_IMAGE_EXT;
 
   static {
     addUri( URI_PATH + ".png" );

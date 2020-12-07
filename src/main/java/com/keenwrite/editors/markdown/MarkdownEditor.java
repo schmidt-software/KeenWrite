@@ -215,13 +215,13 @@ public class MarkdownEditor extends BorderPane implements TextEditor {
   @Override
   public void undo() {
     final var manager = getUndoManager();
-    doit( manager::isUndoAvailable, manager::undo, "Main.status.error.undo" );
+    xxdo( manager::isUndoAvailable, manager::undo, "Main.status.error.undo" );
   }
 
   @Override
   public void redo() {
     final var manager = getUndoManager();
-    doit( manager::isRedoAvailable, manager::redo, "Main.status.error.redo" );
+    xxdo( manager::isRedoAvailable, manager::redo, "Main.status.error.redo" );
   }
 
   /**
@@ -233,7 +233,7 @@ public class MarkdownEditor extends BorderPane implements TextEditor {
    * @param key    The informational message key having a value to display if
    *               the {@link Supplier} is not ready.
    */
-  private void doit(
+  private void xxdo(
       final Supplier<Boolean> ready, final Runnable action, final String key ) {
     if( ready.get() ) {
       action.run();

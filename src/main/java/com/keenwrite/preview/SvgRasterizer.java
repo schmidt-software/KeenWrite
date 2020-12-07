@@ -103,7 +103,7 @@ public class SvgRasterizer {
 
     try {
       image = rasterizeString( BROKEN_IMAGE_SVG, w );
-    } catch( final Exception e ) {
+    } catch( final Exception ex ) {
       image = new BufferedImage( w, h, TYPE_INT_RGB );
       final var graphics = (Graphics2D) image.getGraphics();
       graphics.setRenderingHints( RENDERING_HINTS );

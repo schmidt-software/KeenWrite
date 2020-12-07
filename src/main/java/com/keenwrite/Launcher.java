@@ -39,9 +39,21 @@ public class Launcher {
     System.out.println( s );
   }
 
-  private static String getVersion() throws IOException {
-    final Properties properties = loadProperties( "app.properties" );
-    return properties.getProperty( "application.version" );
+  /**
+   * Returns the application version number retrieved from the application
+   * properties file. The properties file is generated at build time, which
+   * keys off the repository.
+   *
+   * @return The application version number.
+   * @throws RuntimeException An {@link IOException} occurred.
+   */
+  public static String getVersion() {
+    try {
+      final Properties properties = loadProperties( "app.properties" );
+      return properties.getProperty( "application.version" );
+    } catch( final Exception ex ) {
+      throw new RuntimeException( ex );
+    }
   }
 
   private static String getYear() {

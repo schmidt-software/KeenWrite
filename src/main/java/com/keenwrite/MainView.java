@@ -9,6 +9,7 @@ import com.keenwrite.editors.TextEditor;
 import com.keenwrite.editors.markdown.MarkdownEditor;
 import com.keenwrite.io.File;
 import com.keenwrite.io.MediaType;
+import com.keenwrite.preferences.Workspace;
 import com.keenwrite.preview.HtmlPreview;
 import com.keenwrite.processors.IdentityProcessor;
 import com.keenwrite.processors.Processor;
@@ -16,11 +17,13 @@ import com.keenwrite.processors.ProcessorContext;
 import com.keenwrite.processors.ProcessorFactory;
 import com.keenwrite.processors.markdown.CaretExtension;
 import com.keenwrite.processors.markdown.CaretPosition;
+import com.keenwrite.service.events.Notifier;
 import com.panemu.tiwulfx.control.dock.DetachableTab;
 import com.panemu.tiwulfx.control.dock.DetachableTabPane;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.ListChangeListener;
+import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.scene.control.SplitPane;
@@ -32,6 +35,7 @@ import javafx.stage.Window;
 
 import java.nio.file.Path;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.keenwrite.Constants.*;
 import static com.keenwrite.ExportFormat.NONE;
@@ -41,7 +45,10 @@ import static com.keenwrite.StatusBarNotifier.getNotifier;
 import static com.keenwrite.definition.MapInterpolator.interpolate;
 import static com.keenwrite.io.MediaType.*;
 import static com.keenwrite.processors.ProcessorFactory.createProcessors;
+import static com.keenwrite.service.events.Notifier.NO;
+import static com.keenwrite.service.events.Notifier.YES;
 import static javafx.application.Platform.runLater;
+import static javafx.scene.control.TabPane.TabClosingPolicy.ALL_TABS;
 import static javafx.util.Duration.millis;
 
 /**
@@ -50,6 +57,13 @@ import static javafx.util.Duration.millis;
  * text editors, and preview pane along with any corresponding controllers.
  */
 public final class MainView extends SplitPane {
+  private static final Notifier sNotifier = Services.load( Notifier.class );
+
+  /**
+   * Update the {@link Workspace} when application states change.
+   */
+  private final Workspace mWorkspace;
+
   /**
    * Prevents re-instantiation of processing classes.
    */
@@ -119,9 +133,9 @@ public final class MainView extends SplitPane {
    * configuration settings from the workspace to reproduce the settings from
    * a previous session.
    */
-  public MainView() {
-    final var workspace = new Workspace( "default" );
-    open( bin( workspace.restoreFiles() ) );
+  public MainView( final Workspace workspace ) {
+    mWorkspace = workspace;
+    open( bin( mWorkspace.getFiles() ) );
 
     final var tabPane = obtainDetachableTabPane( TEXT_HTML );
     tabPane.addTab( "HTML", mHtmlPreview );
@@ -154,6 +168,21 @@ public final class MainView extends SplitPane {
           }
         } )
     );
+
+    forceRepaint();
+  }
+
+  /**
+   * Force preview pane refresh on Windows.
+   */
+  private void forceRepaint() {
+//    if( IS_OS_WINDOWS ) {
+//      splitPane.getDividers().get( 1 ).positionProperty().addListener(
+//          ( l, oValue, nValue ) -> runLater(
+//              () -> getHtmlPreview().repaintScrollPane()
+//          )
+//      );
+//    }
   }
 
   /**
@@ -181,6 +210,8 @@ public final class MainView extends SplitPane {
     final var newTabPane = !getItems().contains( tabPane );
 
     tab.setTooltip( createTooltip( file ) );
+    tabPane.setFocusTraversable( false );
+    tabPane.setTabClosingPolicy( ALL_TABS );
     tabPane.getTabs().add( tab );
 
     if( newTabPane ) {
@@ -193,6 +224,8 @@ public final class MainView extends SplitPane {
 
       addTabPane( index, tabPane );
     }
+
+    mWorkspace.putFile( file );
   }
 
   /**
@@ -211,30 +244,6 @@ public final class MainView extends SplitPane {
   }
 
   /**
-   * Requests that the active {@link TextEditor} saves itself. Don't bother
-   * checking if modified first because if the user swaps external media from
-   * an external source (e.g., USB thumb drive), save should not second-guess
-   * the user: save always re-saves. Also, it's less code.
-   */
-  public void save() {
-    save( getActiveTextEditor() );
-  }
-
-  public void saveAs( final File file ) {
-    assert file != null;
-    final var editor = getActiveTextEditor();
-    final var tab = getTab( editor );
-
-    editor.rename( file );
-    tab.ifPresent( t -> {
-      t.setText( editor.getFilename() );
-      t.setTooltip( createTooltip( file ) );
-    } );
-
-    save();
-  }
-
-  /**
    * Iterates over all tab panes to find all {@link TextEditor}s and request
    * that they save themselves.
    */
@@ -247,6 +256,35 @@ public final class MainView extends SplitPane {
           }
         } )
     );
+  }
+
+  /**
+   * Requests that the active {@link TextEditor} saves itself. Don't bother
+   * checking if modified first because if the user swaps external media from
+   * an external source (e.g., USB thumb drive), save should not second-guess
+   * the user: save always re-saves. Also, it's less code.
+   */
+  public void save() {
+    save( getActiveTextEditor() );
+  }
+
+  /**
+   * Saves the active {@link TextEditor} under a new name.
+   *
+   * @param file The new active editor {@link File} reference.
+   */
+  public void saveAs( final File file ) {
+    assert file != null;
+    final var editor = getActiveTextEditor();
+    final var tab = getTab( editor );
+
+    editor.rename( file );
+    tab.ifPresent( t -> {
+      t.setText( editor.getFilename() );
+      t.setTooltip( createTooltip( file ) );
+    } );
+
+    save();
   }
 
   /**
@@ -267,6 +305,98 @@ public final class MainView extends SplitPane {
           ex
       );
     }
+  }
+
+  /**
+   * Closes all open {@link TextEditor}s; all {@link TextDefinition}s stay open.
+   */
+  public void closeAll() {
+    for( final var entry : mTabPanes.entrySet() ) {
+      final var tabPane = entry.getValue();
+      final var tabIterator = tabPane.getTabs().iterator();
+
+      while( tabIterator.hasNext() ) {
+        final var tab = tabIterator.next();
+        final var node = tab.getContent();
+
+        if( node instanceof TextEditor && canClose( (TextEditor) node ) ) {
+          tabIterator.remove();
+          close( tab );
+        }
+      }
+    }
+  }
+
+  /**
+   * Calls the tab's {@link Tab#getOnClosed()} handler to carry out a close
+   * event.
+   *
+   * @param tab The {@link Tab} that was closed.
+   */
+  private void close( final Tab tab ) {
+    final var handler = tab.getOnClosed();
+
+    if( handler != null ) {
+      handler.handle( new ActionEvent() );
+    }
+  }
+
+  /**
+   * Closes the active tab; delegates to {@link #canClose(TextEditor)}.
+   */
+  public void close() {
+    final var editor = getActiveTextEditor();
+    if( canClose( editor ) ) {
+      close( editor );
+    }
+  }
+
+  /**
+   * Closes the given {@link TextEditor}. This must not be called from within
+   * a loop that iterates over the tab panes using {@code forEach}, lest a
+   * concurrent modification exception be thrown.
+   *
+   * @param editor The {@link TextEditor} to close, without confirming with
+   *               the user.
+   */
+  private void close( final TextEditor editor ) {
+    getTab( editor ).ifPresent(
+        ( tab ) -> {
+          tab.getTabPane().getTabs().remove( tab );
+          close( tab );
+        }
+    );
+  }
+
+  /**
+   * Answers whether the given {@link TextEditor} may be closed.
+   *
+   * @param editor The {@link TextEditor} to try closing.
+   * @return {@code true} when the editor may be closed; {@code false} when
+   * the user has requested to keep the editor open.
+   */
+  private boolean canClose( final TextEditor editor ) {
+    final var editorTab = getTab( editor );
+    final var canClose = new AtomicBoolean( true );
+
+    if( editor.isModified() ) {
+      final var filename = new StringBuilder();
+      editorTab.ifPresent( ( tab ) -> filename.append( tab.getText() ) );
+
+      final var message = sNotifier.createNotification(
+          Messages.get( "Alert.file.close.title" ),
+          Messages.get( "Alert.file.close.text" ),
+          filename.toString()
+      );
+
+      final var dialog = sNotifier.createConfirmation( getWindow(), message );
+
+      dialog.showAndWait().ifPresent(
+          save -> canClose.set( save == YES ? editor.save() : save == NO )
+      );
+    }
+
+    return canClose.get();
   }
 
   private ObjectProperty<TextEditor> createActiveTextEditor() {
@@ -347,6 +477,10 @@ public final class MainView extends SplitPane {
     r.modifiedProperty().addListener(
         ( c, o, n ) -> tab.setText( r.getFilename() + (n ? "*" : "") )
     );
+
+    // This is called when either the tab is closed by the user clicking on
+    // the tab's close icon or when closing (all) from the file menu.
+    tab.setOnClosed( ( event ) -> mWorkspace.removeFile( file ) );
 
     return tab;
   }
@@ -458,18 +592,17 @@ public final class MainView extends SplitPane {
 
           // Multiple tabs can be added simultaneously.
           tabPane.getTabs().addListener(
-              ( final ListChangeListener.Change<? extends Tab> change ) -> {
-                while( change.next() ) {
-                  if( change.wasAdded() ) {
-                    final var tabs = change.getAddedSubList();
-
-                    for( final var tab : tabs ) {
+              ( final ListChangeListener.Change<? extends Tab> listener ) -> {
+                while( listener.next() ) {
+                  if( listener.wasAdded() ) {
+                    final var tabs = listener.getAddedSubList();
+                    tabs.forEach( ( tab ) -> {
                       final var node = tab.getContent();
 
                       if( node instanceof TextEditor ) {
                         initScrollEventListener( tab );
                       }
-                    }
+                    } );
 
                     // Select the last tab opened.
                     final var index = tabs.size() - 1;

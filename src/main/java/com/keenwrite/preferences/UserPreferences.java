@@ -24,7 +24,7 @@ public final class UserPreferences {
    * Language Specification.
    */
   private static class UserPreferencesContainer {
-    private final static UserPreferences INSTANCE = new UserPreferences();
+    private static final UserPreferences INSTANCE = new UserPreferences();
   }
 
   /**

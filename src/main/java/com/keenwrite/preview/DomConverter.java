@@ -15,7 +15,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
  * builders, and implementations.
  */
 class DomConverter extends W3CDom {
-  private final static DocumentBuilderFactory DOCUMENT_FACTORY;
+  private static final DocumentBuilderFactory DOCUMENT_FACTORY;
   private static DocumentBuilder DOCUMENT_BUILDER;
   private static DOMImplementation DOM_IMPL;
 

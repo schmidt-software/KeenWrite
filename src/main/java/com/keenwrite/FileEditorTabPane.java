@@ -29,20 +29,15 @@ package com.keenwrite;
 
 import com.keenwrite.service.Options;
 import com.keenwrite.service.Settings;
-import com.keenwrite.service.events.Notifier;
 import com.panemu.tiwulfx.control.dock.DetachableTabPane;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.value.ChangeListener;
-import javafx.collections.ListChangeListener;
 import javafx.scene.control.Tab;
 import javafx.stage.FileChooser.ExtensionFilter;
-import javafx.stage.Window;
 
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.prefs.Preferences;
 
 import static com.keenwrite.Constants.GLOB_PREFIX_FILE;
@@ -58,74 +53,11 @@ public final class FileEditorTabPane extends DetachableTabPane {
       "Dialog.file.choose.filter";
 
   private static final Options sOptions = Services.load( Options.class );
-  private static final Notifier sNotifier = Services.load( Notifier.class );
 
   private final ReadOnlyObjectWrapper<FileEditorController> mActiveFileEditor =
       new ReadOnlyObjectWrapper<>();
-  private final ChangeListener<Integer> mCaretPositionListener;
 
-  /**
-   * Constructs a new file editor tab pane.
-   *
-   * @param caretPositionListener Listens for caret position changes so
-   *                              that the status bar can update.
-   */
-  public FileEditorTabPane(
-      final ChangeListener<Integer> caretPositionListener ) {
-    final var tabs = getTabs();
-
-    setFocusTraversable( false );
-    setTabClosingPolicy( TabClosingPolicy.ALL_TABS );
-
-    addTabSelectionListener(
-        ( tabPane, oldTab, newTab ) -> {
-          if( newTab != null ) {
-            // TODO: FIXME REFACTOR TABS
-//            mActiveFileEditor.set( (FileEditorView) newTab );
-          }
-        }
-    );
-
-    final ChangeListener<Boolean> modifiedListener =
-        ( observable, oldValue, newValue ) -> {
-          for( final Tab tab : tabs ) {
-            // TODO: FIXME REFACTOR TABS
-//            if( ((FileEditorView) tab).isModified() ) {
-//              mAnyFileEditorModified.set( true );
-//              break;
-//            }
-          }
-        };
-
-    tabs.addListener(
-        (ListChangeListener<Tab>) change -> {
-          while( change.next() ) {
-            if( change.wasAdded() ) {
-              change.getAddedSubList().forEach(
-                  ( tab ) -> {
-                    // TODO: FIXME REFACTOR TABS
-//                    final var fet = (FileEditorView) tab;
-//                    fet.modifiedProperty().addListener( modifiedListener );
-                  } );
-            }
-            else if( change.wasRemoved() ) {
-              change.getRemoved().forEach(
-                  ( tab ) -> {
-                    // TODO: FIXME REFACTOR TABS
-//                    final var fet = (FileEditorView) tab;
-//                    fet.modifiedProperty().removeListener( modifiedListener );
-                  }
-              );
-            }
-          }
-
-          // Changes in the tabs may also change anyFileEditorModified property
-          // (e.g. closed modified file)
-          modifiedListener.changed( null, null, null );
-        }
-    );
-
-    mCaretPositionListener = caretPositionListener;
+  public FileEditorTabPane( ) {
   }
 
   /**
@@ -155,146 +87,6 @@ public final class FileEditorTabPane extends DetachableTabPane {
    */
   public ReadOnlyObjectProperty<FileEditorController> activeFileEditorProperty() {
     return mActiveFileEditor.getReadOnlyProperty();
-  }
-
-  /**
-   * Creates a new editor instance from the given path.
-   *
-   * @param path The file to open.
-   * @return A non-null instance.
-   */
-  private FileEditorController createFileEditor( final Path path ) {
-    assert path != null;
-
-    final FileEditorController tab = new FileEditorController();
-
-    // TODO: FIXME REFACTOR TABS
-//    tab.setOnCloseRequest( e -> {
-//      if( !canCloseEditor( tab ) ) {
-//        e.consume();
-//      }
-//      else if( isActiveFileEditor( tab ) ) {
-//        // Prevent prompting the user to save when there are no file editor
-//        // tabs open.
-//        mActiveFileEditor.set( null );
-//      }
-//    } );
-
-    tab.addCaretPositionListener( mCaretPositionListener );
-
-    return tab;
-  }
-
-  /**
-   * Answers whether the file has had modifications.
-   *
-   * @param tab THe tab to check for modifications.
-   * @return false The file is unmodified.
-   */
-  @SuppressWarnings("BooleanMethodIsAlwaysInverted")
-  boolean canCloseEditor( final FileEditorController tab ) {
-    final var service = getNotifyService();
-    final var canClose = new AtomicReference<>( true );
-
-    if( tab.isModified() ) {
-      // TODO: FIXME REFACTOR TABS
-      final var message = service.createNotification(
-          Messages.get( "Alert.file.close.title" ),
-          Messages.get( "Alert.file.close.text" ),
-          ""//tab.getText()
-      );
-
-      final var confirmSave = service.createConfirmation(
-          getWindow(), message );
-
-      // TODO: FIXME REFACTOR TABS
-//      confirmSave.showAndWait().ifPresent(
-//          save -> canClose.set( save == YES ? tab.save() : save == NO )
-//      );
-    }
-
-    return canClose.get();
-  }
-
-  // TODO: FIXME REFACTOR TABS
-  /*
-  boolean closeEditor( final FileEditorController tab, final boolean save ) {
-    if( tab == null ) {
-      return true;
-    }
-
-    if( save ) {
-      Event event = new Event( tab, tab, Tab.TAB_CLOSE_REQUEST_EVENT );
-      Event.fireEvent( tab, event );
-
-      if( event.isConsumed() ) {
-        return false;
-      }
-    }
-
-    getTabs().remove( tab );
-
-    if( tab.getOnClosed() != null ) {
-      Event.fireEvent( tab, new Event( Tab.CLOSED_EVENT ) );
-    }
-
-    return true;
-  }*/
-
-  boolean closeAllEditors() {
-    final FileEditorController[] allEditors = getAllEditors();
-    final FileEditorController activeEditor = getActiveFileEditor();
-
-    // try to save active tab first because in case the user decides to cancel,
-    // then it stays active
-    if( activeEditor != null && !canCloseEditor( activeEditor ) ) {
-      return false;
-    }
-
-    // This should be called any time a tab changes.
-    persistPreferences();
-
-    // save modified tabs
-    for( int i = 0; i < allEditors.length; i++ ) {
-      final FileEditorController fileEditor = allEditors[ i ];
-
-      if( fileEditor == activeEditor ) {
-        continue;
-      }
-
-      if( fileEditor.isModified() ) {
-        // activate the modified tab to make its modified content visible to
-        // the user
-        getSelectionModel().select( i );
-
-        if( !canCloseEditor( fileEditor ) ) {
-          return false;
-        }
-      }
-    }
-
-    // Close all tabs.
-    for( final FileEditorController fileEditor : allEditors ) {
-      // TODO: FIXME REFACTOR TABS
-//      if( !closeEditor( fileEditor, false ) ) {
-//        return false;
-//      }
-    }
-
-    return getTabs().isEmpty();
-  }
-
-  private FileEditorController[] getAllEditors() {
-    final var tabs = getTabs();
-    final int length = tabs.size();
-    final var allEditors = new FileEditorController[ length ];
-
-    for( int i = 0; i < length; i++ ) {
-      // TODO: FIXME REFACTOR TABS
-//      allEditors[ i ] = (FileEditorView) tabs.get( i );
-    }
-
-    return allEditors;
   }
 
   private List<ExtensionFilter> createExtensionFilters() {
@@ -367,16 +159,8 @@ public final class FileEditorTabPane extends DetachableTabPane {
     return getSettings().getStringSettingList( key );
   }
 
-  private Notifier getNotifyService() {
-    return sNotifier;
-  }
-
   private Settings getSettings() {
     return sSettings;
-  }
-
-  private Window getWindow() {
-    return getScene().getWindow();
   }
 
   private Preferences getPreferences() {
