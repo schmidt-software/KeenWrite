@@ -43,6 +43,7 @@ import static com.keenwrite.Messages.get;
 import static com.keenwrite.StatusBarNotifier.clue;
 import static com.keenwrite.definition.MapInterpolator.interpolate;
 import static com.keenwrite.io.MediaType.*;
+import static com.keenwrite.preferences.Workspace.KEY_UI_FILES_PATH;
 import static com.keenwrite.processors.ProcessorFactory.createProcessors;
 import static com.keenwrite.service.events.Notifier.NO;
 import static com.keenwrite.service.events.Notifier.YES;
@@ -57,12 +58,6 @@ import static javafx.util.Duration.millis;
  */
 public final class MainView extends SplitPane {
   private static final Notifier sNotifier = Services.load( Notifier.class );
-
-  /**
-   * Update the {@link Workspace} when application states change.
-   */
-  private final Workspace mWorkspace;
-
   /**
    * Prevents re-instantiation of processing classes.
    */
@@ -132,9 +127,8 @@ public final class MainView extends SplitPane {
    * configuration settings from the workspace to reproduce the settings from
    * a previous session.
    */
-  public MainView( final Workspace workspace ) {
-    mWorkspace = workspace;
-    open( bin( mWorkspace.getFiles() ) );
+  public MainView() {
+    open( bin( getWorkspace().getListFiles( KEY_UI_FILES_PATH ) ) );
 
     final var tabPane = obtainDetachableTabPane( TEXT_HTML );
     tabPane.addTab( "HTML", mHtmlPreview );
@@ -224,7 +218,7 @@ public final class MainView extends SplitPane {
       addTabPane( index, tabPane );
     }
 
-    mWorkspace.putFile( file );
+    getWorkspace().putListItem( KEY_UI_FILES_PATH, file );
   }
 
   /**
@@ -485,7 +479,9 @@ public final class MainView extends SplitPane {
 
     // This is called when either the tab is closed by the user clicking on
     // the tab's close icon or when closing (all) from the file menu.
-    tab.setOnClosed( ( event ) -> mWorkspace.removeFile( file ) );
+    tab.setOnClosed(
+        ( __ ) -> getWorkspace().purgeListItem( KEY_UI_FILES_PATH, file )
+    );
 
     return tab;
   }
@@ -601,6 +597,7 @@ public final class MainView extends SplitPane {
                 while( listener.next() ) {
                   if( listener.wasAdded() ) {
                     final var tabs = listener.getAddedSubList();
+
                     tabs.forEach( ( tab ) -> {
                       final var node = tab.getContent();
 
@@ -682,11 +679,15 @@ public final class MainView extends SplitPane {
    * @return A new {@link ProcessorContext} to use when creating an instance of
    * {@link Processor}.
    */
-  private ProcessorContext createProcessorContext(
+  public ProcessorContext createProcessorContext(
       final Path path, final CaretPosition caret ) {
     return new ProcessorContext(
         mHtmlPreview, mResolvedMap, path, caret, NONE
     );
+  }
+
+  public ProcessorContext createProcessorContext( final TextEditor t ) {
+    return createProcessorContext( t.getPath(), t.createCaretPosition() );
   }
 
   @SuppressWarnings({"RedundantCast", "unchecked", "RedundantSuppression"})
@@ -755,5 +756,9 @@ public final class MainView extends SplitPane {
 
   public Window getWindow() {
     return getScene().getWindow();
+  }
+
+  private Workspace getWorkspace() {
+    return Workspace.getInstance();
   }
 }

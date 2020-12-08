@@ -34,20 +34,11 @@ import com.keenwrite.ui.dialogs.ImageDialog;
 import com.keenwrite.ui.dialogs.LinkDialog;
 import com.vladsch.flexmark.ast.Link;
 import javafx.scene.control.Dialog;
-import javafx.scene.control.IndexRange;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
 import javafx.stage.Window;
-import org.fxmisc.richtext.StyleClassedTextArea;
 
 import java.nio.file.Path;
-import java.util.regex.Pattern;
 
 import static com.keenwrite.Constants.DEFAULT_DOCUMENT;
-import static javafx.scene.input.KeyCombination.CONTROL_DOWN;
-import static org.apache.commons.lang3.StringUtils.stripEnd;
-import static org.apache.commons.lang3.StringUtils.stripStart;
-import static org.fxmisc.wellbehaved.event.EventPattern.keyPressed;
 
 /**
  * Provides the ability to edit a text document.

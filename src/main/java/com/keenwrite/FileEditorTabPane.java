@@ -27,32 +27,16 @@
  */
 package com.keenwrite;
 
-import com.keenwrite.service.Options;
-import com.keenwrite.service.Settings;
 import com.panemu.tiwulfx.control.dock.DetachableTabPane;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.value.ChangeListener;
 import javafx.scene.control.Tab;
-import javafx.stage.FileChooser.ExtensionFilter;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.prefs.Preferences;
-
-import static com.keenwrite.Constants.GLOB_PREFIX_FILE;
-import static com.keenwrite.Constants.sSettings;
-import static com.keenwrite.FileType.*;
 
 /**
  * Tab pane for file editors.
  */
 public final class FileEditorTabPane extends DetachableTabPane {
-
-  private static final String FILTER_EXTENSION_TITLES =
-      "Dialog.file.choose.filter";
-
-  private static final Options sOptions = Services.load( Options.class );
 
   private final ReadOnlyObjectWrapper<FileEditorController> mActiveFileEditor =
       new ReadOnlyObjectWrapper<>();
@@ -89,81 +73,4 @@ public final class FileEditorTabPane extends DetachableTabPane {
     return mActiveFileEditor.getReadOnlyProperty();
   }
 
-  private List<ExtensionFilter> createExtensionFilters() {
-    final List<ExtensionFilter> list = new ArrayList<>();
-
-    // TODO: Return a list of all properties that match the filter prefix.
-    // This will allow dynamic filters to be added and removed just by
-    // updating the properties file.
-    list.add( createExtensionFilter( ALL ) );
-    list.add( createExtensionFilter( SOURCE ) );
-    list.add( createExtensionFilter( DEFINITION ) );
-    list.add( createExtensionFilter( XML ) );
-    return list;
-  }
-
-  /**
-   * Returns a filter for file name extensions recognized by the application
-   * that can be opened by the user.
-   *
-   * @param filetype Used to find the globbing pattern for extensions.
-   * @return A filename filter suitable for use by a FileDialog instance.
-   */
-  private ExtensionFilter createExtensionFilter( final FileType filetype ) {
-    final String tKey = String.format( "%s.title.%s",
-                                       FILTER_EXTENSION_TITLES,
-                                       filetype );
-    final String eKey = String.format( "%s.%s", GLOB_PREFIX_FILE, filetype );
-
-    return new ExtensionFilter( Messages.get( tKey ), getExtensions( eKey ) );
-  }
-
-  public void initPreferences() {
-    final String activeFileName = sOptions.get( "activeFile", null );
-
-    // TODO: FIXME REFACTOR TABS
-//    if( files.isEmpty() ) {
-//      newEditor();
-//    }
-  }
-
-  public void persistPreferences() {
-    final var allEditors = getTabs();
-    final List<String> fileNames = new ArrayList<>( allEditors.size() );
-
-    for( final var tab : allEditors ) {
-      // TODO: FIXME REFACTOR TABS
-      final FileEditorController fileEditor = null;//(FileEditorView) tab;
-      final var filePath = fileEditor.getPath();
-
-      if( filePath != null ) {
-        fileNames.add( filePath.toString() );
-      }
-    }
-
-    final var preferences = getPreferences();
-    sOptions.putStrings( "file", fileNames );
-
-    final var activeEditor = getActiveFileEditor();
-    final var filePath = activeEditor == null ? null : activeEditor.getPath();
-
-    if( filePath == null ) {
-      preferences.remove( "activeFile" );
-    }
-    else {
-      preferences.put( "activeFile", filePath.toString() );
-    }
-  }
-
-  private List<String> getExtensions( final String key ) {
-    return getSettings().getStringSettingList( key );
-  }
-
-  private Settings getSettings() {
-    return sSettings;
-  }
-
-  private Preferences getPreferences() {
-    return sOptions.getState();
-  }
 }

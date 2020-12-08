@@ -2,6 +2,7 @@
 package com.keenwrite.editors;
 
 import com.keenwrite.TextResource;
+import com.keenwrite.processors.markdown.CaretPosition;
 import org.fxmisc.flowless.VirtualizedScrollPane;
 import org.fxmisc.richtext.StyleClassedTextArea;
 
@@ -21,6 +22,14 @@ public interface TextEditor extends TextResource {
    * @return The initialized horizontal and vertical scrollbars.
    */
   VirtualizedScrollPane<StyleClassedTextArea> getScrollPane();
+
+  /**
+   * Returns an object that can be used to track the current caret position
+   * within the document.
+   *
+   * @return The caret's position, which is updated continuously.
+   */
+  CaretPosition createCaretPosition();
 
   /**
    * Requests undoing the last text-changing action.

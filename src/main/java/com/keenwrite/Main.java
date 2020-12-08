@@ -37,8 +37,6 @@ public final class Main extends Application {
   @SuppressWarnings({"FieldCanBeLocal", "unused", "RedundantSuppression"})
   private StageState mStageState;
 
-  private final Workspace mWorkspace = new Workspace( "default" );
-
   /**
    * Application entry point.
    *
@@ -72,7 +70,7 @@ public final class Main extends Application {
    */
   @Override
   public void stop() {
-    mWorkspace.save();
+    Workspace.getInstance().save();
     getSnitch().stop();
     Platform.exit();
     System.exit( 0 );
@@ -114,7 +112,7 @@ public final class Main extends Application {
 
   private void initScene( final Stage stage ) {
     final var appPane = new BorderPane();
-    final var mainView = createMainView( mWorkspace );
+    final var mainView = createMainView();
     final var actions = new ApplicationActions( mainView );
     final var menuBar = createMenuBar( actions );
     final var statusBar = getStatusBar();
@@ -134,8 +132,8 @@ public final class Main extends Application {
     return menuBar.createMenuBar();
   }
 
-  private MainView createMainView( final Workspace workspace ) {
-    return new MainView( workspace );
+  private MainView createMainView() {
+    return new MainView();
   }
 
   private StatusBar getStatusBar() {

@@ -37,7 +37,6 @@ import com.keenwrite.preview.OutputTabPane;
 import com.keenwrite.processors.Processor;
 import com.keenwrite.processors.ProcessorContext;
 import com.keenwrite.processors.ProcessorFactory;
-import com.keenwrite.processors.markdown.MarkdownProcessor;
 import com.keenwrite.service.Options;
 import com.keenwrite.ui.actions.Action;
 import com.keenwrite.ui.actions.MenuAction;
@@ -49,23 +48,18 @@ import javafx.scene.control.TextField;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
-import javafx.stage.FileChooser;
 import org.controlsfx.control.StatusBar;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.prefs.Preferences;
 
 import static com.keenwrite.Constants.*;
-import static com.keenwrite.ExportFormat.*;
+import static com.keenwrite.ExportFormat.NONE;
 import static com.keenwrite.Messages.get;
 import static com.keenwrite.StatusBarNotifier.clue;
 import static com.keenwrite.ui.actions.ApplicationMenuBar.createMenu;
 import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.*;
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.nio.file.Files.writeString;
 import static javafx.application.Platform.runLater;
 
 /**
@@ -174,7 +168,6 @@ public class MainWindow {
    * Reloads the preferences from the previous session.
    */
   private void initPreferences() {
-    getFileEditorPane().initPreferences();
     getUserPreferencesView().addSaveEventHandler( mRPreferencesListener );
   }
 
@@ -239,43 +232,6 @@ public class MainWindow {
     getProcessors().clear();
   }
 
-  //---- File actions -------------------------------------------------------
-
-  /**
-   * Exports the contents of the current tab according to the given
-   * {@link ExportFormat}.
-   *
-   * @param format Configures the {@link MarkdownProcessor} when exporting.
-   */
-  private void fileExport( final ExportFormat format ) {
-    final var tab = getActiveFileEditorTab();
-    final var context = createProcessorContext( tab, format );
-    final var chain = ProcessorFactory.createProcessors( context );
-    final var doc = tab.getEditorText();
-    final var export = chain.apply( doc );
-
-    final var filename = format.toExportFilename( tab.getPath().toFile() );
-    final var dir = getPreferences().get( "lastDirectory", null );
-    final var lastDir = new File( dir == null ? "." : dir );
-
-    final FileChooser chooser = new FileChooser();
-    chooser.setTitle( get( "Dialog.file.choose.export.title" ) );
-    chooser.setInitialFileName( filename.getName() );
-    chooser.setInitialDirectory( lastDir );
-
-    final File file = null;
-
-    if( file != null ) {
-      try {
-        writeString( file.toPath(), export, UTF_8 );
-        final var m = get( "Main.status.export.success", file.toString() );
-        clue( m );
-      } catch( final IOException e ) {
-        clue( e );
-      }
-    }
-  }
-
   //---- Edit actions -------------------------------------------------------
 
   /**
@@ -333,30 +289,6 @@ public class MainWindow {
   }
 
   private Node createMenuBar() {
-    final Action fileExportAction = Action
-        .builder()
-        .setText( "Main.menu.file.export" )
-        .build();
-    final Action fileExportHtmlSvgAction = Action
-        .builder()
-        .setText( "Main.menu.file.export.html_svg" )
-        .setHandler( e -> fileExport( HTML_TEX_SVG ) )
-        .build();
-    final Action fileExportHtmlTexAction = Action
-        .builder()
-        .setText( "Main.menu.file.export.html_tex" )
-        .setHandler( e -> fileExport( HTML_TEX_DELIMITED ) )
-        .build();
-    final Action fileExportMarkdownAction = Action
-        .builder()
-        .setText( "Main.menu.file.export.markdown" )
-        .setHandler( e -> fileExport( MARKDOWN_PLAIN ) )
-        .build();
-    fileExportAction.addSubActions(
-        fileExportHtmlSvgAction,
-        fileExportHtmlTexAction,
-        fileExportMarkdownAction );
-
     // Edit actions
     final Action editFindAction = Action
         .builder()
@@ -413,11 +345,6 @@ public class MainWindow {
 
     //---- MenuBar ----
 
-    // File Menu
-    final var fileMenu = createMenu(
-        get( "Main.menu.file" ),
-        fileExportAction );
-
     // Edit Menu
     final var editMenu = createMenu(
         get( "Main.menu.edit" ),
@@ -441,7 +368,6 @@ public class MainWindow {
 
     //---- MenuBar ----
     final var menuBar = new MenuBar(
-        fileMenu,
         editMenu,
         insertMenu,
         definitionMenu );

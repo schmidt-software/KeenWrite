@@ -449,6 +449,7 @@ public class MarkdownEditor extends BorderPane implements TextEditor {
     mDirty.addListener( listener );
   }
 
+  @Override
   public CaretPosition createCaretPosition() {
     return CaretPosition
         .builder()

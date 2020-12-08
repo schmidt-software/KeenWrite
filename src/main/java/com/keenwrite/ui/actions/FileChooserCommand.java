@@ -3,9 +3,8 @@ package com.keenwrite.ui.actions;
 
 import com.keenwrite.FileType;
 import com.keenwrite.Messages;
-import com.keenwrite.Services;
 import com.keenwrite.io.File;
-import com.keenwrite.service.Options;
+import com.keenwrite.preferences.Workspace;
 import com.keenwrite.service.Settings;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
@@ -13,11 +12,13 @@ import javafx.stage.Window;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.prefs.Preferences;
+import java.util.Optional;
 
 import static com.keenwrite.Constants.*;
 import static com.keenwrite.FileType.*;
 import static com.keenwrite.Messages.get;
+import static com.keenwrite.preferences.Workspace.KEY_UI_WORKING_DIR;
+import static java.lang.String.format;
 
 /**
  * Responsible for opening a dialog that provides users with the ability to
@@ -26,10 +27,7 @@ import static com.keenwrite.Messages.get;
 public class FileChooserCommand {
   private static final String FILTER_EXTENSION_TITLES =
       "Dialog.file.choose.filter";
-  private static final String OPTION_DIRECTORY_LAST = "lastDirectory";
   private static final String PREF_DIRECTORY = DEFAULT_DIRECTORY.toString();
-
-  private static final Options sOptions = Services.load( Options.class );
 
   private final Window mWindow;
 
@@ -57,29 +55,40 @@ public class FileChooserCommand {
     return files;
   }
 
-  public File saveAs() {
+  /**
+   * Allows saving the document under a new file name.
+   *
+   * @return The new file name.
+   */
+  public Optional<File> saveAs() {
     final var dialog = createFileChooser( "Dialog.file.choose.save.title" );
+    return saveOrExportAs( dialog );
+  }
+
+  /**
+   * Allows exporting the document to a new file format.
+   *
+   * @return The file name for exporting into.
+   */
+  public Optional<File> exportAs( final File filename ) {
+    final var dialog = createFileChooser( "Dialog.file.choose.export.title" );
+    dialog.setInitialFileName( filename.getName() );
+    return saveOrExportAs( dialog );
+  }
+
+  /**
+   * Helper method called when saving or exporting.
+   *
+   * @param dialog The {@link FileChooser} to display.
+   * @return The file selected by the user.
+   */
+  private Optional<File> saveOrExportAs( final FileChooser dialog ) {
     final var selected = dialog.showSaveDialog( mWindow );
     final var file = selected == null ? null : new File( selected );
 
     storeLastDirectory( file );
 
-    return file;
-  }
-
-  private void storeLastDirectory( final File file ) {
-    if( file != null ) {
-      final var parent = file.getParent();
-      getPreferences().put(
-          OPTION_DIRECTORY_LAST, parent == null ? PREF_DIRECTORY : parent
-      );
-    }
-  }
-
-  private void storeLastDirectory( final List<File> files ) {
-    if( files != null && !files.isEmpty() ) {
-      storeLastDirectory( files.get( 0 ) );
-    }
+    return Optional.ofNullable( file );
   }
 
   /**
@@ -95,7 +104,7 @@ public class FileChooserCommand {
     chooser.getExtensionFilters().addAll( createExtensionFilters() );
 
     final var dir = new File(
-        getPreferences().get( OPTION_DIRECTORY_LAST, PREF_DIRECTORY )
+        getWorkspace().get( KEY_UI_WORKING_DIR, PREF_DIRECTORY )
     );
 
     chooser.setInitialDirectory(
@@ -127,12 +136,25 @@ public class FileChooserCommand {
    * @return A filename filter suitable for use by a FileDialog instance.
    */
   private ExtensionFilter createExtensionFilter( final FileType filetype ) {
-    final String tKey = String.format( "%s.title.%s",
-                                       FILTER_EXTENSION_TITLES,
-                                       filetype );
-    final String eKey = String.format( "%s.%s", GLOB_PREFIX_FILE, filetype );
+    final var tKey = format( "%s.title.%s", FILTER_EXTENSION_TITLES, filetype );
+    final var eKey = format( "%s.%s", GLOB_PREFIX_FILE, filetype );
 
     return new ExtensionFilter( Messages.get( tKey ), getExtensions( eKey ) );
+  }
+
+  private void storeLastDirectory( final File file ) {
+    if( file != null ) {
+      final var parent = file.getParent();
+      getWorkspace().put(
+          KEY_UI_WORKING_DIR, parent == null ? PREF_DIRECTORY : parent
+      );
+    }
+  }
+
+  private void storeLastDirectory( final List<File> files ) {
+    if( files != null && !files.isEmpty() ) {
+      storeLastDirectory( files.get( 0 ) );
+    }
   }
 
   private List<String> getExtensions( final String key ) {
@@ -143,7 +165,7 @@ public class FileChooserCommand {
     return sSettings;
   }
 
-  private Preferences getPreferences() {
-    return sOptions.getState();
+  private Workspace getWorkspace() {
+    return Workspace.getInstance();
   }
 }

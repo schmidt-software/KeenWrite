@@ -89,7 +89,7 @@ public class PlainTextEditor extends StyleClassedTextArea
     );
 
     mPath.set( file.toPath() );
-    mEncoding = open(file);
+    mEncoding = open( file );
   }
 
   @Override
@@ -202,6 +202,7 @@ public class PlainTextEditor extends StyleClassedTextArea
     return getEditor().getUndoManager();
   }
 
+  @Override
   public CaretPosition createCaretPosition() {
     return CaretPosition
         .builder()

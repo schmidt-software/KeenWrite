@@ -28,9 +28,9 @@ public final class UserPreferences {
   }
 
   /**
-   * Returns the singleton instance for rendering math symbols.
+   * Returns the singleton instance for user preferences.
    *
-   * @return A non-null instance, loaded, configured, and ready to render math.
+   * @return A non-null instance, loaded, configured, and ready to persist.
    */
   public static UserPreferences getInstance() {
     return UserPreferencesContainer.INSTANCE;

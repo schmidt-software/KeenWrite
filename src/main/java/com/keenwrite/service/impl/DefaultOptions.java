@@ -28,9 +28,6 @@ package com.keenwrite.service.impl;
 
 import com.keenwrite.service.Options;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
 import static com.keenwrite.Constants.PREFS_ROOT;
@@ -44,31 +41,6 @@ public class DefaultOptions implements Options {
   public DefaultOptions() {
   }
 
-  /**
-   * This will throw IllegalArgumentException if the value exceeds the maximum
-   * preferences value length.
-   *
-   * @param key   The name of the key to associate with the value.
-   * @param value The value to persist.
-   * @throws BackingStoreException New value not persisted.
-   */
-  @Override
-  public void put( final String key, final String value )
-      throws BackingStoreException {
-    getState().put( key, value );
-    getState().flush();
-  }
-
-  @Override
-  public String get( final String key, final String value ) {
-    return getState().get( key, value );
-  }
-
-  @Override
-  public String get( final String key ) {
-    return get( key, "" );
-  }
-
   private Preferences getRootPreferences() {
     return userRoot().node( PREFS_ROOT );
   }
@@ -76,38 +48,5 @@ public class DefaultOptions implements Options {
   @Override
   public Preferences getState() {
     return getRootPreferences().node( PREFS_STATE );
-  }
-
-  @Override
-  public List<String> getStrings( final String key ) {
-    final var preferences = getState();
-    final List<String> results = new ArrayList<>( 256 );
-
-    for( int i = 1; i < 10000; i++ ) {
-      final var value = preferences.get( key + i, null );
-
-      if( value == null ) {
-        break;
-      }
-
-      results.add( value );
-    }
-
-    return results;
-  }
-
-  @Override
-  public void putStrings( final String key, final List<String> strings ) {
-    final var preferences = getState();
-    final var length = strings.size();
-
-    for( int i = 0; i < length; i++ ) {
-      preferences.put( key + (i + 1), strings.get( i ) );
-    }
-
-    for( int i = length;
-         preferences.get( key + (i + 1), null ) != null; i++ ) {
-      preferences.remove( key + (i + 1) );
-    }
   }
 }

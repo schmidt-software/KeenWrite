@@ -4,15 +4,23 @@ package com.keenwrite.ui.actions;
 import com.keenwrite.ExportFormat;
 import com.keenwrite.MainView;
 import com.keenwrite.editors.TextEditor;
+import com.keenwrite.io.File;
+import com.keenwrite.processors.ProcessorContext;
 import javafx.scene.control.Alert;
 import javafx.scene.image.ImageView;
 import javafx.stage.Window;
 import javafx.stage.WindowEvent;
 
+import java.io.IOException;
+
 import static com.keenwrite.Bootstrap.APP_TITLE;
 import static com.keenwrite.Constants.ICON_DIALOG;
 import static com.keenwrite.ExportFormat.*;
 import static com.keenwrite.Messages.get;
+import static com.keenwrite.StatusBarNotifier.clue;
+import static com.keenwrite.processors.ProcessorFactory.createProcessors;
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.nio.file.Files.writeString;
 import static javafx.event.Event.fireEvent;
 import static javafx.scene.control.Alert.AlertType.INFORMATION;
 import static javafx.stage.WindowEvent.WINDOW_CLOSE_REQUEST;
@@ -56,10 +64,7 @@ public class ApplicationActions {
 
   public void file‿save_as() {
     final var file = createFileChooser().saveAs();
-
-    if( file != null ) {
-      getMainView().saveAs( file );
-    }
+    file.ifPresent( ( f ) -> getMainView().saveAs( f ) );
   }
 
   public void file‿save_all() {
@@ -79,7 +84,28 @@ public class ApplicationActions {
   }
 
   private void file‿export( final ExportFormat format ) {
+    final var editor = getActiveTextEditor();
+    final var context = createProcessorContext( editor );
+    final var chain = createProcessors( context );
+    final var doc = editor.getText();
+    final var export = chain.apply( doc );
+    final var filename = format.toExportFilename( editor.getPath().toFile() );
+    final var chooser = new FileChooserCommand( getWindow() );
+    final var file = chooser.exportAs( new File( filename ) );
 
+    file.ifPresent( ( f ) -> {
+      try {
+        writeString( f.toPath(), export, UTF_8 );
+        final var m = get( "Main.status.export.success", f.toString() );
+        clue( m );
+      } catch( final Exception e ) {
+        clue( e );
+      }
+    } );
+  }
+
+  private ProcessorContext createProcessorContext( final TextEditor editor ) {
+    return getMainView().createProcessorContext( editor );
   }
 
   public void file‿exit() {
