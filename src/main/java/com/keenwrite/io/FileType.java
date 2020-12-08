@@ -1,5 +1,5 @@
 /* Copyright 2020 White Magic Software, Ltd. -- All rights reserved. */
-package com.keenwrite;
+package com.keenwrite.io;
 
 /**
  * Represents different file type classifications. These are high-level mappings

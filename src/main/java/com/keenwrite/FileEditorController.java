@@ -26,8 +26,6 @@
 package com.keenwrite;
 
 import com.keenwrite.editors.markdown.MarkdownEditorPane;
-import com.keenwrite.processors.Processor;
-import com.keenwrite.processors.markdown.CaretPosition;
 import javafx.beans.property.ReadOnlyBooleanWrapper;
 import javafx.beans.value.ChangeListener;
 import org.fxmisc.flowless.VirtualizedScrollPane;
@@ -51,19 +49,7 @@ public final class FileEditorController {
    */
   private Path mPath;
 
-  /**
-   * Dynamically updated position of the caret within the text editor.
-   */
-  private final CaretPosition mCaretPosition;
-
   public FileEditorController() {
-    mCaretPosition = createCaretPosition( getEditor() );
-  }
-
-  private CaretPosition createCaretPosition(
-      final StyleClassedTextArea editor ) {
-    return CaretPosition
-        .builder().with( CaretPosition.Mutator::setEditor, editor ).build();
   }
 
   private void updateTab() {
@@ -79,7 +65,7 @@ public final class FileEditorController {
    * @param needle The text string to match.
    */
   public void searchNext( final String needle ) {
-    final String haystack = getEditorText();
+    final var haystack = getEditorText();
     int index = haystack.indexOf( needle, getCaretTextOffset() );
 
     // Wrap around.
@@ -103,19 +89,6 @@ public final class FileEditorController {
   }
 
   /**
-   * Returns an instance of {@link CaretPosition} that contains information
-   * about the caret, including the offset into the text, the paragraph into
-   * the text, maximum number of paragraphs, and more. This allows the main
-   * application and the {@link Processor} instances to get the current
-   * caret position.
-   *
-   * @return The current values for the caret's position within the editor.
-   */
-  public CaretPosition getCaretPosition() {
-    return mCaretPosition;
-  }
-
-  /**
    * Returns the index into the text where the caret blinks happily away.
    *
    * @return A number from 0 to the editor's document text length.
@@ -131,7 +104,7 @@ public final class FileEditorController {
    */
   private void setCaretTextOffset( final int offset ) {
     getEditor().moveTo( offset );
-    getEditor().requestFollowCaret();
+    //getEditor().requestFollowCaret();
   }
 
   /**

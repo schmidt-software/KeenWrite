@@ -11,8 +11,6 @@ import javafx.scene.image.ImageView;
 import javafx.stage.Window;
 import javafx.stage.WindowEvent;
 
-import java.io.IOException;
-
 import static com.keenwrite.Bootstrap.APP_TITLE;
 import static com.keenwrite.Constants.ICON_DIALOG;
 import static com.keenwrite.ExportFormat.*;
@@ -138,6 +136,7 @@ public class ApplicationActions {
   }
 
   public void edit‿find() {
+
   }
 
   public void edit‿find_next() {

@@ -3,8 +3,7 @@ package com.keenwrite.processors;
 
 import com.keenwrite.Constants;
 import com.keenwrite.ExportFormat;
-import com.keenwrite.FileEditorController;
-import com.keenwrite.FileType;
+import com.keenwrite.io.FileType;
 import com.keenwrite.preview.HtmlPreview;
 import com.keenwrite.processors.markdown.CaretPosition;
 
@@ -23,31 +22,6 @@ public class ProcessorContext {
   private final ExportFormat mExportFormat;
   private final Path mPath;
   private final CaretPosition mCaretPosition;
-
-  /**
-   * Creates a new context for use by the {@link ProcessorFactory} when
-   * instantiating new {@link Processor} instances. Although all the
-   * parameters are required, not all {@link Processor} instances will use
-   * all parameters.
-   *
-   * @param htmlPreview  Where to display the final (HTML) output.
-   * @param resolvedMap  Fully expanded interpolated strings.
-   * @param tab          Tab containing path to the document to process.
-   * @param exportFormat Indicate configuration options for export format.
-   * @deprecated Use {@link ProcessorContext} with {@link Path}.
-   */
-  @Deprecated
-  public ProcessorContext(
-      final HtmlPreview htmlPreview,
-      final Map<String, String> resolvedMap,
-      final FileEditorController tab,
-      final ExportFormat exportFormat ) {
-    this( htmlPreview,
-          resolvedMap,
-          tab.getPath(),
-          tab.getCaretPosition(),
-          exportFormat );
-  }
 
   /**
    * Creates a new context for use by the {@link ProcessorFactory} when

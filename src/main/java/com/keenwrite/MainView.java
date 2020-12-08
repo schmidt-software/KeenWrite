@@ -2,6 +2,7 @@
 package com.keenwrite;
 
 import com.keenwrite.definition.DefinitionEditor;
+import com.keenwrite.definition.DefinitionTabSceneFactory;
 import com.keenwrite.definition.yaml.YamlTreeTransformer;
 import com.keenwrite.editors.PlainTextEditor;
 import com.keenwrite.editors.TextDefinition;
@@ -30,6 +31,7 @@ import javafx.scene.control.SplitPane;
 import javafx.scene.control.Tab;
 import javafx.scene.control.Tooltip;
 import javafx.scene.control.TreeItem.TreeModificationEvent;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 
@@ -679,7 +681,7 @@ public final class MainView extends SplitPane {
    * @return A new {@link ProcessorContext} to use when creating an instance of
    * {@link Processor}.
    */
-  public ProcessorContext createProcessorContext(
+  private ProcessorContext createProcessorContext(
       final Path path, final CaretPosition caret ) {
     return new ProcessorContext(
         mHtmlPreview, mResolvedMap, path, caret, NONE
@@ -760,5 +762,21 @@ public final class MainView extends SplitPane {
 
   private Workspace getWorkspace() {
     return Workspace.getInstance();
+  }
+
+  private final Text mLineNumberText = createLineNumberText();
+
+  /**
+   * Called to update the status bar's caret position when a new tab is added
+   * or the active tab is switched.
+   *
+   * @param tab The active tab containing a caret position to show.
+   */
+  private void updateCaretStatus( final FileEditorController tab ) {
+    //getLineNumberText().setText( tab.getCaretPosition().toString() );
+  }
+
+  private Text createLineNumberText() {
+    return new Text( get( STATUS_BAR_LINE, 1, 1, 1 ) );
   }
 }

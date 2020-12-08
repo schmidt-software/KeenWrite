@@ -27,40 +27,23 @@
  */
 package com.keenwrite;
 
-import com.dlsc.preferencesfx.PreferencesFxEvent;
 import com.keenwrite.definition.DefinitionEditor;
 import com.keenwrite.editors.DefinitionNameInjector;
 import com.keenwrite.editors.markdown.MarkdownEditorPane;
 import com.keenwrite.preferences.UserPreferencesView;
-import com.keenwrite.preview.HtmlPreview;
-import com.keenwrite.preview.OutputTabPane;
-import com.keenwrite.processors.Processor;
-import com.keenwrite.processors.ProcessorContext;
-import com.keenwrite.processors.ProcessorFactory;
-import com.keenwrite.service.Options;
 import com.keenwrite.ui.actions.Action;
 import com.keenwrite.ui.actions.MenuAction;
 import com.keenwrite.ui.actions.SeparatorAction;
-import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.VBox;
-import javafx.scene.text.Text;
 import org.controlsfx.control.StatusBar;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.prefs.Preferences;
-
-import static com.keenwrite.Constants.*;
-import static com.keenwrite.ExportFormat.NONE;
 import static com.keenwrite.Messages.get;
-import static com.keenwrite.StatusBarNotifier.clue;
 import static com.keenwrite.ui.actions.ApplicationMenuBar.createMenu;
 import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.*;
-import static javafx.application.Platform.runLater;
 
 /**
  * Main window containing a tab pane in the center for file editors.
@@ -70,29 +53,8 @@ import static javafx.application.Platform.runLater;
 @Deprecated
 public class MainWindow {
 
-  /**
-   * This variable must be declared before all other variables to prevent
-   * subsequent initializations from failing due to missing user preferences.
-   */
-  private static final Options sOptions = Services.load( Options.class );
-
-  private final Text mLineNumberText;
   private final TextField mFindTextField;
-
-  /**
-   * Prevents re-instantiation of processing classes.
-   */
-  private final Map<FileEditorController, Processor<String>> mProcessors =
-      new HashMap<>();
-
-  private final Map<String, String> mResolvedMap =
-      new HashMap<>( DEFAULT_MAP_SIZE );
-
-  private final EventHandler<PreferencesFxEvent> mRPreferencesListener =
-      event -> rerender();
-
   private final DefinitionEditor mDefinitionPane = new DefinitionEditor( null );
-  private final OutputTabPane mOutputPane = createOutputTabPane();
   private final FileEditorTabPane mFileEditorPane = new FileEditorTabPane();
 
   /**
@@ -102,7 +64,6 @@ public class MainWindow {
       = new DefinitionNameInjector( mDefinitionPane );
 
   public MainWindow() {
-    mLineNumberText = createLineNumberText();
     mFindTextField = createFindTextField();
   }
 
@@ -111,8 +72,6 @@ public class MainWindow {
    */
   public void init() {
     initFindInput();
-
-    initPreferences();
     initVariableNameInjector();
   }
 
@@ -150,86 +109,12 @@ public class MainWindow {
     );
   }
 
-  /**
-   * Re-instantiates all processors then re-renders the active tab. This
-   * will refresh the resolved map, force R to re-initialize, and brute-force
-   * XSLT file reloads.
-   */
-  private void rerender() {
-    runLater(
-        () -> {
-          resetProcessors();
-          processActiveTab();
-        }
-    );
-  }
-
-  /**
-   * Reloads the preferences from the previous session.
-   */
-  private void initPreferences() {
-    getUserPreferencesView().addSaveEventHandler( mRPreferencesListener );
-  }
-
   private void initVariableNameInjector() {
     updateVariableNameInjector( getActiveFileEditorTab() );
   }
 
-  private void scrollToCaret() {
-    getHtmlPreview().scrollTo( CARET_ID );
-  }
-
   private void updateVariableNameInjector( final FileEditorController tab ) {
     getDefinitionNameInjector().addListener( tab );
-  }
-
-  /**
-   * Called to update the status bar's caret position when a new tab is added
-   * or the active tab is switched.
-   *
-   * @param tab The active tab containing a caret position to show.
-   */
-  private void updateCaretStatus( final FileEditorController tab ) {
-    getLineNumberText().setText( tab.getCaretPosition().toString() );
-  }
-
-  /**
-   * Called whenever the preview pane becomes out of sync with the file editor
-   * tab. This can be called when the text changes, the caret paragraph
-   * changes, or the file tab changes.
-   *
-   * @param tab The file editor tab that has been changed in some fashion.
-   */
-  private void process( final FileEditorController tab ) {
-    if( tab != null ) {
-      getHtmlPreview().setBaseUri( tab.getPath() );
-
-      final Processor<String> processor = getProcessors().computeIfAbsent(
-          tab, p -> createProcessors( tab )
-      );
-
-      try {
-        updateCaretStatus( tab );
-        processor.apply( tab.getEditorText() );
-        scrollToCaret();
-      } catch( final Exception ex ) {
-        clue( ex );
-      }
-    }
-  }
-
-  private void processActiveTab() {
-    process( getActiveFileEditorTab() );
-  }
-
-  //---- File actions -------------------------------------------------------
-
-  /**
-   * After resetting the processors, they will refresh anew to be up-to-date
-   * with the files (text and definition) currently loaded into the editor.
-   */
-  private void resetProcessors() {
-    getProcessors().clear();
   }
 
   //---- Edit actions -------------------------------------------------------
@@ -253,39 +138,8 @@ public class MainWindow {
 
   //---- Member creators ----------------------------------------------------
 
-  /**
-   * Creates processors suited to parsing and rendering different file types.
-   *
-   * @param tab The tab that is subjected to processing.
-   * @return A processor suited to the file type specified by the tab's path.
-   */
-  private Processor<String> createProcessors( final FileEditorController tab ) {
-    final var context = createProcessorContext( tab );
-    return ProcessorFactory.createProcessors( context );
-  }
-
-  private ProcessorContext createProcessorContext(
-      final FileEditorController tab, final ExportFormat format ) {
-    final var preview = getHtmlPreview();
-    final var map = getResolvedMap();
-    return new ProcessorContext( preview, map, tab, format );
-  }
-
-  private ProcessorContext createProcessorContext(
-      final FileEditorController tab ) {
-    return createProcessorContext( tab, NONE );
-  }
-
-  private OutputTabPane createOutputTabPane() {
-    return new OutputTabPane();
-  }
-
   private TextField createFindTextField() {
     return new TextField();
-  }
-
-  private Text createLineNumberText() {
-    return new Text( get( STATUS_BAR_LINE, 1, 1, 1 ) );
   }
 
   private Node createMenuBar() {
@@ -384,10 +238,6 @@ public class MainWindow {
 
   //---- Convenience accessors ----------------------------------------------
 
-  private Preferences getPreferences() {
-    return sOptions.getState();
-  }
-
   private MarkdownEditorPane getActiveEditorPane() {
     return getActiveFileEditorTab().getEditorPane();
   }
@@ -398,28 +248,12 @@ public class MainWindow {
 
   //---- Member accessors ---------------------------------------------------
 
-  private Map<FileEditorController, Processor<String>> getProcessors() {
-    return mProcessors;
-  }
-
   private FileEditorTabPane getFileEditorPane() {
     return mFileEditorPane;
   }
 
-  private OutputTabPane getOutputPane() {
-    return mOutputPane;
-  }
-
-  private HtmlPreview getHtmlPreview() {
-    return getOutputPane().getHtmlPreview();
-  }
-
   private DefinitionEditor getDefinitionPane() {
     return mDefinitionPane;
-  }
-
-  private Text getLineNumberText() {
-    return mLineNumberText;
   }
 
   private StatusBar getStatusBar() {
@@ -432,15 +266,6 @@ public class MainWindow {
 
   private DefinitionNameInjector getDefinitionNameInjector() {
     return mDefinitionNameInjector;
-  }
-
-  /**
-   * Returns the variable map of interpolated definitions.
-   *
-   * @return A map to help dereference variables.
-   */
-  private Map<String, String> getResolvedMap() {
-    return mResolvedMap;
   }
 
   //---- Persistence accessors ----------------------------------------------

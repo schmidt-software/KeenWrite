@@ -1,12 +1,11 @@
 /* Copyright 2020 White Magic Software, Ltd. -- All rights reserved. */
-package com.keenwrite;
+package com.keenwrite.definition;
 
 import com.panemu.tiwulfx.control.dock.DetachableTabPane;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.scene.Scene;
 import javafx.scene.control.SingleSelectionModel;
 import javafx.scene.control.Tab;
-import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 
 import java.util.function.Consumer;

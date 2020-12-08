@@ -1,7 +1,7 @@
 /* Copyright 2020 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.ui.actions;
 
-import com.keenwrite.FileType;
+import com.keenwrite.io.FileType;
 import com.keenwrite.Messages;
 import com.keenwrite.io.File;
 import com.keenwrite.preferences.Workspace;
@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.keenwrite.Constants.*;
-import static com.keenwrite.FileType.*;
+import static com.keenwrite.io.FileType.*;
 import static com.keenwrite.Messages.get;
 import static com.keenwrite.preferences.Workspace.KEY_UI_WORKING_DIR;
 import static java.lang.String.format;
