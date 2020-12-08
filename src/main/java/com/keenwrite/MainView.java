@@ -41,7 +41,6 @@ import static com.keenwrite.Constants.*;
 import static com.keenwrite.ExportFormat.NONE;
 import static com.keenwrite.Messages.get;
 import static com.keenwrite.StatusBarNotifier.clue;
-import static com.keenwrite.StatusBarNotifier.getNotifier;
 import static com.keenwrite.definition.MapInterpolator.interpolate;
 import static com.keenwrite.io.MediaType.*;
 import static com.keenwrite.processors.ProcessorFactory.createProcessors;
@@ -298,19 +297,22 @@ public final class MainView extends SplitPane {
       resource.save();
     } catch( final Exception ex ) {
       clue( ex );
-      alert(
-          resource.getPath(),
-          "TextResource.saveFailed.title",
-          "TextResource.saveFailed.message",
-          ex
+      sNotifier.alert(
+          getWindow(), resource.getPath(), "TextResource.saveFailed", ex
       );
     }
   }
 
   /**
    * Closes all open {@link TextEditor}s; all {@link TextDefinition}s stay open.
+   *
+   * @return {@code true} when all editors, modified or otherwise, were
+   * permitted to close; {@code false} when one or more editors were modified
+   * and the user requested no closing.
    */
-  public void closeAll() {
+  public boolean closeAll() {
+    var closable = true;
+
     for( final var entry : mTabPanes.entrySet() ) {
       final var tabPane = entry.getValue();
       final var tabIterator = tabPane.getTabs().iterator();
@@ -319,12 +321,15 @@ public final class MainView extends SplitPane {
         final var tab = tabIterator.next();
         final var node = tab.getContent();
 
-        if( node instanceof TextEditor && canClose( (TextEditor) node ) ) {
+        if( node instanceof TextEditor &&
+            (closable &= canClose( (TextEditor) node )) ) {
           tabIterator.remove();
           close( tab );
         }
       }
     }
+
+    return closable;
   }
 
   /**
@@ -750,26 +755,5 @@ public final class MainView extends SplitPane {
 
   public Window getWindow() {
     return getScene().getWindow();
-  }
-
-  /**
-   * Creates an alert dialog and waits for it to close.
-   *
-   * @param titleKey   Resource bundle key for the alert dialog title.
-   * @param messageKey Resource bundle key for the alert dialog message.
-   * @param ex         The unexpected happening.
-   */
-  @SuppressWarnings("SameParameterValue")
-  private void alert(
-      final Path path,
-      final String titleKey,
-      final String messageKey,
-      final Exception ex ) {
-    final var service = getNotifier();
-    final var message = service.createNotification(
-        get( titleKey ), get( messageKey ), path, ex.getMessage()
-    );
-
-    service.createError( getWindow(), message ).showAndWait();
   }
 }

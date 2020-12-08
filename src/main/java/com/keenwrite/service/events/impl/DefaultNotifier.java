@@ -7,6 +7,9 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.stage.Window;
 
+import java.nio.file.Path;
+
+import static com.keenwrite.Messages.get;
 import static javafx.scene.control.Alert.AlertType.CONFIRMATION;
 import static javafx.scene.control.Alert.AlertType.ERROR;
 
@@ -16,14 +19,6 @@ import static javafx.scene.control.Alert.AlertType.ERROR;
  */
 public final class DefaultNotifier implements Notifier {
 
-  /**
-   * Contains all the information that the user needs to know about a problem.
-   *
-   * @param title   The context for the message.
-   * @param message The message content (formatted with the given args).
-   * @param args    Parameters for the message content.
-   * @return A notification instance, never null.
-   */
   @Override
   public Notification createNotification(
       final String title,
@@ -32,26 +27,24 @@ public final class DefaultNotifier implements Notifier {
     return new DefaultNotification( title, message, args );
   }
 
-  private Alert createAlertDialog(
+  @Override
+  public void alert(
       final Window parent,
-      final AlertType alertType,
-      final Notification message ) {
+      final Path path,
+      final String titleKey,
+      final String messageKey,
+      final Exception ex ) {
+    final var message = createNotification(
+        get( titleKey ), get( messageKey ), path, ex.getMessage()
+    );
 
-    final Alert alert = new Alert( alertType );
-
-    alert.setDialogPane( new ButtonOrderPane() );
-    alert.setTitle( message.getTitle() );
-    alert.setHeaderText( null );
-    alert.setContentText( message.getContent() );
-    alert.initOwner( parent );
-
-    return alert;
+    createError( parent, message ).showAndWait();
   }
 
   @Override
-  public Alert createConfirmation( final Window parent,
-                                   final Notification message ) {
-    final Alert alert = createAlertDialog( parent, CONFIRMATION, message );
+  public Alert createConfirmation(
+      final Window parent, final Notification message ) {
+    final var alert = createAlertDialog( parent, CONFIRMATION, message );
 
     alert.getButtonTypes().setAll( YES, NO, CANCEL );
 
@@ -61,5 +54,20 @@ public final class DefaultNotifier implements Notifier {
   @Override
   public Alert createError( final Window parent, final Notification message ) {
     return createAlertDialog( parent, ERROR, message );
+  }
+
+  private Alert createAlertDialog(
+      final Window parent,
+      final AlertType alertType,
+      final Notification message ) {
+    final var alert = new Alert( alertType );
+
+    alert.setDialogPane( new ButtonOrderPane() );
+    alert.setTitle( message.getTitle() );
+    alert.setHeaderText( null );
+    alert.setContentText( message.getContent() );
+    alert.initOwner( parent );
+
+    return alert;
   }
 }

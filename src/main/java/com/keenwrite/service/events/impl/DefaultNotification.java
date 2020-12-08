@@ -5,10 +5,6 @@ import com.keenwrite.service.events.Notification;
 
 import java.text.MessageFormat;
 
-import static com.keenwrite.Messages.get;
-import static com.keenwrite.StatusBarNotifier.clue;
-import static com.keenwrite.StatusBarNotifier.getNotifier;
-
 /**
  * Responsible for alerting the user to prominent information.
  */
