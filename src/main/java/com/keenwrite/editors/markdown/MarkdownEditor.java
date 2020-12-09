@@ -4,7 +4,7 @@ package com.keenwrite.editors.markdown;
 import com.keenwrite.Constants;
 import com.keenwrite.editors.TextEditor;
 import com.keenwrite.io.File;
-import com.keenwrite.processors.markdown.CaretPosition;
+import com.keenwrite.processors.markdown.Caret;
 import com.keenwrite.spelling.impl.TextEditorSpeller;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
@@ -67,6 +67,12 @@ public class MarkdownEditor extends BorderPane implements TextEditor {
    */
   private final VirtualizedScrollPane<StyleClassedTextArea> mScrollPane =
       new VirtualizedScrollPane<>( mTextArea );
+
+  /**
+   * Tracks where the caret is located in this document. This offers observable
+   * properties for caret position changes.
+   */
+  private final Caret mCaret = createCaret( mTextArea );
 
   /**
    * File being edited by this editor instance.
@@ -355,6 +361,18 @@ public class MarkdownEditor extends BorderPane implements TextEditor {
     return mScrollPane;
   }
 
+  @Override
+  public Caret getCaret() {
+    return mCaret;
+  }
+
+  private Caret createCaret( final StyleClassedTextArea editor ) {
+    return Caret
+        .builder()
+        .with( Caret.Mutator::setEditor, editor )
+        .build();
+  }
+
   /**
    * This method adds listeners to editor events.
    *
@@ -449,14 +467,6 @@ public class MarkdownEditor extends BorderPane implements TextEditor {
     mDirty.addListener( listener );
   }
 
-  @Override
-  public CaretPosition createCaretPosition() {
-    return CaretPosition
-        .builder()
-        .with( CaretPosition.Mutator::setEditor, mTextArea )
-        .build();
-  }
-
   /**
    * Surrounds the selected text or word under the caret in Markdown markup.
    *
@@ -517,7 +527,8 @@ public class MarkdownEditor extends BorderPane implements TextEditor {
    * caret can be at the end or beginning of a punctuated word; as well, the
    * caret could be at the beginning or end of the line or document.
    *
-   * @return The
+   * @return The starting and ending offset within the entire text that
+   * enclose the word at the caret position.
    */
   private IndexRange getCaretWord() {
     final var paragraph = getCaretParagraph();

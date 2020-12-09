@@ -430,10 +430,8 @@ public final class DefinitionEditor extends BorderPane implements
 
     addMenuItem( items, "App.action.definition.create.text" )
         .setOnAction( e -> createDefinition() );
-
     addMenuItem( items, "App.action.definition.rename.text" )
         .setOnAction( e -> renameDefinition() );
-
     addMenuItem( items, "App.action.definition.delete.text" )
         .setOnAction( e -> deleteSelectedItem() );
 

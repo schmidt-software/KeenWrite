@@ -17,7 +17,7 @@ import com.keenwrite.processors.Processor;
 import com.keenwrite.processors.ProcessorContext;
 import com.keenwrite.processors.ProcessorFactory;
 import com.keenwrite.processors.markdown.CaretExtension;
-import com.keenwrite.processors.markdown.CaretPosition;
+import com.keenwrite.processors.markdown.Caret;
 import com.keenwrite.service.events.Notifier;
 import com.panemu.tiwulfx.control.dock.DetachableTab;
 import com.panemu.tiwulfx.control.dock.DetachableTabPane;
@@ -31,7 +31,6 @@ import javafx.scene.control.SplitPane;
 import javafx.scene.control.Tab;
 import javafx.scene.control.Tooltip;
 import javafx.scene.control.TreeItem.TreeModificationEvent;
-import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 
@@ -682,14 +681,14 @@ public final class MainView extends SplitPane {
    * {@link Processor}.
    */
   private ProcessorContext createProcessorContext(
-      final Path path, final CaretPosition caret ) {
+      final Path path, final Caret caret ) {
     return new ProcessorContext(
         mHtmlPreview, mResolvedMap, path, caret, NONE
     );
   }
 
   public ProcessorContext createProcessorContext( final TextEditor t ) {
-    return createProcessorContext( t.getPath(), t.createCaretPosition() );
+    return createProcessorContext( t.getPath(), t.getCaret() );
   }
 
   @SuppressWarnings({"RedundantCast", "unchecked", "RedundantSuppression"})
@@ -715,7 +714,7 @@ public final class MainView extends SplitPane {
   private TextResource createMarkdownEditor( final File file ) {
     final var path = file.toPath();
     final var editor = new MarkdownEditor( file );
-    final var caret = editor.createCaretPosition();
+    final var caret = editor.getCaret();
     final var context = createProcessorContext( path, caret );
 
     mProcessors.computeIfAbsent( editor, p -> createProcessors( context ) );
@@ -766,21 +765,5 @@ public final class MainView extends SplitPane {
 
   private Workspace getWorkspace() {
     return Workspace.getInstance();
-  }
-
-  private final Text mLineNumberText = createLineNumberText();
-
-  /**
-   * Called to update the status bar's caret position when a new tab is added
-   * or the active tab is switched.
-   *
-   * @param tab The active tab containing a caret position to show.
-   */
-  private void updateCaretStatus( final FileEditorController tab ) {
-    //getLineNumberText().setText( tab.getCaretPosition().toString() );
-  }
-
-  private Text createLineNumberText() {
-    return new Text( get( STATUS_BAR_LINE, 1, 1, 1 ) );
   }
 }

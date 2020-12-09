@@ -42,14 +42,14 @@ import static com.keenwrite.Messages.get;
  * Represents the absolute, relative, and maximum position of the caret.
  * The caret position is a character offset into the text.
  */
-public class CaretPosition {
+public class Caret {
 
-  public static GenericBuilder<CaretPosition.Mutator, CaretPosition> builder() {
-    return GenericBuilder.of( CaretPosition.Mutator::new, CaretPosition::new );
+  public static GenericBuilder<Caret.Mutator, Caret> builder() {
+    return GenericBuilder.of( Caret.Mutator::new, Caret::new );
   }
 
   /**
-   * Used for building a new {@link CaretPosition} instance.
+   * Used for building a new {@link Caret} instance.
    */
   public static class Mutator {
     /**
@@ -97,7 +97,7 @@ public class CaretPosition {
   /**
    * Force using the builder pattern.
    */
-  private CaretPosition( final Mutator mutator ) {
+  private Caret( final Mutator mutator ) {
     assert mutator != null;
 
     mMutator = mutator;

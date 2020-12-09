@@ -5,7 +5,7 @@ import com.keenwrite.Constants;
 import com.keenwrite.ExportFormat;
 import com.keenwrite.io.FileType;
 import com.keenwrite.preview.HtmlPreview;
-import com.keenwrite.processors.markdown.CaretPosition;
+import com.keenwrite.processors.markdown.Caret;
 
 import java.nio.file.Path;
 import java.util.Map;
@@ -21,7 +21,7 @@ public class ProcessorContext {
   private final Map<String, String> mResolvedMap;
   private final ExportFormat mExportFormat;
   private final Path mPath;
-  private final CaretPosition mCaretPosition;
+  private final Caret mCaret;
 
   /**
    * Creates a new context for use by the {@link ProcessorFactory} when
@@ -29,29 +29,29 @@ public class ProcessorContext {
    * parameters are required, not all {@link Processor} instances will use
    * all parameters.
    *
-   * @param htmlPreview   Where to display the final (HTML) output.
-   * @param resolvedMap   Fully expanded interpolated strings.
-   * @param path          Path to the document to process.
-   * @param caretPosition Location of the caret in the edited document, which is
-   *                      used to synchronize the scrollbars.
-   * @param exportFormat  Indicate configuration options for export format.
+   * @param htmlPreview  Where to display the final (HTML) output.
+   * @param resolvedMap  Fully expanded interpolated strings.
+   * @param path         Path to the document to process.
+   * @param caret        Location of the caret in the edited document, which is
+   *                     used to synchronize the scrollbars.
+   * @param exportFormat Indicate configuration options for export format.
    */
   public ProcessorContext(
       final HtmlPreview htmlPreview,
       final Map<String, String> resolvedMap,
       final Path path,
-      final CaretPosition caretPosition,
+      final Caret caret,
       final ExportFormat exportFormat ) {
     assert htmlPreview != null;
     assert resolvedMap != null;
     assert path != null;
-    assert caretPosition != null;
+    assert caret != null;
     assert exportFormat != null;
 
     mHtmlPreview = htmlPreview;
     mResolvedMap = resolvedMap;
     mPath = path;
-    mCaretPosition = caretPosition;
+    mCaret = caret;
     mExportFormat = exportFormat;
   }
 
@@ -83,8 +83,8 @@ public class ProcessorContext {
    *
    * @return Caret position in the document.
    */
-  public CaretPosition getCaretPosition() {
-    return mCaretPosition;
+  public Caret getCaret() {
+    return mCaret;
   }
 
   /**

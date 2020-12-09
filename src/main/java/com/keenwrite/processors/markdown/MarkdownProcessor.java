@@ -108,7 +108,7 @@ public class MarkdownProcessor extends ExecutorProcessor<String> {
     final var format = context.getExportFormat();
     final var extensions = createExtensions( path, format );
 
-    extensions.add( CaretExtension.create( context.getCaretPosition() ) );
+    extensions.add( CaretExtension.create( context.getCaret() ) );
 
     return extensions;
   }

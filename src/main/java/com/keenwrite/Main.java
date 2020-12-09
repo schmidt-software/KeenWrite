@@ -13,13 +13,17 @@ import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import org.controlsfx.control.StatusBar;
 
 import static com.keenwrite.Bootstrap.APP_TITLE;
 import static com.keenwrite.Constants.*;
+import static com.keenwrite.Messages.get;
 import static com.keenwrite.preferences.UserPreferences.initPreferences;
 import static com.keenwrite.util.FontLoader.initFonts;
+import static javafx.geometry.Pos.BASELINE_CENTER;
 import static javafx.scene.input.KeyCode.F11;
 import static javafx.scene.input.KeyEvent.KEY_PRESSED;
 import static javafx.stage.WindowEvent.WINDOW_CLOSE_REQUEST;
@@ -116,6 +120,13 @@ public final class Main extends Application {
     final var actions = new ApplicationActions( mainView );
     final var menuBar = createMenuBar( actions );
     final var statusBar = getStatusBar();
+    final var lineNumber = createLineNumberText();
+
+//    final var box = new VBox();
+//    box.setAlignment( BASELINE_CENTER );
+//    box.getChildren().add( lineNumber );
+//
+//    statusBar.getRightItems().add( statusBar );
 
     appPane.setTop( menuBar );
     appPane.setCenter( mainView );
@@ -130,6 +141,20 @@ public final class Main extends Application {
   private Node createMenuBar( final ApplicationActions actions ) {
     final var menuBar = new ApplicationMenuBar( actions );
     return menuBar.createMenuBar();
+  }
+
+  /**
+   * Called to update the status bar's caret position when a new tab is added
+   * or the active tab is switched.
+   *
+   * @param tab The active tab containing a caret position to show.
+   */
+  private void updateCaretStatus( final FileEditorController tab ) {
+    //getLineNumberText().setText( tab.getCaretPosition().toString() );
+  }
+
+  private Text createLineNumberText() {
+    return new Text( get( STATUS_BAR_LINE, 1, 1, 1 ) );
   }
 
   private MainView createMainView() {

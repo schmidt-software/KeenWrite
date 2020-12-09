@@ -54,14 +54,14 @@ public class CaretExtension implements HtmlRendererExtension {
    * once: for the HTML element containing the {@link Constants#CARET_ID}.
    */
   public static class IdAttributeProvider implements AttributeProvider {
-    private final CaretPosition mCaret;
+    private final Caret mCaret;
 
-    public IdAttributeProvider( final CaretPosition caret ) {
+    public IdAttributeProvider( final Caret caret ) {
       mCaret = caret;
     }
 
     private static AttributeProviderFactory createFactory(
-        final CaretPosition caret ) {
+        final Caret caret ) {
       return new IndependentAttributeProviderFactory() {
         @Override
         public @NotNull AttributeProvider apply(
@@ -92,9 +92,9 @@ public class CaretExtension implements HtmlRendererExtension {
     }
   }
 
-  private final CaretPosition mCaret;
+  private final Caret mCaret;
 
-  private CaretExtension( final CaretPosition caret ) {
+  private CaretExtension( final Caret caret ) {
     mCaret = caret;
   }
 
@@ -105,7 +105,7 @@ public class CaretExtension implements HtmlRendererExtension {
         IdAttributeProvider.createFactory( mCaret ) );
   }
 
-  public static CaretExtension create( final CaretPosition caret ) {
+  public static CaretExtension create( final Caret caret ) {
     return new CaretExtension( caret );
   }
 

@@ -30,7 +30,7 @@ package com.keenwrite.editors;
 import com.keenwrite.Constants;
 import com.keenwrite.io.File;
 import com.keenwrite.preferences.UserPreferences;
-import com.keenwrite.processors.markdown.CaretPosition;
+import com.keenwrite.processors.markdown.Caret;
 import javafx.beans.property.*;
 import javafx.beans.value.ChangeListener;
 import javafx.event.Event;
@@ -202,14 +202,6 @@ public class PlainTextEditor extends StyleClassedTextArea
     return getEditor().getUndoManager();
   }
 
-  @Override
-  public CaretPosition createCaretPosition() {
-    return CaretPosition
-        .builder()
-        .with( CaretPosition.Mutator::setEditor, this )
-        .build();
-  }
-
   /**
    * Call to hook into changes to the text area.
    *
@@ -264,6 +256,14 @@ public class PlainTextEditor extends StyleClassedTextArea
   @Override
   public VirtualizedScrollPane<StyleClassedTextArea> getScrollPane() {
     return mScrollPane;
+  }
+
+  @Override
+  public Caret getCaret() {
+    return Caret
+        .builder()
+        .with( Caret.Mutator::setEditor, this )
+        .build();
   }
 
   public File getFile() {

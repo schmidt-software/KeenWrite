@@ -2,7 +2,7 @@
 package com.keenwrite.editors;
 
 import com.keenwrite.TextResource;
-import com.keenwrite.processors.markdown.CaretPosition;
+import com.keenwrite.processors.markdown.Caret;
 import org.fxmisc.flowless.VirtualizedScrollPane;
 import org.fxmisc.richtext.StyleClassedTextArea;
 
@@ -29,7 +29,7 @@ public interface TextEditor extends TextResource {
    *
    * @return The caret's position, which is updated continuously.
    */
-  CaretPosition createCaretPosition();
+  Caret getCaret();
 
   /**
    * Requests undoing the last text-changing action.
