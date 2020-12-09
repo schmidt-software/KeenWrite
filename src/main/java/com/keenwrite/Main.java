@@ -10,6 +10,7 @@ import com.keenwrite.util.StageState;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
@@ -115,32 +116,52 @@ public final class Main extends Application {
   }
 
   private void initScene( final Stage stage ) {
-    final var appPane = new BorderPane();
     final var mainView = createMainView();
-    final var actions = new ApplicationActions( mainView );
+    final var actions = createApplicationActions( mainView );
     final var menuBar = createMenuBar( actions );
-    final var statusBar = getStatusBar();
-    final var lineNumber = createLineNumberText();
-
-//    final var box = new VBox();
-//    box.setAlignment( BASELINE_CENTER );
-//    box.getChildren().add( lineNumber );
-//
-//    statusBar.getRightItems().add( statusBar );
+    final var statusBar = createStatusBar();
+    final var appPane = new BorderPane();
+    final var scene = createScene( appPane );
 
     appPane.setTop( menuBar );
     appPane.setCenter( mainView );
     appPane.setBottom( statusBar );
 
-    final var scene = new Scene( appPane );
-    final var stylesheets = scene.getStylesheets();
-    stylesheets.add( STYLESHEET_SCENE );
     stage.setScene( scene );
+  }
+
+  private MainView createMainView() {
+    return new MainView();
+  }
+
+  private ApplicationActions createApplicationActions(
+      final MainView mainView ) {
+    return new ApplicationActions( mainView );
   }
 
   private Node createMenuBar( final ApplicationActions actions ) {
     final var menuBar = new ApplicationMenuBar( actions );
     return menuBar.createMenuBar();
+  }
+
+  private StatusBar createStatusBar() {
+    final var statusBar = StatusBarNotifier.getStatusBar();
+    final var lineNumber = createLineNumberText();
+
+    final var box = new VBox();
+    box.setAlignment( BASELINE_CENTER );
+    box.getChildren().add( lineNumber );
+    statusBar.getRightItems().add( box );
+
+    return statusBar;
+  }
+
+  private Scene createScene( final Parent parent ) {
+    final var scene = new Scene( parent );
+    final var stylesheets = scene.getStylesheets();
+    stylesheets.add( STYLESHEET_SCENE );
+
+    return scene;
   }
 
   /**
@@ -155,14 +176,6 @@ public final class Main extends Application {
 
   private Text createLineNumberText() {
     return new Text( get( STATUS_BAR_LINE, 1, 1, 1 ) );
-  }
-
-  private MainView createMainView() {
-    return new MainView();
-  }
-
-  private StatusBar getStatusBar() {
-    return StatusBarNotifier.getStatusBar();
   }
 
   /**
