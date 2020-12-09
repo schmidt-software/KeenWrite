@@ -239,7 +239,8 @@ public final class Workspace {
     final var items = getListItems( key );
     final var index = items.indexOf( toString( file ) );
 
-    if( index > 0 ) {
+    // The list index is 0-based.
+    if( index >= 0 ) {
       mConfig.clearTree( format( "%s(%d)", key, index ) );
     }
   }

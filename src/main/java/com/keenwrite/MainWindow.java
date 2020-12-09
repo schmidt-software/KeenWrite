@@ -185,7 +185,7 @@ public class MainWindow {
         .builder()
         .setText( "Main.menu.definition.create" )
         .setIcon( TREE )
-        .setHandler( e -> getDefinitionPane().addItem() )
+        .setHandler( e -> getDefinitionPane().createDefinition() )
         .build();
     final Action definitionInsertAction = Action
         .builder()

@@ -25,7 +25,6 @@ import java.util.*;
 import static com.keenwrite.Constants.DEFAULT_DEFINITION;
 import static com.keenwrite.Messages.get;
 import static com.keenwrite.StatusBarNotifier.clue;
-import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.*;
 import static javafx.geometry.Pos.CENTER;
 import static javafx.geometry.Pos.TOP_CENTER;
 import static javafx.scene.control.SelectionMode.MULTIPLE;
@@ -108,15 +107,12 @@ public final class DefinitionEditor extends BorderPane implements
     mTreeView.setShowRoot( false );
     getSelectionModel().setSelectionMode( MULTIPLE );
 
-    final var bCreate = createButton(
-        "create", TREE, e -> addItem() );
-    final var bRename = createButton(
-        "rename", EDIT, e -> editSelectedItem() );
-    final var bDelete = createButton(
-        "delete", TRASH, e -> deleteSelectedItems() );
-
     final var buttonBar = new HBox();
-    buttonBar.getChildren().addAll( bCreate, bRename, bDelete );
+    buttonBar.getChildren().addAll(
+        createButton( "create", e -> createDefinition() ),
+        createButton( "rename", e -> renameDefinition() ),
+        createButton( "delete", e -> deleteDefinitions() )
+    );
     buttonBar.setAlignment( CENTER );
     buttonBar.setSpacing( 10 );
 
@@ -191,15 +187,15 @@ public final class DefinitionEditor extends BorderPane implements
   }
 
   private Button createButton(
-      final String msgKey,
-      final FontAwesomeIcon icon,
-      final EventHandler<ActionEvent> eventHandler ) {
-    final var keyPrefix = "Pane.definition.button." + msgKey;
-    final var button = new Button( get( keyPrefix + ".label" ) );
-    button.setOnAction( eventHandler );
+      final String msgKey, final EventHandler<ActionEvent> eventHandler ) {
+    final var keyPrefix = "App.action.definition." + msgKey;
+    final var button = new Button( get( keyPrefix + ".text" ) );
+    final var icon = get( keyPrefix + ".icon" );
+    final var glyph = FontAwesomeIcon.valueOf( icon.toUpperCase() );
 
+    button.setOnAction( eventHandler );
     button.setGraphic(
-        FontAwesomeIconFactory.get().createIcon( icon )
+        FontAwesomeIconFactory.get().createIcon( glyph )
     );
     button.setTooltip( new Tooltip( get( keyPrefix + ".tooltip" ) ) );
 
@@ -387,14 +383,16 @@ public final class DefinitionEditor extends BorderPane implements
   /**
    * Changes to edit mode for the selected item.
    */
-  private void editSelectedItem() {
+  @Override
+  public void renameDefinition() {
     getTreeView().edit( getSelectedItem() );
   }
 
   /**
    * Removes all selected items from the {@link TreeView}.
    */
-  private void deleteSelectedItems() {
+  @Override
+  public void deleteDefinitions() {
     for( final var item : getSelectedItems() ) {
       final var parent = item.getParent();
 
@@ -418,7 +416,8 @@ public final class DefinitionEditor extends BorderPane implements
    * when adding to a leaf, and when adding to a non-leaf. Items added to the
    * root must contain two items: a key and a value.
    */
-  public void addItem() {
+  @Override
+  public void createDefinition() {
     final var value = createDefinitionTreeItem();
     getSelectedItem().getChildren().add( value );
     expand( value );
@@ -426,16 +425,16 @@ public final class DefinitionEditor extends BorderPane implements
   }
 
   private ContextMenu createContextMenu() {
-    final ContextMenu menu = new ContextMenu();
-    final ObservableList<MenuItem> items = menu.getItems();
+    final var menu = new ContextMenu();
+    final var items = menu.getItems();
 
-    addMenuItem( items, "Definition.menu.create" )
-        .setOnAction( e -> addItem() );
+    addMenuItem( items, "App.action.definition.create.text" )
+        .setOnAction( e -> createDefinition() );
 
-    addMenuItem( items, "Definition.menu.rename" )
-        .setOnAction( e -> editSelectedItem() );
+    addMenuItem( items, "App.action.definition.rename.text" )
+        .setOnAction( e -> renameDefinition() );
 
-    addMenuItem( items, "Definition.menu.remove" )
+    addMenuItem( items, "App.action.definition.delete.text" )
         .setOnAction( e -> deleteSelectedItem() );
 
     return menu;
@@ -454,12 +453,12 @@ public final class DefinitionEditor extends BorderPane implements
           event.consume();
         }
 
-        case DELETE -> deleteSelectedItems();
-        case INSERT -> addItem();
+        case DELETE -> deleteDefinitions();
+        case INSERT -> createDefinition();
 
         case R -> {
           if( event.isControlDown() ) {
-            editSelectedItem();
+            renameDefinition();
           }
         }
       }

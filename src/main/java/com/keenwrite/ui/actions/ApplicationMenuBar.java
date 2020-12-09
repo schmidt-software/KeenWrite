@@ -105,8 +105,11 @@ public class ApplicationMenuBar {
     ),
     createMenu(
       get( "Main.menu.definition" ),
+      addAction( "definition.insert", e -> mActions.definition‿insert() ),
+      SEPARATOR_ACTION,
       addAction( "definition.create", e -> mActions.definition‿create() ),
-      addAction( "definition.insert", e -> mActions.definition‿insert() )
+      addAction( "definition.rename", e -> mActions.definition‿rename() ),
+      addAction( "definition.delete", e -> mActions.definition‿delete() )
     ),
     createMenu(
       get( "Main.menu.view" ),

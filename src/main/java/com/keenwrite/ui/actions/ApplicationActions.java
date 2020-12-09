@@ -3,6 +3,7 @@ package com.keenwrite.ui.actions;
 
 import com.keenwrite.ExportFormat;
 import com.keenwrite.MainView;
+import com.keenwrite.editors.TextDefinition;
 import com.keenwrite.editors.TextEditor;
 import com.keenwrite.io.File;
 import com.keenwrite.processors.ProcessorContext;
@@ -212,9 +213,19 @@ public class ApplicationActions {
   }
 
   public void definition‿create() {
+    getActiveTextDefinition().createDefinition();
+  }
+
+  public void definition‿rename() {
+    getActiveTextDefinition().renameDefinition();
+  }
+
+  public void definition‿delete() {
+    getActiveTextDefinition().deleteDefinitions();
   }
 
   public void definition‿insert() {
+    //getMainView().insertDefinition();
   }
 
   public void view‿refresh() {
@@ -244,6 +255,10 @@ public class ApplicationActions {
 
   private TextEditor getActiveTextEditor() {
     return getMainView().getActiveTextEditor();
+  }
+
+  private TextDefinition getActiveTextDefinition() {
+    return getMainView().getActiveTextDefinition();
   }
 
   private Window getWindow() {

@@ -18,4 +18,19 @@ public interface TextDefinition extends TextResource {
    * @return The list of key value pairs delimited with tokens.
    */
   Map<String, String> toMap();
+
+  /**
+   * Adds a new item to the definition hierarchy.
+   */
+  void createDefinition();
+
+  /**
+   * Edits the currently selected definition in the hierarchy.
+   */
+  void renameDefinition();
+
+  /**
+   * Removes the currently selected definition in the hierarchy.
+   */
+  void deleteDefinitions();
 }

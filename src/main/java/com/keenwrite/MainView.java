@@ -756,6 +756,10 @@ public final class MainView extends SplitPane {
     return mActiveTextEditor.get();
   }
 
+  public TextDefinition getActiveTextDefinition() {
+    return mActiveDefinitionEditor.get();
+  }
+
   public Window getWindow() {
     return getScene().getWindow();
   }
