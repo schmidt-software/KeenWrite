@@ -16,12 +16,13 @@ import com.keenwrite.processors.IdentityProcessor;
 import com.keenwrite.processors.Processor;
 import com.keenwrite.processors.ProcessorContext;
 import com.keenwrite.processors.ProcessorFactory;
-import com.keenwrite.processors.markdown.CaretExtension;
 import com.keenwrite.processors.markdown.Caret;
+import com.keenwrite.processors.markdown.CaretExtension;
 import com.keenwrite.service.events.Notifier;
 import com.panemu.tiwulfx.control.dock.DetachableTab;
 import com.panemu.tiwulfx.control.dock.DetachableTabPane;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.ListChangeListener;
 import javafx.event.ActionEvent;
@@ -57,7 +58,7 @@ import static javafx.util.Duration.millis;
  * particular workspace (project). These include the definition views,
  * text editors, and preview pane along with any corresponding controllers.
  */
-public final class MainView extends SplitPane {
+public final class MainPane extends SplitPane {
   private static final Notifier sNotifier = Services.load( Notifier.class );
   /**
    * Prevents re-instantiation of processing classes.
@@ -128,7 +129,7 @@ public final class MainView extends SplitPane {
    * configuration settings from the workspace to reproduce the settings from
    * a previous session.
    */
-  public MainView() {
+  public MainPane() {
     open( bin( getWorkspace().getListFiles( KEY_UI_FILES_PATH ) ) );
 
     final var tabPane = obtainDetachableTabPane( TEXT_HTML );
@@ -755,8 +756,20 @@ public final class MainView extends SplitPane {
     return mActiveTextEditor.get();
   }
 
+  public ReadOnlyObjectProperty<TextEditor> activeTextEditorProperty() {
+    return mActiveTextEditor;
+  }
+
   public TextDefinition getActiveTextDefinition() {
     return mActiveDefinitionEditor.get();
+  }
+
+  public Caret getCaret() {
+    return getActiveTextEditor().getCaret();
+  }
+
+  private void insertDefinition() {
+    //getDefinitionNameInjector().autoinsert();
   }
 
   public Window getWindow() {

@@ -48,7 +48,7 @@ import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.*;
 /**
  * Main window containing a tab pane in the center for file editors.
  *
- * @deprecated Use {@link MainView}.
+ * @deprecated Use {@link MainPane}.
  */
 @Deprecated
 public class MainWindow {
@@ -180,21 +180,6 @@ public class MainWindow {
         .setHandler( e -> getActiveEditorPane().insertImage() )
         .build();
 
-    // Definition actions
-    final Action definitionCreateAction = Action
-        .builder()
-        .setText( "Main.menu.definition.create" )
-        .setIcon( TREE )
-        .setHandler( e -> getDefinitionPane().createDefinition() )
-        .build();
-    final Action definitionInsertAction = Action
-        .builder()
-        .setText( "Main.menu.definition.insert" )
-        .setAccelerator( "Ctrl+Space" )
-        .setIcon( STAR )
-        .setHandler( e -> definitionInsert() )
-        .build();
-
     final MenuAction SEPARATOR_ACTION = new SeparatorAction();
 
     //---- MenuBar ----
@@ -214,26 +199,12 @@ public class MainWindow {
         insertImageAction
     );
 
-    // Definition Menu
-    final var definitionMenu = createMenu(
-        get( "Main.menu.definition" ),
-        definitionCreateAction,
-        definitionInsertAction );
-
     //---- MenuBar ----
     final var menuBar = new MenuBar(
         editMenu,
-        insertMenu,
-        definitionMenu );
+        insertMenu );
 
     return new VBox( menuBar );
-  }
-
-  /**
-   * Performs the autoinsert function on the active file editor.
-   */
-  private void definitionInsert() {
-    getDefinitionNameInjector().autoinsert();
   }
 
   //---- Convenience accessors ----------------------------------------------

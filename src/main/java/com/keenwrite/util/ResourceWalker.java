@@ -2,6 +2,7 @@
 package com.keenwrite.util;
 
 import java.io.IOException;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -36,17 +37,24 @@ public class ResourceWalker {
 
     if( resource != null ) {
       final var uri = resource.toURI();
-      final var path = uri.getScheme().equals( "jar" )
-          ? newFileSystem( uri, emptyMap() ).getPath( directory )
-          : Paths.get( uri );
-      final var walk = Files.walk( path, 10 );
+      final var jar = uri.getScheme().equals( "jar" );
+      final var path = jar ? toFileSystem( uri, directory ) : Paths.get( uri );
 
-      for( final var it = walk.iterator(); it.hasNext(); ) {
-        final Path p = it.next();
-        if( matcher.matches( p ) ) {
-          c.accept( p );
+      try( final var walk = Files.walk( path, 10 ) ) {
+        for( final var it = walk.iterator(); it.hasNext(); ) {
+          final Path p = it.next();
+          if( matcher.matches( p ) ) {
+            c.accept( p );
+          }
         }
       }
+    }
+  }
+
+  private static Path toFileSystem( final URI uri, final String directory )
+      throws IOException {
+    try( final var fs = newFileSystem( uri, emptyMap() ) ) {
+      return fs.getPath( directory );
     }
   }
 }

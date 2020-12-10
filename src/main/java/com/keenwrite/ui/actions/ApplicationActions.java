@@ -2,7 +2,7 @@
 package com.keenwrite.ui.actions;
 
 import com.keenwrite.ExportFormat;
-import com.keenwrite.MainView;
+import com.keenwrite.MainPane;
 import com.keenwrite.editors.TextDefinition;
 import com.keenwrite.editors.TextEditor;
 import com.keenwrite.io.File;
@@ -35,39 +35,39 @@ public class ApplicationActions {
   /**
    * When an action is executed, this is one of the recipients.
    */
-  private final MainView mMainView;
+  private final MainPane mmainPane;
 
-  public ApplicationActions( final MainView mainView ) {
-    mMainView = mainView;
+  public ApplicationActions( final MainPane mainPane ) {
+    mmainPane = mainPane;
   }
 
   public void file‿new() {
-    getMainView().newTextEditor();
+    getmainPane().newTextEditor();
   }
 
   public void file‿open() {
-    getMainView().open( createFileChooser().openFiles() );
+    getmainPane().open( createFileChooser().openFiles() );
   }
 
   public void file‿close() {
-    getMainView().close();
+    getmainPane().close();
   }
 
   public void file‿close_all() {
-    getMainView().closeAll();
+    getmainPane().closeAll();
   }
 
   public void file‿save() {
-    getMainView().save();
+    getmainPane().save();
   }
 
   public void file‿save_as() {
     final var file = createFileChooser().saveAs();
-    file.ifPresent( ( f ) -> getMainView().saveAs( f ) );
+    file.ifPresent( ( f ) -> getmainPane().saveAs( f ) );
   }
 
   public void file‿save_all() {
-    getMainView().saveAll();
+    getmainPane().saveAll();
   }
 
   public void file‿export‿html_svg() {
@@ -104,7 +104,7 @@ public class ApplicationActions {
   }
 
   private ProcessorContext createProcessorContext( final TextEditor editor ) {
-    return getMainView().createProcessorContext( editor );
+    return getmainPane().createProcessorContext( editor );
   }
 
   public void file‿exit() {
@@ -225,7 +225,7 @@ public class ApplicationActions {
   }
 
   public void definition‿insert() {
-    //getMainView().insertDefinition();
+    //getmainPane().insertDefinition();
   }
 
   public void view‿refresh() {
@@ -249,19 +249,19 @@ public class ApplicationActions {
     return new FileChooserCommand( getWindow() );
   }
 
-  private MainView getMainView() {
-    return mMainView;
+  private MainPane getmainPane() {
+    return mmainPane;
   }
 
   private TextEditor getActiveTextEditor() {
-    return getMainView().getActiveTextEditor();
+    return getmainPane().getActiveTextEditor();
   }
 
   private TextDefinition getActiveTextDefinition() {
-    return getMainView().getActiveTextDefinition();
+    return getmainPane().getActiveTextDefinition();
   }
 
   private Window getWindow() {
-    return getMainView().getWindow();
+    return getmainPane().getWindow();
   }
 }

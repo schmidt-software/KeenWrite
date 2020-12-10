@@ -4,27 +4,16 @@ package com.keenwrite;
 import com.keenwrite.preferences.Workspace;
 import com.keenwrite.service.Options;
 import com.keenwrite.service.Snitch;
-import com.keenwrite.ui.actions.ApplicationActions;
-import com.keenwrite.ui.actions.ApplicationMenuBar;
 import com.keenwrite.util.StageState;
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.image.Image;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.VBox;
-import javafx.scene.text.Text;
 import javafx.stage.Stage;
-import org.controlsfx.control.StatusBar;
 
 import static com.keenwrite.Bootstrap.APP_TITLE;
 import static com.keenwrite.Constants.*;
-import static com.keenwrite.Messages.get;
 import static com.keenwrite.preferences.UserPreferences.initPreferences;
 import static com.keenwrite.util.FontLoader.initFonts;
-import static javafx.geometry.Pos.BASELINE_CENTER;
 import static javafx.scene.input.KeyCode.F11;
 import static javafx.scene.input.KeyEvent.KEY_PRESSED;
 import static javafx.stage.WindowEvent.WINDOW_CLOSE_REQUEST;
@@ -34,7 +23,7 @@ import static javafx.stage.WindowEvent.WINDOW_CLOSE_REQUEST;
  * files in a markup notation and see a real-time preview of the formatted
  * output.
  */
-public final class Main extends Application {
+public final class MainApp extends Application {
 
   private final Options mOptions = Services.load( Options.class );
   private final Snitch mSnitch = Services.load( Snitch.class );
@@ -61,11 +50,11 @@ public final class Main extends Application {
    */
   @Override
   public void start( final Stage stage ) {
-    initSnitch();
     initState( stage );
     initStage( stage );
     initIcons( stage );
     initScene( stage );
+    initSnitch();
 
     stage.show();
   }
@@ -116,66 +105,11 @@ public final class Main extends Application {
   }
 
   private void initScene( final Stage stage ) {
-    final var mainView = createMainView();
-    final var actions = createApplicationActions( mainView );
-    final var menuBar = createMenuBar( actions );
-    final var statusBar = createStatusBar();
-    final var appPane = new BorderPane();
-    final var scene = createScene( appPane );
-
-    appPane.setTop( menuBar );
-    appPane.setCenter( mainView );
-    appPane.setBottom( statusBar );
-
-    stage.setScene( scene );
+    stage.setScene( (new MainScene()).getScene() );
   }
 
-  private MainView createMainView() {
-    return new MainView();
-  }
-
-  private ApplicationActions createApplicationActions(
-      final MainView mainView ) {
-    return new ApplicationActions( mainView );
-  }
-
-  private Node createMenuBar( final ApplicationActions actions ) {
-    final var menuBar = new ApplicationMenuBar( actions );
-    return menuBar.createMenuBar();
-  }
-
-  private StatusBar createStatusBar() {
-    final var statusBar = StatusBarNotifier.getStatusBar();
-    final var lineNumber = createLineNumberText();
-
-    final var box = new VBox();
-    box.setAlignment( BASELINE_CENTER );
-    box.getChildren().add( lineNumber );
-    statusBar.getRightItems().add( box );
-
-    return statusBar;
-  }
-
-  private Scene createScene( final Parent parent ) {
-    final var scene = new Scene( parent );
-    final var stylesheets = scene.getStylesheets();
-    stylesheets.add( STYLESHEET_SCENE );
-
-    return scene;
-  }
-
-  /**
-   * Called to update the status bar's caret position when a new tab is added
-   * or the active tab is switched.
-   *
-   * @param tab The active tab containing a caret position to show.
-   */
-  private void updateCaretStatus( final FileEditorController tab ) {
-    //getLineNumberText().setText( tab.getCaretPosition().toString() );
-  }
-
-  private Text createLineNumberText() {
-    return new Text( get( STATUS_BAR_LINE, 1, 1, 1 ) );
+  private Image createImage( final String filename ) {
+    return new Image( filename );
   }
 
   /**
@@ -191,9 +125,5 @@ public final class Main extends Application {
 
   private Options getOptions() {
     return mOptions;
-  }
-
-  private Image createImage( final String filename ) {
-    return new Image( filename );
   }
 }

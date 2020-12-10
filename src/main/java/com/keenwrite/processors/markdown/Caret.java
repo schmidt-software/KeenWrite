@@ -104,6 +104,15 @@ public class Caret {
   }
 
   /**
+   * Allows observers to be notified when the value of the caret changes.
+   *
+   * @return An observer for the caret's document offset.
+   */
+  public ObservableValue<Integer> textOffsetProperty() {
+    return mMutator.mTextOffset;
+  }
+
+  /**
    * Answers whether the caret's offset into the text is between the given
    * offsets.
    *
@@ -205,8 +214,8 @@ public class Caret {
   @Override
   public String toString() {
     return get( STATUS_BAR_LINE,
-                getParagraph(),
+                getParagraph() + 1,
                 getParagraphCount(),
-                getTextOffset() );
+                getTextOffset() + 1 );
   }
 }

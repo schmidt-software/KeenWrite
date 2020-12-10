@@ -10,7 +10,7 @@ import static com.keenwrite.Bootstrap.APP_TITLE;
 import static java.lang.String.format;
 
 /**
- * Launches the application using the {@link Main} class.
+ * Launches the application using the {@link MainApp} class.
  *
  * <p>
  * This is required until modules are implemented, which may never happen
@@ -25,7 +25,7 @@ public class Launcher {
    */
   public static void main( final String[] args ) throws IOException {
     showAppInfo();
-    Main.main( args );
+    MainApp.main( args );
   }
 
   @SuppressWarnings("RedundantStringFormatCall")
