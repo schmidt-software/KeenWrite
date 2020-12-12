@@ -287,65 +287,25 @@ public final class DefinitionEditor extends BorderPane implements
         (childBranches == 0 && childLeafs <= 1)) ? null : item;
   }
 
-  /**
-   * Delegates to {@link DefinitionTreeItem#findLeafExact(String)}.
-   *
-   * @param text The value to find, never {@code null}.
-   * @return The leaf that contains the given value, or {@code null} if
-   * not found.
-   */
+  @Override
   public DefinitionTreeItem<String> findLeafExact( final String text ) {
     return getTreeRoot().findLeafExact( text );
   }
 
-  /**
-   * Delegates to {@link DefinitionTreeItem#findLeafContains(String)}.
-   *
-   * @param text The value to find, never {@code null}.
-   * @return The leaf that contains the given value, or {@code null} if
-   * not found.
-   */
+  @Override
   public DefinitionTreeItem<String> findLeafContains( final String text ) {
     return getTreeRoot().findLeafContains( text );
   }
 
-  /**
-   * Delegates to {@link DefinitionTreeItem#findLeafContains(String)}.
-   *
-   * @param text The value to find, never {@code null}.
-   * @return The leaf that contains the given value, or {@code null} if
-   * not found.
-   */
+  @Override
   public DefinitionTreeItem<String> findLeafContainsNoCase(
       final String text ) {
     return getTreeRoot().findLeafContainsNoCase( text );
   }
 
-  /**
-   * Delegates to {@link DefinitionTreeItem#findLeafStartsWith(String)}.
-   *
-   * @param text The value to find, never {@code null}.
-   * @return The leaf that contains the given value, or {@code null} if
-   * not found.
-   */
+  @Override
   public DefinitionTreeItem<String> findLeafStartsWith( final String text ) {
     return getTreeRoot().findLeafStartsWith( text );
-  }
-
-  /**
-   * Expands the node to the root, recursively.
-   *
-   * @param <T>  The type of tree item to expand (usually String).
-   * @param node The node to expand.
-   */
-  public <T> void expand( final TreeItem<T> node ) {
-    if( node != null ) {
-      expand( node.getParent() );
-
-      if( !node.isLeaf() ) {
-        node.setExpanded( true );
-      }
-    }
   }
 
   public void select( final TreeItem<String> item ) {
@@ -507,12 +467,28 @@ public final class DefinitionEditor extends BorderPane implements
     getTreeView().requestFocus();
   }
 
+
+  /**
+   * Expands the node to the root, recursively.
+   *
+   * @param <T>  The type of tree item to expand (usually String).
+   * @param node The node to expand.
+   */
+  @Override
+  public <T> void expand( final TreeItem<T> node ) {
+    if( node != null ) {
+      expand( node.getParent() );
+      node.setExpanded( !node.isLeaf() );
+    }
+  }
+
   /**
    * Answers whether there are any definitions in the tree.
    *
    * @return {@code true} when there are no definitions; {@code false} when
    * there's at least one definition.
    */
+  @Override
   public boolean isEmpty() {
     return getTreeRoot().isEmpty();
   }

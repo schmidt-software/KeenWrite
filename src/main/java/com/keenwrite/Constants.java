@@ -2,14 +2,22 @@
 package com.keenwrite;
 
 import com.keenwrite.io.File;
+import com.keenwrite.io.MediaType;
 import com.keenwrite.service.Settings;
+import com.keenwrite.sigils.RSigilOperator;
+import com.keenwrite.sigils.SigilOperator;
+import com.keenwrite.sigils.YamlSigilOperator;
 import javafx.scene.image.Image;
 
 import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.util.Locale;
+import java.util.Map;
+import java.util.function.UnaryOperator;
 
 import static com.keenwrite.Bootstrap.APP_TITLE_LOWERCASE;
+import static com.keenwrite.io.MediaType.APP_R_MARKDOWN;
+import static com.keenwrite.io.MediaType.APP_R_XML;
 import static java.io.File.separator;
 import static java.lang.String.format;
 import static java.lang.System.getProperty;
@@ -118,6 +126,14 @@ public class Constants {
   public static final Path DEFAULT_DIRECTORY = USER_DIRECTORY.toPath();
 
   /**
+   * Associates file types with {@link SigilOperator} instances.
+   */
+  private static final Map<MediaType, SigilOperator> SIGIL_MAP = Map.of(
+      APP_R_MARKDOWN, new RSigilOperator(),
+      APP_R_XML, new RSigilOperator()
+  );
+
+  /**
    * Default character set to use when reading/writing files.
    */
   public static final Charset DEFAULT_CHARSET = Charset.defaultCharset();
@@ -173,6 +189,11 @@ public class Constants {
    * Prevent instantiation.
    */
   private Constants() {
+  }
+
+  public static UnaryOperator<String> getSigilOperator(
+      final MediaType mediaType ) {
+    return SIGIL_MAP.getOrDefault( mediaType, new YamlSigilOperator() );
   }
 
   private static String get( final String key ) {

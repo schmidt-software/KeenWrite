@@ -16,7 +16,7 @@ enum MediaTypeExtensions {
   MEDIA_IMAGE_APNG( IMAGE_APNG ),
   MEDIA_IMAGE_BMP( IMAGE_BMP ),
   MEDIA_IMAGE_GIF( IMAGE_GIF ),
-  MEDIA_IMAGE_ICO( IMAGE_X_ICON, of( "ico", ".cur" ) ),
+  MEDIA_IMAGE_ICO( IMAGE_X_ICON, of( "ico", "cur" ) ),
   MEDIA_IMAGE_JPEG( IMAGE_JPEG, of( "jpg", "jpeg", "jfif", "pjpeg", "pjp" ) ),
   MEDIA_IMAGE_PNG( IMAGE_PNG ),
   MEDIA_IMAGE_SVG( IMAGE_SVG_XML, of( "svg" ) ),
@@ -26,6 +26,8 @@ enum MediaTypeExtensions {
   MEDIA_TEXT_MARKDOWN( TEXT_MARKDOWN, of(
       "md", "markdown", "mdown", "mdtxt", "mdtext", "mdwn", "mkd", "mkdown",
       "mkdn", "text", "txt" ) ),
+  MEDIA_TEXT_R_MARKDOWN( APP_R_MARKDOWN, of( "Rmd" ) ),
+  MEDIA_TEXT_R_XML( APP_R_XML, of( "Rxml" ) ),
   MEDIA_TEXT_YAML( TEXT_YAML, of( "yaml", "yml" ) );
 
   private final MediaType mMediaType;

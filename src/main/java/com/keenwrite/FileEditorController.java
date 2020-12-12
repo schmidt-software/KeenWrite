@@ -26,13 +26,9 @@
 package com.keenwrite;
 
 import com.keenwrite.editors.markdown.MarkdownEditorPane;
-import javafx.beans.property.ReadOnlyBooleanWrapper;
-import javafx.beans.value.ChangeListener;
-import org.fxmisc.flowless.VirtualizedScrollPane;
 import org.fxmisc.richtext.StyleClassedTextArea;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.File;
 import java.nio.file.Path;
 
 /**
@@ -42,22 +38,10 @@ public final class FileEditorController {
 
   private final MarkdownEditorPane mEditorPane = new MarkdownEditorPane();
 
-  private final ReadOnlyBooleanWrapper mModified = new ReadOnlyBooleanWrapper();
-
   /**
    * File to load into the editor.
    */
   private Path mPath;
-
-  public FileEditorController() {
-  }
-
-  private void updateTab() {
-  }
-
-  public void requestFocus() {
-    getEditorPane().requestFocus();
-  }
 
   /**
    * Searches from the caret position forward for the given string.
@@ -77,15 +61,6 @@ public final class FileEditorController {
       setCaretTextOffset( index );
       getEditor().selectRange( index, index + needle.length() );
     }
-  }
-
-  /**
-   * Gets a reference to the scroll pane that houses the editor.
-   *
-   * @return The editor's scroll pane, containing a vertical scrollbar.
-   */
-  public VirtualizedScrollPane<StyleClassedTextArea> getScrollPane() {
-    return getEditorPane().getScrollPane();
   }
 
   /**
@@ -117,18 +92,6 @@ public final class FileEditorController {
   }
 
   /**
-   * Returns true if the given path exactly matches this tab's path.
-   *
-   * @param check The path to compare against.
-   * @return true The paths are the same.
-   */
-  public boolean isPath( final Path check ) {
-    final Path filePath = getPath();
-
-    return filePath != null && filePath.equals( check );
-  }
-
-  /**
    * Returns the path to the file being edited in this tab.
    *
    * @return A non-null instance.
@@ -146,32 +109,6 @@ public final class FileEditorController {
   public void setPath( final Path path ) {
     assert path != null;
     mPath = path;
-
-    updateTab();
-  }
-
-  /**
-   * Convenience method to set the path based on an instance of {@link File}.
-   *
-   * @param file A non-null instance.
-   */
-  public void setPath( final File file ) {
-    assert file != null;
-    setPath( file.toPath() );
-  }
-
-  public boolean isModified() {
-    return mModified.get();
-  }
-
-  /**
-   * Forwards to the editor pane's listeners for caret change events.
-   *
-   * @param listener Notified when the caret position changes.
-   */
-  public void addCaretPositionListener(
-      final ChangeListener<? super Integer> listener ) {
-    getEditorPane().addCaretPositionListener( listener );
   }
 
   /**

@@ -28,6 +28,7 @@
 package com.keenwrite.editors;
 
 import com.keenwrite.Constants;
+import com.keenwrite.editors.markdown.MarkdownEditor;
 import com.keenwrite.io.File;
 import com.keenwrite.preferences.UserPreferences;
 import com.keenwrite.processors.markdown.Caret;
@@ -35,6 +36,7 @@ import javafx.beans.property.*;
 import javafx.beans.value.ChangeListener;
 import javafx.event.Event;
 import javafx.scene.Node;
+import javafx.scene.control.IndexRange;
 import javafx.scene.control.ScrollPane;
 import org.fxmisc.flowless.VirtualizedScrollPane;
 import org.fxmisc.richtext.StyleClassedTextArea;
@@ -264,6 +266,23 @@ public class PlainTextEditor extends StyleClassedTextArea
         .builder()
         .with( Caret.Mutator::setEditor, this )
         .build();
+  }
+
+  /**
+   * TODO: Merge functionality from {@link MarkdownEditor}.
+   *
+   * NOTE: This method is not implemented, so do not use.
+   *
+   * @return An invalid range of 0, 0.
+   */
+  @Override
+  public IndexRange getCaretWord() {
+    return new IndexRange( 0, 0 );
+  }
+
+  @Override
+  public void replaceText( IndexRange indexes, String s ) {
+    replaceText( indexes.getStart(), indexes.getEnd(), s );
   }
 
   public File getFile() {

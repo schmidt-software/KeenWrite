@@ -15,6 +15,8 @@ public enum MediaType {
   APP_VENDOR_PROJECT(
       TypeName.APPLICATION, format( "vnd.%s.project", APP_TITLE_LOWERCASE )
   ),
+  APP_R_MARKDOWN( TypeName.APPLICATION, "R+markdown"),
+  APP_R_XML( TypeName.APPLICATION, "R+xml"),
 
   APP_JAVA_OBJECT(
       TypeName.APPLICATION, "x-java-serialized-object"

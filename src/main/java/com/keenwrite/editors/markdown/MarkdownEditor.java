@@ -168,10 +168,10 @@ public class MarkdownEditor extends BorderPane implements TextEditor {
   }
 
   private void initHotKeys() {
-    addListener( keyPressed( ENTER ), this::onEnterPressed );
-    addListener( keyPressed( X, CONTROL_DOWN ), this::cut );
-    addListener( keyPressed( TAB ), this::tab );
-    addListener( keyPressed( TAB, SHIFT_DOWN ), this::untab );
+    addEventListener( keyPressed( ENTER ), this::onEnterPressed );
+    addEventListener( keyPressed( X, CONTROL_DOWN ), this::cut );
+    addEventListener( keyPressed( TAB ), this::tab );
+    addEventListener( keyPressed( TAB, SHIFT_DOWN ), this::untab );
   }
 
   private void initUndoManager() {
@@ -381,7 +381,7 @@ public class MarkdownEditor extends BorderPane implements TextEditor {
    * @param event    The event of interest.
    * @param consumer The method to call when the event happens.
    */
-  private <T extends Event, U extends T> void addListener(
+  public <T extends Event, U extends T> void addEventListener(
       final EventPattern<? super T, ? extends U> event,
       final Consumer<? super U> consumer ) {
     Nodes.addInputMap( mTextArea, consume( event, consumer ) );
@@ -520,17 +520,8 @@ public class MarkdownEditor extends BorderPane implements TextEditor {
     return mTextArea.getCaretColumn();
   }
 
-  /**
-   * Finds the start and end indexes for the word in the current paragraph
-   * where the caret is located. There are a few different scenarios, where
-   * the caret can be at: the start, end, or middle of a word; also, the
-   * caret can be at the end or beginning of a punctuated word; as well, the
-   * caret could be at the beginning or end of the line or document.
-   *
-   * @return The starting and ending offset within the entire text that
-   * enclose the word at the caret position.
-   */
-  private IndexRange getCaretWord() {
+  @Override
+  public IndexRange getCaretWord() {
     final var paragraph = getCaretParagraph();
     final var length = paragraph.length();
     final var column = getCaretColumn();
@@ -584,8 +575,20 @@ public class MarkdownEditor extends BorderPane implements TextEditor {
     return getText( getCurrentParagraph() );
   }
 
-  private String getText( final int paragraph ) {
+  @Override
+  public String getText( final int paragraph ) {
     return mTextArea.getText( paragraph );
+  }
+
+  @Override
+  public String getText( final IndexRange indexes )
+      throws IndexOutOfBoundsException {
+    return mTextArea.getText( indexes.getStart(), indexes.getEnd() );
+  }
+
+  @Override
+  public void replaceText(final IndexRange indexes, final String s) {
+    mTextArea.replaceText( indexes, s );
   }
 
   private UndoManager<?> getUndoManager() {

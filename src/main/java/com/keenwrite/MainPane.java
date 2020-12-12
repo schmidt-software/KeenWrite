@@ -4,6 +4,7 @@ package com.keenwrite;
 import com.keenwrite.definition.DefinitionEditor;
 import com.keenwrite.definition.DefinitionTabSceneFactory;
 import com.keenwrite.definition.yaml.YamlTreeTransformer;
+import com.keenwrite.editors.DefinitionNameInjector;
 import com.keenwrite.editors.PlainTextEditor;
 import com.keenwrite.editors.TextDefinition;
 import com.keenwrite.editors.TextEditor;
@@ -32,6 +33,7 @@ import javafx.scene.control.SplitPane;
 import javafx.scene.control.Tab;
 import javafx.scene.control.Tooltip;
 import javafx.scene.control.TreeItem.TreeModificationEvent;
+import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 
@@ -51,7 +53,10 @@ import static com.keenwrite.service.events.Notifier.NO;
 import static com.keenwrite.service.events.Notifier.YES;
 import static javafx.application.Platform.runLater;
 import static javafx.scene.control.TabPane.TabClosingPolicy.ALL_TABS;
+import static javafx.scene.input.KeyCode.SPACE;
+import static javafx.scene.input.KeyCombination.CONTROL_DOWN;
 import static javafx.util.Duration.millis;
+import static org.fxmisc.wellbehaved.event.EventPattern.keyPressed;
 
 /**
  * Responsible for wiring together the main application components for a
@@ -726,10 +731,37 @@ public final class MainPane extends SplitPane {
       }
     } );
 
+    editor.addEventListener(
+        keyPressed( SPACE, CONTROL_DOWN ), this::autoinsert
+    );
+
     // Set the active editor, which refreshes the preview panel.
     mActiveTextEditor.set( editor );
 
     return editor;
+  }
+
+  /**
+   * Delegates to {@link #autoinsert()}.
+   *
+   * @param event Ignored.
+   */
+  private void autoinsert( final KeyEvent event ) {
+    autoinsert();
+  }
+
+  /**
+   * Finds a node that matches the word at the caret, then inserts the
+   * corresponding definition. The definition token delimiters depend on
+   * the type of file being edited.
+   */
+  public void autoinsert() {
+    final var definitions = getActiveTextDefinition();
+    final var editor = getActiveTextEditor();
+    final var mediaType = editor.getFile().getMediaType();
+    final var decorator = getSigilOperator( mediaType );
+
+    DefinitionNameInjector.autoinsert( editor, definitions, decorator );
   }
 
   private TextDefinition createDefinitionEditor() {
@@ -766,10 +798,6 @@ public final class MainPane extends SplitPane {
 
   public Caret getCaret() {
     return getActiveTextEditor().getCaret();
-  }
-
-  private void insertDefinition() {
-    //getDefinitionNameInjector().autoinsert();
   }
 
   public Window getWindow() {

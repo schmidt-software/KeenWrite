@@ -21,105 +21,105 @@ import static com.keenwrite.Messages.get;
  */
 public class ApplicationMenuBar {
 
-  private final ApplicationActions mActions;
   private final Map<String, Action> mMap = new HashMap<>( 64 );
 
   /**
    * Empty constructor.
    */
-  public ApplicationMenuBar( final ApplicationActions actions ) {
-    mActions = actions;
+  public ApplicationMenuBar() {
   }
 
   /**
    * Creates the main application affordances.
    *
+   * @param actions The {@link ApplicationActions} that map user interface
+   *                selections to executable code.
    * @return An instance of {@link Node} that contains the menu and toolbar.
    */
-  public Node createMenuBar() {
+  public Node createMenuBar( final ApplicationActions actions ) {
     final var SEPARATOR_ACTION = new SeparatorAction();
 
     //@formatter:off
     final var menuBar = new MenuBar(
     createMenu(
       get( "Main.menu.file" ),
-      addAction( "file.new", e -> mActions.file‿new() ),
-      addAction( "file.open", e -> mActions.file‿open() ),
+      addAction( "file.new", e -> actions.file‿new() ),
+      addAction( "file.open", e -> actions.file‿open() ),
       SEPARATOR_ACTION,
-      addAction( "file.close", e -> mActions.file‿close() ),
-      addAction( "file.close_all", e -> mActions.file‿close_all() ),
+      addAction( "file.close", e -> actions.file‿close() ),
+      addAction( "file.close_all", e -> actions.file‿close_all() ),
       SEPARATOR_ACTION,
-      addAction( "file.save", e -> mActions.file‿save() ),
-      addAction( "file.save_as", e -> mActions.file‿save_as() ),
-      addAction( "file.save_all", e -> mActions.file‿save_all() ),
+      addAction( "file.save", e -> actions.file‿save() ),
+      addAction( "file.save_as", e -> actions.file‿save_as() ),
+      addAction( "file.save_all", e -> actions.file‿save_all() ),
       SEPARATOR_ACTION,
       addAction( "file.export", e -> {} )
         .addSubActions(
-          addAction( "file.export.html_svg", e -> mActions.file‿export‿html_svg() ),
-          addAction( "file.export.html_tex", e -> mActions.file‿export‿html_tex() ),
-          addAction( "file.export.markdown", e -> mActions.file‿export‿markdown() )
+          addAction( "file.export.html_svg", e -> actions.file‿export‿html_svg() ),
+          addAction( "file.export.html_tex", e -> actions.file‿export‿html_tex() ),
+          addAction( "file.export.markdown", e -> actions.file‿export‿markdown() )
         ),
       SEPARATOR_ACTION,
-      addAction( "file.exit", e -> mActions.file‿exit() )
+      addAction( "file.exit", e -> actions.file‿exit() )
     ),
     createMenu(
       get( "Main.menu.edit" ),
       SEPARATOR_ACTION,
-      addAction( "edit.undo", e -> mActions.edit‿undo() ),
-      addAction( "edit.redo", e -> mActions.edit‿redo() ),
+      addAction( "edit.undo", e -> actions.edit‿undo() ),
+      addAction( "edit.redo", e -> actions.edit‿redo() ),
       SEPARATOR_ACTION,
-      addAction( "edit.cut", e -> mActions.edit‿cut() ),
-      addAction( "edit.copy", e -> mActions.edit‿copy() ),
-      addAction( "edit.paste", e -> mActions.edit‿paste() ),
-      addAction( "edit.select_all", e -> mActions.edit‿select_all() ),
+      addAction( "edit.cut", e -> actions.edit‿cut() ),
+      addAction( "edit.copy", e -> actions.edit‿copy() ),
+      addAction( "edit.paste", e -> actions.edit‿paste() ),
+      addAction( "edit.select_all", e -> actions.edit‿select_all() ),
       SEPARATOR_ACTION,
-      addAction( "edit.find", e -> mActions.edit‿find() ),
-      addAction( "edit.find_next", e -> mActions.edit‿find_next() ),
+      addAction( "edit.find", e -> actions.edit‿find() ),
+      addAction( "edit.find_next", e -> actions.edit‿find_next() ),
       SEPARATOR_ACTION,
-      addAction( "edit.preferences", e -> mActions.edit‿preferences() )
+      addAction( "edit.preferences", e -> actions.edit‿preferences() )
     ),
     createMenu(
       get( "Main.menu.format" ),
-      addAction( "format.bold", e -> mActions.format‿bold() ),
-      addAction( "format.italic", e -> mActions.format‿italic() ),
-      addAction( "format.superscript", e -> mActions.format‿superscript() ),
-      addAction( "format.subscript", e -> mActions.format‿subscript() ),
-      addAction( "format.strikethrough", e -> mActions.format‿strikethrough() )
+      addAction( "format.bold", e -> actions.format‿bold() ),
+      addAction( "format.italic", e -> actions.format‿italic() ),
+      addAction( "format.superscript", e -> actions.format‿superscript() ),
+      addAction( "format.subscript", e -> actions.format‿subscript() ),
+      addAction( "format.strikethrough", e -> actions.format‿strikethrough() )
     ),
     createMenu(
       get( "Main.menu.insert" ),
-      addAction( "insert.blockquote", e -> mActions.insert‿blockquote() ),
-      addAction( "insert.code", e -> mActions.insert‿code() ),
-      addAction( "insert.fenced_code_block", e -> mActions.insert‿fenced_code_block() ),
+      addAction( "insert.blockquote", e -> actions.insert‿blockquote() ),
+      addAction( "insert.code", e -> actions.insert‿code() ),
+      addAction( "insert.fenced_code_block", e -> actions.insert‿fenced_code_block() ),
       SEPARATOR_ACTION,
-      addAction( "insert.link", e -> mActions.insert‿link() ),
-      addAction( "insert.image", e -> mActions.insert‿image() ),
+      addAction( "insert.link", e -> actions.insert‿link() ),
+      addAction( "insert.image", e -> actions.insert‿image() ),
       SEPARATOR_ACTION,
-      addAction( "insert.heading_1", e -> mActions.insert‿heading_1() ),
-      addAction( "insert.heading_2", e -> mActions.insert‿heading_2() ),
-      addAction( "insert.heading_3", e -> mActions.insert‿heading_3() ),
+      addAction( "insert.heading_1", e -> actions.insert‿heading_1() ),
+      addAction( "insert.heading_2", e -> actions.insert‿heading_2() ),
+      addAction( "insert.heading_3", e -> actions.insert‿heading_3() ),
       SEPARATOR_ACTION,
-      addAction( "insert.unordered_list", e -> mActions.insert‿unordered_list() ),
-      addAction( "insert.ordered_list", e -> mActions.insert‿ordered_list() ),
-      addAction( "insert.horizontal_rule", e -> mActions.insert‿horizontal_rule() )
+      addAction( "insert.unordered_list", e -> actions.insert‿unordered_list() ),
+      addAction( "insert.ordered_list", e -> actions.insert‿ordered_list() ),
+      addAction( "insert.horizontal_rule", e -> actions.insert‿horizontal_rule() )
     ),
     createMenu(
       get( "Main.menu.definition" ),
-      addAction( "definition.insert", e -> mActions.definition‿insert() ),
+      addAction( "definition.insert", e -> actions.definition‿autoinsert() ),
       SEPARATOR_ACTION,
-      addAction( "definition.create", e -> mActions.definition‿create() ),
-      addAction( "definition.rename", e -> mActions.definition‿rename() ),
-      addAction( "definition.delete", e -> mActions.definition‿delete() )
+      addAction( "definition.create", e -> actions.definition‿create() ),
+      addAction( "definition.rename", e -> actions.definition‿rename() ),
+      addAction( "definition.delete", e -> actions.definition‿delete() )
     ),
     createMenu(
       get( "Main.menu.view" ),
-      addAction( "view.refresh", e -> mActions.view‿refresh() ),
+      addAction( "view.refresh", e -> actions.view‿refresh() ),
       SEPARATOR_ACTION,
-      addAction( "view.preview", e -> mActions.view‿preview() )
+      addAction( "view.preview", e -> actions.view‿preview() )
     ),
     createMenu(
       get( "Main.menu.help" ),
-      addAction( "help.about", e -> mActions.help‿about() )
+      addAction( "help.about", e -> actions.help‿about() )
     )
     //@formatter:on
     );
@@ -150,8 +150,9 @@ public class ApplicationMenuBar {
       getAction( "insert.heading_1" ),
       SEPARATOR_ACTION,
       getAction( "insert.unordered_list" ),
-      getAction( "insert.ordered_list" ) );
+      getAction( "insert.ordered_list" )
     //@formatter:on
+    );
 
     return new VBox( menuBar, toolBar );
   }

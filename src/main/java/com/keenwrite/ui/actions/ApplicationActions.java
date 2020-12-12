@@ -35,39 +35,39 @@ public class ApplicationActions {
   /**
    * When an action is executed, this is one of the recipients.
    */
-  private final MainPane mmainPane;
+  private final MainPane mMainPane;
 
   public ApplicationActions( final MainPane mainPane ) {
-    mmainPane = mainPane;
+    mMainPane = mainPane;
   }
 
   public void file‿new() {
-    getmainPane().newTextEditor();
+    getMainPane().newTextEditor();
   }
 
   public void file‿open() {
-    getmainPane().open( createFileChooser().openFiles() );
+    getMainPane().open( createFileChooser().openFiles() );
   }
 
   public void file‿close() {
-    getmainPane().close();
+    getMainPane().close();
   }
 
   public void file‿close_all() {
-    getmainPane().closeAll();
+    getMainPane().closeAll();
   }
 
   public void file‿save() {
-    getmainPane().save();
+    getMainPane().save();
   }
 
   public void file‿save_as() {
     final var file = createFileChooser().saveAs();
-    file.ifPresent( ( f ) -> getmainPane().saveAs( f ) );
+    file.ifPresent( ( f ) -> getMainPane().saveAs( f ) );
   }
 
   public void file‿save_all() {
-    getmainPane().saveAll();
+    getMainPane().saveAll();
   }
 
   public void file‿export‿html_svg() {
@@ -104,7 +104,7 @@ public class ApplicationActions {
   }
 
   private ProcessorContext createProcessorContext( final TextEditor editor ) {
-    return getmainPane().createProcessorContext( editor );
+    return getMainPane().createProcessorContext( editor );
   }
 
   public void file‿exit() {
@@ -224,8 +224,8 @@ public class ApplicationActions {
     getActiveTextDefinition().deleteDefinitions();
   }
 
-  public void definition‿insert() {
-    //getmainPane().insertDefinition();
+  public void definition‿autoinsert() {
+    getMainPane().autoinsert();
   }
 
   public void view‿refresh() {
@@ -249,19 +249,19 @@ public class ApplicationActions {
     return new FileChooserCommand( getWindow() );
   }
 
-  private MainPane getmainPane() {
-    return mmainPane;
+  private MainPane getMainPane() {
+    return mMainPane;
   }
 
   private TextEditor getActiveTextEditor() {
-    return getmainPane().getActiveTextEditor();
+    return getMainPane().getActiveTextEditor();
   }
 
   private TextDefinition getActiveTextDefinition() {
-    return getmainPane().getActiveTextDefinition();
+    return getMainPane().getActiveTextDefinition();
   }
 
   private Window getWindow() {
-    return getmainPane().getWindow();
+    return getMainPane().getWindow();
   }
 }

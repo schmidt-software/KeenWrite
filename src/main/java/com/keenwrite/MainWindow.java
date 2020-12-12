@@ -27,8 +27,6 @@
  */
 package com.keenwrite;
 
-import com.keenwrite.definition.DefinitionEditor;
-import com.keenwrite.editors.DefinitionNameInjector;
 import com.keenwrite.editors.markdown.MarkdownEditorPane;
 import com.keenwrite.preferences.UserPreferencesView;
 import com.keenwrite.ui.actions.Action;
@@ -54,14 +52,7 @@ import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.*;
 public class MainWindow {
 
   private final TextField mFindTextField;
-  private final DefinitionEditor mDefinitionPane = new DefinitionEditor( null );
   private final FileEditorTabPane mFileEditorPane = new FileEditorTabPane();
-
-  /**
-   * Listens on the definition pane for double-click events.
-   */
-  private final DefinitionNameInjector mDefinitionNameInjector
-      = new DefinitionNameInjector( mDefinitionPane );
 
   public MainWindow() {
     mFindTextField = createFindTextField();
@@ -72,7 +63,6 @@ public class MainWindow {
    */
   public void init() {
     initFindInput();
-    initVariableNameInjector();
   }
 
   /**
@@ -107,14 +97,6 @@ public class MainWindow {
           }
         }
     );
-  }
-
-  private void initVariableNameInjector() {
-    updateVariableNameInjector( getActiveFileEditorTab() );
-  }
-
-  private void updateVariableNameInjector( final FileEditorController tab ) {
-    getDefinitionNameInjector().addListener( tab );
   }
 
   //---- Edit actions -------------------------------------------------------
@@ -223,10 +205,6 @@ public class MainWindow {
     return mFileEditorPane;
   }
 
-  private DefinitionEditor getDefinitionPane() {
-    return mDefinitionPane;
-  }
-
   private StatusBar getStatusBar() {
     return StatusBarNotifier.getStatusBar();
   }
@@ -235,9 +213,6 @@ public class MainWindow {
     return mFindTextField;
   }
 
-  private DefinitionNameInjector getDefinitionNameInjector() {
-    return mDefinitionNameInjector;
-  }
 
   //---- Persistence accessors ----------------------------------------------
 

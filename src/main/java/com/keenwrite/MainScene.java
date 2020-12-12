@@ -18,11 +18,6 @@ import static com.keenwrite.Constants.STYLESHEET_SCENE;
 public class MainScene {
   private final Scene mScene;
 
-  /**
-   * Only one instance of {@link CaretListener} is allowed to prevent duplicate
-   * adds to the observable property.
-   */
-//  private final CaretListener mCaretListener;
   public MainScene() {
     final var mainPane = createMainPane();
     final var actions = createApplicationActions( mainPane );
@@ -60,8 +55,7 @@ public class MainScene {
   }
 
   private Node createMenuBar( final ApplicationActions actions ) {
-    final var menuBar = new ApplicationMenuBar( actions );
-    return menuBar.createMenuBar();
+    return (new ApplicationMenuBar()).createMenuBar( actions );
   }
 
   private Scene createScene( final Parent parent ) {

@@ -12,6 +12,8 @@ import static javafx.geometry.Pos.BASELINE_CENTER;
 
 /**
  * Responsible for updating the UI whenever the caret changes position.
+ * Only one instance of {@link CaretListener} is allowed to prevent duplicate
+ * adds to the observable property.
  */
 public class CaretListener extends VBox implements ChangeListener<Integer> {
 
@@ -53,8 +55,8 @@ public class CaretListener extends VBox implements ChangeListener<Integer> {
     final var property = caret.textOffsetProperty();
 
     property.removeListener( this );
-    property.addListener( this );
     mCaret = caret;
+    property.addListener( this );
     updateLineNumber();
   }
 

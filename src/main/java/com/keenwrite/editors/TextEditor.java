@@ -3,6 +3,7 @@ package com.keenwrite.editors;
 
 import com.keenwrite.TextResource;
 import com.keenwrite.processors.markdown.Caret;
+import javafx.scene.control.IndexRange;
 import org.fxmisc.flowless.VirtualizedScrollPane;
 import org.fxmisc.richtext.StyleClassedTextArea;
 
@@ -24,12 +25,58 @@ public interface TextEditor extends TextResource {
   VirtualizedScrollPane<StyleClassedTextArea> getScrollPane();
 
   /**
+   * Returns the complete text for the specified paragraph index.
+   *
+   * @param paragraph The zero-based paragraph index.
+   * @throws IndexOutOfBoundsException The paragraph index is less than zero
+   *                                   or greater than the number of
+   *                                   paragraphs in the document.
+   */
+  String getText( int paragraph ) throws IndexOutOfBoundsException;
+
+  /**
+   * Returns the text between the indexes specified by the given
+   * {@link IndexRange}.
+   *
+   * @param indexes The start and end document indexes to reference.
+   * @return The text between the specified indexes.
+   * @throws IndexOutOfBoundsException The indexes are invalid.
+   */
+  String getText( IndexRange indexes ) throws IndexOutOfBoundsException;
+
+  /**
    * Returns an object that can be used to track the current caret position
    * within the document.
    *
    * @return The caret's position, which is updated continuously.
    */
   Caret getCaret();
+
+  /**
+   * Replaces the text within the given range with the given string.
+   *
+   * @param indexes The starting and ending document indexes that represent
+   *                the range of text to replace.
+   * @param s       The text to replace, which can be shorter or longer than the
+   *                specified range.
+   */
+  void replaceText( IndexRange indexes, String s );
+
+  /**
+   * Returns the starting and ending indexes into the document for the
+   * word at the current caret position.
+   * <p>
+   * Finds the start and end indexes for the word in the current document,
+   * where the caret is located. There are a few different scenarios, where
+   * the caret can be at: the start, end, or middle of a word; also, the
+   * caret can be at the end or beginning of a punctuated word; as well, the
+   * caret could be at the beginning or end of the line or document.
+   * </p>
+   *
+   * @return The start and ending index into the current document that
+   * represent the word boundaries of the word under the caret.
+   */
+  IndexRange getCaretWord();
 
   /**
    * Requests undoing the last text-changing action.
