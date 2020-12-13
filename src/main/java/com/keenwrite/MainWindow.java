@@ -78,14 +78,6 @@ public class MainWindow {
         case ENTER:
           editFindNext();
           break;
-        case F:
-          if( !event.isControlDown() ) {
-            break;
-          }
-        case ESCAPE:
-          getStatusBar().setGraphic( null );
-          getActiveFileEditorTab().getEditorPane().requestFocus();
-          break;
       }
     } );
 

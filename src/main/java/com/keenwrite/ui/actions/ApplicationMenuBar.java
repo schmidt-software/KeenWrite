@@ -75,6 +75,7 @@ public class ApplicationMenuBar {
       SEPARATOR_ACTION,
       addAction( "edit.find", e -> actions.edit‿find() ),
       addAction( "edit.find_next", e -> actions.edit‿find_next() ),
+      addAction( "edit.find_prev", e -> actions.edit‿find_prev() ),
       SEPARATOR_ACTION,
       addAction( "edit.preferences", e -> actions.edit‿preferences() )
     ),

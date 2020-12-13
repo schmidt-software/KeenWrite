@@ -29,4 +29,4 @@
  * This package contains classes that can parse YAML documents into a GUI
  * representation.
  */
-package com.keenwrite.definition.yaml;
+package com.keenwrite.editors.definition.yaml;

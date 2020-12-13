@@ -1,7 +1,8 @@
 /* Copyright 2020 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.definition;
 
-import com.keenwrite.definition.yaml.YamlTreeTransformer;
+import com.keenwrite.editors.definition.DefinitionEditor;
+import com.keenwrite.editors.definition.yaml.YamlTreeTransformer;
 import com.keenwrite.editors.markdown.MarkdownEditor;
 import com.keenwrite.preview.HtmlPreview;
 import com.panemu.tiwulfx.control.dock.DetachableTabPane;

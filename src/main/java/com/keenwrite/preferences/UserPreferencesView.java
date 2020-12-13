@@ -31,7 +31,7 @@ public class UserPreferencesView {
    * execution within the Java Virtual Machine (JVM) as specified by the Java
    * Language Specification.
    */
-  private static class UserPreferencesViewContainer {
+  private static class Container {
     private static final UserPreferencesView INSTANCE =
         new UserPreferencesView();
   }
@@ -42,7 +42,7 @@ public class UserPreferencesView {
    * @return A non-null instance, loaded, configured, and ready to render math.
    */
   public static UserPreferencesView getInstance() {
-    return UserPreferencesViewContainer.INSTANCE;
+    return Container.INSTANCE;
   }
 
   private final PreferencesFx mPreferencesFx;

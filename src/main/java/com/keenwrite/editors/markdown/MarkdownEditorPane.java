@@ -27,7 +27,7 @@
  */
 package com.keenwrite.editors.markdown;
 
-import com.keenwrite.editors.PlainTextEditor;
+import com.keenwrite.editors.base.PlainTextEditor;
 import com.keenwrite.io.File;
 import com.keenwrite.processors.markdown.MarkdownProcessor;
 import com.keenwrite.ui.dialogs.ImageDialog;

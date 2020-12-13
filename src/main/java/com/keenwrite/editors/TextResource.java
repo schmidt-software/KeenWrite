@@ -1,5 +1,5 @@
 /* Copyright 2020 White Magic Software, Ltd. -- All rights reserved. */
-package com.keenwrite;
+package com.keenwrite.editors;
 
 import com.keenwrite.io.File;
 import javafx.beans.property.ReadOnlyBooleanProperty;

@@ -1,13 +1,13 @@
 /* Copyright 2020 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite;
 
-import com.keenwrite.definition.DefinitionEditor;
-import com.keenwrite.definition.DefinitionTabSceneFactory;
-import com.keenwrite.definition.yaml.YamlTreeTransformer;
-import com.keenwrite.editors.DefinitionNameInjector;
-import com.keenwrite.editors.PlainTextEditor;
 import com.keenwrite.editors.TextDefinition;
 import com.keenwrite.editors.TextEditor;
+import com.keenwrite.editors.TextResource;
+import com.keenwrite.editors.base.PlainTextEditor;
+import com.keenwrite.editors.definition.DefinitionEditor;
+import com.keenwrite.editors.definition.DefinitionTabSceneFactory;
+import com.keenwrite.editors.definition.yaml.YamlTreeTransformer;
 import com.keenwrite.editors.markdown.MarkdownEditor;
 import com.keenwrite.io.File;
 import com.keenwrite.io.MediaType;
@@ -45,7 +45,7 @@ import static com.keenwrite.Constants.*;
 import static com.keenwrite.ExportFormat.NONE;
 import static com.keenwrite.Messages.get;
 import static com.keenwrite.StatusBarNotifier.clue;
-import static com.keenwrite.definition.MapInterpolator.interpolate;
+import static com.keenwrite.editors.definition.MapInterpolator.interpolate;
 import static com.keenwrite.io.MediaType.*;
 import static com.keenwrite.preferences.Workspace.KEY_UI_FILES_PATH;
 import static com.keenwrite.processors.ProcessorFactory.createProcessors;
@@ -407,10 +407,10 @@ public final class MainPane extends SplitPane {
 
   private ObjectProperty<TextEditor> createActiveTextEditor() {
     final var editor = new SimpleObjectProperty<TextEditor>();
+
     editor.addListener( ( c, o, n ) -> {
       if( n != null ) {
         mHtmlPreview.setBaseUri( n.getPath() );
-        n.getNode().requestFocus();
         process( n );
       }
     } );
@@ -644,6 +644,7 @@ public final class MainPane extends SplitPane {
                 // Changing the active node will fire an event, which will
                 // update the preview panel and grab focus.
                 mActiveTextEditor.set( (TextEditor) node );
+                runLater( node::requestFocus );
               }
               else if( node instanceof TextDefinition ) {
                 mActiveDefinitionEditor.set( (DefinitionEditor) node );
@@ -794,10 +795,6 @@ public final class MainPane extends SplitPane {
 
   public TextDefinition getActiveTextDefinition() {
     return mActiveDefinitionEditor.get();
-  }
-
-  public Caret getCaret() {
-    return getActiveTextEditor().getCaret();
   }
 
   public Window getWindow() {

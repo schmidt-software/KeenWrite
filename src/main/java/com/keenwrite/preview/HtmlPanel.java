@@ -18,7 +18,7 @@ import java.awt.event.ComponentEvent;
 import java.net.URI;
 
 import static com.keenwrite.StatusBarNotifier.clue;
-import static com.keenwrite.util.ProtocolResolver.getProtocol;
+import static com.keenwrite.util.ProtocolScheme.getProtocol;
 import static java.awt.Desktop.Action.BROWSE;
 import static java.awt.Desktop.getDesktop;
 import static javax.swing.SwingUtilities.invokeLater;

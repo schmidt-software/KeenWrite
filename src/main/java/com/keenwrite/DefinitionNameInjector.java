@@ -1,7 +1,9 @@
 /* Copyright 2020 White Magic Software, Ltd. -- All rights reserved. */
-package com.keenwrite.editors;
+package com.keenwrite;
 
-import com.keenwrite.definition.DefinitionTreeItem;
+import com.keenwrite.editors.TextDefinition;
+import com.keenwrite.editors.TextEditor;
+import com.keenwrite.editors.definition.DefinitionTreeItem;
 
 import java.util.function.UnaryOperator;
 

@@ -25,9 +25,10 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.keenwrite.editors;
+package com.keenwrite.editors.base;
 
 import com.keenwrite.Constants;
+import com.keenwrite.editors.TextEditor;
 import com.keenwrite.editors.markdown.MarkdownEditor;
 import com.keenwrite.io.File;
 import com.keenwrite.preferences.UserPreferences;
@@ -50,7 +51,6 @@ import java.util.function.Consumer;
 
 import static com.keenwrite.StatusBarNotifier.clearClue;
 import static java.lang.String.format;
-import static javafx.application.Platform.runLater;
 import static org.fxmisc.wellbehaved.event.InputMap.consume;
 
 /**
@@ -92,33 +92,6 @@ public class PlainTextEditor extends StyleClassedTextArea
 
     mPath.set( file.toPath() );
     mEncoding = open( file );
-  }
-
-  @Override
-  public void requestFocus() {
-    requestFocus( 3 );
-  }
-
-  /**
-   * There's a race-condition between displaying the {@link PlainTextEditor}
-   * and giving the editor focus. Try to focus up to {@code max} times before
-   * giving up.
-   *
-   * @param max The number of attempts to try to request focus.
-   */
-  private void requestFocus( final int max ) {
-    if( max > 0 ) {
-      runLater(
-          () -> {
-            final var editor = getEditor();
-
-            if( !editor.isFocused() ) {
-              editor.requestFocus();
-              requestFocus( max - 1 );
-            }
-          }
-      );
-    }
   }
 
   @Override

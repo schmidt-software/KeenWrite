@@ -11,7 +11,7 @@ import java.util.Map;
  * @param <K> The type of key mapped to a value.
  * @param <V> The type of value mapped to a key.
  */
-public class BoundedCache<K, V> extends LinkedHashMap<K, V> {
+public final class BoundedCache<K, V> extends LinkedHashMap<K, V> {
   private final int mCacheSize;
 
   /**

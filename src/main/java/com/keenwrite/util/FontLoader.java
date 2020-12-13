@@ -26,7 +26,7 @@ import static java.awt.font.TextAttribute.*;
  * {@link GraphicsEnvironment} so that the {@link HtmlPreview} can display
  * the text using a non-system font.
  */
-public class FontLoader {
+public final class FontLoader {
 
   /**
    * Walks the resources associated with the application to load all TrueType

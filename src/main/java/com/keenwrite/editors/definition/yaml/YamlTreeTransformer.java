@@ -1,11 +1,11 @@
 /* Copyright 2020 White Magic Software, Ltd. -- All rights reserved. */
-package com.keenwrite.definition.yaml;
+package com.keenwrite.editors.definition.yaml;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
-import com.keenwrite.definition.DefinitionTreeItem;
-import com.keenwrite.definition.TreeTransformer;
+import com.keenwrite.editors.definition.DefinitionTreeItem;
+import com.keenwrite.editors.definition.TreeTransformer;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 

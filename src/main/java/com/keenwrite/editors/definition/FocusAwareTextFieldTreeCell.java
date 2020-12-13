@@ -1,5 +1,5 @@
 /* Copyright 2020 White Magic Software, Ltd. -- All rights reserved. */
-package com.keenwrite.definition;
+package com.keenwrite.editors.definition;
 
 import javafx.scene.Node;
 import javafx.scene.control.TextField;

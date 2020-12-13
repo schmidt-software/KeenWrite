@@ -31,31 +31,25 @@ public enum ProtocolScheme {
   UNKNOWN;
 
   /**
-   * Answers {@code true} if the given protocol is for a local file, which
-   * includes a JAR file.
+   * Returns the protocol for a given URI or filename.
    *
-   * @return {@code false} the protocol is not a local file reference.
+   * @param resource Determine the protocol for this URI or filename.
+   * @return The protocol for the given resource.
    */
-  public boolean isFile() {
-    return this == FILE || this == JAR;
-  }
-
-  /**
-   * Answers {@code true} if the given protocol is either HTTP or HTTPS.
-   *
-   * @return {@code true} the protocol is either HTTP or HTTPS.
-   */
-  public boolean isHttp() {
-    return this == HTTP;
-  }
-
-  /**
-   * Answers {@code true} if the given protocol is for a Java archive file.
-   *
-   * @return {@code false} the protocol is not a Java archive file.
-   */
-  public boolean isJar() {
-    return this == JAR;
+  public static ProtocolScheme getProtocol( final String resource ) {
+    try {
+      final var uri = new URI( resource );
+      return uri.isAbsolute()
+          ? valueFrom( uri )
+          : valueFrom( new URL( resource ) );
+    } catch( final Exception ex ) {
+      // Using double-slashes is a short-hand to instruct the browser to
+      // reference a resource using the parent URL's security model. This
+      // is known as a protocol-relative URL.
+      return resource.startsWith( "//" )
+          ? HTTP
+          : valueFrom( new File( resource ) );
+    }
   }
 
   /**
@@ -66,7 +60,7 @@ public enum ProtocolScheme {
    * valid value from this enumeration.
    */
   public static ProtocolScheme valueFrom( final String protocol ) {
-    final var sanitized = sanitize( protocol );
+    final var sanitized = protocol == null ? "" : protocol.toUpperCase();
 
     for( final var scheme : values() ) {
       // This will match HTTP/HTTPS as well as FILE*, which may be inaccurate.
@@ -116,14 +110,30 @@ public enum ProtocolScheme {
   }
 
   /**
-   * Returns an empty string if the given string to sanitize is {@code null},
-   * otherwise the given string in uppercase. Uppercase is used to align with
-   * the enum name.
+   * Answers {@code true} if the given protocol is for a local file, which
+   * includes a JAR file.
    *
-   * @param s The string to sanitize, may be {@code null}.
-   * @return A non-{@code null} string.
+   * @return {@code false} the protocol is not a local file reference.
    */
-  private static String sanitize( final String s ) {
-    return s == null ? "" : s.toUpperCase();
+  public boolean isFile() {
+    return this == FILE || this == JAR;
+  }
+
+  /**
+   * Answers {@code true} if the given protocol is either HTTP or HTTPS.
+   *
+   * @return {@code true} the protocol is either HTTP or HTTPS.
+   */
+  public boolean isHttp() {
+    return this == HTTP;
+  }
+
+  /**
+   * Answers {@code true} if the given protocol is for a Java archive file.
+   *
+   * @return {@code false} the protocol is not a Java archive file.
+   */
+  public boolean isJar() {
+    return this == JAR;
   }
 }

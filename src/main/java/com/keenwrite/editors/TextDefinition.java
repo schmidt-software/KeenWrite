@@ -1,9 +1,8 @@
 /* Copyright 2020 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.editors;
 
-import com.keenwrite.TextResource;
-import com.keenwrite.definition.DefinitionEditor;
-import com.keenwrite.definition.DefinitionTreeItem;
+import com.keenwrite.editors.definition.DefinitionEditor;
+import com.keenwrite.editors.definition.DefinitionTreeItem;
 import com.keenwrite.editors.markdown.MarkdownEditor;
 import javafx.scene.control.TreeItem;
 

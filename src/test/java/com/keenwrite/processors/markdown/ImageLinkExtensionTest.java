@@ -16,9 +16,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.keenwrite.preferences.UserPreferences.getInstance;
 import static java.lang.String.format;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * Responsible for testing that linked images render into HTML according to
@@ -99,8 +99,11 @@ public class ImageLinkExtensionTest {
     final var parser = pBuilder.extensions( extensions ).build();
     final var renderer = hBuilder.extensions( extensions ).build();
 
+    assertNotNull( parser );
+    assertNotNull( renderer );
+
     // Set a default (fallback) image directory search location.
-    getInstance().imagesDirectoryProperty().setValue( new File( "." ) );
+    //getInstance().imagesDirectoryProperty().setValue( new File( "." ) );
 
     for( final var entry : IMAGES.entrySet() ) {
       final var key = entry.getKey();

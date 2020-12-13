@@ -38,7 +38,7 @@ public class SvgReplacedElementFactory implements ReplacedElementFactory {
    * execution within the Java Virtual Machine (JVM) as specified by the Java
    * Language Specification.
    */
-  private static class MathRendererContainer {
+  private static class Container {
     private static final MathRenderer INSTANCE = new MathRenderer();
   }
 
@@ -48,7 +48,7 @@ public class SvgReplacedElementFactory implements ReplacedElementFactory {
    * @return A non-null instance, loaded, configured, and ready to render math.
    */
   public static MathRenderer getInstance() {
-    return MathRendererContainer.INSTANCE;
+    return Container.INSTANCE;
   }
 
   private static final String HTML_IMAGE = "img";

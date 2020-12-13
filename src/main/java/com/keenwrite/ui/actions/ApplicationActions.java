@@ -7,6 +7,7 @@ import com.keenwrite.editors.TextDefinition;
 import com.keenwrite.editors.TextEditor;
 import com.keenwrite.io.File;
 import com.keenwrite.processors.ProcessorContext;
+import com.keenwrite.ui.controls.SearchBar;
 import javafx.scene.control.Alert;
 import javafx.scene.image.ImageView;
 import javafx.stage.Window;
@@ -17,6 +18,7 @@ import static com.keenwrite.Constants.ICON_DIALOG;
 import static com.keenwrite.ExportFormat.*;
 import static com.keenwrite.Messages.get;
 import static com.keenwrite.StatusBarNotifier.clue;
+import static com.keenwrite.StatusBarNotifier.getStatusBar;
 import static com.keenwrite.processors.ProcessorFactory.createProcessors;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.nio.file.Files.writeString;
@@ -137,10 +139,33 @@ public class ApplicationActions {
   }
 
   public void edit‿find() {
+    final var nodes = getStatusBar().getLeftItems();
 
+    if( nodes.isEmpty() ) {
+      final var searchBar = new SearchBar();
+
+      searchBar.setOnCancelAction( ( event ) -> {
+        nodes.remove( searchBar );
+        getActiveTextEditor().getNode().requestFocus();
+      } );
+
+      searchBar.setOnNextAction( ( event ) -> edit‿find_next() );
+      searchBar.setOnPrevAction( ( event ) -> edit‿find_prev() );
+
+      nodes.add( searchBar );
+      searchBar.requestFocus();
+    }
+    else {
+      nodes.clear();
+    }
   }
 
   public void edit‿find_next() {
+    System.out.println( "FIND THE NEXT THINGY!" );
+  }
+
+  public void edit‿find_prev() {
+    System.out.println( "FIND THE PREV THINGY!" );
   }
 
   public void edit‿preferences() {
