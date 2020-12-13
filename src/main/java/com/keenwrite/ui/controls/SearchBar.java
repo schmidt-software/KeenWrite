@@ -5,6 +5,7 @@ import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.value.ChangeListener;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Orientation;
@@ -69,6 +70,15 @@ public final class SearchBar extends HBox {
   @Override
   public void requestFocus() {
     mFind.requestFocus();
+  }
+
+  /**
+   * Adds a listener that triggers when the input text field changes.
+   *
+   * @param listener The listener to notify of change events.
+   */
+  public void addInputListener( final ChangeListener<String> listener ) {
+    mFind.textProperty().addListener( listener );
   }
 
   /**

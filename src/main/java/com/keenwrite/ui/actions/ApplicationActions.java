@@ -7,6 +7,7 @@ import com.keenwrite.editors.TextDefinition;
 import com.keenwrite.editors.TextEditor;
 import com.keenwrite.io.File;
 import com.keenwrite.processors.ProcessorContext;
+import com.keenwrite.search.SearchModel;
 import com.keenwrite.ui.controls.SearchBar;
 import javafx.scene.control.Alert;
 import javafx.scene.image.ImageView;
@@ -39,8 +40,14 @@ public class ApplicationActions {
    */
   private final MainPane mMainPane;
 
+  /**
+   * Tracks searching.
+   */
+  private final SearchModel mSearchModel;
+
   public ApplicationActions( final MainPane mainPane ) {
     mMainPane = mainPane;
+    mSearchModel = new SearchModel( getActiveTextEditor().getText() );
   }
 
   public void file‿new() {
@@ -149,6 +156,13 @@ public class ApplicationActions {
         getActiveTextEditor().getNode().requestFocus();
       } );
 
+      searchBar.addInputListener( ( c, o, n ) -> {
+        if( n != null && !n.isEmpty() ) {
+          mSearchModel.search( n );
+          //mSearchModel.matchProperty().bind( );
+        }
+      } );
+
       searchBar.setOnNextAction( ( event ) -> edit‿find_next() );
       searchBar.setOnPrevAction( ( event ) -> edit‿find_prev() );
 
@@ -161,11 +175,11 @@ public class ApplicationActions {
   }
 
   public void edit‿find_next() {
-    System.out.println( "FIND THE NEXT THINGY!" );
+    mSearchModel.advance();
   }
 
   public void edit‿find_prev() {
-    System.out.println( "FIND THE PREV THINGY!" );
+    mSearchModel.retreat();
   }
 
   public void edit‿preferences() {

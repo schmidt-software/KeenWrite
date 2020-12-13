@@ -43,7 +43,7 @@ public class SymSpellSpeller implements SpellChecker {
    */
   public static SpellChecker forLexicon( final String filename ) {
     try {
-      final Collection<String> lexicon = readLexicon( filename );
+      final var lexicon = readLexicon( filename );
       return SymSpellSpeller.forLexicon( lexicon );
     } catch( final Exception ex ) {
       clue( ex );
@@ -55,7 +55,7 @@ public class SymSpellSpeller implements SpellChecker {
       final Collection<String> lexiconWords ) {
     assert lexiconWords != null && !lexiconWords.isEmpty();
 
-    final SymSpellBuilder builder = new SymSpellBuilder()
+    final var builder = new SymSpellBuilder()
         .setLexiconWords( lexiconWords );
 
     return new SymSpellSpeller( builder.build() );
