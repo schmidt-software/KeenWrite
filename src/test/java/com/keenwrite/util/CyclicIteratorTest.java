@@ -6,8 +6,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 import java.util.ListIterator;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Tests the {@link CyclicIterator} class.
@@ -48,5 +47,19 @@ public class CyclicIteratorTest {
     final var iterator = CyclicIterator.of( list );
 
     assertEquals( iterator.previous(), list.get( list.size() - 1 ) );
+  }
+
+  @Test
+  public void test_Empty_Next_Exception() {
+    final var list = List.of();
+    final var iterator = CyclicIterator.of( list );
+    assertThrows( ArrayIndexOutOfBoundsException.class, iterator::next );
+  }
+
+  @Test
+  public void test_Empty_Previous_Exception() {
+    final var list = List.of();
+    final var iterator = CyclicIterator.of( list );
+    assertThrows( ArrayIndexOutOfBoundsException.class, iterator::previous );
   }
 }

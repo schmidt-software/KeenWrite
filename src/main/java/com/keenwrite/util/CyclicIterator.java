@@ -90,10 +90,13 @@ public class CyclicIterator {
 
       private int computeIndex( final int direction ) {
         final var i = mIndex + direction;
-        final var result = i < 0 ? list.size() - 1 : (i % list.size());
+        final var size = list.size();
+        final var result = i < 0
+            ? size - 1
+            : size == 0 ? 0 : i % size;
 
         // Ensure the invariant holds.
-        assert 0 <= result && result < list.size();
+        assert 0 <= result && result < size || size == 0 && result <= 0;
 
         return result;
       }
