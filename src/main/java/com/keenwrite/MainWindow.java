@@ -34,14 +34,12 @@ import com.keenwrite.ui.actions.MenuAction;
 import com.keenwrite.ui.actions.SeparatorAction;
 import javafx.scene.Node;
 import javafx.scene.control.MenuBar;
-import javafx.scene.control.TextField;
-import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.VBox;
-import org.controlsfx.control.StatusBar;
 
 import static com.keenwrite.Messages.get;
 import static com.keenwrite.ui.actions.ApplicationMenuBar.createMenu;
-import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.*;
+import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.LINK;
+import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.PICTURE_ALT;
 
 /**
  * Main window containing a tab pane in the center for file editors.
@@ -51,59 +49,9 @@ import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.*;
 @Deprecated
 public class MainWindow {
 
-  private final TextField mFindTextField;
   private final FileEditorTabPane mFileEditorPane = new FileEditorTabPane();
 
   public MainWindow() {
-    mFindTextField = createFindTextField();
-  }
-
-  /**
-   * Called after the stage is shown.
-   */
-  public void init() {
-    initFindInput();
-  }
-
-  /**
-   * Initialize the find input text field to listen on F3, ENTER, and
-   * ESCAPE key presses.
-   */
-  private void initFindInput() {
-    final TextField input = getFindTextField();
-
-    input.setOnKeyPressed( ( KeyEvent event ) -> {
-      switch( event.getCode() ) {
-        case F3:
-        case ENTER:
-          editFindNext();
-          break;
-      }
-    } );
-
-    // Remove when the input field loses focus.
-    input.focusedProperty().addListener(
-        ( focused, oldFocus, newFocus ) -> {
-          if( !newFocus ) {
-            getStatusBar().setGraphic( null );
-          }
-        }
-    );
-  }
-
-  //---- Edit actions -------------------------------------------------------
-
-  /**
-   * Used to find text in the active file editor window.
-   */
-  private void editFind() {
-    final TextField input = getFindTextField();
-    getStatusBar().setGraphic( input );
-    input.requestFocus();
-  }
-
-  public void editFindNext() {
-    getActiveFileEditorTab().searchNext( getFindTextField().getText() );
   }
 
   public void editPreferences() {
@@ -112,25 +60,7 @@ public class MainWindow {
 
   //---- Member creators ----------------------------------------------------
 
-  private TextField createFindTextField() {
-    return new TextField();
-  }
-
   private Node createMenuBar() {
-    // Edit actions
-    final Action editFindAction = Action
-        .builder()
-        .setText( "Main.menu.edit.find" )
-        .setAccelerator( "Ctrl+F" )
-        .setIcon( SEARCH )
-        .setHandler( e -> editFind() )
-        .build();
-    final Action editFindNextAction = Action
-        .builder()
-        .setText( "Main.menu.edit.find_next" )
-        .setAccelerator( "F3" )
-        .setHandler( e -> editFindNext() )
-        .build();
     final Action editPreferencesAction = Action
         .builder()
         .setText( "Main.menu.edit.preferences" )
@@ -154,16 +84,11 @@ public class MainWindow {
         .setHandler( e -> getActiveEditorPane().insertImage() )
         .build();
 
-    final MenuAction SEPARATOR_ACTION = new SeparatorAction();
-
     //---- MenuBar ----
 
     // Edit Menu
     final var editMenu = createMenu(
         get( "Main.menu.edit" ),
-        editFindAction,
-        editFindNextAction,
-        SEPARATOR_ACTION,
         editPreferencesAction );
 
     // Insert Menu
@@ -196,15 +121,6 @@ public class MainWindow {
   private FileEditorTabPane getFileEditorPane() {
     return mFileEditorPane;
   }
-
-  private StatusBar getStatusBar() {
-    return StatusBarNotifier.getStatusBar();
-  }
-
-  private TextField getFindTextField() {
-    return mFindTextField;
-  }
-
 
   //---- Persistence accessors ----------------------------------------------
 

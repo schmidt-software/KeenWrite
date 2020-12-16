@@ -183,6 +183,12 @@ public class MarkdownEditor extends BorderPane implements TextEditor {
     mModified.bind( Bindings.not( markedPosition ) );
   }
 
+  @Override
+  public void moveTo( final int offset ) {
+    assert 0 <= offset && offset <= mTextArea.getLength();
+    mTextArea.moveTo( offset );
+  }
+
   /**
    * Delegate the focus request to the text area itself.
    */
@@ -460,8 +466,8 @@ public class MarkdownEditor extends BorderPane implements TextEditor {
 
   /**
    * Observers may listen for changes to the property returned from this method
-   * to receive notifications when either the text or caret have changed.
-   * This should not be used to track whether the text has been modified.
+   * to receive notifications when either the text or caret have changed. This
+   * should not be used to track whether the text has been modified.
    */
   public void addDirtyListener( ChangeListener<Boolean> listener ) {
     mDirty.addListener( listener );
@@ -483,10 +489,12 @@ public class MarkdownEditor extends BorderPane implements TextEditor {
    * @param ended The ending token for enclosing the text.
    */
   private void enwrap( final String began, String ended ) {
-    final var range = mTextArea.getSelection();
-    String text = mTextArea.getText(
-        range.getLength() == 0 ? getCaretWord() : range
-    );
+    // Ensure selected text takes precedence over the word at caret position.
+    final var selected = mTextArea.selectionProperty().getValue();
+    final var range = selected.getLength() == 0
+        ? getCaretWord()
+        : selected;
+    String text = mTextArea.getText( range );
 
     int length = range.getLength();
     text = stripStart( text, null );
@@ -587,7 +595,7 @@ public class MarkdownEditor extends BorderPane implements TextEditor {
   }
 
   @Override
-  public void replaceText(final IndexRange indexes, final String s) {
+  public void replaceText( final IndexRange indexes, final String s ) {
     mTextArea.replaceText( indexes, s );
   }
 

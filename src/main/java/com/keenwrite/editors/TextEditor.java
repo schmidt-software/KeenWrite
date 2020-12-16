@@ -44,6 +44,13 @@ public interface TextEditor extends TextResource {
   String getText( IndexRange indexes ) throws IndexOutOfBoundsException;
 
   /**
+   * Moves the caret to the given document offset.
+   *
+   * @param offset The absolute offset into the document, zero-based.
+   */
+  void moveTo( final int offset );
+
+  /**
    * Returns an object that can be used to track the current caret position
    * within the document.
    *
@@ -76,6 +83,15 @@ public interface TextEditor extends TextResource {
    * represent the word boundaries of the word under the caret.
    */
   IndexRange getCaretWord();
+
+  /**
+   * Convenience method to get the word at the current caret position.
+   *
+   * @return This will return the empty string if the caret is out of bounds.
+   */
+  default String getCaretWordText() {
+    return getText( getCaretWord() );
+  }
 
   /**
    * Requests undoing the last text-changing action.

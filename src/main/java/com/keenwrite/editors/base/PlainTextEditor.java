@@ -241,6 +241,11 @@ public class PlainTextEditor extends StyleClassedTextArea
         .build();
   }
 
+  @Override
+  public void moveTo( final int offset ) {
+    super.moveTo( offset );
+  }
+
   /**
    * TODO: Merge functionality from {@link MarkdownEditor}.
    *

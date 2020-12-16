@@ -41,7 +41,7 @@ public class ApplicationActions {
   private final MainPane mMainPane;
 
   /**
-   * Tracks searching.
+   * Tracks finding text in the active document.
    */
   private final SearchModel mSearchModel;
 
@@ -280,7 +280,6 @@ public class ApplicationActions {
     alert.setContentText( get( "Dialog.about.content" ) );
     alert.setGraphic( new ImageView( ICON_DIALOG ) );
     alert.initOwner( getWindow() );
-
     alert.showAndWait();
   }
 
