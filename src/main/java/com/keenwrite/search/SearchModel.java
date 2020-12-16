@@ -4,26 +4,27 @@ package com.keenwrite.search;
 import com.keenwrite.util.CyclicIterator;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ObservableValue;
 import javafx.scene.control.IndexRange;
 import org.ahocorasick.trie.Emit;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ListIterator;
 
-import static org.ahocorasick.trie.Trie.TrieBuilder;
 import static org.ahocorasick.trie.Trie.builder;
 
 /**
  * Responsible for finding words in a text document.
  */
 public class SearchModel {
-  private final TrieBuilder mBuilder = builder().ignoreCase().ignoreOverlaps();
-
-  private final ObjectProperty<IndexRange> mMatchProperty =
+  private final ObjectProperty<IndexRange> mMatchOffset =
+      new SimpleObjectProperty<>();
+  private final ObjectProperty<Integer> mMatchCount =
+      new SimpleObjectProperty<>();
+  private final ObjectProperty<Integer> mMatchIndex =
       new SimpleObjectProperty<>();
 
-  private ListIterator<Emit> mMatches = CyclicIterator.of( List.of() );
+  private CyclicIterator<Emit> mMatches = new CyclicIterator<>( List.of() );
 
   /**
    * The document to search.
@@ -40,15 +41,24 @@ public class SearchModel {
     mHaystack = haystack;
   }
 
+  public ObjectProperty<Integer> matchCountProperty() {
+    return mMatchCount;
+  }
+
+  public ObjectProperty<Integer> matchIndexProperty() {
+    return mMatchIndex;
+  }
+
   /**
-   * Observers can bind to this property to be informed when the current
-   * matched needle has been found in the haystack.
+   * Observers watch this property to be notified when a needle has been
+   * found in the haystack. Use {@link IndexRange#getStart()} to get the
+   * absolute offset into the text (zero-based).
    *
    * @return The {@link IndexRange} property to observe, representing the
    * most recently matched text offset into the document.
    */
-  public ObjectProperty<IndexRange> matchProperty() {
-    return mMatchProperty;
+  public ObservableValue<IndexRange> matchOffsetProperty() {
+    return mMatchOffset;
   }
 
   /**
@@ -58,27 +68,38 @@ public class SearchModel {
    * @param needle The text string to find in the document, no regex allowed.
    */
   public void search( final String needle ) {
-    final var trie = mBuilder.addKeyword( needle ).build();
+    final var trie = builder()
+        .ignoreCase()
+        .ignoreOverlaps()
+        .addKeyword( needle )
+        .build();
     final var emits = trie.parseText( mHaystack );
 
-    mMatches = CyclicIterator.of( new ArrayList<>( emits ) );
+    mMatches = new CyclicIterator<>( new ArrayList<>( emits ) );
+    mMatchCount.set( emits.size() );
+    advance();
   }
 
   /**
    * Moves the search iterator to the next match, wrapping as needed.
    */
   public void advance() {
-    setCurrent( mMatches.next() );
+    if( mMatches.hasNext() ) {
+      setCurrent( mMatches.next() );
+    }
   }
 
   /**
    * Moves the search iterator to the previous match, wrapping as needed.
    */
   public void retreat() {
-    setCurrent( mMatches.previous() );
+    if( mMatches.hasPrevious() ) {
+      setCurrent( mMatches.previous() );
+    }
   }
 
   private void setCurrent( final Emit emit ) {
-    mMatchProperty.set( new IndexRange( emit.getStart(), emit.getEnd() ) );
+    mMatchOffset.set( new IndexRange( emit.getStart(), emit.getEnd() ) );
+    mMatchIndex.set( mMatches.getIndex() + 1 );
   }
 }

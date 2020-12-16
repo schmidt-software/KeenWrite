@@ -187,6 +187,7 @@ public class MarkdownEditor extends BorderPane implements TextEditor {
   public void moveTo( final int offset ) {
     assert 0 <= offset && offset <= mTextArea.getLength();
     mTextArea.moveTo( offset );
+    mTextArea.requestFollowCaret();
   }
 
   /**
@@ -365,6 +366,20 @@ public class MarkdownEditor extends BorderPane implements TextEditor {
   @Override
   public VirtualizedScrollPane<StyleClassedTextArea> getScrollPane() {
     return mScrollPane;
+  }
+
+  @Override
+  public void stylize( final int began, final int ended, final String style ) {
+    assert 0 <= began && began <= ended;
+    assert style != null;
+
+    mTextArea.setStyleClass( began, ended, style );
+  }
+
+  @Override
+  public void unstylize( final int began, final int ended ) {
+    assert 0 <= began && began <= ended;
+    mTextArea.clearStyle( began, ended );
   }
 
   @Override

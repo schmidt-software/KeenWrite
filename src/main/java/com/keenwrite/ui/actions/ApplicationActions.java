@@ -48,6 +48,19 @@ public class ApplicationActions {
   public ApplicationActions( final MainPane mainPane ) {
     mMainPane = mainPane;
     mSearchModel = new SearchModel( getActiveTextEditor().getText() );
+    mSearchModel.matchOffsetProperty().addListener( ( c, o, n ) -> {
+      final var editor = getActiveTextEditor();
+
+      // Clear highlighted areas before adding highlighting to a new region.
+      if( o != null ) {
+        editor.unstylize( o.getStart(), o.getEnd() + 1 );
+      }
+
+      if( n != null ) {
+        editor.moveTo( n.getStart() );
+        editor.stylize( n.getStart(), n.getEnd() + 1, "search" );
+      }
+    } );
   }
 
   public void file‿new() {
@@ -151,15 +164,20 @@ public class ApplicationActions {
     if( nodes.isEmpty() ) {
       final var searchBar = new SearchBar();
 
+      searchBar.matchIndexProperty().bind( mSearchModel.matchIndexProperty() );
+      searchBar.matchCountProperty().bind( mSearchModel.matchCountProperty() );
+
       searchBar.setOnCancelAction( ( event ) -> {
+        final var editor = getActiveTextEditor();
+        final var indexes = mSearchModel.matchOffsetProperty().getValue();
         nodes.remove( searchBar );
-        getActiveTextEditor().getNode().requestFocus();
+        editor.getNode().requestFocus();
+        editor.unstylize( indexes.getStart(), indexes.getEnd() + 1 );
       } );
 
       searchBar.addInputListener( ( c, o, n ) -> {
         if( n != null && !n.isEmpty() ) {
           mSearchModel.search( n );
-          //mSearchModel.matchProperty().bind( );
         }
       } );
 

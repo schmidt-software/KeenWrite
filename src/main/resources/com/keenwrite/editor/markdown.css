@@ -22,3 +22,7 @@
   -rtfx-underline-width: 2;
   -rtfx-underline-cap: round;
 }
+
+.markdown .search {
+  -rtfx-background-color: #ffe959;
+}

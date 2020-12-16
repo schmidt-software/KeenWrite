@@ -39,7 +39,7 @@ public final class SearchBar extends HBox {
   private final Button mButtonPrev = createButton( "prev" );
   private final TextField mFind = createTextField();
   private final Text mMatches = new Text();
-  private final IntegerProperty mMatchItem = new SimpleIntegerProperty();
+  private final IntegerProperty mMatchIndex = new SimpleIntegerProperty();
   private final IntegerProperty mMatchCount = new SimpleIntegerProperty();
 
   public SearchBar() {
@@ -59,7 +59,7 @@ public final class SearchBar extends HBox {
         createSpacer( 5 )
     );
 
-    mMatchItem.addListener( ( c, o, n ) -> updateMatchText() );
+    mMatchIndex.addListener( ( c, o, n ) -> updateMatchText() );
     mMatchCount.addListener( ( c, o, n ) -> updateMatchText() );
     updateMatchText();
   }
@@ -119,10 +119,10 @@ public final class SearchBar extends HBox {
    * When this property value changes, the match text is updated accordingly.
    * If the value is less than zero, the text will show zero.
    *
-   * @return The nth item number that matches the search string.
+   * @return The index of the latest search string match.
    */
-  public IntegerProperty matchItemProperty() {
-    return mMatchItem;
+  public IntegerProperty matchIndexProperty() {
+    return mMatchIndex;
   }
 
   /**
@@ -139,11 +139,12 @@ public final class SearchBar extends HBox {
    * Updates the match count.
    */
   private void updateMatchText() {
-    final var item = max( 0, mMatchItem.get() );
-    final var total = max( 0, mMatchCount.get() );
+    final var index = max( 0, mMatchIndex.get() );
+    final var count = max( 0, mMatchCount.get() );
+    final var suffix = count == 0 ? "none" : "some";
 
-    final var key = getMessageValue( "match", total == 0 ? "none" : "some" );
-    mMatches.setText( get( key, item, total ) );
+    final var key = getMessageValue( "match", suffix );
+    mMatches.setText( get( key, index, count ) );
   }
 
   private Button createButton( final String id ) {

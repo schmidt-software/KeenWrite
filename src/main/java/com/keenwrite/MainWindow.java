@@ -27,17 +27,9 @@
  */
 package com.keenwrite;
 
-import com.keenwrite.editors.markdown.MarkdownEditorPane;
 import com.keenwrite.preferences.UserPreferencesView;
 import com.keenwrite.ui.actions.Action;
-import com.keenwrite.ui.actions.MenuAction;
-import com.keenwrite.ui.actions.SeparatorAction;
-import javafx.scene.Node;
-import javafx.scene.control.MenuBar;
-import javafx.scene.layout.VBox;
 
-import static com.keenwrite.Messages.get;
-import static com.keenwrite.ui.actions.ApplicationMenuBar.createMenu;
 import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.LINK;
 import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.PICTURE_ALT;
 
@@ -49,18 +41,7 @@ import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.PICTURE_ALT;
 @Deprecated
 public class MainWindow {
 
-  private final FileEditorTabPane mFileEditorPane = new FileEditorTabPane();
-
   public MainWindow() {
-  }
-
-  public void editPreferences() {
-    getUserPreferencesView().show();
-  }
-
-  //---- Member creators ----------------------------------------------------
-
-  private Node createMenuBar() {
     final Action editPreferencesAction = Action
         .builder()
         .setText( "Main.menu.edit.preferences" )
@@ -74,52 +55,19 @@ public class MainWindow {
         .setText( "Main.menu.insert.link" )
         .setAccelerator( "Shortcut+L" )
         .setIcon( LINK )
-        .setHandler( e -> getActiveEditorPane().insertLink() )
+        //.setHandler( MarkdownEditorPane.insertLink() )
         .build();
     final Action insertImageAction = Action
         .builder()
         .setText( "Main.menu.insert.image" )
         .setAccelerator( "Shortcut+G" )
         .setIcon( PICTURE_ALT )
-        .setHandler( e -> getActiveEditorPane().insertImage() )
+        //.setHandler( MarkdownEditorPane.insertImage() )
         .build();
-
-    //---- MenuBar ----
-
-    // Edit Menu
-    final var editMenu = createMenu(
-        get( "Main.menu.edit" ),
-        editPreferencesAction );
-
-    // Insert Menu
-    final var insertMenu = createMenu(
-        get( "Main.menu.insert" ),
-        insertLinkAction,
-        insertImageAction
-    );
-
-    //---- MenuBar ----
-    final var menuBar = new MenuBar(
-        editMenu,
-        insertMenu );
-
-    return new VBox( menuBar );
   }
 
-  //---- Convenience accessors ----------------------------------------------
-
-  private MarkdownEditorPane getActiveEditorPane() {
-    return getActiveFileEditorTab().getEditorPane();
-  }
-
-  private FileEditorController getActiveFileEditorTab() {
-    return getFileEditorPane().getActiveFileEditor();
-  }
-
-  //---- Member accessors ---------------------------------------------------
-
-  private FileEditorTabPane getFileEditorPane() {
-    return mFileEditorPane;
+  public void editPreferences() {
+    getUserPreferencesView().show();
   }
 
   //---- Persistence accessors ----------------------------------------------

@@ -24,6 +24,27 @@ public interface TextEditor extends TextResource {
   VirtualizedScrollPane<StyleClassedTextArea> getScrollPane();
 
   /**
+   * Requests that styling be added to the document between the given
+   * integer values.
+   *
+   * @param began Document offset where the style starts.
+   * @param ended Document offset where the style ends.
+   * @param style The style class to apply between the given offsets.
+   */
+  default void stylize( int began, int ended, String style ) {
+  }
+
+  /**
+   * Requests that styling be removed from the document between the given
+   * integer values.
+   *
+   * @param began Document offset where the style starts.
+   * @param ended Document offset where the style ends.
+   */
+  default void unstylize( int began, int ended ) {
+  }
+
+  /**
    * Returns the complete text for the specified paragraph index.
    *
    * @param paragraph The zero-based paragraph index.
