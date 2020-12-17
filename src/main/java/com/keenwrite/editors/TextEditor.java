@@ -23,6 +23,8 @@ public interface TextEditor extends TextResource {
    */
   VirtualizedScrollPane<StyleClassedTextArea> getScrollPane();
 
+  StyleClassedTextArea getTextArea();
+
   /**
    * Requests that styling be added to the document between the given
    * integer values.

@@ -369,8 +369,12 @@ public class MarkdownEditor extends BorderPane implements TextEditor {
     return mScrollPane;
   }
 
-  private final Map<String, IndexRange> mStyles = new HashMap<>();
+  @Override
+  public StyleClassedTextArea getTextArea() {
+    return mTextArea;
+  }
 
+  private final Map<String, IndexRange> mStyles = new HashMap<>();
 
   @Override
   public void stylize( final IndexRange range, final String style ) {

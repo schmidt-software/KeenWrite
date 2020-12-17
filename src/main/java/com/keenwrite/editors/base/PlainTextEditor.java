@@ -234,6 +234,11 @@ public class PlainTextEditor extends StyleClassedTextArea
   }
 
   @Override
+  public StyleClassedTextArea getTextArea() {
+    return this;
+  }
+
+  @Override
   public Caret getCaret() {
     return Caret
         .builder()

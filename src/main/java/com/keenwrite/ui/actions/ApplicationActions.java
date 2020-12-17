@@ -241,9 +241,15 @@ public class ApplicationActions {
   }
 
   public void insert‿link() {
+    createMarkdownDialog().insertLink(getActiveTextEditor().getTextArea());
   }
 
   public void insert‿image() {
+    createMarkdownDialog().insertImage(getActiveTextEditor().getTextArea());
+  }
+
+  private MarkdownCommands createMarkdownDialog() {
+    return new MarkdownCommands( getWindow(), getActiveTextEditor().getPath() );
   }
 
   public void insert‿heading_1() {
