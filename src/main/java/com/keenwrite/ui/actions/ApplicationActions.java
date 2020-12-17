@@ -6,6 +6,7 @@ import com.keenwrite.MainPane;
 import com.keenwrite.editors.TextDefinition;
 import com.keenwrite.editors.TextEditor;
 import com.keenwrite.io.File;
+import com.keenwrite.preferences.UserPreferencesView;
 import com.keenwrite.processors.ProcessorContext;
 import com.keenwrite.search.SearchModel;
 import com.keenwrite.ui.controls.SearchBar;
@@ -206,6 +207,7 @@ public class ApplicationActions {
   }
 
   public void edit‿preferences() {
+    UserPreferencesView.getInstance().show();
   }
 
   public void format‿bold() {
