@@ -64,9 +64,9 @@ public class ApplicationActions {
       }
     } );
 
-    mMainPane.activeTextEditorProperty().addListener( ( c, o, n ) -> {
-      mSearchModel.search( getActiveTextEditor().getText() );
-    } );
+    mMainPane.activeTextEditorProperty().addListener(
+        ( c, o, n ) -> mSearchModel.search( getActiveTextEditor().getText() )
+    );
   }
 
   public void file‿new() {
