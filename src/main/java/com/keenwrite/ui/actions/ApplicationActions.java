@@ -35,6 +35,8 @@ import static javafx.stage.WindowEvent.WINDOW_CLOSE_REQUEST;
  */
 @SuppressWarnings("NonAsciiCharacters")
 public class ApplicationActions {
+  private static final String STYLE_SEARCH = "search";
+
   /**
    * When an action is executed, this is one of the recipients.
    */
@@ -47,19 +49,23 @@ public class ApplicationActions {
 
   public ApplicationActions( final MainPane mainPane ) {
     mMainPane = mainPane;
-    mSearchModel = new SearchModel( getActiveTextEditor().getText() );
+    mSearchModel = new SearchModel();
     mSearchModel.matchOffsetProperty().addListener( ( c, o, n ) -> {
       final var editor = getActiveTextEditor();
 
       // Clear highlighted areas before adding highlighting to a new region.
       if( o != null ) {
-        editor.unstylize( o.getStart(), o.getEnd() + 1 );
+        editor.unstylize( STYLE_SEARCH );
       }
 
       if( n != null ) {
         editor.moveTo( n.getStart() );
-        editor.stylize( n.getStart(), n.getEnd() + 1, "search" );
+        editor.stylize( n, STYLE_SEARCH );
       }
+    } );
+
+    mMainPane.activeTextEditorProperty().addListener( ( c, o, n ) -> {
+      mSearchModel.search( getActiveTextEditor().getText() );
     } );
   }
 
@@ -110,7 +116,7 @@ public class ApplicationActions {
     final var chain = createProcessors( context );
     final var doc = editor.getText();
     final var export = chain.apply( doc );
-    final var filename = format.toExportFilename( editor.getPath().toFile() );
+    final var filename = format.toExportFilename( editor.getPath() );
     final var chooser = new FileChooserCommand( getWindow() );
     final var file = chooser.exportAs( new File( filename ) );
 
@@ -169,15 +175,14 @@ public class ApplicationActions {
 
       searchBar.setOnCancelAction( ( event ) -> {
         final var editor = getActiveTextEditor();
-        final var indexes = mSearchModel.matchOffsetProperty().getValue();
         nodes.remove( searchBar );
+        editor.unstylize( STYLE_SEARCH );
         editor.getNode().requestFocus();
-        editor.unstylize( indexes.getStart(), indexes.getEnd() + 1 );
       } );
 
       searchBar.addInputListener( ( c, o, n ) -> {
         if( n != null && !n.isEmpty() ) {
-          mSearchModel.search( n );
+          mSearchModel.search( n, getActiveTextEditor().getText() );
         }
       } );
 

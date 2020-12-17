@@ -27,21 +27,17 @@ public interface TextEditor extends TextResource {
    * Requests that styling be added to the document between the given
    * integer values.
    *
-   * @param began Document offset where the style starts.
-   * @param ended Document offset where the style ends.
-   * @param style The style class to apply between the given offsets.
+   * @param indexes Document offset where style is to start and end.
+   * @param style The style class to apply between the given offset indexes.
    */
-  default void stylize( int began, int ended, String style ) {
+  default void stylize( final IndexRange indexes, final String style ) {
   }
 
   /**
-   * Requests that styling be removed from the document between the given
-   * integer values.
-   *
-   * @param began Document offset where the style starts.
-   * @param ended Document offset where the style ends.
+   * Requests that the most recent styling for the given style class be
+   * removed from the document between the given integer values.
    */
-  default void unstylize( int began, int ended ) {
+  default void unstylize( final String style ) {
   }
 
   /**

@@ -29,6 +29,7 @@ import javafx.collections.ListChangeListener;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.event.EventHandler;
+import javafx.scene.Scene;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.Tab;
 import javafx.scene.control.Tooltip;
@@ -585,76 +586,124 @@ public final class MainPane extends SplitPane {
   private DetachableTabPane obtainDetachableTabPane(
       final MediaType mediaType ) {
     return mTabPanes.computeIfAbsent(
-        mediaType, ( mt ) -> {
-          final var tabPane = new DetachableTabPane();
+        mediaType, ( mt ) -> createDetachableTabPane()
+    );
+  }
 
-          // Derive the new title from the main window title.
-          tabPane.setStageOwnerFactory( ( stage ) -> {
-            final var title = get(
-                "Detach.tab.title",
-                ((Stage) getWindow()).getTitle(), ++mWindowCount
-            );
-            stage.setTitle( title );
-            return getScene().getWindow();
-          } );
+  /**
+   * Creates an initialized {@link DetachableTabPane} instance.
+   *
+   * @return A new {@link DetachableTabPane} with all listeners configured.
+   */
+  private DetachableTabPane createDetachableTabPane() {
+    final var tabPane = new DetachableTabPane();
 
-          // Multiple tabs can be added simultaneously.
-          tabPane.getTabs().addListener(
-              ( final ListChangeListener.Change<? extends Tab> listener ) -> {
-                while( listener.next() ) {
-                  if( listener.wasAdded() ) {
-                    final var tabs = listener.getAddedSubList();
+    initStageOwnerFactory( tabPane );
+    initTabListener( tabPane );
+    initSelectionModelListener( tabPane );
 
-                    tabs.forEach( ( tab ) -> {
-                      final var node = tab.getContent();
+    return tabPane;
+  }
 
-                      if( node instanceof TextEditor ) {
-                        initScrollEventListener( tab );
-                      }
-                    } );
+  /**
+   * When any {@link DetachableTabPane} is detached from the main window,
+   * the stage owner factory must be given its parent window, which will
+   * own the child window. The parent window is the {@link MainPane}'s
+   * {@link Scene}'s {@link Window} instance.
+   *
+   * <p>
+   * This will derives the new title from the main window title, incrementing
+   * the window count to help uniquely identify the child windows.
+   * </p>
+   *
+   * @param tabPane A new {@link DetachableTabPane} to configure.
+   */
+  private void initStageOwnerFactory( final DetachableTabPane tabPane ) {
+    tabPane.setStageOwnerFactory( ( stage ) -> {
+      final var title = get(
+          "Detach.tab.title",
+          ((Stage) getWindow()).getTitle(), ++mWindowCount
+      );
+      stage.setTitle( title );
+      return getScene().getWindow();
+    } );
+  }
 
-                    // Select the last tab opened.
-                    final var index = tabs.size() - 1;
-                    if( index >= 0 ) {
-                      final var tab = tabs.get( index );
-                      tabPane.getSelectionModel().select( tab );
-                      tab.getContent().requestFocus();
-                    }
-                  }
+  /**
+   * Responsible for configuring the content of each {@link DetachableTab} when
+   * it is added to the given {@link DetachableTabPane} instance.
+   * <p>
+   * For {@link TextEditor} contents, an instance of {@link ScrollEventHandler}
+   * is initialized to perform synchronized scrolling between the editor and
+   * its preview window. Additionally, the last tab in the tab pane's list of
+   * tabs is given focus.
+   * </p>
+   * <p>
+   * Note that multiple tabs can be added simultaneously.
+   * </p>
+   *
+   * @param tabPane A new {@link DetachableTabPane} to configure.
+   */
+  private void initTabListener( final DetachableTabPane tabPane ) {
+    tabPane.getTabs().addListener(
+        ( final ListChangeListener.Change<? extends Tab> listener ) -> {
+          while( listener.next() ) {
+            if( listener.wasAdded() ) {
+              final var tabs = listener.getAddedSubList();
+
+              tabs.forEach( ( tab ) -> {
+                final var node = tab.getContent();
+
+                if( node instanceof TextEditor ) {
+                  initScrollEventListener( tab );
                 }
-              }
-          );
+              } );
 
-          final var model = tabPane.getSelectionModel();
-
-          model.selectedItemProperty().addListener( ( c, o, n ) -> {
-            if( o != null && n == null ) {
-              final var node = o.getContent();
-
-              // If the last definition editor in the active pane was closed,
-              // clear out the definitions then refresh the text editor.
-              if( node instanceof TextDefinition ) {
-                mActiveDefinitionEditor.set( createDefinitionEditor() );
+              // Select and give focus to the last tab opened.
+              final var index = tabs.size() - 1;
+              if( index >= 0 ) {
+                final var tab = tabs.get( index );
+                tabPane.getSelectionModel().select( tab );
+                tab.getContent().requestFocus();
               }
             }
-            else if( n != null ) {
-              final var node = n.getContent();
-
-              if( node instanceof TextEditor ) {
-                // Changing the active node will fire an event, which will
-                // update the preview panel and grab focus.
-                mActiveTextEditor.set( (TextEditor) node );
-                runLater( node::requestFocus );
-              }
-              else if( node instanceof TextDefinition ) {
-                mActiveDefinitionEditor.set( (DefinitionEditor) node );
-              }
-            }
-          } );
-
-          return tabPane;
+          }
         }
     );
+  }
+
+  /**
+   * Responsible for handling tab change events.
+   *
+   * @param tabPane A new {@link DetachableTabPane} to configure.
+   */
+  private void initSelectionModelListener( final DetachableTabPane tabPane ) {
+    final var model = tabPane.getSelectionModel();
+
+    model.selectedItemProperty().addListener( ( c, o, n ) -> {
+      if( o != null && n == null ) {
+        final var node = o.getContent();
+
+        // If the last definition editor in the active pane was closed,
+        // clear out the definitions then refresh the text editor.
+        if( node instanceof TextDefinition ) {
+          mActiveDefinitionEditor.set( createDefinitionEditor() );
+        }
+      }
+      else if( n != null ) {
+        final var node = n.getContent();
+
+        if( node instanceof TextEditor ) {
+          // Changing the active node will fire an event, which will
+          // update the preview panel and grab focus.
+          mActiveTextEditor.set( (TextEditor) node );
+          runLater( node::requestFocus );
+        }
+        else if( node instanceof TextDefinition ) {
+          mActiveDefinitionEditor.set( (DefinitionEditor) node );
+        }
+      }
+    } );
   }
 
   /**

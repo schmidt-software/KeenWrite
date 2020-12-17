@@ -2,6 +2,7 @@
 package com.keenwrite;
 
 import java.io.File;
+import java.nio.file.Path;
 
 import static org.apache.commons.io.FilenameUtils.removeExtension;
 
@@ -42,13 +43,24 @@ public enum ExportFormat {
   }
 
   /**
-   * Returns the given file renamed with the extension that matches this
-   * {@link ExportFormat} extension.
+   * Returns the given {@link File} with its extension replaced by one that
+   * matches this {@link ExportFormat} extension.
    *
-   * @param file The file to rename.
-   * @return The renamed version of the given file.
+   * @param file The file to perform an extension swap.
+   * @return The given file with its extension replaced.
    */
   public File toExportFilename( final File file ) {
     return new File( removeExtension( file.getName() ) + mExtension );
+  }
+
+  /**
+   * Delegates to {@link #toExportFilename(File)} after converting the given
+   * {@link Path} to an instance of {@link File}.
+   *
+   * @param path The {@link Path} to convert to a {@link File}.
+   * @return The given path with its extension replaced.
+   */
+  public File toExportFilename( final Path path ) {
+    return toExportFilename( path.toFile() );
   }
 }

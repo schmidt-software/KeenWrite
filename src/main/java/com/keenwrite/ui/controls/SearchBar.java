@@ -142,8 +142,8 @@ public final class SearchBar extends HBox {
     final var index = max( 0, mMatchIndex.get() );
     final var count = max( 0, mMatchCount.get() );
     final var suffix = count == 0 ? "none" : "some";
-
     final var key = getMessageValue( "match", suffix );
+
     mMatches.setText( get( key, index, count ) );
   }
 
@@ -161,7 +161,6 @@ public final class SearchBar extends HBox {
   private Button createButtonStop() {
     final var button = createButton( "stop" );
     button.setCancelButton( true );
-
     return button;
   }
 

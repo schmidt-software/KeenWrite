@@ -7,6 +7,7 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.control.IndexRange;
 import org.ahocorasick.trie.Emit;
+import org.ahocorasick.trie.Trie;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,7 +15,8 @@ import java.util.List;
 import static org.ahocorasick.trie.Trie.builder;
 
 /**
- * Responsible for finding words in a text document.
+ * Responsible for finding words in a text document. This implementation uses
+ * a {@link Trie} for efficiency.
  */
 public class SearchModel {
   private final ObjectProperty<IndexRange> mMatchOffset =
@@ -26,19 +28,13 @@ public class SearchModel {
 
   private CyclicIterator<Emit> mMatches = new CyclicIterator<>( List.of() );
 
-  /**
-   * The document to search.
-   */
-  private final String mHaystack;
+  private String mNeedle = "";
 
   /**
    * Creates a new {@link SearchModel} that finds all text string in a
    * document simultaneously.
-   *
-   * @param haystack The document to search for a text string.
    */
-  public SearchModel( final String haystack ) {
-    mHaystack = haystack;
+  public SearchModel() {
   }
 
   public ObjectProperty<Integer> matchCountProperty() {
@@ -65,19 +61,33 @@ public class SearchModel {
    * Searches the document for text matching the given parameter value. This
    * is the main entry point for kicking off text searches.
    *
-   * @param needle The text string to find in the document, no regex allowed.
+   * @param needle   The text string to find in the document, no regex allowed.
+   * @param haystack The document to search within for a text string.
    */
-  public void search( final String needle ) {
+  public void search( final String needle, final String haystack ) {
+    assert needle != null;
+    assert haystack != null;
+
     final var trie = builder()
         .ignoreCase()
         .ignoreOverlaps()
         .addKeyword( needle )
         .build();
-    final var emits = trie.parseText( mHaystack );
+    final var emits = trie.parseText( haystack );
 
     mMatches = new CyclicIterator<>( new ArrayList<>( emits ) );
     mMatchCount.set( emits.size() );
+    mNeedle = needle;
     advance();
+  }
+
+  /**
+   * Searches the document for the last known needle.
+   *
+   * @param haystack The new text to search.
+   */
+  public void search( final String haystack ) {
+    search( mNeedle, haystack );
   }
 
   /**

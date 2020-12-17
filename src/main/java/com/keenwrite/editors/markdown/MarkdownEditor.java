@@ -18,13 +18,14 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
 import org.fxmisc.flowless.VirtualizedScrollPane;
 import org.fxmisc.richtext.StyleClassedTextArea;
+import org.fxmisc.richtext.model.StyleSpans;
 import org.fxmisc.undo.UndoManager;
 import org.fxmisc.wellbehaved.event.EventPattern;
 import org.fxmisc.wellbehaved.event.Nodes;
 
 import java.nio.charset.Charset;
 import java.text.BreakIterator;
-import java.util.Locale;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
@@ -34,12 +35,14 @@ import static com.keenwrite.Messages.get;
 import static com.keenwrite.StatusBarNotifier.clue;
 import static java.lang.Character.isWhitespace;
 import static java.lang.String.format;
+import static java.util.Collections.singletonList;
 import static javafx.scene.control.ScrollPane.ScrollBarPolicy.ALWAYS;
 import static javafx.scene.input.KeyCode.*;
 import static javafx.scene.input.KeyCombination.CONTROL_DOWN;
 import static javafx.scene.input.KeyCombination.SHIFT_DOWN;
 import static org.apache.commons.lang3.StringUtils.stripEnd;
 import static org.apache.commons.lang3.StringUtils.stripStart;
+import static org.fxmisc.richtext.model.StyleSpans.singleton;
 import static org.fxmisc.wellbehaved.event.EventPattern.keyPressed;
 import static org.fxmisc.wellbehaved.event.InputMap.consume;
 
@@ -177,9 +180,9 @@ public class MarkdownEditor extends BorderPane implements TextEditor {
   private void initUndoManager() {
     final var undoManager = getUndoManager();
     final var markedPosition = undoManager.atMarkedPositionProperty();
+
     undoManager.forgetHistory();
     undoManager.mark();
-
     mModified.bind( Bindings.not( markedPosition ) );
   }
 
@@ -328,9 +331,7 @@ public class MarkdownEditor extends BorderPane implements TextEditor {
   @Override
   public void heading( final int level ) {
     final var hashes = new String( new char[ level ] ).replace( "\0", "#" );
-    final var markup = format( "%s ", hashes );
-
-    block( markup );
+    block( format( "%s ", hashes ) );
   }
 
   @Override
@@ -368,18 +369,67 @@ public class MarkdownEditor extends BorderPane implements TextEditor {
     return mScrollPane;
   }
 
+  private final Map<String, IndexRange> mStyles = new HashMap<>();
+
+
   @Override
-  public void stylize( final int began, final int ended, final String style ) {
+  public void stylize( final IndexRange range, final String style ) {
+    final var began = range.getStart();
+    final var ended = range.getEnd() + 1;
+
     assert 0 <= began && began <= ended;
     assert style != null;
 
+//    final var spans = mTextArea.getStyleSpans( range );
+//    System.out.println( "SPANS: " + spans );
+
+//    final var spans = mTextArea.getStyleSpans( range );
+//    mTextArea.setStyleSpans( began, merge( spans, range.getLength(), style
+//    ) );
+
+//    final var builder = new StyleSpansBuilder<Collection<String>>();
+//    builder.add( singleton( style ), range.getLength() + 1 );
+//    mTextArea.setStyleSpans( began, builder.create() );
+
+//    final var s = mTextArea.getStyleSpans( began, ended );
+//    System.out.println( "STYLES: " +s );
+
+    mStyles.put( style, range );
     mTextArea.setStyleClass( began, ended, style );
+
+    // Ensure that whenever the user interacts with the text that the found
+    // word will have its highlighting removed. The handler removes itself.
+    // This won't remove the highlighting if the caret position moves by mouse.
+    final var handler = mTextArea.getOnKeyPressed();
+    mTextArea.setOnKeyPressed( ( event ) -> {
+      mTextArea.setOnKeyPressed( handler );
+      unstylize( style );
+    } );
+
+    //mTextArea.setStyleSpans(began, ended, s);
+  }
+
+  private static StyleSpans<Collection<String>> merge(
+      StyleSpans<Collection<String>> spans, int len, String style ) {
+    spans = spans.overlay(
+        singleton( singletonList( style ), len ),
+        ( bottomSpan, list ) -> {
+          final List<String> l =
+              new ArrayList<>( bottomSpan.size() + list.size() );
+          l.addAll( bottomSpan );
+          l.addAll( list );
+          return l;
+        } );
+
+    return spans;
   }
 
   @Override
-  public void unstylize( final int began, final int ended ) {
-    assert 0 <= began && began <= ended;
-    mTextArea.clearStyle( began, ended );
+  public void unstylize( final String style ) {
+    final var indexes = mStyles.remove( style );
+    if( indexes != null ) {
+      mTextArea.clearStyle( indexes.getStart(), indexes.getEnd() + 1 );
+    }
   }
 
   @Override

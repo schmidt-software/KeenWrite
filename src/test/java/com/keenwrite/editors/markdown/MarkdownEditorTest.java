@@ -35,12 +35,13 @@ public class MarkdownEditorTest {
       "Cœlacanthe",
       "L'Haÿ-les-Roses",
       "Mühlfeldstraße",
+      "Da̱nx̱a̱laga̱litła̱n",
   };
 
   private static final String TEXT = String.join( " ", WORDS );
 
   private static final Pattern REGEX = compile(
-      "[^\\p{IsAlphabetic}\\p{IsDigit}'-]" );
+      "[^\\p{Mn}\\p{Me}\\p{L}\\p{N}'-]+" );
 
   /**
    * Test that the {@link MarkdownEditor} can retrieve a word at the caret
