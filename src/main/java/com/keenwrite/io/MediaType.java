@@ -1,4 +1,8 @@
+/* Copyright 2020 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.io;
+
+import static com.keenwrite.Bootstrap.APP_TITLE_LOWERCASE;
+import static java.lang.String.format;
 
 /**
  * Defines various file formats and format contents.
@@ -8,56 +12,108 @@ package com.keenwrite.io;
  * Media Types</a>
  */
 public enum MediaType {
-  UNDEFINED( "" ),
-  TEXT_MARKDOWN( "text/markdown" ),
-  IMAGE_APNG( "image/apng" ),
-  IMAGE_ACES( "image/aces" ),
-  IMAGE_AVCI( "image/avci" ),
-  IMAGE_AVCS( "image/avcs" ),
-  IMAGE_BMP( "image/bmp" ),
-  IMAGE_CGM( "image/cgm" ),
-  IMAGE_DICOM_RLE( "image/dicom_rle" ),
-  IMAGE_EMF( "image/emf" ),
-  IMAGE_EXAMPLE( "image/example" ),
-  IMAGE_FITS( "image/fits" ),
-  IMAGE_G3FAX( "image/g3fax" ),
-  IMAGE_GIF( "image/gif" ),
-  IMAGE_HEIC( "image/heic" ),
-  IMAGE_HEIF( "image/heif" ),
-  IMAGE_HEJ2K( "image/hej2k" ),
-  IMAGE_HSJ2( "image/hsj2" ),
-  IMAGE_X_ICON( "image/x-icon" ),
-  IMAGE_JLS( "image/jls" ),
-  IMAGE_JP2( "image/jp2" ),
-  IMAGE_JPEG( "image/jpeg" ),
-  IMAGE_JPH( "image/jph" ),
-  IMAGE_JPHC( "image/jphc" ),
-  IMAGE_JPM( "image/jpm" ),
-  IMAGE_JPX( "image/jpx" ),
-  IMAGE_JXR( "image/jxr" ),
-  IMAGE_JXRA( "image/jxrA" ),
-  IMAGE_JXRS( "image/jxrS" ),
-  IMAGE_JXS( "image/jxs" ),
-  IMAGE_JXSC( "image/jxsc" ),
-  IMAGE_JXSI( "image/jxsi" ),
-  IMAGE_JXSS( "image/jxss" ),
-  IMAGE_KTX( "image/ktx" ),
-  IMAGE_KTX2( "image/ktx2" ),
-  IMAGE_NAPLPS( "image/naplps" ),
-  IMAGE_PNG( "image/png" ),
-  IMAGE_SVG_XML( "image/svg+xml" ),
-  IMAGE_T38( "image/t38" ),
-  IMAGE_TIFF( "image/tiff" ),
-  IMAGE_WEBP( "image/webp" ),
-  IMAGE_WMF( "image/wmf" );
+  APP_VENDOR_PROJECT(
+      TypeName.APPLICATION, format( "vnd.%s.project", APP_TITLE_LOWERCASE )
+  ),
+  APP_R_MARKDOWN( TypeName.APPLICATION, "R+markdown"),
+  APP_R_XML( TypeName.APPLICATION, "R+xml"),
+
+  APP_JAVA_OBJECT(
+      TypeName.APPLICATION, "x-java-serialized-object"
+  ),
+
+  FONT_OTF( "otf"),
+  FONT_TTF( "ttf"),
+
+  IMAGE_APNG( "apng" ),
+  IMAGE_ACES( "aces" ),
+  IMAGE_AVCI( "avci" ),
+  IMAGE_AVCS( "avcs" ),
+  IMAGE_BMP( "bmp" ),
+  IMAGE_CGM( "cgm" ),
+  IMAGE_DICOM_RLE( "dicom_rle" ),
+  IMAGE_EMF( "emf" ),
+  IMAGE_EXAMPLE( "example" ),
+  IMAGE_FITS( "fits" ),
+  IMAGE_G3FAX( "g3fax" ),
+  IMAGE_GIF( "gif" ),
+  IMAGE_HEIC( "heic" ),
+  IMAGE_HEIF( "heif" ),
+  IMAGE_HEJ2K( "hej2k" ),
+  IMAGE_HSJ2( "hsj2" ),
+  IMAGE_X_ICON( "x-icon" ),
+  IMAGE_JLS( "jls" ),
+  IMAGE_JP2( "jp2" ),
+  IMAGE_JPEG( "jpeg" ),
+  IMAGE_JPH( "jph" ),
+  IMAGE_JPHC( "jphc" ),
+  IMAGE_JPM( "jpm" ),
+  IMAGE_JPX( "jpx" ),
+  IMAGE_JXR( "jxr" ),
+  IMAGE_JXRA( "jxrA" ),
+  IMAGE_JXRS( "jxrS" ),
+  IMAGE_JXS( "jxs" ),
+  IMAGE_JXSC( "jxsc" ),
+  IMAGE_JXSI( "jxsi" ),
+  IMAGE_JXSS( "jxss" ),
+  IMAGE_KTX( "ktx" ),
+  IMAGE_KTX2( "ktx2" ),
+  IMAGE_NAPLPS( "naplps" ),
+  IMAGE_PNG( "png" ),
+  IMAGE_SVG_XML( "svg+xml" ),
+  IMAGE_T38( "t38" ),
+  IMAGE_TIFF( "tiff" ),
+  IMAGE_WEBP( "webp" ),
+  IMAGE_WMF( "wmf" ),
+
+  TEXT_HTML( TypeName.TEXT, "html" ),
+  TEXT_MARKDOWN( TypeName.TEXT, "markdown" ),
+  TEXT_YAML( TypeName.TEXT, "yaml" ),
+
+  UNDEFINED( TypeName.UNDEFINED, "undefined" );
 
   /**
-   * The IANA-defined type and sub-type.
+   * The IANA-defined types.
+   */
+  public enum TypeName {
+    APPLICATION,
+    IMAGE,
+    TEXT,
+    UNDEFINED
+  }
+
+  /**
+   * The fully qualified IANA-defined media type.
    */
   private final String mMediaType;
 
-  MediaType( final String mediaType ) {
-    mMediaType = mediaType;
+  /**
+   * The IANA-defined type.
+   */
+  private final TypeName mTypeName;
+
+  /**
+   * Constructs an instance using the default type name of "image".
+   *
+   * @param subtype The image subtype.
+   */
+  MediaType( final String subtype ) {
+    this( TypeName.IMAGE, subtype );
+  }
+
+  MediaType( final TypeName typeName, final String subtype ) {
+    mTypeName = typeName;
+    mMediaType = typeName.toString().toLowerCase() + '/' + subtype;
+  }
+
+  /**
+   * Answers whether the given {@link TypeName} matches this type name.
+   *
+   * @param typeName The {@link TypeName} to compare against the internal value.
+   * @return {@code true} if the given value is the same IANA-defined type name.
+   */
+  public boolean isType( final TypeName typeName ) {
+    return mTypeName == typeName;
   }
 
   /**

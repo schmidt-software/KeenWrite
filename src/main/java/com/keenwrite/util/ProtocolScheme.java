@@ -1,66 +1,55 @@
-/*
- * Copyright 2020 White Magic Software, Ltd.
- *
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- *  o Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- *
- *  o Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+/* Copyright 2020 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.util;
+
+import java.io.File;
+import java.net.URI;
+import java.net.URL;
 
 /**
  * Represents the type of data encoding scheme used for a universal resource
- * indicator.
+ * indicator. Prefer to use the {@code is*} methods to check equality because
+ * there are cases where the protocol represents more than one possible type
+ * (e.g., a Java Archive is a file, so comparing {@link #FILE} directly could
+ * lead to incorrect results).
  */
 public enum ProtocolScheme {
+  /**
+   * Denotes a local file.
+   */
+  FILE,
   /**
    * Denotes either HTTP or HTTPS.
    */
   HTTP,
   /**
-   * Denotes a local file.
+   * Denotes Java archive file.
    */
-  FILE,
+  JAR,
   /**
    * Could not determine schema (or is not supported by the application).
    */
   UNKNOWN;
 
   /**
-   * Answers {@code true} if the given protocol is either HTTP or HTTPS.
+   * Returns the protocol for a given URI or filename.
    *
-   * @return {@code true} the protocol is either HTTP or HTTPS.
+   * @param resource Determine the protocol for this URI or filename.
+   * @return The protocol for the given resource.
    */
-  public boolean isHttp() {
-    return this == HTTP;
-  }
-
-  /**
-   * Answers {@code true} if the given protocol is for a local file.
-   *
-   * @return {@code true} the protocol is for a local file reference.
-   */
-  public boolean isFile() {
-    return this == FILE;
+  public static ProtocolScheme getProtocol( final String resource ) {
+    try {
+      final var uri = new URI( resource );
+      return uri.isAbsolute()
+          ? valueFrom( uri )
+          : valueFrom( new URL( resource ) );
+    } catch( final Exception ex ) {
+      // Using double-slashes is a short-hand to instruct the browser to
+      // reference a resource using the parent URL's security model. This
+      // is known as a protocol-relative URL.
+      return resource.startsWith( "//" )
+          ? HTTP
+          : valueFrom( new File( resource ) );
+    }
   }
 
   /**
@@ -71,7 +60,7 @@ public enum ProtocolScheme {
    * valid value from this enumeration.
    */
   public static ProtocolScheme valueFrom( final String protocol ) {
-    final var sanitized = sanitize( protocol );
+    final var sanitized = protocol == null ? "" : protocol.toUpperCase();
 
     for( final var scheme : values() ) {
       // This will match HTTP/HTTPS as well as FILE*, which may be inaccurate.
@@ -84,14 +73,67 @@ public enum ProtocolScheme {
   }
 
   /**
-   * Returns an empty string if the given string to sanitize is {@code null},
-   * otherwise the given string in uppercase. Uppercase is used to align with
-   * the enum name.
+   * Determines the protocol scheme for a given {@link File}.
    *
-   * @param s The string to sanitize, may be {@code null}.
-   * @return A non-{@code null} string.
+   * @param file A file having a URI that contains a protocol scheme.
+   * @return {@link #UNKNOWN} if the protocol is unrecognized, otherwise a
+   * valid value from this enumeration.
    */
-  private static String sanitize( final String s ) {
-    return s == null ? "" : s.toUpperCase();
+  public static ProtocolScheme valueFrom( final File file ) {
+    return valueFrom( file.toURI() );
+  }
+
+  /**
+   * Determines the protocol scheme for a given {@link URI}.
+   *
+   * @param uri A URI that contains a protocol scheme.
+   * @return {@link #UNKNOWN} if the protocol is unrecognized, otherwise a
+   * valid value from this enumeration.
+   */
+  public static ProtocolScheme valueFrom( final URI uri ) {
+    try {
+      return valueFrom( uri.toURL() );
+    } catch( final Exception ex ) {
+      return UNKNOWN;
+    }
+  }
+
+  /**
+   * Determines the protocol scheme for a given {@link URL}.
+   *
+   * @param url A {@link URL} that contains a protocol scheme.
+   * @return {@link #UNKNOWN} if the protocol is unrecognized, otherwise a
+   * valid value from this enumeration.
+   */
+  public static ProtocolScheme valueFrom( final URL url ) {
+    return valueFrom( url.getProtocol() );
+  }
+
+  /**
+   * Answers {@code true} if the given protocol is for a local file, which
+   * includes a JAR file.
+   *
+   * @return {@code false} the protocol is not a local file reference.
+   */
+  public boolean isFile() {
+    return this == FILE || this == JAR;
+  }
+
+  /**
+   * Answers {@code true} if the given protocol is either HTTP or HTTPS.
+   *
+   * @return {@code true} the protocol is either HTTP or HTTPS.
+   */
+  public boolean isHttp() {
+    return this == HTTP;
+  }
+
+  /**
+   * Answers {@code true} if the given protocol is for a Java archive file.
+   *
+   * @return {@code false} the protocol is not a Java archive file.
+   */
+  public boolean isJar() {
+    return this == JAR;
   }
 }

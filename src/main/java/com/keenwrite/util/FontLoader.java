@@ -1,3 +1,4 @@
+/* Copyright 2020 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.util;
 
 import com.keenwrite.preview.HtmlPreview;
@@ -12,6 +13,11 @@ import java.util.Map;
 
 import static com.keenwrite.Constants.FONT_DIRECTORY;
 import static com.keenwrite.StatusBarNotifier.clue;
+import static com.keenwrite.util.ProtocolScheme.valueFrom;
+import static com.keenwrite.util.ResourceWalker.GLOB_FONTS;
+import static com.keenwrite.util.ResourceWalker.walk;
+import static java.awt.Font.TRUETYPE_FONT;
+import static java.awt.Font.createFont;
 import static java.awt.GraphicsEnvironment.getLocalGraphicsEnvironment;
 import static java.awt.font.TextAttribute.*;
 
@@ -20,38 +26,42 @@ import static java.awt.font.TextAttribute.*;
  * {@link GraphicsEnvironment} so that the {@link HtmlPreview} can display
  * the text using a non-system font.
  */
-public class FontLoader {
+public final class FontLoader {
 
   /**
-   * Walks the resources associated with the application to load all
-   * TrueType font resources found. This method must run before the windowing
-   * system kicks in, otherwise the fonts will not be found.
+   * Walks the resources associated with the application to load all TrueType
+   * font resources found. This method must run before the windowing system
+   * kicks in, otherwise the fonts will not be found.
+   * <p>
+   * All fonts must be TrueType fonts. No PostScript Type 1 fonts are
+   * supported.
+   * </p>
    */
   @SuppressWarnings("unchecked")
   public static void initFonts() {
     final var ge = getLocalGraphicsEnvironment();
 
     try {
-      ResourceWalker.walk(
-          FONT_DIRECTORY, path -> {
+      walk(
+          FONT_DIRECTORY, GLOB_FONTS, path -> {
             final var uri = path.toUri();
             final var filename = path.toString();
 
             try( final var is = openFont( uri, filename ) ) {
-              final var font = Font.createFont( Font.TRUETYPE_FONT, is );
+              final var font = createFont( TRUETYPE_FONT, is );
               final var attributes =
                   (Map<TextAttribute, Integer>) font.getAttributes();
 
               attributes.put( LIGATURES, LIGATURES_ON );
               attributes.put( KERNING, KERNING_ON );
               ge.registerFont( font.deriveFont( attributes ) );
-            } catch( final Exception e ) {
-              clue( e );
+            } catch( final Exception ex ) {
+              clue( ex );
             }
           }
       );
-    } catch( final Exception e ) {
-      clue( e );
+    } catch( final Exception ex ) {
+      clue( ex );
     }
   }
 
@@ -66,7 +76,7 @@ public class FontLoader {
    */
   private static InputStream openFont( final URI uri, final String filename )
       throws IOException {
-    return uri.getScheme().equals( "jar" )
+    return valueFrom( uri ).isJar()
         ? FontLoader.class.getResourceAsStream( filename )
         : new FileInputStream( filename );
   }

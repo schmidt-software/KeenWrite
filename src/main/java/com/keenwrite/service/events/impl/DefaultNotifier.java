@@ -1,30 +1,4 @@
-/*
- * Copyright 2020 White Magic Software, Ltd.
- *
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- *  o Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- *
- *  o Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+/* Copyright 2020 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.service.events.impl;
 
 import com.keenwrite.service.events.Notification;
@@ -33,6 +7,9 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.stage.Window;
 
+import java.nio.file.Path;
+
+import static com.keenwrite.Messages.get;
 import static javafx.scene.control.Alert.AlertType.CONFIRMATION;
 import static javafx.scene.control.Alert.AlertType.ERROR;
 
@@ -42,14 +19,6 @@ import static javafx.scene.control.Alert.AlertType.ERROR;
  */
 public final class DefaultNotifier implements Notifier {
 
-  /**
-   * Contains all the information that the user needs to know about a problem.
-   *
-   * @param title   The context for the message.
-   * @param message The message content (formatted with the given args).
-   * @param args    Parameters for the message content.
-   * @return A notification instance, never null.
-   */
   @Override
   public Notification createNotification(
       final String title,
@@ -58,26 +27,24 @@ public final class DefaultNotifier implements Notifier {
     return new DefaultNotification( title, message, args );
   }
 
-  private Alert createAlertDialog(
+  @Override
+  public void alert(
       final Window parent,
-      final AlertType alertType,
-      final Notification message ) {
+      final Path path,
+      final String titleKey,
+      final String messageKey,
+      final Exception ex ) {
+    final var message = createNotification(
+        get( titleKey ), get( messageKey ), path, ex.getMessage()
+    );
 
-    final Alert alert = new Alert( alertType );
-
-    alert.setDialogPane( new ButtonOrderPane() );
-    alert.setTitle( message.getTitle() );
-    alert.setHeaderText( null );
-    alert.setContentText( message.getContent() );
-    alert.initOwner( parent );
-
-    return alert;
+    createError( parent, message ).showAndWait();
   }
 
   @Override
-  public Alert createConfirmation( final Window parent,
-                                   final Notification message ) {
-    final Alert alert = createAlertDialog( parent, CONFIRMATION, message );
+  public Alert createConfirmation(
+      final Window parent, final Notification message ) {
+    final var alert = createAlertDialog( parent, CONFIRMATION, message );
 
     alert.getButtonTypes().setAll( YES, NO, CANCEL );
 
@@ -87,5 +54,20 @@ public final class DefaultNotifier implements Notifier {
   @Override
   public Alert createError( final Window parent, final Notification message ) {
     return createAlertDialog( parent, ERROR, message );
+  }
+
+  private Alert createAlertDialog(
+      final Window parent,
+      final AlertType alertType,
+      final Notification message ) {
+    final var alert = new Alert( alertType );
+
+    alert.setDialogPane( new ButtonOrderPane() );
+    alert.setTitle( message.getTitle() );
+    alert.setHeaderText( null );
+    alert.setContentText( message.getContent() );
+    alert.initOwner( parent );
+
+    return alert;
   }
 }

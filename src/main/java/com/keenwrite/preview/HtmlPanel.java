@@ -1,6 +1,7 @@
+/* Copyright 2020 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.preview;
 
-import com.keenwrite.adapters.DocumentAdapter;
+import com.keenwrite.ui.adapters.DocumentAdapter;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import org.xhtmlrenderer.layout.SharedContext;
@@ -12,12 +13,15 @@ import org.xhtmlrenderer.swing.FSMouseListener;
 import org.xhtmlrenderer.swing.HoverListener;
 import org.xhtmlrenderer.swing.LinkListener;
 
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.net.URI;
 
 import static com.keenwrite.StatusBarNotifier.clue;
-import static com.keenwrite.util.ProtocolResolver.getProtocol;
+import static com.keenwrite.util.ProtocolScheme.getProtocol;
 import static java.awt.Desktop.Action.BROWSE;
 import static java.awt.Desktop.getDesktop;
+import static javax.swing.SwingUtilities.invokeLater;
 import static org.jsoup.Jsoup.parse;
 
 /**
@@ -43,6 +47,18 @@ public class HtmlPanel extends XHTMLPanel {
     @Override
     public void documentLoaded() {
       mReadyProperty.setValue( Boolean.TRUE );
+    }
+  }
+
+  /**
+   * Ensures that the preview panel fills its container's area completely.
+   */
+  private final class ComponentEventHandler extends ComponentAdapter {
+    /**
+     * Invoked when the component's size changes.
+     */
+    public void componentResized( final ComponentEvent e ) {
+      setPreferredSize( e.getComponent().getPreferredSize() );
     }
   }
 
@@ -80,6 +96,7 @@ public class HtmlPanel extends XHTMLPanel {
     addDocumentListener( new DocumentEventHandler() );
     removeMouseTrackingListeners();
     addMouseTrackingListener( new HyperlinkListener() );
+    addComponentListener( new ComponentEventHandler() );
   }
 
   /**
@@ -90,7 +107,12 @@ public class HtmlPanel extends XHTMLPanel {
    * @param baseUri URI to use for finding relative files, such as images.
    */
   public void render( final String html, final String baseUri ) {
-    setDocument( CONVERTER.fromJsoup( parse( html ) ), baseUri, XNH );
+    final var doc = CONVERTER.fromJsoup( parse( html ) );
+
+    // Access to a Swing component must occur from the Event Dispatch
+    // Thread (EDT) according to Swing threading restrictions. Setting a new
+    // document invokes a Swing repaint operation.
+    invokeLater( () -> setDocument( doc, baseUri, XNH ) );
   }
 
   /**

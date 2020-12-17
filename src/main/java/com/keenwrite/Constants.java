@@ -1,39 +1,26 @@
-/*
- * Copyright 2020 White Magic Software, Ltd.
- *
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- *  o Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- *
- *  o Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+/* Copyright 2020 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite;
 
+import com.keenwrite.io.File;
+import com.keenwrite.io.MediaType;
 import com.keenwrite.service.Settings;
+import com.keenwrite.sigils.RSigilOperator;
+import com.keenwrite.sigils.SigilOperator;
+import com.keenwrite.sigils.YamlSigilOperator;
 import javafx.scene.image.Image;
 
+import java.nio.charset.Charset;
 import java.nio.file.Path;
+import java.util.Locale;
+import java.util.Map;
+import java.util.function.UnaryOperator;
 
 import static com.keenwrite.Bootstrap.APP_TITLE_LOWERCASE;
+import static com.keenwrite.io.MediaType.APP_R_MARKDOWN;
+import static com.keenwrite.io.MediaType.APP_R_XML;
+import static java.io.File.separator;
 import static java.lang.String.format;
+import static java.lang.System.getProperty;
 
 /**
  * Defines application-wide default values.
@@ -54,9 +41,10 @@ public class Constants {
   /**
    * The {@link Settings} uses {@link #PATH_PROPERTIES_SETTINGS}.
    */
-  public static final Settings SETTINGS = Services.load( Settings.class );
+  public static final Settings sSettings = Services.load( Settings.class );
 
-  public static final String DEFINITION_NAME = get( "file.definition.default" );
+  public static final File DEFAULT_DEFINITION = getFile( "definition" );
+  public static final File DEFAULT_DOCUMENT = getFile( "document" );
 
   public static final String APP_BUNDLE_NAME = get( "application.messages" );
 
@@ -64,11 +52,14 @@ public class Constants {
   public static final int APP_WATCHDOG_TIMEOUT = get(
       "application.watchdog.timeout", 200 );
 
-  public static final String STYLESHEET_DOCK = get( "file.stylesheet.dock" );
   public static final String STYLESHEET_MARKDOWN = get(
       "file.stylesheet.markdown" );
+  public static final String STYLESHEET_MARKDOWN_LOCALE =
+      "file.stylesheet.markdown.locale";
   public static final String STYLESHEET_PREVIEW = get(
       "file.stylesheet.preview" );
+  public static final String STYLESHEET_PREVIEW_LOCALE =
+      "file.stylesheet.preview.locale";
   public static final String STYLESHEET_SCENE = get( "file.stylesheet.scene" );
 
   public static final String FILE_LOGO_16 = get( "file.logo.16" );
@@ -79,16 +70,16 @@ public class Constants {
 
   public static final Image ICON_DIALOG = new Image( FILE_LOGO_32 );
 
+  public static final String FILE_PREFERENCES = getPreferencesFilename();
+
   public static final String PREFS_ROOT = get( "preferences.root" );
   public static final String PREFS_STATE = get( "preferences.root.state" );
 
   /**
    * Refer to filename extension settings in the configuration file. Do not
-   * terminate these prefixes with a period.
+   * terminate with a period.
    */
   public static final String GLOB_PREFIX_FILE = "file.ext";
-  public static final String GLOB_PREFIX_DEFINITION =
-      "definition." + GLOB_PREFIX_FILE;
 
   /**
    * Three parameters: line number, column number, and offset.
@@ -126,12 +117,26 @@ public class Constants {
   /**
    * Default working directory to use for R startup script.
    */
-  public static final String USER_DIRECTORY = System.getProperty( "user.dir" );
+  public static final File USER_DIRECTORY =
+      new File( System.getProperty( "user.dir" ) );
 
   /**
    * Default path to use for an untitled (pathless) file.
    */
-  public static final Path DEFAULT_DIRECTORY = Path.of( USER_DIRECTORY );
+  public static final Path DEFAULT_DIRECTORY = USER_DIRECTORY.toPath();
+
+  /**
+   * Associates file types with {@link SigilOperator} instances.
+   */
+  private static final Map<MediaType, SigilOperator> SIGIL_MAP = Map.of(
+      APP_R_MARKDOWN, new RSigilOperator(),
+      APP_R_XML, new RSigilOperator()
+  );
+
+  /**
+   * Default character set to use when reading/writing files.
+   */
+  public static final Charset DEFAULT_CHARSET = Charset.defaultCharset();
 
   /**
    * Default starting delimiter for definition variables. This value must
@@ -171,6 +176,11 @@ public class Constants {
   public static final float FONT_SIZE_EDITOR = 12f;
 
   /**
+   * Default locale for font loading.
+   */
+  public static final Locale DEFAULT_LOCALE = Locale.getDefault();
+
+  /**
    * Default identifier to use for synchronized scrolling.
    */
   public static String CARET_ID = "caret";
@@ -181,12 +191,39 @@ public class Constants {
   private Constants() {
   }
 
+  public static UnaryOperator<String> getSigilOperator(
+      final MediaType mediaType ) {
+    return SIGIL_MAP.getOrDefault( mediaType, new YamlSigilOperator() );
+  }
+
   private static String get( final String key ) {
-    return SETTINGS.getSetting( key, "" );
+    return sSettings.getSetting( key, "" );
   }
 
   @SuppressWarnings("SameParameterValue")
   private static int get( final String key, final int defaultValue ) {
-    return SETTINGS.getSetting( key, defaultValue );
+    return sSettings.getSetting( key, defaultValue );
+  }
+
+  /**
+   * Returns a default {@link File} instance based on the given key suffix.
+   *
+   * @param suffix Appended to {@code "file.default."}.
+   * @return A new {@link File} instance that references the settings file name.
+   */
+  private static File getFile( final String suffix ) {
+    return new File( get( "file.default." + suffix ) );
+  }
+
+  /**
+   * Returns the equivalent of {@code $HOME/.filename.xml}.
+   */
+  private static String getPreferencesFilename() {
+    return format(
+        "%s%s.%s.xml",
+        getProperty( "user.home" ),
+        separator,
+        APP_TITLE_LOWERCASE
+    );
   }
 }

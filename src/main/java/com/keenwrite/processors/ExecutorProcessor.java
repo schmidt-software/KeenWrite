@@ -1,3 +1,4 @@
+/* Copyright 2020 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.processors;
 
 import java.util.Optional;
@@ -36,9 +37,9 @@ public class ExecutorProcessor<T> implements Processor<T> {
    */
   @Override
   public T apply( final T data ) {
-    // Avoid infinite recursion.
+    // Start processing using the first processor after the executor.
     Optional<Processor<T>> handler = next();
-    final var result = new AtomicReference<>( data );
+    final var result = new MutableReference( data );
 
     while( handler.isPresent() ) {
       handler = handler.flatMap( p -> {
@@ -53,5 +54,26 @@ public class ExecutorProcessor<T> implements Processor<T> {
   @Override
   public Optional<Processor<T>> next() {
     return Optional.ofNullable( mNext );
+  }
+
+  /**
+   * A minor micro-optimization, since the processors cannot be run in parallel,
+   * avoid using an {@link AtomicReference} during processor execution. This
+   * is about twice as fast for the first four processor links in the chain.
+   */
+  private final class MutableReference {
+    private T mObject;
+
+    MutableReference( final T object ) {
+      set( object );
+    }
+
+    void set( final T object ) {
+      mObject = object;
+    }
+
+    T get() {
+      return mObject;
+    }
   }
 }

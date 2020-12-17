@@ -1,30 +1,4 @@
-/*
- * Copyright 2020 White Magic Software, Ltd.
- *
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- *  o Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- *
- *  o Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+/* Copyright 2020 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.processors.markdown;
 
 import com.keenwrite.Constants;
@@ -54,14 +28,14 @@ public class CaretExtension implements HtmlRendererExtension {
    * once: for the HTML element containing the {@link Constants#CARET_ID}.
    */
   public static class IdAttributeProvider implements AttributeProvider {
-    private final CaretPosition mCaret;
+    private final Caret mCaret;
 
-    public IdAttributeProvider( final CaretPosition caret ) {
+    public IdAttributeProvider( final Caret caret ) {
       mCaret = caret;
     }
 
     private static AttributeProviderFactory createFactory(
-        final CaretPosition caret ) {
+        final Caret caret ) {
       return new IndependentAttributeProviderFactory() {
         @Override
         public @NotNull AttributeProvider apply(
@@ -75,8 +49,9 @@ public class CaretExtension implements HtmlRendererExtension {
     public void setAttributes( @NotNull Node curr,
                                @NotNull AttributablePart part,
                                @NotNull MutableAttributes attributes ) {
+      final var outside = mCaret.isAfterText() ? 1 : 0;
       final var began = curr.getStartOffset();
-      final var ended = curr.getEndOffset();
+      final var ended = curr.getEndOffset() + outside;
       final var prev = curr.getPrevious();
 
       // If the caret is within the bounds of the current node or the
@@ -85,16 +60,15 @@ public class CaretExtension implements HtmlRendererExtension {
       // a caret indicator.
       if( mCaret.isBetweenText( began, ended ) ||
           prev != null && mCaret.isBetweenText( prev.getEndOffset(), began ) ) {
-
-        // This magic line enables synchronizing the text editor with preview.
+        // This line empowers synchronizing the text editor with the preview.
         attributes.addValue( AttributeImpl.of( "id", CARET_ID ) );
       }
     }
   }
 
-  private final CaretPosition mCaret;
+  private final Caret mCaret;
 
-  private CaretExtension( final CaretPosition caret ) {
+  private CaretExtension( final Caret caret ) {
     mCaret = caret;
   }
 
@@ -105,7 +79,7 @@ public class CaretExtension implements HtmlRendererExtension {
         IdAttributeProvider.createFactory( mCaret ) );
   }
 
-  public static CaretExtension create( final CaretPosition caret ) {
+  public static CaretExtension create( final Caret caret ) {
     return new CaretExtension( caret );
   }
 

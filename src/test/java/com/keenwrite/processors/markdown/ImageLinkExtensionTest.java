@@ -1,3 +1,4 @@
+/* Copyright 2020 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.processors.markdown;
 
 import com.vladsch.flexmark.html.HtmlRenderer;
@@ -15,9 +16,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.keenwrite.preferences.UserPreferences.getInstance;
 import static java.lang.String.format;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * Responsible for testing that linked images render into HTML according to
@@ -27,28 +28,28 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @SuppressWarnings("SameParameterValue")
 public class ImageLinkExtensionTest {
 
-  private final static Map<String, String> IMAGES = new HashMap<>();
+  private static final Map<String, String> IMAGES = new HashMap<>();
 
-  private final static String URI_WEB = "placekitten.com/200/200";
-  private final static String URI_DIRNAME = "images";
-  private final static String URI_FILENAME = "kitten";
+  private static final String URI_WEB = "placekitten.com/200/200";
+  private static final String URI_DIRNAME = "images";
+  private static final String URI_FILENAME = "kitten";
 
   /**
    * Path to use for testing image filename resolution. Note that resources use
    * forward slashes, regardless of OS.
    */
-  private final static String URI_PATH = URI_DIRNAME + '/' + URI_FILENAME;
+  private static final String URI_PATH = URI_DIRNAME + '/' + URI_FILENAME;
 
   /**
    * Extension for the first existing image that matches the preferred image
    * extension order.
    */
-  private final static String URI_IMAGE_EXT = ".png";
+  private static final String URI_IMAGE_EXT = ".png";
 
   /**
    * Relative path to an image that exists.
    */
-  private final static String URI_IMAGE = URI_PATH + URI_IMAGE_EXT;
+  private static final String URI_IMAGE = URI_PATH + URI_IMAGE_EXT;
 
   static {
     addUri( URI_PATH + ".png" );
@@ -98,8 +99,11 @@ public class ImageLinkExtensionTest {
     final var parser = pBuilder.extensions( extensions ).build();
     final var renderer = hBuilder.extensions( extensions ).build();
 
+    assertNotNull( parser );
+    assertNotNull( renderer );
+
     // Set a default (fallback) image directory search location.
-    getInstance().imagesDirectoryProperty().setValue( new File( "." ) );
+    //getInstance().imagesDirectoryProperty().setValue( new File( "." ) );
 
     for( final var entry : IMAGES.entrySet() ) {
       final var key = entry.getKey();

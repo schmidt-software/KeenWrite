@@ -1,5 +1,5 @@
-/*
- * Copyright 2016 David Croft and White Magic Software, Ltd.
+/* Copyright 2016 David Croft
+ * Copyright 2020 White Magic Software, Ltd.
  *
  * All rights reserved.
  *
@@ -75,7 +75,6 @@ public class FilePreferencesFactory implements PreferencesFactory {
   }
 
   public static String getPreferencesFilename() {
-    final var filename = getProperty( "application.name", APP_TITLE_LOWERCASE );
-    return getProperty( "user.home" ) + separator + '.' + filename;
+    return getProperty( "user.home" ) + separator + '.' + APP_TITLE_LOWERCASE;
   }
 }

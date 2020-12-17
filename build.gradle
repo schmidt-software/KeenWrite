@@ -37,11 +37,10 @@ javafx {
 dependencies {
   def v_junit = '5.5.1'
   def v_flexmark = '0.62.2'
-  def v_jackson = '2.11.2'
+  def v_jackson = '2.12.0'
   def v_batik = '1.13'
 
   // JavaFX
-  implementation 'org.reactfx:reactfx:1.4.1'
   implementation 'org.controlsfx:controlsfx:11.0.2'
   implementation 'org.fxmisc.richtext:richtextfx:0.10.5'
   implementation 'org.fxmisc.wellbehaved:wellbehavedfx:0.3.3'
@@ -69,7 +68,7 @@ dependencies {
   implementation "com.fasterxml.jackson.core:jackson-databind:${v_jackson}"
   implementation "com.fasterxml.jackson.core:jackson-annotations:${v_jackson}"
   implementation "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:${v_jackson}"
-  implementation 'org.yaml:snakeyaml:1.26'
+  implementation 'org.yaml:snakeyaml:1.27'
 
   // XML and XSL
   implementation 'com.ximpleware:vtd-xml:2.13.4'
@@ -99,17 +98,18 @@ dependencies {
   implementation "org.apache.xmlgraphics:batik-util:${v_batik}"
   implementation "org.apache.xmlgraphics:batik-xml:${v_batik}"
 
-  // Spelling, TeX, Docking
-  implementation fileTree(include: ['**/*.jar'], dir: 'libs')
-
-  // Docking
-  //implementation 'com.panemu:tiwulfx-dock:0.1'
-
   // Misc.
   implementation 'org.ahocorasick:ahocorasick:0.4.0'
   implementation 'org.apache.commons:commons-configuration2:2.7'
   implementation 'com.googlecode.juniversalchardet:juniversalchardet:1.0.3'
   implementation 'javax.validation:validation-api:2.0.1.Final'
+
+  // Configuration
+  implementation 'org.apache.commons:commons-configuration2:2.7'
+  implementation 'commons-beanutils:commons-beanutils:1.9.4'
+
+  // Spelling, TeX, Docking
+  implementation fileTree(include: ['**/*.jar'], dir: 'libs')
 
   def fx = ['controls', 'graphics', 'fxml', 'swing']
 

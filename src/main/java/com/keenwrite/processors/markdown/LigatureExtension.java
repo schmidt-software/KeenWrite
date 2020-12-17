@@ -1,3 +1,4 @@
+/* Copyright 2020 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.processors.markdown;
 
 import com.vladsch.flexmark.ast.Text;
@@ -37,16 +38,21 @@ public class LigatureExtension implements HtmlRendererExtension {
   private static final Map<String, String> LIGATURES = new LinkedHashMap<>();
 
   static {
+    // Common
     LIGATURES.put( "ffi", "\uFB03" );
     LIGATURES.put( "ffl", "\uFB04" );
     LIGATURES.put( "ff", "\uFB00" );
     LIGATURES.put( "fi", "\uFB01" );
     LIGATURES.put( "fl", "\uFB02" );
     LIGATURES.put( "ft", "\uFB05" );
-    LIGATURES.put( "AE", "\u00C6" );
-    LIGATURES.put( "OE", "\u0152" );
-//      "ae", "\u00E6",
-//      "oe", "\u0153",
+
+    // Discretionary
+
+    // Antiquated
+//    LIGATURES.put( "AE", "\u00C6" );
+//    LIGATURES.put( "OE", "\u0152" );
+//    LIGATURES.put( "ae", "\u00E6" );
+//    LIGATURES.put( "oe", "\u0153" );
   }
 
   private static class LigatureRenderer implements NodeRenderer {

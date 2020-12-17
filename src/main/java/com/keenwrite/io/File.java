@@ -1,3 +1,4 @@
+/* Copyright 2020 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.io;
 
 import org.apache.commons.io.FilenameUtils;
@@ -17,6 +18,16 @@ public class File extends java.io.File {
   }
 
   /**
+   * Constructs a new instance based on an existing {@link java.io.File}
+   * instance.
+   *
+   * @param file The absolute path from this object is used for construction.
+   */
+  public File( final java.io.File file ) {
+    this( file.getAbsolutePath() );
+  }
+
+  /**
    * Returns the {@link MediaType} associated with this file.
    *
    * @return {@link MediaType#UNDEFINED} if the extension has not been
@@ -25,6 +36,18 @@ public class File extends java.io.File {
    */
   public MediaType getMediaType() {
     return MediaTypeExtensions.getMediaType( getExtension() );
+  }
+
+  /**
+   * Answers whether the given {@link MediaType} is the same as this
+   * {@link MediaType} for this {@link File} instance.
+   *
+   * @param mediaType The other {@link MediaType} to compare.
+   * @return {@code true} when the given {@link MediaType} matches the
+   * type derived for this {@link File} instance.
+   */
+  public boolean isMediaType( final MediaType mediaType ) {
+    return getMediaType() == mediaType;
   }
 
   /**

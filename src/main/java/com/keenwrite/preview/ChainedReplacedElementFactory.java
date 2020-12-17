@@ -1,5 +1,4 @@
-/*
- * Copyright 2006 Patrick Wright
+/* Copyright 2006 Patrick Wright
  * Copyright 2007 Wisconsin Court System
  * Copyright 2020 White Magic Software, Ltd.
  *
@@ -19,7 +18,7 @@
  */
 package com.keenwrite.preview;
 
-import com.keenwrite.adapters.ReplacedElementAdapter;
+import com.keenwrite.ui.adapters.ReplacedElementAdapter;
 import org.w3c.dom.Element;
 import org.xhtmlrenderer.extend.ReplacedElement;
 import org.xhtmlrenderer.extend.ReplacedElementFactory;

@@ -1,3 +1,4 @@
+/* Copyright 2020 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.util;
 
 import java.util.ArrayList;
@@ -43,6 +44,9 @@ public class GenericBuilder<MT, IT> {
    */
   protected GenericBuilder(
       final Supplier<MT> mutator, final Function<MT, IT> immutable ) {
+    assert mutator != null;
+    assert immutable != null;
+
     mMutable = mutator;
     mImmutable = immutable;
   }

@@ -1,30 +1,4 @@
-/*
- * Copyright 2020 Karl Tauber and White Magic Software, Ltd.
- *
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- *  o Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- *
- *  o Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+/* Copyright 2020 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.preview;
 
 import javafx.embed.swing.SwingNode;
@@ -33,9 +7,12 @@ import org.xhtmlrenderer.swing.SwingReplacedElementFactory;
 
 import javax.swing.*;
 import java.awt.*;
+import java.net.URL;
 import java.nio.file.Path;
+import java.util.Locale;
 
-import static com.keenwrite.Constants.STYLESHEET_PREVIEW;
+import static com.keenwrite.Constants.*;
+import static com.keenwrite.Messages.get;
 import static java.lang.Math.max;
 import static java.lang.String.format;
 import static javafx.scene.CacheHint.SPEED;
@@ -50,27 +27,20 @@ public final class HtmlPreview extends SwingNode {
    * Render CSS using points (pt) not pixels (px) to reduce the chance of
    * poor rendering.
    */
-  private static final String HTML_HEAD_OPEN = format(
+  private static final String HTML_HEAD =
       """
           <!DOCTYPE html>
-          <html lang='en'><head><title> </title><meta charset='utf-8'/>
-          <link rel='stylesheet' href='%s'/>
-          """,
-      HtmlPreview.class.getResource( STYLESHEET_PREVIEW )
-  );
+          <html lang='%s'><head><title> </title><meta charset='utf-8'>
+          <link rel='stylesheet' href='%s'>
+          <link rel='stylesheet' href='%s'>
+          <base href='%s'>
+          </head><body>
+          """;
 
-  /**
-   * Used by SVG rendering when resolving local image files.
-   */
-  private static final String HTML_BASE = "<base href='%s'>";
-  private static final String HTML_HEAD_CLOSE = "</head><body>";
   private static final String HTML_TAIL = "</body></html>";
 
-  /**
-   * Used to reset the {@link #mHtmlDocument} buffer so that the
-   * {@link #HTML_HEAD_OPEN} need not be appended all the time.
-   */
-  private static final int HTML_PREFIX_LENGTH = HTML_HEAD_OPEN.length();
+  private static final URL HTML_STYLE_PREVIEW =
+      HtmlPreview.class.getResource( STYLESHEET_PREVIEW );
 
   /**
    * The buffer is reused so that previous memory allocations need not repeat.
@@ -81,23 +51,20 @@ public final class HtmlPreview extends SwingNode {
   private JScrollPane mScrollPane;
 
   private String mBaseUriPath = "";
-  private String mBaseUriHtml = "";
 
   /**
    * Creates a new preview pane that can scroll to the caret position within the
    * document.
    */
   public HtmlPreview() {
+    // Attempts to prevent a flash of black un-styled content upon load.
     setStyle( "-fx-background-color: white;" );
-
-    // No need to append same prefix each time the HTML content is updated.
-    mHtmlDocument.append( HTML_HEAD_OPEN );
 
     invokeLater( () -> {
       mView = new HtmlPanel();
       mScrollPane = new JScrollPane( mView );
 
-      // Enabling the cache eliminates black background flashes.
+      // Enabling the cache attempts to prevent black flashes when resizing.
       setCache( true );
       setCacheHint( SPEED );
       setContent( mScrollPane );
@@ -114,15 +81,12 @@ public final class HtmlPreview extends SwingNode {
   }
 
   /**
-   * Updates the internal HTML source, loads it into the preview pane, then
-   * scrolls to the caret position.
+   * Updates the internal HTML source shown in the preview pane.
    *
    * @param html The new HTML document to display.
    */
   public void render( final String html ) {
-    // Access to a Swing component must occur from the Event Dispatch
-    // Thread (EDT) according to Swing threading restrictions.
-    invokeLater( () -> mView.render( decorate( html ), getBaseUri() ) );
+    mView.render( decorate( html ), getBaseUri() );
   }
 
   /**
@@ -140,11 +104,6 @@ public final class HtmlPreview extends SwingNode {
   public void setBaseUri( final Path path ) {
     final var parent = path.getParent();
     mBaseUriPath = parent == null ? "" : parent.toUri().toString();
-    mBaseUriHtml = format( HTML_BASE, mBaseUriPath );
-  }
-
-  public void repaintScrollPane() {
-    getScrollPane().repaint();
   }
 
   /**
@@ -156,7 +115,6 @@ public final class HtmlPreview extends SwingNode {
    */
   public void scrollTo( final String id ) {
     scrollTo( mView.getBoxById( id ) );
-    repaintScrollPane();
   }
 
   /**
@@ -176,7 +134,10 @@ public final class HtmlPreview extends SwingNode {
   }
 
   private void scrollTo( final Point point ) {
-    mView.scrollTo( point );
+    invokeLater( () -> {
+      mView.scrollTo( point );
+      getScrollPane().repaint();
+    } );
   }
 
   /**
@@ -207,12 +168,20 @@ public final class HtmlPreview extends SwingNode {
   }
 
   private String decorate( final String html ) {
-    // Trim the HTML back to only the prefix.
-    mHtmlDocument.setLength( HTML_PREFIX_LENGTH );
+    mHtmlDocument.setLength( 0 );
+
+    final var locale = Locale.getDefault();
+
+    final var head = format(
+        HTML_HEAD,
+        locale.getLanguage(),
+        HTML_STYLE_PREVIEW,
+        getLocaleStylesheet( locale ),
+        mBaseUriPath
+    );
 
     // Write the HTML body element followed by closing tags.
-    return mHtmlDocument.append( mBaseUriHtml )
-                        .append( HTML_HEAD_CLOSE )
+    return mHtmlDocument.append( head )
                         .append( html )
                         .append( HTML_TAIL )
                         .toString();
@@ -232,5 +201,23 @@ public final class HtmlPreview extends SwingNode {
 
   private int getVerticalScrollBarHeight() {
     return getVerticalScrollBar().getHeight();
+  }
+
+  /**
+   * Returns the ISO 639 alpha-2 or alpha-3 language code followed by a hyphen
+   * followed by the ISO 3166 alpha-2 country code or UN M.49 numeric-3 area
+   * code.
+   * <p>
+   * TODO: Override default locale user's workspace locale preference.
+   * </p>
+   *
+   * @return Unique identifier for language and country.
+   */
+  private static String getLocaleStylesheet( final Locale locale ) {
+    return get(
+        sSettings.getSetting( STYLESHEET_PREVIEW_LOCALE, "" ),
+        locale.getLanguage(),
+        locale.getCountry()
+    );
   }
 }

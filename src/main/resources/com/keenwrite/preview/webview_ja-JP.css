@@ -1,0 +1,9 @@
+/* Copyright 2020 White Magic Software, Ltd. -- All rights reserved. */
+
+body {
+  font-family: 'Noto Serif CJK JP';
+}
+
+pre, code, tt {
+  font-family: 'Noto Sans Mono CJK JP';
+}

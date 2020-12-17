@@ -1,30 +1,4 @@
-/*
- * Copyright 2020 White Magic Software, Ltd.
- *
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- *  o Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- *
- *  o Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+/* Copyright 2020 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite;
 
 import java.io.IOException;
@@ -36,7 +10,7 @@ import static com.keenwrite.Bootstrap.APP_TITLE;
 import static java.lang.String.format;
 
 /**
- * Launches the application using the {@link Main} class.
+ * Launches the application using the {@link MainApp} class.
  *
  * <p>
  * This is required until modules are implemented, which may never happen
@@ -51,7 +25,7 @@ public class Launcher {
    */
   public static void main( final String[] args ) throws IOException {
     showAppInfo();
-    Main.main( args );
+    MainApp.main( args );
   }
 
   @SuppressWarnings("RedundantStringFormatCall")
@@ -65,9 +39,21 @@ public class Launcher {
     System.out.println( s );
   }
 
-  private static String getVersion() throws IOException {
-    final Properties properties = loadProperties( "app.properties" );
-    return properties.getProperty( "application.version" );
+  /**
+   * Returns the application version number retrieved from the application
+   * properties file. The properties file is generated at build time, which
+   * keys off the repository.
+   *
+   * @return The application version number.
+   * @throws RuntimeException An {@link IOException} occurred.
+   */
+  public static String getVersion() {
+    try {
+      final Properties properties = loadProperties( "app.properties" );
+      return properties.getProperty( "application.version" );
+    } catch( final Exception ex ) {
+      throw new RuntimeException( ex );
+    }
   }
 
   private static String getYear() {

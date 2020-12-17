@@ -1,37 +1,10 @@
-/*
- * Copyright 2020 White Magic Software, Ltd.
- *
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- *  o Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- *
- *  o Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+/* Copyright 2020 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.event.Event;
 import javafx.event.EventHandler;
-import javafx.scene.Node;
 import javafx.scene.control.ScrollBar;
 import javafx.scene.control.skin.ScrollBarSkin;
 import javafx.scene.input.MouseEvent;
@@ -41,6 +14,7 @@ import org.fxmisc.flowless.VirtualizedScrollPane;
 import org.fxmisc.richtext.StyleClassedTextArea;
 
 import javax.swing.*;
+import java.util.function.Consumer;
 
 import static javafx.geometry.Orientation.VERTICAL;
 
@@ -101,8 +75,13 @@ public final class ScrollEventHandler implements EventHandler<Event> {
 
     mEditorScrollPane.addEventFilter( ScrollEvent.ANY, new ScrollHandler() );
 
-    final var thumb = getVerticalScrollBarThumb( mEditorScrollPane );
-    thumb.setOnMouseDragged( new MouseHandler( thumb.getOnMouseDragged() ) );
+    initVerticalScrollBarThumb(
+        mEditorScrollPane,
+        thumb -> {
+          final var handler = new MouseHandler( thumb.getOnMouseDragged() );
+          thumb.setOnMouseDragged( handler );
+        }
+    );
   }
 
   /**
@@ -127,12 +106,12 @@ public final class ScrollEventHandler implements EventHandler<Event> {
   public void handle( final Event event ) {
     if( isEnabled() ) {
       final var eScrollPane = getEditorScrollPane();
-      final int eScrollY =
+      final var eScrollY =
           eScrollPane.estimatedScrollYProperty().getValue().intValue();
-      final int eHeight = (int)
+      final var eHeight = (int)
           (eScrollPane.totalHeightEstimateProperty().getValue().intValue()
               - eScrollPane.getHeight());
-      final double eRatio = eHeight > 0
+      final var eRatio = eHeight > 0
           ? Math.min( Math.max( eScrollY / (float) eHeight, 0 ), 1 ) : 0;
 
       final var pScrollBar = getPreviewScrollBar();
@@ -144,27 +123,35 @@ public final class ScrollEventHandler implements EventHandler<Event> {
     }
   }
 
-  private StackPane getVerticalScrollBarThumb(
-      final VirtualizedScrollPane<StyleClassedTextArea> pane ) {
-    final ScrollBar scrollBar = getVerticalScrollBar( pane );
-    final ScrollBarSkin skin = (ScrollBarSkin) (scrollBar.skinProperty().get());
-
-    for( final Node node : skin.getChildren() ) {
-      // Brittle, but what can you do?
-      if( node.getStyleClass().contains( "thumb" ) ) {
-        return (StackPane) node;
+  private void initVerticalScrollBarThumb(
+      final VirtualizedScrollPane<StyleClassedTextArea> pane,
+      final Consumer<StackPane> consumer ) {
+    // When the skin property is set, the stack pane is available (not null).
+    getVerticalScrollBar( pane ).skinProperty().addListener( ( c, o, n ) -> {
+      for( final var node : ((ScrollBarSkin) n).getChildren() ) {
+        // Brittle, but what can you do?
+        if( node.getStyleClass().contains( "thumb" ) ) {
+          consumer.accept( (StackPane) node );
+        }
       }
-    }
-
-    throw new IllegalArgumentException( "No scroll bar skin found." );
+    } );
   }
 
+  /**
+   * Returns the vertical {@link ScrollBar} instance associated with the
+   * given scroll pane. This is {@code null}-safe because the scroll pane
+   * initializes its vertical {@link ScrollBar} upon construction.
+   *
+   * @param pane The scroll pane that contains a vertical {@link ScrollBar}.
+   * @return The vertical {@link ScrollBar} associated with the scroll pane.
+   * @throws IllegalStateException Could not obtain the vertical scroll bar.
+   */
   private ScrollBar getVerticalScrollBar(
       final VirtualizedScrollPane<StyleClassedTextArea> pane ) {
 
-    for( final Node node : pane.getChildrenUnmodifiable() ) {
+    for( final var node : pane.getChildrenUnmodifiable() ) {
       if( node instanceof ScrollBar ) {
-        final ScrollBar scrollBar = (ScrollBar) node;
+        final var scrollBar = (ScrollBar) node;
 
         if( scrollBar.getOrientation() == VERTICAL ) {
           return scrollBar;
@@ -172,7 +159,7 @@ public final class ScrollEventHandler implements EventHandler<Event> {
       }
     }
 
-    throw new IllegalArgumentException( "No vertical scroll pane found." );
+    throw new IllegalStateException( "No vertical scroll bar found." );
   }
 
   private boolean isEnabled() {

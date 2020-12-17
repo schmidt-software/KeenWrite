@@ -1,3 +1,4 @@
+/* Copyright 2020 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.r;
 
 import org.junit.jupiter.api.BeforeAll;
