@@ -57,5 +57,5 @@ using the application.
 ## License
 
 This software is licensed under the [BSD 2-Clause License](LICENSE.md) and
-derived heavily from [Markdown-Writer-FX](licenses/MARKDOWN-WRITER-FX.md).
+based on [Markdown-Writer-FX](licenses/MARKDOWN-WRITER-FX.md).
 
