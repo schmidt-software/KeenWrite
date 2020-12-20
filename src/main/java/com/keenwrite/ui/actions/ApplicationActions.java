@@ -318,7 +318,7 @@ public class ApplicationActions {
   }
 
   private FileChooserCommand createFileChooser() {
-    final var dir = getPreferences().getFile( KEY_UI_RECENT_DIR );
+    final var dir = getPreferences().fileProperty( KEY_UI_RECENT_DIR );
     return new FileChooserCommand( getWindow(), dir );
   }
 

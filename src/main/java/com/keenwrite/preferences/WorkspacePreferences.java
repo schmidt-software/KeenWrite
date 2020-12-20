@@ -2,17 +2,34 @@
 package com.keenwrite.preferences;
 
 import com.keenwrite.io.File;
-import javafx.beans.binding.Bindings;
+import javafx.application.Platform;
 import javafx.beans.property.*;
 
 import java.util.Map;
 import java.util.function.BiConsumer;
+import java.util.function.BooleanSupplier;
+import java.util.function.Consumer;
 
 import static com.keenwrite.Constants.*;
 import static com.keenwrite.Launcher.getVersion;
 import static com.keenwrite.preferences.Key.key;
 import static java.util.Map.entry;
+import static javafx.application.Platform.runLater;
 
+/**
+ * Represents persistent preferences set both directly and indirectly.
+ * <p>
+ * Note the following definitions:
+ * </p>
+ * <dl>
+ *   <dt>File</dt>
+ *   <dd>References a filename (no path), path, or directory.</dd>
+ *   <dt>Path</dt>
+ *   <dd>Fully qualified filename, which includes all parent directories.</dd>
+ *   <dt>Dir</dt>
+ *   <dd>Directory without a filename ({@link File#isDirectory()} is true).</dd>
+ * </dl>
+ */
 public class WorkspacePreferences {
   private static final Key KEY_ROOT = key( "workspace" );
 
@@ -68,22 +85,22 @@ public class WorkspacePreferences {
     entry( KEY_META_NAME, new SimpleStringProperty( "defaullt" ) ),
     
     entry( KEY_R_SCRIPT, new SimpleStringProperty( "" ) ),
-    entry( KEY_R_DIR, new SimpleObjectProperty<>( USER_DIRECTORY ) ),
+    entry( KEY_R_DIR, new SimpleFileProperty( USER_DIRECTORY ) ),
     entry( KEY_R_DELIM_BEGAN, new SimpleStringProperty( R_DELIM_BEGAN_DEFAULT ) ),
     entry( KEY_R_DELIM_ENDED, new SimpleStringProperty( R_DELIM_ENDED_DEFAULT ) ),
     
-    entry( KEY_IMAGES_DIR, new SimpleObjectProperty<>( USER_DIRECTORY ) ),
+    entry( KEY_IMAGES_DIR, new SimpleFileProperty( USER_DIRECTORY ) ),
     entry( KEY_IMAGES_ORDER, new SimpleStringProperty( PERSIST_IMAGES_DEFAULT ) ),
     
-    entry( KEY_DEF_PATH, new SimpleObjectProperty<>( DEFINITION_DEFAULT ) ),
+    entry( KEY_DEF_PATH, new SimpleFileProperty( DEFINITION_DEFAULT ) ),
     entry( KEY_DEF_DELIM_BEGAN, new SimpleStringProperty( DEF_DELIM_BEGAN_DEFAULT ) ),
     entry( KEY_DEF_DELIM_ENDED, new SimpleStringProperty( DEF_DELIM_ENDED_DEFAULT ) ),
     
-    entry( KEY_UI_RECENT_DIR, new SimpleObjectProperty<>( USER_DIRECTORY ) ),
-    entry( KEY_UI_RECENT_DOCUMENT, new SimpleObjectProperty<>( DOCUMENT_DEFAULT ) ),
-    entry( KEY_UI_RECENT_DEFINITION, new SimpleObjectProperty<>( DEFINITION_DEFAULT ) ),
+    entry( KEY_UI_RECENT_DIR, new SimpleFileProperty( USER_DIRECTORY ) ),
+    entry( KEY_UI_RECENT_DOCUMENT, new SimpleFileProperty( DOCUMENT_DEFAULT ) ),
+    entry( KEY_UI_RECENT_DEFINITION, new SimpleFileProperty( DEFINITION_DEFAULT ) ),
     
-    entry( KEY_UI_FONT_LOCALE, new SimpleObjectProperty<>( LOCALE_DEFAULT ) ),
+    entry( KEY_UI_FONT_LOCALE, new SimpleLocaleProperty( LOCALE_DEFAULT ) ),
     entry( KEY_UI_FONT_EDITOR_SIZE, new SimpleFloatProperty( FONT_SIZE_EDITOR_DEFAULT ) ),
     entry( KEY_UI_FONT_PREVIEW_SIZE, new SimpleFloatProperty( FONT_SIZE_PREVIEW_DEFAULT ) ),
     
@@ -93,11 +110,11 @@ public class WorkspacePreferences {
     entry( KEY_UI_WINDOW_H, new SimpleDoubleProperty( WINDOW_H_DEFAULT ) ),
     entry( KEY_UI_WINDOW_MAX, new SimpleBooleanProperty() ),
     entry( KEY_UI_WINDOW_FULL, new SimpleBooleanProperty() )
-    //@formatter:on
   );
+  //@formatter:on
 
-  private final Map<Key, ListProperty<?>> LISTS = Map.ofEntries(
-    entry( KEY_UI_FILES_PATH, new SimpleListProperty<File>() )
+  private final Map<Key, SetProperty<?>> SETS = Map.ofEntries(
+    entry( KEY_UI_FILES_PATH, new SimpleSetProperty<File>() )
   );
 
   public WorkspacePreferences() {
@@ -105,16 +122,29 @@ public class WorkspacePreferences {
 
   /**
    * Returns a value that represents a setting in the application that the user
-   * may configure.
+   * may configure, either directly or indirectly.
    *
    * @param key The reference to the users' preference stored in deference
    *            of app reëntrance.
    * @return An observable property to be persisted.
    */
   @SuppressWarnings("unchecked")
-  public <T> Property<T> get( final Key key ) {
+  public <T> Property<T> fromValues( final Key key ) {
     // The type that goes into the map must come out.
     return (Property<T>) VALUES.get( key );
+  }
+
+  /**
+   * Returns a list of values that represent a setting in the application that
+   * the user may configure, either directly or indirectly.
+   *
+   * @param key The {@link Key} associated with a preference value.
+   * @return An observable property to be persisted.
+   */
+  @SuppressWarnings("unchecked")
+  public <T> SetProperty<T> fromSets( final Key key ) {
+    // The type that goes into the map must come out.
+    return (SetProperty<T>) SETS.get( key );
   }
 
   /**
@@ -122,11 +152,11 @@ public class WorkspacePreferences {
    * {@link Key}. The caller must be sure that the given {@link Key} is
    * associated with a value that matches the return type.
    *
-   * @param key The {@link Key} to use to find a preference value.
+   * @param key The {@link Key} associated with a preference value.
    * @return The value associated with the given {@link Key}.
    */
-  public double getDouble( final Key key ) {
-    return (double) get( key ).getValue();
+  public double toDouble( final Key key ) {
+    return (double) fromValues( key ).getValue();
   }
 
   /**
@@ -134,11 +164,11 @@ public class WorkspacePreferences {
    * {@link Key}. The caller must be sure that the given {@link Key} is
    * associated with a value that matches the return type.
    *
-   * @param key The {@link Key} to use to find a preference value.
+   * @param key The {@link Key} associated with a preference value.
    * @return The value associated with the given {@link Key}.
    */
-  public boolean getBoolean( final Key key ) {
-    return (boolean) get( key ).getValue();
+  public boolean toBoolean( final Key key ) {
+    return (boolean) fromValues( key ).getValue();
   }
 
   /**
@@ -147,55 +177,81 @@ public class WorkspacePreferences {
    * must be sure that the given {@link Key} is associated with a {@link File}
    * {@link Property}.
    *
-   * @param key The {@link Key} to use to find a preference value.
+   * @param key The {@link Key} associated with a preference value.
    * @return The value associated with the given {@link Key}.
    */
-  public Property<File> getFile( final Key key ) {
-    return get( key );
+  public Property<File> fileProperty( final Key key ) {
+    return fromValues( key );
   }
 
   /**
    * Calls the given consumer for all single-value keys. For lists, see
-   * {@link #exportLists(BiConsumer)}.
+   * {@link #consumeSets(BiConsumer)}.
    *
    * @param consumer Called to accept each preference key value.
    */
-  public void export( final BiConsumer<Key, Property<?>> consumer ) {
+  public void consumeValues( final BiConsumer<Key, Property<?>> consumer ) {
     VALUES.forEach( consumer );
   }
 
   /**
    * Calls the given consumer for all multi-value keys. For single items, see
-   * {@link #export(BiConsumer)}. Callers are responsible for iterating over
-   * the list of items retrieved through this method.
+   * {@link #consumeValues(BiConsumer)}. Callers are responsible for iterating
+   * over the list of items retrieved through this method.
    *
    * @param consumer Called to accept each preference key list.
    */
-  public void exportLists( final BiConsumer<Key, ListProperty<?>> consumer ) {
-    LISTS.forEach( consumer );
+  public void consumeSets( final BiConsumer<Key, SetProperty<?>> consumer ) {
+    SETS.forEach( consumer );
+  }
+
+  public void consumeValueKeys( final Consumer<Key> consumer ) {
+    VALUES.keySet().forEach( consumer );
+  }
+
+  public void consumeSetKeys( final Consumer<Key> consumer ) {
+    SETS.keySet().forEach( consumer );
+  }
+
+  /**
+   * Delegates to {@link #listen(Key, ReadOnlyProperty, BooleanSupplier)},
+   * providing a value of {@code true} for the {@link BooleanSupplier} to
+   * indicate the property changes always take effect.
+   *
+   * @param key      The value to bind to the internal key property.
+   * @param property The external property value that sets the internal value.
+   */
+  public <T> void listen( final Key key, final ReadOnlyProperty<T> property ) {
+    listen( key, property, () -> true );
   }
 
   /**
    * Binds a read-only property to a value in the preferences. This allows
    * user interface properties to change and the preferences will be
    * synchronized automatically.
+   * <p>
+   * This calls {@link Platform#runLater(Runnable)} to ensure that all pending
+   * application window states are finished before assessing whether property
+   * changes should be applied. Without this, exiting the application while the
+   * window is maximized would persist the window's maximum dimensions,
+   * preventing restoration to its prior, non-maximum size.
+   * </p>
    *
    * @param key      The value to bind to the internal key property.
    * @param property The external property value that sets the internal value.
+   * @param enabled  Indicates whether property changes should be applied.
    */
-  public void bind( final Key key, final ReadOnlyDoubleProperty property ) {
-    get( key ).bind( Bindings.createDoubleBinding( property::getValue ) );
-  }
-
-  /**
-   * Binds a read-only property to a value in the preferences. This allows
-   * user interface properties to change and the preferences will be
-   * synchronized automatically.
-   *
-   * @param key      The value to bind to the internal key property.
-   * @param property The external property value that sets the internal value.
-   */
-  public void bind( final Key key, final ReadOnlyBooleanProperty property ) {
-    get( key ).bind( Bindings.createBooleanBinding( property::getValue ) );
+  public <T> void listen(
+    final Key key,
+    final ReadOnlyProperty<T> property,
+    final BooleanSupplier enabled ) {
+    property.addListener(
+      ( c, o, n ) ->
+        runLater( () -> {
+          if( enabled.getAsBoolean() ) {
+            fromValues( key ).setValue( n );
+          }
+        } )
+    );
   }
 }

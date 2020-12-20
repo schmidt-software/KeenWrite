@@ -3,6 +3,10 @@ package com.keenwrite.preferences;
 
 import com.keenwrite.Constants;
 import com.keenwrite.io.File;
+import javafx.beans.property.Property;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.property.SimpleFloatProperty;
 import org.apache.commons.configuration2.XMLConfiguration;
 import org.apache.commons.configuration2.builder.fluent.Configurations;
 import org.apache.commons.configuration2.io.FileHandler;
@@ -16,6 +20,7 @@ import static com.keenwrite.Bootstrap.APP_TITLE_LOWERCASE;
 import static com.keenwrite.Constants.FILE_PREFERENCES;
 import static com.keenwrite.StatusBarNotifier.clue;
 import static java.lang.String.format;
+import static javafx.collections.FXCollections.observableSet;
 
 /**
  * Responsible for defining behaviours for separate projects. A workspace has
@@ -64,14 +69,14 @@ public final class Workspace {
    */
   public void save() {
     try {
-      mPreferences.export(
-        ( key, value ) -> mConfig.setProperty( key.toString(), value.getValue() )
+      mPreferences.consumeValues( ( key, value ) -> mConfig.setProperty(
+        key.toString(), value.getValue() )
       );
 
-      mPreferences.exportLists(
-        ( key, list ) -> {
+      mPreferences.consumeSets(
+        ( key, set ) -> {
           final String keyName = key.toString();
-          list.forEach( ( value ) -> mConfig.addProperty( keyName, value ) );
+          set.forEach( ( value ) -> mConfig.addProperty( keyName, value ) );
         }
       );
       new FileHandler( mConfig ).save( FILE_PREFERENCES );
@@ -91,7 +96,18 @@ public final class Workspace {
   private XMLConfiguration load() {
     try {
       final var config = new Configurations().xml( FILE_PREFERENCES );
-      // TODO: Import preferences
+
+      mPreferences.consumeValueKeys( ( key ) -> {
+        final var configValue = config.getProperty( key.toString() );
+        final var propertyValue = mPreferences.fromValues( key );
+        propertyValue.setValue( unmarshall( propertyValue, configValue ) );
+      } );
+
+      mPreferences.consumeSetKeys( ( key ) -> {
+        final var configList = config.getList( key.toString() );
+        final var propertySet = mPreferences.fromSets( key );
+        propertySet.set( observableSet( configList ) );
+      } );
 
       return config;
     } catch( final Exception ex ) {
@@ -103,6 +119,30 @@ public final class Workspace {
       config.setRootElementName( APP_TITLE_LOWERCASE );
       return config;
     }
+  }
+
+  private Object unmarshall(
+    final Property<?> property, final Object configValue ) {
+    final Object result;
+    final String value = configValue.toString();
+
+    if( property instanceof SimpleDoubleProperty ) {
+      result = Double.parseDouble( value );
+    }
+    else if( property instanceof SimpleFloatProperty ) {
+      result = Float.parseFloat( value );
+    }
+    else if( property instanceof SimpleBooleanProperty ) {
+      result = Boolean.parseBoolean( value );
+    }
+    else if( property instanceof SimpleFileProperty ) {
+      result = new File( value );
+    }
+    else {
+      result = value;
+    }
+
+    return result;
   }
 
   /**

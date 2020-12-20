@@ -8,6 +8,8 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.stage.Stage;
 
+import java.util.function.BooleanSupplier;
+
 import static com.keenwrite.Bootstrap.APP_TITLE;
 import static com.keenwrite.Constants.LOGOS;
 import static com.keenwrite.preferences.WorkspacePreferences.*;
@@ -88,19 +90,21 @@ public final class MainApp extends Application {
   }
 
   private void initState( final Stage stage ) {
-    stage.setX( mPreferences.getDouble( KEY_UI_WINDOW_X ) );
-    stage.setY( mPreferences.getDouble( KEY_UI_WINDOW_Y ) );
-    stage.setWidth( mPreferences.getDouble( KEY_UI_WINDOW_W ) );
-    stage.setHeight( mPreferences.getDouble( KEY_UI_WINDOW_H ) );
-    stage.setMaximized( mPreferences.getBoolean( KEY_UI_WINDOW_MAX ) );
-    stage.setFullScreen( mPreferences.getBoolean( KEY_UI_WINDOW_FULL ) );
+    final var enable = createBoundsEnabledSupplier( stage );
 
-    mPreferences.bind( KEY_UI_WINDOW_X, stage.xProperty() );
-    mPreferences.bind( KEY_UI_WINDOW_Y, stage.yProperty() );
-    mPreferences.bind( KEY_UI_WINDOW_W, stage.widthProperty() );
-    mPreferences.bind( KEY_UI_WINDOW_H, stage.heightProperty() );
-    mPreferences.bind( KEY_UI_WINDOW_MAX, stage.maximizedProperty() );
-    mPreferences.bind( KEY_UI_WINDOW_FULL, stage.fullScreenProperty() );
+    stage.setX( mPreferences.toDouble( KEY_UI_WINDOW_X ) );
+    stage.setY( mPreferences.toDouble( KEY_UI_WINDOW_Y ) );
+    stage.setWidth( mPreferences.toDouble( KEY_UI_WINDOW_W ) );
+    stage.setHeight( mPreferences.toDouble( KEY_UI_WINDOW_H ) );
+    stage.setMaximized( mPreferences.toBoolean( KEY_UI_WINDOW_MAX ) );
+    stage.setFullScreen( mPreferences.toBoolean( KEY_UI_WINDOW_FULL ) );
+
+    mPreferences.listen( KEY_UI_WINDOW_X, stage.xProperty(), enable );
+    mPreferences.listen( KEY_UI_WINDOW_Y, stage.yProperty(), enable );
+    mPreferences.listen( KEY_UI_WINDOW_W, stage.widthProperty(), enable );
+    mPreferences.listen( KEY_UI_WINDOW_H, stage.heightProperty(), enable );
+    mPreferences.listen( KEY_UI_WINDOW_MAX, stage.maximizedProperty() );
+    mPreferences.listen( KEY_UI_WINDOW_FULL, stage.fullScreenProperty() );
   }
 
   private void initStage( final Stage stage ) {
@@ -127,6 +131,20 @@ public final class MainApp extends Application {
    */
   private void initSnitch() {
     getSnitch().start();
+  }
+
+  /**
+   * When the window is maximized, full screen, or iconified, prevent updating
+   * the window bounds. This is used so that if the user exits the application
+   * when full screen (or maximized), restarting the application will recall
+   * the previous bounds, allowing for continuity of expected behaviour.
+   *
+   * @param stage The window to check for "normal" status.
+   * @return {@code false} when the bounds must not be changed, ergo persisted.
+   */
+  private BooleanSupplier createBoundsEnabledSupplier( final Stage stage ) {
+    return () ->
+      !(stage.isMaximized() || stage.isFullScreen() || stage.isIconified());
   }
 
   private Snitch getSnitch() {
