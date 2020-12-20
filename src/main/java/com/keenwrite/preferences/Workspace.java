@@ -12,9 +12,8 @@ import org.apache.commons.configuration2.builder.fluent.Configurations;
 import org.apache.commons.configuration2.io.FileHandler;
 
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
+import java.util.function.Function;
 
 import static com.keenwrite.Bootstrap.APP_TITLE_LOWERCASE;
 import static com.keenwrite.Constants.FILE_PREFERENCES;
@@ -39,6 +38,18 @@ import static javafx.collections.FXCollections.observableSet;
  * </p>
  */
 public final class Workspace {
+
+  /**
+   * Used to create properties for XML configuration items.
+   */
+  private static final Map<Class<?>, Function<String, Object>> UNMARSHALL =
+    Map.of(
+      SimpleLocaleProperty.class, Locale::forLanguageTag,
+      SimpleBooleanProperty.class, Boolean::parseBoolean,
+      SimpleDoubleProperty.class, Double::parseDouble,
+      SimpleFloatProperty.class, Float::parseFloat,
+      SimpleFileProperty.class, File::new
+    );
 
   /**
    * Defines observable user preferences properties and lists.
@@ -123,26 +134,9 @@ public final class Workspace {
 
   private Object unmarshall(
     final Property<?> property, final Object configValue ) {
-    final Object result;
-    final String value = configValue.toString();
-
-    if( property instanceof SimpleDoubleProperty ) {
-      result = Double.parseDouble( value );
-    }
-    else if( property instanceof SimpleFloatProperty ) {
-      result = Float.parseFloat( value );
-    }
-    else if( property instanceof SimpleBooleanProperty ) {
-      result = Boolean.parseBoolean( value );
-    }
-    else if( property instanceof SimpleFileProperty ) {
-      result = new File( value );
-    }
-    else {
-      result = value;
-    }
-
-    return result;
+    return UNMARSHALL
+      .getOrDefault( property.getClass(), ( value ) -> value )
+      .apply( configValue.toString() );
   }
 
   /**
