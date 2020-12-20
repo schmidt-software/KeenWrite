@@ -74,6 +74,8 @@ public final class InlineRProcessor extends DefinitionProcessor {
     workingDirectoryProperty().addListener(
         ( __, oldScript, newScript ) -> setDirty( true ) );
 
+    // If the user saves the preferences, make sure that any R-related settings
+    // changes are applied.
     getUserPreferencesView().addSaveEventHandler( ( handler ) -> {
       if( isDirty() ) {
         init();

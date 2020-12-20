@@ -1,11 +1,11 @@
 /* Copyright 2020 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.ui.actions;
 
-import com.keenwrite.io.FileType;
 import com.keenwrite.Messages;
 import com.keenwrite.io.File;
-import com.keenwrite.preferences.Workspace;
+import com.keenwrite.io.FileType;
 import com.keenwrite.service.Settings;
+import javafx.beans.property.Property;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Window;
@@ -15,9 +15,8 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.keenwrite.Constants.*;
-import static com.keenwrite.io.FileType.*;
 import static com.keenwrite.Messages.get;
-import static com.keenwrite.preferences.Workspace.KEY_UI_WORKING_DIR;
+import static com.keenwrite.io.FileType.*;
 import static java.lang.String.format;
 
 /**
@@ -26,13 +25,29 @@ import static java.lang.String.format;
  */
 public class FileChooserCommand {
   private static final String FILTER_EXTENSION_TITLES =
-      "Dialog.file.choose.filter";
-  private static final String PREF_DIRECTORY = DEFAULT_DIRECTORY.toString();
+    "Dialog.file.choose.filter";
 
-  private final Window mWindow;
+  /**
+   * Dialog owner.
+   */
+  private final Window mParent;
 
-  public FileChooserCommand( final Window window ) {
-    mWindow = window;
+  /**
+   * Set to the directory of most recently selected file.
+   */
+  private final Property<File> mDirectory;
+
+  /**
+   * Constructs a new {@link FileChooserCommand} that will attach to a given
+   * parent window and update the given property upon a successful selection.
+   *
+   * @param parent    The parent window that will own the dialog.
+   * @param directory The most recently opened file's directory property.
+   */
+  public FileChooserCommand(
+    final Window parent, final Property<File> directory ) {
+    mParent = parent;
+    mDirectory = directory;
   }
 
   /**
@@ -41,8 +56,9 @@ public class FileChooserCommand {
    * @return A non-null, possibly empty list of files to open.
    */
   public List<File> openFiles() {
-    final var dialog = createFileChooser( "Dialog.file.choose.open.title" );
-    final var list = dialog.showOpenMultipleDialog( mWindow );
+    final var dialog = createFileChooser(
+      "Dialog.file.choose.open.title" );
+    final var list = dialog.showOpenMultipleDialog( mParent );
     final List<java.io.File> selected = list == null ? List.of() : list;
     final var files = new ArrayList<File>( selected.size() );
 
@@ -50,7 +66,9 @@ public class FileChooserCommand {
       files.add( new File( file ) );
     }
 
-    storeLastDirectory( files );
+    if( !files.isEmpty() ) {
+      setRecentDirectory( files.get( 0 ) );
+    }
 
     return files;
   }
@@ -83,10 +101,10 @@ public class FileChooserCommand {
    * @return The file selected by the user.
    */
   private Optional<File> saveOrExportAs( final FileChooser dialog ) {
-    final var selected = dialog.showSaveDialog( mWindow );
+    final var selected = dialog.showSaveDialog( mParent );
     final var file = selected == null ? null : new File( selected );
 
-    storeLastDirectory( file );
+    setRecentDirectory( file );
 
     return Optional.ofNullable( file );
   }
@@ -102,14 +120,7 @@ public class FileChooserCommand {
 
     chooser.setTitle( get( key ) );
     chooser.getExtensionFilters().addAll( createExtensionFilters() );
-
-    final var dir = new File(
-        getWorkspace().get( KEY_UI_WORKING_DIR, PREF_DIRECTORY )
-    );
-
-    chooser.setInitialDirectory(
-        dir.isDirectory() ? dir : DEFAULT_DIRECTORY.toFile()
-    );
+    chooser.setInitialDirectory( mDirectory.getValue() );
 
     return chooser;
   }
@@ -135,25 +146,29 @@ public class FileChooserCommand {
    * @param filetype Used to find the globbing pattern for extensions.
    * @return A filename filter suitable for use by a FileDialog instance.
    */
-  private ExtensionFilter createExtensionFilter( final FileType filetype ) {
+  private ExtensionFilter createExtensionFilter(
+    final FileType filetype ) {
     final var tKey = format( "%s.title.%s", FILTER_EXTENSION_TITLES, filetype );
     final var eKey = format( "%s.%s", GLOB_PREFIX_FILE, filetype );
 
     return new ExtensionFilter( Messages.get( tKey ), getExtensions( eKey ) );
   }
 
-  private void storeLastDirectory( final File file ) {
+  /**
+   * Sets the value for the most recent directly selected. This will get the
+   * parent location from the given file. If the parent is a readable directory
+   * then this will update the most recent directory property.
+   *
+   * @param file A file contained in a directory.
+   */
+  private void setRecentDirectory( final File file ) {
     if( file != null ) {
-      final var parent = file.getParent();
-      getWorkspace().put(
-          KEY_UI_WORKING_DIR, parent == null ? PREF_DIRECTORY : parent
-      );
-    }
-  }
+      final var parent = file.getParentFile();
+      final var dir = parent == null ? USER_DIRECTORY : parent;
 
-  private void storeLastDirectory( final List<File> files ) {
-    if( files != null && !files.isEmpty() ) {
-      storeLastDirectory( files.get( 0 ) );
+      if( dir.isDirectory() && dir.canRead() ) {
+        mDirectory.setValue( new File( dir ) );
+      }
     }
   }
 
@@ -161,11 +176,7 @@ public class FileChooserCommand {
     return getSettings().getStringSettingList( key );
   }
 
-  private Settings getSettings() {
+  private static Settings getSettings() {
     return sSettings;
-  }
-
-  private Workspace getWorkspace() {
-    return Workspace.getInstance();
   }
 }

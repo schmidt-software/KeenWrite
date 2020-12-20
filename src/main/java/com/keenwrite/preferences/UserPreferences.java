@@ -23,7 +23,7 @@ public final class UserPreferences {
    * execution within the Java Virtual Machine (JVM) as specified by the Java
    * Language Specification.
    */
-  private static class UserPreferencesContainer {
+  private static class Container {
     private static final UserPreferences INSTANCE = new UserPreferences();
   }
 
@@ -33,7 +33,7 @@ public final class UserPreferences {
    * @return A non-null instance, loaded, configured, and ready to persist.
    */
   public static UserPreferences getInstance() {
-    return UserPreferencesContainer.INSTANCE;
+    return Container.INSTANCE;
   }
 
   /**
@@ -62,7 +62,7 @@ public final class UserPreferences {
     mPropImagesDirectory = new SimpleObjectProperty<>( USER_DIRECTORY );
     mPropImagesOrder = new SimpleStringProperty( PERSIST_IMAGES_DEFAULT );
 
-    mPropDefinitionPath = new SimpleObjectProperty<>( DEFAULT_DEFINITION );
+    mPropDefinitionPath = new SimpleObjectProperty<>( DEFINITION_DEFAULT );
     mPropDefDelimBegan = new SimpleStringProperty( DEF_DELIM_BEGAN_DEFAULT );
     mPropDefDelimEnded = new SimpleStringProperty( DEF_DELIM_ENDED_DEFAULT );
 
@@ -71,8 +71,8 @@ public final class UserPreferences {
     mPropRDelimBegan = new SimpleStringProperty( R_DELIM_BEGAN_DEFAULT );
     mPropRDelimEnded = new SimpleStringProperty( R_DELIM_ENDED_DEFAULT );
 
-    mPropFontsLocale = new SimpleObjectProperty<>( DEFAULT_LOCALE );
-    mPropFontsSizeEditor = new SimpleIntegerProperty( (int) FONT_SIZE_EDITOR );
+    mPropFontsLocale = new SimpleObjectProperty<>( LOCALE_DEFAULT );
+    mPropFontsSizeEditor = new SimpleIntegerProperty( (int) FONT_SIZE_EDITOR_DEFAULT );
   }
 
   public ObjectProperty<File> definitionPathProperty() {

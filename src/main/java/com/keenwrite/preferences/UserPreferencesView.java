@@ -96,7 +96,7 @@ public class UserPreferencesView {
     field.multiline( true );
 
     return PreferencesFx.of(
-        UserPreferences.class,
+        new XmlStorageHandler(),
         Category.of(
             get( "Preferences.r" ),
             Group.of(

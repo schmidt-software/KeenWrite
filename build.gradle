@@ -41,11 +41,11 @@ dependencies {
   def v_batik = '1.13'
 
   // JavaFX
-  implementation 'org.controlsfx:controlsfx:11.0.2'
+  implementation 'org.controlsfx:controlsfx:11.0.3'
   implementation 'org.fxmisc.richtext:richtextfx:0.10.5'
   implementation 'org.fxmisc.wellbehaved:wellbehavedfx:0.3.3'
   implementation 'com.miglayout:miglayout-javafx:5.2'
-  implementation('com.dlsc.preferencesfx:preferencesfx-core:11.6.0') {
+  implementation('com.dlsc.preferencesfx:preferencesfx-core:11.7.0') {
     exclude group: 'org.openjfx'
   }
   implementation('de.jensd:fontawesomefx-commons:11.0') {

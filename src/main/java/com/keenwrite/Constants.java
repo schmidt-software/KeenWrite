@@ -11,6 +11,8 @@ import javafx.scene.image.Image;
 
 import java.nio.charset.Charset;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.function.UnaryOperator;
@@ -36,44 +38,48 @@ public class Constants {
    * application name, which is then used to locate the settings properties.
    */
   public static final String PATH_PROPERTIES_SETTINGS =
-      format( "/com/%s/settings.properties", APP_TITLE_LOWERCASE );
+    format( "/com/%s/settings.properties", APP_TITLE_LOWERCASE );
 
   /**
    * The {@link Settings} uses {@link #PATH_PROPERTIES_SETTINGS}.
    */
   public static final Settings sSettings = Services.load( Settings.class );
 
-  public static final File DEFAULT_DEFINITION = getFile( "definition" );
-  public static final File DEFAULT_DOCUMENT = getFile( "document" );
+  public static final double WINDOW_X_DEFAULT = 0;
+  public static final double WINDOW_Y_DEFAULT = 0;
+  public static final double WINDOW_W_DEFAULT = 1600;
+  public static final double WINDOW_H_DEFAULT = 900;
+
+  public static final File DOCUMENT_DEFAULT = getFile( "document" );
+  public static final File DEFINITION_DEFAULT = getFile( "definition" );
 
   public static final String APP_BUNDLE_NAME = get( "application.messages" );
 
   // Prevent double events when updating files on Linux (save and timestamp).
   public static final int APP_WATCHDOG_TIMEOUT = get(
-      "application.watchdog.timeout", 200 );
+    "application.watchdog.timeout", 200 );
 
   public static final String STYLESHEET_MARKDOWN = get(
-      "file.stylesheet.markdown" );
+    "file.stylesheet.markdown" );
   public static final String STYLESHEET_MARKDOWN_LOCALE =
-      "file.stylesheet.markdown.locale";
+    "file.stylesheet.markdown.locale";
   public static final String STYLESHEET_PREVIEW = get(
-      "file.stylesheet.preview" );
+    "file.stylesheet.preview" );
   public static final String STYLESHEET_PREVIEW_LOCALE =
-      "file.stylesheet.preview.locale";
+    "file.stylesheet.preview.locale";
   public static final String STYLESHEET_SCENE = get( "file.stylesheet.scene" );
 
-  public static final String FILE_LOGO_16 = get( "file.logo.16" );
-  public static final String FILE_LOGO_32 = get( "file.logo.32" );
-  public static final String FILE_LOGO_128 = get( "file.logo.128" );
-  public static final String FILE_LOGO_256 = get( "file.logo.256" );
-  public static final String FILE_LOGO_512 = get( "file.logo.512" );
+  public static final List<Image> LOGOS = createImages(
+    get( "file.logo.16" ),
+    get( "file.logo.32" ),
+    get( "file.logo.128" ),
+    get( "file.logo.256" ),
+    get( "file.logo.512" )
+  );
 
-  public static final Image ICON_DIALOG = new Image( FILE_LOGO_32 );
+  public static final Image ICON_DIALOG = LOGOS.get( 1 );
 
   public static final String FILE_PREFERENCES = getPreferencesFilename();
-
-  public static final String PREFS_ROOT = get( "preferences.root" );
-  public static final String PREFS_STATE = get( "preferences.root.state" );
 
   /**
    * Refer to filename extension settings in the configuration file. Do not
@@ -93,32 +99,32 @@ public class Constants {
    */
   public static final String STATUS_PARSE_ERROR = "Main.status.error.parse";
   public static final String STATUS_DEFINITION_BLANK =
-      "Main.status.error.def.blank";
+    "Main.status.error.def.blank";
   public static final String STATUS_DEFINITION_EMPTY =
-      "Main.status.error.def.empty";
+    "Main.status.error.def.empty";
 
   /**
    * One parameter: the word under the cursor that could not be found.
    */
   public static final String STATUS_DEFINITION_MISSING =
-      "Main.status.error.def.missing";
+    "Main.status.error.def.missing";
 
   /**
    * Used when creating flat maps relating to resolved variables.
    */
-  public static final int DEFAULT_MAP_SIZE = 64;
+  public static final int MAP_SIZE_DEFAULT = 128;
 
   /**
    * Default image extension order to use when scanning.
    */
   public static final String PERSIST_IMAGES_DEFAULT =
-      get( "file.ext.image.order" );
+    get( "file.ext.image.order" );
 
   /**
    * Default working directory to use for R startup script.
    */
   public static final File USER_DIRECTORY =
-      new File( System.getProperty( "user.dir" ) );
+    new File( System.getProperty( "user.dir" ) );
 
   /**
    * Default path to use for an untitled (pathless) file.
@@ -129,8 +135,8 @@ public class Constants {
    * Associates file types with {@link SigilOperator} instances.
    */
   private static final Map<MediaType, SigilOperator> SIGIL_MAP = Map.of(
-      APP_R_MARKDOWN, new RSigilOperator(),
-      APP_R_XML, new RSigilOperator()
+    APP_R_MARKDOWN, new RSigilOperator(),
+    APP_R_XML, new RSigilOperator()
   );
 
   /**
@@ -173,12 +179,17 @@ public class Constants {
   /**
    * Default text editor font size, in points.
    */
-  public static final float FONT_SIZE_EDITOR = 12f;
+  public static final float FONT_SIZE_EDITOR_DEFAULT = 12f;
+
+  /**
+   * Default preview font size, in points.
+   */
+  public static final float FONT_SIZE_PREVIEW_DEFAULT = 13f;
 
   /**
    * Default locale for font loading.
    */
-  public static final Locale DEFAULT_LOCALE = Locale.getDefault();
+  public static final Locale LOCALE_DEFAULT = Locale.getDefault();
 
   /**
    * Default identifier to use for synchronized scrolling.
@@ -192,7 +203,7 @@ public class Constants {
   }
 
   public static UnaryOperator<String> getSigilOperator(
-      final MediaType mediaType ) {
+    final MediaType mediaType ) {
     return SIGIL_MAP.getOrDefault( mediaType, new YamlSigilOperator() );
   }
 
@@ -220,10 +231,26 @@ public class Constants {
    */
   private static String getPreferencesFilename() {
     return format(
-        "%s%s.%s.xml",
-        getProperty( "user.home" ),
-        separator,
-        APP_TITLE_LOWERCASE
+      "%s%s.%s.xml",
+      getProperty( "user.home" ),
+      separator,
+      APP_TITLE_LOWERCASE
     );
+  }
+
+  /**
+   * Converts the given filenames to images, such as application icons.
+   *
+   * @param filenames The filenames to convert to images.
+   * @return The images loaded from the filename references.
+   */
+  private static List<Image> createImages( final String... filenames ) {
+    final List<Image> images = new ArrayList<>( filenames.length );
+
+    for( final var filename : filenames ) {
+      images.add( new Image( filename ) );
+    }
+
+    return images;
   }
 }

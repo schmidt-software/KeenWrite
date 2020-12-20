@@ -22,7 +22,7 @@ import javafx.scene.layout.HBox;
 import java.nio.charset.Charset;
 import java.util.*;
 
-import static com.keenwrite.Constants.DEFAULT_DEFINITION;
+import static com.keenwrite.Constants.DEFINITION_DEFAULT;
 import static com.keenwrite.Messages.get;
 import static com.keenwrite.StatusBarNotifier.clue;
 import static javafx.geometry.Pos.CENTER;
@@ -84,7 +84,7 @@ public final class DefinitionEditor extends BorderPane implements
    * @param treeTransformer The
    */
   public DefinitionEditor( final TreeTransformer treeTransformer ) {
-    this( DEFAULT_DEFINITION, treeTransformer );
+    this( DEFINITION_DEFAULT, treeTransformer );
   }
 
   /**

@@ -7,6 +7,8 @@ import com.keenwrite.editors.TextDefinition;
 import com.keenwrite.editors.TextEditor;
 import com.keenwrite.io.File;
 import com.keenwrite.preferences.UserPreferencesView;
+import com.keenwrite.preferences.Workspace;
+import com.keenwrite.preferences.WorkspacePreferences;
 import com.keenwrite.processors.ProcessorContext;
 import com.keenwrite.search.SearchModel;
 import com.keenwrite.ui.controls.SearchBar;
@@ -21,6 +23,7 @@ import static com.keenwrite.ExportFormat.*;
 import static com.keenwrite.Messages.get;
 import static com.keenwrite.StatusBarNotifier.clue;
 import static com.keenwrite.StatusBarNotifier.getStatusBar;
+import static com.keenwrite.preferences.WorkspacePreferences.KEY_UI_RECENT_DIR;
 import static com.keenwrite.processors.ProcessorFactory.createProcessors;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.nio.file.Files.writeString;
@@ -65,8 +68,9 @@ public class ApplicationActions {
       }
     } );
 
+    // When the active text editor changes, update the haystack.
     mMainPane.activeTextEditorProperty().addListener(
-        ( c, o, n ) -> mSearchModel.search( getActiveTextEditor().getText() )
+      ( c, o, n ) -> mSearchModel.search( getActiveTextEditor().getText() )
     );
   }
 
@@ -111,6 +115,10 @@ public class ApplicationActions {
     file‿export( MARKDOWN_PLAIN );
   }
 
+  private Workspace getWorkspace() {
+    return mMainPane.getWorkspace();
+  }
+
   private void file‿export( final ExportFormat format ) {
     final var editor = getActiveTextEditor();
     final var context = createProcessorContext( editor );
@@ -118,7 +126,7 @@ public class ApplicationActions {
     final var doc = editor.getText();
     final var export = chain.apply( doc );
     final var filename = format.toExportFilename( editor.getPath() );
-    final var chooser = new FileChooserCommand( getWindow() );
+    final var chooser = createFileChooser();
     final var file = chooser.exportAs( new File( filename ) );
 
     file.ifPresent( ( f ) -> {
@@ -243,11 +251,11 @@ public class ApplicationActions {
   }
 
   public void insert‿link() {
-    createMarkdownDialog().insertLink(getActiveTextEditor().getTextArea());
+    createMarkdownDialog().insertLink( getActiveTextEditor().getTextArea() );
   }
 
   public void insert‿image() {
-    createMarkdownDialog().insertImage(getActiveTextEditor().getTextArea());
+    createMarkdownDialog().insertImage( getActiveTextEditor().getTextArea() );
   }
 
   private MarkdownCommands createMarkdownDialog() {
@@ -315,7 +323,8 @@ public class ApplicationActions {
   }
 
   private FileChooserCommand createFileChooser() {
-    return new FileChooserCommand( getWindow() );
+    final var dir = getPreferences().getFile( KEY_UI_RECENT_DIR );
+    return new FileChooserCommand( getWindow(), dir );
   }
 
   private MainPane getMainPane() {
@@ -328,6 +337,10 @@ public class ApplicationActions {
 
   private TextDefinition getActiveTextDefinition() {
     return getMainPane().getActiveTextDefinition();
+  }
+
+  private WorkspacePreferences getPreferences() {
+    return getWorkspace().getPreferences();
   }
 
   private Window getWindow() {

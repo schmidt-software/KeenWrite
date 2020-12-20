@@ -2,8 +2,6 @@
 package com.keenwrite.preferences;
 
 import com.keenwrite.Constants;
-import com.keenwrite.editors.TextDefinition;
-import com.keenwrite.editors.TextEditor;
 import com.keenwrite.io.File;
 import org.apache.commons.configuration2.XMLConfiguration;
 import org.apache.commons.configuration2.builder.fluent.Configurations;
@@ -16,7 +14,6 @@ import java.util.List;
 
 import static com.keenwrite.Bootstrap.APP_TITLE_LOWERCASE;
 import static com.keenwrite.Constants.FILE_PREFERENCES;
-import static com.keenwrite.Launcher.getVersion;
 import static com.keenwrite.StatusBarNotifier.clue;
 import static java.lang.String.format;
 
@@ -39,47 +36,9 @@ import static java.lang.String.format;
 public final class Workspace {
 
   /**
-   * Initialization-on-demand design pattern for a lazily-loaded singleton.
+   * Defines observable user preferences properties and lists.
    */
-  private static class Container {
-    private static final Workspace INSTANCE = new Workspace( "default" );
-  }
-
-  /**
-   * Returns the singleton instance for rendering math symbols.
-   *
-   * @return A non-null instance, loaded, configured, and ready to render math.
-   */
-  public static Workspace getInstance() {
-    return Workspace.Container.INSTANCE;
-  }
-
-  /**
-   * Key for information about the workspace, such as its name and version.
-   */
-  public static final String KEY_META = "workspace.meta.";
-
-  /**
-   * Key for files that were opened when the application was closed.
-   */
-  public static final String KEY_UI_FILES_PATH = "workspace.ui.files.path";
-
-  /**
-   * Key for last directory selected when opening, saving, or exporting files.
-   */
-  public static final String KEY_UI_WORKING_DIR = "workspace.ui.dir";
-
-  /**
-   * Key for recently edited {@link TextEditor}; select, focus tab upon launch.
-   */
-  public static final String KEY_UI_EDITOR_TEXT_ACTIVE =
-      "workspace.ui.text.editor.active";
-
-  /**
-   * Key for recently edited {@link TextDefinition}; select tab upon launch.
-   */
-  public static final String KEY_UI_EDITOR_DEFINITION_ACTIVE =
-      "workspace.ui.text.definition.active";
+  private final WorkspacePreferences mPreferences;
 
   /**
    * Application configuration file used to persist both user preferences and
@@ -92,28 +51,20 @@ public final class Workspace {
   private final XMLConfiguration mConfig;
 
   /**
-   * User-defined name for this workspace.
-   */
-  private final String mProject;
-
-  /**
    * Constructs a new workspace with the given identifier. This will attempt
    * to read the configuration file stored in the
-   *
-   * @param project The unique identifier for this workspace.
    */
-  public Workspace( final String project ) {
+  public Workspace( final WorkspacePreferences preferences ) {
+    mPreferences = preferences;
     mConfig = load();
-    mProject = project;
   }
 
   /**
    * Saves the current workspace.
    */
-  public void save() {
+  public void save( final WorkspacePreferences preferences ) {
     try {
-      mConfig.setProperty( KEY_META + "version", getVersion() );
-      mConfig.setProperty( KEY_META + "name", mProject );
+      // TODO: Export preferences
       new FileHandler( mConfig ).save( FILE_PREFERENCES );
     } catch( final Exception ex ) {
       clue( ex );
@@ -130,7 +81,10 @@ public final class Workspace {
    */
   private XMLConfiguration load() {
     try {
-      return new Configurations().xml( FILE_PREFERENCES );
+      final var config =  new Configurations().xml( FILE_PREFERENCES );
+      // TODO: Import preferences
+
+      return config;
     } catch( final Exception ex ) {
       clue( ex );
 
@@ -143,13 +97,13 @@ public final class Workspace {
   }
 
   /**
-   * Delegates to {@link #put(String, String)} after converting the given
+   * Delegates to {@link #put(Key, String)} after converting the given
    * {@link Path} to a string (using the absolute path).
    *
    * @param key  The document key to change.
    * @param path Path to a file or directory to store in the settings.
    */
-  public void put( final String key, final Path path ) {
+  public void put( final Key key, final Path path ) {
     put( key, toString( path ) );
   }
 
@@ -161,8 +115,8 @@ public final class Workspace {
    * @param key   The document key to change.
    * @param value The new value for the key.
    */
-  public void put( final String key, final String value ) {
-    mConfig.setProperty( key, value );
+  public void put( final Key key, final String value ) {
+    mConfig.setProperty( key.toString(), value );
   }
 
   /**
@@ -172,8 +126,8 @@ public final class Workspace {
    * @param defaultValue The default value to return if the key is not set.
    * @return The value for the given key, or the given default if none found.
    */
-  public String get( final String key, final String defaultValue ) {
-    final var prop = mConfig.getProperty( key );
+  public String get( final Key key, final String defaultValue ) {
+    final var prop = mConfig.getProperty( key.toString() );
     return prop == null ? defaultValue : prop.toString();
   }
 
@@ -185,8 +139,8 @@ public final class Workspace {
    * @param key  The document hierarchy key name.
    * @param file Absolute path of filename stored at the given key.
    */
-  public void putListItem( final String key, final File file ) {
-    mConfig.addProperty( key, toString( file ) );
+  public void putListItem( final Key key, final File file ) {
+    mConfig.addProperty( key.toString(), toString( file ) );
   }
 
   /**
@@ -195,7 +149,7 @@ public final class Workspace {
    * @param key The document hierarchy key name.
    * @return A non-null, possibly empty list of {@link File} instances.
    */
-  public List<File> getListFiles( final String key ) {
+  public List<File> getListFiles( final Key key ) {
     final var items = getListItems( key );
     final var files = new HashSet<File>( items.size() );
     items.forEach( ( item ) -> {
@@ -210,7 +164,7 @@ public final class Workspace {
     // on saving because the UI will re-open the files in the list that's
     // returned by this method. Re-opening adds the files back to the config.
     // This ensures that the list never grows beyond a reasonable number.
-    mConfig.clearProperty( key );
+    mConfig.clearProperty( key.toString() );
 
     return new ArrayList<>( files );
   }
@@ -222,8 +176,8 @@ public final class Workspace {
    * @return The list of strings in the document hierarchy corresponding to the
    * given key.
    */
-  private List<String> getListItems( final String key ) {
-    return mConfig.getList( String.class, key, new ArrayList<>() );
+  private List<String> getListItems( final Key key ) {
+    return mConfig.getList( String.class, key.toString(), new ArrayList<>() );
   }
 
   /**
@@ -235,7 +189,7 @@ public final class Workspace {
    * @param key  The document hierarchy key name.
    * @param file The file to remove from the list files opened for editing.
    */
-  public void purgeListItem( final String key, final File file ) {
+  public void purgeListItem( final Key key, final File file ) {
     final var items = getListItems( key );
     final var index = items.indexOf( toString( file ) );
 
@@ -243,6 +197,10 @@ public final class Workspace {
     if( index >= 0 ) {
       mConfig.clearTree( format( "%s(%d)", key, index ) );
     }
+  }
+
+  public WorkspacePreferences getPreferences() {
+    return mPreferences;
   }
 
   private String toString( final Path path ) {

@@ -48,7 +48,7 @@ import static com.keenwrite.Messages.get;
 import static com.keenwrite.StatusBarNotifier.clue;
 import static com.keenwrite.editors.definition.MapInterpolator.interpolate;
 import static com.keenwrite.io.MediaType.*;
-import static com.keenwrite.preferences.Workspace.KEY_UI_FILES_PATH;
+import static com.keenwrite.preferences.WorkspacePreferences.KEY_UI_FILES_PATH;
 import static com.keenwrite.processors.ProcessorFactory.createProcessors;
 import static com.keenwrite.service.events.Notifier.NO;
 import static com.keenwrite.service.events.Notifier.YES;
@@ -66,11 +66,14 @@ import static org.fxmisc.wellbehaved.event.EventPattern.keyPressed;
  */
 public final class MainPane extends SplitPane {
   private static final Notifier sNotifier = Services.load( Notifier.class );
+
   /**
    * Prevents re-instantiation of processing classes.
    */
   private final Map<TextResource, Processor<String>> mProcessors =
       new HashMap<>();
+
+  private final Workspace mWorkspace;
 
   /**
    * Groups similar file type tabs together.
@@ -81,7 +84,7 @@ public final class MainPane extends SplitPane {
    * Stores definition names and values.
    */
   private final Map<String, String> mResolvedMap =
-      new HashMap<>( DEFAULT_MAP_SIZE );
+      new HashMap<>( MAP_SIZE_DEFAULT );
 
   /**
    * Renders the actively selected plain text editor tab.
@@ -135,8 +138,10 @@ public final class MainPane extends SplitPane {
    * configuration settings from the workspace to reproduce the settings from
    * a previous session.
    */
-  public MainPane() {
-    open( bin( getWorkspace().getListFiles( KEY_UI_FILES_PATH ) ) );
+  public MainPane(final Workspace workspace) {
+    mWorkspace = workspace;
+
+    open( bin( workspace.getListFiles( KEY_UI_FILES_PATH ) ) );
 
     final var tabPane = obtainDetachableTabPane( TEXT_HTML );
     tabPane.addTab( "HTML", mHtmlPreview );
@@ -226,6 +231,7 @@ public final class MainPane extends SplitPane {
       addTabPane( index, tabPane );
     }
 
+    // TODO: Use property
     getWorkspace().putListItem( KEY_UI_FILES_PATH, file );
   }
 
@@ -233,7 +239,7 @@ public final class MainPane extends SplitPane {
    * Opens a new text editor document using the default document file name.
    */
   public void newTextEditor() {
-    open( DEFAULT_DOCUMENT );
+    open( DOCUMENT_DEFAULT );
   }
 
   /**
@@ -241,7 +247,7 @@ public final class MainPane extends SplitPane {
    * file name.
    */
   public void newDefinitionEditor() {
-    open( DEFAULT_DEFINITION );
+    open( DEFINITION_DEFAULT );
   }
 
   /**
@@ -533,11 +539,11 @@ public final class MainPane extends SplitPane {
     final var undefined = map.get( UNDEFINED );
 
     if( definitions.isEmpty() ) {
-      definitions.add( DEFAULT_DEFINITION );
+      definitions.add( DEFINITION_DEFAULT );
     }
 
     if( documents.isEmpty() ) {
-      documents.add( DEFAULT_DOCUMENT );
+      documents.add( DOCUMENT_DEFAULT );
     }
 
     final var result = new ArrayList<File>( files.size() );
@@ -815,7 +821,7 @@ public final class MainPane extends SplitPane {
   }
 
   private TextDefinition createDefinitionEditor() {
-    return createDefinitionEditor( DEFAULT_DEFINITION );
+    return createDefinitionEditor( DEFINITION_DEFAULT );
   }
 
   private TextDefinition createDefinitionEditor( final File file ) {
@@ -850,7 +856,7 @@ public final class MainPane extends SplitPane {
     return getScene().getWindow();
   }
 
-  private Workspace getWorkspace() {
-    return Workspace.getInstance();
+  public Workspace getWorkspace() {
+    return mWorkspace;
   }
 }

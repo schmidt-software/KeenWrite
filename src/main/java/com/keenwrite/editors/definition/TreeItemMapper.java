@@ -12,7 +12,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Stack;
 
-import static com.keenwrite.Constants.DEFAULT_MAP_SIZE;
+import static com.keenwrite.Constants.MAP_SIZE_DEFAULT;
 
 /**
  * Given a {@link TreeItem}, this will generate a flat map with all the
@@ -84,7 +84,7 @@ public class TreeItemMapper {
    * leaf node into a flat map. Values must be interpolated separately.
    */
   public static Map<String, String> toMap( final TreeItem<String> root ) {
-    final Map<String, String> map = new HashMap<>( DEFAULT_MAP_SIZE );
+    final Map<String, String> map = new HashMap<>( MAP_SIZE_DEFAULT );
     final TreeIterator iterator = new TreeIterator( root );
 
     iterator.forEachRemaining( item -> {

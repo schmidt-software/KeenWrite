@@ -89,7 +89,7 @@ public class ProcessorContext {
 
   /**
    * Returns the directory that contains the file being edited.
-   * When {@link Constants#DEFAULT_DOCUMENT} is created, the parent path is
+   * When {@link Constants#DOCUMENT_DEFAULT} is created, the parent path is
    * {@code null}. This will get absolute path to the file before trying to
    * get te parent path, which should always be a valid path. In the unlikely
    * event that the base path cannot be determined by the path alone, the

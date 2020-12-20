@@ -101,7 +101,7 @@ public class MarkdownEditor extends BorderPane implements TextEditor {
   private final BooleanProperty mModified = new SimpleBooleanProperty();
 
   public MarkdownEditor() {
-    this( DEFAULT_DOCUMENT );
+    this( DOCUMENT_DEFAULT );
   }
 
   public MarkdownEditor( final File file ) {
