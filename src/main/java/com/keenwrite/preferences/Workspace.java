@@ -62,9 +62,18 @@ public final class Workspace {
   /**
    * Saves the current workspace.
    */
-  public void save( final WorkspacePreferences preferences ) {
+  public void save() {
     try {
-      // TODO: Export preferences
+      mPreferences.export(
+        ( key, value ) -> mConfig.setProperty( key.toString(), value.getValue() )
+      );
+
+      mPreferences.exportLists(
+        ( key, list ) -> {
+          final String keyName = key.toString();
+          list.forEach( ( value ) -> mConfig.addProperty( keyName, value ) );
+        }
+      );
       new FileHandler( mConfig ).save( FILE_PREFERENCES );
     } catch( final Exception ex ) {
       clue( ex );
@@ -81,7 +90,7 @@ public final class Workspace {
    */
   private XMLConfiguration load() {
     try {
-      final var config =  new Configurations().xml( FILE_PREFERENCES );
+      final var config = new Configurations().xml( FILE_PREFERENCES );
       // TODO: Import preferences
 
       return config;
@@ -97,14 +106,14 @@ public final class Workspace {
   }
 
   /**
-   * Delegates to {@link #put(Key, String)} after converting the given
+   * Delegates to {@link #set(Key, String)} after converting the given
    * {@link Path} to a string (using the absolute path).
    *
    * @param key  The document key to change.
    * @param path Path to a file or directory to store in the settings.
    */
-  public void put( final Key key, final Path path ) {
-    put( key, toString( path ) );
+  public void set( final Key key, final Path path ) {
+    set( key, toString( path ) );
   }
 
   /**
@@ -115,7 +124,7 @@ public final class Workspace {
    * @param key   The document key to change.
    * @param value The new value for the key.
    */
-  public void put( final Key key, final String value ) {
+  public void set( final Key key, final String value ) {
     mConfig.setProperty( key.toString(), value );
   }
 
@@ -139,7 +148,7 @@ public final class Workspace {
    * @param key  The document hierarchy key name.
    * @param file Absolute path of filename stored at the given key.
    */
-  public void putListItem( final Key key, final File file ) {
+  public void addListItem( final Key key, final File file ) {
     mConfig.addProperty( key.toString(), toString( file ) );
   }
 

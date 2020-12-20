@@ -84,7 +84,7 @@ public final class MainApp extends Application {
    * Saves the current application state configuration and user preferences.
    */
   private void save() {
-    mWorkspace.save( mPreferences );
+    mWorkspace.save();
   }
 
   private void initState( final Stage stage ) {

@@ -30,10 +30,10 @@ public class Action implements MenuAction {
   private final List<MenuAction> mSubActions = new ArrayList<>();
 
   public Action(
-      final String text,
-      final String accelerator,
-      final GlyphIcons icon,
-      final EventHandler<ActionEvent> handler ) {
+    final String text,
+    final String accelerator,
+    final GlyphIcons icon,
+    final EventHandler<ActionEvent> handler ) {
     assert text != null;
     assert handler != null;
 
@@ -159,8 +159,8 @@ public class Action implements MenuAction {
       final var builder = setText( text ).setIcon( icon );
 
       return Messages.containsKey( accelerator )
-          ? builder.setAccelerator( Messages.get( accelerator ) )
-          : builder;
+        ? builder.setAccelerator( Messages.get( accelerator ) )
+        : builder;
     }
 
     /**
@@ -168,25 +168,18 @@ public class Action implements MenuAction {
      *
      * @param key The key to look up in the {@link Messages}.
      * @return The corresponding value, or the key name if none found.
-     * TODO: Make private or delete and merge into setId
      */
-    public Builder setText( final String key ) {
+    private Builder setText( final String key ) {
       mText = Messages.get( key, key );
       return this;
     }
 
-    /**
-     * TODO: Make private or delete and merge into setId
-     */
-    public Builder setAccelerator( final String accelerator ) {
+    private Builder setAccelerator( final String accelerator ) {
       mAccelerator = accelerator;
       return this;
     }
 
-    /**
-     * TODO: Make private or delete and merge into setId
-     */
-    public Builder setIcon( final GlyphIcons icon ) {
+    private Builder setIcon( final GlyphIcons icon ) {
       mIcon = icon;
       return this;
     }
@@ -197,8 +190,8 @@ public class Action implements MenuAction {
       final var iconValue = Messages.get( iconKey );
 
       return iconKey.equals( iconValue )
-          ? this
-          : setIcon( getIcon( iconValue ) );
+        ? this
+        : setIcon( getIcon( iconValue ) );
     }
 
     public Builder setHandler( final EventHandler<ActionEvent> handler ) {

@@ -6,6 +6,7 @@ import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
 
 import java.util.Map;
+import java.util.function.BiConsumer;
 
 import static com.keenwrite.Constants.*;
 import static com.keenwrite.Launcher.getVersion;
@@ -96,7 +97,7 @@ public class WorkspacePreferences {
   );
 
   private final Map<Key, ListProperty<?>> LISTS = Map.ofEntries(
-    entry( KEY_UI_FILES_PATH, new SimpleListProperty<>() )
+    entry( KEY_UI_FILES_PATH, new SimpleListProperty<File>() )
   );
 
   public WorkspacePreferences() {
@@ -116,28 +117,62 @@ public class WorkspacePreferences {
     return (Property<T>) VALUES.get( key );
   }
 
+  /**
+   * Returns the {@link Double} preference value associated with the given
+   * {@link Key}. The caller must be sure that the given {@link Key} is
+   * associated with a value that matches the return type.
+   *
+   * @param key The {@link Key} to use to find a preference value.
+   * @return The value associated with the given {@link Key}.
+   */
   public double getDouble( final Key key ) {
     return (double) get( key ).getValue();
   }
 
+  /**
+   * Returns the {@link Boolean} preference value associated with the given
+   * {@link Key}. The caller must be sure that the given {@link Key} is
+   * associated with a value that matches the return type.
+   *
+   * @param key The {@link Key} to use to find a preference value.
+   * @return The value associated with the given {@link Key}.
+   */
   public boolean getBoolean( final Key key ) {
     return (boolean) get( key ).getValue();
   }
 
+  /**
+   * Returns the {@link File} {@link Property} associated with the given
+   * {@link Key} from the internal list of preference values. The caller
+   * must be sure that the given {@link Key} is associated with a {@link File}
+   * {@link Property}.
+   *
+   * @param key The {@link Key} to use to find a preference value.
+   * @return The value associated with the given {@link Key}.
+   */
   public Property<File> getFile( final Key key ) {
     return get( key );
   }
 
   /**
-   * Returns a value that represents a list of items in the application that
-   * the user may configure, either directly or indirectly, such as the list
-   * of opened files.
+   * Calls the given consumer for all single-value keys. For lists, see
+   * {@link #exportLists(BiConsumer)}.
    *
-   * @param key Unique identifier for the particular list.
-   * @return An observable property to be persisted.
+   * @param consumer Called to accept each preference key value.
    */
-  public ListProperty<?> getList( final Key key ) {
-    return LISTS.get( key );
+  public void export( final BiConsumer<Key, Property<?>> consumer ) {
+    VALUES.forEach( consumer );
+  }
+
+  /**
+   * Calls the given consumer for all multi-value keys. For single items, see
+   * {@link #export(BiConsumer)}. Callers are responsible for iterating over
+   * the list of items retrieved through this method.
+   *
+   * @param consumer Called to accept each preference key list.
+   */
+  public void exportLists( final BiConsumer<Key, ListProperty<?>> consumer ) {
+    LISTS.forEach( consumer );
   }
 
   /**

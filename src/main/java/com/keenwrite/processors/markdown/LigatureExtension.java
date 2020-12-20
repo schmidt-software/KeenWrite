@@ -25,9 +25,6 @@ import static com.vladsch.flexmark.html.HtmlRenderer.HtmlRendererExtension;
  * Responsible for substituting multi-codepoint glyphs with single codepoint
  * glyphs. The text is adorned with ligatures prior to rendering as HTML.
  * This requires a font that supports ligatures.
- * <p>
- * TODO: #81 -- I18N
- * </p>
  */
 public class LigatureExtension implements HtmlRendererExtension {
   /**

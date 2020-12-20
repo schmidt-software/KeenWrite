@@ -232,7 +232,7 @@ public final class MainPane extends SplitPane {
     }
 
     // TODO: Use property
-    getWorkspace().putListItem( KEY_UI_FILES_PATH, file );
+    getWorkspace().addListItem( KEY_UI_FILES_PATH, file );
   }
 
   /**

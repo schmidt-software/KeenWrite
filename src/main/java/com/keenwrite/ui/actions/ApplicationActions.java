@@ -25,7 +25,6 @@ import static com.keenwrite.StatusBarNotifier.clue;
 import static com.keenwrite.StatusBarNotifier.getStatusBar;
 import static com.keenwrite.preferences.WorkspacePreferences.KEY_UI_RECENT_DIR;
 import static com.keenwrite.processors.ProcessorFactory.createProcessors;
-import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.nio.file.Files.writeString;
 import static javafx.event.Event.fireEvent;
 import static javafx.scene.control.Alert.AlertType.INFORMATION;
@@ -115,10 +114,6 @@ public class ApplicationActions {
     file‿export( MARKDOWN_PLAIN );
   }
 
-  private Workspace getWorkspace() {
-    return mMainPane.getWorkspace();
-  }
-
   private void file‿export( final ExportFormat format ) {
     final var editor = getActiveTextEditor();
     final var context = createProcessorContext( editor );
@@ -131,7 +126,7 @@ public class ApplicationActions {
 
     file.ifPresent( ( f ) -> {
       try {
-        writeString( f.toPath(), export, UTF_8 );
+        writeString( f.toPath(), export );
         final var m = get( "Main.status.export.success", f.toString() );
         clue( m );
       } catch( final Exception e ) {
@@ -337,6 +332,10 @@ public class ApplicationActions {
 
   private TextDefinition getActiveTextDefinition() {
     return getMainPane().getActiveTextDefinition();
+  }
+
+  private Workspace getWorkspace() {
+    return mMainPane.getWorkspace();
   }
 
   private WorkspacePreferences getPreferences() {
