@@ -1,7 +1,7 @@
 html{box-sizing:border-box;font-size:12pt}body,h1,h2,h3,h4,h5,h6,ol,p,ul{margin:0;padding:0}img{max-width:100%;height:auto}table{table-collapse:collapse;table-spacing:0;border-spacing:0}
 
 body {
-  /* Must be bundled in JAR file. */
+  /* Noto Serif introduces whitespace on style transitions. */
   font-family: 'Source Serif Pro';
   font-size: 12pt;
 
