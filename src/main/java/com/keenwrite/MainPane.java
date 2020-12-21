@@ -11,7 +11,7 @@ import com.keenwrite.editors.definition.yaml.YamlTreeTransformer;
 import com.keenwrite.editors.markdown.MarkdownEditor;
 import com.keenwrite.io.File;
 import com.keenwrite.io.MediaType;
-import com.keenwrite.preferences.Workspace;
+import com.keenwrite.preferences.WorkspacePreferences;
 import com.keenwrite.preview.HtmlPreview;
 import com.keenwrite.processors.IdentityProcessor;
 import com.keenwrite.processors.Processor;
@@ -22,6 +22,7 @@ import com.keenwrite.processors.markdown.CaretExtension;
 import com.keenwrite.service.events.Notifier;
 import com.panemu.tiwulfx.control.dock.DetachableTab;
 import com.panemu.tiwulfx.control.dock.DetachableTabPane;
+import javafx.beans.property.ListProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -73,7 +74,7 @@ public final class MainPane extends SplitPane {
   private final Map<TextResource, Processor<String>> mProcessors =
     new HashMap<>();
 
-  private final Workspace mWorkspace;
+  private final WorkspacePreferences mPreferences;
 
   /**
    * Groups similar file type tabs together.
@@ -138,10 +139,10 @@ public final class MainPane extends SplitPane {
    * configuration settings from the workspace to reproduce the settings from
    * a previous session.
    */
-  public MainPane( final Workspace workspace ) {
-    mWorkspace = workspace;
+  public MainPane( final WorkspacePreferences preferences ) {
+    mPreferences = preferences;
 
-    open( bin( workspace.getListFiles( KEY_UI_FILES_PATH ) ) );
+    open( bin( preferences.listsProperty( KEY_UI_FILES_PATH ) ) );
 
     final var tabPane = obtainDetachableTabPane( TEXT_HTML );
     tabPane.addTab( "HTML", mHtmlPreview );
@@ -231,8 +232,7 @@ public final class MainPane extends SplitPane {
       addTabPane( index, tabPane );
     }
 
-    // TODO: Use property
-    getWorkspace().addListItem( KEY_UI_FILES_PATH, file );
+    getPreferences().listsProperty( KEY_UI_FILES_PATH ).add( file );
   }
 
   /**
@@ -494,7 +494,8 @@ public final class MainPane extends SplitPane {
     // This is called when either the tab is closed by the user clicking on
     // the tab's close icon or when closing (all) from the file menu.
     tab.setOnClosed(
-      ( __ ) -> getWorkspace().purgeListItem( KEY_UI_FILES_PATH, file )
+      ( __ ) -> getPreferences().listsProperty( KEY_UI_FILES_PATH )
+                                .remove( file )
     );
 
     return tab;
@@ -516,22 +517,24 @@ public final class MainPane extends SplitPane {
    * {@link MediaType} will be created in its own pane.
    * </p>
    *
-   * @param files The files to bin by {@link MediaType}.
+   * @param paths The file paths to bin by {@link MediaType}.
    * @return An in-order list of files, first by structured definition files,
    * then by plain text documents.
    */
-  private List<File> bin( final List<File> files ) {
-    final var map = new HashMap<MediaType, List<File>>();
-    map.put( TEXT_YAML, new ArrayList<>() );
-    map.put( TEXT_MARKDOWN, new ArrayList<>() );
-    map.put( UNDEFINED, new ArrayList<>() );
+  private List<File> bin( final ListProperty<Object> paths ) {
+    final var map = new HashMap<MediaType, Set<File>>();
+    map.put( TEXT_YAML, new HashSet<>() );
+    map.put( TEXT_MARKDOWN, new HashSet<>() );
+    map.put( UNDEFINED, new HashSet<>() );
 
-    for( final var file : files ) {
-      final var list = map.computeIfAbsent(
-        file.getMediaType(), k -> new ArrayList<>()
+    for( final var path : paths ) {
+      final var file = new File( path.toString() );
+
+      final var set = map.computeIfAbsent(
+        file.getMediaType(), k -> new HashSet<>()
       );
 
-      list.add( file );
+      set.add( file );
     }
 
     final var definitions = map.get( TEXT_YAML );
@@ -546,7 +549,7 @@ public final class MainPane extends SplitPane {
       documents.add( DOCUMENT_DEFAULT );
     }
 
-    final var result = new ArrayList<File>( files.size() );
+    final var result = new ArrayList<File>( paths.size() );
     result.addAll( definitions );
     result.addAll( documents );
     result.addAll( undefined );
@@ -856,7 +859,7 @@ public final class MainPane extends SplitPane {
     return getScene().getWindow();
   }
 
-  public Workspace getWorkspace() {
-    return mWorkspace;
+  public WorkspacePreferences getPreferences() {
+    return mPreferences;
   }
 }

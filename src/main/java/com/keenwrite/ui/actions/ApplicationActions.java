@@ -7,7 +7,6 @@ import com.keenwrite.editors.TextDefinition;
 import com.keenwrite.editors.TextEditor;
 import com.keenwrite.io.File;
 import com.keenwrite.preferences.UserPreferencesView;
-import com.keenwrite.preferences.Workspace;
 import com.keenwrite.preferences.WorkspacePreferences;
 import com.keenwrite.processors.ProcessorContext;
 import com.keenwrite.search.SearchModel;
@@ -334,12 +333,8 @@ public class ApplicationActions {
     return getMainPane().getActiveTextDefinition();
   }
 
-  private Workspace getWorkspace() {
-    return mMainPane.getWorkspace();
-  }
-
   private WorkspacePreferences getPreferences() {
-    return getWorkspace().getPreferences();
+    return mMainPane.getPreferences();
   }
 
   private Window getWindow() {

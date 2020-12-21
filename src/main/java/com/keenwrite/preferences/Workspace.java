@@ -19,7 +19,7 @@ import static com.keenwrite.Bootstrap.APP_TITLE_LOWERCASE;
 import static com.keenwrite.Constants.FILE_PREFERENCES;
 import static com.keenwrite.StatusBarNotifier.clue;
 import static java.lang.String.format;
-import static javafx.collections.FXCollections.observableSet;
+import static javafx.collections.FXCollections.observableArrayList;
 
 /**
  * Responsible for defining behaviours for separate projects. A workspace has
@@ -76,27 +76,6 @@ public final class Workspace {
   }
 
   /**
-   * Saves the current workspace.
-   */
-  public void save() {
-    try {
-      mPreferences.consumeValues( ( key, value ) -> mConfig.setProperty(
-        key.toString(), value.getValue() )
-      );
-
-      mPreferences.consumeSets(
-        ( key, set ) -> {
-          final String keyName = key.toString();
-          set.forEach( ( value ) -> mConfig.addProperty( keyName, value ) );
-        }
-      );
-      new FileHandler( mConfig ).save( FILE_PREFERENCES );
-    } catch( final Exception ex ) {
-      clue( ex );
-    }
-  }
-
-  /**
    * Attempts to load the {@link Constants#FILE_PREFERENCES} configuration file.
    * If not found, this will fall back to an empty configuration file, leaving
    * the application to fill in default values.
@@ -110,14 +89,14 @@ public final class Workspace {
 
       mPreferences.consumeValueKeys( ( key ) -> {
         final var configValue = config.getProperty( key.toString() );
-        final var propertyValue = mPreferences.fromValues( key );
+        final var propertyValue = mPreferences.valuesProperty( key );
         propertyValue.setValue( unmarshall( propertyValue, configValue ) );
       } );
 
-      mPreferences.consumeSetKeys( ( key ) -> {
+      mPreferences.consumeListKeys( ( key ) -> {
         final var configList = config.getList( key.toString() );
-        final var propertySet = mPreferences.fromSets( key );
-        propertySet.set( observableSet( configList ) );
+        final var propertyList = mPreferences.listsProperty( key );
+        propertyList.setValue( observableArrayList( configList ) );
       } );
 
       return config;
@@ -129,6 +108,27 @@ public final class Workspace {
       // The root config key can only be set for an empty configuration file.
       config.setRootElementName( APP_TITLE_LOWERCASE );
       return config;
+    }
+  }
+
+  /**
+   * Saves the current workspace.
+   */
+  public void save() {
+    try {
+      mPreferences.consumeValues( ( key, value ) -> mConfig.setProperty(
+        key.toString(), value.getValue() )
+      );
+
+      mPreferences.consumeLists(
+        ( key, set ) -> {
+          final String keyName = key.toString();
+          set.forEach( ( value ) -> mConfig.addProperty( keyName, value ) );
+        }
+      );
+      new FileHandler( mConfig ).save( FILE_PREFERENCES );
+    } catch( final Exception ex ) {
+      clue( ex );
     }
   }
 

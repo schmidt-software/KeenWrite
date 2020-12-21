@@ -123,7 +123,7 @@ public final class MainApp extends Application {
   }
 
   private void initScene( final Stage stage ) {
-    stage.setScene( (new MainScene( mWorkspace )).getScene() );
+    stage.setScene( (new MainScene( mPreferences )).getScene() );
   }
 
   /**

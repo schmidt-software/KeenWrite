@@ -113,8 +113,8 @@ public class WorkspacePreferences {
   );
   //@formatter:on
 
-  private final Map<Key, SetProperty<?>> SETS = Map.ofEntries(
-    entry( KEY_UI_FILES_PATH, new SimpleSetProperty<File>() )
+  private final Map<Key, ListProperty<?>> LISTS = Map.ofEntries(
+    entry( KEY_UI_FILES_PATH, new SimpleListProperty<File>() )
   );
 
   public WorkspacePreferences() {
@@ -129,7 +129,7 @@ public class WorkspacePreferences {
    * @return An observable property to be persisted.
    */
   @SuppressWarnings("unchecked")
-  public <T> Property<T> fromValues( final Key key ) {
+  public <T> Property<T> valuesProperty( final Key key ) {
     // The type that goes into the map must come out.
     return (Property<T>) VALUES.get( key );
   }
@@ -142,9 +142,9 @@ public class WorkspacePreferences {
    * @return An observable property to be persisted.
    */
   @SuppressWarnings("unchecked")
-  public <T> SetProperty<T> fromSets( final Key key ) {
+  public <T> ListProperty<T> listsProperty( final Key key ) {
     // The type that goes into the map must come out.
-    return (SetProperty<T>) SETS.get( key );
+    return (ListProperty<T>) LISTS.get( key );
   }
 
   /**
@@ -156,7 +156,7 @@ public class WorkspacePreferences {
    * @return The value associated with the given {@link Key}.
    */
   public double toDouble( final Key key ) {
-    return (double) fromValues( key ).getValue();
+    return (double) valuesProperty( key ).getValue();
   }
 
   /**
@@ -168,7 +168,7 @@ public class WorkspacePreferences {
    * @return The value associated with the given {@link Key}.
    */
   public boolean toBoolean( final Key key ) {
-    return (boolean) fromValues( key ).getValue();
+    return (boolean) valuesProperty( key ).getValue();
   }
 
   /**
@@ -181,12 +181,12 @@ public class WorkspacePreferences {
    * @return The value associated with the given {@link Key}.
    */
   public Property<File> fileProperty( final Key key ) {
-    return fromValues( key );
+    return valuesProperty( key );
   }
 
   /**
    * Calls the given consumer for all single-value keys. For lists, see
-   * {@link #consumeSets(BiConsumer)}.
+   * {@link #consumeLists(BiConsumer)}.
    *
    * @param consumer Called to accept each preference key value.
    */
@@ -201,16 +201,16 @@ public class WorkspacePreferences {
    *
    * @param consumer Called to accept each preference key list.
    */
-  public void consumeSets( final BiConsumer<Key, SetProperty<?>> consumer ) {
-    SETS.forEach( consumer );
+  public void consumeLists( final BiConsumer<Key, ListProperty<?>> consumer ) {
+    LISTS.forEach( consumer );
   }
 
   public void consumeValueKeys( final Consumer<Key> consumer ) {
     VALUES.keySet().forEach( consumer );
   }
 
-  public void consumeSetKeys( final Consumer<Key> consumer ) {
-    SETS.keySet().forEach( consumer );
+  public void consumeListKeys( final Consumer<Key> consumer ) {
+    LISTS.keySet().forEach( consumer );
   }
 
   /**
@@ -249,7 +249,7 @@ public class WorkspacePreferences {
       ( c, o, n ) ->
         runLater( () -> {
           if( enabled.getAsBoolean() ) {
-            fromValues( key ).setValue( n );
+            valuesProperty( key ).setValue( n );
           }
         } )
     );
