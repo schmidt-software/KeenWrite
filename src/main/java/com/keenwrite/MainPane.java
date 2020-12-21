@@ -9,7 +9,6 @@ import com.keenwrite.editors.definition.DefinitionEditor;
 import com.keenwrite.editors.definition.DefinitionTabSceneFactory;
 import com.keenwrite.editors.definition.yaml.YamlTreeTransformer;
 import com.keenwrite.editors.markdown.MarkdownEditor;
-import com.keenwrite.io.File;
 import com.keenwrite.io.MediaType;
 import com.keenwrite.preferences.Workspace;
 import com.keenwrite.preview.HtmlPreview;
@@ -22,7 +21,10 @@ import com.keenwrite.processors.markdown.CaretExtension;
 import com.keenwrite.service.events.Notifier;
 import com.panemu.tiwulfx.control.dock.DetachableTab;
 import com.panemu.tiwulfx.control.dock.DetachableTabPane;
-import javafx.beans.property.*;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.ReadOnlyObjectProperty;
+import javafx.beans.property.SetProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.ListChangeListener;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
@@ -36,6 +38,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 
+import java.io.File;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -207,13 +210,14 @@ public final class MainPane extends SplitPane {
    * @param file The file to open.
    */
   private void open( final File file ) {
-    final var mediaType = file.getMediaType();
-    final var tab = createTab( file );
+    final var kFile = new com.keenwrite.io.File( file );
+    final var mediaType = kFile.getMediaType();
+    final var tab = createTab( kFile );
     final var node = tab.getContent();
     final var tabPane = obtainDetachableTabPane( mediaType );
     final var newTabPane = !getItems().contains( tabPane );
 
-    tab.setTooltip( createTooltip( file ) );
+    tab.setTooltip( createTooltip( kFile ) );
     tabPane.setFocusTraversable( false );
     tabPane.setTabClosingPolicy( ALL_TABS );
     tabPane.getTabs().add( tab );
@@ -229,7 +233,7 @@ public final class MainPane extends SplitPane {
       addTabPane( index, tabPane );
     }
 
-    getPreferences().setsProperty( KEY_UI_FILES_PATH ).add( file );
+    getWorkspace().setsProperty( KEY_UI_FILES_PATH ).add( file );
   }
 
   /**
@@ -491,8 +495,8 @@ public final class MainPane extends SplitPane {
     // This is called when either the tab is closed by the user clicking on
     // the tab's close icon or when closing (all) from the file menu.
     tab.setOnClosed(
-      ( __ ) -> getPreferences().setsProperty( KEY_UI_FILES_PATH )
-                                .remove( file )
+      ( __ ) -> getWorkspace().setsProperty( KEY_UI_FILES_PATH )
+                              .remove( file )
     );
 
     return tab;
@@ -525,7 +529,7 @@ public final class MainPane extends SplitPane {
     map.put( UNDEFINED, new HashSet<>() );
 
     for( final var path : paths ) {
-      final var file = new File( path.toString() );
+      final var file = new com.keenwrite.io.File( path.toString() );
 
       final var set = map.computeIfAbsent(
         file.getMediaType(), k -> new HashSet<>()
@@ -745,7 +749,7 @@ public final class MainPane extends SplitPane {
   private ProcessorContext createProcessorContext(
     final Path path, final Caret caret ) {
     return new ProcessorContext(
-      mHtmlPreview, mResolvedMap, path, caret, NONE
+      mHtmlPreview, mResolvedMap, path, caret, NONE, mWorkspace
     );
   }
 
@@ -755,7 +759,7 @@ public final class MainPane extends SplitPane {
 
   @SuppressWarnings({"RedundantCast", "unchecked", "RedundantSuppression"})
   private TextResource createTextResource( final File file ) {
-    final var mediaType = file.getMediaType();
+    final var mediaType = new com.keenwrite.io.File( file ).getMediaType();
 
     return switch( mediaType ) {
       case TEXT_MARKDOWN -> createMarkdownEditor( file );
@@ -814,7 +818,7 @@ public final class MainPane extends SplitPane {
   public void autoinsert() {
     final var definitions = getActiveTextDefinition();
     final var editor = getActiveTextEditor();
-    final var mediaType = editor.getFile().getMediaType();
+    final var mediaType = editor.getMediaType();
     final var decorator = getSigilOperator( mediaType );
 
     DefinitionNameInjector.autoinsert( editor, definitions, decorator );
@@ -856,7 +860,7 @@ public final class MainPane extends SplitPane {
     return getScene().getWindow();
   }
 
-  public Workspace getPreferences() {
+  public Workspace getWorkspace() {
     return mWorkspace;
   }
 }

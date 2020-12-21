@@ -4,6 +4,7 @@ package com.keenwrite.processors;
 import com.keenwrite.Constants;
 import com.keenwrite.ExportFormat;
 import com.keenwrite.io.FileType;
+import com.keenwrite.preferences.Workspace;
 import com.keenwrite.preview.HtmlPreview;
 import com.keenwrite.processors.markdown.Caret;
 
@@ -19,9 +20,10 @@ import static com.keenwrite.Constants.DEFAULT_DIRECTORY;
 public class ProcessorContext {
   private final HtmlPreview mHtmlPreview;
   private final Map<String, String> mResolvedMap;
-  private final ExportFormat mExportFormat;
   private final Path mPath;
   private final Caret mCaret;
+  private final ExportFormat mExportFormat;
+  private final Workspace mWorkspace;
 
   /**
    * Creates a new context for use by the {@link ProcessorFactory} when
@@ -41,18 +43,21 @@ public class ProcessorContext {
       final Map<String, String> resolvedMap,
       final Path path,
       final Caret caret,
-      final ExportFormat exportFormat ) {
+      final ExportFormat exportFormat,
+      final Workspace workspace ) {
     assert htmlPreview != null;
     assert resolvedMap != null;
     assert path != null;
     assert caret != null;
     assert exportFormat != null;
+    assert workspace != null;
 
     mHtmlPreview = htmlPreview;
     mResolvedMap = resolvedMap;
     mPath = path;
     mCaret = caret;
     mExportFormat = exportFormat;
+    mWorkspace = workspace;
   }
 
   @SuppressWarnings("SameParameterValue")
@@ -110,5 +115,9 @@ public class ProcessorContext {
 
   FileType getFileType() {
     return lookup( getPath() );
+  }
+
+  public Workspace getWorkspace() {
+    return mWorkspace;
   }
 }

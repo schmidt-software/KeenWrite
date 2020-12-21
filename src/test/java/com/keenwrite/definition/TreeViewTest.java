@@ -20,7 +20,6 @@ import javafx.stage.Stage;
 import org.junit.jupiter.api.Disabled;
 import org.testfx.framework.junit5.Start;
 
-import static com.keenwrite.preferences.UserPreferences.initPreferences;
 import static com.keenwrite.util.FontLoader.initFonts;
 import static java.lang.Thread.sleep;
 
@@ -37,7 +36,6 @@ public class TreeViewTest extends Application {
   }
 
   public static void main( final String[] args ) {
-    initPreferences();
     initFonts();
     launch( args );
   }

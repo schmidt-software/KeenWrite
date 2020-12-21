@@ -2,7 +2,6 @@
 package com.keenwrite.ui.actions;
 
 import com.keenwrite.Messages;
-import com.keenwrite.io.File;
 import com.keenwrite.io.FileType;
 import com.keenwrite.service.Settings;
 import javafx.beans.property.Property;
@@ -10,6 +9,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Window;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -62,9 +62,7 @@ public class FileChooserCommand {
     final List<java.io.File> selected = list == null ? List.of() : list;
     final var files = new ArrayList<File>( selected.size() );
 
-    for( final var file : selected ) {
-      files.add( new File( file ) );
-    }
+    files.addAll( selected );
 
     if( !files.isEmpty() ) {
       setRecentDirectory( files.get( 0 ) );
@@ -101,8 +99,7 @@ public class FileChooserCommand {
    * @return The file selected by the user.
    */
   private Optional<File> saveOrExportAs( final FileChooser dialog ) {
-    final var selected = dialog.showSaveDialog( mParent );
-    final var file = selected == null ? null : new File( selected );
+    final var file = dialog.showSaveDialog( mParent );
 
     setRecentDirectory( file );
 
@@ -167,7 +164,7 @@ public class FileChooserCommand {
       final var dir = parent == null ? USER_DIRECTORY : parent;
 
       if( dir.isDirectory() && dir.canRead() ) {
-        mDirectory.setValue( new File( dir ) );
+        mDirectory.setValue( dir );
       }
     }
   }

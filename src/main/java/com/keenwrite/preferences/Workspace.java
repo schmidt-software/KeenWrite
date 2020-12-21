@@ -2,7 +2,6 @@
 package com.keenwrite.preferences;
 
 import com.keenwrite.Constants;
-import com.keenwrite.io.File;
 import javafx.application.Platform;
 import javafx.beans.property.*;
 import org.apache.commons.configuration2.XMLConfiguration;
@@ -10,6 +9,7 @@ import org.apache.commons.configuration2.builder.fluent.Configurations;
 import org.apache.commons.configuration2.ex.ConfigurationException;
 import org.apache.commons.configuration2.io.FileHandler;
 
+import java.io.File;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
@@ -129,8 +129,8 @@ public class Workspace {
     entry( KEY_UI_RECENT_DEFINITION, new SimpleFileProperty( DEFINITION_DEFAULT ) ),
     
     entry( KEY_UI_FONT_LOCALE, new SimpleLocaleProperty( LOCALE_DEFAULT ) ),
-    entry( KEY_UI_FONT_EDITOR_SIZE, new SimpleFloatProperty( FONT_SIZE_EDITOR_DEFAULT ) ),
-    entry( KEY_UI_FONT_PREVIEW_SIZE, new SimpleFloatProperty( FONT_SIZE_PREVIEW_DEFAULT ) ),
+    entry( KEY_UI_FONT_EDITOR_SIZE, new SimpleDoubleProperty( FONT_SIZE_EDITOR_DEFAULT ) ),
+    entry( KEY_UI_FONT_PREVIEW_SIZE, new SimpleDoubleProperty( FONT_SIZE_PREVIEW_DEFAULT ) ),
     
     entry( KEY_UI_WINDOW_X, new SimpleDoubleProperty( WINDOW_X_DEFAULT ) ),
     entry( KEY_UI_WINDOW_Y, new SimpleDoubleProperty( WINDOW_Y_DEFAULT ) ),
@@ -170,9 +170,9 @@ public class Workspace {
    * @return An observable property to be persisted.
    */
   @SuppressWarnings("unchecked")
-  public <T> Property<T> valuesProperty( final Key key ) {
+  public <T, U extends Property<T>> U valuesProperty( final Key key ) {
     // The type that goes into the map must come out.
-    return (Property<T>) VALUES.get( key );
+    return (U) VALUES.get( key );
   }
 
   /**

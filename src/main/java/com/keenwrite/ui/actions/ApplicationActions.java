@@ -209,7 +209,7 @@ public class ApplicationActions {
   }
 
   public void edit‿preferences() {
-    UserPreferencesView.getInstance().show();
+    new UserPreferencesView( getWorkspace() ).show();
   }
 
   public void format‿bold() {
@@ -317,7 +317,7 @@ public class ApplicationActions {
   }
 
   private FileChooserCommand createFileChooser() {
-    final var dir = getPreferences().fileProperty( KEY_UI_RECENT_DIR );
+    final var dir = getWorkspace().fileProperty( KEY_UI_RECENT_DIR );
     return new FileChooserCommand( getWindow(), dir );
   }
 
@@ -333,8 +333,8 @@ public class ApplicationActions {
     return getMainPane().getActiveTextDefinition();
   }
 
-  private Workspace getPreferences() {
-    return mMainPane.getPreferences();
+  private Workspace getWorkspace() {
+    return mMainPane.getWorkspace();
   }
 
   private Window getWindow() {

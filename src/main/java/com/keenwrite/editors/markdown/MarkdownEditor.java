@@ -3,7 +3,6 @@ package com.keenwrite.editors.markdown;
 
 import com.keenwrite.Constants;
 import com.keenwrite.editors.TextEditor;
-import com.keenwrite.io.File;
 import com.keenwrite.processors.markdown.Caret;
 import com.keenwrite.spelling.impl.TextEditorSpeller;
 import javafx.beans.binding.Bindings;
@@ -23,6 +22,7 @@ import org.fxmisc.undo.UndoManager;
 import org.fxmisc.wellbehaved.event.EventPattern;
 import org.fxmisc.wellbehaved.event.Nodes;
 
+import java.io.File;
 import java.nio.charset.Charset;
 import java.text.BreakIterator;
 import java.util.*;
@@ -384,6 +384,7 @@ public class MarkdownEditor extends BorderPane implements TextEditor {
     assert 0 <= began && began <= ended;
     assert style != null;
 
+    // TODO: Ensure spell check and find highlights can coexist.
 //    final var spans = mTextArea.getStyleSpans( range );
 //    System.out.println( "SPANS: " + spans );
 

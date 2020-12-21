@@ -1,11 +1,12 @@
 /* Copyright 2020 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.editors;
 
-import com.keenwrite.io.File;
+import com.keenwrite.io.MediaType;
 import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.scene.Node;
 import org.mozilla.universalchardet.UniversalDetector;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
@@ -74,6 +75,15 @@ public interface TextResource {
   File getFile();
 
   /**
+   * Returns the {@link MediaType} associated with the file being edited.
+   *
+   * @return The {@link MediaType} for the editor's file.
+   */
+  default MediaType getMediaType() {
+    return new com.keenwrite.io.File( getFile() ).getMediaType();
+  }
+
+  /**
    * Returns the fully qualified {@link Path} to the editable text resource.
    * This delegates to {@link #getFile()}.
    *
@@ -92,7 +102,7 @@ public interface TextResource {
    * @return The character encoding for the file at the given {@link Path}.
    */
   default Charset open( final Path path ) {
-    final var file = new File( path.toFile() );
+    final var file = path.toFile();
     Charset encoding = DEFAULT_CHARSET;
 
     try {
@@ -204,7 +214,7 @@ public interface TextResource {
     final var charset = detector.getDetectedCharset();
 
     return charset == null
-        ? DEFAULT_CHARSET
-        : forName( charset.toUpperCase( ENGLISH ) );
+      ? DEFAULT_CHARSET
+      : forName( charset.toUpperCase( ENGLISH ) );
   }
 }

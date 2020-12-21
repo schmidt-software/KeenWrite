@@ -3,7 +3,6 @@ package com.keenwrite.editors.definition;
 
 import com.keenwrite.Constants;
 import com.keenwrite.editors.TextDefinition;
-import com.keenwrite.io.File;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
 import javafx.beans.property.BooleanProperty;
@@ -19,6 +18,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 
+import java.io.File;
 import java.nio.charset.Charset;
 import java.util.*;
 

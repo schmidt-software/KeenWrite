@@ -7,8 +7,9 @@ import com.dlsc.preferencesfx.PreferencesFxEvent;
 import com.dlsc.preferencesfx.model.Category;
 import com.dlsc.preferencesfx.model.Group;
 import com.dlsc.preferencesfx.model.Setting;
-import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.Property;
 import javafx.beans.property.StringProperty;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
@@ -18,36 +19,19 @@ import java.io.File;
 
 import static com.keenwrite.Constants.ICON_DIALOG;
 import static com.keenwrite.Messages.get;
+import static com.keenwrite.preferences.Workspace.*;
 
 /**
  * Responsible for configuring the {@link UserPreferences} user interface.
  */
 public class UserPreferencesView {
-  /**
-   * Implementation of the initialization-on-demand holder design pattern,
-   * an for a lazy-loaded singleton. In all versions of Java, the idiom enables
-   * a safe, highly concurrent lazy initialization of static fields with good
-   * performance. The implementation relies upon the initialization phase of
-   * execution within the Java Virtual Machine (JVM) as specified by the Java
-   * Language Specification.
-   */
-  private static class Container {
-    private static final UserPreferencesView INSTANCE =
-        new UserPreferencesView();
-  }
 
-  /**
-   * Returns the singleton instance for rendering math symbols.
-   *
-   * @return A non-null instance, loaded, configured, and ready to render math.
-   */
-  public static UserPreferencesView getInstance() {
-    return Container.INSTANCE;
-  }
-
+  private final Workspace mWorkspace;
   private final PreferencesFx mPreferencesFx;
 
-  public UserPreferencesView() {
+  public UserPreferencesView(final Workspace workspace) {
+    mWorkspace = workspace;
+
     // All properties must be initialized before creating the dialog.
     mPreferencesFx = createPreferencesFx();
   }
@@ -91,7 +75,7 @@ public class UserPreferencesView {
   @SuppressWarnings("unchecked")
   private PreferencesFx createPreferencesFx() {
     final Setting<StringField, StringProperty> scriptSetting =
-        Setting.of( "Script", rScriptProperty() );
+        Setting.of( "Script", stringProperty( KEY_R_SCRIPT ) );
     final StringField field = scriptSetting.getElement();
     field.multiline( true );
 
@@ -102,7 +86,7 @@ public class UserPreferencesView {
             Group.of(
                 get( "Preferences.r.directory" ),
                 Setting.of( label( "Preferences.r.directory.desc", false ) ),
-                Setting.of( "Directory", rDirectoryProperty(), true )
+                Setting.of( "Directory", fileProperty( KEY_R_DIR ), true )
             ),
             Group.of(
                 get( "Preferences.r.script" ),
@@ -112,12 +96,12 @@ public class UserPreferencesView {
             Group.of(
                 get( "Preferences.r.delimiter.began" ),
                 Setting.of( label( "Preferences.r.delimiter.began.desc" ) ),
-                Setting.of( "Opening", rDelimiterBeganProperty() )
+                Setting.of( "Opening", stringProperty( KEY_R_DELIM_BEGAN ) )
             ),
             Group.of(
                 get( "Preferences.r.delimiter.ended" ),
                 Setting.of( label( "Preferences.r.delimiter.ended.desc" ) ),
-                Setting.of( "Closing", rDelimiterEndedProperty() )
+                Setting.of( "Closing", stringProperty( KEY_R_DELIM_ENDED ) )
             )
         ),
         Category.of(
@@ -125,12 +109,12 @@ public class UserPreferencesView {
             Group.of(
                 get( "Preferences.images.directory" ),
                 Setting.of( label( "Preferences.images.directory.desc" ) ),
-                Setting.of( "Directory", imagesDirectoryProperty(), true )
+                Setting.of( "Directory", fileProperty( KEY_IMAGES_DIR ), true )
             ),
             Group.of(
                 get( "Preferences.images.suffixes" ),
                 Setting.of( label( "Preferences.images.suffixes.desc" ) ),
-                Setting.of( "Extensions", imagesOrderProperty() )
+                Setting.of( "Extensions", stringProperty( KEY_IMAGES_ORDER ) )
             )
         ),
         Category.of(
@@ -138,19 +122,19 @@ public class UserPreferencesView {
             Group.of(
                 get( "Preferences.definitions.path" ),
                 Setting.of( label( "Preferences.definitions.path.desc" ) ),
-                Setting.of( "Path", definitionPathProperty(), false )
+                Setting.of( "Path", fileProperty( KEY_DEF_PATH ), false )
             ),
             Group.of(
                 get( "Preferences.definitions.delimiter.began" ),
                 Setting.of( label(
                     "Preferences.definitions.delimiter.began.desc" ) ),
-                Setting.of( "Opening", defDelimiterBeganProperty() )
+                Setting.of( "Opening", stringProperty( KEY_DEF_DELIM_BEGAN ) )
             ),
             Group.of(
                 get( "Preferences.definitions.delimiter.ended" ),
                 Setting.of( label(
                     "Preferences.definitions.delimiter.ended.desc" ) ),
-                Setting.of( "Closing", defDelimiterEnded() )
+                Setting.of( "Closing", stringProperty( KEY_DEF_DELIM_ENDED ) )
             )
         ),
         Category.of(
@@ -158,7 +142,7 @@ public class UserPreferencesView {
             Group.of(
                 get( "Preferences.fonts.size_editor" ),
                 Setting.of( label( "Preferences.fonts.size_editor.desc" ) ),
-                Setting.of( "Points", fontsSizeEditorProperty() )
+                Setting.of( "Points", doubleProperty( KEY_UI_FONT_EDITOR_SIZE ) )
             )
         )
     ).instantPersistent( false )
@@ -188,51 +172,24 @@ public class UserPreferencesView {
     return new Label( get( key, interpolate ) );
   }
 
-  private UserPreferences getUserPreferences() {
-    return UserPreferences.getInstance();
+  private <T, U extends Property<T>> U objectProperty( final Key key ) {
+    return mWorkspace.valuesProperty( key );
+  }
+
+  private ObjectProperty<File> fileProperty( final Key key ) {
+    return objectProperty( key );
+  }
+
+  private StringProperty stringProperty( final Key key ) {
+    return objectProperty( key );
+  }
+
+  @SuppressWarnings("SameParameterValue")
+  private DoubleProperty doubleProperty( final Key key ) {
+    return objectProperty( key );
   }
 
   private PreferencesFx getPreferencesFx() {
     return mPreferencesFx;
-  }
-
-  public ObjectProperty<File> definitionPathProperty() {
-    return getUserPreferences().definitionPathProperty();
-  }
-
-  private StringProperty defDelimiterBeganProperty() {
-    return getUserPreferences().defDelimiterBeganProperty();
-  }
-
-  private StringProperty defDelimiterEnded() {
-    return getUserPreferences().defDelimiterEndedProperty();
-  }
-
-  public ObjectProperty<File> rDirectoryProperty() {
-    return getUserPreferences().rDirectoryProperty();
-  }
-
-  public StringProperty rScriptProperty() {
-    return getUserPreferences().rScriptProperty();
-  }
-
-  private StringProperty rDelimiterBeganProperty() {
-    return getUserPreferences().rDelimiterBeganProperty();
-  }
-
-  private StringProperty rDelimiterEndedProperty() {
-    return getUserPreferences().rDelimiterEndedProperty();
-  }
-
-  private ObjectProperty<File> imagesDirectoryProperty() {
-    return getUserPreferences().imagesDirectoryProperty();
-  }
-
-  private StringProperty imagesOrderProperty() {
-    return getUserPreferences().imagesOrderProperty();
-  }
-
-  public IntegerProperty fontsSizeEditorProperty() {
-    return getUserPreferences().fontsSizeEditorProperty();
   }
 }

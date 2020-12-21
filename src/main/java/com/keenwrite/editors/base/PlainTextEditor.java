@@ -30,7 +30,6 @@ package com.keenwrite.editors.base;
 import com.keenwrite.Constants;
 import com.keenwrite.editors.TextEditor;
 import com.keenwrite.editors.markdown.MarkdownEditor;
-import com.keenwrite.io.File;
 import com.keenwrite.preferences.UserPreferences;
 import com.keenwrite.processors.markdown.Caret;
 import javafx.beans.property.*;
@@ -45,6 +44,7 @@ import org.fxmisc.undo.UndoManager;
 import org.fxmisc.wellbehaved.event.EventPattern;
 import org.fxmisc.wellbehaved.event.Nodes;
 
+import java.io.File;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.util.function.Consumer;
@@ -269,7 +269,7 @@ public class PlainTextEditor extends StyleClassedTextArea
   }
 
   public File getFile() {
-    return new File( mPath.get().toFile() );
+    return mPath.get().toFile();
   }
 
   /**

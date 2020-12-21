@@ -2,12 +2,11 @@
 package com.keenwrite.processors;
 
 import com.keenwrite.preferences.UserPreferences;
-import com.keenwrite.preferences.UserPreferencesView;
+import com.keenwrite.preferences.Workspace;
 import com.keenwrite.processors.markdown.MarkdownProcessor;
 import com.vladsch.flexmark.ast.Paragraph;
 import com.vladsch.flexmark.ast.Text;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.StringProperty;
+import javafx.beans.property.Property;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
@@ -19,6 +18,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.keenwrite.Constants.STATUS_PARSE_ERROR;
 import static com.keenwrite.StatusBarNotifier.clue;
+import static com.keenwrite.preferences.Workspace.KEY_R_DIR;
+import static com.keenwrite.preferences.Workspace.KEY_R_SCRIPT;
 import static com.keenwrite.processors.text.TextReplacementFactory.replace;
 import static com.keenwrite.sigils.RSigilOperator.PREFIX;
 import static com.keenwrite.sigils.RSigilOperator.SUFFIX;
@@ -56,6 +57,8 @@ public final class InlineRProcessor extends DefinitionProcessor {
 
   private final AtomicBoolean mDirty = new AtomicBoolean( false );
 
+  private final Workspace mWorkspace;
+
   /**
    * Constructs a processor capable of evaluating R statements.
    *
@@ -67,6 +70,7 @@ public final class InlineRProcessor extends DefinitionProcessor {
       final ProcessorContext context ) {
     super( successor, context );
 
+    mWorkspace = context.getWorkspace();
     mMarkdownProcessor = MarkdownProcessor.create( context );
 
     bootstrapScriptProperty().addListener(
@@ -74,14 +78,16 @@ public final class InlineRProcessor extends DefinitionProcessor {
     workingDirectoryProperty().addListener(
         ( __, oldScript, newScript ) -> setDirty( true ) );
 
+    // TODO: Watch the "R" property keys in the workspace, directly.
+
     // If the user saves the preferences, make sure that any R-related settings
     // changes are applied.
-    getUserPreferencesView().addSaveEventHandler( ( handler ) -> {
-      if( isDirty() ) {
-        init();
-        setDirty( false );
-      }
-    } );
+//    getWorkspace().addSaveEventHandler( ( handler ) -> {
+//      if( isDirty() ) {
+//        init();
+//        setDirty( false );
+//      }
+//    } );
 
     init();
   }
@@ -247,11 +253,11 @@ public final class InlineRProcessor extends DefinitionProcessor {
    * @return A non-null path.
    */
   private Path getWorkingDirectory() {
-    return getUserPreferencesView().rDirectoryProperty().getValue().toPath();
+    return workingDirectoryProperty().getValue().toPath();
   }
 
-  private ObjectProperty<File> workingDirectoryProperty() {
-    return getUserPreferencesView().rDirectoryProperty();
+  private Property<File> workingDirectoryProperty() {
+    return getWorkspace().fileProperty( KEY_R_DIR );
   }
 
   /**
@@ -260,14 +266,14 @@ public final class InlineRProcessor extends DefinitionProcessor {
    * @return A non-null string, possibly empty.
    */
   private String getBootstrapScript() {
-    return getUserPreferencesView().rScriptProperty().getValue();
+    return bootstrapScriptProperty().getValue();
   }
 
-  private StringProperty bootstrapScriptProperty() {
-    return getUserPreferencesView().rScriptProperty();
+  private Property<String> bootstrapScriptProperty() {
+    return getWorkspace().valuesProperty( KEY_R_SCRIPT );
   }
 
-  private UserPreferencesView getUserPreferencesView() {
-    return UserPreferencesView.getInstance();
+  private Workspace getWorkspace() {
+    return mWorkspace;
   }
 }
