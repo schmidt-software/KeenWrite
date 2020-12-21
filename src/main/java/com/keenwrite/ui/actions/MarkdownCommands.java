@@ -1,8 +1,10 @@
 /* Copyright 2020 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.ui.actions;
 
+import com.keenwrite.MainPane;
 import com.keenwrite.editors.markdown.HyperlinkModel;
 import com.keenwrite.editors.markdown.LinkVisitor;
+import com.keenwrite.preferences.Workspace;
 import com.keenwrite.processors.markdown.MarkdownProcessor;
 import com.keenwrite.ui.dialogs.ImageDialog;
 import com.keenwrite.ui.dialogs.LinkDialog;
@@ -13,12 +15,18 @@ import org.fxmisc.richtext.StyleClassedTextArea;
 
 import java.nio.file.Path;
 
+/**
+ * TODO: Integrate the methods into {@link ApplicationActions}
+ *
+ * @deprecated Migrate into {@link ApplicationActions}.
+ */
+@Deprecated
 public class MarkdownCommands {
 
-  private final Window mParent;
+  private final MainPane mParent;
   private final Path mBase;
 
-  public MarkdownCommands( final Window parent, final Path path ) {
+  public MarkdownCommands( final MainPane parent, final Path path ) {
     mParent = parent;
     mBase = path.getParent();
   }
@@ -41,7 +49,7 @@ public class MarkdownCommands {
     final var selectedText = textArea.getSelectedText();
 
     // Get the current paragraph, convert to Markdown nodes.
-    final var mp = MarkdownProcessor.create();
+    final var mp = MarkdownProcessor.create( getWorkspace() );
     final var p = textArea.getCurrentParagraph();
     final var paragraph = textArea.getText( p );
     final var node = mp.toNode( paragraph );
@@ -84,7 +92,11 @@ public class MarkdownCommands {
     return mBase;
   }
 
+  private Workspace getWorkspace() {
+    return mParent.getWorkspace();
+  }
+
   private Window getWindow() {
-    return mParent;
+    return mParent.getWindow();
   }
 }

@@ -253,7 +253,8 @@ public class ApplicationActions {
   }
 
   private MarkdownCommands createMarkdownDialog() {
-    return new MarkdownCommands( getWindow(), getActiveTextEditor().getPath() );
+    return new MarkdownCommands(
+      getMainPane(), getActiveTextEditor().getPath() );
   }
 
   public void insert‿heading_1() {

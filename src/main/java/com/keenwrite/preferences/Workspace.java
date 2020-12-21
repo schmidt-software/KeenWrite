@@ -221,7 +221,24 @@ public class Workspace {
    * @param key The {@link Key} associated with a preference value.
    * @return The value associated with the given {@link Key}.
    */
-  public Property<File> fileProperty( final Key key ) {
+  public ObjectProperty<File> fileProperty( final Key key ) {
+    return valuesProperty( key );
+  }
+
+  public File toFile( final Key key ) {
+    return fileProperty( key ).get();
+  }
+
+  public StringProperty stringProperty( final Key key ) {
+    return valuesProperty( key );
+  }
+
+  public String toString( final Key key ) {
+    return stringProperty( key ).get();
+  }
+
+  @SuppressWarnings("SameParameterValue")
+  public DoubleProperty doubleProperty( final Key key ) {
     return valuesProperty( key );
   }
 

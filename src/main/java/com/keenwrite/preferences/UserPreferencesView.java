@@ -9,7 +9,6 @@ import com.dlsc.preferencesfx.model.Group;
 import com.dlsc.preferencesfx.model.Setting;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.Property;
 import javafx.beans.property.StringProperty;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
@@ -171,21 +170,17 @@ public class UserPreferencesView {
     return new Label( get( key, interpolate ) );
   }
 
-  private <T, U extends Property<T>> U objectProperty( final Key key ) {
-    return mWorkspace.valuesProperty( key );
-  }
-
   private ObjectProperty<File> fileProperty( final Key key ) {
-    return objectProperty( key );
+    return mWorkspace.fileProperty( key );
   }
 
   private StringProperty stringProperty( final Key key ) {
-    return objectProperty( key );
+    return mWorkspace.stringProperty( key );
   }
 
   @SuppressWarnings("SameParameterValue")
   private DoubleProperty doubleProperty( final Key key ) {
-    return objectProperty( key );
+    return mWorkspace.doubleProperty( key );
   }
 
   private PreferencesFx getPreferencesFx() {

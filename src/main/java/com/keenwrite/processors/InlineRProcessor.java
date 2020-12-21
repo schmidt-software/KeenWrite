@@ -1,7 +1,6 @@
 /* Copyright 2020 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.processors;
 
-import com.keenwrite.preferences.UserPreferences;
 import com.keenwrite.preferences.Workspace;
 import com.keenwrite.processors.markdown.MarkdownProcessor;
 import com.vladsch.flexmark.ast.Paragraph;
@@ -18,8 +17,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.keenwrite.Constants.STATUS_PARSE_ERROR;
 import static com.keenwrite.StatusBarNotifier.clue;
-import static com.keenwrite.preferences.Workspace.KEY_R_DIR;
-import static com.keenwrite.preferences.Workspace.KEY_R_SCRIPT;
+import static com.keenwrite.preferences.Workspace.*;
 import static com.keenwrite.processors.text.TextReplacementFactory.replace;
 import static com.keenwrite.sigils.RSigilOperator.PREFIX;
 import static com.keenwrite.sigils.RSigilOperator.SUFFIX;
@@ -104,9 +102,8 @@ public final class InlineRProcessor extends DefinitionProcessor {
       final var wd = getWorkingDirectory();
       final var dir = wd.toString().replace( '\\', '/' );
       final var map = getDefinitions();
-      final var prefs = UserPreferences.getInstance();
-      final var defBegan = prefs.getDefDelimiterBegan();
-      final var defEnded = prefs.getDefDelimiterEnded();
+      final var defBegan = mWorkspace.toString( KEY_DEF_DELIM_BEGAN );
+      final var defEnded = mWorkspace.toString( KEY_DEF_DELIM_ENDED );
 
       map.put( defBegan + "application.r.working.directory" + defEnded, dir );
 

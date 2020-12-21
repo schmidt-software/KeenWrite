@@ -41,7 +41,6 @@ public class LigatureExtension implements HtmlRendererExtension {
     LIGATURES.put( "ff", "\uFB00" );
     LIGATURES.put( "fi", "\uFB01" );
     LIGATURES.put( "fl", "\uFB02" );
-    LIGATURES.put( "ft", "\uFB05" );
 
     // Discretionary
 

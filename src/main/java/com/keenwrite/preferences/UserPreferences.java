@@ -37,8 +37,6 @@ public final class UserPreferences {
     return Container.INSTANCE;
   }
 
-  private final ObjectProperty<File> mPropImagesDirectory;
-  private final StringProperty mPropImagesOrder;
   private final ObjectProperty<File> mPropDefinitionPath;
   private final StringProperty mPropRDelimBegan;
   private final StringProperty mPropRDelimEnded;
@@ -46,9 +44,6 @@ public final class UserPreferences {
   private final StringProperty mPropDefDelimEnded;
 
   private UserPreferences() {
-    mPropImagesDirectory = new SimpleObjectProperty<>( USER_DIRECTORY );
-    mPropImagesOrder = new SimpleStringProperty( PERSIST_IMAGES_DEFAULT );
-
     mPropDefinitionPath = new SimpleObjectProperty<>( DEFINITION_DEFAULT );
     mPropDefDelimBegan = new SimpleStringProperty( DEF_DELIM_BEGAN_DEFAULT );
     mPropDefDelimEnded = new SimpleStringProperty( DEF_DELIM_ENDED_DEFAULT );
@@ -83,21 +78,5 @@ public final class UserPreferences {
 
   public StringProperty rDelimiterEndedProperty() {
     return mPropRDelimEnded;
-  }
-
-  public ObjectProperty<File> imagesDirectoryProperty() {
-    return mPropImagesDirectory;
-  }
-
-  public File getImagesDirectory() {
-    return imagesDirectoryProperty().get();
-  }
-
-  StringProperty imagesOrderProperty() {
-    return mPropImagesOrder;
-  }
-
-  public String getImagesOrder() {
-    return imagesOrderProperty().get();
   }
 }

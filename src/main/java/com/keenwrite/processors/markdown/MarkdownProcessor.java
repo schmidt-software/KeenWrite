@@ -2,6 +2,7 @@
 package com.keenwrite.processors.markdown;
 
 import com.keenwrite.ExportFormat;
+import com.keenwrite.preferences.Workspace;
 import com.keenwrite.processors.*;
 import com.keenwrite.processors.markdown.r.RExtension;
 import com.vladsch.flexmark.ext.definition.DefinitionExtension;
@@ -33,8 +34,8 @@ public class MarkdownProcessor extends ExecutorProcessor<String> {
   private final IRender mRenderer;
 
   private MarkdownProcessor(
-      final Processor<String> successor,
-      final Collection<Extension> extensions ) {
+    final Processor<String> successor,
+    final Collection<Extension> extensions ) {
     super( successor );
 
     extensions.add( LigatureExtension.create() );
@@ -43,8 +44,8 @@ public class MarkdownProcessor extends ExecutorProcessor<String> {
     mRenderer = HtmlRenderer.builder().extensions( extensions ).build();
   }
 
-  public static MarkdownProcessor create() {
-    return create( IdentityProcessor.INSTANCE, DEFAULT_DIRECTORY );
+  public static MarkdownProcessor create( final Workspace workspace ) {
+    return create( IdentityProcessor.INSTANCE, DEFAULT_DIRECTORY, workspace );
   }
 
   public static MarkdownProcessor create( final ProcessorContext context ) {
@@ -52,13 +53,15 @@ public class MarkdownProcessor extends ExecutorProcessor<String> {
   }
 
   public static MarkdownProcessor create(
-      final Processor<String> successor, final Path path ) {
-    final var extensions = createExtensions( path, NONE );
+    final Processor<String> successor,
+    final Path path,
+    final Workspace workspace ) {
+    final var extensions = createExtensions( path, NONE, workspace );
     return new MarkdownProcessor( successor, extensions );
   }
 
   public static MarkdownProcessor create(
-      final Processor<String> successor, final ProcessorContext context ) {
+    final Processor<String> successor, final ProcessorContext context ) {
     final var extensions = createExtensions( context );
     return new MarkdownProcessor( successor, extensions );
   }
@@ -77,10 +80,11 @@ public class MarkdownProcessor extends ExecutorProcessor<String> {
    * @return {@link Collection} of extensions invoked when parsing Markdown.
    */
   private static Collection<Extension> createExtensions(
-      final ProcessorContext context ) {
+    final ProcessorContext context ) {
     final var path = context.getBasePath();
     final var format = context.getExportFormat();
-    final var extensions = createExtensions( path, format );
+    final var workspace = context.getWorkspace();
+    final var extensions = createExtensions( path, format, workspace );
 
     extensions.add( CaretExtension.create( context.getCaret() ) );
 
@@ -101,10 +105,10 @@ public class MarkdownProcessor extends ExecutorProcessor<String> {
    * @return {@link Collection} of extensions invoked when parsing Markdown.
    */
   private static Collection<Extension> createExtensions(
-      final Path path, final ExportFormat format ) {
+    final Path path, final ExportFormat format, final Workspace workspace ) {
     final var extensions = createDefaultExtensions();
 
-    extensions.add( ImageLinkExtension.create( path ) );
+    extensions.add( ImageLinkExtension.create( path, workspace ) );
     extensions.add( TeXExtension.create( format ) );
 
     if( lookup( path ).isR() ) {

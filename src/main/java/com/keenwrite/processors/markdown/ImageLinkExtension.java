@@ -2,7 +2,7 @@
 package com.keenwrite.processors.markdown;
 
 import com.keenwrite.exceptions.MissingFileException;
-import com.keenwrite.preferences.UserPreferences;
+import com.keenwrite.preferences.Workspace;
 import com.vladsch.flexmark.ast.Image;
 import com.vladsch.flexmark.html.IndependentLinkResolverFactory;
 import com.vladsch.flexmark.html.LinkResolver;
@@ -18,6 +18,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import static com.keenwrite.StatusBarNotifier.clue;
+import static com.keenwrite.preferences.Workspace.KEY_IMAGES_DIR;
+import static com.keenwrite.preferences.Workspace.KEY_IMAGES_ORDER;
 import static com.keenwrite.util.ProtocolScheme.getProtocol;
 import static com.vladsch.flexmark.html.HtmlRenderer.Builder;
 import static com.vladsch.flexmark.html.HtmlRenderer.HtmlRendererExtension;
@@ -37,37 +39,30 @@ public class ImageLinkExtension implements HtmlRendererExtension {
    *                 through the images directory setting, not {@code null}.
    * @return The new {@link ImageLinkExtension}, not {@code null}.
    */
-  public static ImageLinkExtension create( @NotNull final Path basePath ) {
-    return new ImageLinkExtension( basePath );
+  public static ImageLinkExtension create(
+    @NotNull final Path basePath,
+    @NotNull final Workspace workspace ) {
+    return new ImageLinkExtension( basePath, workspace );
   }
 
   private class Factory extends IndependentLinkResolverFactory {
     @Override
     public @NotNull LinkResolver apply(
-        @NotNull final LinkResolverBasicContext context ) {
+      @NotNull final LinkResolverBasicContext context ) {
       return new ImageLinkResolver();
     }
   }
 
   private class ImageLinkResolver implements LinkResolver {
-    private final UserPreferences mUserPref = getUserPreferences();
-    private final File mImagesUserPrefix = mUserPref.getImagesDirectory();
-    private final String mImageExtensions = mUserPref.getImagesOrder();
-
     public ImageLinkResolver() {
     }
 
-    /**
-     * You can also set/clear/modify attributes through
-     * {@link ResolvedLink#getAttributes()} and
-     * {@link ResolvedLink#getNonNullAttributes()}.
-     */
     @NotNull
     @Override
     public ResolvedLink resolveLink(
-        @NotNull final Node node,
-        @NotNull final LinkResolverBasicContext context,
-        @NotNull final ResolvedLink link ) {
+      @NotNull final Node node,
+      @NotNull final LinkResolverBasicContext context,
+      @NotNull final ResolvedLink link ) {
       return node instanceof Image ? resolve( link ) : link;
     }
 
@@ -128,11 +123,11 @@ public class ImageLinkExtension implements HtmlRendererExtension {
     }
 
     private Path getImagePrefix() {
-      return mImagesUserPrefix.toPath();
+      return mWorkspace.toFile( KEY_IMAGES_DIR ).toPath();
     }
 
     private String getImageExtensions() {
-      return mImageExtensions;
+      return mWorkspace.toString( KEY_IMAGES_ORDER );
     }
 
     private Path getBasePath() {
@@ -141,9 +136,12 @@ public class ImageLinkExtension implements HtmlRendererExtension {
   }
 
   private final Path mBasePath;
+  private final Workspace mWorkspace;
 
-  private ImageLinkExtension( @NotNull final Path basePath ) {
+  private ImageLinkExtension(
+    @NotNull final Path basePath, @NotNull final Workspace workspace ) {
     mBasePath = basePath;
+    mWorkspace = workspace;
   }
 
   @Override
@@ -151,12 +149,8 @@ public class ImageLinkExtension implements HtmlRendererExtension {
   }
 
   @Override
-  public void extend( @NotNull final Builder builder,
-                      @NotNull final String rendererType ) {
+  public void extend(
+    @NotNull final Builder builder, @NotNull final String rendererType ) {
     builder.linkResolverFactory( new Factory() );
-  }
-
-  private UserPreferences getUserPreferences() {
-    return UserPreferences.getInstance();
   }
 }
