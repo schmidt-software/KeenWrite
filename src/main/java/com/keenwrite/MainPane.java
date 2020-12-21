@@ -11,7 +11,7 @@ import com.keenwrite.editors.definition.yaml.YamlTreeTransformer;
 import com.keenwrite.editors.markdown.MarkdownEditor;
 import com.keenwrite.io.File;
 import com.keenwrite.io.MediaType;
-import com.keenwrite.preferences.WorkspacePreferences;
+import com.keenwrite.preferences.Workspace;
 import com.keenwrite.preview.HtmlPreview;
 import com.keenwrite.processors.IdentityProcessor;
 import com.keenwrite.processors.Processor;
@@ -46,7 +46,7 @@ import static com.keenwrite.Messages.get;
 import static com.keenwrite.StatusBarNotifier.clue;
 import static com.keenwrite.editors.definition.MapInterpolator.interpolate;
 import static com.keenwrite.io.MediaType.*;
-import static com.keenwrite.preferences.WorkspacePreferences.KEY_UI_FILES_PATH;
+import static com.keenwrite.preferences.Workspace.KEY_UI_FILES_PATH;
 import static com.keenwrite.processors.ProcessorFactory.createProcessors;
 import static com.keenwrite.service.events.Notifier.NO;
 import static com.keenwrite.service.events.Notifier.YES;
@@ -71,7 +71,7 @@ public final class MainPane extends SplitPane {
   private final Map<TextResource, Processor<String>> mProcessors =
     new HashMap<>();
 
-  private final WorkspacePreferences mPreferences;
+  private final Workspace mWorkspace;
 
   /**
    * Groups similar file type tabs together.
@@ -136,10 +136,10 @@ public final class MainPane extends SplitPane {
    * configuration settings from the workspace to reproduce the settings from
    * a previous session.
    */
-  public MainPane( final WorkspacePreferences preferences ) {
-    mPreferences = preferences;
+  public MainPane( final Workspace workspace ) {
+    mWorkspace = workspace;
 
-    open( bin( preferences.setsProperty( KEY_UI_FILES_PATH ) ) );
+    open( bin( workspace.setsProperty( KEY_UI_FILES_PATH ) ) );
 
     final var tabPane = obtainDetachableTabPane( TEXT_HTML );
     tabPane.addTab( "HTML", mHtmlPreview );
@@ -856,7 +856,7 @@ public final class MainPane extends SplitPane {
     return getScene().getWindow();
   }
 
-  public WorkspacePreferences getPreferences() {
-    return mPreferences;
+  public Workspace getPreferences() {
+    return mWorkspace;
   }
 }

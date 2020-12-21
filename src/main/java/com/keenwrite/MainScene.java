@@ -1,7 +1,7 @@
 /* Copyright 2020 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite;
 
-import com.keenwrite.preferences.WorkspacePreferences;
+import com.keenwrite.preferences.Workspace;
 import com.keenwrite.ui.actions.ApplicationActions;
 import com.keenwrite.ui.actions.ApplicationMenuBar;
 import com.keenwrite.ui.listeners.CaretListener;
@@ -19,7 +19,7 @@ import static com.keenwrite.Constants.STYLESHEET_SCENE;
 public class MainScene {
   private final Scene mScene;
 
-  public MainScene( final WorkspacePreferences preferences ) {
+  public MainScene( final Workspace preferences ) {
     final var mainPane = createMainPane( preferences );
     final var actions = createApplicationActions( mainPane );
     final var menuBar = createMenuBar( actions );
@@ -46,7 +46,7 @@ public class MainScene {
     return mScene;
   }
 
-  private MainPane createMainPane( final WorkspacePreferences preferences ) {
+  private MainPane createMainPane( final Workspace preferences ) {
     return new MainPane( preferences );
   }
 

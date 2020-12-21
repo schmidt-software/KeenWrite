@@ -7,7 +7,7 @@ import com.keenwrite.editors.TextDefinition;
 import com.keenwrite.editors.TextEditor;
 import com.keenwrite.io.File;
 import com.keenwrite.preferences.UserPreferencesView;
-import com.keenwrite.preferences.WorkspacePreferences;
+import com.keenwrite.preferences.Workspace;
 import com.keenwrite.processors.ProcessorContext;
 import com.keenwrite.search.SearchModel;
 import com.keenwrite.ui.controls.SearchBar;
@@ -22,7 +22,7 @@ import static com.keenwrite.ExportFormat.*;
 import static com.keenwrite.Messages.get;
 import static com.keenwrite.StatusBarNotifier.clue;
 import static com.keenwrite.StatusBarNotifier.getStatusBar;
-import static com.keenwrite.preferences.WorkspacePreferences.KEY_UI_RECENT_DIR;
+import static com.keenwrite.preferences.Workspace.KEY_UI_RECENT_DIR;
 import static com.keenwrite.processors.ProcessorFactory.createProcessors;
 import static java.nio.file.Files.writeString;
 import static javafx.event.Event.fireEvent;
@@ -333,7 +333,7 @@ public class ApplicationActions {
     return getMainPane().getActiveTextDefinition();
   }
 
-  private WorkspacePreferences getPreferences() {
+  private Workspace getPreferences() {
     return mMainPane.getPreferences();
   }
 
