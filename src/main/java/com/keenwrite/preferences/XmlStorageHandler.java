@@ -1,11 +1,20 @@
 /* Copyright 2020 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.preferences;
 
+import com.dlsc.preferencesfx.PreferencesFx;
 import com.dlsc.preferencesfx.util.StorageHandler;
 import javafx.collections.ObservableList;
 
 import java.util.prefs.Preferences;
 
+/**
+ * Prevents {@link PreferencesFx} from saving. Saving and loading preferences
+ * and application window state is accomplished by the {@link Workspace}.
+ * <p>
+ * This implies that undo/redo functionality must be disabled because the
+ * {@link Workspace} does not preserve previous states.
+ * </p>
+ */
 public class XmlStorageHandler implements StorageHandler {
   @Override
   public void saveSelectedCategory( final String breadcrumb ) { }
