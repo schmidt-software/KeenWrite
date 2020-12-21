@@ -4,7 +4,6 @@ package com.keenwrite;
 import com.keenwrite.editors.TextDefinition;
 import com.keenwrite.editors.TextEditor;
 import com.keenwrite.editors.TextResource;
-import com.keenwrite.editors.base.PlainTextEditor;
 import com.keenwrite.editors.definition.DefinitionEditor;
 import com.keenwrite.editors.definition.DefinitionTabSceneFactory;
 import com.keenwrite.editors.definition.yaml.YamlTreeTransformer;
@@ -142,7 +141,7 @@ public final class MainPane extends SplitPane {
   public MainPane( final Workspace workspace ) {
     mWorkspace = workspace;
 
-    open( bin( workspace.setsProperty( KEY_UI_FILES_PATH ) ) );
+    open( bin( getRecentFiles() ) );
 
     final var tabPane = obtainDetachableTabPane( TEXT_HTML );
     tabPane.addTab( "HTML", mHtmlPreview );
@@ -233,7 +232,7 @@ public final class MainPane extends SplitPane {
       addTabPane( index, tabPane );
     }
 
-    getWorkspace().setsProperty( KEY_UI_FILES_PATH ).add( file );
+    getRecentFiles().add( file );
   }
 
   /**
@@ -494,10 +493,7 @@ public final class MainPane extends SplitPane {
 
     // This is called when either the tab is closed by the user clicking on
     // the tab's close icon or when closing (all) from the file menu.
-    tab.setOnClosed(
-      ( __ ) -> getWorkspace().setsProperty( KEY_UI_FILES_PATH )
-                              .remove( file )
-    );
+    tab.setOnClosed( ( __ ) -> getRecentFiles().remove( file ) );
 
     return tab;
   }
@@ -761,10 +757,11 @@ public final class MainPane extends SplitPane {
   private TextResource createTextResource( final File file ) {
     final var mediaType = new com.keenwrite.io.File( file ).getMediaType();
 
+    // TODO: Create PlainTextEditor that's returned by default.
     return switch( mediaType ) {
       case TEXT_MARKDOWN -> createMarkdownEditor( file );
       case TEXT_YAML -> createDefinitionEditor( file );
-      default -> new PlainTextEditor( file );
+      default -> createMarkdownEditor( file );
     };
   }
 
@@ -862,5 +859,15 @@ public final class MainPane extends SplitPane {
 
   public Workspace getWorkspace() {
     return mWorkspace;
+  }
+
+  /**
+   * Returns the set of filenames opened in the application. The names must
+   * be converted to {@link File} objects.
+   *
+   * @return A {@link Set} of filenames.
+   */
+  private SetProperty<Object> getRecentFiles() {
+    return getWorkspace().setsProperty( KEY_UI_FILES_PATH );
   }
 }

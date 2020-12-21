@@ -2,11 +2,12 @@
 package com.keenwrite.preferences;
 
 import com.dlsc.preferencesfx.PreferencesFx;
-import javafx.beans.property.*;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 
 import java.io.File;
-import java.nio.file.Path;
-import java.util.Locale;
 
 import static com.keenwrite.Constants.*;
 
@@ -36,8 +37,6 @@ public final class UserPreferences {
     return Container.INSTANCE;
   }
 
-  private final ObjectProperty<File> mPropRDirectory;
-  private final StringProperty mPropRScript;
   private final ObjectProperty<File> mPropImagesDirectory;
   private final StringProperty mPropImagesOrder;
   private final ObjectProperty<File> mPropDefinitionPath;
@@ -45,8 +44,6 @@ public final class UserPreferences {
   private final StringProperty mPropRDelimEnded;
   private final StringProperty mPropDefDelimBegan;
   private final StringProperty mPropDefDelimEnded;
-  private final IntegerProperty mPropFontsSizeEditor;
-  private final ObjectProperty<Locale> mPropFontsLocale;
 
   private UserPreferences() {
     mPropImagesDirectory = new SimpleObjectProperty<>( USER_DIRECTORY );
@@ -56,22 +53,12 @@ public final class UserPreferences {
     mPropDefDelimBegan = new SimpleStringProperty( DEF_DELIM_BEGAN_DEFAULT );
     mPropDefDelimEnded = new SimpleStringProperty( DEF_DELIM_ENDED_DEFAULT );
 
-    mPropRDirectory = new SimpleObjectProperty<>( USER_DIRECTORY );
-    mPropRScript = new SimpleStringProperty( "" );
     mPropRDelimBegan = new SimpleStringProperty( R_DELIM_BEGAN_DEFAULT );
     mPropRDelimEnded = new SimpleStringProperty( R_DELIM_ENDED_DEFAULT );
-
-    mPropFontsLocale = new SimpleObjectProperty<>( LOCALE_DEFAULT );
-    mPropFontsSizeEditor =
-      new SimpleIntegerProperty( (int) FONT_SIZE_EDITOR_DEFAULT );
   }
 
   public ObjectProperty<File> definitionPathProperty() {
     return mPropDefinitionPath;
-  }
-
-  public Path getDefinitionPath() {
-    return definitionPathProperty().getValue().toPath();
   }
 
   public StringProperty defDelimiterBeganProperty() {
@@ -90,36 +77,12 @@ public final class UserPreferences {
     return defDelimiterEndedProperty().get();
   }
 
-  public ObjectProperty<File> rDirectoryProperty() {
-    return mPropRDirectory;
-  }
-
-  public File getRDirectory() {
-    return rDirectoryProperty().get();
-  }
-
-  public StringProperty rScriptProperty() {
-    return mPropRScript;
-  }
-
-  public String getRScript() {
-    return rScriptProperty().get();
-  }
-
   public StringProperty rDelimiterBeganProperty() {
     return mPropRDelimBegan;
   }
 
-  public String getRDelimiterBegan() {
-    return rDelimiterBeganProperty().get();
-  }
-
   public StringProperty rDelimiterEndedProperty() {
     return mPropRDelimEnded;
-  }
-
-  public String getRDelimiterEnded() {
-    return rDelimiterEndedProperty().get();
   }
 
   public ObjectProperty<File> imagesDirectoryProperty() {
@@ -136,31 +99,5 @@ public final class UserPreferences {
 
   public String getImagesOrder() {
     return imagesOrderProperty().get();
-  }
-
-  public IntegerProperty fontsSizeEditorProperty() {
-    return mPropFontsSizeEditor;
-  }
-
-  /**
-   * Returns the preferred font size of the text editor.
-   *
-   * @return A non-negative integer, in points.
-   */
-  public int getFontsSizeEditor() {
-    return mPropFontsSizeEditor.intValue();
-  }
-
-  public ObjectProperty<Locale> fontsLocaleProperty() {
-    return mPropFontsLocale;
-  }
-
-  /**
-   * Returns the user's preferred locale.
-   *
-   * @return A non-null {@link Locale} instance.
-   */
-  public Locale getFontsLocale() {
-    return mPropFontsLocale.get();
   }
 }

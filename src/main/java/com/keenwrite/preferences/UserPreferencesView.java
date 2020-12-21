@@ -145,8 +145,7 @@ public class UserPreferencesView {
           Setting.of( "Points", doubleProperty( KEY_UI_FONT_EDITOR_SIZE ) )
         )
       )
-    ).instantPersistent( false )
-                        .dialogIcon( ICON_DIALOG );
+    ).instantPersistent( false ).dialogIcon( ICON_DIALOG );
   }
 
   /**

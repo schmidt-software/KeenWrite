@@ -55,7 +55,9 @@ public class Constants {
 
   public static final String APP_BUNDLE_NAME = get( "application.messages" );
 
-  // Prevent double events when updating files on Linux (save and timestamp).
+  /**
+   * Prevent double events when updating files on Linux (save and timestamp).
+   */
   public static final int APP_WATCHDOG_TIMEOUT = get(
     "application.watchdog.timeout", 200 );
 

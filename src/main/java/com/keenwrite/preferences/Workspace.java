@@ -110,7 +110,7 @@ public class Workspace {
 
   private final Map<Key, Property<?>> VALUES = Map.ofEntries(
     entry( KEY_META_VERSION, new SimpleStringProperty( getVersion() ) ),
-    entry( KEY_META_NAME, new SimpleStringProperty( "defaullt" ) ),
+    entry( KEY_META_NAME, new SimpleStringProperty( "default" ) ),
     
     entry( KEY_R_SCRIPT, new SimpleStringProperty( "" ) ),
     entry( KEY_R_DIR, new SimpleFileProperty( USER_DIRECTORY ) ),
