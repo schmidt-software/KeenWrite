@@ -150,8 +150,4 @@ public final class MainApp extends Application {
   private Snitch getSnitch() {
     return mSnitch;
   }
-
-  private Workspace getWorkspace() {
-    return mWorkspace;
-  }
 }

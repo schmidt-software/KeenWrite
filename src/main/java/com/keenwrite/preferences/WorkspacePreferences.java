@@ -113,8 +113,8 @@ public class WorkspacePreferences {
   );
   //@formatter:on
 
-  private final Map<Key, ListProperty<?>> LISTS = Map.ofEntries(
-    entry( KEY_UI_FILES_PATH, new SimpleListProperty<File>() )
+  private final Map<Key, SetProperty<?>> SETS = Map.ofEntries(
+    entry( KEY_UI_FILES_PATH, new SimpleSetProperty<>() )
   );
 
   public WorkspacePreferences() {
@@ -142,9 +142,9 @@ public class WorkspacePreferences {
    * @return An observable property to be persisted.
    */
   @SuppressWarnings("unchecked")
-  public <T> ListProperty<T> listsProperty( final Key key ) {
+  public <T> SetProperty<T> setsProperty( final Key key ) {
     // The type that goes into the map must come out.
-    return (ListProperty<T>) LISTS.get( key );
+    return (SetProperty<T>) SETS.get( key );
   }
 
   /**
@@ -186,7 +186,7 @@ public class WorkspacePreferences {
 
   /**
    * Calls the given consumer for all single-value keys. For lists, see
-   * {@link #consumeLists(BiConsumer)}.
+   * {@link #consumeSets(BiConsumer)}.
    *
    * @param consumer Called to accept each preference key value.
    */
@@ -201,16 +201,16 @@ public class WorkspacePreferences {
    *
    * @param consumer Called to accept each preference key list.
    */
-  public void consumeLists( final BiConsumer<Key, ListProperty<?>> consumer ) {
-    LISTS.forEach( consumer );
+  public void consumeSets( final BiConsumer<Key, SetProperty<?>> consumer ) {
+    SETS.forEach( consumer );
   }
 
   public void consumeValueKeys( final Consumer<Key> consumer ) {
     VALUES.keySet().forEach( consumer );
   }
 
-  public void consumeListKeys( final Consumer<Key> consumer ) {
-    LISTS.keySet().forEach( consumer );
+  public void consumeSetKeys( final Consumer<Key> consumer ) {
+    SETS.keySet().forEach( consumer );
   }
 
   /**

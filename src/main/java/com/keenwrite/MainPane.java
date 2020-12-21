@@ -22,10 +22,7 @@ import com.keenwrite.processors.markdown.CaretExtension;
 import com.keenwrite.service.events.Notifier;
 import com.panemu.tiwulfx.control.dock.DetachableTab;
 import com.panemu.tiwulfx.control.dock.DetachableTabPane;
-import javafx.beans.property.ListProperty;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.ReadOnlyObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.*;
 import javafx.collections.ListChangeListener;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
@@ -142,7 +139,7 @@ public final class MainPane extends SplitPane {
   public MainPane( final WorkspacePreferences preferences ) {
     mPreferences = preferences;
 
-    open( bin( preferences.listsProperty( KEY_UI_FILES_PATH ) ) );
+    open( bin( preferences.setsProperty( KEY_UI_FILES_PATH ) ) );
 
     final var tabPane = obtainDetachableTabPane( TEXT_HTML );
     tabPane.addTab( "HTML", mHtmlPreview );
@@ -232,7 +229,7 @@ public final class MainPane extends SplitPane {
       addTabPane( index, tabPane );
     }
 
-    getPreferences().listsProperty( KEY_UI_FILES_PATH ).add( file );
+    getPreferences().setsProperty( KEY_UI_FILES_PATH ).add( file );
   }
 
   /**
@@ -494,7 +491,7 @@ public final class MainPane extends SplitPane {
     // This is called when either the tab is closed by the user clicking on
     // the tab's close icon or when closing (all) from the file menu.
     tab.setOnClosed(
-      ( __ ) -> getPreferences().listsProperty( KEY_UI_FILES_PATH )
+      ( __ ) -> getPreferences().setsProperty( KEY_UI_FILES_PATH )
                                 .remove( file )
     );
 
@@ -521,7 +518,7 @@ public final class MainPane extends SplitPane {
    * @return An in-order list of files, first by structured definition files,
    * then by plain text documents.
    */
-  private List<File> bin( final ListProperty<Object> paths ) {
+  private List<File> bin( final SetProperty<Object> paths ) {
     final var map = new HashMap<MediaType, Set<File>>();
     map.put( TEXT_YAML, new HashSet<>() );
     map.put( TEXT_MARKDOWN, new HashSet<>() );
