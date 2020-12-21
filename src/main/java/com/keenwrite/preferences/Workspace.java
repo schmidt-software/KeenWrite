@@ -40,7 +40,7 @@ import static javafx.collections.FXCollections.observableSet;
 public final class Workspace {
 
   /**
-   * Used to create properties for XML configuration items.
+   * Helps instantiate {@link Property} instances for XML configuration items.
    */
   private static final Map<Class<?>, Function<String, Object>> UNMARSHALL =
     Map.of(

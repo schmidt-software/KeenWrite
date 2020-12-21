@@ -71,7 +71,7 @@ public final class MainPane extends SplitPane {
    * Prevents re-instantiation of processing classes.
    */
   private final Map<TextResource, Processor<String>> mProcessors =
-      new HashMap<>();
+    new HashMap<>();
 
   private final Workspace mWorkspace;
 
@@ -84,7 +84,7 @@ public final class MainPane extends SplitPane {
    * Stores definition names and values.
    */
   private final Map<String, String> mResolvedMap =
-      new HashMap<>( MAP_SIZE_DEFAULT );
+    new HashMap<>( MAP_SIZE_DEFAULT );
 
   /**
    * Renders the actively selected plain text editor tab.
@@ -97,7 +97,7 @@ public final class MainPane extends SplitPane {
    * trigger the processing chain.
    */
   private final ObjectProperty<TextEditor> mActiveTextEditor =
-      createActiveTextEditor();
+    createActiveTextEditor();
 
   /**
    * Changing the active definition editor fires the value changed event. This
@@ -105,14 +105,14 @@ public final class MainPane extends SplitPane {
    * to trigger the processing chain.
    */
   private final ObjectProperty<TextDefinition> mActiveDefinitionEditor =
-      createActiveDefinitionEditor( mActiveTextEditor );
+    createActiveDefinitionEditor( mActiveTextEditor );
 
   /**
    * Responsible for creating a new scene when a tab is detached into
    * its own window frame.
    */
   private final DefinitionTabSceneFactory mDefinitionTabSceneFactory =
-      createDefinitionTabSceneFactory( mActiveDefinitionEditor );
+    createDefinitionTabSceneFactory( mActiveDefinitionEditor );
 
   /**
    * Tracks the number of detached tab panels opened into their own windows,
@@ -125,20 +125,20 @@ public final class MainPane extends SplitPane {
    * Called when the definition data is changed.
    */
   private final EventHandler<TreeModificationEvent<Event>> mTreeHandler =
-      event -> {
-        final var editor = mActiveDefinitionEditor.get();
+    event -> {
+      final var editor = mActiveDefinitionEditor.get();
 
-        resolve( editor );
-        process( getActiveTextEditor() );
-        save( editor );
-      };
+      resolve( editor );
+      process( getActiveTextEditor() );
+      save( editor );
+    };
 
   /**
    * Adds all content panels to the main user interface. This will load the
    * configuration settings from the workspace to reproduce the settings from
    * a previous session.
    */
-  public MainPane(final Workspace workspace) {
+  public MainPane( final Workspace workspace ) {
     mWorkspace = workspace;
 
     open( bin( workspace.getListFiles( KEY_UI_FILES_PATH ) ) );
@@ -160,19 +160,19 @@ public final class MainPane extends SplitPane {
     // Once the main scene's window regains focus, update the active definition
     // editor to the currently selected tab.
     runLater(
-        () -> getWindow().focusedProperty().addListener( ( c, o, n ) -> {
-          if( n != null && n ) {
-            final var pane = mTabPanes.get( TEXT_YAML );
-            final var model = pane.getSelectionModel();
-            final var tab = model.getSelectedItem();
+      () -> getWindow().focusedProperty().addListener( ( c, o, n ) -> {
+        if( n != null && n ) {
+          final var pane = mTabPanes.get( TEXT_YAML );
+          final var model = pane.getSelectionModel();
+          final var tab = model.getSelectedItem();
 
-            if( tab != null ) {
-              final var editor = (TextDefinition) tab.getContent();
+          if( tab != null ) {
+            final var editor = (TextDefinition) tab.getContent();
 
-              mActiveDefinitionEditor.set( editor );
-            }
+            mActiveDefinitionEditor.set( editor );
           }
-        } )
+        }
+      } )
     );
 
     forceRepaint();
@@ -256,12 +256,12 @@ public final class MainPane extends SplitPane {
    */
   public void saveAll() {
     mTabPanes.forEach(
-        ( mt, tp ) -> tp.getTabs().forEach( ( tab ) -> {
-          final var node = tab.getContent();
-          if( node instanceof TextEditor ) {
-            save( ((TextEditor) node) );
-          }
-        } )
+      ( mt, tp ) -> tp.getTabs().forEach( ( tab ) -> {
+        final var node = tab.getContent();
+        if( node instanceof TextEditor ) {
+          save( ((TextEditor) node) );
+        }
+      } )
     );
   }
 
@@ -306,7 +306,7 @@ public final class MainPane extends SplitPane {
     } catch( final Exception ex ) {
       clue( ex );
       sNotifier.alert(
-          getWindow(), resource.getPath(), "TextResource.saveFailed", ex
+        getWindow(), resource.getPath(), "TextResource.saveFailed", ex
       );
     }
   }
@@ -330,7 +330,7 @@ public final class MainPane extends SplitPane {
         final var node = tab.getContent();
 
         if( node instanceof TextEditor &&
-            (closable &= canClose( (TextEditor) node )) ) {
+          (closable &= canClose( (TextEditor) node )) ) {
           tabIterator.remove();
           close( tab );
         }
@@ -374,10 +374,10 @@ public final class MainPane extends SplitPane {
    */
   private void close( final TextEditor editor ) {
     getTab( editor ).ifPresent(
-        ( tab ) -> {
-          tab.getTabPane().getTabs().remove( tab );
-          close( tab );
-        }
+      ( tab ) -> {
+        tab.getTabPane().getTabs().remove( tab );
+        close( tab );
+      }
     );
   }
 
@@ -397,15 +397,15 @@ public final class MainPane extends SplitPane {
       editorTab.ifPresent( ( tab ) -> filename.append( tab.getText() ) );
 
       final var message = sNotifier.createNotification(
-          Messages.get( "Alert.file.close.title" ),
-          Messages.get( "Alert.file.close.text" ),
-          filename.toString()
+        Messages.get( "Alert.file.close.title" ),
+        Messages.get( "Alert.file.close.text" ),
+        filename.toString()
       );
 
       final var dialog = sNotifier.createConfirmation( getWindow(), message );
 
       dialog.showAndWait().ifPresent(
-          save -> canClose.set( save == YES ? editor.save() : save == NO )
+        save -> canClose.set( save == YES ? editor.save() : save == NO )
       );
     }
 
@@ -450,7 +450,7 @@ public final class MainPane extends SplitPane {
    * {@link DefinitionEditor}, never null.
    */
   private ObjectProperty<TextDefinition> createActiveDefinitionEditor(
-      final ObjectProperty<TextEditor> editor ) {
+    final ObjectProperty<TextEditor> editor ) {
     final var definitions = new SimpleObjectProperty<TextDefinition>();
     definitions.addListener( ( c, o, n ) -> {
       resolve( n == null ? createDefinitionEditor() : n );
@@ -472,7 +472,7 @@ public final class MainPane extends SplitPane {
    * changes.
    */
   private DefinitionTabSceneFactory createDefinitionTabSceneFactory(
-      final ObjectProperty<TextDefinition> activeDefinitionEditor ) {
+    final ObjectProperty<TextDefinition> activeDefinitionEditor ) {
     return new DefinitionTabSceneFactory( ( tab ) -> {
       assert tab != null;
 
@@ -488,13 +488,13 @@ public final class MainPane extends SplitPane {
     final var tab = new DetachableTab( r.getFilename(), r.getNode() );
 
     r.modifiedProperty().addListener(
-        ( c, o, n ) -> tab.setText( r.getFilename() + (n ? "*" : "") )
+      ( c, o, n ) -> tab.setText( r.getFilename() + (n ? "*" : "") )
     );
 
     // This is called when either the tab is closed by the user clicking on
     // the tab's close icon or when closing (all) from the file menu.
     tab.setOnClosed(
-        ( __ ) -> getWorkspace().purgeListItem( KEY_UI_FILES_PATH, file )
+      ( __ ) -> getWorkspace().purgeListItem( KEY_UI_FILES_PATH, file )
     );
 
     return tab;
@@ -528,7 +528,7 @@ public final class MainPane extends SplitPane {
 
     for( final var file : files ) {
       final var list = map.computeIfAbsent(
-          file.getMediaType(), k -> new ArrayList<>()
+        file.getMediaType(), k -> new ArrayList<>()
       );
 
       list.add( file );
@@ -590,9 +590,9 @@ public final class MainPane extends SplitPane {
    * docking of tabs.
    */
   private DetachableTabPane obtainDetachableTabPane(
-      final MediaType mediaType ) {
+    final MediaType mediaType ) {
     return mTabPanes.computeIfAbsent(
-        mediaType, ( mt ) -> createDetachableTabPane()
+      mediaType, ( mt ) -> createDetachableTabPane()
     );
   }
 
@@ -627,8 +627,8 @@ public final class MainPane extends SplitPane {
   private void initStageOwnerFactory( final DetachableTabPane tabPane ) {
     tabPane.setStageOwnerFactory( ( stage ) -> {
       final var title = get(
-          "Detach.tab.title",
-          ((Stage) getWindow()).getTitle(), ++mWindowCount
+        "Detach.tab.title",
+        ((Stage) getWindow()).getTitle(), ++mWindowCount
       );
       stage.setTitle( title );
       return getScene().getWindow();
@@ -652,29 +652,29 @@ public final class MainPane extends SplitPane {
    */
   private void initTabListener( final DetachableTabPane tabPane ) {
     tabPane.getTabs().addListener(
-        ( final ListChangeListener.Change<? extends Tab> listener ) -> {
-          while( listener.next() ) {
-            if( listener.wasAdded() ) {
-              final var tabs = listener.getAddedSubList();
+      ( final ListChangeListener.Change<? extends Tab> listener ) -> {
+        while( listener.next() ) {
+          if( listener.wasAdded() ) {
+            final var tabs = listener.getAddedSubList();
 
-              tabs.forEach( ( tab ) -> {
-                final var node = tab.getContent();
+            tabs.forEach( ( tab ) -> {
+              final var node = tab.getContent();
 
-                if( node instanceof TextEditor ) {
-                  initScrollEventListener( tab );
-                }
-              } );
-
-              // Select and give focus to the last tab opened.
-              final var index = tabs.size() - 1;
-              if( index >= 0 ) {
-                final var tab = tabs.get( index );
-                tabPane.getSelectionModel().select( tab );
-                tab.getContent().requestFocus();
+              if( node instanceof TextEditor ) {
+                initScrollEventListener( tab );
               }
+            } );
+
+            // Select and give focus to the last tab opened.
+            final var index = tabs.size() - 1;
+            if( index >= 0 ) {
+              final var tab = tabs.get( index );
+              tabPane.getSelectionModel().select( tab );
+              tab.getContent().requestFocus();
             }
           }
         }
+      }
     );
   }
 
@@ -743,9 +743,9 @@ public final class MainPane extends SplitPane {
    * {@link Processor}.
    */
   private ProcessorContext createProcessorContext(
-      final Path path, final Caret caret ) {
+    final Path path, final Caret caret ) {
     return new ProcessorContext(
-        mHtmlPreview, mResolvedMap, path, caret, NONE
+      mHtmlPreview, mResolvedMap, path, caret, NONE
     );
   }
 
@@ -788,7 +788,7 @@ public final class MainPane extends SplitPane {
     } );
 
     editor.addEventListener(
-        keyPressed( SPACE, CONTROL_DOWN ), this::autoinsert
+      keyPressed( SPACE, CONTROL_DOWN ), this::autoinsert
     );
 
     // Set the active editor, which refreshes the preview panel.
