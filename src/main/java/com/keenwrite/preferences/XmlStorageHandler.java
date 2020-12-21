@@ -12,7 +12,7 @@ public class XmlStorageHandler implements StorageHandler {
 
   @Override
   public String loadSelectedCategory() {
-    return null;
+    return "";
   }
 
   @Override
@@ -61,28 +61,29 @@ public class XmlStorageHandler implements StorageHandler {
 
   @Override
   public Object loadObject(
-      final String breadcrumb, final Object defaultObject ) {
-    return null;
+    final String breadcrumb, final Object defaultObject ) {
+    return defaultObject;
   }
 
   @Override
   public <T> T loadObject(
-      final String breadcrumb, final Class<T> type, final T defaultObject ) {
-    return null;
+    final String breadcrumb, final Class<T> type, final T defaultObject ) {
+    return defaultObject;
   }
 
   @Override
+  @SuppressWarnings("rawtypes")
   public ObservableList loadObservableList(
-      final String breadcrumb, final ObservableList defaultObservableList ) {
-    return null;
+    final String breadcrumb, final ObservableList defaultObservableList ) {
+    return defaultObservableList;
   }
 
   @Override
   public <T> ObservableList<T> loadObservableList(
-      final String breadcrumb,
-      final Class<T> type,
-      final ObservableList<T> defaultObservableList ) {
-    return null;
+    final String breadcrumb,
+    final Class<T> type,
+    final ObservableList<T> defaultObservableList ) {
+    return defaultObservableList;
   }
 
   @Override

@@ -53,21 +53,21 @@ public class MarkdownCommands {
     }
 
     return createHyperlinkModel(
-        link, selectedText, "https://localhost"
+      link, selectedText, "https://localhost"
     );
   }
 
   @SuppressWarnings("SameParameterValue")
   private HyperlinkModel createHyperlinkModel(
-      final Link link, final String selection, final String url ) {
+    final Link link, final String selection, final String url ) {
 
     return link == null
-        ? new HyperlinkModel( selection, url )
-        : new HyperlinkModel( link );
+      ? new HyperlinkModel( selection, url )
+      : new HyperlinkModel( link );
   }
 
   private Dialog<String> createLinkDialog(
-      final StyleClassedTextArea textArea ) {
+    final StyleClassedTextArea textArea ) {
     return new LinkDialog( getWindow(), getHyperlink( textArea ) );
   }
 
@@ -76,7 +76,7 @@ public class MarkdownCommands {
   }
 
   private void insertObject(
-      final Dialog<String> dialog, final StyleClassedTextArea textArea ) {
+    final Dialog<String> dialog, final StyleClassedTextArea textArea ) {
     dialog.showAndWait().ifPresent( textArea::replaceSelection );
   }
 

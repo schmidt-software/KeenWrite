@@ -42,7 +42,7 @@ public final class InlineRProcessor extends DefinitionProcessor {
   private final Map<String, String> mEvalCache = new LinkedHashMap<>() {
     @Override
     protected boolean removeEldestEntry(
-        final Map.Entry<String, String> eldest ) {
+      final Map.Entry<String, String> eldest ) {
       return size() > MAX_CACHED_R_STATEMENTS;
     }
   };
@@ -51,7 +51,7 @@ public final class InlineRProcessor extends DefinitionProcessor {
    * Only one editor is open at a time.
    */
   private static final ScriptEngine ENGINE =
-      (new ScriptEngineManager()).getEngineByName( "Renjin" );
+    (new ScriptEngineManager()).getEngineByName( "Renjin" );
 
   private static final int PREFIX_LENGTH = PREFIX.length();
 
@@ -66,17 +66,17 @@ public final class InlineRProcessor extends DefinitionProcessor {
    * @param context   Contains resolved definitions map.
    */
   public InlineRProcessor(
-      final Processor<String> successor,
-      final ProcessorContext context ) {
+    final Processor<String> successor,
+    final ProcessorContext context ) {
     super( successor, context );
 
     mWorkspace = context.getWorkspace();
     mMarkdownProcessor = MarkdownProcessor.create( context );
 
     bootstrapScriptProperty().addListener(
-        ( __, oldScript, newScript ) -> setDirty( true ) );
+      ( __, oldScript, newScript ) -> setDirty( true ) );
     workingDirectoryProperty().addListener(
-        ( __, oldScript, newScript ) -> setDirty( true ) );
+      ( __, oldScript, newScript ) -> setDirty( true ) );
 
     // TODO: Watch the "R" property keys in the workspace, directly.
 

@@ -62,7 +62,8 @@ public final class UserPreferences {
     mPropRDelimEnded = new SimpleStringProperty( R_DELIM_ENDED_DEFAULT );
 
     mPropFontsLocale = new SimpleObjectProperty<>( LOCALE_DEFAULT );
-    mPropFontsSizeEditor = new SimpleIntegerProperty( (int) FONT_SIZE_EDITOR_DEFAULT );
+    mPropFontsSizeEditor =
+      new SimpleIntegerProperty( (int) FONT_SIZE_EDITOR_DEFAULT );
   }
 
   public ObjectProperty<File> definitionPathProperty() {

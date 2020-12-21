@@ -29,7 +29,7 @@ public class UserPreferencesView {
   private final Workspace mWorkspace;
   private final PreferencesFx mPreferencesFx;
 
-  public UserPreferencesView(final Workspace workspace) {
+  public UserPreferencesView( final Workspace workspace ) {
     mWorkspace = workspace;
 
     // All properties must be initialized before creating the dialog.
@@ -58,7 +58,7 @@ public class UserPreferencesView {
    * @param eventHandler The handler to call when the preferences are saved.
    */
   public void addSaveEventHandler(
-      final EventHandler<? super PreferencesFxEvent> eventHandler ) {
+    final EventHandler<? super PreferencesFxEvent> eventHandler ) {
     final var eventType = PreferencesFxEvent.EVENT_PREFERENCES_SAVED;
     getPreferencesFx().addEventHandler( eventType, eventHandler );
   }
@@ -75,76 +75,76 @@ public class UserPreferencesView {
   @SuppressWarnings("unchecked")
   private PreferencesFx createPreferencesFx() {
     final Setting<StringField, StringProperty> scriptSetting =
-        Setting.of( "Script", stringProperty( KEY_R_SCRIPT ) );
+      Setting.of( "Script", stringProperty( KEY_R_SCRIPT ) );
     final StringField field = scriptSetting.getElement();
     field.multiline( true );
 
     return PreferencesFx.of(
-        new XmlStorageHandler(),
-        Category.of(
-            get( "Preferences.r" ),
-            Group.of(
-                get( "Preferences.r.directory" ),
-                Setting.of( label( "Preferences.r.directory.desc", false ) ),
-                Setting.of( "Directory", fileProperty( KEY_R_DIR ), true )
-            ),
-            Group.of(
-                get( "Preferences.r.script" ),
-                Setting.of( label( "Preferences.r.script.desc" ) ),
-                scriptSetting
-            ),
-            Group.of(
-                get( "Preferences.r.delimiter.began" ),
-                Setting.of( label( "Preferences.r.delimiter.began.desc" ) ),
-                Setting.of( "Opening", stringProperty( KEY_R_DELIM_BEGAN ) )
-            ),
-            Group.of(
-                get( "Preferences.r.delimiter.ended" ),
-                Setting.of( label( "Preferences.r.delimiter.ended.desc" ) ),
-                Setting.of( "Closing", stringProperty( KEY_R_DELIM_ENDED ) )
-            )
+      new XmlStorageHandler(),
+      Category.of(
+        get( "Preferences.r" ),
+        Group.of(
+          get( "Preferences.r.directory" ),
+          Setting.of( label( "Preferences.r.directory.desc", false ) ),
+          Setting.of( "Directory", fileProperty( KEY_R_DIR ), true )
         ),
-        Category.of(
-            get( "Preferences.images" ),
-            Group.of(
-                get( "Preferences.images.directory" ),
-                Setting.of( label( "Preferences.images.directory.desc" ) ),
-                Setting.of( "Directory", fileProperty( KEY_IMAGES_DIR ), true )
-            ),
-            Group.of(
-                get( "Preferences.images.suffixes" ),
-                Setting.of( label( "Preferences.images.suffixes.desc" ) ),
-                Setting.of( "Extensions", stringProperty( KEY_IMAGES_ORDER ) )
-            )
+        Group.of(
+          get( "Preferences.r.script" ),
+          Setting.of( label( "Preferences.r.script.desc" ) ),
+          scriptSetting
         ),
-        Category.of(
-            get( "Preferences.definitions" ),
-            Group.of(
-                get( "Preferences.definitions.path" ),
-                Setting.of( label( "Preferences.definitions.path.desc" ) ),
-                Setting.of( "Path", fileProperty( KEY_DEF_PATH ), false )
-            ),
-            Group.of(
-                get( "Preferences.definitions.delimiter.began" ),
-                Setting.of( label(
-                    "Preferences.definitions.delimiter.began.desc" ) ),
-                Setting.of( "Opening", stringProperty( KEY_DEF_DELIM_BEGAN ) )
-            ),
-            Group.of(
-                get( "Preferences.definitions.delimiter.ended" ),
-                Setting.of( label(
-                    "Preferences.definitions.delimiter.ended.desc" ) ),
-                Setting.of( "Closing", stringProperty( KEY_DEF_DELIM_ENDED ) )
-            )
+        Group.of(
+          get( "Preferences.r.delimiter.began" ),
+          Setting.of( label( "Preferences.r.delimiter.began.desc" ) ),
+          Setting.of( "Opening", stringProperty( KEY_R_DELIM_BEGAN ) )
         ),
-        Category.of(
-            get( "Preferences.fonts" ),
-            Group.of(
-                get( "Preferences.fonts.size_editor" ),
-                Setting.of( label( "Preferences.fonts.size_editor.desc" ) ),
-                Setting.of( "Points", doubleProperty( KEY_UI_FONT_EDITOR_SIZE ) )
-            )
+        Group.of(
+          get( "Preferences.r.delimiter.ended" ),
+          Setting.of( label( "Preferences.r.delimiter.ended.desc" ) ),
+          Setting.of( "Closing", stringProperty( KEY_R_DELIM_ENDED ) )
         )
+      ),
+      Category.of(
+        get( "Preferences.images" ),
+        Group.of(
+          get( "Preferences.images.directory" ),
+          Setting.of( label( "Preferences.images.directory.desc" ) ),
+          Setting.of( "Directory", fileProperty( KEY_IMAGES_DIR ), true )
+        ),
+        Group.of(
+          get( "Preferences.images.suffixes" ),
+          Setting.of( label( "Preferences.images.suffixes.desc" ) ),
+          Setting.of( "Extensions", stringProperty( KEY_IMAGES_ORDER ) )
+        )
+      ),
+      Category.of(
+        get( "Preferences.definitions" ),
+        Group.of(
+          get( "Preferences.definitions.path" ),
+          Setting.of( label( "Preferences.definitions.path.desc" ) ),
+          Setting.of( "Path", fileProperty( KEY_DEF_PATH ), false )
+        ),
+        Group.of(
+          get( "Preferences.definitions.delimiter.began" ),
+          Setting.of( label(
+            "Preferences.definitions.delimiter.began.desc" ) ),
+          Setting.of( "Opening", stringProperty( KEY_DEF_DELIM_BEGAN ) )
+        ),
+        Group.of(
+          get( "Preferences.definitions.delimiter.ended" ),
+          Setting.of( label(
+            "Preferences.definitions.delimiter.ended.desc" ) ),
+          Setting.of( "Closing", stringProperty( KEY_DEF_DELIM_ENDED ) )
+        )
+      ),
+      Category.of(
+        get( "Preferences.fonts" ),
+        Group.of(
+          get( "Preferences.fonts.size_editor" ),
+          Setting.of( label( "Preferences.fonts.size_editor.desc" ) ),
+          Setting.of( "Points", doubleProperty( KEY_UI_FONT_EDITOR_SIZE ) )
+        )
+      )
     ).instantPersistent( false )
                         .dialogIcon( ICON_DIALOG );
   }

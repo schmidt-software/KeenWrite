@@ -166,15 +166,15 @@ public class ApplicationMenuBar {
    * @return The newly registered action.
    */
   private Action addAction(
-      final String key, final EventHandler<ActionEvent> handler ) {
+    final String key, final EventHandler<ActionEvent> handler ) {
     assert key != null;
     assert handler != null;
 
     final var action = Action
-        .builder()
-        .setId( key )
-        .setHandler( handler )
-        .build();
+      .builder()
+      .setId( key )
+      .setHandler( handler )
+      .build();
 
     mMap.put( key, action );
 
@@ -186,7 +186,7 @@ public class ApplicationMenuBar {
   }
 
   public static Menu createMenu(
-      final String text, final MenuAction... actions ) {
+    final String text, final MenuAction... actions ) {
     return new Menu( text, null, createMenuItems( actions ) );
   }
 
