@@ -1,10 +1,15 @@
 /* Copyright 2020 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.processors;
 
+import com.keenwrite.preferences.Workspace;
 import com.keenwrite.sigils.RSigilOperator;
+import com.keenwrite.sigils.SigilOperator;
+import com.keenwrite.sigils.YamlSigilOperator;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import static com.keenwrite.preferences.Workspace.*;
 
 /**
  * Converts the keys of the resolved map from default form to R form, then
@@ -13,9 +18,12 @@ import java.util.Map;
  */
 public class RVariableProcessor extends DefinitionProcessor {
 
+  private final SigilOperator mSigilOperator;
+
   public RVariableProcessor(
-      final InlineRProcessor irp, final ProcessorContext context ) {
+    final InlineRProcessor irp, final ProcessorContext context ) {
     super( irp, context );
+    mSigilOperator = createSigilOperator( context.getWorkspace() );
   }
 
   /**
@@ -39,7 +47,7 @@ public class RVariableProcessor extends DefinitionProcessor {
 
     for( final var entry : map.entrySet() ) {
       final var key = entry.getKey();
-      rMap.put( RSigilOperator.entoken( key ), toRValue( map.get( key ) ) );
+      rMap.put( mSigilOperator.entoken( key ), toRValue( map.get( key ) ) );
     }
 
     return rMap;
@@ -59,7 +67,7 @@ public class RVariableProcessor extends DefinitionProcessor {
    */
   @SuppressWarnings("SameParameterValue")
   private String escape(
-      final String haystack, final char needle, final String thread ) {
+    final String haystack, final char needle, final String thread ) {
     int end = haystack.indexOf( needle );
 
     if( end < 0 ) {
@@ -79,5 +87,19 @@ public class RVariableProcessor extends DefinitionProcessor {
     }
 
     return sb.append( haystack.substring( start ) ).toString();
+  }
+
+  private SigilOperator createSigilOperator( final Workspace workspace ) {
+    final var tokens = workspace.toTokens(
+      KEY_R_DELIM_BEGAN, KEY_R_DELIM_ENDED );
+    final var antecedent = createDefinitionOperator( workspace );
+    return new RSigilOperator( tokens, antecedent );
+  }
+
+  private SigilOperator createDefinitionOperator(
+    final Workspace workspace ) {
+    final var tokens = workspace.toTokens(
+      KEY_DEF_DELIM_BEGAN, KEY_DEF_DELIM_ENDED );
+    return new YamlSigilOperator( tokens );
   }
 }

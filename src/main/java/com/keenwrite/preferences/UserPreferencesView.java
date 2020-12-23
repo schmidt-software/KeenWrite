@@ -21,7 +21,7 @@ import static com.keenwrite.Messages.get;
 import static com.keenwrite.preferences.Workspace.*;
 
 /**
- * Responsible for configuring the {@link UserPreferences} user interface.
+ * Provides the ability for users to configure their preferences.
  */
 public class UserPreferencesView {
 

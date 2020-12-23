@@ -2,6 +2,7 @@
 package com.keenwrite.preferences;
 
 import com.keenwrite.Constants;
+import com.keenwrite.sigils.Tokens;
 import javafx.application.Platform;
 import javafx.beans.property.*;
 import org.apache.commons.configuration2.XMLConfiguration;
@@ -235,6 +236,10 @@ public class Workspace {
 
   public String toString( final Key key ) {
     return stringProperty( key ).get();
+  }
+
+  public Tokens toTokens( final Key began, final Key ended ) {
+    return new Tokens( stringProperty( began ), stringProperty( ended ) );
   }
 
   @SuppressWarnings("SameParameterValue")

@@ -23,16 +23,16 @@ public class Launcher {
    *
    * @param args Command-line arguments.
    */
-  public static void main( final String[] args ) throws IOException {
+  public static void main( final String[] args ) {
     showAppInfo();
     MainApp.main( args );
   }
 
   @SuppressWarnings("RedundantStringFormatCall")
-  private static void showAppInfo() throws IOException {
+  private static void showAppInfo() {
     out( format( "%s version %s", APP_TITLE, getVersion() ) );
-    out( format( "Copyright %s White Magic Software, Ltd.", getYear() ) );
-    out( format( "Portions copyright 2020 Karl Tauber." ) );
+    out( format( "Copyright 2016-%s White Magic Software, Ltd.", getYear() ) );
+    out( format( "Portions copyright 2015-2020 Karl Tauber." ) );
   }
 
   private static void out( final String s ) {
@@ -49,7 +49,7 @@ public class Launcher {
    */
   public static String getVersion() {
     try {
-      final Properties properties = loadProperties( "app.properties" );
+      final var properties = loadProperties( "app.properties" );
       return properties.getProperty( "application.version" );
     } catch( final Exception ex ) {
       throw new RuntimeException( ex );
@@ -62,8 +62,8 @@ public class Launcher {
 
   @SuppressWarnings("SameParameterValue")
   private static Properties loadProperties( final String resource )
-      throws IOException {
-    final Properties properties = new Properties();
+    throws IOException {
+    final var properties = new Properties();
     properties.load( getResourceAsStream( getResourceName( resource ) ) );
     return properties;
   }

@@ -17,22 +17,20 @@ import javafx.scene.control.SplitPane;
 import javafx.scene.control.Tooltip;
 import javafx.scene.control.TreeItem;
 import javafx.stage.Stage;
-import org.junit.jupiter.api.Disabled;
 import org.testfx.framework.junit5.Start;
 
 import static com.keenwrite.util.FontLoader.initFonts;
-import static java.lang.Thread.sleep;
 
 //@ExtendWith(ApplicationExtension.class)
 public class TreeViewTest extends Application {
   private final SimpleObjectProperty<Node> mTextEditor =
-      new SimpleObjectProperty<>();
+    new SimpleObjectProperty<>();
 
   private final EventHandler<TreeItem.TreeModificationEvent<Event>> mTreeHandler =
-      event -> refresh( mTextEditor.get() );
+    event -> refresh( mTextEditor.get() );
 
   private void refresh( final Node node ) {
-    throw new RuntimeException( "Nerp" );
+    throw new RuntimeException( "Derp: " + node );
   }
 
   public static void main( final String[] args ) {
@@ -71,10 +69,5 @@ public class TreeViewTest extends Application {
     stage.setScene( scene );
 
     stage.show();
-  }
-
-  @Disabled
-  public void test_DragAndDrop() throws InterruptedException {
-    sleep( 30_000 );
   }
 }

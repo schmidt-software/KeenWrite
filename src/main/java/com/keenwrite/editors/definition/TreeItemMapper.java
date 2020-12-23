@@ -2,7 +2,6 @@
 package com.keenwrite.editors.definition;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.keenwrite.sigils.YamlSigilOperator;
 import com.keenwrite.preview.HtmlPreview;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
@@ -34,7 +33,7 @@ import static com.keenwrite.Constants.MAP_SIZE_DEFAULT;
  */
 public class TreeItemMapper {
   /**
-   * Separates YAML definition keys (e.g., the dots in {@code $root.node.var$}).
+   * Separates definition keys (e.g., the dots in {@code $root.node.var$}).
    */
   public static final String SEPARATOR = ".";
 
@@ -50,7 +49,7 @@ public class TreeItemMapper {
    * as a consecutive list.
    */
   private static final class TreeIterator
-      implements Iterator<TreeItem<String>> {
+    implements Iterator<TreeItem<String>> {
     private final Stack<TreeItem<String>> mStack = new Stack<>();
 
     public TreeIterator( final TreeItem<String> root ) {
@@ -73,19 +72,16 @@ public class TreeItemMapper {
     }
   }
 
-  /**
-   * Prevent direct instantiation.
-   */
-  private TreeItemMapper() {
+  public TreeItemMapper() {
   }
 
   /**
    * Iterate over a given root node (at any level of the tree) and process each
    * leaf node into a flat map. Values must be interpolated separately.
    */
-  public static Map<String, String> toMap( final TreeItem<String> root ) {
-    final Map<String, String> map = new HashMap<>( MAP_SIZE_DEFAULT );
-    final TreeIterator iterator = new TreeIterator( root );
+  public Map<String, String> toMap( final TreeItem<String> root ) {
+    final var map = new HashMap<String, String>( MAP_SIZE_DEFAULT );
+    final var iterator = new TreeIterator( root );
 
     iterator.forEachRemaining( item -> {
       if( item.isLeaf() ) {
@@ -96,7 +92,6 @@ public class TreeItemMapper {
     return map;
   }
 
-
   /**
    * For a given node, this will ascend the tree to generate a key name
    * that is associated with the leaf node's value.
@@ -105,11 +100,11 @@ public class TreeItemMapper {
    * @param <T>  Data type that the {@link TreeItem} contains.
    * @return The string representation of the node's unique key.
    */
-  public static <T> String toPath( TreeItem<T> node ) {
+  public <T> String toPath( TreeItem<T> node ) {
     assert node != null;
 
-    final StringBuilder key = new StringBuilder( DEFAULT_KEY_LENGTH );
-    final Stack<TreeItem<T>> stack = new Stack<>();
+    final var key = new StringBuilder( DEFAULT_KEY_LENGTH );
+    final var stack = new Stack<TreeItem<T>>();
 
     while( node != null && !(node instanceof RootTreeItem) ) {
       stack.push( node );
@@ -117,7 +112,7 @@ public class TreeItemMapper {
     }
 
     // Gets set at end of first iteration (to avoid an if condition).
-    String separator = "";
+    var separator = "";
 
     while( !stack.empty() ) {
       final T subkey = stack.pop().getValue();
@@ -126,6 +121,6 @@ public class TreeItemMapper {
       separator = SEPARATOR;
     }
 
-    return YamlSigilOperator.entoken( key.toString() );
+    return key.toString();
   }
 }

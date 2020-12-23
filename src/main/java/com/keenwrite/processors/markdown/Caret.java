@@ -13,8 +13,8 @@ import static com.keenwrite.Constants.STATUS_BAR_LINE;
 import static com.keenwrite.Messages.get;
 
 /**
- * Represents the absolute, relative, and maximum position of the caret.
- * The caret position is a character offset into the text.
+ * Represents the absolute, relative, and maximum position of the caret. The
+ * caret position is a character offset into the text.
  */
 public class Caret {
 

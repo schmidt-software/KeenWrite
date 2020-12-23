@@ -4,6 +4,7 @@ package com.keenwrite;
 import com.keenwrite.editors.TextDefinition;
 import com.keenwrite.editors.TextEditor;
 import com.keenwrite.editors.definition.DefinitionTreeItem;
+import com.keenwrite.sigils.SigilOperator;
 
 import java.util.function.UnaryOperator;
 
@@ -26,9 +27,9 @@ public final class DefinitionNameInjector {
    * reference.
    */
   public static void autoinsert(
-      final TextEditor editor,
-      final TextDefinition definitions,
-      final UnaryOperator<String> decorator ) {
+    final TextEditor editor,
+    final TextDefinition definitions,
+    final SigilOperator operator ) {
     try {
       if( definitions.isEmpty() ) {
         clue( STATUS_DEFINITION_EMPTY );
@@ -47,7 +48,7 @@ public final class DefinitionNameInjector {
             clue( STATUS_DEFINITION_MISSING, word );
           }
           else {
-            editor.replaceText( indexes, decorator.apply( leaf.toPath() ) );
+            editor.replaceText( indexes, operator.entoken( leaf.toPath() ) );
             definitions.expand( leaf );
           }
         }
@@ -61,11 +62,11 @@ public final class DefinitionNameInjector {
    * Looks for the given word, matching first by exact, next by a starts-with
    * condition with diacritics replaced, then by containment.
    *
-   * @param word   Match the word by: exact, beginning, containment, or other.
+   * @param word Match the word by: exact, beginning, containment, or other.
    */
   @SuppressWarnings("ConstantConditions")
   private static DefinitionTreeItem<String> findLeaf(
-      final TextDefinition definition, final String word ) {
+    final TextDefinition definition, final String word ) {
     assert word != null;
 
     DefinitionTreeItem<String> leaf = null;

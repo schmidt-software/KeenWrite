@@ -38,8 +38,6 @@ public class MarkdownProcessor extends ExecutorProcessor<String> {
     final Collection<Extension> extensions ) {
     super( successor );
 
-    extensions.add( LigatureExtension.create() );
-
     mParser = Parser.builder().extensions( extensions ).build();
     mRenderer = HtmlRenderer.builder().extensions( extensions ).build();
   }
@@ -133,6 +131,7 @@ public class MarkdownProcessor extends ExecutorProcessor<String> {
     extensions.add( SuperscriptExtension.create() );
     extensions.add( TablesExtension.create() );
     extensions.add( TypographicExtension.create() );
+    extensions.add( LigatureExtension.create() );
     return extensions;
   }
 

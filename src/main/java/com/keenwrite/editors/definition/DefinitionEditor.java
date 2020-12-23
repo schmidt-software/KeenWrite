@@ -3,6 +3,7 @@ package com.keenwrite.editors.definition;
 
 import com.keenwrite.Constants;
 import com.keenwrite.editors.TextDefinition;
+import com.keenwrite.sigils.Tokens;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
 import javafx.beans.property.BooleanProperty;
@@ -21,10 +22,14 @@ import javafx.scene.layout.HBox;
 import java.io.File;
 import java.nio.charset.Charset;
 import java.util.*;
+import java.util.regex.Pattern;
 
 import static com.keenwrite.Constants.DEFINITION_DEFAULT;
 import static com.keenwrite.Messages.get;
 import static com.keenwrite.StatusBarNotifier.clue;
+import static java.lang.String.format;
+import static java.util.regex.Pattern.compile;
+import static java.util.regex.Pattern.quote;
 import static javafx.geometry.Pos.CENTER;
 import static javafx.geometry.Pos.TOP_CENTER;
 import static javafx.scene.control.SelectionMode.MULTIPLE;
@@ -37,8 +42,9 @@ import static javafx.scene.input.KeyEvent.KEY_PRESSED;
  * allows users to interact with key/value pairs loaded from the
  * document parser and adapted using a {@link TreeTransformer}.
  */
-public final class DefinitionEditor extends BorderPane implements
-    TextDefinition {
+public final class DefinitionEditor extends BorderPane
+  implements TextDefinition {
+  private static final int GROUP_DELIMITED = 1;
 
   /**
    * Contains the root that is added to the view.
@@ -59,7 +65,7 @@ public final class DefinitionEditor extends BorderPane implements
    * Handlers for key press events.
    */
   private final Set<EventHandler<? super KeyEvent>> mKeyEventHandlers
-      = new HashSet<>();
+    = new HashSet<>();
 
   /**
    * File being edited by this editor instance.
@@ -81,9 +87,11 @@ public final class DefinitionEditor extends BorderPane implements
   /**
    * This is provided for unit tests that are not backed by files.
    *
-   * @param treeTransformer The
+   * @param treeTransformer Responsible for transforming the definitions into
+   *                        {@link TreeItem} instances.
    */
-  public DefinitionEditor( final TreeTransformer treeTransformer ) {
+  public DefinitionEditor(
+    final TreeTransformer treeTransformer ) {
     this( DEFINITION_DEFAULT, treeTransformer );
   }
 
@@ -93,7 +101,8 @@ public final class DefinitionEditor extends BorderPane implements
    * @param file The file to
    */
   public DefinitionEditor(
-      final File file, final TreeTransformer treeTransformer ) {
+    final File file,
+    final TreeTransformer treeTransformer ) {
     assert file != null;
     assert treeTransformer != null;
 
@@ -109,9 +118,9 @@ public final class DefinitionEditor extends BorderPane implements
 
     final var buttonBar = new HBox();
     buttonBar.getChildren().addAll(
-        createButton( "create", e -> createDefinition() ),
-        createButton( "rename", e -> renameDefinition() ),
-        createButton( "delete", e -> deleteDefinitions() )
+      createButton( "create", e -> createDefinition() ),
+      createButton( "rename", e -> renameDefinition() ),
+      createButton( "delete", e -> deleteDefinitions() )
     );
     buttonBar.setAlignment( CENTER );
     buttonBar.setSpacing( 10 );
@@ -144,8 +153,8 @@ public final class DefinitionEditor extends BorderPane implements
       final var problem = isTreeWellFormed();
 
       problem.ifPresentOrElse(
-          ( node ) -> clue( "yaml.error.tree.form", node ),
-          () -> result.append( mTreeTransformer.transform( root ) )
+        ( node ) -> clue( "yaml.error.tree.form", node ),
+        () -> result.append( mTreeTransformer.transform( root ) )
       );
     } catch( final Exception ex ) {
       // Catch errors while checking for a well-formed tree (e.g., stack smash).
@@ -187,7 +196,7 @@ public final class DefinitionEditor extends BorderPane implements
   }
 
   private Button createButton(
-      final String msgKey, final EventHandler<ActionEvent> eventHandler ) {
+    final String msgKey, final EventHandler<ActionEvent> eventHandler ) {
     final var keyPrefix = "App.action.definition." + msgKey;
     final var button = new Button( get( keyPrefix + ".text" ) );
     final var icon = get( keyPrefix + ".icon" );
@@ -195,16 +204,61 @@ public final class DefinitionEditor extends BorderPane implements
 
     button.setOnAction( eventHandler );
     button.setGraphic(
-        FontAwesomeIconFactory.get().createIcon( glyph )
+      FontAwesomeIconFactory.get().createIcon( glyph )
     );
     button.setTooltip( new Tooltip( get( keyPrefix + ".tooltip" ) ) );
 
     return button;
   }
 
+  @Override
   public Map<String, String> toMap() {
-    return TreeItemMapper.toMap( getTreeView().getRoot() );
+    return new TreeItemMapper().toMap( getTreeView().getRoot() );
   }
+
+  @Override
+  public Map<String, String> interpolate(
+    final Map<String, String> map, final Tokens tokens ) {
+
+    // Non-greedy match of key names delimited by definition tokens.
+    final var pattern = compile(
+      format( "(%s.*?%s)",
+              quote( tokens.getBegan() ),
+              quote( tokens.getEnded() )
+      )
+    );
+
+    map.replaceAll( ( k, v ) -> resolve( map, v, pattern ) );
+    return map;
+  }
+
+  /**
+   * Given a value with zero or more key references, this will resolve all
+   * the values, recursively. If a key cannot be de-referenced, the value will
+   * contain the key name.
+   *
+   * @param map     Map to search for keys when resolving key references.
+   * @param value   Value containing zero or more key references.
+   * @param pattern The regular expression pattern to match variable key names.
+   * @return The given value with all embedded key references interpolated.
+   */
+  private String resolve(
+    final Map<String, String> map, String value, final Pattern pattern ) {
+    final var matcher = pattern.matcher( value );
+
+    while( matcher.find() ) {
+      final var keyName = matcher.group( GROUP_DELIMITED );
+      final var mapValue = map.get( keyName );
+      final var keyValue = mapValue == null
+        ? keyName
+        : resolve( map, mapValue, pattern );
+
+      value = value.replace( keyName, keyValue );
+    }
+
+    return value;
+  }
+
 
   /**
    * Informs the caller of whenever any {@link TreeItem} in the {@link TreeView}
@@ -218,14 +272,14 @@ public final class DefinitionEditor extends BorderPane implements
    * @param handler The handler to call whenever any {@link TreeItem} changes.
    */
   public void addTreeChangeHandler(
-      final EventHandler<TreeItem.TreeModificationEvent<Event>> handler ) {
+    final EventHandler<TreeItem.TreeModificationEvent<Event>> handler ) {
     final var root = getTreeView().getRoot();
     root.addEventHandler( valueChangedEvent(), handler );
     root.addEventHandler( childrenModificationEvent(), handler );
   }
 
   public void addKeyEventHandler(
-      final EventHandler<? super KeyEvent> handler ) {
+    final EventHandler<? super KeyEvent> handler ) {
     getKeyEventHandlers().add( handler );
   }
 
@@ -284,7 +338,7 @@ public final class DefinitionEditor extends BorderPane implements
     }
 
     return ((childBranches > 0 && childLeafs == 0) ||
-        (childBranches == 0 && childLeafs <= 1)) ? null : item;
+      (childBranches == 0 && childLeafs <= 1)) ? null : item;
   }
 
   @Override
@@ -299,7 +353,7 @@ public final class DefinitionEditor extends BorderPane implements
 
   @Override
   public DefinitionTreeItem<String> findLeafContainsNoCase(
-      final String text ) {
+    final String text ) {
     return getTreeRoot().findLeafContainsNoCase( text );
   }
 
@@ -389,11 +443,11 @@ public final class DefinitionEditor extends BorderPane implements
     final var items = menu.getItems();
 
     addMenuItem( items, "App.action.definition.create.text" )
-        .setOnAction( e -> createDefinition() );
+      .setOnAction( e -> createDefinition() );
     addMenuItem( items, "App.action.definition.rename.text" )
-        .setOnAction( e -> renameDefinition() );
+      .setOnAction( e -> renameDefinition() );
     addMenuItem( items, "App.action.definition.delete.text" )
-        .setOnAction( e -> deleteSelectedItem() );
+      .setOnAction( e -> deleteSelectedItem() );
 
     return menu;
   }
@@ -435,7 +489,7 @@ public final class DefinitionEditor extends BorderPane implements
    * @return The menu item added to the list of menu items.
    */
   private MenuItem addMenuItem(
-      final List<MenuItem> items, final String labelKey ) {
+    final List<MenuItem> items, final String labelKey ) {
     final MenuItem menuItem = createMenuItem( labelKey );
     items.add( menuItem );
     return menuItem;
@@ -466,7 +520,6 @@ public final class DefinitionEditor extends BorderPane implements
     super.requestFocus();
     getTreeView().requestFocus();
   }
-
 
   /**
    * Expands the node to the root, recursively.
@@ -522,7 +575,7 @@ public final class DefinitionEditor extends BorderPane implements
   }
 
   private ObservableList<TreeItem<String>> getSiblings(
-      final TreeItem<String> item ) {
+    final TreeItem<String> item ) {
     final var root = getTreeView().getRoot();
     final var parent = (item == null || item == root) ? root : item.getParent();
 

@@ -79,8 +79,8 @@ public class DefinitionTreeItem<T> extends TreeItem<T> {
    * null} if there was no match found.
    */
   public DefinitionTreeItem<T> findLeaf(
-      final String text,
-      final BiFunction<DefinitionTreeItem<T>, String, Boolean> findMode ) {
+    final String text,
+    final BiFunction<DefinitionTreeItem<T>, String, Boolean> findMode ) {
     final var stack = new Stack<DefinitionTreeItem<T>>();
     stack.push( this );
 
@@ -114,7 +114,7 @@ public class DefinitionTreeItem<T> extends TreeItem<T> {
    */
   private String getDiacriticlessValue() {
     return normalize( getValue().toString(), NFD )
-        .replaceAll( "\\p{M}", "" );
+      .replaceAll( "\\p{M}", "" );
   }
 
   /**
@@ -145,7 +145,7 @@ public class DefinitionTreeItem<T> extends TreeItem<T> {
    */
   private boolean valueContainsNoCase( final String s ) {
     return isLeaf() &&
-        getDiacriticlessValue().toLowerCase().contains( s.toLowerCase() );
+      getDiacriticlessValue().toLowerCase().contains( s.toLowerCase() );
   }
 
   /**
@@ -167,7 +167,7 @@ public class DefinitionTreeItem<T> extends TreeItem<T> {
    * @return A non-null string, possibly empty.
    */
   public String toPath() {
-    return TreeItemMapper.toPath( getParent() );
+    return new TreeItemMapper().toPath( getParent() );
   }
 
   /**

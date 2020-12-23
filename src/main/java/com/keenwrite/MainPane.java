@@ -6,9 +6,11 @@ import com.keenwrite.editors.TextEditor;
 import com.keenwrite.editors.TextResource;
 import com.keenwrite.editors.definition.DefinitionEditor;
 import com.keenwrite.editors.definition.DefinitionTabSceneFactory;
+import com.keenwrite.editors.definition.TreeTransformer;
 import com.keenwrite.editors.definition.yaml.YamlTreeTransformer;
 import com.keenwrite.editors.markdown.MarkdownEditor;
 import com.keenwrite.io.MediaType;
+import com.keenwrite.preferences.Key;
 import com.keenwrite.preferences.Workspace;
 import com.keenwrite.preview.HtmlPreview;
 import com.keenwrite.processors.IdentityProcessor;
@@ -18,12 +20,13 @@ import com.keenwrite.processors.ProcessorFactory;
 import com.keenwrite.processors.markdown.Caret;
 import com.keenwrite.processors.markdown.CaretExtension;
 import com.keenwrite.service.events.Notifier;
+import com.keenwrite.sigils.RSigilOperator;
+import com.keenwrite.sigils.SigilOperator;
+import com.keenwrite.sigils.Tokens;
+import com.keenwrite.sigils.YamlSigilOperator;
 import com.panemu.tiwulfx.control.dock.DetachableTab;
 import com.panemu.tiwulfx.control.dock.DetachableTabPane;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.ReadOnlyObjectProperty;
-import javafx.beans.property.SetProperty;
-import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.*;
 import javafx.collections.ListChangeListener;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
@@ -46,9 +49,8 @@ import static com.keenwrite.Constants.*;
 import static com.keenwrite.ExportFormat.NONE;
 import static com.keenwrite.Messages.get;
 import static com.keenwrite.StatusBarNotifier.clue;
-import static com.keenwrite.editors.definition.MapInterpolator.interpolate;
 import static com.keenwrite.io.MediaType.*;
-import static com.keenwrite.preferences.Workspace.KEY_UI_FILES_PATH;
+import static com.keenwrite.preferences.Workspace.*;
 import static com.keenwrite.processors.ProcessorFactory.createProcessors;
 import static com.keenwrite.service.events.Notifier.NO;
 import static com.keenwrite.service.events.Notifier.YES;
@@ -562,8 +564,15 @@ public final class MainPane extends SplitPane {
    */
   private void resolve( final TextDefinition editor ) {
     assert editor != null;
+
+    final var tokens = createDefinitionTokens();
+    final var operator = new YamlSigilOperator( tokens );
+    final var map = new HashMap<String, String>();
+
+    editor.toMap().forEach( ( k, v ) -> map.put( operator.entoken( k ), v ) );
+
     mResolvedMap.clear();
-    mResolvedMap.putAll( interpolate( new HashMap<>( editor.toMap() ) ) );
+    mResolvedMap.putAll( editor.interpolate( map, tokens ) );
   }
 
   /**
@@ -816,9 +825,9 @@ public final class MainPane extends SplitPane {
     final var definitions = getActiveTextDefinition();
     final var editor = getActiveTextEditor();
     final var mediaType = editor.getMediaType();
-    final var decorator = getSigilOperator( mediaType );
+    final var operator = getSigilOperator( mediaType );
 
-    DefinitionNameInjector.autoinsert( editor, definitions, decorator );
+    DefinitionNameInjector.autoinsert( editor, definitions, operator );
   }
 
   private TextDefinition createDefinitionEditor() {
@@ -826,11 +835,16 @@ public final class MainPane extends SplitPane {
   }
 
   private TextDefinition createDefinitionEditor( final File file ) {
-    final var editor = new DefinitionEditor( file, new YamlTreeTransformer() );
+    final var transformer = createTreeTransformer();
+    final var editor = new DefinitionEditor( file, transformer );
 
     editor.addTreeChangeHandler( mTreeHandler );
 
     return editor;
+  }
+
+  private TreeTransformer createTreeTransformer() {
+    return new YamlTreeTransformer();
   }
 
   private Tooltip createTooltip( final File file ) {
@@ -862,6 +876,21 @@ public final class MainPane extends SplitPane {
   }
 
   /**
+   * Returns the sigil operator for the given {@link MediaType}.
+   *
+   * @param mediaType The type of file being edited.
+   */
+  private SigilOperator getSigilOperator( final MediaType mediaType ) {
+    final var operator = new YamlSigilOperator( createDefinitionTokens() );
+
+    return switch( mediaType ) {
+      case APP_R_MARKDOWN, APP_R_XML -> new RSigilOperator(
+        createRTokens(), operator );
+      default -> operator;
+    };
+  }
+
+  /**
    * Returns the set of filenames opened in the application. The names must
    * be converted to {@link File} objects.
    *
@@ -869,5 +898,21 @@ public final class MainPane extends SplitPane {
    */
   private SetProperty<Object> getRecentFiles() {
     return getWorkspace().setsProperty( KEY_UI_FILES_PATH );
+  }
+
+  private StringProperty stringProperty( final Key key ) {
+    return getWorkspace().stringProperty( key );
+  }
+
+  private Tokens createRTokens() {
+    return createTokens( KEY_R_DELIM_BEGAN, KEY_R_DELIM_ENDED );
+  }
+
+  private Tokens createDefinitionTokens() {
+    return createTokens( KEY_DEF_DELIM_BEGAN, KEY_DEF_DELIM_ENDED );
+  }
+
+  private Tokens createTokens( final Key began, final Key ended ) {
+    return new Tokens( stringProperty( began ), stringProperty( ended ) );
   }
 }
