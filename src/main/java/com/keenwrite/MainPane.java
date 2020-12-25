@@ -211,14 +211,13 @@ public final class MainPane extends SplitPane {
    * @param file The file to open.
    */
   private void open( final File file ) {
-    final var kFile = new com.keenwrite.io.File( file );
-    final var mediaType = kFile.getMediaType();
-    final var tab = createTab( kFile );
+    final var mediaType = MediaType.valueOf( file );
+    final var tab = createTab( file );
     final var node = tab.getContent();
     final var tabPane = obtainDetachableTabPane( mediaType );
     final var newTabPane = !getItems().contains( tabPane );
 
-    tab.setTooltip( createTooltip( kFile ) );
+    tab.setTooltip( createTooltip( file ) );
     tabPane.setFocusTraversable( false );
     tabPane.setTabClosingPolicy( ALL_TABS );
     tabPane.getTabs().add( tab );
@@ -234,7 +233,7 @@ public final class MainPane extends SplitPane {
       addTabPane( index, tabPane );
     }
 
-    getRecentFiles().add( file );
+    getRecentFiles().add( file.getAbsolutePath() );
   }
 
   /**
@@ -495,7 +494,9 @@ public final class MainPane extends SplitPane {
 
     // This is called when either the tab is closed by the user clicking on
     // the tab's close icon or when closing (all) from the file menu.
-    tab.setOnClosed( ( __ ) -> getRecentFiles().remove( file ) );
+    tab.setOnClosed(
+      ( __ ) -> getRecentFiles().remove( file.getAbsolutePath() )
+    );
 
     return tab;
   }
@@ -520,17 +521,17 @@ public final class MainPane extends SplitPane {
    * @return An in-order list of files, first by structured definition files,
    * then by plain text documents.
    */
-  private List<File> bin( final SetProperty<Object> paths ) {
+  private List<File> bin( final SetProperty<String> paths ) {
     final var map = new HashMap<MediaType, Set<File>>();
     map.put( TEXT_YAML, new HashSet<>() );
     map.put( TEXT_MARKDOWN, new HashSet<>() );
     map.put( UNDEFINED, new HashSet<>() );
 
     for( final var path : paths ) {
-      final var file = new com.keenwrite.io.File( path.toString() );
+      final var file = new File( path );
 
       final var set = map.computeIfAbsent(
-        file.getMediaType(), k -> new HashSet<>()
+        MediaType.valueOf( file ), k -> new HashSet<>()
       );
 
       set.add( file );
@@ -764,10 +765,8 @@ public final class MainPane extends SplitPane {
 
   @SuppressWarnings({"RedundantCast", "unchecked", "RedundantSuppression"})
   private TextResource createTextResource( final File file ) {
-    final var mediaType = new com.keenwrite.io.File( file ).getMediaType();
-
     // TODO: Create PlainTextEditor that's returned by default.
-    return switch( mediaType ) {
+    return switch( MediaType.valueOf( file ) ) {
       case TEXT_MARKDOWN -> createMarkdownEditor( file );
       case TEXT_YAML -> createDefinitionEditor( file );
       default -> createMarkdownEditor( file );
@@ -896,7 +895,7 @@ public final class MainPane extends SplitPane {
    *
    * @return A {@link Set} of filenames.
    */
-  private SetProperty<Object> getRecentFiles() {
+  private SetProperty<String> getRecentFiles() {
     return getWorkspace().setsProperty( KEY_UI_FILES_PATH );
   }
 

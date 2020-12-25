@@ -1,10 +1,10 @@
 /* Copyright 2020 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite;
 
-import com.keenwrite.io.File;
 import com.keenwrite.service.Settings;
 import javafx.scene.image.Image;
 
+import java.io.File;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.util.ArrayList;

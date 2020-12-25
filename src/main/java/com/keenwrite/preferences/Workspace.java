@@ -359,10 +359,10 @@ public class Workspace {
       } );
 
       consumeSetKeys( ( key ) -> {
-        final var configList =
+        final var configSet =
           new HashSet<>( config.getList( key.toString() ) );
         final var propertySet = setsProperty( key );
-        propertySet.setValue( observableSet( configList ) );
+        propertySet.setValue( observableSet( configSet ) );
       } );
     } catch( final Exception ex ) {
       clue( ex );

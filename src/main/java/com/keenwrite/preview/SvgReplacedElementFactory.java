@@ -1,6 +1,7 @@
 /* Copyright 2020 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.preview;
 
+import com.keenwrite.io.MediaType;
 import com.keenwrite.util.BoundedCache;
 import org.w3c.dom.Element;
 import org.xhtmlrenderer.extend.ReplacedElement;
@@ -12,13 +13,13 @@ import org.xhtmlrenderer.simple.extend.FormSubmissionListener;
 import org.xhtmlrenderer.swing.ImageReplacedElement;
 
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.net.URI;
 import java.nio.file.Paths;
 import java.util.Map;
 import java.util.function.Function;
 
 import static com.keenwrite.StatusBarNotifier.clue;
-import static com.keenwrite.io.File.getMediaType;
 import static com.keenwrite.io.MediaType.IMAGE_SVG_XML;
 import static com.keenwrite.preview.SvgRasterizer.BROKEN_IMAGE_PLACEHOLDER;
 import static com.keenwrite.preview.SvgRasterizer.rasterize;
@@ -60,31 +61,31 @@ public class SvgReplacedElementFactory implements ReplacedElementFactory {
    * loaded into memory.
    */
   private final Map<String, BufferedImage> mImageCache =
-      new BoundedCache<>( 150 );
+    new BoundedCache<>( 150 );
 
   @Override
   public ReplacedElement createReplacedElement(
-      final LayoutContext c,
-      final BlockBox box,
-      final UserAgentCallback uac,
-      final int cssWidth,
-      final int cssHeight ) {
-    BufferedImage image = null;
+    final LayoutContext c,
+    final BlockBox box,
+    final UserAgentCallback uac,
+    final int cssWidth,
+    final int cssHeight ) {
     final var e = box.getElement();
+    BufferedImage image = null;
 
     if( e != null ) {
       switch( e.getNodeName() ) {
         case HTML_IMAGE -> {
           final var src = e.getAttribute( HTML_IMAGE_SRC );
 
-          if( getMediaType( src ) == IMAGE_SVG_XML ) {
+          if( MediaType.valueOf( new File( src ) ) == IMAGE_SVG_XML ) {
             try {
               final var baseUri = getBaseUri( e );
               final var uri = new URI( baseUri ).getPath();
               final var path = Paths.get( uri, src );
 
               image = getCachedImage(
-                  src, svg -> rasterize( path, box.getContentWidth() ) );
+                src, svg -> rasterize( path, box.getContentWidth() ) );
             } catch( final Exception ex ) {
               image = BROKEN_IMAGE_PLACEHOLDER;
               clue( ex );
@@ -95,7 +96,7 @@ public class SvgReplacedElementFactory implements ReplacedElementFactory {
           // Convert the TeX element to a raster graphic if not yet cached.
           final var src = e.getTextContent();
           image = getCachedImage(
-              src, __ -> rasterize( getInstance().render( src ) )
+            src, __ -> rasterize( getInstance().render( src ) )
           );
         }
       }
@@ -158,7 +159,7 @@ public class SvgReplacedElementFactory implements ReplacedElementFactory {
    * @return The image that corresponds to the given source string.
    */
   private BufferedImage getCachedImage(
-      final String src, final Function<String, BufferedImage> rasterizer ) {
+    final String src, final Function<String, BufferedImage> rasterizer ) {
     return mImageCache.computeIfAbsent( src, __ -> rasterizer.apply( src ) );
   }
 }

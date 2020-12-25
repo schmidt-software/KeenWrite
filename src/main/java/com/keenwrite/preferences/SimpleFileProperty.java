@@ -1,8 +1,9 @@
 /* Copyright 2020 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.preferences;
 
-import com.keenwrite.io.File;
 import javafx.beans.property.SimpleObjectProperty;
+
+import java.io.File;
 
 public class SimpleFileProperty extends SimpleObjectProperty<File> {
   public SimpleFileProperty( final File file ) {

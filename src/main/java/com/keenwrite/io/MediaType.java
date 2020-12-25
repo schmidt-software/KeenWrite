@@ -1,8 +1,12 @@
 /* Copyright 2020 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.io;
 
+import java.io.File;
+
 import static com.keenwrite.Bootstrap.APP_TITLE_LOWERCASE;
+import static com.keenwrite.io.MediaTypeExtensions.getMediaType;
 import static java.lang.String.format;
+import static org.apache.commons.io.FilenameUtils.getExtension;
 
 /**
  * Defines various file formats and format contents.
@@ -13,17 +17,17 @@ import static java.lang.String.format;
  */
 public enum MediaType {
   APP_VENDOR_PROJECT(
-      TypeName.APPLICATION, format( "vnd.%s.project", APP_TITLE_LOWERCASE )
+    TypeName.APPLICATION, format( "vnd.%s.project", APP_TITLE_LOWERCASE )
   ),
-  APP_R_MARKDOWN( TypeName.APPLICATION, "R+markdown"),
-  APP_R_XML( TypeName.APPLICATION, "R+xml"),
+  APP_R_MARKDOWN( TypeName.APPLICATION, "R+markdown" ),
+  APP_R_XML( TypeName.APPLICATION, "R+xml" ),
 
   APP_JAVA_OBJECT(
-      TypeName.APPLICATION, "x-java-serialized-object"
+    TypeName.APPLICATION, "x-java-serialized-object"
   ),
 
-  FONT_OTF( "otf"),
-  FONT_TTF( "ttf"),
+  FONT_OTF( "otf" ),
+  FONT_TTF( "ttf" ),
 
   IMAGE_APNG( "apng" ),
   IMAGE_ACES( "aces" ),
@@ -104,6 +108,17 @@ public enum MediaType {
   MediaType( final TypeName typeName, final String subtype ) {
     mTypeName = typeName;
     mMediaType = typeName.toString().toLowerCase() + '/' + subtype;
+  }
+
+  /**
+   * Returns the {@link MediaType} associated with the given file.
+   *
+   * @return {@link MediaType#UNDEFINED} if the extension has not been
+   * assigned, otherwise the {@link MediaType} associated with this
+   * {@link File}'s file name extension.
+   */
+  public static MediaType valueOf( final File file ) {
+    return getMediaType( getExtension( file.getName() ) );
   }
 
   /**

@@ -5,7 +5,6 @@ import com.keenwrite.ExportFormat;
 import com.keenwrite.MainPane;
 import com.keenwrite.editors.TextDefinition;
 import com.keenwrite.editors.TextEditor;
-import com.keenwrite.io.File;
 import com.keenwrite.preferences.UserPreferencesView;
 import com.keenwrite.preferences.Workspace;
 import com.keenwrite.processors.ProcessorContext;
@@ -121,7 +120,7 @@ public class ApplicationActions {
     final var export = chain.apply( doc );
     final var filename = format.toExportFilename( editor.getPath() );
     final var chooser = createFileChooser();
-    final var file = chooser.exportAs( new File( filename ) );
+    final var file = chooser.exportAs( filename );
 
     file.ifPresent( ( f ) -> {
       try {

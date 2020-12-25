@@ -80,7 +80,7 @@ public interface TextResource {
    * @return The {@link MediaType} for the editor's file.
    */
   default MediaType getMediaType() {
-    return new com.keenwrite.io.File( getFile() ).getMediaType();
+    return MediaType.valueOf( getFile() );
   }
 
   /**
