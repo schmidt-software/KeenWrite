@@ -7,7 +7,6 @@ import javafx.application.Platform;
 import javafx.beans.property.*;
 import org.apache.commons.configuration2.XMLConfiguration;
 import org.apache.commons.configuration2.builder.fluent.Configurations;
-import org.apache.commons.configuration2.ex.ConfigurationException;
 import org.apache.commons.configuration2.io.FileHandler;
 
 import java.io.File;
@@ -323,7 +322,7 @@ public class Workspace {
    */
   public void save() {
     try {
-      final var config = createConfiguration();
+      final var config = new XMLConfiguration();
 
       // The root config key can only be set for an empty configuration file.
       config.setRootElementName( APP_TITLE_LOWERCASE );
@@ -351,7 +350,7 @@ public class Workspace {
    */
   private void load() {
     try {
-      final var config = createConfiguration();
+      final var config = new Configurations().xml( FILE_PREFERENCES );
 
       consumeValueKeys( ( key ) -> {
         final var configValue = config.getProperty( key.toString() );
@@ -368,16 +367,6 @@ public class Workspace {
     } catch( final Exception ex ) {
       clue( ex );
     }
-  }
-
-  /**
-   * Attempts to create a configuration that can read and write from the
-   * {@link Constants#FILE_PREFERENCES} file.
-   *
-   * @return Configuration instance that can read and write project settings.
-   */
-  private XMLConfiguration createConfiguration() throws ConfigurationException {
-    return new Configurations().xml( FILE_PREFERENCES );
   }
 
   private Object unmarshall(
