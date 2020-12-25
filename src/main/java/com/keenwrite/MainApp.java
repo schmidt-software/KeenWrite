@@ -16,7 +16,6 @@ import static com.keenwrite.util.FontLoader.initFonts;
 import static javafx.scene.input.KeyCode.F11;
 import static javafx.scene.input.KeyEvent.KEY_PRESSED;
 import static javafx.stage.WindowEvent.WINDOW_CLOSE_REQUEST;
-import static javafx.stage.WindowEvent.WINDOW_HIDING;
 
 /**
  * Application entry point. The application allows users to edit plain text
@@ -36,14 +35,14 @@ public final class MainApp extends Application {
    * @param args Command-line arguments.
    */
   public static void main( final String[] args ) {
-    initLogging();
+    disableLogging();
     launch( args );
   }
 
   /**
    * Suppress logging to standard output and standard error.
    */
-  private static void initLogging() {
+  private static void disableLogging() {
     //LogManager.getLogManager().reset();
     //System.err.close();
   }
@@ -55,7 +54,7 @@ public final class MainApp extends Application {
    */
   @Override
   public void start( final Stage stage ) {
-    // These must be instantiated after the UI is initialized.
+    // Must be instantiated after the UI is initialized (i.e., not in main).
     mWorkspace = new Workspace();
 
     initFonts();
@@ -106,7 +105,6 @@ public final class MainApp extends Application {
 
   private void initStage( final Stage stage ) {
     stage.setTitle( APP_TITLE );
-    stage.addEventHandler( WINDOW_HIDING, event -> save() );
     stage.addEventHandler( WINDOW_CLOSE_REQUEST, event -> stop() );
     stage.addEventHandler( KEY_PRESSED, event -> {
       if( F11.equals( event.getCode() ) ) {

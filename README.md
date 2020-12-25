@@ -16,7 +16,7 @@ Note that the first time the application runs, it will unpack itself into a loca
 
 ### Windows
 
-Double-click the application to start. You will have to give the application permission to run.
+Double-click the application to start; give the application permission to run.
 
 When upgrading to a new version, delete the following directory:
 
@@ -33,7 +33,7 @@ chmod +x keenwrite.bin
 
 ### Other
 
-Download and install a full version of [OpenJDK 14](https://bell-sw.com/pages/downloads/?version=java-14#mn) that includes JavaFX module support, then run:
+Download and install a full version of [OpenJDK 15](https://bell-sw.com/pages/downloads/?version=java-15#mn) that includes JavaFX module support, then run:
 
 ``` bash
 java -jar keenwrite.jar

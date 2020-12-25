@@ -49,7 +49,10 @@ import java.util.List;
  * Button that opens a file chooser to select a local file for a URL.
  */
 public class BrowseFileButton extends Button {
-  private final List<ExtensionFilter> extensionFilters = new ArrayList<>();
+
+  private final List<ExtensionFilter> mExtensionFilters = new ArrayList<>();
+  private final ObjectProperty<Path> mBasePath = new SimpleObjectProperty<>();
+  private final ObjectProperty<String> mUrl = new SimpleObjectProperty<>();
 
   public BrowseFileButton() {
     setGraphic(
@@ -58,7 +61,7 @@ public class BrowseFileButton extends Button {
     setTooltip( new Tooltip( Messages.get( "BrowseFileButton.tooltip" ) ) );
     setOnAction( this::browse );
 
-    disableProperty().bind( basePath.isNull() );
+    disableProperty().bind( mBasePath.isNull() );
 
     // workaround for a JavaFX bug:
     //   avoid closing the dialog that contains this control when the user
@@ -71,53 +74,47 @@ public class BrowseFileButton extends Button {
   }
 
   public void addExtensionFilter( ExtensionFilter extensionFilter ) {
-    extensionFilters.add( extensionFilter );
+    mExtensionFilters.add( extensionFilter );
   }
-
-  // 'basePath' property
-  private final ObjectProperty<Path> basePath = new SimpleObjectProperty<>();
-
-  public Path getBasePath() {
-    return basePath.get();
-  }
-
-  public void setBasePath( Path basePath ) {
-    this.basePath.set( basePath );
-  }
-
-  // 'url' property
-  private final ObjectProperty<String> url = new SimpleObjectProperty<>();
 
   public ObjectProperty<String> urlProperty() {
-    return url;
+    return mUrl;
   }
 
-  protected void browse( ActionEvent e ) {
-    FileChooser fileChooser = new FileChooser();
+  private void browse( ActionEvent e ) {
+    var fileChooser = new FileChooser();
     fileChooser.setTitle( Messages.get( "BrowseFileButton.chooser.title" ) );
-    fileChooser.getExtensionFilters().addAll( extensionFilters );
+    fileChooser.getExtensionFilters().addAll( mExtensionFilters );
     fileChooser.getExtensionFilters()
                .add( new ExtensionFilter( Messages.get(
                    "BrowseFileButton.chooser.allFilesFilter" ), "*.*" ) );
     fileChooser.setInitialDirectory( getInitialDirectory() );
-    File result = fileChooser.showOpenDialog( getScene().getWindow() );
+    var result = fileChooser.showOpenDialog( getScene().getWindow() );
     if( result != null ) {
       updateUrl( result );
     }
   }
 
-  protected File getInitialDirectory() {
+  private File getInitialDirectory() {
     //TODO build initial directory based on current value of 'url' property
     return getBasePath().toFile();
   }
 
-  protected void updateUrl( File file ) {
+  private void updateUrl( File file ) {
     String newUrl;
     try {
       newUrl = getBasePath().relativize( file.toPath() ).toString();
     } catch( IllegalArgumentException ex ) {
       newUrl = file.toString();
     }
-    url.set( newUrl.replace( '\\', '/' ) );
+    mUrl.set( newUrl.replace( '\\', '/' ) );
+  }
+
+  public void setBasePath( Path basePath ) {
+    this.mBasePath.set( basePath );
+  }
+
+  private Path getBasePath() {
+    return mBasePath.get();
   }
 }

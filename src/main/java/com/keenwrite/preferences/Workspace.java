@@ -10,7 +10,7 @@ import org.apache.commons.configuration2.builder.fluent.Configurations;
 import org.apache.commons.configuration2.io.FileHandler;
 
 import java.io.File;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Locale;
 import java.util.Map;
 import java.util.function.BiConsumer;
@@ -146,7 +146,7 @@ public class Workspace {
   );
 
   /**
-   * Helps instantiate {@link Property} instances for XML configuration items.
+z   * Helps instantiate {@link Property} instances for XML configuration items.
    */
   private static final Map<Class<?>, Function<String, Object>> UNMARSHALL =
     Map.of(
@@ -360,7 +360,7 @@ public class Workspace {
 
       consumeSetKeys( ( key ) -> {
         final var configSet =
-          new HashSet<>( config.getList( key.toString() ) );
+          new LinkedHashSet<>( config.getList( key.toString() ) );
         final var propertySet = setsProperty( key );
         propertySet.setValue( observableSet( configSet ) );
       } );

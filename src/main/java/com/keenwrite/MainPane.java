@@ -514,7 +514,8 @@ public final class MainPane extends SplitPane {
    * <p>
    * The order that the binned files are returned will be reflected in the
    * order that the corresponding panes are rendered in the UI. Each different
-   * {@link MediaType} will be created in its own pane.
+   * {@link MediaType} will be created in its own pane. Order is maintained
+   * by using {@link LinkedHashSet} instances.
    * </p>
    *
    * @param paths The file paths to bin by {@link MediaType}.
@@ -523,15 +524,15 @@ public final class MainPane extends SplitPane {
    */
   private List<File> bin( final SetProperty<String> paths ) {
     final var map = new HashMap<MediaType, Set<File>>();
-    map.put( TEXT_YAML, new HashSet<>() );
-    map.put( TEXT_MARKDOWN, new HashSet<>() );
-    map.put( UNDEFINED, new HashSet<>() );
+    map.put( TEXT_YAML, new LinkedHashSet<>() );
+    map.put( TEXT_MARKDOWN, new LinkedHashSet<>() );
+    map.put( UNDEFINED, new LinkedHashSet<>() );
 
     for( final var path : paths ) {
       final var file = new File( path );
 
       final var set = map.computeIfAbsent(
-        MediaType.valueOf( file ), k -> new HashSet<>()
+        MediaType.valueOf( file ), k -> new LinkedHashSet<>()
       );
 
       set.add( file );
