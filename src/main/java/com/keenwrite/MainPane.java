@@ -54,6 +54,7 @@ import static com.keenwrite.preferences.Workspace.*;
 import static com.keenwrite.processors.ProcessorFactory.createProcessors;
 import static com.keenwrite.service.events.Notifier.NO;
 import static com.keenwrite.service.events.Notifier.YES;
+import static java.util.Arrays.asList;
 import static javafx.application.Platform.runLater;
 import static javafx.scene.control.TabPane.TabClosingPolicy.ALL_TABS;
 import static javafx.scene.input.KeyCode.SPACE;
@@ -211,9 +212,9 @@ public final class MainPane extends SplitPane {
    * @param file The file to open.
    */
   private void open( final File file ) {
-    final var mediaType = MediaType.valueOf( file );
     final var tab = createTab( file );
     final var node = tab.getContent();
+    final var mediaType = MediaType.valueOf( file );
     final var tabPane = obtainDetachableTabPane( mediaType );
     final var newTabPane = !getItems().contains( tabPane );
 
@@ -523,39 +524,47 @@ public final class MainPane extends SplitPane {
    * then by plain text documents.
    */
   private List<File> bin( final SetProperty<String> paths ) {
-    final var map = new HashMap<MediaType, Set<File>>();
-    map.put( TEXT_YAML, new LinkedHashSet<>() );
-    map.put( TEXT_MARKDOWN, new LinkedHashSet<>() );
-    map.put( UNDEFINED, new LinkedHashSet<>() );
+    final var bins = new HashMap<MediaType, Set<File>>();
+    final var sets = List.of(
+      createBin( TEXT_YAML ),
+      createBin( TEXT_MARKDOWN, TEXT_R_MARKDOWN, TEXT_R_XML ),
+      createBin( UNDEFINED )
+    );
 
-    for( final var path : paths ) {
+    sets.forEach( ( set ) -> set.forEach(
+      ( type ) -> bins.put( type, new LinkedHashSet<>() )
+    ) );
+
+    paths.forEach( ( path ) -> {
       final var file = new File( path );
 
-      final var set = map.computeIfAbsent(
+      final var set = bins.computeIfAbsent(
         MediaType.valueOf( file ), k -> new LinkedHashSet<>()
       );
 
       set.add( file );
-    }
-
-    final var definitions = map.get( TEXT_YAML );
-    final var documents = map.get( TEXT_MARKDOWN );
-    final var undefined = map.get( UNDEFINED );
-
-    if( definitions.isEmpty() ) {
-      definitions.add( DEFINITION_DEFAULT );
-    }
-
-    if( documents.isEmpty() ) {
-      documents.add( DOCUMENT_DEFAULT );
-    }
+    } );
 
     final var result = new ArrayList<File>( paths.size() );
-    result.addAll( definitions );
-    result.addAll( documents );
-    result.addAll( undefined );
+
+    sets.forEach( ( set ) -> set.forEach( ( type ) -> {
+      final var bin = bins.get( type );
+
+      if( bin.isEmpty() ) {
+        switch( type ) {
+          case TEXT_YAML -> bin.add( DEFINITION_DEFAULT );
+          case TEXT_MARKDOWN -> bin.add( DOCUMENT_DEFAULT );
+        }
+      }
+
+      result.addAll( bin );
+    } ) );
 
     return result;
+  }
+
+  private Set<MediaType> createBin( final MediaType... bins ) {
+    return new HashSet<>( asList( bins ) );
   }
 
   /**
@@ -764,7 +773,7 @@ public final class MainPane extends SplitPane {
     return createProcessorContext( t.getPath(), t.getCaret() );
   }
 
-  @SuppressWarnings({"RedundantCast", "unchecked", "RedundantSuppression"})
+  @SuppressWarnings( {"RedundantCast", "unchecked", "RedundantSuppression"} )
   private TextResource createTextResource( final File file ) {
     // TODO: Create PlainTextEditor that's returned by default.
     return switch( MediaType.valueOf( file ) ) {
@@ -793,6 +802,10 @@ public final class MainPane extends SplitPane {
 
     editor.addDirtyListener( ( c, o, n ) -> {
       if( n ) {
+        // Reset the status to OK after changing the text.
+        clue();
+
+        // Processing the text will update the status bar.
         process( getActiveTextEditor() );
       }
     } );
@@ -884,7 +897,7 @@ public final class MainPane extends SplitPane {
     final var operator = new YamlSigilOperator( createDefinitionTokens() );
 
     return switch( mediaType ) {
-      case APP_R_MARKDOWN, APP_R_XML -> new RSigilOperator(
+      case TEXT_R_MARKDOWN, TEXT_R_XML -> new RSigilOperator(
         createRTokens(), operator );
       default -> operator;
     };

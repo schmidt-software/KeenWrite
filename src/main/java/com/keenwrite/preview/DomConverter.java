@@ -2,11 +2,18 @@
 package com.keenwrite.preview;
 
 import org.jsoup.helper.W3CDom;
+import org.jsoup.nodes.Node;
+import org.jsoup.nodes.TextNode;
+import org.jsoup.select.NodeVisitor;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+import static com.keenwrite.processors.text.TextReplacementFactory.replace;
 
 /**
  * Responsible for converting JSoup document object model (DOM) to a W3C DOM.
@@ -15,6 +22,36 @@ import javax.xml.parsers.DocumentBuilderFactory;
  * builders, and implementations.
  */
 class DomConverter extends W3CDom {
+  /**
+   * Retain insertion order using an instance of {@link LinkedHashMap} so
+   * that ligature substitution uses longer ligatures ahead of shorter
+   * ligatures. The word "ruffian" should use the "ffi" ligature, not the "ff"
+   * ligature.
+   */
+  private static final Map<String, String> LIGATURES = new LinkedHashMap<>();
+
+  static {
+    LIGATURES.put( "ffi", "\uFB03" );
+    LIGATURES.put( "ffl", "\uFB04" );
+    LIGATURES.put( "ff", "\uFB00" );
+    LIGATURES.put( "fi", "\uFB01" );
+    LIGATURES.put( "fl", "\uFB02" );
+  }
+
+  private static final NodeVisitor LIGATURE_VISITOR = new NodeVisitor() {
+    @Override
+    public void head( final Node node, final int depth ) {
+      if( node instanceof TextNode ) {
+        final var textNode = (TextNode) node;
+        textNode.text( replace( textNode.text(), LIGATURES ) );
+      }
+    }
+
+    @Override
+    public void tail( final Node node, final int depth ) {
+    }
+  };
+
   private static final DocumentBuilderFactory DOCUMENT_FACTORY;
   private static DocumentBuilder DOCUMENT_BUILDER;
   private static DOMImplementation DOM_IMPL;
@@ -41,16 +78,18 @@ class DomConverter extends W3CDom {
 
     if( doctype != null ) {
       out.appendChild(
-          DOM_IMPL.createDocumentType(
-              doctype.name(),
-              doctype.publicId(),
-              doctype.systemId()
-          )
+        DOM_IMPL.createDocumentType(
+          doctype.name(),
+          doctype.publicId(),
+          doctype.systemId()
+        )
       );
     }
 
     out.setXmlStandalone( true );
+    in.traverse( LIGATURE_VISITOR );
     convert( in, out );
+
     return out;
   }
 }

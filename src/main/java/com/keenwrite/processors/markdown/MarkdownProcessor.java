@@ -131,7 +131,6 @@ public class MarkdownProcessor extends ExecutorProcessor<String> {
     extensions.add( SuperscriptExtension.create() );
     extensions.add( TablesExtension.create() );
     extensions.add( TypographicExtension.create() );
-    extensions.add( LigatureExtension.create() );
     return extensions;
   }
 

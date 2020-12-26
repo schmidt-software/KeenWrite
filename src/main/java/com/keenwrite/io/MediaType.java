@@ -4,6 +4,7 @@ package com.keenwrite.io;
 import java.io.File;
 
 import static com.keenwrite.Bootstrap.APP_TITLE_LOWERCASE;
+import static com.keenwrite.io.MediaType.TypeName.*;
 import static com.keenwrite.io.MediaTypeExtensions.getMediaType;
 import static java.lang.String.format;
 import static org.apache.commons.io.FilenameUtils.getExtension;
@@ -17,13 +18,11 @@ import static org.apache.commons.io.FilenameUtils.getExtension;
  */
 public enum MediaType {
   APP_VENDOR_PROJECT(
-    TypeName.APPLICATION, format( "vnd.%s.project", APP_TITLE_LOWERCASE )
+    APPLICATION, format( "vnd.%s.project", APP_TITLE_LOWERCASE )
   ),
-  APP_R_MARKDOWN( TypeName.APPLICATION, "R+markdown" ),
-  APP_R_XML( TypeName.APPLICATION, "R+xml" ),
 
   APP_JAVA_OBJECT(
-    TypeName.APPLICATION, "x-java-serialized-object"
+    APPLICATION, "x-java-serialized-object"
   ),
 
   FONT_OTF( "otf" ),
@@ -70,9 +69,11 @@ public enum MediaType {
   IMAGE_WEBP( "webp" ),
   IMAGE_WMF( "wmf" ),
 
-  TEXT_HTML( TypeName.TEXT, "html" ),
-  TEXT_MARKDOWN( TypeName.TEXT, "markdown" ),
-  TEXT_YAML( TypeName.TEXT, "yaml" ),
+  TEXT_HTML( TEXT, "html" ),
+  TEXT_MARKDOWN( TEXT, "markdown" ),
+  TEXT_R_MARKDOWN( TEXT, "R+markdown" ),
+  TEXT_R_XML( TEXT, "R+xml" ),
+  TEXT_YAML( TEXT, "yaml" ),
 
   UNDEFINED( TypeName.UNDEFINED, "undefined" );
 
@@ -102,7 +103,7 @@ public enum MediaType {
    * @param subtype The image subtype.
    */
   MediaType( final String subtype ) {
-    this( TypeName.IMAGE, subtype );
+    this( IMAGE, subtype );
   }
 
   MediaType( final TypeName typeName, final String subtype ) {

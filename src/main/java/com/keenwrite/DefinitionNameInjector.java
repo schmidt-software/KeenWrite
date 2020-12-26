@@ -6,8 +6,6 @@ import com.keenwrite.editors.TextEditor;
 import com.keenwrite.editors.definition.DefinitionTreeItem;
 import com.keenwrite.sigils.SigilOperator;
 
-import java.util.function.UnaryOperator;
-
 import static com.keenwrite.Constants.*;
 import static com.keenwrite.StatusBarNotifier.clue;
 

@@ -26,8 +26,8 @@ enum MediaTypeExtensions {
   MEDIA_TEXT_MARKDOWN( TEXT_MARKDOWN, of(
       "md", "markdown", "mdown", "mdtxt", "mdtext", "mdwn", "mkd", "mkdown",
       "mkdn", "text", "txt" ) ),
-  MEDIA_TEXT_R_MARKDOWN( APP_R_MARKDOWN, of( "Rmd" ) ),
-  MEDIA_TEXT_R_XML( APP_R_XML, of( "Rxml" ) ),
+  MEDIA_TEXT_R_MARKDOWN( TEXT_R_MARKDOWN, of( "Rmd" ) ),
+  MEDIA_TEXT_R_XML( TEXT_R_XML, of( "Rxml" ) ),
   MEDIA_TEXT_YAML( TEXT_YAML, of( "yaml", "yml" ) );
 
   private final MediaType mMediaType;

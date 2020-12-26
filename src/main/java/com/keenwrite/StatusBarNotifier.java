@@ -22,7 +22,7 @@ public class StatusBarNotifier {
   /**
    * Resets the status bar to a default message.
    */
-  public static void clearClue() {
+  public static void clue() {
     // Don't burden the repaint thread if there's no status bar change.
     if( !OK.equals( sStatusBar.getText() ) ) {
       update( OK );

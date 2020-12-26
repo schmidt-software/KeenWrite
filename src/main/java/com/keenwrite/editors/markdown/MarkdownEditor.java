@@ -13,6 +13,7 @@ import javafx.beans.value.ChangeListener;
 import javafx.event.Event;
 import javafx.scene.Node;
 import javafx.scene.control.IndexRange;
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
 import org.fxmisc.flowless.VirtualizedScrollPane;
@@ -40,6 +41,7 @@ import static javafx.scene.control.ScrollPane.ScrollBarPolicy.ALWAYS;
 import static javafx.scene.input.KeyCode.*;
 import static javafx.scene.input.KeyCombination.CONTROL_DOWN;
 import static javafx.scene.input.KeyCombination.SHIFT_DOWN;
+import static javafx.scene.input.KeyEvent.KEY_PRESSED;
 import static org.apache.commons.lang3.StringUtils.stripEnd;
 import static org.apache.commons.lang3.StringUtils.stripStart;
 import static org.fxmisc.richtext.model.StyleSpans.singleton;
@@ -57,19 +59,19 @@ public class MarkdownEditor extends BorderPane implements TextEditor {
    * when Enter is pressed to continue the block environment.
    */
   private static final Pattern PATTERN_AUTO_INDENT = Pattern.compile(
-      "(\\s*[*+-]\\s+|\\s*[0-9]+\\.\\s+|\\s+)(.*)" );
+    "(\\s*[*+-]\\s+|\\s*[0-9]+\\.\\s+|\\s+)(.*)" );
 
   /**
    * The text editor.
    */
   private final StyleClassedTextArea mTextArea =
-      new StyleClassedTextArea( false );
+    new StyleClassedTextArea( false );
 
   /**
    * Wraps the text editor in scrollbars.
    */
   private final VirtualizedScrollPane<StyleClassedTextArea> mScrollPane =
-      new VirtualizedScrollPane<>( mTextArea );
+    new VirtualizedScrollPane<>( mTextArea );
 
   /**
    * Tracks where the caret is located in this document. This offers observable
@@ -152,14 +154,14 @@ public class MarkdownEditor extends BorderPane implements TextEditor {
 
   private String getLocaleStylesheet( final Locale locale ) {
     return get(
-        sSettings.getSetting( STYLESHEET_MARKDOWN_LOCALE, "" ),
-        locale.getLanguage(),
-        locale.getCountry()
+      sSettings.getSetting( STYLESHEET_MARKDOWN_LOCALE, "" ),
+      locale.getLanguage(),
+      locale.getCountry()
     );
   }
 
   private void initScrollPane(
-      final VirtualizedScrollPane<StyleClassedTextArea> scrollpane ) {
+    final VirtualizedScrollPane<StyleClassedTextArea> scrollpane ) {
     scrollpane.setVbarPolicy( ALWAYS );
     setCenter( scrollpane );
   }
@@ -250,7 +252,7 @@ public class MarkdownEditor extends BorderPane implements TextEditor {
    *               the {@link Supplier} is not ready.
    */
   private void xxdo(
-      final Supplier<Boolean> ready, final Runnable action, final String key ) {
+    final Supplier<Boolean> ready, final Runnable action, final String key ) {
     if( ready.get() ) {
       action.run();
     }
@@ -264,10 +266,18 @@ public class MarkdownEditor extends BorderPane implements TextEditor {
     final var selected = mTextArea.getSelectedText();
 
     if( selected == null || selected.isEmpty() ) {
-      mTextArea.selectLine();
+      // mTextArea.selectLine() does not select empty lines.
+      mTextArea.fireEvent( keyEvent( HOME, false ) );
+      mTextArea.fireEvent( keyEvent( DOWN, true ) );
     }
 
     mTextArea.cut();
+  }
+
+  private Event keyEvent( final KeyCode code, final boolean shift ) {
+    return new KeyEvent(
+      KEY_PRESSED, "", "", code, shift, false, false, false
+    );
   }
 
   @Override
@@ -415,16 +425,16 @@ public class MarkdownEditor extends BorderPane implements TextEditor {
   }
 
   private static StyleSpans<Collection<String>> merge(
-      StyleSpans<Collection<String>> spans, int len, String style ) {
+    StyleSpans<Collection<String>> spans, int len, String style ) {
     spans = spans.overlay(
-        singleton( singletonList( style ), len ),
-        ( bottomSpan, list ) -> {
-          final List<String> l =
-              new ArrayList<>( bottomSpan.size() + list.size() );
-          l.addAll( bottomSpan );
-          l.addAll( list );
-          return l;
-        } );
+      singleton( singletonList( style ), len ),
+      ( bottomSpan, list ) -> {
+        final List<String> l =
+          new ArrayList<>( bottomSpan.size() + list.size() );
+        l.addAll( bottomSpan );
+        l.addAll( list );
+        return l;
+      } );
 
     return spans;
   }
@@ -444,9 +454,9 @@ public class MarkdownEditor extends BorderPane implements TextEditor {
 
   private Caret createCaret( final StyleClassedTextArea editor ) {
     return Caret
-        .builder()
-        .with( Caret.Mutator::setEditor, editor )
-        .build();
+      .builder()
+      .with( Caret.Mutator::setEditor, editor )
+      .build();
   }
 
   /**
@@ -458,12 +468,12 @@ public class MarkdownEditor extends BorderPane implements TextEditor {
    * @param consumer The method to call when the event happens.
    */
   public <T extends Event, U extends T> void addEventListener(
-      final EventPattern<? super T, ? extends U> event,
-      final Consumer<? super U> consumer ) {
+    final EventPattern<? super T, ? extends U> event,
+    final Consumer<? super U> consumer ) {
     Nodes.addInputMap( mTextArea, consume( event, consumer ) );
   }
 
-  @SuppressWarnings("unused")
+  @SuppressWarnings( "unused" )
   private void onEnterPressed( final KeyEvent event ) {
     final var currentLine = getCaretParagraph();
     final var matcher = PATTERN_AUTO_INDENT.matcher( currentLine );
@@ -500,7 +510,7 @@ public class MarkdownEditor extends BorderPane implements TextEditor {
       final var selection = mTextArea.getSelectedText();
 
       selection.lines().forEach(
-          ( l ) -> sb.append( "\t" ).append( l ).append( NEWLINE )
+        ( l ) -> sb.append( "\t" ).append( l ).append( NEWLINE )
       );
     }
     else {
@@ -518,8 +528,8 @@ public class MarkdownEditor extends BorderPane implements TextEditor {
       final var sb = new StringBuilder( selection.length() );
 
       selection.lines().forEach(
-          ( l ) -> sb.append( l.startsWith( "\t" ) ? l.substring( 1 ) : l )
-                     .append( NEWLINE )
+        ( l ) -> sb.append( l.startsWith( "\t" ) ? l.substring( 1 ) : l )
+                   .append( NEWLINE )
       );
 
       mTextArea.replaceSelection( sb.toString() );
@@ -562,8 +572,8 @@ public class MarkdownEditor extends BorderPane implements TextEditor {
     // Ensure selected text takes precedence over the word at caret position.
     final var selected = mTextArea.selectionProperty().getValue();
     final var range = selected.getLength() == 0
-        ? getCaretWord()
-        : selected;
+      ? getCaretWord()
+      : selected;
     String text = mTextArea.getText( range );
 
     int length = range.getLength();
@@ -660,7 +670,7 @@ public class MarkdownEditor extends BorderPane implements TextEditor {
 
   @Override
   public String getText( final IndexRange indexes )
-      throws IndexOutOfBoundsException {
+    throws IndexOutOfBoundsException {
     return mTextArea.getText( indexes.getStart(), indexes.getEnd() );
   }
 
