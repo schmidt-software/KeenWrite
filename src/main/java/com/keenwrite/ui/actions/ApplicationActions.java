@@ -5,7 +5,7 @@ import com.keenwrite.ExportFormat;
 import com.keenwrite.MainPane;
 import com.keenwrite.editors.TextDefinition;
 import com.keenwrite.editors.TextEditor;
-import com.keenwrite.preferences.UserPreferencesView;
+import com.keenwrite.preferences.PreferencesController;
 import com.keenwrite.preferences.Workspace;
 import com.keenwrite.processors.ProcessorContext;
 import com.keenwrite.search.SearchModel;
@@ -208,7 +208,7 @@ public class ApplicationActions {
   }
 
   public void edit‿preferences() {
-    new UserPreferencesView( getWorkspace() ).show();
+    new PreferencesController( getWorkspace() ).show();
   }
 
   public void format‿bold() {

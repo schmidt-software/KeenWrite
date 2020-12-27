@@ -1,7 +1,6 @@
 /* Copyright 2020 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite;
 
-import java.io.IOException;
 import java.util.Properties;
 
 /**
@@ -21,7 +20,7 @@ public class Bootstrap {
     try( final var stream =
              Constants.class.getResourceAsStream( "/bootstrap.properties" ) ) {
       BOOTSTRAP.load( stream );
-    } catch( final IOException ignored ) {
+    } catch( final Exception ignored ) {
       // Bootstrap properties cannot be found, throw in the towel.
     }
   }

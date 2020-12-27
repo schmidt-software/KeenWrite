@@ -21,14 +21,15 @@ import static com.keenwrite.Messages.get;
 import static com.keenwrite.preferences.Workspace.*;
 
 /**
- * Provides the ability for users to configure their preferences.
+ * Provides the ability for users to configure their preferences. This links
+ * the {@link Workspace} model with the {@link PreferencesFx} view, in MVC.
  */
-public class UserPreferencesView {
+public class PreferencesController {
 
   private final Workspace mWorkspace;
   private final PreferencesFx mPreferencesFx;
 
-  public UserPreferencesView( final Workspace workspace ) {
+  public PreferencesController( final Workspace workspace ) {
     mWorkspace = workspace;
 
     // All properties must be initialized before creating the dialog.

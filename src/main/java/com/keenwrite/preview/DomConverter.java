@@ -13,6 +13,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import static com.keenwrite.StatusBarNotifier.clue;
 import static com.keenwrite.processors.text.TextReplacementFactory.replace;
 
 /**
@@ -42,8 +43,17 @@ class DomConverter extends W3CDom {
     @Override
     public void head( final Node node, final int depth ) {
       if( node instanceof TextNode ) {
-        final var textNode = (TextNode) node;
-        textNode.text( replace( textNode.text(), LIGATURES ) );
+        final var parent = node.parentNode();
+        final var name = parent == null ? "root" : parent.nodeName();
+
+        if( !("pre".equalsIgnoreCase( name ) ||
+          "code".equalsIgnoreCase( name ) ||
+          "tt".equalsIgnoreCase( name )) ) {
+          // Calling getWholeText() will return newlines, which must be kept
+          // to ensure that preformatted text maintains its formatting.
+          final var textNode = (TextNode) node;
+          textNode.text( replace( textNode.getWholeText(), LIGATURES ) );
+        }
       }
     }
 
@@ -63,7 +73,8 @@ class DomConverter extends W3CDom {
     try {
       DOCUMENT_BUILDER = DOCUMENT_FACTORY.newDocumentBuilder();
       DOM_IMPL = DOCUMENT_BUILDER.getDOMImplementation();
-    } catch( final Exception ignored ) {
+    } catch( final Exception ex ) {
+      clue( ex );
     }
   }
 
