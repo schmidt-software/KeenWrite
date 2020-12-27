@@ -169,7 +169,7 @@ public class Workspace {
    *            of app reëntrance.
    * @return An observable property to be persisted.
    */
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings( "unchecked" )
   public <T, U extends Property<T>> U valuesProperty( final Key key ) {
     // The type that goes into the map must come out.
     return (U) VALUES.get( key );
@@ -182,22 +182,10 @@ public class Workspace {
    * @param key The {@link Key} associated with a preference value.
    * @return An observable property to be persisted.
    */
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings( "unchecked" )
   public <T> SetProperty<T> setsProperty( final Key key ) {
     // The type that goes into the map must come out.
     return (SetProperty<T>) SETS.get( key );
-  }
-
-  /**
-   * Returns the {@link Double} preference value associated with the given
-   * {@link Key}. The caller must be sure that the given {@link Key} is
-   * associated with a value that matches the return type.
-   *
-   * @param key The {@link Key} associated with a preference value.
-   * @return The value associated with the given {@link Key}.
-   */
-  public double toDouble( final Key key ) {
-    return (double) valuesProperty( key ).getValue();
   }
 
   /**
@@ -213,6 +201,39 @@ public class Workspace {
   }
 
   /**
+   * Returns the {@link Double} preference value associated with the given
+   * {@link Key}. The caller must be sure that the given {@link Key} is
+   * associated with a value that matches the return type.
+   *
+   * @param key The {@link Key} associated with a preference value.
+   * @return The value associated with the given {@link Key}.
+   */
+  public double toDouble( final Key key ) {
+    return (double) valuesProperty( key ).getValue();
+  }
+
+  public File toFile( final Key key ) {
+    return fileProperty( key ).get();
+  }
+
+  public Locale toLocale( final Key key ) {
+    return localeProperty( key ).get();
+  }
+
+  public String toString( final Key key ) {
+    return stringProperty( key ).get();
+  }
+
+  public Tokens toTokens( final Key began, final Key ended ) {
+    return new Tokens( stringProperty( began ), stringProperty( ended ) );
+  }
+
+  @SuppressWarnings( "SameParameterValue" )
+  public DoubleProperty doubleProperty( final Key key ) {
+    return valuesProperty( key );
+  }
+
+  /**
    * Returns the {@link File} {@link Property} associated with the given
    * {@link Key} from the internal list of preference values. The caller
    * must be sure that the given {@link Key} is associated with a {@link File}
@@ -225,24 +246,11 @@ public class Workspace {
     return valuesProperty( key );
   }
 
-  public File toFile( final Key key ) {
-    return fileProperty( key ).get();
-  }
-
-  public StringProperty stringProperty( final Key key ) {
+  public ObjectProperty<Locale> localeProperty( final Key key ) {
     return valuesProperty( key );
   }
 
-  public String toString( final Key key ) {
-    return stringProperty( key ).get();
-  }
-
-  public Tokens toTokens( final Key began, final Key ended ) {
-    return new Tokens( stringProperty( began ), stringProperty( ended ) );
-  }
-
-  @SuppressWarnings("SameParameterValue")
-  public DoubleProperty doubleProperty( final Key key ) {
+  public StringProperty stringProperty( final Key key ) {
     return valuesProperty( key );
   }
 

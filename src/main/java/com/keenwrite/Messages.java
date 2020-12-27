@@ -1,6 +1,8 @@
 /* Copyright 2020 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite;
 
+import com.keenwrite.preferences.Key;
+
 import java.text.MessageFormat;
 import java.util.Enumeration;
 import java.util.ResourceBundle;
@@ -96,6 +98,16 @@ public class Messages {
     } catch( final Exception ex ) {
       return key;
     }
+  }
+
+  /**
+   * Returns the value for a key from the message bundle.
+   *
+   * @param key Retrieve the value for this key.
+   * @return The value for the key.
+   */
+  public static String get( final Key key ) {
+    return get( key.toString() );
   }
 
   public static String getLiteral( final String key ) {
