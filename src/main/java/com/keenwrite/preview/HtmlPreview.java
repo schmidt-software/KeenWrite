@@ -2,6 +2,8 @@
 package com.keenwrite.preview;
 
 import com.keenwrite.preferences.LocaleProperty;
+import com.keenwrite.preferences.Workspace;
+import javafx.beans.property.DoubleProperty;
 import javafx.embed.swing.SwingNode;
 import org.xhtmlrenderer.render.Box;
 import org.xhtmlrenderer.swing.SwingReplacedElementFactory;
@@ -14,6 +16,8 @@ import java.util.Locale;
 
 import static com.keenwrite.Constants.*;
 import static com.keenwrite.Messages.get;
+import static com.keenwrite.preferences.Workspace.KEY_UI_FONT_LOCALE;
+import static com.keenwrite.preferences.Workspace.KEY_UI_FONT_PREVIEW_SIZE;
 import static java.lang.Math.max;
 import static java.lang.String.format;
 import static javafx.scene.CacheHint.SPEED;
@@ -34,6 +38,7 @@ public final class HtmlPreview extends SwingNode {
       <html lang='%s'><head><title> </title><meta charset='utf-8'>
       <link rel='stylesheet' href='%s'>
       <link rel='stylesheet' href='%s'>
+      <style>body{font-size: %spt;}</style>
       <base href='%s'>
       </head><body>
       """;
@@ -50,25 +55,17 @@ public final class HtmlPreview extends SwingNode {
   private HtmlPanel mView;
   private JScrollPane mScrollPane;
   private String mBaseUriPath = "";
-  private final LocaleProperty mLocaleProperty;
   private URL mLocaleUrl;
-
-  /**
-   * Creates a new preview pane with a default locale; see
-   * {@link #HtmlPreview(LocaleProperty)} for details.
-   */
-  public HtmlPreview() {
-    this( new LocaleProperty( LOCALE_DEFAULT ) );
-  }
+  private final Workspace mWorkspace;
 
   /**
    * Creates a new preview pane that can scroll to the caret position within the
    * document.
    *
-   * @param localeProperty A secondary stylesheet is loaded based on the locale.
+   * @param workspace Contains locale and font information.
    */
-  public HtmlPreview( final LocaleProperty localeProperty ) {
-    mLocaleProperty = localeProperty;
+  public HtmlPreview( final Workspace workspace ) {
+    mWorkspace = workspace;
     mLocaleUrl = toUrl( getLocale() );
 
     // Attempts to prevent a flash of black un-styled content upon load.
@@ -92,12 +89,12 @@ public final class HtmlPreview extends SwingNode {
       context.setReplacedElementFactory( factory );
       textRenderer.setSmoothingThreshold( 0 );
 
-      localeProperty.addListener( ( c, o, n ) -> {
-        if( n != null ) {
-          mLocaleUrl = toUrl( getLocale() );
-          rerender();
-        }
+      localeProperty().addListener( ( c, o, n ) -> {
+        mLocaleUrl = toUrl( getLocale() );
+        rerender();
       } );
+
+      fontSizeProperty().addListener( ( c, o, n ) -> rerender() );
     } );
   }
 
@@ -126,6 +123,7 @@ public final class HtmlPreview extends SwingNode {
       getLocale().getLanguage(),
       HTML_STYLE_PREVIEW,
       mLocaleUrl,
+      getFontSize(),
       mBaseUriPath
     );
   }
@@ -253,6 +251,18 @@ public final class HtmlPreview extends SwingNode {
   }
 
   private Locale getLocale() {
-    return mLocaleProperty.toLocale();
+    return localeProperty().toLocale();
+  }
+
+  private LocaleProperty localeProperty() {
+    return mWorkspace.localeProperty( KEY_UI_FONT_LOCALE );
+  }
+
+  private double getFontSize() {
+    return fontSizeProperty().get();
+  }
+
+  private DoubleProperty fontSizeProperty() {
+    return mWorkspace.doubleProperty( KEY_UI_FONT_PREVIEW_SIZE );
   }
 }

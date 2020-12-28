@@ -147,34 +147,14 @@ public class MarkdownEditor extends BorderPane implements TextEditor {
 
     final var stylesheets = textArea.getStylesheets();
     stylesheets.add( STYLESHEET_MARKDOWN );
-    stylesheets.add( getLocaleStylesheet( getLocale() ) );
+    stylesheets.add( getStylesheetPath( getLocale() ) );
 
     mLocaleProperty.addListener( ( c, o, n ) -> {
       if( n != null ) {
         stylesheets.remove( max( 0, stylesheets.size() - 1 ) );
-        stylesheets.add( getLocaleStylesheet( getLocale() ) );
+        stylesheets.add( getStylesheetPath( getLocale() ) );
       }
     } );
-  }
-
-  private Locale getLocale() {
-    return mLocaleProperty.toLocale();
-  }
-
-  /**
-   * Returns the ISO 639 alpha-2 or alpha-3 language code followed by a hyphen
-   * followed by the ISO 3166 alpha-2 country code or UN M.49 numeric-3 area
-   * code.
-   *
-   * @return Unique identifier for language and country.
-   */
-  private String getLocaleStylesheet( final Locale locale ) {
-    return get(
-      sSettings.getSetting( STYLESHEET_MARKDOWN_LOCALE, "" ),
-      locale.getLanguage(),
-      locale.getScript(),
-      locale.getCountry()
-    );
   }
 
   private void initScrollPane(
@@ -698,5 +678,23 @@ public class MarkdownEditor extends BorderPane implements TextEditor {
 
   private UndoManager<?> getUndoManager() {
     return mTextArea.getUndoManager();
+  }
+
+  private Locale getLocale() {
+    return mLocaleProperty.toLocale();
+  }
+
+  /**
+   * Returns the path to a {@link Locale}-specific stylesheet.
+   *
+   * @return A non-null string to inject into the HTML document head.
+   */
+  private static String getStylesheetPath( final Locale locale ) {
+    return get(
+      sSettings.getSetting( STYLESHEET_MARKDOWN_LOCALE, "" ),
+      locale.getLanguage(),
+      locale.getScript(),
+      locale.getCountry()
+    );
   }
 }

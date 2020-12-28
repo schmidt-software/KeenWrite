@@ -161,6 +161,12 @@ public class Workspace {
     entry( KEY_UI_FILES_PATH, new SimpleSetProperty<>() )
   );
 
+  /**
+   * Creates a new {@link Workspace} that will attempt to load a configuration
+   * file. If the configuration file cannot be loaded, the workspace settings
+   * will return default values. This allows unit tests to provide an instance
+   * of {@link Workspace} when necessary without encountering failures.
+   */
   public Workspace() {
     load();
   }

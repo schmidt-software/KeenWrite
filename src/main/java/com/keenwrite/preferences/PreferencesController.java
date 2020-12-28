@@ -149,6 +149,12 @@ public class PreferencesController {
       Category.of(
         get( KEY_UI_FONT ),
         Group.of(
+          get( KEY_UI_FONT_PREVIEW_SIZE ),
+          Setting.of( label( KEY_UI_FONT_PREVIEW_SIZE ) ),
+          Setting.of( title( KEY_UI_FONT_PREVIEW_SIZE ),
+                      doubleProperty( KEY_UI_FONT_PREVIEW_SIZE ) )
+        ),
+        Group.of(
           get( KEY_UI_FONT_EDITOR_SIZE ),
           Setting.of( label( KEY_UI_FONT_EDITOR_SIZE ) ),
           Setting.of( title( KEY_UI_FONT_EDITOR_SIZE ),

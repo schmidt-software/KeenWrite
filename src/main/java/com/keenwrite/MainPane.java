@@ -143,8 +143,7 @@ public final class MainPane extends SplitPane {
    */
   public MainPane( final Workspace workspace ) {
     mWorkspace = workspace;
-    mHtmlPreview = new HtmlPreview(
-      workspace.localeProperty( KEY_UI_FONT_LOCALE ) );
+    mHtmlPreview = new HtmlPreview( workspace );
 
     open( bin( getRecentFiles() ) );
 

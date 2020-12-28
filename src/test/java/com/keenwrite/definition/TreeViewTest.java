@@ -4,7 +4,7 @@ package com.keenwrite.definition;
 import com.keenwrite.editors.definition.DefinitionEditor;
 import com.keenwrite.editors.definition.yaml.YamlTreeTransformer;
 import com.keenwrite.editors.markdown.MarkdownEditor;
-import com.keenwrite.preferences.LocaleProperty;
+import com.keenwrite.preferences.Workspace;
 import com.keenwrite.preview.HtmlPreview;
 import com.panemu.tiwulfx.control.dock.DetachableTabPane;
 import javafx.application.Application;
@@ -20,7 +20,6 @@ import javafx.scene.control.TreeItem;
 import javafx.stage.Stage;
 import org.testfx.framework.junit5.Start;
 
-import static com.keenwrite.Constants.LOCALE_DEFAULT;
 import static com.keenwrite.util.FontLoader.initFonts;
 
 //@ExtendWith(ApplicationExtension.class)
@@ -61,7 +60,8 @@ public class TreeViewTest extends Application {
     tab22.setTooltip( new Tooltip( "Text Editor" ) );
 
     final var tabPane3 = new DetachableTabPane();
-    tabPane3.addTab( "Preview", new HtmlPreview() );
+    final var workspace = new Workspace();
+    tabPane3.addTab( "Preview", new HtmlPreview( workspace ) );
 
     editor.addTreeChangeHandler( mTreeHandler );
 
