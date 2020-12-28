@@ -8,6 +8,7 @@ import javafx.application.Platform;
 import javafx.stage.Stage;
 
 import java.util.function.BooleanSupplier;
+import java.util.logging.LogManager;
 
 import static com.keenwrite.Bootstrap.APP_TITLE;
 import static com.keenwrite.Constants.LOGOS;
@@ -43,8 +44,8 @@ public final class MainApp extends Application {
    * Suppress logging to standard output and standard error.
    */
   private static void disableLogging() {
-    //LogManager.getLogManager().reset();
-    //System.err.close();
+    LogManager.getLogManager().reset();
+    System.err.close();
   }
 
   /**
