@@ -54,19 +54,22 @@ public final class HtmlPreview extends SwingNode {
   private URL mLocaleUrl;
 
   /**
+   * Creates a new preview pane with a default locale; see
+   * {@link #HtmlPreview(LocaleProperty)} for details.
+   */
+  public HtmlPreview() {
+    this( new LocaleProperty( LOCALE_DEFAULT ) );
+  }
+
+  /**
    * Creates a new preview pane that can scroll to the caret position within the
    * document.
+   *
+   * @param localeProperty A secondary stylesheet is loaded based on the locale.
    */
   public HtmlPreview( final LocaleProperty localeProperty ) {
     mLocaleProperty = localeProperty;
-
-    mLocaleUrl = toUrl( localeProperty.toLocale() );
-    localeProperty.addListener( ( c, o, n ) -> {
-      if( n != null ) {
-        mLocaleUrl = toUrl( mLocaleProperty.toLocale() );
-        rerender();
-      }
-    } );
+    mLocaleUrl = toUrl( getLocale() );
 
     // Attempts to prevent a flash of black un-styled content upon load.
     setStyle( "-fx-background-color: white;" );
@@ -88,6 +91,13 @@ public final class HtmlPreview extends SwingNode {
       final var textRenderer = context.getTextRenderer();
       context.setReplacedElementFactory( factory );
       textRenderer.setSmoothingThreshold( 0 );
+
+      localeProperty.addListener( ( c, o, n ) -> {
+        if( n != null ) {
+          mLocaleUrl = toUrl( getLocale() );
+          rerender();
+        }
+      } );
     } );
   }
 

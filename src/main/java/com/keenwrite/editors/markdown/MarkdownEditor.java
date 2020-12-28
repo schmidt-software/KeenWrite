@@ -3,6 +3,7 @@ package com.keenwrite.editors.markdown;
 
 import com.keenwrite.Constants;
 import com.keenwrite.editors.TextEditor;
+import com.keenwrite.preferences.LocaleProperty;
 import com.keenwrite.processors.markdown.Caret;
 import com.keenwrite.spelling.impl.TextEditorSpeller;
 import javafx.beans.binding.Bindings;
@@ -35,6 +36,7 @@ import static com.keenwrite.Constants.*;
 import static com.keenwrite.Messages.get;
 import static com.keenwrite.StatusBarNotifier.clue;
 import static java.lang.Character.isWhitespace;
+import static java.lang.Math.max;
 import static java.lang.String.format;
 import static java.util.Collections.singletonList;
 import static javafx.scene.control.ScrollPane.ScrollBarPolicy.ALWAYS;
@@ -73,6 +75,8 @@ public class MarkdownEditor extends BorderPane implements TextEditor {
   private final VirtualizedScrollPane<StyleClassedTextArea> mScrollPane =
     new VirtualizedScrollPane<>( mTextArea );
 
+  private final LocaleProperty mLocaleProperty;
+
   /**
    * Tracks where the caret is located in this document. This offers observable
    * properties for caret position changes.
@@ -103,13 +107,16 @@ public class MarkdownEditor extends BorderPane implements TextEditor {
   private final BooleanProperty mModified = new SimpleBooleanProperty();
 
   public MarkdownEditor() {
-    this( DOCUMENT_DEFAULT );
+    this( DOCUMENT_DEFAULT, new LocaleProperty( LOCALE_DEFAULT ) );
   }
 
-  public MarkdownEditor( final File file ) {
+  public MarkdownEditor( final File file,
+                         final LocaleProperty localeProperty ) {
     mEncoding = open( mFile = file );
+    mLocaleProperty = localeProperty;
 
     initTextArea( mTextArea );
+    initStyle( mTextArea );
     initScrollPane( mScrollPane );
     initSpellchecker( mTextArea );
     initHotKeys();
@@ -117,9 +124,6 @@ public class MarkdownEditor extends BorderPane implements TextEditor {
   }
 
   private void initTextArea( final StyleClassedTextArea textArea ) {
-    textArea.getStyleClass().add( "markdown" );
-    textArea.getStylesheets().add( STYLESHEET_MARKDOWN );
-    textArea.getStylesheets().add( getLocaleStylesheet() );
     textArea.setWrapText( true );
     textArea.requestFollowCaret();
     textArea.moveTo( 0 );
@@ -138,24 +142,37 @@ public class MarkdownEditor extends BorderPane implements TextEditor {
     } );
   }
 
+  private void initStyle( final StyleClassedTextArea textArea ) {
+    textArea.getStyleClass().add( "markdown" );
+
+    final var stylesheets = textArea.getStylesheets();
+    stylesheets.add( STYLESHEET_MARKDOWN );
+    stylesheets.add( getLocaleStylesheet( getLocale() ) );
+
+    mLocaleProperty.addListener( ( c, o, n ) -> {
+      if( n != null ) {
+        stylesheets.remove( max( 0, stylesheets.size() - 1 ) );
+        stylesheets.add( getLocaleStylesheet( getLocale() ) );
+      }
+    } );
+  }
+
+  private Locale getLocale() {
+    return mLocaleProperty.toLocale();
+  }
+
   /**
    * Returns the ISO 639 alpha-2 or alpha-3 language code followed by a hyphen
    * followed by the ISO 3166 alpha-2 country code or UN M.49 numeric-3 area
    * code.
-   * <p>
-   * TODO: Override default locale user's workspace locale preference.
-   * </p>
    *
    * @return Unique identifier for language and country.
    */
-  private String getLocaleStylesheet() {
-    return getLocaleStylesheet( Locale.getDefault() );
-  }
-
   private String getLocaleStylesheet( final Locale locale ) {
     return get(
       sSettings.getSetting( STYLESHEET_MARKDOWN_LOCALE, "" ),
       locale.getLanguage(),
+      locale.getScript(),
       locale.getCountry()
     );
   }

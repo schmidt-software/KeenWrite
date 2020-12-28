@@ -61,8 +61,7 @@ public class TreeViewTest extends Application {
     tab22.setTooltip( new Tooltip( "Text Editor" ) );
 
     final var tabPane3 = new DetachableTabPane();
-    final var localeProperty = new LocaleProperty( LOCALE_DEFAULT );
-    tabPane3.addTab( "Preview", new HtmlPreview( localeProperty ) );
+    tabPane3.addTab( "Preview", new HtmlPreview() );
 
     editor.addTreeChangeHandler( mTreeHandler );
 

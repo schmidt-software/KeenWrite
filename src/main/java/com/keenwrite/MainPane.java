@@ -796,7 +796,8 @@ public final class MainPane extends SplitPane {
    */
   private TextResource createMarkdownEditor( final File file ) {
     final var path = file.toPath();
-    final var editor = new MarkdownEditor( file );
+    final var locale = mWorkspace.localeProperty( KEY_UI_FONT_LOCALE );
+    final var editor = new MarkdownEditor( file, locale );
     final var caret = editor.getCaret();
     final var context = createProcessorContext( path, caret );
 
