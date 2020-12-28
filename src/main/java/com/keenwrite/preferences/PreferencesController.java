@@ -7,20 +7,19 @@ import com.dlsc.preferencesfx.PreferencesFxEvent;
 import com.dlsc.preferencesfx.model.Category;
 import com.dlsc.preferencesfx.model.Group;
 import com.dlsc.preferencesfx.model.Setting;
-import javafx.beans.property.*;
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.StringProperty;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 
 import java.io.File;
-import java.util.List;
-import java.util.Locale;
 
 import static com.keenwrite.Constants.ICON_DIALOG;
 import static com.keenwrite.Messages.get;
+import static com.keenwrite.preferences.LocaleProperty.localeListProperty;
 import static com.keenwrite.preferences.Workspace.*;
-import static java.util.Locale.forLanguageTag;
-import static javafx.collections.FXCollections.observableArrayList;
 
 /**
  * Provides the ability for users to configure their preferences. This links
@@ -165,7 +164,6 @@ public class PreferencesController {
       )
     ).instantPersistent( false ).dialogIcon( ICON_DIALOG );
   }
-  //KEY_UI_FONT_LOCALE
 
   /**
    * Creates a label for the given key after interpolating its value.
@@ -210,35 +208,8 @@ public class PreferencesController {
     return mWorkspace.doubleProperty( key );
   }
 
-  private ObjectProperty<Locale> localeProperty( final Key key ) {
+  private ObjectProperty<String> localeProperty( final Key key ) {
     return mWorkspace.localeProperty( key );
-  }
-
-  /**
-   * https://www.oracle.com/java/technologies/javase/jdk12locales.html
-   * @return
-   */
-  private ListProperty<Locale> localeListProperty() {
-    //System.out.println( "DisplayName: " + locale.getDisplayName() );
-
-    final var list = observableArrayList(
-      List.of(
-        forLanguageTag( "en-Latn-AU" ),
-        forLanguageTag( "en-Latn-CA" ),
-        forLanguageTag( "en-Latn-GB" ),
-        forLanguageTag( "en-Latn-NZ" ),
-        forLanguageTag( "en-Latn-US" ),
-        forLanguageTag( "en-Latn-ZA" ),
-        forLanguageTag( "ja-Jpan-JP" ),
-        forLanguageTag( "ko-Kore-KR" ),
-        forLanguageTag( "zh-Hans-CN" ),
-        forLanguageTag( "zh-Hans-SG" ),
-        forLanguageTag( "zh-Hant-HK" ),
-        forLanguageTag( "zh-Hant-TW" )
-      )
-    );
-
-    return new SimpleListProperty<>( list );
   }
 
   private PreferencesFx getPreferencesFx() {

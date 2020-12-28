@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Locale;
 
 import static com.keenwrite.Bootstrap.APP_TITLE_LOWERCASE;
+import static com.keenwrite.preferences.LocaleScripts.withScript;
 import static java.io.File.separator;
 import static java.lang.String.format;
 import static java.lang.System.getProperty;
@@ -173,14 +174,14 @@ public class Constants {
   public static final float FONT_SIZE_PREVIEW_DEFAULT = 13f;
 
   /**
-   * Default locale for font loading.
+   * Default locale for font loading, including ISO 15924 alpha-4 script code.
    */
-  public static final Locale LOCALE_DEFAULT = Locale.getDefault();
+  public static final Locale LOCALE_DEFAULT = withScript( Locale.getDefault() );
 
   /**
    * Default identifier to use for synchronized scrolling.
    */
-  public static String CARET_ID = "caret";
+  public static final String CARET_ID = "caret";
 
   /**
    * Prevent instantiation.

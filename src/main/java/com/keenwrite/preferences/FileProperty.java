@@ -5,8 +5,8 @@ import javafx.beans.property.SimpleObjectProperty;
 
 import java.io.File;
 
-public class SimpleFileProperty extends SimpleObjectProperty<File> {
-  public SimpleFileProperty( final File file ) {
+public class FileProperty extends SimpleObjectProperty<File> {
+  public FileProperty( final File file ) {
     super( file );
   }
 

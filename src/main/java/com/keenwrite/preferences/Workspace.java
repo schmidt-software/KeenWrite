@@ -11,7 +11,6 @@ import org.apache.commons.configuration2.io.FileHandler;
 
 import java.io.File;
 import java.util.LinkedHashSet;
-import java.util.Locale;
 import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.BooleanSupplier;
@@ -113,22 +112,22 @@ public class Workspace {
     entry( KEY_META_NAME, new SimpleStringProperty( "default" ) ),
     
     entry( KEY_R_SCRIPT, new SimpleStringProperty( "" ) ),
-    entry( KEY_R_DIR, new SimpleFileProperty( USER_DIRECTORY ) ),
+    entry( KEY_R_DIR, new FileProperty( USER_DIRECTORY ) ),
     entry( KEY_R_DELIM_BEGAN, new SimpleStringProperty( R_DELIM_BEGAN_DEFAULT ) ),
     entry( KEY_R_DELIM_ENDED, new SimpleStringProperty( R_DELIM_ENDED_DEFAULT ) ),
     
-    entry( KEY_IMAGES_DIR, new SimpleFileProperty( USER_DIRECTORY ) ),
+    entry( KEY_IMAGES_DIR, new FileProperty( USER_DIRECTORY ) ),
     entry( KEY_IMAGES_ORDER, new SimpleStringProperty( PERSIST_IMAGES_DEFAULT ) ),
     
-    entry( KEY_DEF_PATH, new SimpleFileProperty( DEFINITION_DEFAULT ) ),
+    entry( KEY_DEF_PATH, new FileProperty( DEFINITION_DEFAULT ) ),
     entry( KEY_DEF_DELIM_BEGAN, new SimpleStringProperty( DEF_DELIM_BEGAN_DEFAULT ) ),
     entry( KEY_DEF_DELIM_ENDED, new SimpleStringProperty( DEF_DELIM_ENDED_DEFAULT ) ),
     
-    entry( KEY_UI_RECENT_DIR, new SimpleFileProperty( USER_DIRECTORY ) ),
-    entry( KEY_UI_RECENT_DOCUMENT, new SimpleFileProperty( DOCUMENT_DEFAULT ) ),
-    entry( KEY_UI_RECENT_DEFINITION, new SimpleFileProperty( DEFINITION_DEFAULT ) ),
+    entry( KEY_UI_RECENT_DIR, new FileProperty( USER_DIRECTORY ) ),
+    entry( KEY_UI_RECENT_DOCUMENT, new FileProperty( DOCUMENT_DEFAULT ) ),
+    entry( KEY_UI_RECENT_DEFINITION, new FileProperty( DEFINITION_DEFAULT ) ),
     
-    entry( KEY_UI_FONT_LOCALE, new SimpleLocaleProperty( LOCALE_DEFAULT ) ),
+    entry( KEY_UI_FONT_LOCALE, new LocaleProperty( LOCALE_DEFAULT ) ),
     entry( KEY_UI_FONT_EDITOR_SIZE, new SimpleDoubleProperty( FONT_SIZE_EDITOR_DEFAULT ) ),
     entry( KEY_UI_FONT_PREVIEW_SIZE, new SimpleDoubleProperty( FONT_SIZE_PREVIEW_DEFAULT ) ),
     
@@ -141,21 +140,26 @@ public class Workspace {
   );
   //@formatter:on
 
-  private final Map<Key, SetProperty<?>> SETS = Map.ofEntries(
-    entry( KEY_UI_FILES_PATH, new SimpleSetProperty<>() )
-  );
-
   /**
    * Helps instantiate {@link Property} instances for XML configuration items.
    */
   private static final Map<Class<?>, Function<String, Object>> UNMARSHALL =
     Map.of(
-      SimpleLocaleProperty.class, Locale::forLanguageTag,
+      LocaleProperty.class, LocaleProperty::parseLocale,
       SimpleBooleanProperty.class, Boolean::parseBoolean,
       SimpleDoubleProperty.class, Double::parseDouble,
       SimpleFloatProperty.class, Float::parseFloat,
-      SimpleFileProperty.class, File::new
+      FileProperty.class, File::new
     );
+
+  private static final Map<Class<?>, Function<String, Object>> MARSHALL =
+    Map.of(
+      LocaleProperty.class, LocaleProperty::toLocale
+    );
+
+  private final Map<Key, SetProperty<?>> SETS = Map.ofEntries(
+    entry( KEY_UI_FILES_PATH, new SimpleSetProperty<>() )
+  );
 
   public Workspace() {
     load();
@@ -216,10 +220,6 @@ public class Workspace {
     return fileProperty( key ).get();
   }
 
-  public Locale toLocale( final Key key ) {
-    return localeProperty( key ).get();
-  }
-
   public String toString( final Key key ) {
     return stringProperty( key ).get();
   }
@@ -246,7 +246,7 @@ public class Workspace {
     return valuesProperty( key );
   }
 
-  public ObjectProperty<Locale> localeProperty( final Key key ) {
+  public ObjectProperty<String> localeProperty( final Key key ) {
     return valuesProperty( key );
   }
 
@@ -256,30 +256,30 @@ public class Workspace {
 
   /**
    * Calls the given consumer for all single-value keys. For lists, see
-   * {@link #consumeSets(BiConsumer)}.
+   * {@link #saveSets(BiConsumer)}.
    *
    * @param consumer Called to accept each preference key value.
    */
-  public void consumeValues( final BiConsumer<Key, Property<?>> consumer ) {
+  public void saveValues( final BiConsumer<Key, Property<?>> consumer ) {
     VALUES.forEach( consumer );
   }
 
   /**
    * Calls the given consumer for all multi-value keys. For single items, see
-   * {@link #consumeValues(BiConsumer)}. Callers are responsible for iterating
+   * {@link #saveValues(BiConsumer)}. Callers are responsible for iterating
    * over the list of items retrieved through this method.
    *
    * @param consumer Called to accept each preference key list.
    */
-  public void consumeSets( final BiConsumer<Key, SetProperty<?>> consumer ) {
+  public void saveSets( final BiConsumer<Key, SetProperty<?>> consumer ) {
     SETS.forEach( consumer );
   }
 
-  public void consumeValueKeys( final Consumer<Key> consumer ) {
+  public void loadValueKeys( final Consumer<Key> consumer ) {
     VALUES.keySet().forEach( consumer );
   }
 
-  public void consumeSetKeys( final Consumer<Key> consumer ) {
+  public void loadSetKeys( final Consumer<Key> consumer ) {
     SETS.keySet().forEach( consumer );
   }
 
@@ -316,12 +316,11 @@ public class Workspace {
     final ReadOnlyProperty<T> property,
     final BooleanSupplier enabled ) {
     property.addListener(
-      ( c, o, n ) ->
-        runLater( () -> {
-          if( enabled.getAsBoolean() ) {
-            valuesProperty( key ).setValue( n );
-          }
-        } )
+      ( c, o, n ) -> runLater( () -> {
+        if( enabled.getAsBoolean() ) {
+          valuesProperty( key ).setValue( n );
+        }
+      } )
     );
   }
 
@@ -335,13 +334,13 @@ public class Workspace {
       // The root config key can only be set for an empty configuration file.
       config.setRootElementName( APP_TITLE_LOWERCASE );
 
-      consumeValues( ( key, value ) -> config.setProperty(
-        key.toString(), value.getValue() )
+      saveValues( ( key, property ) ->
+                    config.setProperty( key.toString(), marshall( property ) )
       );
 
-      consumeSets(
+      saveSets(
         ( key, set ) -> {
-          final String keyName = key.toString();
+          final var keyName = key.toString();
           set.forEach( ( value ) -> config.addProperty( keyName, value ) );
         }
       );
@@ -360,13 +359,13 @@ public class Workspace {
     try {
       final var config = new Configurations().xml( FILE_PREFERENCES );
 
-      consumeValueKeys( ( key ) -> {
+      loadValueKeys( ( key ) -> {
         final var configValue = config.getProperty( key.toString() );
         final var propertyValue = valuesProperty( key );
         propertyValue.setValue( unmarshall( propertyValue, configValue ) );
       } );
 
-      consumeSetKeys( ( key ) -> {
+      loadSetKeys( ( key ) -> {
         final var configSet =
           new LinkedHashSet<>( config.getList( key.toString() ) );
         final var propertySet = setsProperty( key );
@@ -382,5 +381,11 @@ public class Workspace {
     return UNMARSHALL
       .getOrDefault( property.getClass(), ( value ) -> value )
       .apply( configValue.toString() );
+  }
+
+  private Object marshall( final Property<?> property ) {
+    return MARSHALL
+      .getOrDefault( property.getClass(), ( v ) -> property.getValue() )
+      .apply( property.getValue().toString() );
   }
 }
