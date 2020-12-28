@@ -65,8 +65,12 @@ public class LocaleProperty extends SimpleObjectProperty<String> {
     return key == null ? LOCALE_DEFAULT.getDisplayName() : key;
   }
 
-  public static String toLocale( final String displayName ) {
+  public static String toLanguageTag( final String displayName ) {
     return sLocales.getOrDefault( displayName, LOCALE_DEFAULT ).toLanguageTag();
+  }
+
+  public Locale toLocale() {
+    return sLocales.getOrDefault( getValue(), LOCALE_DEFAULT );
   }
 
   private static Locale sanitize( final Locale locale ) {

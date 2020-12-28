@@ -1,6 +1,7 @@
 /* Copyright 2020 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.preview;
 
+import com.keenwrite.preferences.LocaleProperty;
 import javafx.embed.swing.SwingNode;
 import org.xhtmlrenderer.render.Box;
 import org.xhtmlrenderer.swing.SwingReplacedElementFactory;
@@ -28,19 +29,18 @@ public final class HtmlPreview extends SwingNode {
    * poor rendering.
    */
   private static final String HTML_HEAD =
-      """
-          <!DOCTYPE html>
-          <html lang='%s'><head><title> </title><meta charset='utf-8'>
-          <link rel='stylesheet' href='%s'>
-          <link rel='stylesheet' href='%s'>
-          <base href='%s'>
-          </head><body>
-          """;
+    """
+      <!DOCTYPE html>
+      <html lang='%s'><head><title> </title><meta charset='utf-8'>
+      <link rel='stylesheet' href='%s'>
+      <link rel='stylesheet' href='%s'>
+      <base href='%s'>
+      </head><body>
+      """;
 
   private static final String HTML_TAIL = "</body></html>";
 
-  private static final URL HTML_STYLE_PREVIEW =
-      HtmlPreview.class.getResource( STYLESHEET_PREVIEW );
+  private static final URL HTML_STYLE_PREVIEW = toUrl( STYLESHEET_PREVIEW );
 
   /**
    * The buffer is reused so that previous memory allocations need not repeat.
@@ -49,14 +49,25 @@ public final class HtmlPreview extends SwingNode {
 
   private HtmlPanel mView;
   private JScrollPane mScrollPane;
-
   private String mBaseUriPath = "";
+  private final LocaleProperty mLocaleProperty;
+  private URL mLocaleUrl;
 
   /**
    * Creates a new preview pane that can scroll to the caret position within the
    * document.
    */
-  public HtmlPreview() {
+  public HtmlPreview( final LocaleProperty localeProperty ) {
+    mLocaleProperty = localeProperty;
+
+    mLocaleUrl = toUrl( localeProperty.toLocale() );
+    localeProperty.addListener( ( c, o, n ) -> {
+      if( n != null ) {
+        mLocaleUrl = toUrl( mLocaleProperty.toLocale() );
+        rerender();
+      }
+    } );
+
     // Attempts to prevent a flash of black un-styled content upon load.
     setStyle( "-fx-background-color: white;" );
 
@@ -87,6 +98,30 @@ public final class HtmlPreview extends SwingNode {
    */
   public void render( final String html ) {
     mView.render( decorate( html ), getBaseUri() );
+  }
+
+  private void rerender() {
+    render( mHtmlDocument.toString() );
+  }
+
+  private String decorate( final String html ) {
+    mHtmlDocument.setLength( 0 );
+    mHtmlDocument.append( html );
+    return head() + mHtmlDocument + tail();
+  }
+
+  private String head() {
+    return format(
+      HTML_HEAD,
+      getLocale().getLanguage(),
+      HTML_STYLE_PREVIEW,
+      mLocaleUrl,
+      mBaseUriPath
+    );
+  }
+
+  private String tail() {
+    return HTML_TAIL;
   }
 
   /**
@@ -167,26 +202,6 @@ public final class HtmlPreview extends SwingNode {
     return new Point( x, y );
   }
 
-  private String decorate( final String html ) {
-    mHtmlDocument.setLength( 0 );
-
-    final var locale = Locale.getDefault();
-
-    final var head = format(
-        HTML_HEAD,
-        locale.getLanguage(),
-        HTML_STYLE_PREVIEW,
-        getLocaleStylesheet( locale ),
-        mBaseUriPath
-    );
-
-    // Write the HTML body element followed by closing tags.
-    return mHtmlDocument.append( head )
-                        .append( html )
-                        .append( HTML_TAIL )
-                        .toString();
-  }
-
   private String getBaseUri() {
     return mBaseUriPath;
   }
@@ -205,19 +220,29 @@ public final class HtmlPreview extends SwingNode {
 
   /**
    * Returns the ISO 639 alpha-2 or alpha-3 language code followed by a hyphen
-   * followed by the ISO 3166 alpha-2 country code or UN M.49 numeric-3 area
-   * code.
-   * <p>
-   * TODO: Override default locale user's workspace locale preference.
-   * </p>
+   * followed by the ISO 15924 alpha-4 script code, followed by an ISO 3166
+   * alpha-2 country code or UN M.49 numeric-3 area code. For example, this
+   * could return "en-Latn-CA" for Canadian English written in the Latin
+   * character set.
    *
    * @return Unique identifier for language and country.
    */
-  private static String getLocaleStylesheet( final Locale locale ) {
-    return get(
+  private static URL toUrl( final Locale locale ) {
+    return toUrl(
+      get(
         sSettings.getSetting( STYLESHEET_PREVIEW_LOCALE, "" ),
         locale.getLanguage(),
+        locale.getScript(),
         locale.getCountry()
+      )
     );
+  }
+
+  private static URL toUrl( final String path ) {
+    return HtmlPreview.class.getResource( path );
+  }
+
+  private Locale getLocale() {
+    return mLocaleProperty.toLocale();
   }
 }

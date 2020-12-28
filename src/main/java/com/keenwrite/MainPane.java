@@ -92,7 +92,7 @@ public final class MainPane extends SplitPane {
   /**
    * Renders the actively selected plain text editor tab.
    */
-  private final HtmlPreview mHtmlPreview = new HtmlPreview();
+  private final HtmlPreview mHtmlPreview;
 
   /**
    * Changing the active editor fires the value changed event. This allows
@@ -143,6 +143,8 @@ public final class MainPane extends SplitPane {
    */
   public MainPane( final Workspace workspace ) {
     mWorkspace = workspace;
+    mHtmlPreview = new HtmlPreview(
+      workspace.localeProperty( KEY_UI_FONT_LOCALE ) );
 
     open( bin( getRecentFiles() ) );
 

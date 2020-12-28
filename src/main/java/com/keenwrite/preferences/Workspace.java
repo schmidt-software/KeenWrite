@@ -154,7 +154,7 @@ public class Workspace {
 
   private static final Map<Class<?>, Function<String, Object>> MARSHALL =
     Map.of(
-      LocaleProperty.class, LocaleProperty::toLocale
+      LocaleProperty.class, LocaleProperty::toLanguageTag
     );
 
   private final Map<Key, SetProperty<?>> SETS = Map.ofEntries(
@@ -246,7 +246,7 @@ public class Workspace {
     return valuesProperty( key );
   }
 
-  public ObjectProperty<String> localeProperty( final Key key ) {
+  public LocaleProperty localeProperty( final Key key ) {
     return valuesProperty( key );
   }
 
