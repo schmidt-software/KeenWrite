@@ -45,6 +45,7 @@ public class TreeViewTest extends Application {
 
   @Start
   private void onStart( final Stage stage ) {
+    final var workspace = new Workspace();
     final var mainPane = new SplitPane();
 
     final var transformer = new YamlTreeTransformer();
@@ -55,12 +56,12 @@ public class TreeViewTest extends Application {
 
     final var tabPane2 = new DetachableTabPane();
     final var tab21 = tabPane2.addTab( "Picker", new ColorPicker() );
-    final var tab22 = tabPane2.addTab( "Editor", new MarkdownEditor() );
+    final var tab22 = tabPane2.addTab( "Editor",
+                                       new MarkdownEditor( workspace ) );
     tab21.setTooltip( new Tooltip( "Colour Picker" ) );
     tab22.setTooltip( new Tooltip( "Text Editor" ) );
 
     final var tabPane3 = new DetachableTabPane();
-    final var workspace = new Workspace();
     tabPane3.addTab( "Preview", new HtmlPreview( workspace ) );
 
     editor.addTreeChangeHandler( mTreeHandler );

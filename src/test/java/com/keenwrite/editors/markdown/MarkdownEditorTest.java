@@ -1,5 +1,6 @@
 package com.keenwrite.editors.markdown;
 
+import com.keenwrite.preferences.Workspace;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.testfx.framework.junit5.ApplicationExtension;
@@ -10,38 +11,38 @@ import static java.util.regex.Pattern.compile;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@ExtendWith(ApplicationExtension.class)
+@ExtendWith( ApplicationExtension.class )
 public class MarkdownEditorTest {
   private static final String[] WORDS = new String[]{
-      "Italicize",
-      "English's",
-      "foreign",
-      "words",
-      "based",
-      "on",
-      "popularity,",
-      "like",
-      "_bête_",
-      "_noire_",
-      "and",
-      "_Weltanschauung_",
-      "but",
-      "not",
-      "résumé.",
-      "Don't",
-      "omit",
-      "accented",
-      "characters!",
-      "Cœlacanthe",
-      "L'Haÿ-les-Roses",
-      "Mühlfeldstraße",
-      "Da̱nx̱a̱laga̱litła̱n",
+    "Italicize",
+    "English's",
+    "foreign",
+    "words",
+    "based",
+    "on",
+    "popularity,",
+    "like",
+    "_bête_",
+    "_noire_",
+    "and",
+    "_Weltanschauung_",
+    "but",
+    "not",
+    "résumé.",
+    "Don't",
+    "omit",
+    "accented",
+    "characters!",
+    "Cœlacanthe",
+    "L'Haÿ-les-Roses",
+    "Mühlfeldstraße",
+    "Da̱nx̱a̱laga̱litła̱n",
   };
 
   private static final String TEXT = String.join( " ", WORDS );
 
   private static final Pattern REGEX = compile(
-      "[^\\p{Mn}\\p{Me}\\p{L}\\p{N}'-]+" );
+    "[^\\p{Mn}\\p{Me}\\p{L}\\p{N}'-]+" );
 
   /**
    * Test that the {@link MarkdownEditor} can retrieve a word at the caret
@@ -100,7 +101,8 @@ public class MarkdownEditorTest {
    * @return A new {@link MarkdownEditor} instance, ready for unit tests.
    */
   private MarkdownEditor createMarkdownEditor() {
-    final var editor = new MarkdownEditor();
+    final var workspace = new Workspace();
+    final var editor = new MarkdownEditor( workspace );
     editor.setText( TEXT );
     return editor;
   }

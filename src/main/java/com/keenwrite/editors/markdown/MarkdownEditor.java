@@ -4,10 +4,12 @@ package com.keenwrite.editors.markdown;
 import com.keenwrite.Constants;
 import com.keenwrite.editors.TextEditor;
 import com.keenwrite.preferences.LocaleProperty;
+import com.keenwrite.preferences.Workspace;
 import com.keenwrite.processors.markdown.Caret;
 import com.keenwrite.spelling.impl.TextEditorSpeller;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
@@ -35,6 +37,8 @@ import java.util.regex.Pattern;
 import static com.keenwrite.Constants.*;
 import static com.keenwrite.Messages.get;
 import static com.keenwrite.StatusBarNotifier.clue;
+import static com.keenwrite.preferences.Workspace.KEY_UI_FONT_EDITOR_SIZE;
+import static com.keenwrite.preferences.Workspace.KEY_UI_FONT_LOCALE;
 import static java.lang.Character.isWhitespace;
 import static java.lang.Math.max;
 import static java.lang.String.format;
@@ -75,7 +79,7 @@ public class MarkdownEditor extends BorderPane implements TextEditor {
   private final VirtualizedScrollPane<StyleClassedTextArea> mScrollPane =
     new VirtualizedScrollPane<>( mTextArea );
 
-  private final LocaleProperty mLocaleProperty;
+  private final Workspace mWorkspace;
 
   /**
    * Tracks where the caret is located in this document. This offers observable
@@ -106,14 +110,13 @@ public class MarkdownEditor extends BorderPane implements TextEditor {
    */
   private final BooleanProperty mModified = new SimpleBooleanProperty();
 
-  public MarkdownEditor() {
-    this( DOCUMENT_DEFAULT, new LocaleProperty( LOCALE_DEFAULT ) );
+  public MarkdownEditor( final Workspace workspace ) {
+    this( DOCUMENT_DEFAULT, workspace );
   }
 
-  public MarkdownEditor( final File file,
-                         final LocaleProperty localeProperty ) {
+  public MarkdownEditor( final File file, final Workspace workspace ) {
     mEncoding = open( mFile = file );
-    mLocaleProperty = localeProperty;
+    mWorkspace = workspace;
 
     initTextArea( mTextArea );
     initStyle( mTextArea );
@@ -149,11 +152,15 @@ public class MarkdownEditor extends BorderPane implements TextEditor {
     stylesheets.add( STYLESHEET_MARKDOWN );
     stylesheets.add( getStylesheetPath( getLocale() ) );
 
-    mLocaleProperty.addListener( ( c, o, n ) -> {
+    localeProperty().addListener( ( c, o, n ) -> {
       if( n != null ) {
         stylesheets.remove( max( 0, stylesheets.size() - 1 ) );
         stylesheets.add( getStylesheetPath( getLocale() ) );
       }
+    } );
+
+    fontSizeProperty().addListener( (c, o, n) -> {
+      mTextArea.setStyle( format( "-fx-font-size: %spt;", getFontSize() ) );
     } );
   }
 
@@ -262,8 +269,9 @@ public class MarkdownEditor extends BorderPane implements TextEditor {
   public void cut() {
     final var selected = mTextArea.getSelectedText();
 
+    // Emulate selecting the current line by firing Home then Shift+Down Arrow.
     if( selected == null || selected.isEmpty() ) {
-      // mTextArea.selectLine() does not select empty lines.
+      // Note: mTextArea.selectLine() does not select empty lines.
       mTextArea.fireEvent( keyEvent( HOME, false ) );
       mTextArea.fireEvent( keyEvent( DOWN, true ) );
     }
@@ -680,10 +688,6 @@ public class MarkdownEditor extends BorderPane implements TextEditor {
     return mTextArea.getUndoManager();
   }
 
-  private Locale getLocale() {
-    return mLocaleProperty.toLocale();
-  }
-
   /**
    * Returns the path to a {@link Locale}-specific stylesheet.
    *
@@ -696,5 +700,21 @@ public class MarkdownEditor extends BorderPane implements TextEditor {
       locale.getScript(),
       locale.getCountry()
     );
+  }
+
+  private Locale getLocale() {
+    return localeProperty().toLocale();
+  }
+
+  private LocaleProperty localeProperty() {
+    return mWorkspace.localeProperty( KEY_UI_FONT_LOCALE );
+  }
+
+  private double getFontSize() {
+    return fontSizeProperty().get();
+  }
+
+  private DoubleProperty fontSizeProperty() {
+    return mWorkspace.doubleProperty( KEY_UI_FONT_EDITOR_SIZE );
   }
 }
