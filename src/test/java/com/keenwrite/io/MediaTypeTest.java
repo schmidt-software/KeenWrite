@@ -30,13 +30,13 @@ public class MediaTypeTest {
   @Test
   public void test_FilenameExtensions_Supported_Success() {
     final var map = Map.of(
-      "png", IMAGE_PNG,
       "jpeg", IMAGE_JPEG,
+      "png", IMAGE_PNG,
       "svg", IMAGE_SVG_XML,
-      "txt", TEXT_PLAIN,
       "md", TEXT_MARKDOWN,
       "Rmd", TEXT_R_MARKDOWN,
       "Rxml", TEXT_R_XML,
+      "txt", TEXT_PLAIN,
       "yml", TEXT_YAML
     );
 
@@ -44,7 +44,7 @@ public class MediaTypeTest {
   }
 
   /**
-   * Test that {@link MediaType#valueFrom(URI)} will pull and identify the
+   * Test that {@link HttpMediaType#valueFrom(URI)} will pull and identify the
    * type of resource based on the HTTP Content-Type header.
    */
   @Test
@@ -60,7 +60,7 @@ public class MediaTypeTest {
 
     map.forEach( ( k, v ) -> {
       try {
-        assertEquals( v, valueFrom( new URI( k ) ) );
+        assertEquals( v, HttpMediaType.valueFrom( new URI( k ) ) );
       } catch( Exception e ) {
         fail();
       }

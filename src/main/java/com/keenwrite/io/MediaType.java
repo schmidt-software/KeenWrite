@@ -2,19 +2,10 @@
 package com.keenwrite.io;
 
 import java.io.File;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URL;
 
-import static com.keenwrite.StatusBarNotifier.clue;
 import static com.keenwrite.io.MediaType.TypeName.*;
 import static com.keenwrite.io.MediaTypeExtensions.getMediaType;
-import static java.net.http.HttpClient.newHttpClient;
-import static java.net.http.HttpRequest.BodyPublishers.noBody;
-import static java.net.http.HttpRequest.newBuilder;
-import static java.net.http.HttpResponse.BodyHandlers.discarding;
 import static org.apache.commons.io.FilenameUtils.getExtension;
-import static org.jsoup.helper.HttpConnection.CONTENT_TYPE;
 
 /**
  * Defines various file formats and format contents.
@@ -97,19 +88,19 @@ public enum MediaType {
   private final String mMediaType;
 
   /**
-   * The IANA-defined type.
+   * The IANA-defined type name.
    */
   private final TypeName mTypeName;
 
   /**
-   * The IANA-defined subtype.
+   * The IANA-defined subtype name.
    */
   private final String mSubtype;
 
   /**
    * Constructs an instance using the default type name of "image".
    *
-   * @param subtype The image subtype.
+   * @param subtype The image subtype name.
    */
   MediaType( final String subtype ) {
     this( IMAGE, subtype );
@@ -119,7 +110,7 @@ public enum MediaType {
    * Constructs an instance using an IANA-defined type and subtype pair.
    *
    * @param typeName The media type's type name.
-   * @param subtype The media type's subtype name.
+   * @param subtype  The media type's subtype name.
    */
   MediaType( final TypeName typeName, final String subtype ) {
     mTypeName = typeName;
@@ -154,53 +145,16 @@ public enum MediaType {
   }
 
   /**
-   * Performs an HTTP HEAD request to determine the media type based on the
-   * Content-Type header returned from the server.
+   * Returns the {@link MediaType} for the given type and subtype names.
    *
-   * @param uri Determine the media type for this resource.
-   * @return The data type for the resource or {@link #UNDEFINED} if unmapped.
-   * @throws MalformedURLException The {@link URI} could not be converted to
-   *                               a {@link URL}.
+   * @param type    The IANA-defined type name.
+   * @param subtype The IANA-defined subtype name.
+   * @return {@link MediaType#UNDEFINED} if there is no {@link MediaType} that
+   * matches the given type and subtype names.
    */
-  public static MediaType valueFrom( final URI uri )
-    throws MalformedURLException {
-    final var mediaType = new MediaType[]{UNDEFINED};
-
-    try {
-      final var client = newHttpClient();
-      final var request = newBuilder( uri )
-        .method( "HEAD", noBody() )
-        .build();
-      final var response = client.send( request, discarding() );
-      final var headers = response.headers();
-      final var map = headers.map();
-
-      map.forEach( ( key, values ) -> {
-        if( CONTENT_TYPE.equalsIgnoreCase( key ) ) {
-          var header = values.get( 0 );
-          // Trim off the character encoding.
-          var i = header.indexOf( ';' );
-          header = header.substring( 0, i == -1 ? header.length() : i );
-
-          // Split the type and subtype.
-          i = header.indexOf( '/' );
-          i = i == -1 ? header.length() : i;
-          final var type = header.substring( 0, i );
-          final var subtype = header.substring( i + 1 );
-
-          mediaType[ 0 ] = valueFrom( type, subtype );
-        }
-      } );
-    } catch( final Exception ex ) {
-      clue( ex );
-    }
-
-    return mediaType[ 0 ];
-  }
-
-  private static MediaType valueFrom(
+  public static MediaType valueFrom(
     final String type, final String subtype ) {
-    for( final var mediaType : values() ) {
+    for( final var mediaType : MediaType.values() ) {
       if( mediaType.equals( type, subtype ) ) {
         return mediaType;
       }
@@ -210,12 +164,12 @@ public enum MediaType {
   }
 
   /**
-   * Answers whether the given type and subtype equal this enumerated value.
-   * This performs a case-insensitive comparison.
+   * Answers whether the given type and subtype names equal this enumerated
+   * value. This performs a case-insensitive comparison.
    *
-   * @param type    The type to compare against this type.
-   * @param subtype The subtype to compare against this type.
-   * @return {@code true} when the type and subtype match.
+   * @param type    The type name to compare against this {@link MediaType}.
+   * @param subtype The subtype name to compare against this {@link MediaType}.
+   * @return {@code true} when the type and subtype name match.
    */
   public boolean equals( final String type, final String subtype ) {
     return mTypeName.name().equalsIgnoreCase( type ) &&
@@ -243,7 +197,7 @@ public enum MediaType {
 
   /**
    * Used by {@link MediaTypeExtensions} to initialize associations where the
-   * subtype and the file name extension have a 1:1 mapping.
+   * subtype name and the file name extension have a 1:1 mapping.
    *
    * @return The IANA subtype value.
    */

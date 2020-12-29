@@ -1,6 +1,7 @@
 /* Copyright 2020 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.preview;
 
+import com.keenwrite.io.HttpMediaType;
 import com.keenwrite.io.MediaType;
 import com.keenwrite.util.BoundedCache;
 import org.w3c.dom.Element;
@@ -19,8 +20,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import static com.keenwrite.StatusBarNotifier.clue;
-import static com.keenwrite.io.MediaType.IMAGE_SVG_XML;
-import static com.keenwrite.io.MediaType.TEXT_PLAIN;
+import static com.keenwrite.io.MediaType.*;
 import static com.keenwrite.preview.SvgRasterizer.BROKEN_IMAGE_PLACEHOLDER;
 import static com.keenwrite.preview.SvgRasterizer.rasterize;
 import static com.keenwrite.processors.markdown.tex.TexNode.HTML_TEX;
@@ -74,9 +74,6 @@ public class SvgReplacedElementFactory implements ReplacedElementFactory {
     final UserAgentCallback uac,
     final int cssWidth,
     final int cssHeight ) {
-    // Seems to resolve a race-condition between rastering and rendering.
-    Thread.yield();
-
     final var e = box.getElement();
 
     // Exit early for the speeds.
@@ -110,16 +107,19 @@ public class SvgReplacedElementFactory implements ReplacedElementFactory {
               URI uri = null;
 
               if( getProtocol( source ).isHttp() ) {
-                // Attempt to rasterize SVG depending on URL resource content.
-                uri = new URI( source );
+                var mediaType = MediaType.valueFrom( source );
 
-                // Attempt rasterization for SVG or plain text formats.
-                final var mediaType = MediaType.valueFrom( uri );
-                if( !(mediaType == TEXT_PLAIN || mediaType == IMAGE_SVG_XML) ) {
-                  uri = null;
+                if( isSvg( mediaType ) || mediaType == UNDEFINED ) {
+                  // Attempt to rasterize SVG depending on URL resource content.
+                  uri = new URI( source );
+
+                  // Attempt rasterization for SVG or plain text formats.
+                  if( !isSvg( HttpMediaType.valueFrom( uri ) ) ) {
+                    uri = null;
+                  }
                 }
               }
-              else if( MediaType.valueFrom( source ) == IMAGE_SVG_XML ) {
+              else if( isSvg( MediaType.valueFrom( source ) ) ) {
                 // Attempt to rasterize based on file name.
                 final var base = new URI( getBaseUri( e ) ).getPath();
                 uri = Paths.get( base, source ).toUri();
@@ -201,5 +201,9 @@ public class SvgReplacedElementFactory implements ReplacedElementFactory {
   private static ImageReplacedElement createImageReplacedElement(
     final BufferedImage bi ) {
     return new ImageReplacedElement( bi, bi.getWidth(), bi.getHeight() );
+  }
+
+  private static boolean isSvg( final MediaType mediaType ) {
+    return mediaType == TEXT_PLAIN || mediaType == IMAGE_SVG_XML;
   }
 }

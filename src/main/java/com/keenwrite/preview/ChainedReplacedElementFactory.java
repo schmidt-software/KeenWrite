@@ -26,7 +26,7 @@ import org.xhtmlrenderer.extend.UserAgentCallback;
 import org.xhtmlrenderer.layout.LayoutContext;
 import org.xhtmlrenderer.render.BlockBox;
 
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 /**
@@ -34,7 +34,11 @@ import java.util.Set;
  * the HTML document prior to displaying it.
  */
 public class ChainedReplacedElementFactory extends ReplacedElementAdapter {
-  private final Set<ReplacedElementFactory> mFactoryList = new HashSet<>();
+  /**
+   * Retain insertion order so that client classes can control the order that
+   * factories are used to resolve images.
+   */
+  private final Set<ReplacedElementFactory> mFactories = new LinkedHashSet<>();
 
   @Override
   public ReplacedElement createReplacedElement(
@@ -43,7 +47,7 @@ public class ChainedReplacedElementFactory extends ReplacedElementAdapter {
     final UserAgentCallback uac,
     final int width,
     final int height ) {
-    for( final var factory : mFactoryList ) {
+    for( final var factory : mFactories ) {
       var replacement =
         factory.createReplacedElement( c, box, uac, width, height );
 
@@ -57,19 +61,19 @@ public class ChainedReplacedElementFactory extends ReplacedElementAdapter {
 
   @Override
   public void reset() {
-    for( final var factory : mFactoryList ) {
+    for( final var factory : mFactories ) {
       factory.reset();
     }
   }
 
   @Override
   public void remove( final Element element ) {
-    for( final var factory : mFactoryList ) {
+    for( final var factory : mFactories ) {
       factory.remove( element );
     }
   }
 
   public void addFactory( final ReplacedElementFactory factory ) {
-    mFactoryList.add( factory );
+    mFactories.add( factory );
   }
 }

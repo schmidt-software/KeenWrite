@@ -36,7 +36,7 @@ enum MediaTypeExtensions {
 
   /**
    * Several media types have only one corresponding standard file name
-   * extension; this constructor calls {@link MediaType#toString()} to obtain
+   * extension; this constructor calls {@link MediaType#getSubtype()} to obtain
    * said extension. Some {@link MediaType}s have a single extension but their
    * assigned IANA name differs (e.g., {@code svg} maps to {@code svg+xml})
    * and thus must not use this constructor.

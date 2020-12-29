@@ -28,6 +28,14 @@ import static javax.swing.SwingUtilities.invokeLater;
  */
 public final class HtmlPreview extends SwingNode {
 
+  private static final ChainedReplacedElementFactory FACTORY;
+
+  static {
+    FACTORY = new ChainedReplacedElementFactory();
+    FACTORY.addFactory( new SvgReplacedElementFactory() );
+    FACTORY.addFactory( new SwingReplacedElementFactory() );
+  }
+
   /**
    * Render CSS using points (pt) not pixels (px) to reduce the chance of
    * poor rendering.
@@ -80,13 +88,9 @@ public final class HtmlPreview extends SwingNode {
       setCacheHint( SPEED );
       setContent( mScrollPane );
 
-      final var creFactory = new ChainedReplacedElementFactory();
-      creFactory.addFactory( new SvgReplacedElementFactory() );
-      creFactory.addFactory( new SwingReplacedElementFactory() );
-
       final var context = mView.getSharedContext();
       final var textRenderer = context.getTextRenderer();
-      context.setReplacedElementFactory( creFactory );
+      context.setReplacedElementFactory( FACTORY );
       textRenderer.setSmoothingThreshold( 0 );
 
       localeProperty().addListener( ( c, o, n ) -> {

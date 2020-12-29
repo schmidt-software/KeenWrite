@@ -114,8 +114,8 @@ public interface TextResource {
           setText( asString( bytes, encoding ) );
         }
         else {
-          final String msg = get( "FileEditor.loadFailed.reason.permissions" );
-          clue( "FileEditor.loadFailed.message", file.toString(), msg );
+          final var msg = get( "TextResource.loadFailed.reason.permissions" );
+          clue( "TextResource.loadFailed.message", file.toString(), msg );
         }
       }
       else {
