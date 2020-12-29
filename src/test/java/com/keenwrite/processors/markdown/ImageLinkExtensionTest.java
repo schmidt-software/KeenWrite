@@ -1,6 +1,7 @@
 /* Copyright 2020 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.processors.markdown;
 
+import com.keenwrite.preferences.Workspace;
 import com.vladsch.flexmark.html.HtmlRenderer;
 import com.vladsch.flexmark.parser.Parser;
 import org.junit.jupiter.api.Test;
@@ -24,8 +25,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
  * Responsible for testing that linked images render into HTML according to
  * the {@link ImageLinkExtension} rules.
  */
-@ExtendWith(ApplicationExtension.class)
-@SuppressWarnings("SameParameterValue")
+@ExtendWith( ApplicationExtension.class )
+@SuppressWarnings( "SameParameterValue" )
 public class ImageLinkExtensionTest {
 
   private static final Map<String, String> IMAGES = new HashMap<>();
@@ -35,7 +36,7 @@ public class ImageLinkExtensionTest {
   private static final String URI_FILENAME = "kitten";
 
   /**
-   * Path to use for testing image filename resolution. Note that resources use
+   * Path to use for testing image file name resolution. Note that resources use
    * forward slashes, regardless of OS.
    */
   private static final String URI_PATH = URI_DIRNAME + '/' + URI_FILENAME;
@@ -74,7 +75,7 @@ public class ImageLinkExtensionTest {
 
   private static String toHtml( final String file ) {
     return format(
-        "<p><img src=\"%s\" alt=\"Tooltip\" title=\"Title\" /></p>\n", file );
+      "<p><img src=\"%s\" alt=\"Tooltip\" title=\"Title\" /></p>\n", file );
   }
 
   /**
@@ -83,7 +84,8 @@ public class ImageLinkExtensionTest {
    */
   @Test
   void test_LocalImage_RelativePathWithExtension_ResolvedSuccessfully()
-      throws URISyntaxException {
+    throws URISyntaxException {
+    final var workspace = new Workspace();
     final var resource = getPathResource( URI_IMAGE );
     final var imagePath = new File( URI_IMAGE ).toPath();
     final var subpaths = resource.getNameCount() - imagePath.getNameCount();
@@ -92,7 +94,7 @@ public class ImageLinkExtensionTest {
     // The root component isn't considered part of the path, so add it back.
     final var path = resource.getRoot().resolve( subpath );
 
-    final var extension = ImageLinkExtension.create( path );
+    final var extension = ImageLinkExtension.create( path, workspace );
     final var extensions = List.of( extension );
     final var pBuilder = Parser.builder();
     final var hBuilder = HtmlRenderer.builder();
@@ -116,7 +118,7 @@ public class ImageLinkExtensionTest {
   }
 
   private Path getPathResource( final String path )
-      throws URISyntaxException {
+    throws URISyntaxException {
     final var url = getResource( path );
     assert url != null;
 

@@ -35,8 +35,10 @@ public class ImageLinkExtension implements HtmlRendererExtension {
   /**
    * Creates an extension capable of using a relative path to embed images.
    *
-   * @param basePath The directory to search for images, either directly or
-   *                 through the images directory setting, not {@code null}.
+   * @param basePath  The directory to search for images, either directly or
+   *                  through the images directory setting, not {@code null}.
+   * @param workspace Contains user preferences for image directory and image
+   *                  file name extension lookup order.
    * @return The new {@link ImageLinkExtension}, not {@code null}.
    */
   public static ImageLinkExtension create(
@@ -74,7 +76,7 @@ public class ImageLinkExtension implements HtmlRendererExtension {
         return valid( link, uri );
       }
 
-      // Determine the fully-qualified filename (fqfn).
+      // Determine the fully-qualified file name (fqfn).
       final var fqfn = Paths.get( getBasePath().toString(), uri ).toFile();
 
       if( fqfn.isFile() ) {
@@ -83,7 +85,6 @@ public class ImageLinkExtension implements HtmlRendererExtension {
 
       // At this point either the image directory is qualified or needs to be
       // qualified using the image prefix, as set in the user preferences.
-
       try {
         final var imagePrefix = getImagePrefix();
         final var basePath = getBasePath().resolve( imagePrefix );

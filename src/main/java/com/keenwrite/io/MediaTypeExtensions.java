@@ -24,8 +24,9 @@ enum MediaTypeExtensions {
   MEDIA_IMAGE_WEBP( IMAGE_WEBP ),
 
   MEDIA_TEXT_MARKDOWN( TEXT_MARKDOWN, of(
-      "md", "markdown", "mdown", "mdtxt", "mdtext", "mdwn", "mkd", "mkdown",
-      "mkdn", "text", "txt" ) ),
+    "md", "markdown", "mdown", "mdtxt", "mdtext", "mdwn", "mkd", "mkdown",
+    "mkdn" ) ),
+  MEDIA_TEXT_PLAIN( TEXT_PLAIN, of( "asc", "ascii", "txt", "text", "utxt" ) ),
   MEDIA_TEXT_R_MARKDOWN( TEXT_R_MARKDOWN, of( "Rmd" ) ),
   MEDIA_TEXT_R_XML( TEXT_R_XML, of( "Rxml" ) ),
   MEDIA_TEXT_YAML( TEXT_YAML, of( "yaml", "yml" ) );
@@ -34,7 +35,7 @@ enum MediaTypeExtensions {
   private final Set<String> mExtensions;
 
   /**
-   * Several media types have only one corresponding standard filename
+   * Several media types have only one corresponding standard file name
    * extension; this constructor calls {@link MediaType#toString()} to obtain
    * said extension. Some {@link MediaType}s have a single extension but their
    * assigned IANA name differs (e.g., {@code svg} maps to {@code svg+xml})
@@ -43,7 +44,7 @@ enum MediaTypeExtensions {
    * @param mediaType The {@link MediaType} containing only one extension.
    */
   MediaTypeExtensions( final MediaType mediaType ) {
-    this( mediaType, of( mediaType.toString() ) );
+    this( mediaType, of( mediaType.getSubtype() ) );
   }
 
   /**
@@ -56,7 +57,7 @@ enum MediaTypeExtensions {
    *                   {@link MediaType}.
    */
   MediaTypeExtensions(
-      final MediaType mediaType, final Set<String> extensions ) {
+    final MediaType mediaType, final Set<String> extensions ) {
     assert mediaType != null;
     assert extensions != null;
     assert !extensions.isEmpty();
@@ -75,7 +76,7 @@ enum MediaTypeExtensions {
   static MediaType getMediaType( final String extension ) {
     final var sanitized = sanitize( extension );
 
-    for( final var mediaType : values() ) {
+    for( final var mediaType : MediaTypeExtensions.values() ) {
       if( mediaType.isType( sanitized ) ) {
         return mediaType.getMediaType();
       }
@@ -84,8 +85,14 @@ enum MediaTypeExtensions {
     return UNDEFINED;
   }
 
-  private boolean isType( final String extension ) {
-    return mExtensions.contains( sanitize( extension ) );
+  private boolean isType( final String sanitized ) {
+    for( final var extension : mExtensions ) {
+      if( extension.equalsIgnoreCase( sanitized ) ) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
   private static String sanitize( final String extension ) {

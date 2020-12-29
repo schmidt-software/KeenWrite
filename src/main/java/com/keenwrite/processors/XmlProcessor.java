@@ -152,7 +152,7 @@ public class XmlProcessor extends ExecutorProcessor<String>
   /**
    * Given XML text, this will use a StAX pull reader to obtain the XML
    * stylesheet processing instruction. This will throw a parse exception if the
-   * href pseudo-attribute filename value cannot be found.
+   * href pseudo-attribute file name value cannot be found.
    *
    * @param xml The XML containing an xml-stylesheet processing instruction.
    * @return The href pseudo-attribute value.

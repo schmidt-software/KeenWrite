@@ -77,7 +77,7 @@ public class Constants {
   public static final String FILE_PREFERENCES = getPreferencesFilename();
 
   /**
-   * Refer to filename extension settings in the configuration file. Do not
+   * Refer to file name extension settings in the configuration file. Do not
    * terminate with a period.
    */
   public static final String GLOB_PREFIX_FILE = "file.ext";
@@ -221,10 +221,10 @@ public class Constants {
   }
 
   /**
-   * Converts the given filenames to images, such as application icons.
+   * Converts the given file names to images, such as application icons.
    *
-   * @param filenames The filenames to convert to images.
-   * @return The images loaded from the filename references.
+   * @param filenames The file names to convert to images.
+   * @return The images loaded from the file name references.
    */
   private static List<Image> createImages( final String... filenames ) {
     final List<Image> images = new ArrayList<>( filenames.length );

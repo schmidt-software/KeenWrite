@@ -13,17 +13,18 @@ import org.xhtmlrenderer.simple.extend.FormSubmissionListener;
 import org.xhtmlrenderer.swing.ImageReplacedElement;
 
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.net.URI;
 import java.nio.file.Paths;
 import java.util.Map;
-import java.util.function.Function;
+import java.util.Optional;
 
 import static com.keenwrite.StatusBarNotifier.clue;
 import static com.keenwrite.io.MediaType.IMAGE_SVG_XML;
+import static com.keenwrite.io.MediaType.TEXT_PLAIN;
 import static com.keenwrite.preview.SvgRasterizer.BROKEN_IMAGE_PLACEHOLDER;
 import static com.keenwrite.preview.SvgRasterizer.rasterize;
 import static com.keenwrite.processors.markdown.tex.TexNode.HTML_TEX;
+import static com.keenwrite.util.ProtocolScheme.getProtocol;
 
 /**
  * Responsible for running {@link SvgRasterizer} on SVG images detected within
@@ -55,12 +56,15 @@ public class SvgReplacedElementFactory implements ReplacedElementFactory {
   private static final String HTML_IMAGE = "img";
   private static final String HTML_IMAGE_SRC = "src";
 
+  private static final ImageReplacedElement BROKEN_IMAGE =
+    createImageReplacedElement( BROKEN_IMAGE_PLACEHOLDER );
+
   /**
    * A bounded cache that removes the oldest image if the maximum number of
    * cached images has been reached. This constrains the number of images
    * loaded into memory.
    */
-  private final Map<String, BufferedImage> mImageCache =
+  private final Map<String, ImageReplacedElement> mImageCache =
     new BoundedCache<>( 150 );
 
   @Override
@@ -70,46 +74,77 @@ public class SvgReplacedElementFactory implements ReplacedElementFactory {
     final UserAgentCallback uac,
     final int cssWidth,
     final int cssHeight ) {
+    // Seems to resolve a race-condition between rastering and rendering.
+    Thread.yield();
+
     final var e = box.getElement();
-    BufferedImage image = null;
 
-    if( e != null ) {
-      switch( e.getNodeName() ) {
-        case HTML_IMAGE -> {
-          final var src = e.getAttribute( HTML_IMAGE_SRC );
+    // Exit early for the speeds.
+    if( e == null ) {
+      return null;
+    }
 
-          if( MediaType.valueOf( new File( src ) ) == IMAGE_SVG_XML ) {
-            try {
-              final var baseUri = getBaseUri( e );
-              final var uri = new URI( baseUri ).getPath();
-              final var path = Paths.get( uri, src );
+    // If the source image is cached, don't bother fetching. This optimization
+    // avoids making multiple HTTP requests for the same URI.
+    final var node = e.getNodeName();
+    final var source = switch( node ) {
+      case HTML_IMAGE -> e.getAttribute( HTML_IMAGE_SRC );
+      case HTML_TEX -> e.getTextContent();
+      default -> "";
+    };
 
-              image = getCachedImage(
-                src, svg -> rasterize( path, box.getContentWidth() ) );
-            } catch( final Exception ex ) {
-              image = BROKEN_IMAGE_PLACEHOLDER;
-              clue( ex );
+    // Non-image HTML elements shall not pass.
+    if( source.isBlank() ) {
+      return null;
+    }
+
+    final var image = new ImageReplacedElement[ 1 ];
+    getCachedImage( source ).ifPresentOrElse(
+      ( i ) -> image[ 0 ] = i,
+      () -> {
+        try {
+          BufferedImage raster = null;
+
+          switch( node ) {
+            case HTML_IMAGE -> {
+              URI uri = null;
+
+              if( getProtocol( source ).isHttp() ) {
+                // Attempt to rasterize SVG depending on URL resource content.
+                uri = new URI( source );
+
+                // Attempt rasterization for SVG or plain text formats.
+                final var mediaType = MediaType.valueFrom( uri );
+                if( !(mediaType == TEXT_PLAIN || mediaType == IMAGE_SVG_XML) ) {
+                  uri = null;
+                }
+              }
+              else if( MediaType.valueFrom( source ) == IMAGE_SVG_XML ) {
+                // Attempt to rasterize based on file name.
+                final var base = new URI( getBaseUri( e ) ).getPath();
+                uri = Paths.get( base, source ).toUri();
+              }
+
+              if( uri != null ) {
+                raster = rasterize( uri, box.getContentWidth() );
+              }
             }
+            case HTML_TEX ->
+              // Convert the TeX element to a raster graphic.
+              raster = rasterize( getInstance().render( source ) );
           }
-        }
-        case HTML_TEX -> {
-          // Convert the TeX element to a raster graphic if not yet cached.
-          final var src = e.getTextContent();
-          image = getCachedImage(
-            src, __ -> rasterize( getInstance().render( src ) )
-          );
+
+          if( raster != null ) {
+            image[ 0 ] = putCachedImage( source, raster );
+          }
+        } catch( final Exception ex ) {
+          image[ 0 ] = BROKEN_IMAGE;
+          clue( ex );
         }
       }
-    }
+    );
 
-    if( image != null ) {
-      final var w = image.getWidth( null );
-      final var h = image.getHeight( null );
-
-      return new ImageReplacedElement( image, w, h );
-    }
-
-    return null;
+    return image[ 0 ];
   }
 
   private String getBaseUri( final Element e ) {
@@ -149,17 +184,22 @@ public class SvgReplacedElementFactory implements ReplacedElementFactory {
   public void setFormSubmissionListener( FormSubmissionListener listener ) {
   }
 
-  /**
-   * Returns an image associated with a string; the string's pre-computed
-   * hash code is returned as the string value, making this operation very
-   * quick to return the corresponding {@link BufferedImage}.
-   *
-   * @param src        The source used for the key into the image cache.
-   * @param rasterizer {@link Function} to call to rasterize an image.
-   * @return The image that corresponds to the given source string.
-   */
-  private BufferedImage getCachedImage(
-    final String src, final Function<String, BufferedImage> rasterizer ) {
-    return mImageCache.computeIfAbsent( src, __ -> rasterizer.apply( src ) );
+  private ImageReplacedElement putCachedImage(
+    final String source, final BufferedImage image ) {
+    assert source != null;
+    assert image != null;
+
+    final var result = createImageReplacedElement( image );
+    mImageCache.put( source, result );
+    return result;
+  }
+
+  private Optional<ImageReplacedElement> getCachedImage( final String source ) {
+    return Optional.ofNullable( mImageCache.get( source ) );
+  }
+
+  private static ImageReplacedElement createImageReplacedElement(
+    final BufferedImage bi ) {
+    return new ImageReplacedElement( bi, bi.getWidth(), bi.getHeight() );
   }
 }

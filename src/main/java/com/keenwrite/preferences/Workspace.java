@@ -50,11 +50,11 @@ import static javafx.collections.FXCollections.observableSet;
  * </p>
  * <dl>
  *   <dt>File</dt>
- *   <dd>References a filename (no path), path, or directory.</dd>
+ *   <dd>References a file name (no path), path, or directory.</dd>
  *   <dt>Path</dt>
- *   <dd>Fully qualified filename, which includes all parent directories.</dd>
+ *   <dd>Fully qualified file name, which includes all parent directories.</dd>
  *   <dt>Dir</dt>
- *   <dd>Directory without a filename ({@link File#isDirectory()} is true).</dd>
+ *   <dd>Directory without a file name ({@link File#isDirectory()} is true).</dd>
  * </dl>
  */
 public class Workspace {

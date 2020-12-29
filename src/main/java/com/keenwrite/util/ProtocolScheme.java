@@ -31,9 +31,9 @@ public enum ProtocolScheme {
   UNKNOWN;
 
   /**
-   * Returns the protocol for a given URI or filename.
+   * Returns the protocol for a given URI or file name.
    *
-   * @param resource Determine the protocol for this URI or filename.
+   * @param resource Determine the protocol for this URI or file name.
    * @return The protocol for the given resource.
    */
   public static ProtocolScheme getProtocol( final String resource ) {

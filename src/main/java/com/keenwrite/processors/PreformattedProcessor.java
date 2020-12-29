@@ -2,7 +2,7 @@
 package com.keenwrite.processors;
 
 /**
- * This is the default processor used when an unknown filename extension is
+ * This is the default processor used when an unknown file name extension is
  * encountered. It processes the text by enclosing it in an HTML {@code <pre>}
  * element.
  */

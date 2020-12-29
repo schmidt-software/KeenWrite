@@ -141,7 +141,7 @@ public class FileChooserCommand {
    * that can be opened by the user.
    *
    * @param filetype Used to find the globbing pattern for extensions.
-   * @return A filename filter suitable for use by a FileDialog instance.
+   * @return A file name filter suitable for use by a FileDialog instance.
    */
   private ExtensionFilter createExtensionFilter(
     final FileType filetype ) {

@@ -215,7 +215,7 @@ public final class MainPane extends SplitPane {
   private void open( final File file ) {
     final var tab = createTab( file );
     final var node = tab.getContent();
-    final var mediaType = MediaType.valueOf( file );
+    final var mediaType = MediaType.valueFrom( file );
     final var tabPane = obtainDetachableTabPane( mediaType );
     final var newTabPane = !getItems().contains( tabPane );
 
@@ -540,7 +540,7 @@ public final class MainPane extends SplitPane {
       final var file = new File( path );
 
       final var set = bins.computeIfAbsent(
-        MediaType.valueOf( file ), k -> new LinkedHashSet<>()
+        MediaType.valueFrom( file ), k -> new LinkedHashSet<>()
       );
 
       set.add( file );
@@ -777,7 +777,7 @@ public final class MainPane extends SplitPane {
   @SuppressWarnings( {"RedundantCast", "unchecked", "RedundantSuppression"} )
   private TextResource createTextResource( final File file ) {
     // TODO: Create PlainTextEditor that's returned by default.
-    return switch( MediaType.valueOf( file ) ) {
+    return switch( MediaType.valueFrom( file ) ) {
       case TEXT_MARKDOWN -> createMarkdownEditor( file );
       case TEXT_YAML -> createDefinitionEditor( file );
       default -> createMarkdownEditor( file );
@@ -905,10 +905,10 @@ public final class MainPane extends SplitPane {
   }
 
   /**
-   * Returns the set of filenames opened in the application. The names must
+   * Returns the set of file names opened in the application. The names must
    * be converted to {@link File} objects.
    *
-   * @return A {@link Set} of filenames.
+   * @return A {@link Set} of file names.
    */
   private SetProperty<String> getRecentFiles() {
     return getWorkspace().setsProperty( KEY_UI_FILES_PATH );

@@ -38,17 +38,17 @@ public class ChainedReplacedElementFactory extends ReplacedElementAdapter {
 
   @Override
   public ReplacedElement createReplacedElement(
-      final LayoutContext c,
-      final BlockBox box,
-      final UserAgentCallback uac,
-      final int cssWidth,
-      final int cssHeight ) {
+    final LayoutContext c,
+    final BlockBox box,
+    final UserAgentCallback uac,
+    final int width,
+    final int height ) {
     for( final var factory : mFactoryList ) {
-      final var element =
-          factory.createReplacedElement( c, box, uac, cssWidth, cssHeight );
+      var replacement =
+        factory.createReplacedElement( c, box, uac, width, height );
 
-      if( element != null ) {
-        return element;
+      if( replacement != null ) {
+        return replacement;
       }
     }
 

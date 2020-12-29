@@ -62,7 +62,7 @@ public final class HtmlPreview extends SwingNode {
    * Creates a new preview pane that can scroll to the caret position within the
    * document.
    *
-   * @param workspace Contains locale and font information.
+   * @param workspace Contains locale and font size information.
    */
   public HtmlPreview( final Workspace workspace ) {
     mWorkspace = workspace;
@@ -80,13 +80,13 @@ public final class HtmlPreview extends SwingNode {
       setCacheHint( SPEED );
       setContent( mScrollPane );
 
-      final var factory = new ChainedReplacedElementFactory();
-      factory.addFactory( new SvgReplacedElementFactory() );
-      factory.addFactory( new SwingReplacedElementFactory() );
+      final var creFactory = new ChainedReplacedElementFactory();
+      creFactory.addFactory( new SvgReplacedElementFactory() );
+      creFactory.addFactory( new SwingReplacedElementFactory() );
 
       final var context = mView.getSharedContext();
       final var textRenderer = context.getTextRenderer();
-      context.setReplacedElementFactory( factory );
+      context.setReplacedElementFactory( creFactory );
       textRenderer.setSmoothingThreshold( 0 );
 
       localeProperty().addListener( ( c, o, n ) -> {
@@ -111,6 +111,13 @@ public final class HtmlPreview extends SwingNode {
     render( mHtmlDocument.toString() );
   }
 
+  /**
+   * Attaches the HTML head prefix and HTML tail suffix to the given HTML
+   * string.
+   *
+   * @param html The HTML to adorn with opening and closing tags.
+   * @return A complete HTML document, ready for rendering.
+   */
   private String decorate( final String html ) {
     mHtmlDocument.setLength( 0 );
     mHtmlDocument.append( html );
