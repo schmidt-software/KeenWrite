@@ -19,6 +19,7 @@
 package com.keenwrite.preview;
 
 import com.keenwrite.ui.adapters.ReplacedElementAdapter;
+import com.keenwrite.util.BoundedCache;
 import org.w3c.dom.Element;
 import org.xhtmlrenderer.extend.ReplacedElement;
 import org.xhtmlrenderer.extend.ReplacedElementFactory;
@@ -27,7 +28,12 @@ import org.xhtmlrenderer.layout.LayoutContext;
 import org.xhtmlrenderer.render.BlockBox;
 
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
+
+import static com.keenwrite.preview.SvgReplacedElementFactory.HTML_IMAGE;
+import static com.keenwrite.preview.SvgReplacedElementFactory.HTML_IMAGE_SRC;
+import static com.keenwrite.processors.markdown.tex.TexNode.HTML_TEX;
 
 /**
  * Responsible for running one or more factories to perform post-processing on
@@ -40,6 +46,13 @@ public class ChainedReplacedElementFactory extends ReplacedElementAdapter {
    */
   private final Set<ReplacedElementFactory> mFactories = new LinkedHashSet<>();
 
+  /**
+   * A bounded cache that removes the oldest image if the maximum number of
+   * cached images has been reached. This constrains the number of images
+   * loaded into memory.
+   */
+  private final Map<String, ReplacedElement> mCache = new BoundedCache<>( 150 );
+
   @Override
   public ReplacedElement createReplacedElement(
     final LayoutContext c,
@@ -47,12 +60,34 @@ public class ChainedReplacedElementFactory extends ReplacedElementAdapter {
     final UserAgentCallback uac,
     final int width,
     final int height ) {
-    for( final var factory : mFactories ) {
-      var replacement =
-        factory.createReplacedElement( c, box, uac, width, height );
+    for( final var f : mFactories ) {
+      final var e = box.getElement();
 
-      if( replacement != null ) {
-        return replacement;
+      // Exit early for super-speed.
+      if( e == null ) {
+        break;
+      }
+
+      // If the source image is cached, don't bother fetching. This optimization
+      // avoids making multiple HTTP requests for the same URI.
+      final var node = e.getNodeName();
+      final var source = switch( node ) {
+        case HTML_IMAGE -> e.getAttribute( HTML_IMAGE_SRC );
+        case HTML_TEX -> e.getTextContent();
+        default -> "";
+      };
+
+      // HTML <img> or <tex> elements without source data shall not pass.
+      if( source.isBlank() ) {
+        break;
+      }
+
+      final var replaced = mCache.computeIfAbsent(
+        source, k -> f.createReplacedElement( c, box, uac, width, height )
+      );
+
+      if( replaced != null ) {
+        return replaced;
       }
     }
 
