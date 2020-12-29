@@ -32,6 +32,11 @@ public final class HtmlPreview extends SwingNode {
 
   static {
     FACTORY = new ChainedReplacedElementFactory();
+
+    // The order is important: Swing factory will replace SVG images with
+    // a blank image, which will cause the chained factory to cache the image
+    // and exit. Instead, the SVG must execute first to rasterize the content.
+    // Consequently, the chained factory must maintain insertion order.
     FACTORY.addFactory( new SvgReplacedElementFactory() );
     FACTORY.addFactory( new SwingReplacedElementFactory() );
   }
