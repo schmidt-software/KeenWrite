@@ -15,6 +15,11 @@ import static com.keenwrite.StatusBarNotifier.clue;
 public class MathRenderer {
 
   /**
+   * Singleton instance for rendering math symbols.
+   */
+  public static final MathRenderer MATH_RENDERER = new MathRenderer();
+
+  /**
    * Default font size in points.
    */
   private static final float FONT_SIZE = 20f;
@@ -23,7 +28,7 @@ public class MathRenderer {
   private final TeXEnvironment mEnvironment = createTeXEnvironment( mTeXFont );
   private final SvgDomGraphics2D mGraphics = createSvgDomGraphics2D();
 
-  public MathRenderer() {
+  private MathRenderer() {
     mGraphics.scale( FONT_SIZE, FONT_SIZE );
   }
 

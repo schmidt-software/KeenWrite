@@ -17,6 +17,7 @@ import java.nio.file.Paths;
 
 import static com.keenwrite.StatusBarNotifier.clue;
 import static com.keenwrite.io.MediaType.*;
+import static com.keenwrite.preview.MathRenderer.MATH_RENDERER;
 import static com.keenwrite.preview.SvgRasterizer.BROKEN_IMAGE_PLACEHOLDER;
 import static com.keenwrite.preview.SvgRasterizer.rasterize;
 import static com.keenwrite.processors.markdown.tex.TexNode.HTML_TEX;
@@ -27,27 +28,6 @@ import static com.keenwrite.util.ProtocolScheme.getProtocol;
  * a document to transform them into rasterized versions.
  */
 public class SvgReplacedElementFactory extends ReplacedElementAdapter {
-
-  /**
-   * Implementation of the initialization-on-demand holder design pattern,
-   * an for a lazy-loaded singleton. In all versions of Java, the idiom enables
-   * a safe, highly concurrent lazy initialization of static fields with good
-   * performance. The implementation relies upon the initialization phase of
-   * execution within the Java Virtual Machine (JVM) as specified by the Java
-   * Language Specification.
-   */
-  private static class Container {
-    private static final MathRenderer INSTANCE = new MathRenderer();
-  }
-
-  /**
-   * Returns the singleton instance for rendering math symbols.
-   *
-   * @return A non-null instance, loaded, configured, and ready to render math.
-   */
-  public static MathRenderer getInstance() {
-    return Container.INSTANCE;
-  }
 
   public static final String HTML_IMAGE = "img";
   public static final String HTML_IMAGE_SRC = "src";
@@ -98,7 +78,7 @@ public class SvgReplacedElementFactory extends ReplacedElementAdapter {
         }
         case HTML_TEX ->
           // Convert the TeX element to a raster graphic.
-          raster = rasterize( getInstance().render( e.getTextContent() ) );
+          raster = rasterize( MATH_RENDERER.render( e.getTextContent() ) );
       }
 
       if( raster != null ) {

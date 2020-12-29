@@ -3,7 +3,6 @@ package com.keenwrite.processors.markdown.tex;
 
 import com.keenwrite.ExportFormat;
 import com.keenwrite.preview.SvgRasterizer;
-import com.keenwrite.preview.SvgReplacedElementFactory;
 import com.vladsch.flexmark.html.HtmlWriter;
 import com.vladsch.flexmark.html.renderer.NodeRenderer;
 import com.vladsch.flexmark.html.renderer.NodeRendererContext;
@@ -16,6 +15,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Set;
 
+import static com.keenwrite.preview.MathRenderer.MATH_RENDERER;
 import static com.keenwrite.processors.markdown.tex.TexNode.*;
 
 public class TexNodeRenderer {
@@ -82,9 +82,8 @@ public class TexNodeRenderer {
     void render( final TexNode node,
                  final NodeRendererContext context,
                  final HtmlWriter html ) {
-      final var renderer = SvgReplacedElementFactory.getInstance();
       final var tex = node.getText().toStringOrNull();
-      final var doc = renderer.render( tex == null ? "" : tex );
+      final var doc = MATH_RENDERER.render( tex == null ? "" : tex );
       final var svg = SvgRasterizer.toSvg( doc.getDocumentElement() );
       html.raw( svg );
     }
