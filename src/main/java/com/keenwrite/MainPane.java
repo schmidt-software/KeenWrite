@@ -542,7 +542,9 @@ public final class MainPane extends SplitPane {
     // Create two groups: YAML files and plain text files.
     final var bins = paths
       .stream()
-      .collect( groupingBy( path -> bin.apply( MediaType.valueFrom( path ) ) ) );
+      .collect(
+        groupingBy( path -> bin.apply( MediaType.valueFrom( path ) ) )
+      );
 
     bins.putIfAbsent( TEXT_YAML, List.of( DEFINITION_DEFAULT.toString() ) );
     bins.putIfAbsent( TEXT_PLAIN, List.of( DOCUMENT_DEFAULT.toString() ) );
