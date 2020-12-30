@@ -156,10 +156,7 @@ public final class MainPane extends SplitPane {
     mHtmlPreview = new HtmlPreview( workspace );
 
     open( bin( getRecentFiles() ) );
-
-    final var tabPane = obtainDetachableTabPane( TEXT_HTML );
-    tabPane.addTab( "HTML", mHtmlPreview );
-    addTabPane( tabPane );
+    viewPreview();
 
     final var ratio = 100f / getItems().size() / 100;
     final var positions = getDividerPositions();
@@ -436,6 +433,24 @@ public final class MainPane extends SplitPane {
     } );
 
     return editor;
+  }
+
+  public void viewPreview() {
+    final var tabPane = obtainDetachableTabPane( TEXT_HTML );
+
+    // Prevent multiple HTML previews because in the end, there can be only one.
+    for( final var tab : tabPane.getTabs() ) {
+      if( tab.getContent() == mHtmlPreview ) {
+        return;
+      }
+    }
+
+    tabPane.addTab( "HTML", mHtmlPreview );
+    addTabPane( tabPane );
+  }
+
+  public void viewRefresh() {
+    mHtmlPreview.refresh();
   }
 
   /**
@@ -739,7 +754,10 @@ public final class MainPane extends SplitPane {
   }
 
   private void addTabPane( final int index, final DetachableTabPane tabPane ) {
-    getItems().add( index, tabPane );
+    final var items = getItems();
+    if( !items.contains( tabPane ) ) {
+      items.add( index, tabPane );
+    }
   }
 
   private void addTabPane( final DetachableTabPane tabPane ) {

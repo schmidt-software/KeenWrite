@@ -301,9 +301,11 @@ public class ApplicationActions {
   }
 
   public void view‿refresh() {
+    getMainPane().viewRefresh();
   }
 
   public void view‿preview() {
+    getMainPane().viewPreview();
   }
 
   public void help‿about() {

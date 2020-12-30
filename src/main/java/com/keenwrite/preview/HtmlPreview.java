@@ -28,18 +28,15 @@ import static javax.swing.SwingUtilities.invokeLater;
  */
 public final class HtmlPreview extends SwingNode {
 
-  private static final ChainedReplacedElementFactory FACTORY;
-
-  static {
-    FACTORY = new ChainedReplacedElementFactory();
-
-    // The order is important: Swing factory will replace SVG images with
-    // a blank image, which will cause the chained factory to cache the image
-    // and exit. Instead, the SVG must execute first to rasterize the content.
-    // Consequently, the chained factory must maintain insertion order.
-    FACTORY.addFactory( new SvgReplacedElementFactory() );
-    FACTORY.addFactory( new SwingReplacedElementFactory() );
-  }
+  // The order is important: Swing factory will replace SVG images with
+  // a blank image, which will cause the chained factory to cache the image
+  // and exit. Instead, the SVG must execute first to rasterize the content.
+  // Consequently, the chained factory must maintain insertion order.
+  private static final ChainedReplacedElementFactory FACTORY
+    = new ChainedReplacedElementFactory(
+    new SvgReplacedElementFactory(),
+    new SwingReplacedElementFactory()
+  );
 
   /**
    * Render CSS using points (pt) not pixels (px) to reduce the chance of
@@ -114,6 +111,14 @@ public final class HtmlPreview extends SwingNode {
    */
   public void render( final String html ) {
     mView.render( decorate( html ), getBaseUri() );
+  }
+
+  /**
+   * Clears the caches then rerenders the content.
+   */
+  public void refresh() {
+    FACTORY.clearCache();
+    rerender();
   }
 
   private void rerender() {

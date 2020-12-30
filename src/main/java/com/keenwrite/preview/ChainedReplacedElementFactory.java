@@ -34,6 +34,7 @@ import java.util.Set;
 import static com.keenwrite.preview.SvgReplacedElementFactory.HTML_IMAGE;
 import static com.keenwrite.preview.SvgReplacedElementFactory.HTML_IMAGE_SRC;
 import static com.keenwrite.processors.markdown.tex.TexNode.HTML_TEX;
+import static java.util.Arrays.asList;
 
 /**
  * Responsible for running one or more factories to perform post-processing on
@@ -52,6 +53,11 @@ public class ChainedReplacedElementFactory extends ReplacedElementAdapter {
    * loaded into memory.
    */
   private final Map<String, ReplacedElement> mCache = new BoundedCache<>( 150 );
+
+  public ChainedReplacedElementFactory(
+    final ReplacedElementFactory... factories ) {
+    mFactories.addAll( asList( factories ) );
+  }
 
   @Override
   public ReplacedElement createReplacedElement(
@@ -110,5 +116,9 @@ public class ChainedReplacedElementFactory extends ReplacedElementAdapter {
 
   public void addFactory( final ReplacedElementFactory factory ) {
     mFactories.add( factory );
+  }
+
+  public void clearCache() {
+    mCache.clear();
   }
 }
