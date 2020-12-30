@@ -45,7 +45,7 @@ public class MarkdownProcessor extends ExecutorProcessor<String> {
   }
 
   public static MarkdownProcessor create( final Workspace workspace ) {
-    return create( IdentityProcessor.INSTANCE, DEFAULT_DIRECTORY, workspace );
+    return create( IdentityProcessor.INSTANCE, workspace, DEFAULT_DIRECTORY );
   }
 
   public static MarkdownProcessor create( final ProcessorContext context ) {
@@ -54,9 +54,9 @@ public class MarkdownProcessor extends ExecutorProcessor<String> {
 
   public static MarkdownProcessor create(
     final Processor<String> successor,
-    final Path path,
-    final Workspace workspace ) {
-    final var extensions = createExtensions( path, NONE, workspace );
+    final Workspace workspace,
+    final Path dir ) {
+    final var extensions = createExtensions( NONE, workspace, dir );
     return new MarkdownProcessor( successor, extensions );
   }
 
@@ -81,10 +81,16 @@ public class MarkdownProcessor extends ExecutorProcessor<String> {
    */
   private static Collection<Extension> createExtensions(
     final ProcessorContext context ) {
-    final var path = context.getBasePath();
+    final var path  = context.getPath();
+    final var dir = context.getBasePath();
     final var format = context.getExportFormat();
     final var workspace = context.getWorkspace();
-    final var extensions = createExtensions( path, format, workspace );
+    final var extensions = createExtensions( format, workspace, dir );
+
+    final var mediaType = MediaType.valueFrom( path );
+    if( mediaType == TEXT_R_MARKDOWN || mediaType == TEXT_R_XML ) {
+      extensions.add( RExtension.create() );
+    }
 
     extensions.add( FencedBlockExtension.create( context ) );
     extensions.add( CaretExtension.create( context.getCaret() ) );
@@ -100,22 +106,17 @@ public class MarkdownProcessor extends ExecutorProcessor<String> {
    * code elements, so that the {@link InlineRProcessor} can interpret the
    * R statements.
    *
-   * @param path   Path name for referencing image files via relative paths
+   * @param dir    Directory for referencing image files via relative paths
    *               and dynamic file types.
    * @param format TeX export format to use when generating HTMl documents.
    * @return {@link Collection} of extensions invoked when parsing Markdown.
    */
   private static Collection<Extension> createExtensions(
-    final Path path, final ExportFormat format, final Workspace workspace ) {
+    final ExportFormat format, final Workspace workspace, final Path dir ) {
     final var extensions = createDefaultExtensions();
 
-    extensions.add( ImageLinkExtension.create( path, workspace ) );
+    extensions.add( ImageLinkExtension.create( dir, workspace ) );
     extensions.add( TeXExtension.create( format ) );
-
-    final var mediaType = MediaType.valueFrom( path );
-    if( mediaType == TEXT_R_MARKDOWN || mediaType == TEXT_R_XML ) {
-      extensions.add( RExtension.create() );
-    }
 
     return extensions;
   }

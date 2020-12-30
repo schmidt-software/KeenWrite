@@ -778,7 +778,7 @@ public final class MainPane extends SplitPane {
   private TextResource createTextResource( final File file ) {
     // TODO: Create PlainTextEditor that's returned by default.
     return switch( MediaType.valueFrom( file ) ) {
-      case TEXT_MARKDOWN -> createMarkdownEditor( file );
+      case TEXT_MARKDOWN, TEXT_R_MARKDOWN -> createMarkdownEditor( file );
       case TEXT_YAML -> createDefinitionEditor( file );
       default -> createMarkdownEditor( file );
     };
