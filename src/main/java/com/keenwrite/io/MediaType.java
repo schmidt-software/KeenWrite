@@ -2,6 +2,7 @@
 package com.keenwrite.io;
 
 import java.io.File;
+import java.nio.file.Path;
 
 import static com.keenwrite.io.MediaType.TypeName.*;
 import static com.keenwrite.io.MediaTypeExtensions.getMediaType;
@@ -129,6 +130,19 @@ public enum MediaType {
    */
   public static MediaType valueFrom( final File file ) {
     return valueFrom( file.getName() );
+  }
+
+  /**
+   * Returns the {@link MediaType} associated with the path to a file.
+   *
+   * @param path Has a file name that may contain an extension associated with
+   *             a known {@link MediaType}.
+   * @return {@link MediaType#UNDEFINED} if the extension has not been
+   * assigned, otherwise the {@link MediaType} associated with this
+   * {@link File}'s file name extension.
+   */
+  public static MediaType valueFrom( final Path path ) {
+    return valueFrom( path.toFile() );
   }
 
   /**

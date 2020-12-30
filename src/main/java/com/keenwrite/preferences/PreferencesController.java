@@ -87,7 +87,9 @@ public class PreferencesController {
         get( KEY_R ),
         Group.of(
           get( KEY_R_DIR ),
-          Setting.of( label( KEY_R_DIR, false ) ),
+          Setting.of( label( KEY_R_DIR,
+                             stringProperty( KEY_DEF_DELIM_BEGAN ).get(),
+                             stringProperty( KEY_DEF_DELIM_ENDED ).get() ) ),
           Setting.of( title( KEY_R_DIR ), fileProperty( KEY_R_DIR ), true )
         ),
         Group.of(
@@ -178,27 +180,15 @@ public class PreferencesController {
    * @return The value of the key as a label.
    */
   private Node label( final Key key ) {
-    return label( key, true );
+    return label( key, (String[]) null );
   }
 
-  private Node label( final Key key, final boolean interpolate ) {
-    return label( key.toString() + ".desc", interpolate );
+  private Node label( final Key key, final String... values ) {
+    return new Label( get( key.toString() + ".desc", (Object[]) values ) );
   }
 
   private String title( final Key key ) {
     return get( key.toString() + ".title" );
-  }
-
-  /**
-   * Creates a label for the given key.
-   *
-   * @param key         The key to find in the resource bundle.
-   * @param interpolate {@code true} means to interpolate the value.
-   * @return The value of the key, interpolated if {@code interpolate} is
-   * {@code true}.
-   */
-  private Node label( final String key, final boolean interpolate ) {
-    return new Label( get( key, interpolate ) );
   }
 
   private ObjectProperty<File> fileProperty( final Key key ) {

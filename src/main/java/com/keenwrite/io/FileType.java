@@ -61,16 +61,6 @@ public enum FileType {
   }
 
   /**
-   * Answers whether this file type belongs to the set of file types that have
-   * embedded R statements.
-   *
-   * @return {@code true} when the file type is either R Markdown or R XML.
-   */
-  public boolean isR() {
-    return this == RMARKDOWN || this == RXML;
-  }
-
-  /**
    * Returns the human-readable name for the file type.
    *
    * @return A non-null instance.

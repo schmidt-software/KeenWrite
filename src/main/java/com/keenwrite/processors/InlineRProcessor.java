@@ -173,14 +173,12 @@ public final class InlineRProcessor extends DefinitionProcessor {
           // Append the string representation of the result into the text.
           sb.append( result );
         } catch( final Exception ex ) {
+          // Inform the user that there was a problem.
+          clue( STATUS_PARSE_ERROR, ex.getMessage(), currIndex );
+
           // If the string couldn't be parsed using R, append the statement
           // that failed to parse, instead of its evaluated value.
           sb.append( PREFIX ).append( r ).append( SUFFIX );
-
-          // Tell the user that there was a problem.
-          clue( STATUS_PARSE_ERROR,
-                ex.getMessage(),
-                currIndex );
         }
 
         // Retain the R statement's ending position in the text.

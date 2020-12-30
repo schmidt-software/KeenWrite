@@ -27,6 +27,26 @@ import java.util.Map;
 public final class RExtension implements Parser.ParserExtension {
   private static final InlineParserFactory FACTORY = CustomParser::new;
 
+  private RExtension() {
+  }
+
+  /**
+   * Creates an extension capable of intercepting R code blocks and preventing
+   * them from being converted into HTML {@code <code>} elements.
+   */
+  public static RExtension create() {
+    return new RExtension();
+  }
+
+  @Override
+  public void extend( final Parser.Builder builder ) {
+    builder.customInlineParserFactory( FACTORY );
+  }
+
+  @Override
+  public void parserOptions( final MutableDataHolder options ) {
+  }
+
   /**
    * Prevents rendering {@code `r} statements as inline HTML {@code <code>}
    * blocks, which allows the {@link InlineRProcessor} to post-process the
@@ -59,7 +79,7 @@ public final class RExtension implements Parser.ParserExtension {
      * The superclass handles a number backtick parsing edge cases; this method
      * changes the behaviour to retain R code snippets, identified by
      * {@link RSigilOperator#PREFIX}, so that subsequent processing can
-     * invoke R. If other languages are added, this {@link CustomParser} will
+     * invoke R. If other languages are added, the {@link CustomParser} will
      * have to be rewritten to identify more than merely R.
      *
      * @return The return value from {@link super#parseBackticks()}.
@@ -85,25 +105,5 @@ public final class RExtension implements Parser.ParserExtension {
 
       return foundCode;
     }
-  }
-
-  private RExtension() {
-  }
-
-  /**
-   * Creates an extension capable of intercepting R code blocks and preventing
-   * them from being converted into HTML {@code <code>} elements.
-   */
-  public static RExtension create() {
-    return new RExtension();
-  }
-
-  @Override
-  public void extend( final Parser.Builder builder ) {
-    builder.customInlineParserFactory( FACTORY );
-  }
-
-  @Override
-  public void parserOptions( final MutableDataHolder options ) {
   }
 }

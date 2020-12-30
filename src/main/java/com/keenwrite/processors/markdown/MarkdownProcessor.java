@@ -2,6 +2,7 @@
 package com.keenwrite.processors.markdown;
 
 import com.keenwrite.ExportFormat;
+import com.keenwrite.io.MediaType;
 import com.keenwrite.preferences.Workspace;
 import com.keenwrite.processors.*;
 import com.keenwrite.processors.markdown.r.RExtension;
@@ -21,9 +22,10 @@ import java.nio.file.Path;
 import java.util.Collection;
 import java.util.HashSet;
 
-import static com.keenwrite.AbstractFileFactory.lookup;
 import static com.keenwrite.Constants.DEFAULT_DIRECTORY;
 import static com.keenwrite.ExportFormat.NONE;
+import static com.keenwrite.io.MediaType.TEXT_R_MARKDOWN;
+import static com.keenwrite.io.MediaType.TEXT_R_XML;
 
 /**
  * Responsible for parsing a Markdown document and rendering it as HTML.
@@ -110,7 +112,8 @@ public class MarkdownProcessor extends ExecutorProcessor<String> {
     extensions.add( ImageLinkExtension.create( path, workspace ) );
     extensions.add( TeXExtension.create( format ) );
 
-    if( lookup( path ).isR() ) {
+    final var mediaType = MediaType.valueFrom( path );
+    if( mediaType == TEXT_R_MARKDOWN || mediaType == TEXT_R_XML ) {
       extensions.add( RExtension.create() );
     }
 
