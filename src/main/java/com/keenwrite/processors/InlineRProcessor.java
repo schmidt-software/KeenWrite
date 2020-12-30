@@ -45,9 +45,6 @@ public final class InlineRProcessor extends DefinitionProcessor {
     }
   };
 
-  /**
-   * Only one editor is open at a time.
-   */
   private static final ScriptEngine ENGINE =
     (new ScriptEngineManager()).getEngineByName( "Renjin" );
 

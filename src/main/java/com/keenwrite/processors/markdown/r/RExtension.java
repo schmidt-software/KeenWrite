@@ -12,7 +12,6 @@ import com.vladsch.flexmark.parser.internal.InlineParserImpl;
 import com.vladsch.flexmark.parser.internal.LinkRefProcessorData;
 import com.vladsch.flexmark.util.data.DataHolder;
 import com.vladsch.flexmark.util.data.MutableDataHolder;
-import com.vladsch.flexmark.util.sequence.BasedSequence;
 
 import java.util.BitSet;
 import java.util.List;
@@ -87,23 +86,23 @@ public final class RExtension implements Parser.ParserExtension {
      */
     @Override
     protected final boolean parseBackticks() {
-      final var foundCode = super.parseBackticks();
+      final var foundTicks = super.parseBackticks();
 
-      if( foundCode ) {
-        final var block = getBlock();
-        final var codeNode = block.getLastChild();
-        final var code = codeNode == null
-          ? BasedSequence.of( "" )
-          : codeNode.getChars();
+      if( foundTicks ) {
+        final var blockNode = getBlock();
+        final var codeNode = blockNode.getLastChild();
 
-        if( code.startsWith( RSigilOperator.PREFIX ) ) {
-          assert codeNode != null;
-          codeNode.unlink();
-          block.appendChild( new Text( code ) );
+        if( codeNode != null ) {
+          final var code = codeNode.getChars();
+
+          if( code.startsWith( RSigilOperator.PREFIX ) ) {
+            codeNode.unlink();
+            blockNode.appendChild( new Text( code ) );
+          }
         }
       }
 
-      return foundCode;
+      return foundTicks;
     }
   }
 }

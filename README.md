@@ -41,14 +41,17 @@ java -jar keenwrite.jar
 
 ## Features
 
+The application offers:
+
 * User-defined interpolated strings
-* Real-time preview with variable substitution
 * Auto-complete variable names based on variable values
-* XML document transformation using XSLT3 or older
-* Platform independent (Windows, Linux, MacOS)
-* Spellcheck while typing
-* Write mathematical formulas using a subset of TeX
+* Real-time spell check
+* Real-time rendering of math using TeX notation
+* Diagrams: Mermaid, GraphViz, UML, sequence, timing, DITAA, and more!
 * R integration
+* XML transformation using XSLT3 or older
+* Customizable GUI having detachable tabs
+* Platform independent (Windows, Linux, MacOS)
 
 ## Usage
 
