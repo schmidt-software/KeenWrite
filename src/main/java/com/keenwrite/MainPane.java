@@ -525,12 +525,10 @@ public final class MainPane extends SplitPane {
    * </p>
    * <p>
    * The order that the binned files are returned will be reflected in the
-   * order that the corresponding panes are rendered in the UI. Each different
-   * {@link MediaType} will be created in its own pane. Order is maintained
-   * by using {@link LinkedHashSet} instances.
+   * order that the corresponding panes are rendered in the UI.
    * </p>
    *
-   * @param paths The file paths to bin by {@link MediaType}.
+   * @param paths The file paths to bin according to their type.
    * @return An in-order list of files, first by structured definition files,
    * then by plain text documents.
    */
