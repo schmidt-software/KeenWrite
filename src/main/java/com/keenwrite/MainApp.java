@@ -36,7 +36,7 @@ public final class MainApp extends Application {
    * @param args Command-line arguments.
    */
   public static void main( final String[] args ) {
-    disableLogging();
+    //disableLogging();
     launch( args );
   }
 

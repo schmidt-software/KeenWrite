@@ -35,10 +35,6 @@ public class HtmlPanel extends XHTMLPanel {
   private static final class DocumentEventHandler extends DocumentAdapter {
     private final BooleanProperty mReadyProperty = new SimpleBooleanProperty();
 
-    public BooleanProperty readyProperty() {
-      return mReadyProperty;
-    }
-
     @Override
     public void documentStarted() {
       mReadyProperty.setValue( Boolean.FALSE );

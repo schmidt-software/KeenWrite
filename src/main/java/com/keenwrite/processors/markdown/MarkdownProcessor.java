@@ -84,6 +84,7 @@ public class MarkdownProcessor extends ExecutorProcessor<String> {
     final var workspace = context.getWorkspace();
     final var extensions = createExtensions( path, format, workspace );
 
+    extensions.add( FencedBlockExtension.create( context ) );
     extensions.add( CaretExtension.create( context.getCaret() ) );
 
     return extensions;

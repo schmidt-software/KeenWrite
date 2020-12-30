@@ -47,6 +47,25 @@ public class ImageLinkExtension implements HtmlRendererExtension {
     return new ImageLinkExtension( basePath, workspace );
   }
 
+  private final Path mBasePath;
+  private final Workspace mWorkspace;
+
+  private ImageLinkExtension(
+    @NotNull final Path basePath, @NotNull final Workspace workspace ) {
+    mBasePath = basePath;
+    mWorkspace = workspace;
+  }
+
+  @Override
+  public void rendererOptions( @NotNull final MutableDataHolder options ) {
+  }
+
+  @Override
+  public void extend(
+    @NotNull final Builder builder, @NotNull final String rendererType ) {
+    builder.linkResolverFactory( new Factory() );
+  }
+
   private class Factory extends IndependentLinkResolverFactory {
     @Override
     public @NotNull LinkResolver apply(
@@ -134,24 +153,5 @@ public class ImageLinkExtension implements HtmlRendererExtension {
     private Path getBasePath() {
       return mBasePath;
     }
-  }
-
-  private final Path mBasePath;
-  private final Workspace mWorkspace;
-
-  private ImageLinkExtension(
-    @NotNull final Path basePath, @NotNull final Workspace workspace ) {
-    mBasePath = basePath;
-    mWorkspace = workspace;
-  }
-
-  @Override
-  public void rendererOptions( @NotNull final MutableDataHolder options ) {
-  }
-
-  @Override
-  public void extend(
-    @NotNull final Builder builder, @NotNull final String rendererType ) {
-    builder.linkResolverFactory( new Factory() );
   }
 }

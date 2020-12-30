@@ -121,9 +121,8 @@ public class ApplicationMenuBar {
     createMenu(
       get( "Main.menu.help" ),
       addAction( "help.about", e -> actions.help‿about() )
-    )
+    ) );
     //@formatter:on
-    );
 
     //@formatter:off
     final var toolBar = createToolBar(
@@ -152,8 +151,8 @@ public class ApplicationMenuBar {
       SEPARATOR_ACTION,
       getAction( "insert.unordered_list" ),
       getAction( "insert.ordered_list" )
-    //@formatter:on
     );
+    //@formatter:on
 
     return new VBox( menuBar, toolBar );
   }

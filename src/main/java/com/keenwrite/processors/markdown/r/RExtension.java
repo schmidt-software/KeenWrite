@@ -25,8 +25,7 @@ import java.util.Map;
  * is previewed (or exported).
  */
 public final class RExtension implements Parser.ParserExtension {
-  private static final InlineParserFactory R_INLINE_PARSER_FACTORY =
-      RInlineParser::new;
+  private static final InlineParserFactory FACTORY = CustomParser::new;
 
   /**
    * Prevents rendering {@code `r} statements as inline HTML {@code <code>}
@@ -40,14 +39,14 @@ public final class RExtension implements Parser.ParserExtension {
    * {@link InlineRProcessor}.
    * </p>
    */
-  private static class RInlineParser extends InlineParserImpl {
-    private RInlineParser(
-        final DataHolder options,
-        final BitSet specialCharacters,
-        final BitSet delimiterCharacters,
-        final Map<Character, DelimiterProcessor> delimiterProcessors,
-        final LinkRefProcessorData referenceLinkProcessors,
-        final List<InlineParserExtensionFactory> inlineParserExtensions ) {
+  private static class CustomParser extends InlineParserImpl {
+    private CustomParser(
+      final DataHolder options,
+      final BitSet specialCharacters,
+      final BitSet delimiterCharacters,
+      final Map<Character, DelimiterProcessor> delimiterProcessors,
+      final LinkRefProcessorData referenceLinkProcessors,
+      final List<InlineParserExtensionFactory> inlineParserExtensions ) {
       super( options,
              specialCharacters,
              delimiterCharacters,
@@ -60,7 +59,7 @@ public final class RExtension implements Parser.ParserExtension {
      * The superclass handles a number backtick parsing edge cases; this method
      * changes the behaviour to retain R code snippets, identified by
      * {@link RSigilOperator#PREFIX}, so that subsequent processing can
-     * invoke R. If other languages are added, this {@link RInlineParser} will
+     * invoke R. If other languages are added, this {@link CustomParser} will
      * have to be rewritten to identify more than merely R.
      *
      * @return The return value from {@link super#parseBackticks()}.
@@ -74,8 +73,8 @@ public final class RExtension implements Parser.ParserExtension {
         final var block = getBlock();
         final var codeNode = block.getLastChild();
         final var code = codeNode == null
-            ? BasedSequence.of( "" )
-            : codeNode.getChars();
+          ? BasedSequence.of( "" )
+          : codeNode.getChars();
 
         if( code.startsWith( RSigilOperator.PREFIX ) ) {
           assert codeNode != null;
@@ -101,7 +100,7 @@ public final class RExtension implements Parser.ParserExtension {
 
   @Override
   public void extend( final Parser.Builder builder ) {
-    builder.customInlineParserFactory( R_INLINE_PARSER_FACTORY );
+    builder.customInlineParserFactory( FACTORY );
   }
 
   @Override

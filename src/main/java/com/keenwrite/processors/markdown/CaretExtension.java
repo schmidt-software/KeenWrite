@@ -23,6 +23,27 @@ import static com.vladsch.flexmark.html.HtmlRenderer.HtmlRendererExtension;
  */
 public class CaretExtension implements HtmlRendererExtension {
 
+  private final Caret mCaret;
+
+  private CaretExtension( final Caret caret ) {
+    mCaret = caret;
+  }
+
+  public static CaretExtension create( final Caret caret ) {
+    return new CaretExtension( caret );
+  }
+
+  @Override
+  public void extend(
+      final Builder builder, @NotNull final String rendererType ) {
+    builder.attributeProviderFactory(
+        IdAttributeProvider.createFactory( mCaret ) );
+  }
+
+  @Override
+  public void rendererOptions( @NotNull final MutableDataHolder options ) {
+  }
+
   /**
    * Responsible for creating the id attribute. This class is instantiated
    * once: for the HTML element containing the {@link Constants#CARET_ID}.
@@ -35,11 +56,11 @@ public class CaretExtension implements HtmlRendererExtension {
     }
 
     private static AttributeProviderFactory createFactory(
-        final Caret caret ) {
+      final Caret caret ) {
       return new IndependentAttributeProviderFactory() {
         @Override
         public @NotNull AttributeProvider apply(
-            @NotNull final LinkResolverContext context ) {
+          @NotNull final LinkResolverContext context ) {
           return new IdAttributeProvider( caret );
         }
       };
@@ -59,31 +80,10 @@ public class CaretExtension implements HtmlRendererExtension {
       // the start of the current node, then mark the current node with
       // a caret indicator.
       if( mCaret.isBetweenText( began, ended ) ||
-          prev != null && mCaret.isBetweenText( prev.getEndOffset(), began ) ) {
+        prev != null && mCaret.isBetweenText( prev.getEndOffset(), began ) ) {
         // This line empowers synchronizing the text editor with the preview.
         attributes.addValue( AttributeImpl.of( "id", CARET_ID ) );
       }
     }
-  }
-
-  private final Caret mCaret;
-
-  private CaretExtension( final Caret caret ) {
-    mCaret = caret;
-  }
-
-  @Override
-  public void extend(
-      final Builder builder, @NotNull final String rendererType ) {
-    builder.attributeProviderFactory(
-        IdAttributeProvider.createFactory( mCaret ) );
-  }
-
-  public static CaretExtension create( final Caret caret ) {
-    return new CaretExtension( caret );
-  }
-
-  @Override
-  public void rendererOptions( @NotNull final MutableDataHolder options ) {
   }
 }
