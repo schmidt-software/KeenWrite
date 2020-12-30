@@ -44,6 +44,8 @@ import java.io.File;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static com.keenwrite.Constants.*;
 import static com.keenwrite.ExportFormat.NONE;
@@ -54,7 +56,7 @@ import static com.keenwrite.preferences.Workspace.*;
 import static com.keenwrite.processors.ProcessorFactory.createProcessors;
 import static com.keenwrite.service.events.Notifier.NO;
 import static com.keenwrite.service.events.Notifier.YES;
-import static java.util.Arrays.asList;
+import static java.util.stream.Collectors.groupingBy;
 import static javafx.application.Platform.runLater;
 import static javafx.scene.control.TabPane.TabClosingPolicy.ALL_TABS;
 import static javafx.scene.input.KeyCode.SPACE;
@@ -69,6 +71,14 @@ import static org.fxmisc.wellbehaved.event.EventPattern.keyPressed;
  */
 public final class MainPane extends SplitPane {
   private static final Notifier sNotifier = Services.load( Notifier.class );
+
+  /**
+   * Used when opening files to determine how each file should be binned and
+   * therefore what tab pane to be opened within.
+   */
+  private static final Set<MediaType> PLAIN_TEXT_FORMAT = Set.of(
+    TEXT_MARKDOWN, TEXT_R_MARKDOWN, TEXT_R_XML, UNDEFINED
+  );
 
   /**
    * Prevents re-instantiation of processing classes.
@@ -525,47 +535,28 @@ public final class MainPane extends SplitPane {
    * then by plain text documents.
    */
   private List<File> bin( final SetProperty<String> paths ) {
-    final var bins = new HashMap<MediaType, Set<File>>();
-    final var sets = List.of(
-      createBin( TEXT_YAML ),
-      createBin( TEXT_MARKDOWN, TEXT_R_MARKDOWN, TEXT_R_XML ),
-      createBin( UNDEFINED )
-    );
+    // Treat all files destined for the text editor as plain text documents
+    // so that they are added to the same pane. Grouping by TEXT_PLAIN is a
+    // bit arbitrary, but means explicitly capturing TEXT_PLAIN isn't needed.
+    final Function<MediaType, MediaType> bin =
+      m -> PLAIN_TEXT_FORMAT.contains( m ) ? TEXT_PLAIN : m;
 
-    sets.forEach( ( set ) -> set.forEach(
-      ( type ) -> bins.put( type, new LinkedHashSet<>() )
-    ) );
+    // Create two groups: YAML files and plain text files.
+    final var bins = paths
+      .stream()
+      .collect( groupingBy( path -> bin.apply( MediaType.valueFrom( path ) ) ) );
 
-    paths.forEach( ( path ) -> {
-      final var file = new File( path );
-
-      final var set = bins.computeIfAbsent(
-        MediaType.valueFrom( file ), k -> new LinkedHashSet<>()
-      );
-
-      set.add( file );
-    } );
+    bins.putIfAbsent( TEXT_YAML, List.of( DEFINITION_DEFAULT.toString() ) );
+    bins.putIfAbsent( TEXT_PLAIN, List.of( DOCUMENT_DEFAULT.toString() ) );
 
     final var result = new ArrayList<File>( paths.size() );
 
-    sets.forEach( ( set ) -> set.forEach( ( type ) -> {
-      final var bin = bins.get( type );
-
-      if( bin.isEmpty() ) {
-        switch( type ) {
-          case TEXT_YAML -> bin.add( DEFINITION_DEFAULT );
-          case TEXT_MARKDOWN -> bin.add( DOCUMENT_DEFAULT );
-        }
-      }
-
-      result.addAll( bin );
-    } ) );
+    // Ensure that the same types are listed together (keep insertion order).
+    bins.forEach( ( mediaType, files ) -> result.addAll(
+      files.stream().map( File::new ).collect( Collectors.toList() ) )
+    );
 
     return result;
-  }
-
-  private Set<MediaType> createBin( final MediaType... bins ) {
-    return new HashSet<>( asList( bins ) );
   }
 
   /**
