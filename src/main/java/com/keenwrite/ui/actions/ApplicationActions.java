@@ -5,12 +5,18 @@ import com.keenwrite.ExportFormat;
 import com.keenwrite.MainPane;
 import com.keenwrite.editors.TextDefinition;
 import com.keenwrite.editors.TextEditor;
+import com.keenwrite.editors.markdown.HyperlinkModel;
+import com.keenwrite.editors.markdown.LinkVisitor;
 import com.keenwrite.preferences.PreferencesController;
 import com.keenwrite.preferences.Workspace;
-import com.keenwrite.processors.ProcessorContext;
+import com.keenwrite.processors.markdown.MarkdownProcessor;
 import com.keenwrite.search.SearchModel;
 import com.keenwrite.ui.controls.SearchBar;
+import com.keenwrite.ui.dialogs.ImageDialog;
+import com.keenwrite.ui.dialogs.LinkDialog;
+import com.vladsch.flexmark.ast.Link;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Dialog;
 import javafx.scene.image.ImageView;
 import javafx.stage.Window;
 import javafx.stage.WindowEvent;
@@ -34,7 +40,7 @@ import static javafx.stage.WindowEvent.WINDOW_CLOSE_REQUEST;
  * functionality so that different text markup languages can change documents
  * using their respective syntax.
  */
-@SuppressWarnings("NonAsciiCharacters")
+@SuppressWarnings( "NonAsciiCharacters" )
 public class ApplicationActions {
   private static final String STYLE_SEARCH = "search";
 
@@ -113,8 +119,9 @@ public class ApplicationActions {
   }
 
   private void file‿export( final ExportFormat format ) {
-    final var editor = getActiveTextEditor();
-    final var context = createProcessorContext( editor );
+    final var main = getMainPane();
+    final var editor = main.getActiveTextEditor();
+    final var context = main.createProcessorContext( editor );
     final var chain = createProcessors( context );
     final var doc = editor.getText();
     final var export = chain.apply( doc );
@@ -131,10 +138,6 @@ public class ApplicationActions {
         clue( e );
       }
     } );
-  }
-
-  private ProcessorContext createProcessorContext( final TextEditor editor ) {
-    return getMainPane().createProcessorContext( editor );
   }
 
   public void file‿exit() {
@@ -244,16 +247,60 @@ public class ApplicationActions {
   }
 
   public void insert‿link() {
-    createMarkdownDialog().insertLink( getActiveTextEditor().getTextArea() );
+    insertObject( createLinkDialog() );
   }
 
   public void insert‿image() {
-    createMarkdownDialog().insertImage( getActiveTextEditor().getTextArea() );
+    insertObject( createImageDialog() );
   }
 
-  private MarkdownCommands createMarkdownDialog() {
-    return new MarkdownCommands(
-      getMainPane(), getActiveTextEditor().getPath() );
+  private void insertObject( final Dialog<String> dialog ) {
+    final var textArea = getActiveTextEditor().getTextArea();
+    dialog.showAndWait().ifPresent( textArea::replaceSelection );
+  }
+
+  private Dialog<String> createLinkDialog() {
+    final var editor = getActiveTextEditor();
+    return new LinkDialog( getWindow(), createHyperlinkModel( editor ) );
+  }
+
+  private Dialog<String> createImageDialog() {
+    final var path = getActiveTextEditor().getPath();
+    final var parentDir = path.getParent();
+    return new ImageDialog( getWindow(), parentDir );
+  }
+
+  /**
+   * Returns one of: selected text, word under cursor, or parsed hyperlink from
+   * the markdown AST.
+   *
+   * @return An instance containing the link URL and display text.
+   */
+  private HyperlinkModel createHyperlinkModel( final TextEditor editor ) {
+    final var textArea = editor.getTextArea();
+    final var selectedText = textArea.getSelectedText();
+
+    // Convert current paragraph to Markdown nodes.
+    final var mp = MarkdownProcessor.create( getWorkspace() );
+    final var p = textArea.getCurrentParagraph();
+    final var paragraph = textArea.getText( p );
+    final var node = mp.toNode( paragraph );
+    final var visitor = new LinkVisitor( textArea.getCaretColumn() );
+    final var link = visitor.process( node );
+
+    if( link != null ) {
+      textArea.selectRange( p, link.getStartOffset(), p, link.getEndOffset() );
+    }
+
+    return createHyperlinkModel( link, selectedText );
+  }
+
+  private HyperlinkModel createHyperlinkModel(
+    final Link link, final String selection ) {
+
+    return link == null
+      ? new HyperlinkModel( selection, "https://localhost" )
+      : new HyperlinkModel( link );
   }
 
   public void insert‿heading_1() {

@@ -16,6 +16,7 @@ import javafx.scene.control.Label;
 
 import java.io.File;
 
+import static com.dlsc.preferencesfx.PreferencesFxEvent.EVENT_PREFERENCES_SAVED;
 import static com.keenwrite.Constants.ICON_DIALOG;
 import static com.keenwrite.Messages.get;
 import static com.keenwrite.preferences.LocaleProperty.localeListProperty;
@@ -61,8 +62,7 @@ public class PreferencesController {
    */
   public void addSaveEventHandler(
     final EventHandler<? super PreferencesFxEvent> eventHandler ) {
-    final var eventType = PreferencesFxEvent.EVENT_PREFERENCES_SAVED;
-    getPreferencesFx().addEventHandler( eventType, eventHandler );
+    getPreferencesFx().addEventHandler( EVENT_PREFERENCES_SAVED, eventHandler );
   }
 
   /**
@@ -78,7 +78,7 @@ public class PreferencesController {
   private PreferencesFx createPreferencesFx() {
     final Setting<StringField, StringProperty> scriptSetting =
       Setting.of( "Script", stringProperty( KEY_R_SCRIPT ) );
-    final StringField field = scriptSetting.getElement();
+    final var field = scriptSetting.getElement();
     field.multiline( true );
 
     return PreferencesFx.of(
@@ -90,7 +90,8 @@ public class PreferencesController {
           Setting.of( label( KEY_R_DIR,
                              stringProperty( KEY_DEF_DELIM_BEGAN ).get(),
                              stringProperty( KEY_DEF_DELIM_ENDED ).get() ) ),
-          Setting.of( title( KEY_R_DIR ), fileProperty( KEY_R_DIR ), true )
+          Setting.of( title( KEY_R_DIR ),
+                      fileProperty( KEY_R_DIR ), true )
         ),
         Group.of(
           get( KEY_R_SCRIPT ),
@@ -116,8 +117,7 @@ public class PreferencesController {
           get( KEY_IMAGES_DIR ),
           Setting.of( label( KEY_IMAGES_DIR ) ),
           Setting.of( title( KEY_IMAGES_DIR ),
-                      fileProperty( KEY_IMAGES_DIR ),
-                      true )
+                      fileProperty( KEY_IMAGES_DIR ), true )
         ),
         Group.of(
           get( KEY_IMAGES_ORDER ),
@@ -132,8 +132,7 @@ public class PreferencesController {
           get( KEY_DEF_PATH ),
           Setting.of( label( KEY_DEF_PATH ) ),
           Setting.of( title( KEY_DEF_PATH ),
-                      fileProperty( KEY_DEF_PATH ),
-                      false )
+                      fileProperty( KEY_DEF_PATH ), false )
         ),
         Group.of(
           get( KEY_DEF_DELIM_BEGAN ),

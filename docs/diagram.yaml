@@ -1,0 +1,25 @@
+---
+keenwrite:
+  classes:
+    processors:
+      markdown: "MarkdownProcessor"
+      variable:
+        definition: "DefinitionProcessor"
+      preview: "PreviewProcessor"
+  palette:
+    primary:
+      light: "#51a9cf"
+      dark: "#126d95"
+    secondary:
+      light: "#ec706a"
+      dark: "#7e252f"
+    accent:
+      light: "#76A786"
+      dark: "#385742"
+    grayscale:
+      light: "#bac2c5"
+      dark: "#394343"
+  graph:
+    label:
+      chain:
+        next: "successor"

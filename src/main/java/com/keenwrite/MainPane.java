@@ -844,11 +844,8 @@ public final class MainPane extends SplitPane {
   }
 
   private TextDefinition createDefinitionEditor( final File file ) {
-    final var transformer = createTreeTransformer();
-    final var editor = new DefinitionEditor( file, transformer );
-
+    final var editor = new DefinitionEditor( file, createTreeTransformer() );
     editor.addTreeChangeHandler( mTreeHandler );
-
     return editor;
   }
 

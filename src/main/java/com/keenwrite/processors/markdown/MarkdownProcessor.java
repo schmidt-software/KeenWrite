@@ -45,57 +45,8 @@ public class MarkdownProcessor extends ExecutorProcessor<String> {
   }
 
   public static MarkdownProcessor create( final Workspace workspace ) {
-    return create( IdentityProcessor.INSTANCE, workspace, DEFAULT_DIRECTORY );
-  }
-
-  public static MarkdownProcessor create( final ProcessorContext context ) {
-    return create( IdentityProcessor.INSTANCE, context );
-  }
-
-  public static MarkdownProcessor create(
-    final Processor<String> successor,
-    final Workspace workspace,
-    final Path dir ) {
-    final var extensions = createExtensions( NONE, workspace, dir );
-    return new MarkdownProcessor( successor, extensions );
-  }
-
-  public static MarkdownProcessor create(
-    final Processor<String> successor, final ProcessorContext context ) {
-    final var extensions = createExtensions( context );
-    return new MarkdownProcessor( successor, extensions );
-  }
-
-  /**
-   * Creating extensions based using an instance of {@link ProcessorContext}
-   * indicates that the {@link CaretExtension} should be used to inject the
-   * caret position into the final HTML document. This enables the HTML
-   * preview pane to scroll to the same position, relatively speaking, within
-   * the main document. Scrolling is developed this way to decouple the
-   * document being edited from the preview pane so that multiple document
-   * formats can be edited.
-   *
-   * @param context Contains necessary information needed to create extensions
-   *                used by the Markdown parser.
-   * @return {@link Collection} of extensions invoked when parsing Markdown.
-   */
-  private static Collection<Extension> createExtensions(
-    final ProcessorContext context ) {
-    final var path  = context.getPath();
-    final var dir = context.getBasePath();
-    final var format = context.getExportFormat();
-    final var workspace = context.getWorkspace();
-    final var extensions = createExtensions( format, workspace, dir );
-
-    final var mediaType = MediaType.valueFrom( path );
-    if( mediaType == TEXT_R_MARKDOWN || mediaType == TEXT_R_XML ) {
-      extensions.add( RExtension.create() );
-    }
-
-    extensions.add( FencedBlockExtension.create( context ) );
-    extensions.add( CaretExtension.create( context.getCaret() ) );
-
-    return extensions;
+    final var extensions = createExtensions( NONE, workspace, DEFAULT_DIRECTORY );
+    return new MarkdownProcessor( IdentityProcessor.INSTANCE, extensions );
   }
 
   /**
@@ -106,9 +57,10 @@ public class MarkdownProcessor extends ExecutorProcessor<String> {
    * code elements, so that the {@link InlineRProcessor} can interpret the
    * R statements.
    *
+   * @param format TeX export format to use when generating HTMl documents.
+   * @param workspace User preferences, such as image order and directory.
    * @param dir    Directory for referencing image files via relative paths
    *               and dynamic file types.
-   * @param format TeX export format to use when generating HTMl documents.
    * @return {@link Collection} of extensions invoked when parsing Markdown.
    */
   private static Collection<Extension> createExtensions(
@@ -136,6 +88,48 @@ public class MarkdownProcessor extends ExecutorProcessor<String> {
     extensions.add( SuperscriptExtension.create() );
     extensions.add( TablesExtension.create() );
     extensions.add( TypographicExtension.create() );
+    return extensions;
+  }
+
+  public static MarkdownProcessor create( final ProcessorContext context ) {
+    return create( IdentityProcessor.INSTANCE, context );
+  }
+
+  public static MarkdownProcessor create(
+    final Processor<String> successor, final ProcessorContext context ) {
+    final var extensions = createExtensions( context );
+    return new MarkdownProcessor( successor, extensions );
+  }
+
+  /**
+   * Creating extensions based using an instance of {@link ProcessorContext}
+   * indicates that the {@link CaretExtension} should be used to inject the
+   * caret position into the final HTML document. This enables the HTML
+   * preview pane to scroll to the same position, relatively speaking, within
+   * the main document. Scrolling is developed this way to decouple the
+   * document being edited from the preview pane so that multiple document
+   * formats can be edited.
+   *
+   * @param context Contains necessary information needed to create extensions
+   *                used by the Markdown parser.
+   * @return {@link Collection} of extensions invoked when parsing Markdown.
+   */
+  private static Collection<Extension> createExtensions(
+    final ProcessorContext context ) {
+    final var path = context.getPath();
+    final var dir = context.getBasePath();
+    final var format = context.getExportFormat();
+    final var workspace = context.getWorkspace();
+    final var extensions = createExtensions( format, workspace, dir );
+
+    final var mediaType = MediaType.valueFrom( path );
+    if( mediaType == TEXT_R_MARKDOWN || mediaType == TEXT_R_XML ) {
+      extensions.add( RExtension.create() );
+    }
+
+    extensions.add( FencedBlockExtension.create( context ) );
+    extensions.add( CaretExtension.create( context.getCaret() ) );
+
     return extensions;
   }
 

@@ -1,0 +1,18 @@
+
+Blues
+  Light - 51a9cf
+  Dark - 126d95
+
+Red & Yellow
+  Light yellow - ecd980
+  Light red - ec706a
+  Dark red - 7e252f
+
+Greens
+  Light - 76A786
+  Dark - 385742
+
+Grayscale
+  Light - bac2c5
+  Dark - 394343
+
