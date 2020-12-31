@@ -16,11 +16,11 @@ Note that the first time the application runs, it will unpack itself into a loca
 
 ### Windows
 
-Double-click the application to start; give the application permission to run.
-
 When upgrading to a new version, delete the following directory:
 
     C:\Users\%USERNAME%\AppData\Local\warp\packages\keenwrite.exe
+
+Double-click the application to start; give the application permission to run.
 
 ### Linux
 
