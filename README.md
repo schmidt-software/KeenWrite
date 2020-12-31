@@ -60,7 +60,7 @@ using the application.
 
 ## Screenshots
 
-Diagram generated using [Kroki](https://kroki.io/) using variables:
+Diagram generated using [Kroki](https://kroki.io/) and variables:
 
 ![GraphViz Diagram Screenshot](docs/images/screenshots/01.png)
 
