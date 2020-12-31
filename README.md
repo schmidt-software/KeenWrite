@@ -60,15 +60,15 @@ using the application.
 
 ## Screenshots
 
-Diagram generated using variables:
+Diagram that includes variables:
 
 ![GraphViz Diagram Screenshot](docs/images/screenshots/01.png)
 
-Poem showing available fonts:
+Poem with locale settings:
 
 ![Korean Poem Screenshot](docs/images/screenshots/02.png)
 
-TeX equations with preview in its own window:
+TeX equations with detached preview:
 
 ![TeX Equations Screenshot](docs/images/screenshots/03.png)
 
