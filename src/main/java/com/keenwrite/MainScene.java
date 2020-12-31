@@ -19,8 +19,8 @@ import static com.keenwrite.Constants.STYLESHEET_SCENE;
 public class MainScene {
   private final Scene mScene;
 
-  public MainScene( final Workspace preferences ) {
-    final var mainPane = createMainPane( preferences );
+  public MainScene( final Workspace workspace ) {
+    final var mainPane = createMainPane( workspace );
     final var actions = createApplicationActions( mainPane );
     final var menuBar = createMenuBar( actions );
     final var appPane = new BorderPane();
@@ -46,8 +46,8 @@ public class MainScene {
     return mScene;
   }
 
-  private MainPane createMainPane( final Workspace preferences ) {
-    return new MainPane( preferences );
+  private MainPane createMainPane( final Workspace workspace ) {
+    return new MainPane( workspace );
   }
 
   private ApplicationActions createApplicationActions(

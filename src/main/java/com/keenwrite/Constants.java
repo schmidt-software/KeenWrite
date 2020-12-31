@@ -40,8 +40,8 @@ public class Constants {
 
   public static final double WINDOW_X_DEFAULT = 0;
   public static final double WINDOW_Y_DEFAULT = 0;
-  public static final double WINDOW_W_DEFAULT = 1600;
-  public static final double WINDOW_H_DEFAULT = 900;
+  public static final double WINDOW_W_DEFAULT = 1200;
+  public static final double WINDOW_H_DEFAULT = 800;
 
   public static final File DOCUMENT_DEFAULT = getFile( "document" );
   public static final File DEFINITION_DEFAULT = getFile( "definition" );
@@ -65,11 +65,11 @@ public class Constants {
   public static final String STYLESHEET_SCENE = get( "file.stylesheet.scene" );
 
   public static final List<Image> LOGOS = createImages(
-    get( "file.logo.16" ),
-    get( "file.logo.32" ),
-    get( "file.logo.128" ),
-    get( "file.logo.256" ),
-    get( "file.logo.512" )
+    "file.logo.16",
+    "file.logo.32",
+    "file.logo.128",
+    "file.logo.256",
+    "file.logo.512"
   );
 
   public static final Image ICON_DIALOG = LOGOS.get( 1 );
@@ -193,7 +193,7 @@ public class Constants {
     return sSettings.getSetting( key, "" );
   }
 
-  @SuppressWarnings("SameParameterValue")
+  @SuppressWarnings( "SameParameterValue" )
   private static int get( final String key, final int defaultValue ) {
     return sSettings.getSetting( key, defaultValue );
   }
@@ -223,14 +223,14 @@ public class Constants {
   /**
    * Converts the given file names to images, such as application icons.
    *
-   * @param filenames The file names to convert to images.
+   * @param keys The file names to convert to images.
    * @return The images loaded from the file name references.
    */
-  private static List<Image> createImages( final String... filenames ) {
-    final List<Image> images = new ArrayList<>( filenames.length );
+  private static List<Image> createImages( final String... keys ) {
+    final List<Image> images = new ArrayList<>( keys.length );
 
-    for( final var filename : filenames ) {
-      images.add( new Image( filename ) );
+    for( final var key : keys ) {
+      images.add( new Image( get( key ) ) );
     }
 
     return images;

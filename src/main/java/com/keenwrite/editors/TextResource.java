@@ -7,12 +7,10 @@ import javafx.scene.Node;
 import org.mozilla.universalchardet.UniversalDetector;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
 
 import static com.keenwrite.Constants.DEFAULT_CHARSET;
-import static com.keenwrite.Messages.get;
 import static com.keenwrite.StatusBarNotifier.clue;
 import static java.nio.charset.Charset.forName;
 import static java.nio.file.Files.readAllBytes;
@@ -114,12 +112,11 @@ public interface TextResource {
           setText( asString( bytes, encoding ) );
         }
         else {
-          final var msg = get( "TextResource.loadFailed.reason.permissions" );
-          clue( "TextResource.loadFailed.message", file.toString(), msg );
+          clue( "TextResource.load.error.permissions", file.toString() );
         }
       }
       else {
-        throw new FileNotFoundException( path.toString() );
+        clue( "TextResource.load.error.unsaved", file.toString() );
       }
     } catch( final Exception ex ) {
       clue( ex );

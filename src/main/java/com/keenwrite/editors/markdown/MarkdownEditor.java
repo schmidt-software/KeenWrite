@@ -159,7 +159,7 @@ public class MarkdownEditor extends BorderPane implements TextEditor {
       }
     } );
 
-    fontSizeProperty().addListener( (c, o, n) -> {
+    fontSizeProperty().addListener( ( c, o, n ) -> {
       mTextArea.setStyle( format( "-fx-font-size: %spt;", getFontSize() ) );
     } );
   }

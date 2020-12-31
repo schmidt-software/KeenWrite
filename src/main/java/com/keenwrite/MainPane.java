@@ -185,21 +185,6 @@ public final class MainPane extends SplitPane {
         }
       } )
     );
-
-    forceRepaint();
-  }
-
-  /**
-   * Force preview pane refresh on Windows.
-   */
-  private void forceRepaint() {
-//    if( IS_OS_WINDOWS ) {
-//      splitPane.getDividers().get( 1 ).positionProperty().addListener(
-//          ( l, oValue, nValue ) -> runLater(
-//              () -> getHtmlPreview().repaintScrollPane()
-//          )
-//      );
-//    }
   }
 
   /**
@@ -435,6 +420,10 @@ public final class MainPane extends SplitPane {
     return editor;
   }
 
+  /**
+   * Adds the HTML preview tab to its own tab pane. This will only add the
+   * preview once.
+   */
   public void viewPreview() {
     final var tabPane = obtainDetachableTabPane( TEXT_HTML );
 
@@ -783,14 +772,11 @@ public final class MainPane extends SplitPane {
     return createProcessorContext( t.getPath(), t.getCaret() );
   }
 
-  @SuppressWarnings( {"RedundantCast", "unchecked", "RedundantSuppression"} )
   private TextResource createTextResource( final File file ) {
     // TODO: Create PlainTextEditor that's returned by default.
-    return switch( MediaType.valueFrom( file ) ) {
-      case TEXT_MARKDOWN, TEXT_R_MARKDOWN -> createMarkdownEditor( file );
-      case TEXT_YAML -> createDefinitionEditor( file );
-      default -> createMarkdownEditor( file );
-    };
+    return MediaType.valueFrom( file ) == TEXT_YAML
+      ? createDefinitionEditor( file )
+      : createMarkdownEditor( file );
   }
 
   /**

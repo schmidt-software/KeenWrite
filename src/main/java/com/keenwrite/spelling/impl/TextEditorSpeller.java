@@ -12,6 +12,7 @@ import org.fxmisc.richtext.model.StyleSpansBuilder;
 import java.util.Collection;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static com.keenwrite.spelling.impl.SymSpellSpeller.forLexicon;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singleton;
 import static org.fxmisc.richtext.model.TwoDimensional.Bias.Forward;
@@ -23,8 +24,7 @@ public class TextEditorSpeller {
   /**
    * Only load the dictionary into memory once, because it's huge.
    */
-  private static final SpellChecker mSpellChecker =
-      SymSpellSpeller.forLexicon( "en.txt" );
+  private static final SpellChecker sSpellChecker = forLexicon( "en.txt" );
 
   public TextEditorSpeller() {
   }
@@ -75,7 +75,7 @@ public class TextEditorSpeller {
    *               text.
    */
   private void spellcheck(
-      final StyleClassedTextArea editor, final String text, final int paraId ) {
+    final StyleClassedTextArea editor, final String text, final int paraId ) {
     final var builder = new StyleSpansBuilder<Collection<String>>();
     final var runningIndex = new AtomicInteger( 0 );
 
@@ -89,7 +89,7 @@ public class TextEditorSpeller {
       // Treat hyphenated compound words as individual words.
       final var check = visited.replace( '-', ' ' );
 
-      mSpellChecker.proofread( check, ( misspelled, prevIndex, currIndex ) -> {
+      sSpellChecker.proofread( check, ( misspelled, prevIndex, currIndex ) -> {
         prevIndex += bIndex;
         currIndex += bIndex;
 
@@ -130,7 +130,7 @@ public class TextEditorSpeller {
    */
   private static final class TextVisitor {
     private final NodeVisitor mVisitor = new NodeVisitor( new VisitHandler<>(
-        com.vladsch.flexmark.ast.Text.class, this::visit )
+      com.vladsch.flexmark.ast.Text.class, this::visit )
     );
 
     private final SpellCheckListener mConsumer;

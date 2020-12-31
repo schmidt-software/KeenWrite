@@ -10,8 +10,10 @@ import org.apache.commons.configuration2.builder.fluent.Configurations;
 import org.apache.commons.configuration2.io.FileHandler;
 
 import java.io.File;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
@@ -54,7 +56,8 @@ import static javafx.collections.FXCollections.observableSet;
  *   <dt>Path</dt>
  *   <dd>Fully qualified file name, which includes all parent directories.</dd>
  *   <dt>Dir</dt>
- *   <dd>Directory without a file name ({@link File#isDirectory()} is true).</dd>
+ *   <dd>Directory without a file name ({@link File#isDirectory()} is true)
+ *   .</dd>
  * </dl>
  */
 public class Workspace {
@@ -158,7 +161,10 @@ public class Workspace {
     );
 
   private final Map<Key, SetProperty<?>> SETS = Map.ofEntries(
-    entry( KEY_UI_FILES_PATH, new SimpleSetProperty<>() )
+    entry(
+      KEY_UI_FILES_PATH,
+      new SimpleSetProperty<>( observableSet( new HashSet<>() ) )
+    )
   );
 
   /**
@@ -187,7 +193,8 @@ public class Workspace {
 
   /**
    * Returns a list of values that represent a setting in the application that
-   * the user may configure, either directly or indirectly.
+   * the user may configure, either directly or indirectly. The property
+   * returned is backed by a mutable {@link Set}.
    *
    * @param key The {@link Key} associated with a preference value.
    * @return An observable property to be persisted.
@@ -207,7 +214,7 @@ public class Workspace {
    * @return The value associated with the given {@link Key}.
    */
   public boolean toBoolean( final Key key ) {
-    return (boolean) valuesProperty( key ).getValue();
+    return (Boolean) valuesProperty( key ).getValue();
   }
 
   /**
@@ -219,7 +226,7 @@ public class Workspace {
    * @return The value associated with the given {@link Key}.
    */
   public double toDouble( final Key key ) {
-    return (double) valuesProperty( key ).getValue();
+    return (Double) valuesProperty( key ).getValue();
   }
 
   public File toFile( final Key key ) {
@@ -260,6 +267,14 @@ public class Workspace {
     return valuesProperty( key );
   }
 
+  public void loadValueKeys( final Consumer<Key> consumer ) {
+    VALUES.keySet().forEach( consumer );
+  }
+
+  public void loadSetKeys( final Consumer<Key> consumer ) {
+    SETS.keySet().forEach( consumer );
+  }
+
   /**
    * Calls the given consumer for all single-value keys. For lists, see
    * {@link #saveSets(BiConsumer)}.
@@ -279,14 +294,6 @@ public class Workspace {
    */
   public void saveSets( final BiConsumer<Key, SetProperty<?>> consumer ) {
     SETS.forEach( consumer );
-  }
-
-  public void loadValueKeys( final Consumer<Key> consumer ) {
-    VALUES.keySet().forEach( consumer );
-  }
-
-  public void loadSetKeys( final Consumer<Key> consumer ) {
-    SETS.keySet().forEach( consumer );
   }
 
   /**
