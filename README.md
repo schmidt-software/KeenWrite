@@ -58,9 +58,19 @@ The application offers:
 See the [detailed documentation](docs/README.md) for information about
 using the application.
 
-## Screenshot
+## Screenshots
 
-![Screenshot with Formulas](docs/images/equations.png)
+Diagram generated using [Kroki](https://kroki.io/) using variables:
+
+![GraphViz Diagram Screenshot](docs/images/screenshots/01.png)
+
+Poem showing available fonts:
+
+![Korean Poem Screenshot](docs/images/screenshots/02.png)
+
+TeX equations with preview in its own window:
+
+![TeX Equations Screenshot](docs/images/screenshots/03.png)
 
 ## License
 

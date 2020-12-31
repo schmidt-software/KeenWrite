@@ -57,7 +57,12 @@ using the application.
 
 ## 截图
 
-![Screenshot with Formulas](docs/images/equations.png)
+![GraphViz Diagram Screenshot](docs/images/screenshots/01.png)
+
+![Korean Poem Screenshot](docs/images/screenshots/02.png)
+
+![TeX Equations Screenshot](docs/images/screenshots/03.png)
+
 
 ## 软件许可证
 
