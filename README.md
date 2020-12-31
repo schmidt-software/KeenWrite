@@ -47,11 +47,11 @@ The application offers:
 * Auto-complete variable names based on variable values
 * Real-time spell check
 * Real-time rendering of math using TeX notation
-* Diagrams: Mermaid, GraphViz, UML, sequence, timing, DITAA, and more!
+* Diagrams: Mermaid, GraphViz, UML, sequence, timing, and [many more](https://kroki.io/)!
 * R integration
 * XML transformation using XSLT3 or older
-* Customizable GUI having detachable tabs
-* Platform independent (Windows, Linux, MacOS)
+* Customizable user interface having detachable tabs
+* Platform-independent (Windows, Linux, MacOS)
 
 ## Usage
 
@@ -60,7 +60,7 @@ using the application.
 
 ## Screenshots
 
-Diagram generated using [Kroki](https://kroki.io/) and variables:
+Diagram generated using variables:
 
 ![GraphViz Diagram Screenshot](docs/images/screenshots/01.png)
 
