@@ -1,5 +1,5 @@
 /* Copyright 2020 White Magic Software, Ltd. -- All rights reserved. */
-package com.keenwrite.processors.markdown.tex;
+package com.keenwrite.processors.markdown.extensions.tex;
 
 import com.keenwrite.ExportFormat;
 import com.keenwrite.preview.SvgRasterizer;
@@ -16,7 +16,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Set;
 
 import static com.keenwrite.preview.MathRenderer.MATH_RENDERER;
-import static com.keenwrite.processors.markdown.tex.TexNode.*;
+import static com.keenwrite.processors.markdown.extensions.tex.TexNode.*;
 
 public class TexNodeRenderer {
 

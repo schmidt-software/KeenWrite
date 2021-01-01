@@ -1,15 +1,14 @@
 /* Copyright 2020 White Magic Software, Ltd. -- All rights reserved. */
-package com.keenwrite.processors.markdown;
+package com.keenwrite.processors.markdown.extensions;
 
 import com.keenwrite.processors.DefinitionProcessor;
-import com.keenwrite.processors.IdentityProcessor;
 import com.keenwrite.processors.ProcessorContext;
+import com.keenwrite.processors.markdown.MarkdownProcessor;
 import com.vladsch.flexmark.ast.FencedCodeBlock;
 import com.vladsch.flexmark.html.renderer.DelegatingNodeRendererFactory;
 import com.vladsch.flexmark.html.renderer.NodeRenderer;
 import com.vladsch.flexmark.html.renderer.NodeRenderingHandler;
 import com.vladsch.flexmark.util.data.DataHolder;
-import com.vladsch.flexmark.util.data.MutableDataHolder;
 import com.vladsch.flexmark.util.sequence.BasedSequence;
 import org.jetbrains.annotations.NotNull;
 
@@ -19,8 +18,8 @@ import java.util.Set;
 import java.util.zip.Deflater;
 
 import static com.keenwrite.StatusBarNotifier.clue;
+import static com.keenwrite.processors.IdentityProcessor.IDENTITY;
 import static com.vladsch.flexmark.html.HtmlRenderer.Builder;
-import static com.vladsch.flexmark.html.HtmlRenderer.HtmlRendererExtension;
 import static com.vladsch.flexmark.html.renderer.LinkType.LINK;
 import static java.lang.String.format;
 import static java.util.Base64.getUrlEncoder;
@@ -31,7 +30,7 @@ import static java.util.zip.Deflater.FULL_FLUSH;
  * Responsible for converting textual diagram descriptions into HTML image
  * elements.
  */
-public class FencedBlockExtension implements HtmlRendererExtension {
+public class FencedBlockExtension extends HtmlRendererAdapter {
   private final static String DIAGRAM_STYLE = "diagram-";
   private final static int DIAGRAM_STYLE_LEN = DIAGRAM_STYLE.length();
 
@@ -39,7 +38,7 @@ public class FencedBlockExtension implements HtmlRendererExtension {
 
   public FencedBlockExtension( final ProcessorContext context ) {
     assert context != null;
-    mProcessor = new DefinitionProcessor( IdentityProcessor.INSTANCE, context );
+    mProcessor = new DefinitionProcessor( IDENTITY, context );
   }
 
   /**
@@ -62,10 +61,6 @@ public class FencedBlockExtension implements HtmlRendererExtension {
    */
   public static FencedBlockExtension create( final ProcessorContext context ) {
     return new FencedBlockExtension( context );
-  }
-
-  @Override
-  public void rendererOptions( @NotNull final MutableDataHolder options ) {
   }
 
   @Override
@@ -120,12 +115,12 @@ public class FencedBlockExtension implements HtmlRendererExtension {
     private byte[] compress( byte[] source ) {
       final var inLen = source.length;
       final var result = new byte[ inLen ];
-      final var deflater = new Deflater( BEST_COMPRESSION );
+      final var compressor = new Deflater( BEST_COMPRESSION );
 
-      deflater.setInput( source, 0, inLen );
-      deflater.finish();
-      final var outLen = deflater.deflate( result, 0, inLen, FULL_FLUSH );
-      deflater.end();
+      compressor.setInput( source, 0, inLen );
+      compressor.finish();
+      final var outLen = compressor.deflate( result, 0, inLen, FULL_FLUSH );
+      compressor.end();
 
       try( final var out = new ByteArrayOutputStream() ) {
         out.write( result, 0, outLen );

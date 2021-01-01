@@ -1,5 +1,5 @@
 /* Copyright 2020 White Magic Software, Ltd. -- All rights reserved. */
-package com.keenwrite.processors.markdown.tex;
+package com.keenwrite.processors.markdown.extensions.tex;
 
 import com.vladsch.flexmark.ast.DelimitedNodeImpl;
 

@@ -1,16 +1,15 @@
 /* Copyright 2020 White Magic Software, Ltd. -- All rights reserved. */
-package com.keenwrite.processors.markdown;
+package com.keenwrite.processors.markdown.extensions.tex;
 
 import com.keenwrite.ExportFormat;
-import com.keenwrite.processors.markdown.tex.TeXInlineDelimiterProcessor;
-import com.keenwrite.processors.markdown.tex.TexNodeRenderer.Factory;
+import com.keenwrite.processors.ProcessorContext;
+import com.keenwrite.processors.markdown.extensions.HtmlRendererAdapter;
+import com.keenwrite.processors.markdown.extensions.tex.TexNodeRenderer.Factory;
 import com.vladsch.flexmark.html.HtmlRenderer;
 import com.vladsch.flexmark.parser.Parser;
 import com.vladsch.flexmark.util.data.MutableDataHolder;
-import com.vladsch.flexmark.util.misc.Extension;
 import org.jetbrains.annotations.NotNull;
 
-import static com.vladsch.flexmark.html.HtmlRenderer.HtmlRendererExtension;
 import static com.vladsch.flexmark.parser.Parser.ParserExtension;
 
 /**
@@ -22,27 +21,25 @@ import static com.vladsch.flexmark.parser.Parser.ParserExtension;
  * iterate---a <em>very</em> wasteful operation that impacts front-end
  * performance.
  */
-public class TeXExtension implements ParserExtension, HtmlRendererExtension {
+public class TeXExtension extends HtmlRendererAdapter
+  implements ParserExtension {
+
   /**
    * Controls how the node renderer produces TeX code within HTML output.
    */
   private final ExportFormat mExportFormat;
+
+  private TeXExtension( final ProcessorContext context ) {
+    mExportFormat = context.getExportFormat();
+  }
 
   /**
    * Creates an extension capable of handling delimited TeX code in Markdown.
    *
    * @return The new {@link TeXExtension}, never {@code null}.
    */
-  public static TeXExtension create( final ExportFormat format ) {
-    return new TeXExtension( format );
-  }
-
-  /**
-   * Force using the {@link #create(ExportFormat)} method for consistency with
-   * the other {@link Extension} creation invocations.
-   */
-  private TeXExtension( final ExportFormat exportFormat ) {
-    mExportFormat = exportFormat;
+  public static TeXExtension create( final ProcessorContext context ) {
+    return new TeXExtension( context );
   }
 
   /**
@@ -62,10 +59,6 @@ public class TeXExtension implements ParserExtension, HtmlRendererExtension {
   @Override
   public void extend( final Parser.Builder builder ) {
     builder.customDelimiterProcessor( new TeXInlineDelimiterProcessor() );
-  }
-
-  @Override
-  public void rendererOptions( @NotNull final MutableDataHolder options ) {
   }
 
   @Override

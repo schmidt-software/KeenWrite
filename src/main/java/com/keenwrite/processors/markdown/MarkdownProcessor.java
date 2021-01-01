@@ -3,10 +3,13 @@ package com.keenwrite.processors.markdown;
 
 import com.keenwrite.io.MediaType;
 import com.keenwrite.processors.ExecutorProcessor;
-import com.keenwrite.processors.IdentityProcessor;
 import com.keenwrite.processors.Processor;
 import com.keenwrite.processors.ProcessorContext;
-import com.keenwrite.processors.markdown.r.RExtension;
+import com.keenwrite.processors.markdown.extensions.caret.CaretExtension;
+import com.keenwrite.processors.markdown.extensions.FencedBlockExtension;
+import com.keenwrite.processors.markdown.extensions.ImageLinkExtension;
+import com.keenwrite.processors.markdown.extensions.tex.TeXExtension;
+import com.keenwrite.processors.markdown.extensions.r.RExtension;
 import com.vladsch.flexmark.ext.definition.DefinitionExtension;
 import com.vladsch.flexmark.ext.gfm.strikethrough.StrikethroughSubscriptExtension;
 import com.vladsch.flexmark.ext.superscript.SuperscriptExtension;
@@ -24,6 +27,7 @@ import java.util.List;
 
 import static com.keenwrite.io.MediaType.TEXT_R_MARKDOWN;
 import static com.keenwrite.io.MediaType.TEXT_R_XML;
+import static com.keenwrite.processors.IdentityProcessor.IDENTITY;
 
 /**
  * Responsible for parsing a Markdown document and rendering it as HTML.
@@ -43,7 +47,7 @@ public class MarkdownProcessor extends ExecutorProcessor<String> {
   }
 
   public static MarkdownProcessor create( final ProcessorContext context ) {
-    return create( IdentityProcessor.INSTANCE, context );
+    return create( IDENTITY, context );
   }
 
   public static MarkdownProcessor create(
@@ -86,20 +90,17 @@ public class MarkdownProcessor extends ExecutorProcessor<String> {
   private static List<Extension> createExtensions(
     final ProcessorContext context ) {
     final var extensions = createDefaultExtensions();
-    final var format = context.getExportFormat();
-    final var workspace = context.getWorkspace();
     final var editorFile = context.getPath();
-    final var linkDir = context.getBasePath();
 
     final var mediaType = MediaType.valueFrom( editorFile );
     if( mediaType == TEXT_R_MARKDOWN || mediaType == TEXT_R_XML ) {
-      extensions.add( RExtension.create() );
+      extensions.add( RExtension.create( context ) );
     }
 
-    extensions.add( ImageLinkExtension.create( linkDir, workspace ) );
-    extensions.add( TeXExtension.create( format ) );
+    extensions.add( ImageLinkExtension.create( context ) );
+    extensions.add( TeXExtension.create( context ) );
     extensions.add( FencedBlockExtension.create( context ) );
-    extensions.add( CaretExtension.create( context.getCaret() ) );
+    extensions.add( CaretExtension.create( context ) );
 
     return extensions;
   }
@@ -113,16 +114,16 @@ public class MarkdownProcessor extends ExecutorProcessor<String> {
    */
   @Override
   public String apply( final String markdown ) {
-    return toHtml( markdown );
+    return toHtml( parse( markdown ) );
   }
 
   /**
-   * Returns the AST in the form of a node for the given markdown document. This
+   * Returns the AST in the form of a node for the given Markdown document. This
    * can be used, for example, to determine if a hyperlink exists inside of a
    * paragraph.
    *
-   * @param markdown The markdown to convert into an AST.
-   * @return The markdown AST for the given text (usually a paragraph).
+   * @param markdown The Markdown to convert into an AST.
+   * @return The Markdown AST for the given text (usually a paragraph).
    */
   public Node toNode( final String markdown ) {
     return parse( markdown );
@@ -139,23 +140,13 @@ public class MarkdownProcessor extends ExecutorProcessor<String> {
   }
 
   /**
-   * Helper method to create an AST given some markdown.
+   * Helper method to create an AST given some Markdown.
    *
-   * @param markdown The markdown to parse.
-   * @return The root node of the markdown tree.
+   * @param markdown The Markdown to parse.
+   * @return The root node of the Markdown tree.
    */
   private Node parse( final String markdown ) {
     return getParser().parse( markdown );
-  }
-
-  /**
-   * Converts a string of markdown into HTML.
-   *
-   * @param markdown The markdown text to convert to HTML, must not be null.
-   * @return The markdown rendered as an HTML document.
-   */
-  private String toHtml( final String markdown ) {
-    return toHtml( parse( markdown ) );
   }
 
   /**

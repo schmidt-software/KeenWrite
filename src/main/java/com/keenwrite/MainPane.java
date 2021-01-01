@@ -17,8 +17,7 @@ import com.keenwrite.processors.IdentityProcessor;
 import com.keenwrite.processors.Processor;
 import com.keenwrite.processors.ProcessorContext;
 import com.keenwrite.processors.ProcessorFactory;
-import com.keenwrite.processors.markdown.Caret;
-import com.keenwrite.processors.markdown.CaretExtension;
+import com.keenwrite.processors.markdown.extensions.caret.CaretExtension;
 import com.keenwrite.service.events.Notifier;
 import com.keenwrite.sigils.RSigilOperator;
 import com.keenwrite.sigils.SigilOperator;
@@ -157,16 +156,7 @@ public final class MainPane extends SplitPane {
 
     open( bin( getRecentFiles() ) );
     viewPreview();
-
-    final var ratio = 100f / getItems().size() / 100;
-    final var positions = getDividerPositions();
-
-    for( int i = 0; i < positions.length; i++ ) {
-      positions[ i ] = ratio * i;
-    }
-
-    // TODO: Load divider positions from exported settings, see bin() comment.
-    setDividerPositions( positions );
+    setDividerPositions( calculateDividerPositions() );
 
     // Once the main scene's window regains focus, update the active definition
     // editor to the currently selected tab.
@@ -178,13 +168,25 @@ public final class MainPane extends SplitPane {
           final var tab = model.getSelectedItem();
 
           if( tab != null ) {
-            final var editor = (TextDefinition) tab.getContent();
-
-            mActiveDefinitionEditor.set( editor );
+            mActiveDefinitionEditor.set( (TextDefinition) tab.getContent() );
           }
         }
       } )
     );
+  }
+
+  /**
+   * TODO: Load divider positions from exported settings, see bin() comment.
+   */
+  private double[] calculateDividerPositions() {
+    final var ratio = 100f / getItems().size() / 100;
+    final var positions = getDividerPositions();
+
+    for( int i = 0; i < positions.length; i++ ) {
+      positions[ i ] = ratio * i;
+    }
+
+    return positions;
   }
 
   /**
@@ -590,7 +592,7 @@ public final class MainPane extends SplitPane {
    * @param editor Contains the source document to update in the preview pane.
    */
   private void process( final TextEditor editor ) {
-    mProcessors.getOrDefault( editor, IdentityProcessor.INSTANCE )
+    mProcessors.getOrDefault( editor, IdentityProcessor.IDENTITY )
                .apply( editor == null ? "" : editor.getText() );
     mHtmlPreview.scrollTo( CARET_ID );
   }

@@ -33,7 +33,7 @@ import java.util.Set;
 
 import static com.keenwrite.preview.SvgReplacedElementFactory.HTML_IMAGE;
 import static com.keenwrite.preview.SvgReplacedElementFactory.HTML_IMAGE_SRC;
-import static com.keenwrite.processors.markdown.tex.TexNode.HTML_TEX;
+import static com.keenwrite.processors.markdown.extensions.tex.TexNode.HTML_TEX;
 import static java.util.Arrays.asList;
 
 /**

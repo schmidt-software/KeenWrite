@@ -72,7 +72,7 @@ public class ProcessorFactory extends AbstractFileFactory {
    * @return An instance of {@link Processor} that performs no processing.
    */
   private Processor<String> createIdentityProcessor() {
-    return IdentityProcessor.INSTANCE;
+    return IdentityProcessor.IDENTITY;
   }
 
   /**

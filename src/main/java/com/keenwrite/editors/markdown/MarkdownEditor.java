@@ -5,7 +5,7 @@ import com.keenwrite.Constants;
 import com.keenwrite.editors.TextEditor;
 import com.keenwrite.preferences.LocaleProperty;
 import com.keenwrite.preferences.Workspace;
-import com.keenwrite.processors.markdown.Caret;
+import com.keenwrite.Caret;
 import com.keenwrite.spelling.impl.TextEditorSpeller;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;

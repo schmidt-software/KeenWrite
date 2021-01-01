@@ -6,7 +6,7 @@ import com.keenwrite.ExportFormat;
 import com.keenwrite.io.FileType;
 import com.keenwrite.preferences.Workspace;
 import com.keenwrite.preview.HtmlPreview;
-import com.keenwrite.processors.markdown.Caret;
+import com.keenwrite.Caret;
 
 import java.nio.file.Path;
 import java.util.Map;
@@ -39,12 +39,12 @@ public class ProcessorContext {
    * @param exportFormat Indicate configuration options for export format.
    */
   public ProcessorContext(
-      final HtmlPreview htmlPreview,
-      final Map<String, String> resolvedMap,
-      final Path path,
-      final Caret caret,
-      final ExportFormat exportFormat,
-      final Workspace workspace ) {
+    final HtmlPreview htmlPreview,
+    final Map<String, String> resolvedMap,
+    final Path path,
+    final Caret caret,
+    final ExportFormat exportFormat,
+    final Workspace workspace ) {
     assert htmlPreview != null;
     assert resolvedMap != null;
     assert path != null;
@@ -60,7 +60,7 @@ public class ProcessorContext {
     mWorkspace = workspace;
   }
 
-  @SuppressWarnings("SameParameterValue")
+  @SuppressWarnings( "SameParameterValue" )
   boolean isExportFormat( final ExportFormat format ) {
     return mExportFormat == format;
   }
@@ -104,7 +104,7 @@ public class ProcessorContext {
    * @return Path to the directory containing a file being edited, or the
    * default user directory if the base path cannot be determined.
    */
-  public Path getBasePath() {
+  public Path getBaseDir() {
     final var path = getPath().toAbsolutePath().getParent();
     return path == null ? DEFAULT_DIRECTORY : path;
   }

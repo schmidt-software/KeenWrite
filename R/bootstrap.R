@@ -1,5 +1,5 @@
-setwd( '$application.r.working.directory$' )
-assign( "anchor", '$date.anchor$', envir = .GlobalEnv )
+setwd( '{{application.r.working.directory}}' )
+assign( "anchor", '{{date.anchor}}', envir = .GlobalEnv )
 
 source( 'pluralize.R' )
 source( 'possessive.R' )

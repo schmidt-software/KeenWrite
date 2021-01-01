@@ -15,6 +15,7 @@ import static com.keenwrite.StatusBarNotifier.clue;
 import static java.nio.charset.Charset.forName;
 import static java.nio.file.Files.readAllBytes;
 import static java.nio.file.Files.write;
+import static java.util.Arrays.asList;
 import static java.util.Locale.ENGLISH;
 
 /**
@@ -79,6 +80,18 @@ public interface TextResource {
    */
   default MediaType getMediaType() {
     return MediaType.valueFrom( getFile() );
+  }
+
+  /**
+   * Answers whether this instance is an editor for at least one of the given
+   * {@link MediaType} references.
+   *
+   * @param mediaTypes The {@link MediaType} references to compare against.
+   * @return {@code true} if the given list of media types contains the
+   * {@link MediaType} for this editor.
+   */
+  default boolean isMediaType( final MediaType... mediaTypes ) {
+    return asList( mediaTypes ).contains( getMediaType() );
   }
 
   /**

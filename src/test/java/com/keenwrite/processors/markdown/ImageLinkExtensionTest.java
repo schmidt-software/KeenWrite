@@ -2,6 +2,7 @@
 package com.keenwrite.processors.markdown;
 
 import com.keenwrite.preferences.Workspace;
+import com.keenwrite.processors.markdown.extensions.ImageLinkExtension;
 import com.vladsch.flexmark.html.HtmlRenderer;
 import com.vladsch.flexmark.parser.Parser;
 import org.junit.jupiter.api.Test;

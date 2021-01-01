@@ -1,5 +1,5 @@
 /* Copyright 2020 White Magic Software, Ltd. -- All rights reserved. */
-package com.keenwrite.processors.markdown;
+package com.keenwrite;
 
 import com.keenwrite.util.GenericBuilder;
 import javafx.beans.value.ObservableValue;
@@ -35,7 +35,7 @@ public class Caret {
      * Used to count the number of lines in the text editor document.
      */
     private LiveList<Paragraph<Collection<String>, String,
-        Collection<String>>> mParagraphs;
+      Collection<String>>> mParagraphs;
 
     /**
      * Caret offset into the full text, represented as a string index.

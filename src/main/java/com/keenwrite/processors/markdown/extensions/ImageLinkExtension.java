@@ -1,15 +1,15 @@
 /* Copyright 2020 White Magic Software, Ltd. -- All rights reserved. */
-package com.keenwrite.processors.markdown;
+package com.keenwrite.processors.markdown.extensions;
 
 import com.keenwrite.exceptions.MissingFileException;
 import com.keenwrite.preferences.Workspace;
+import com.keenwrite.processors.ProcessorContext;
 import com.vladsch.flexmark.ast.Image;
 import com.vladsch.flexmark.html.IndependentLinkResolverFactory;
 import com.vladsch.flexmark.html.LinkResolver;
 import com.vladsch.flexmark.html.renderer.LinkResolverBasicContext;
 import com.vladsch.flexmark.html.renderer.ResolvedLink;
 import com.vladsch.flexmark.util.ast.Node;
-import com.vladsch.flexmark.util.data.MutableDataHolder;
 import org.jetbrains.annotations.NotNull;
 import org.renjin.repackaged.guava.base.Splitter;
 
@@ -22,7 +22,6 @@ import static com.keenwrite.preferences.Workspace.KEY_IMAGES_DIR;
 import static com.keenwrite.preferences.Workspace.KEY_IMAGES_ORDER;
 import static com.keenwrite.util.ProtocolScheme.getProtocol;
 import static com.vladsch.flexmark.html.HtmlRenderer.Builder;
-import static com.vladsch.flexmark.html.HtmlRenderer.HtmlRendererExtension;
 import static com.vladsch.flexmark.html.renderer.LinkStatus.VALID;
 import static java.lang.String.format;
 
@@ -30,34 +29,25 @@ import static java.lang.String.format;
  * Responsible for ensuring that images can be rendered relative to a path.
  * This allows images to be located virtually anywhere.
  */
-public class ImageLinkExtension implements HtmlRendererExtension {
+public class ImageLinkExtension extends HtmlRendererAdapter {
+
+  private final Path mBaseDir;
+  private final Workspace mWorkspace;
+
+  private ImageLinkExtension( @NotNull final ProcessorContext context ) {
+    mBaseDir = context.getBaseDir();
+    mWorkspace = context.getWorkspace();
+  }
 
   /**
    * Creates an extension capable of using a relative path to embed images.
    *
-   * @param basePath  The directory to search for images, either directly or
-   *                  through the images directory setting, not {@code null}.
-   * @param workspace Contains user preferences for image directory and image
-   *                  file name extension lookup order.
+   * @param context Contains the base directory to search in for images.
    * @return The new {@link ImageLinkExtension}, not {@code null}.
    */
   public static ImageLinkExtension create(
-    @NotNull final Path basePath,
-    @NotNull final Workspace workspace ) {
-    return new ImageLinkExtension( basePath, workspace );
-  }
-
-  private final Path mBasePath;
-  private final Workspace mWorkspace;
-
-  private ImageLinkExtension(
-    @NotNull final Path basePath, @NotNull final Workspace workspace ) {
-    mBasePath = basePath;
-    mWorkspace = workspace;
-  }
-
-  @Override
-  public void rendererOptions( @NotNull final MutableDataHolder options ) {
+    @NotNull final ProcessorContext context ) {
+    return new ImageLinkExtension( context );
   }
 
   @Override
@@ -96,7 +86,7 @@ public class ImageLinkExtension implements HtmlRendererExtension {
       }
 
       // Determine the fully-qualified file name (fqfn).
-      final var fqfn = Paths.get( getBasePath().toString(), uri ).toFile();
+      final var fqfn = Paths.get( getBaseDir().toString(), uri ).toFile();
 
       if( fqfn.isFile() ) {
         return valid( link, uri );
@@ -106,15 +96,15 @@ public class ImageLinkExtension implements HtmlRendererExtension {
       // qualified using the image prefix, as set in the user preferences.
       try {
         final var imagePrefix = getImagePrefix();
-        final var basePath = getBasePath().resolve( imagePrefix );
+        final var baseDir = getBaseDir().resolve( imagePrefix );
 
-        final var imagePathPrefix = Path.of( basePath.toString(), uri );
+        final var imagePrefixDir = Path.of( baseDir.toString(), uri );
         final var suffixes = getImageExtensions();
         boolean missing = true;
 
         // Iterate over the user's preferred image file type extensions.
         for( final var ext : Splitter.on( ' ' ).split( suffixes ) ) {
-          final var imagePath = format( "%s.%s", imagePathPrefix, ext );
+          final var imagePath = format( "%s.%s", imagePrefixDir, ext );
           final var file = new File( imagePath );
 
           if( file.exists() ) {
@@ -127,7 +117,7 @@ public class ImageLinkExtension implements HtmlRendererExtension {
         }
 
         if( missing ) {
-          throw new MissingFileException( imagePathPrefix + ".*" );
+          throw new MissingFileException( imagePrefixDir + ".*" );
         }
 
         return valid( link, uri );
@@ -150,8 +140,8 @@ public class ImageLinkExtension implements HtmlRendererExtension {
       return mWorkspace.toString( KEY_IMAGES_ORDER );
     }
 
-    private Path getBasePath() {
-      return mBasePath;
+    private Path getBaseDir() {
+      return mBaseDir;
     }
   }
 }

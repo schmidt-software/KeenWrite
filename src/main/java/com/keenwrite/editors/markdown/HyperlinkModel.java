@@ -26,7 +26,7 @@ public class HyperlinkModel {
   /**
    * Constructs a new hyperlink model for the given AST link.
    *
-   * @param link A markdown link.
+   * @param link A Markdown link.
    */
   public HyperlinkModel( final Link link ) {
     this(
@@ -53,7 +53,7 @@ public class HyperlinkModel {
   /**
    * Returns the string in Markdown format by default.
    *
-   * @return A markdown version of the hyperlink.
+   * @return A Markdown version of the hyperlink.
    */
   @Override
   public String toString() {

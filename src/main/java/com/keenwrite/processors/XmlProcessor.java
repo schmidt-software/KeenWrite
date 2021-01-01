@@ -133,7 +133,7 @@ public class XmlProcessor extends ExecutorProcessor<String>
    *
    * @param xsl The stylesheet to use for transforming XML documents.
    * @return The edited XML document transformed into another format (usually
-   * markdown).
+   * Markdown).
    * @throws TransformerConfigurationException Could not create the transformer.
    */
   protected Transformer createTransformer( final Path xsl )

@@ -1,7 +1,7 @@
 package com.keenwrite.ui.listeners;
 
 import com.keenwrite.editors.TextEditor;
-import com.keenwrite.processors.markdown.Caret;
+import com.keenwrite.Caret;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;

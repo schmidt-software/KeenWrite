@@ -271,7 +271,7 @@ public class ApplicationActions {
 
   /**
    * Returns one of: selected text, word under cursor, or parsed hyperlink from
-   * the markdown AST.
+   * the Markdown AST.
    *
    * @return An instance containing the link URL and display text.
    */

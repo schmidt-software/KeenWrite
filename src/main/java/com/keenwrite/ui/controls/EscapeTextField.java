@@ -33,7 +33,7 @@ import javafx.scene.control.TextField;
 import javafx.util.StringConverter;
 
 /**
- * Responsible for escaping/unescaping characters for markdown.
+ * Responsible for escaping/unescaping characters for Markdown.
  */
 public class EscapeTextField extends TextField {
 

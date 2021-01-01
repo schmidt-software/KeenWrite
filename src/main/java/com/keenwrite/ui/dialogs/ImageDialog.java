@@ -43,7 +43,7 @@ import javafx.stage.Window;
 import org.tbee.javafx.scene.layout.fxml.MigPane;
 
 /**
- * Dialog to enter a markdown image.
+ * Dialog to enter a Markdown image.
  */
 public class ImageDialog extends AbstractDialog<String> {
 

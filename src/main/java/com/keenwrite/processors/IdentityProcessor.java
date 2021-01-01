@@ -6,7 +6,7 @@ package com.keenwrite.processors;
  * end of a processing chain when no more processing is required.
  */
 public class IdentityProcessor extends ExecutorProcessor<String> {
-  public static final IdentityProcessor INSTANCE = new IdentityProcessor();
+  public static final IdentityProcessor IDENTITY = new IdentityProcessor();
 
   /**
    * Constructs a new instance having no successor (the default successor is

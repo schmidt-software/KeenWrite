@@ -43,7 +43,7 @@ import static com.keenwrite.Messages.get;
 import static javafx.scene.control.ButtonType.OK;
 
 /**
- * Dialog to enter a markdown link.
+ * Dialog to enter a Markdown link.
  */
 public class LinkDialog extends AbstractDialog<String> {
 

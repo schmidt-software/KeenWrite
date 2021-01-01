@@ -43,7 +43,7 @@ public class LinkVisitor {
   private final int offset;
 
   /**
-   * Creates a hyperlink given an offset into a paragraph and the markdown AST
+   * Creates a hyperlink given an offset into a paragraph and the Markdown AST
    * link node.
    *
    * @param index Index into the paragraph that indicates the hyperlink to

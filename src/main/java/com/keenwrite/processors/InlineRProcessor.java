@@ -2,16 +2,14 @@
 package com.keenwrite.processors;
 
 import com.keenwrite.preferences.Workspace;
-import com.keenwrite.processors.markdown.MarkdownProcessor;
-import com.vladsch.flexmark.ast.Paragraph;
-import com.vladsch.flexmark.ast.Text;
+import com.keenwrite.processors.markdown.extensions.r.ROutputProcessor;
+import com.keenwrite.util.BoundedCache;
 import javafx.beans.property.Property;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import java.io.File;
 import java.nio.file.Path;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -27,23 +25,14 @@ import static java.lang.Math.min;
  * Transforms a document containing R statements into Markdown.
  */
 public final class InlineRProcessor extends DefinitionProcessor {
-  /**
-   * Constrain memory when typing new R expressions into the document.
-   */
-  private static final int MAX_CACHED_R_STATEMENTS = 512;
-
-  private final MarkdownProcessor mMarkdownProcessor;
+  private final Processor<String> mPostProcessor = new ROutputProcessor();
 
   /**
-   * Where to put document inline evaluated R expressions.
+   * Where to put document inline evaluated R expressions, constrained to
+   * avoid running out of memory.
    */
-  private final Map<String, String> mEvalCache = new LinkedHashMap<>() {
-    @Override
-    protected boolean removeEldestEntry(
-      final Map.Entry<String, String> eldest ) {
-      return size() > MAX_CACHED_R_STATEMENTS;
-    }
-  };
+  private final Map<String, String> mEvalCache =
+    new BoundedCache<>( 512 );
 
   private static final ScriptEngine ENGINE =
     (new ScriptEngineManager()).getEngineByName( "Renjin" );
@@ -66,7 +55,6 @@ public final class InlineRProcessor extends DefinitionProcessor {
     super( successor, context );
 
     mWorkspace = context.getWorkspace();
-    mMarkdownProcessor = MarkdownProcessor.create( context );
 
     bootstrapScriptProperty().addListener(
       ( __, oldScript, newScript ) -> setDirty( true ) );
@@ -161,14 +149,12 @@ public final class InlineRProcessor extends DefinitionProcessor {
       // Only evaluate inline R statements that have end delimiters.
       if( currIndex > 1 ) {
         // Extract the inline R statement to be evaluated.
-        final String r = text.substring( prevIndex, currIndex );
+        final var r = text.substring( prevIndex, currIndex );
 
         // Pass the R statement into the R engine for evaluation.
         try {
-          final var result = evalCached( r );
-
           // Append the string representation of the result into the text.
-          sb.append( result );
+          sb.append( evalCached( r ) );
         } catch( final Exception ex ) {
           // Inform the user that there was a problem.
           clue( STATUS_PARSE_ERROR, ex.getMessage(), currIndex );
@@ -198,7 +184,7 @@ public final class InlineRProcessor extends DefinitionProcessor {
    * @return The object resulting from the evaluation.
    */
   private String evalCached( final String r ) {
-    return mEvalCache.computeIfAbsent( r, v -> evalHtml( r ) );
+    return mEvalCache.computeIfAbsent( r, __ -> evalHtml( r ) );
   }
 
   /**
@@ -211,15 +197,7 @@ public final class InlineRProcessor extends DefinitionProcessor {
    * @return The result from the R expression as an HTML element.
    */
   private String evalHtml( final String r ) {
-    final var markdown = eval( r );
-    var node = mMarkdownProcessor.toNode( markdown ).getFirstChild();
-
-    if( node != null && node.isOrDescendantOfType( Paragraph.class ) ) {
-      node = new Text( node.getChars() );
-    }
-
-    // Trimming prevents displaced commas and unwanted newlines.
-    return mMarkdownProcessor.toHtml( node ).trim();
+    return mPostProcessor.apply( eval( r ) );
   }
 
   /**

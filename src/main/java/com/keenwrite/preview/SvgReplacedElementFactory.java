@@ -20,7 +20,7 @@ import static com.keenwrite.io.MediaType.*;
 import static com.keenwrite.preview.MathRenderer.MATH_RENDERER;
 import static com.keenwrite.preview.SvgRasterizer.BROKEN_IMAGE_PLACEHOLDER;
 import static com.keenwrite.preview.SvgRasterizer.rasterize;
-import static com.keenwrite.processors.markdown.tex.TexNode.HTML_TEX;
+import static com.keenwrite.processors.markdown.extensions.tex.TexNode.HTML_TEX;
 import static com.keenwrite.util.ProtocolScheme.getProtocol;
 
 /**

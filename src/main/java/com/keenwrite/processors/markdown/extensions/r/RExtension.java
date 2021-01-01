@@ -1,12 +1,14 @@
 /* Copyright 2020 White Magic Software, Ltd. -- All rights reserved. */
-package com.keenwrite.processors.markdown.r;
+package com.keenwrite.processors.markdown.extensions.r;
 
 import com.keenwrite.processors.InlineRProcessor;
+import com.keenwrite.processors.Processor;
+import com.keenwrite.processors.ProcessorContext;
+import com.keenwrite.processors.RVariableProcessor;
 import com.keenwrite.sigils.RSigilOperator;
 import com.vladsch.flexmark.ast.Text;
 import com.vladsch.flexmark.parser.InlineParserExtensionFactory;
 import com.vladsch.flexmark.parser.InlineParserFactory;
-import com.vladsch.flexmark.parser.Parser;
 import com.vladsch.flexmark.parser.delimiter.DelimiterProcessor;
 import com.vladsch.flexmark.parser.internal.InlineParserImpl;
 import com.vladsch.flexmark.parser.internal.LinkRefProcessorData;
@@ -17,28 +19,39 @@ import java.util.BitSet;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Responsible for preventing the Markdown engine from interpreting inline
- * backticks as inline code elements. This is required so that inline R code
- * can be executed after conversion of Markdown to HTML but before the HTML
- * is previewed (or exported).
- */
-public final class RExtension implements Parser.ParserExtension {
-  private static final InlineParserFactory FACTORY = CustomParser::new;
+import static com.keenwrite.processors.IdentityProcessor.IDENTITY;
+import static com.vladsch.flexmark.parser.Parser.Builder;
+import static com.vladsch.flexmark.parser.Parser.ParserExtension;
 
-  private RExtension() {
+/**
+ * Responsible for processing inline R statements (denoted using the
+ * {@link RSigilOperator#PREFIX}) to prevent them from being converted to
+ * HTML {@code <code>} elements and stop them from interfering with TeX
+ * statements. Note that TeX statements are processed using a Markdown
+ * extension, rather than an implementation of {@link Processor}. For this
+ * reason, some pre-conversion is necessary.
+ */
+public final class RExtension implements ParserExtension {
+  private final InlineParserFactory FACTORY = CustomParser::new;
+
+  private final Processor<String> mProcessor;
+
+  private RExtension( final Processor<String> processor ) {
+    mProcessor = processor;
   }
 
   /**
    * Creates an extension capable of intercepting R code blocks and preventing
    * them from being converted into HTML {@code <code>} elements.
    */
-  public static RExtension create() {
-    return new RExtension();
+  public static RExtension create( final ProcessorContext context ) {
+    final var irp = new InlineRProcessor( IDENTITY, context );
+    final var rvp = new RVariableProcessor( irp, context );
+    return new RExtension( rvp );
   }
 
   @Override
-  public void extend( final Parser.Builder builder ) {
+  public void extend( final Builder builder ) {
     builder.customInlineParserFactory( FACTORY );
   }
 
@@ -58,7 +71,7 @@ public final class RExtension implements Parser.ParserExtension {
    * {@link InlineRProcessor}.
    * </p>
    */
-  private static class CustomParser extends InlineParserImpl {
+  private class CustomParser extends InlineParserImpl {
     private CustomParser(
       final DataHolder options,
       final BitSet specialCharacters,
@@ -93,11 +106,11 @@ public final class RExtension implements Parser.ParserExtension {
         final var codeNode = blockNode.getLastChild();
 
         if( codeNode != null ) {
-          final var code = codeNode.getChars();
+          final var code = codeNode.getChars().toString();
 
           if( code.startsWith( RSigilOperator.PREFIX ) ) {
             codeNode.unlink();
-            blockNode.appendChild( new Text( code ) );
+            blockNode.appendChild( new Text( mProcessor.apply( code ) ) );
           }
         }
       }
