@@ -120,9 +120,9 @@ public class ApplicationActions {
 
   private void file‿export( final ExportFormat format ) {
     final var main = getMainPane();
-    final var editor = main.getActiveTextEditor();
-    final var context = main.createProcessorContext( editor );
+    final var context = main.createProcessorContext();
     final var chain = createProcessors( context );
+    final var editor = main.getActiveTextEditor();
     final var doc = editor.getText();
     final var export = chain.apply( doc );
     final var filename = format.toExportFilename( editor.getPath() );
@@ -260,8 +260,7 @@ public class ApplicationActions {
   }
 
   private Dialog<String> createLinkDialog() {
-    final var editor = getActiveTextEditor();
-    return new LinkDialog( getWindow(), createHyperlinkModel( editor ) );
+    return new LinkDialog( getWindow(), createHyperlinkModel() );
   }
 
   private Dialog<String> createImageDialog() {
@@ -276,12 +275,14 @@ public class ApplicationActions {
    *
    * @return An instance containing the link URL and display text.
    */
-  private HyperlinkModel createHyperlinkModel( final TextEditor editor ) {
+  private HyperlinkModel createHyperlinkModel() {
+    final var context = getMainPane().createProcessorContext();
+    final var editor = getActiveTextEditor();
     final var textArea = editor.getTextArea();
     final var selectedText = textArea.getSelectedText();
 
     // Convert current paragraph to Markdown nodes.
-    final var mp = MarkdownProcessor.create( getWorkspace() );
+    final var mp = MarkdownProcessor.create( context );
     final var p = textArea.getCurrentParagraph();
     final var paragraph = textArea.getText( p );
     final var node = mp.toNode( paragraph );

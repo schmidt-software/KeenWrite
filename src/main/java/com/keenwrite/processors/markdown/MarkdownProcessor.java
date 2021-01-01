@@ -1,10 +1,11 @@
 /* Copyright 2020 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.processors.markdown;
 
-import com.keenwrite.ExportFormat;
 import com.keenwrite.io.MediaType;
-import com.keenwrite.preferences.Workspace;
-import com.keenwrite.processors.*;
+import com.keenwrite.processors.ExecutorProcessor;
+import com.keenwrite.processors.IdentityProcessor;
+import com.keenwrite.processors.Processor;
+import com.keenwrite.processors.ProcessorContext;
 import com.keenwrite.processors.markdown.r.RExtension;
 import com.vladsch.flexmark.ext.definition.DefinitionExtension;
 import com.vladsch.flexmark.ext.gfm.strikethrough.StrikethroughSubscriptExtension;
@@ -18,12 +19,9 @@ import com.vladsch.flexmark.util.ast.IRender;
 import com.vladsch.flexmark.util.ast.Node;
 import com.vladsch.flexmark.util.misc.Extension;
 
-import java.nio.file.Path;
-import java.util.Collection;
-import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.List;
 
-import static com.keenwrite.Constants.DEFAULT_DIRECTORY;
-import static com.keenwrite.ExportFormat.NONE;
 import static com.keenwrite.io.MediaType.TEXT_R_MARKDOWN;
 import static com.keenwrite.io.MediaType.TEXT_R_XML;
 
@@ -37,58 +35,11 @@ public class MarkdownProcessor extends ExecutorProcessor<String> {
 
   private MarkdownProcessor(
     final Processor<String> successor,
-    final Collection<Extension> extensions ) {
+    final List<Extension> extensions ) {
     super( successor );
 
     mParser = Parser.builder().extensions( extensions ).build();
     mRenderer = HtmlRenderer.builder().extensions( extensions ).build();
-  }
-
-  public static MarkdownProcessor create( final Workspace workspace ) {
-    final var extensions = createExtensions( NONE, workspace, DEFAULT_DIRECTORY );
-    return new MarkdownProcessor( IdentityProcessor.INSTANCE, extensions );
-  }
-
-  /**
-   * Creates parser extensions that tweak the parsing engine based on various
-   * conditions. For example, this will add a new {@link TeXExtension} that
-   * can export TeX as either SVG or TeX macros. The tweak also includes the
-   * ability to keep inline R statements, rather than convert them to inline
-   * code elements, so that the {@link InlineRProcessor} can interpret the
-   * R statements.
-   *
-   * @param format TeX export format to use when generating HTMl documents.
-   * @param workspace User preferences, such as image order and directory.
-   * @param dir    Directory for referencing image files via relative paths
-   *               and dynamic file types.
-   * @return {@link Collection} of extensions invoked when parsing Markdown.
-   */
-  private static Collection<Extension> createExtensions(
-    final ExportFormat format, final Workspace workspace, final Path dir ) {
-    final var extensions = createDefaultExtensions();
-
-    extensions.add( ImageLinkExtension.create( dir, workspace ) );
-    extensions.add( TeXExtension.create( format ) );
-
-    return extensions;
-  }
-
-  /**
-   * Instantiates a number of extensions to be applied when parsing. These
-   * are typically typographic extensions that convert characters into
-   * HTML entities.
-   *
-   * @return A {@link Collection} of {@link Extension} instances that
-   * change the {@link Parser}'s behaviour.
-   */
-  private static Collection<Extension> createDefaultExtensions() {
-    final var extensions = new HashSet<Extension>();
-    extensions.add( DefinitionExtension.create() );
-    extensions.add( StrikethroughSubscriptExtension.create() );
-    extensions.add( SuperscriptExtension.create() );
-    extensions.add( TablesExtension.create() );
-    extensions.add( TypographicExtension.create() );
-    return extensions;
   }
 
   public static MarkdownProcessor create( final ProcessorContext context ) {
@@ -102,6 +53,24 @@ public class MarkdownProcessor extends ExecutorProcessor<String> {
   }
 
   /**
+   * Instantiates a number of extensions to be applied when parsing. These
+   * are typically typographic extensions that convert characters into
+   * HTML entities.
+   *
+   * @return A {@link List} of {@link Extension} instances that
+   * change the {@link Parser}'s behaviour.
+   */
+  private static List<Extension> createDefaultExtensions() {
+    final List<Extension> extensions = new ArrayList<>();
+    extensions.add( DefinitionExtension.create() );
+    extensions.add( StrikethroughSubscriptExtension.create() );
+    extensions.add( SuperscriptExtension.create() );
+    extensions.add( TablesExtension.create() );
+    extensions.add( TypographicExtension.create() );
+    return extensions;
+  }
+
+  /**
    * Creating extensions based using an instance of {@link ProcessorContext}
    * indicates that the {@link CaretExtension} should be used to inject the
    * caret position into the final HTML document. This enables the HTML
@@ -112,21 +81,23 @@ public class MarkdownProcessor extends ExecutorProcessor<String> {
    *
    * @param context Contains necessary information needed to create extensions
    *                used by the Markdown parser.
-   * @return {@link Collection} of extensions invoked when parsing Markdown.
+   * @return {@link List} of extensions invoked when parsing Markdown.
    */
-  private static Collection<Extension> createExtensions(
+  private static List<Extension> createExtensions(
     final ProcessorContext context ) {
-    final var path = context.getPath();
-    final var dir = context.getBasePath();
+    final var extensions = createDefaultExtensions();
     final var format = context.getExportFormat();
     final var workspace = context.getWorkspace();
-    final var extensions = createExtensions( format, workspace, dir );
+    final var editorFile = context.getPath();
+    final var linkDir = context.getBasePath();
 
-    final var mediaType = MediaType.valueFrom( path );
+    final var mediaType = MediaType.valueFrom( editorFile );
     if( mediaType == TEXT_R_MARKDOWN || mediaType == TEXT_R_XML ) {
       extensions.add( RExtension.create() );
     }
 
+    extensions.add( ImageLinkExtension.create( linkDir, workspace ) );
+    extensions.add( TeXExtension.create( format ) );
     extensions.add( FencedBlockExtension.create( context ) );
     extensions.add( CaretExtension.create( context.getCaret() ) );
 

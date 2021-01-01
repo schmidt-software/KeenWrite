@@ -753,6 +753,11 @@ public final class MainPane extends SplitPane {
     addTabPane( getItems().size(), tabPane );
   }
 
+  public ProcessorContext createProcessorContext() {
+    final var editor = getActiveTextEditor();
+    return createProcessorContext( editor.getPath(), editor.getCaret() );
+  }
+
   /**
    * @param path  Used by {@link ProcessorFactory} to determine
    *              {@link Processor} type to create based on file type.
@@ -766,10 +771,6 @@ public final class MainPane extends SplitPane {
     return new ProcessorContext(
       mHtmlPreview, mResolvedMap, path, caret, NONE, mWorkspace
     );
-  }
-
-  public ProcessorContext createProcessorContext( final TextEditor t ) {
-    return createProcessorContext( t.getPath(), t.getCaret() );
   }
 
   private TextResource createTextResource( final File file ) {
