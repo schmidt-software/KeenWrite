@@ -1,4 +1,4 @@
-/* Copyright 2020 White Magic Software, Ltd. -- All rights reserved. */
+/* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.preview;
 
 import org.apache.batik.anim.dom.SAXSVGDocumentFactory;
@@ -23,7 +23,7 @@ import java.net.URI;
 import java.nio.file.Path;
 import java.text.NumberFormat;
 
-import static com.keenwrite.StatusBarNotifier.clue;
+import static com.keenwrite.StatusNotifier.clue;
 import static com.keenwrite.preview.RenderingSettings.RENDERING_HINTS;
 import static java.awt.image.BufferedImage.TYPE_INT_RGB;
 import static java.nio.charset.StandardCharsets.UTF_8;

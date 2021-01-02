@@ -1,4 +1,4 @@
-/* Copyright 2020 White Magic Software, Ltd. -- All rights reserved. */
+/* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.service.impl;
 
 import com.keenwrite.service.Snitch;
@@ -12,7 +12,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static com.keenwrite.Constants.APP_WATCHDOG_TIMEOUT;
-import static com.keenwrite.StatusBarNotifier.clue;
+import static com.keenwrite.StatusNotifier.clue;
 import static java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY;
 
 /**

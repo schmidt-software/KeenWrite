@@ -1,8 +1,9 @@
-/* Copyright 2020 White Magic Software, Ltd. -- All rights reserved. */
+/* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.ui.actions;
 
 import com.keenwrite.ExportFormat;
 import com.keenwrite.MainPane;
+import com.keenwrite.StatusNotifier;
 import com.keenwrite.editors.TextDefinition;
 import com.keenwrite.editors.TextEditor;
 import com.keenwrite.editors.markdown.HyperlinkModel;
@@ -24,8 +25,8 @@ import static com.keenwrite.Bootstrap.APP_TITLE;
 import static com.keenwrite.Constants.ICON_DIALOG_NODE;
 import static com.keenwrite.ExportFormat.*;
 import static com.keenwrite.Messages.get;
-import static com.keenwrite.StatusBarNotifier.clue;
-import static com.keenwrite.StatusBarNotifier.getStatusBar;
+import static com.keenwrite.StatusNotifier.clue;
+import static com.keenwrite.StatusNotifier.getStatusBar;
 import static com.keenwrite.preferences.Workspace.KEY_UI_RECENT_DIR;
 import static com.keenwrite.processors.ProcessorFactory.createProcessors;
 import static java.nio.file.Files.writeString;
@@ -133,8 +134,8 @@ public class ApplicationActions {
         writeString( f.toPath(), export );
         final var m = get( "Main.status.export.success", f.toString() );
         clue( m );
-      } catch( final Exception e ) {
-        clue( e );
+      } catch( final Exception ex ) {
+        clue( ex );
       }
     } );
   }
@@ -353,6 +354,10 @@ public class ApplicationActions {
 
   public void view‿preview() {
     getMainPane().viewPreview();
+  }
+
+  public void view‿issues() {
+    StatusNotifier.viewIssues();
   }
 
   public void help‿about() {

@@ -1,4 +1,4 @@
-/* Copyright 2020 White Magic Software, Ltd. -- All rights reserved. */
+/* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.processors.markdown.extensions;
 
 import com.keenwrite.processors.DefinitionProcessor;
@@ -17,7 +17,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.zip.Deflater;
 
-import static com.keenwrite.StatusBarNotifier.clue;
+import static com.keenwrite.StatusNotifier.clue;
 import static com.keenwrite.processors.IdentityProcessor.IDENTITY;
 import static com.vladsch.flexmark.html.HtmlRenderer.Builder;
 import static com.vladsch.flexmark.html.renderer.LinkType.LINK;

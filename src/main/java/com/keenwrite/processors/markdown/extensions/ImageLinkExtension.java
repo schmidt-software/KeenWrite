@@ -1,4 +1,4 @@
-/* Copyright 2020 White Magic Software, Ltd. -- All rights reserved. */
+/* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.processors.markdown.extensions;
 
 import com.keenwrite.exceptions.MissingFileException;
@@ -17,7 +17,7 @@ import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import static com.keenwrite.StatusBarNotifier.clue;
+import static com.keenwrite.StatusNotifier.clue;
 import static com.keenwrite.preferences.Workspace.KEY_IMAGES_DIR;
 import static com.keenwrite.preferences.Workspace.KEY_IMAGES_ORDER;
 import static com.keenwrite.util.ProtocolScheme.getProtocol;

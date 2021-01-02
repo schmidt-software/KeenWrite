@@ -1,9 +1,9 @@
-/* Copyright 2020 White Magic Software, Ltd. -- All rights reserved. */
+/* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.ui.adapters;
 
 import org.xhtmlrenderer.event.DocumentListener;
 
-import static com.keenwrite.StatusBarNotifier.clue;
+import static com.keenwrite.StatusNotifier.clue;
 
 /**
  * Allows subclasses to implement only specific events of interest.

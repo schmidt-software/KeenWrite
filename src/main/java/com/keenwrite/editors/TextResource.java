@@ -1,4 +1,4 @@
-/* Copyright 2020 White Magic Software, Ltd. -- All rights reserved. */
+/* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.editors;
 
 import com.keenwrite.io.MediaType;
@@ -11,7 +11,7 @@ import java.nio.charset.Charset;
 import java.nio.file.Path;
 
 import static com.keenwrite.Constants.DEFAULT_CHARSET;
-import static com.keenwrite.StatusBarNotifier.clue;
+import static com.keenwrite.StatusNotifier.clue;
 import static java.nio.charset.Charset.forName;
 import static java.nio.file.Files.readAllBytes;
 import static java.nio.file.Files.write;

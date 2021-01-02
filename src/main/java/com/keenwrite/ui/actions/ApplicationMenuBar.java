@@ -1,4 +1,4 @@
-/* Copyright 2020 White Magic Software, Ltd. -- All rights reserved. */
+/* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.ui.actions;
 
 import javafx.event.ActionEvent;
@@ -116,7 +116,8 @@ public class ApplicationMenuBar {
       get( "Main.menu.view" ),
       addAction( "view.refresh", e -> actions.view‿refresh() ),
       SEPARATOR_ACTION,
-      addAction( "view.preview", e -> actions.view‿preview() )
+      addAction( "view.preview", e -> actions.view‿preview() ),
+      addAction( "view.issues", e -> actions.view‿issues() )
     ),
     createMenu(
       get( "Main.menu.help" ),

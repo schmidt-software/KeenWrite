@@ -1,4 +1,4 @@
-/* Copyright 2020 White Magic Software, Ltd. -- All rights reserved. */
+/* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.util;
 
 import com.keenwrite.preview.HtmlPreview;
@@ -12,7 +12,7 @@ import java.net.URI;
 import java.util.Map;
 
 import static com.keenwrite.Constants.FONT_DIRECTORY;
-import static com.keenwrite.StatusBarNotifier.clue;
+import static com.keenwrite.StatusNotifier.clue;
 import static com.keenwrite.util.ProtocolScheme.valueFrom;
 import static com.keenwrite.util.ResourceWalker.GLOB_FONTS;
 import static com.keenwrite.util.ResourceWalker.walk;

@@ -1,4 +1,4 @@
-/* Copyright 2020 White Magic Software, Ltd. -- All rights reserved. */
+/* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.editors.markdown;
 
 import com.keenwrite.Caret;
@@ -33,7 +33,7 @@ import java.util.regex.Pattern;
 
 import static com.keenwrite.Constants.*;
 import static com.keenwrite.Messages.get;
-import static com.keenwrite.StatusBarNotifier.clue;
+import static com.keenwrite.StatusNotifier.clue;
 import static com.keenwrite.preferences.Workspace.*;
 import static java.lang.Character.isWhitespace;
 import static java.lang.Math.max;

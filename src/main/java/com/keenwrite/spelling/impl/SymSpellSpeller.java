@@ -1,4 +1,4 @@
-/* Copyright 2020 White Magic Software, Ltd. -- All rights reserved. */
+/* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.spelling.impl;
 
 import com.keenwrite.exceptions.MissingFileException;
@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.keenwrite.Constants.LEXICONS_DIRECTORY;
-import static com.keenwrite.StatusBarNotifier.clue;
+import static com.keenwrite.StatusNotifier.clue;
 import static io.gitlab.rxp90.jsymspell.SymSpell.Verbosity;
 import static io.gitlab.rxp90.jsymspell.SymSpell.Verbosity.ALL;
 import static io.gitlab.rxp90.jsymspell.SymSpell.Verbosity.CLOSEST;

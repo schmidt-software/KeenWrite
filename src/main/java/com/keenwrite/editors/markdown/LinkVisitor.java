@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 White Magic Software, Ltd.
+ * Copyright 2020-2021 White Magic Software, Ltd.
  *
  * All rights reserved.
  *
@@ -38,9 +38,9 @@ import com.vladsch.flexmark.util.ast.VisitHandler;
  */
 public class LinkVisitor {
 
-  private NodeVisitor visitor;
-  private Link link;
-  private final int offset;
+  private NodeVisitor mVisitor;
+  private Link mLink;
+  private final int mOffset;
 
   /**
    * Creates a hyperlink given an offset into a paragraph and the Markdown AST
@@ -50,7 +50,7 @@ public class LinkVisitor {
    *              change.
    */
   public LinkVisitor( final int index ) {
-    this.offset = index;
+    mOffset = index;
   }
 
   public Link process( final Node root ) {
@@ -72,27 +72,27 @@ public class LinkVisitor {
   }
 
   private synchronized NodeVisitor getVisitor() {
-    if( this.visitor == null ) {
-      this.visitor = createVisitor();
+    if( mVisitor == null ) {
+      mVisitor = createVisitor();
     }
 
-    return this.visitor;
+    return mVisitor;
   }
 
   protected NodeVisitor createVisitor() {
     return new NodeVisitor(
-        new VisitHandler<>( Link.class, LinkVisitor.this::visit ) );
+      new VisitHandler<>( Link.class, LinkVisitor.this::visit ) );
   }
 
   private Link getLink() {
-    return this.link;
+    return mLink;
   }
 
   private void setLink( final Link link ) {
-    this.link = link;
+    mLink = link;
   }
 
   public int getOffset() {
-    return this.offset;
+    return mOffset;
   }
 }

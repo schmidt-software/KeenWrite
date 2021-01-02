@@ -1,4 +1,4 @@
-/* Copyright 2020 White Magic Software, Ltd.
+/* Copyright 2020-2021 White Magic Software, Ltd.
  *
  * All rights reserved.
  *

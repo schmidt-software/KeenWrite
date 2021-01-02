@@ -1,4 +1,4 @@
-/* Copyright 2020 White Magic Software, Ltd. -- All rights reserved. */
+/* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.preview;
 
 import com.whitemagicsoftware.tex.*;
@@ -7,7 +7,7 @@ import org.w3c.dom.Document;
 
 import java.util.function.Supplier;
 
-import static com.keenwrite.StatusBarNotifier.clue;
+import static com.keenwrite.StatusNotifier.clue;
 
 /**
  * Responsible for rendering formulas as scalable vector graphics (SVG).

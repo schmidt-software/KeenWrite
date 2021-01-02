@@ -1,4 +1,4 @@
-/* Copyright 2020 White Magic Software, Ltd. -- All rights reserved. */
+/* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite;
 
 import com.keenwrite.editors.TextDefinition;
@@ -7,7 +7,7 @@ import com.keenwrite.editors.definition.DefinitionTreeItem;
 import com.keenwrite.sigils.SigilOperator;
 
 import static com.keenwrite.Constants.*;
-import static com.keenwrite.StatusBarNotifier.clue;
+import static com.keenwrite.StatusNotifier.clue;
 
 /**
  * Provides the logic for injecting variable names within the editor.

@@ -1,4 +1,4 @@
-/* Copyright 2020 White Magic Software, Ltd. -- All rights reserved. */
+/* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite;
 
 import com.keenwrite.editors.TextDefinition;
@@ -49,7 +49,7 @@ import java.util.stream.Collectors;
 import static com.keenwrite.Constants.*;
 import static com.keenwrite.ExportFormat.NONE;
 import static com.keenwrite.Messages.get;
-import static com.keenwrite.StatusBarNotifier.clue;
+import static com.keenwrite.StatusNotifier.clue;
 import static com.keenwrite.io.MediaType.*;
 import static com.keenwrite.preferences.Workspace.*;
 import static com.keenwrite.processors.ProcessorFactory.createProcessors;

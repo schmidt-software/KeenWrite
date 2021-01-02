@@ -1,4 +1,4 @@
-/* Copyright 2020 White Magic Software, Ltd. -- All rights reserved. */
+/* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite;
 
 import com.keenwrite.preferences.Workspace;
@@ -24,7 +24,7 @@ public class MainScene {
     final var actions = createApplicationActions( mainPane );
     final var menuBar = createMenuBar( actions );
     final var appPane = new BorderPane();
-    final var statusBar = StatusBarNotifier.getStatusBar();
+    final var statusBar = StatusNotifier.getStatusBar();
     final var caretListener = createCaretListener( mainPane );
 
     statusBar.getRightItems().add( caretListener );

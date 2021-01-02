@@ -1,4 +1,4 @@
-/* Copyright 2020 White Magic Software, Ltd. -- All rights reserved. */
+/* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.processors;
 
 import com.keenwrite.preferences.Workspace;
@@ -14,7 +14,8 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.keenwrite.Constants.STATUS_PARSE_ERROR;
-import static com.keenwrite.StatusBarNotifier.clue;
+import static com.keenwrite.Messages.get;
+import static com.keenwrite.StatusNotifier.clue;
 import static com.keenwrite.preferences.Workspace.*;
 import static com.keenwrite.processors.text.TextReplacementFactory.replace;
 import static com.keenwrite.sigils.RSigilOperator.PREFIX;
@@ -210,8 +211,8 @@ public final class InlineRProcessor extends DefinitionProcessor {
     try {
       return ENGINE.eval( r ).toString();
     } catch( final Exception ex ) {
-      final var expr = r.substring( 0, min( r.length(), 30 ) );
-      clue( "Main.status.error.r", expr, ex.getMessage() );
+      final var expr = r.substring( 0, min( r.length(), 50 ) );
+      clue( get( "Main.status.error.r", expr, ex.getMessage() ), ex );
       return "";
     }
   }

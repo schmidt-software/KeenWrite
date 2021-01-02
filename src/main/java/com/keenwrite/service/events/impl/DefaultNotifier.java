@@ -1,4 +1,4 @@
-/* Copyright 2020 White Magic Software, Ltd. -- All rights reserved. */
+/* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.service.events.impl;
 
 import com.keenwrite.service.events.Notification;
@@ -9,6 +9,7 @@ import javafx.stage.Window;
 
 import java.nio.file.Path;
 
+import static com.keenwrite.Constants.ICON_DIALOG_NODE;
 import static com.keenwrite.Messages.get;
 import static javafx.scene.control.Alert.AlertType.CONFIRMATION;
 import static javafx.scene.control.Alert.AlertType.ERROR;
@@ -67,6 +68,7 @@ public final class DefaultNotifier implements Notifier {
     alert.setHeaderText( null );
     alert.setContentText( message.getContent() );
     alert.initOwner( parent );
+    alert.setGraphic( ICON_DIALOG_NODE );
 
     return alert;
   }

@@ -1,4 +1,4 @@
-/* Copyright 2020 White Magic Software, Ltd. -- All rights reserved. */
+/* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.preview;
 
 import org.jsoup.helper.W3CDom;
@@ -13,7 +13,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import static com.keenwrite.StatusBarNotifier.clue;
+import static com.keenwrite.StatusNotifier.clue;
 import static com.keenwrite.processors.text.TextReplacementFactory.replace;
 
 /**

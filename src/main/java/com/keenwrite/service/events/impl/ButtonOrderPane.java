@@ -1,10 +1,12 @@
-/* Copyright 2020 White Magic Software, Ltd. -- All rights reserved. */
+/* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.service.events.impl;
 
 import javafx.scene.Node;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.DialogPane;
+import javafx.stage.Stage;
 
+import static com.keenwrite.Constants.ICON_DIALOG;
 import static com.keenwrite.Constants.sSettings;
 import static javafx.scene.control.ButtonBar.BUTTON_ORDER_WINDOWS;
 
@@ -13,6 +15,9 @@ import static javafx.scene.control.ButtonBar.BUTTON_ORDER_WINDOWS;
  * the default button order on Linux defies all logic).
  */
 public class ButtonOrderPane extends DialogPane {
+  public ButtonOrderPane() {
+    ((Stage) getScene().getWindow()).getIcons().add( ICON_DIALOG );
+  }
 
   @Override
   protected Node createButtonBar() {
@@ -22,12 +27,7 @@ public class ButtonOrderPane extends DialogPane {
   }
 
   private String getButtonOrder() {
-    return getSetting( "dialog.alert.button.order.windows",
-                       BUTTON_ORDER_WINDOWS );
-  }
-
-  @SuppressWarnings("SameParameterValue")
-  private String getSetting( final String key, final String defaultValue ) {
-    return sSettings.getSetting( key, defaultValue );
+    return sSettings.getSetting(
+      "dialog.alert.button.order.windows", BUTTON_ORDER_WINDOWS );
   }
 }

@@ -1,4 +1,4 @@
-/* Copyright 2020 White Magic Software, Ltd. -- All rights reserved. */
+/* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.preferences;
 
 import com.keenwrite.Constants;
@@ -20,7 +20,7 @@ import java.util.function.Function;
 import static com.keenwrite.Bootstrap.APP_TITLE_LOWERCASE;
 import static com.keenwrite.Constants.*;
 import static com.keenwrite.Launcher.getVersion;
-import static com.keenwrite.StatusBarNotifier.clue;
+import static com.keenwrite.StatusNotifier.clue;
 import static com.keenwrite.preferences.Key.key;
 import static java.util.Map.entry;
 import static javafx.application.Platform.runLater;

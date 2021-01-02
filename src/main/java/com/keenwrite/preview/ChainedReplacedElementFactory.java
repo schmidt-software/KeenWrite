@@ -1,6 +1,6 @@
 /* Copyright 2006 Patrick Wright
  * Copyright 2007 Wisconsin Court System
- * Copyright 2020 White Magic Software, Ltd.
+ * Copyright 2020-2021 White Magic Software, Ltd.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
