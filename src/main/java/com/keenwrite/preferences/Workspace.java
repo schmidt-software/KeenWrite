@@ -5,15 +5,13 @@ import com.keenwrite.Constants;
 import com.keenwrite.sigils.Tokens;
 import javafx.application.Platform;
 import javafx.beans.property.*;
+import javafx.collections.ObservableList;
 import org.apache.commons.configuration2.XMLConfiguration;
 import org.apache.commons.configuration2.builder.fluent.Configurations;
 import org.apache.commons.configuration2.io.FileHandler;
 
 import java.io.File;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
@@ -26,6 +24,7 @@ import static com.keenwrite.StatusBarNotifier.clue;
 import static com.keenwrite.preferences.Key.key;
 import static java.util.Map.entry;
 import static javafx.application.Platform.runLater;
+import static javafx.collections.FXCollections.observableArrayList;
 import static javafx.collections.FXCollections.observableSet;
 
 /**
@@ -96,11 +95,15 @@ public class Workspace {
   public static final Key KEY_UI_FILES_PATH = key( KEY_UI_FILES, "path" );
 
   public static final Key KEY_UI_FONT = key( KEY_UI, "font" );
-  public static final Key KEY_UI_FONT_LOCALE = key( KEY_UI_FONT, "locale" );
   public static final Key KEY_UI_FONT_EDITOR = key( KEY_UI_FONT, "editor" );
+  public static final Key KEY_UI_FONT_EDITOR_NAME = key( KEY_UI_FONT_EDITOR, "name" );
   public static final Key KEY_UI_FONT_EDITOR_SIZE = key( KEY_UI_FONT_EDITOR, "size" );
   public static final Key KEY_UI_FONT_PREVIEW = key( KEY_UI_FONT, "preview" );
+  public static final Key KEY_UI_FONT_PREVIEW_NAME = key( KEY_UI_FONT_PREVIEW, "name" );
   public static final Key KEY_UI_FONT_PREVIEW_SIZE = key( KEY_UI_FONT_PREVIEW, "size" );
+
+  public static final Key KEY_LANGUAGE = key( KEY_ROOT, "language" );
+  public static final Key KEY_LANG_LOCALE = key( KEY_LANGUAGE, "locale" );
 
   public static final Key KEY_UI_WINDOW = key( KEY_UI, "window" );
   public static final Key KEY_UI_WINDOW_X = key( KEY_UI_WINDOW, "x" );
@@ -130,8 +133,10 @@ public class Workspace {
     entry( KEY_UI_RECENT_DOCUMENT, new FileProperty( DOCUMENT_DEFAULT ) ),
     entry( KEY_UI_RECENT_DEFINITION, new FileProperty( DEFINITION_DEFAULT ) ),
     
-    entry( KEY_UI_FONT_LOCALE, new LocaleProperty( LOCALE_DEFAULT ) ),
+    entry( KEY_LANG_LOCALE, new LocaleProperty( LOCALE_DEFAULT ) ),
+    entry( KEY_UI_FONT_EDITOR_NAME, new SimpleStringProperty( FONT_NAME_EDITOR_DEFAULT ) ),
     entry( KEY_UI_FONT_EDITOR_SIZE, new SimpleDoubleProperty( FONT_SIZE_EDITOR_DEFAULT ) ),
+    entry( KEY_UI_FONT_PREVIEW_NAME, new SimpleStringProperty( FONT_NAME_PREVIEW_DEFAULT ) ),
     entry( KEY_UI_FONT_PREVIEW_SIZE, new SimpleDoubleProperty( FONT_SIZE_PREVIEW_DEFAULT ) ),
     
     entry( KEY_UI_WINDOW_X, new SimpleDoubleProperty( WINDOW_X_DEFAULT ) ),
@@ -175,6 +180,18 @@ public class Workspace {
    */
   public Workspace() {
     load();
+  }
+
+  /**
+   * Creates an instance of {@link ObservableList} that is based on a
+   * modifiable observable array list for the given items.
+   *
+   * @param items The items to wrap in an observable list.
+   * @param <E>   The type of items to add to the list.
+   * @return An observable property that can have its contents modified.
+   */
+  public static <E> ObservableList<E> listProperty( final Set<E> items ) {
+    return new SimpleListProperty<>( observableArrayList( items ) );
   }
 
   /**
@@ -263,6 +280,15 @@ public class Workspace {
     return valuesProperty( key );
   }
 
+  /**
+   * Returns the language locale setting for the {@link #KEY_LANG_LOCALE} key.
+   *
+   * @return The user's current locale setting.
+   */
+  public Locale getLocale() {
+    return localeProperty( KEY_LANG_LOCALE ).toLocale();
+  }
+
   public StringProperty stringProperty( final Key key ) {
     return valuesProperty( key );
   }
@@ -346,17 +372,16 @@ public class Workspace {
 
       // The root config key can only be set for an empty configuration file.
       config.setRootElementName( APP_TITLE_LOWERCASE );
+      valuesProperty( KEY_META_VERSION ).setValue( getVersion() );
 
       saveValues( ( key, property ) ->
                     config.setProperty( key.toString(), marshall( property ) )
       );
 
-      saveSets(
-        ( key, set ) -> {
-          final var keyName = key.toString();
-          set.forEach( ( value ) -> config.addProperty( keyName, value ) );
-        }
-      );
+      saveSets( ( key, set ) -> {
+        final var keyName = key.toString();
+        set.forEach( ( value ) -> config.addProperty( keyName, value ) );
+      } );
       new FileHandler( config ).save( FILE_PREFERENCES );
     } catch( final Exception ex ) {
       clue( ex );

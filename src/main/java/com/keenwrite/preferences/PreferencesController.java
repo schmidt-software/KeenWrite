@@ -16,6 +16,7 @@ import javafx.scene.control.Label;
 
 import java.io.File;
 
+import static com.dlsc.formsfx.model.structure.Field.ofStringType;
 import static com.dlsc.preferencesfx.PreferencesFxEvent.EVENT_PREFERENCES_SAVED;
 import static com.keenwrite.Constants.ICON_DIALOG;
 import static com.keenwrite.Messages.get;
@@ -65,6 +66,17 @@ public class PreferencesController {
     getPreferencesFx().addEventHandler( EVENT_PREFERENCES_SAVED, eventHandler );
   }
 
+  private StringField createFontNameField(
+    final StringProperty fontName, final DoubleProperty fontSize ) {
+    final var control = new SimpleFontControl( "Change" );
+    control.fontSizeProperty().addListener( ( c, o, n ) -> {
+      if( n != null ) {
+        fontSize.set( n.doubleValue() );
+      }
+    } );
+    return ofStringType( fontName ).render( control );
+  }
+
   /**
    * Creates the preferences dialog.
    * <p>
@@ -74,13 +86,7 @@ public class PreferencesController {
    *
    * @return A new instance of preferences for users to edit.
    */
-  @SuppressWarnings( "unchecked" )
   private PreferencesFx createPreferencesFx() {
-    final Setting<StringField, StringProperty> scriptSetting =
-      Setting.of( "Script", stringProperty( KEY_R_SCRIPT ) );
-    final var field = scriptSetting.getElement();
-    field.multiline( true );
-
     return PreferencesFx.of(
       new XmlStorageHandler(),
       Category.of(
@@ -96,7 +102,7 @@ public class PreferencesController {
         Group.of(
           get( KEY_R_SCRIPT ),
           Setting.of( label( KEY_R_SCRIPT ) ),
-          scriptSetting
+          createScriptSetting()
         ),
         Group.of(
           get( KEY_R_DELIM_BEGAN ),
@@ -150,10 +156,13 @@ public class PreferencesController {
       Category.of(
         get( KEY_UI_FONT ),
         Group.of(
-          get( KEY_UI_FONT_PREVIEW_SIZE ),
-          Setting.of( label( KEY_UI_FONT_PREVIEW_SIZE ) ),
-          Setting.of( title( KEY_UI_FONT_PREVIEW_SIZE ),
-                      doubleProperty( KEY_UI_FONT_PREVIEW_SIZE ) )
+          get( KEY_UI_FONT_EDITOR_NAME ),
+          Setting.of( label( KEY_UI_FONT_EDITOR_NAME ) ),
+          Setting.of( title( KEY_UI_FONT_EDITOR_NAME ),
+                      createFontNameField(
+                        stringProperty( KEY_UI_FONT_EDITOR_NAME ),
+                        doubleProperty( KEY_UI_FONT_EDITOR_SIZE ) ),
+                      stringProperty( KEY_UI_FONT_EDITOR_NAME ) )
         ),
         Group.of(
           get( KEY_UI_FONT_EDITOR_SIZE ),
@@ -162,14 +171,42 @@ public class PreferencesController {
                       doubleProperty( KEY_UI_FONT_EDITOR_SIZE ) )
         ),
         Group.of(
-          get( KEY_UI_FONT_LOCALE ),
-          Setting.of( label( KEY_UI_FONT_LOCALE ) ),
-          Setting.of( title( KEY_UI_FONT_LOCALE ),
+          get( KEY_UI_FONT_PREVIEW_NAME ),
+          Setting.of( label( KEY_UI_FONT_PREVIEW_NAME ) ),
+          Setting.of( title( KEY_UI_FONT_PREVIEW_NAME ),
+                      createFontNameField(
+                        stringProperty( KEY_UI_FONT_PREVIEW_NAME ),
+                        doubleProperty( KEY_UI_FONT_PREVIEW_SIZE ) ),
+                      stringProperty( KEY_UI_FONT_PREVIEW_NAME ) )
+        ),
+        Group.of(
+          get( KEY_UI_FONT_PREVIEW_SIZE ),
+          Setting.of( label( KEY_UI_FONT_PREVIEW_SIZE ) ),
+          Setting.of( title( KEY_UI_FONT_PREVIEW_SIZE ),
+                      doubleProperty( KEY_UI_FONT_PREVIEW_SIZE ) )
+        )
+      ),
+      Category.of(
+        get( KEY_LANGUAGE ),
+        Group.of(
+          get( KEY_LANG_LOCALE ),
+          Setting.of( label( KEY_LANG_LOCALE ) ),
+          Setting.of( title( KEY_LANG_LOCALE ),
                       localeListProperty(),
-                      localeProperty( KEY_UI_FONT_LOCALE ) )
+                      localeProperty( KEY_LANG_LOCALE ) )
         )
       )
     ).instantPersistent( false ).dialogIcon( ICON_DIALOG );
+  }
+
+  @SuppressWarnings( "unchecked" )
+  private Setting<StringField, StringProperty> createScriptSetting() {
+    final Setting<StringField, StringProperty> scriptSetting =
+      Setting.of( "Script", stringProperty( KEY_R_SCRIPT ) );
+    final var field = scriptSetting.getElement();
+    field.multiline( true );
+
+    return scriptSetting;
   }
 
   /**

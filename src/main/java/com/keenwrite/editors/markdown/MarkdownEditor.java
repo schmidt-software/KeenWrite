@@ -1,17 +1,14 @@
 /* Copyright 2020 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.editors.markdown;
 
+import com.keenwrite.Caret;
 import com.keenwrite.Constants;
 import com.keenwrite.editors.TextEditor;
 import com.keenwrite.preferences.LocaleProperty;
 import com.keenwrite.preferences.Workspace;
-import com.keenwrite.Caret;
 import com.keenwrite.spelling.impl.TextEditorSpeller;
 import javafx.beans.binding.Bindings;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.DoubleProperty;
-import javafx.beans.property.ReadOnlyBooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.*;
 import javafx.beans.value.ChangeListener;
 import javafx.event.Event;
 import javafx.scene.Node;
@@ -37,8 +34,7 @@ import java.util.regex.Pattern;
 import static com.keenwrite.Constants.*;
 import static com.keenwrite.Messages.get;
 import static com.keenwrite.StatusBarNotifier.clue;
-import static com.keenwrite.preferences.Workspace.KEY_UI_FONT_EDITOR_SIZE;
-import static com.keenwrite.preferences.Workspace.KEY_UI_FONT_LOCALE;
+import static com.keenwrite.preferences.Workspace.*;
 import static java.lang.Character.isWhitespace;
 import static java.lang.Math.max;
 import static java.lang.String.format;
@@ -159,9 +155,16 @@ public class MarkdownEditor extends BorderPane implements TextEditor {
       }
     } );
 
-    fontSizeProperty().addListener( ( c, o, n ) -> {
-      mTextArea.setStyle( format( "-fx-font-size: %spt;", getFontSize() ) );
-    } );
+    fontNameProperty().addListener(
+      ( c, o, n ) -> {
+        mTextArea.setStyle( format( "-fx-font-family: '%s';", getFontName() ) );
+      }
+    );
+
+    fontSizeProperty().addListener(
+      ( c, o, n ) ->
+        mTextArea.setStyle( format( "-fx-font-size: %spt;", getFontSize() ) )
+    );
   }
 
   private void initScrollPane(
@@ -707,7 +710,15 @@ public class MarkdownEditor extends BorderPane implements TextEditor {
   }
 
   private LocaleProperty localeProperty() {
-    return mWorkspace.localeProperty( KEY_UI_FONT_LOCALE );
+    return mWorkspace.localeProperty( KEY_LANG_LOCALE );
+  }
+
+  private String getFontName() {
+    return fontNameProperty().get();
+  }
+
+  private StringProperty fontNameProperty() {
+    return mWorkspace.stringProperty( KEY_UI_FONT_EDITOR_NAME );
   }
 
   private double getFontSize() {

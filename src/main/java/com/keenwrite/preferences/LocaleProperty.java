@@ -1,7 +1,6 @@
 /* Copyright 2020 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.preferences;
 
-import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.ObservableList;
 
@@ -11,8 +10,8 @@ import java.util.Map;
 import java.util.Objects;
 
 import static com.keenwrite.Constants.LOCALE_DEFAULT;
+import static com.keenwrite.preferences.Workspace.listProperty;
 import static java.util.Locale.forLanguageTag;
-import static javafx.collections.FXCollections.observableArrayList;
 
 public class LocaleProperty extends SimpleObjectProperty<String> {
 
@@ -80,7 +79,7 @@ public class LocaleProperty extends SimpleObjectProperty<String> {
   }
 
   public static ObservableList<String> localeListProperty() {
-    return new SimpleListProperty<>( observableArrayList( sLocales.keySet() ) );
+    return listProperty( sLocales.keySet() );
   }
 
   /**

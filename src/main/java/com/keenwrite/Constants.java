@@ -3,6 +3,7 @@ package com.keenwrite;
 
 import com.keenwrite.service.Settings;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 
 import java.io.File;
 import java.nio.charset.Charset;
@@ -73,6 +74,7 @@ public class Constants {
   );
 
   public static final Image ICON_DIALOG = LOGOS.get( 1 );
+  public static final ImageView ICON_DIALOG_NODE = new ImageView( ICON_DIALOG );
 
   public static final String FILE_PREFERENCES = getPreferencesFilename();
 
@@ -164,9 +166,19 @@ public class Constants {
   public static final String FONT_DIRECTORY = "/fonts";
 
   /**
+   * Default text editor font name.
+   */
+  public static final String FONT_NAME_EDITOR_DEFAULT = "Noto Sans Regular";
+
+  /**
    * Default text editor font size, in points.
    */
   public static final float FONT_SIZE_EDITOR_DEFAULT = 12f;
+
+  /**
+   * Default preview font name.
+   */
+  public static final String FONT_NAME_PREVIEW_DEFAULT = "Source Serif Pro";
 
   /**
    * Default preview font size, in points.

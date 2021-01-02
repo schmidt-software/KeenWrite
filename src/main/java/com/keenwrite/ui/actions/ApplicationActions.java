@@ -17,12 +17,11 @@ import com.keenwrite.ui.dialogs.LinkDialog;
 import com.vladsch.flexmark.ast.Link;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Dialog;
-import javafx.scene.image.ImageView;
 import javafx.stage.Window;
 import javafx.stage.WindowEvent;
 
 import static com.keenwrite.Bootstrap.APP_TITLE;
-import static com.keenwrite.Constants.ICON_DIALOG;
+import static com.keenwrite.Constants.ICON_DIALOG_NODE;
 import static com.keenwrite.ExportFormat.*;
 import static com.keenwrite.Messages.get;
 import static com.keenwrite.StatusBarNotifier.clue;
@@ -361,7 +360,7 @@ public class ApplicationActions {
     alert.setTitle( get( "Dialog.about.title", APP_TITLE ) );
     alert.setHeaderText( get( "Dialog.about.header", APP_TITLE ) );
     alert.setContentText( get( "Dialog.about.content" ) );
-    alert.setGraphic( new ImageView( ICON_DIALOG ) );
+    alert.setGraphic( ICON_DIALOG_NODE );
     alert.initOwner( getWindow() );
     alert.showAndWait();
   }

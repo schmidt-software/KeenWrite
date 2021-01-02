@@ -4,6 +4,7 @@ package com.keenwrite.preview;
 import com.keenwrite.preferences.LocaleProperty;
 import com.keenwrite.preferences.Workspace;
 import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.StringProperty;
 import javafx.embed.swing.SwingNode;
 import org.xhtmlrenderer.render.Box;
 import org.xhtmlrenderer.swing.SwingReplacedElementFactory;
@@ -16,8 +17,7 @@ import java.util.Locale;
 
 import static com.keenwrite.Constants.*;
 import static com.keenwrite.Messages.get;
-import static com.keenwrite.preferences.Workspace.KEY_UI_FONT_LOCALE;
-import static com.keenwrite.preferences.Workspace.KEY_UI_FONT_PREVIEW_SIZE;
+import static com.keenwrite.preferences.Workspace.*;
 import static java.lang.Math.max;
 import static java.lang.String.format;
 import static javafx.scene.CacheHint.SPEED;
@@ -40,7 +40,7 @@ public final class HtmlPreview extends SwingNode {
 
   /**
    * Render CSS using points (pt) not pixels (px) to reduce the chance of
-   * poor rendering.
+   * poor rendering. The {@link #head()} method fills out the placeholders.
    */
   private static final String HTML_HEAD =
     """
@@ -48,7 +48,7 @@ public final class HtmlPreview extends SwingNode {
       <html lang='%s'><head><title> </title><meta charset='utf-8'>
       <link rel='stylesheet' href='%s'>
       <link rel='stylesheet' href='%s'>
-      <style>body{font-size: %spt;}</style>
+      <style>body{font-family:'%s';font-size: %spt;}</style>
       <base href='%s'>
       </head><body>
       """;
@@ -100,6 +100,7 @@ public final class HtmlPreview extends SwingNode {
         rerender();
       } );
 
+      fontNameProperty().addListener( ( c, o, n ) -> rerender() );
       fontSizeProperty().addListener( ( c, o, n ) -> rerender() );
     } );
   }
@@ -144,6 +145,7 @@ public final class HtmlPreview extends SwingNode {
       getLocale().getLanguage(),
       HTML_STYLE_PREVIEW,
       mLocaleUrl,
+      getFontName(),
       getFontSize(),
       mBaseUriPath
     );
@@ -276,7 +278,15 @@ public final class HtmlPreview extends SwingNode {
   }
 
   private LocaleProperty localeProperty() {
-    return mWorkspace.localeProperty( KEY_UI_FONT_LOCALE );
+    return mWorkspace.localeProperty( KEY_LANG_LOCALE );
+  }
+
+  private String getFontName() {
+    return fontNameProperty().get();
+  }
+
+  private StringProperty fontNameProperty() {
+    return mWorkspace.stringProperty( KEY_UI_FONT_PREVIEW_NAME );
   }
 
   private double getFontSize() {
