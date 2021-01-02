@@ -117,41 +117,62 @@ public class Workspace {
   public static final Key KEY_UI_WINDOW_FULL = key( KEY_UI_WINDOW, "full" );
 
   private final Map<Key, Property<?>> VALUES = Map.ofEntries(
-    entry( KEY_META_VERSION, new SimpleStringProperty( getVersion() ) ),
-    entry( KEY_META_NAME, new SimpleStringProperty( "default" ) ),
+    entry( KEY_META_VERSION, asStringProperty( getVersion() ) ),
+    entry( KEY_META_NAME, asStringProperty( "default" ) ),
     
-    entry( KEY_R_SCRIPT, new SimpleStringProperty( "" ) ),
-    entry( KEY_R_DIR, new FileProperty( USER_DIRECTORY ) ),
-    entry( KEY_R_DELIM_BEGAN, new SimpleStringProperty( R_DELIM_BEGAN_DEFAULT ) ),
-    entry( KEY_R_DELIM_ENDED, new SimpleStringProperty( R_DELIM_ENDED_DEFAULT ) ),
+    entry( KEY_R_SCRIPT, asStringProperty( "" ) ),
+    entry( KEY_R_DIR, asFileProperty( USER_DIRECTORY ) ),
+    entry( KEY_R_DELIM_BEGAN, asStringProperty( R_DELIM_BEGAN_DEFAULT ) ),
+    entry( KEY_R_DELIM_ENDED, asStringProperty( R_DELIM_ENDED_DEFAULT ) ),
     
-    entry( KEY_IMAGES_DIR, new FileProperty( USER_DIRECTORY ) ),
-    entry( KEY_IMAGES_ORDER, new SimpleStringProperty( PERSIST_IMAGES_DEFAULT ) ),
+    entry( KEY_IMAGES_DIR, asFileProperty( USER_DIRECTORY ) ),
+    entry( KEY_IMAGES_ORDER, asStringProperty( PERSIST_IMAGES_DEFAULT ) ),
     
-    entry( KEY_DEF_PATH, new FileProperty( DEFINITION_DEFAULT ) ),
-    entry( KEY_DEF_DELIM_BEGAN, new SimpleStringProperty( DEF_DELIM_BEGAN_DEFAULT ) ),
-    entry( KEY_DEF_DELIM_ENDED, new SimpleStringProperty( DEF_DELIM_ENDED_DEFAULT ) ),
+    entry( KEY_DEF_PATH, asFileProperty( DEFINITION_DEFAULT ) ),
+    entry( KEY_DEF_DELIM_BEGAN, asStringProperty( DEF_DELIM_BEGAN_DEFAULT ) ),
+    entry( KEY_DEF_DELIM_ENDED, asStringProperty( DEF_DELIM_ENDED_DEFAULT ) ),
     
-    entry( KEY_UI_RECENT_DIR, new FileProperty( USER_DIRECTORY ) ),
-    entry( KEY_UI_RECENT_DOCUMENT, new FileProperty( DOCUMENT_DEFAULT ) ),
-    entry( KEY_UI_RECENT_DEFINITION, new FileProperty( DEFINITION_DEFAULT ) ),
+    entry( KEY_UI_RECENT_DIR, asFileProperty( USER_DIRECTORY ) ),
+    entry( KEY_UI_RECENT_DOCUMENT, asFileProperty( DOCUMENT_DEFAULT ) ),
+    entry( KEY_UI_RECENT_DEFINITION, asFileProperty( DEFINITION_DEFAULT ) ),
     
-    entry( KEY_LANG_LOCALE, new LocaleProperty( LOCALE_DEFAULT ) ),
-    entry( KEY_UI_FONT_EDITOR_NAME, new SimpleStringProperty( FONT_NAME_EDITOR_DEFAULT ) ),
-    entry( KEY_UI_FONT_EDITOR_SIZE, new SimpleDoubleProperty( FONT_SIZE_EDITOR_DEFAULT ) ),
-    entry( KEY_UI_FONT_PREVIEW_NAME, new SimpleStringProperty( FONT_NAME_PREVIEW_DEFAULT ) ),
-    entry( KEY_UI_FONT_PREVIEW_SIZE, new SimpleDoubleProperty( FONT_SIZE_PREVIEW_DEFAULT ) ),
-    entry( KEY_UI_FONT_PREVIEW_MONO_NAME, new SimpleStringProperty( FONT_NAME_PREVIEW_MONO_NAME_DEFAULT ) ),
-    entry( KEY_UI_FONT_PREVIEW_MONO_SIZE, new SimpleDoubleProperty( FONT_SIZE_PREVIEW_MONO_SIZE_DEFAULT ) ),
+    entry( KEY_LANG_LOCALE, asLocaleProperty( LOCALE_DEFAULT ) ),
+    entry( KEY_UI_FONT_EDITOR_NAME, asStringProperty( FONT_NAME_EDITOR_DEFAULT ) ),
+    entry( KEY_UI_FONT_EDITOR_SIZE, asDoubleProperty( FONT_SIZE_EDITOR_DEFAULT ) ),
+    entry( KEY_UI_FONT_PREVIEW_NAME, asStringProperty( FONT_NAME_PREVIEW_DEFAULT ) ),
+    entry( KEY_UI_FONT_PREVIEW_SIZE, asDoubleProperty( FONT_SIZE_PREVIEW_DEFAULT ) ),
+    entry( KEY_UI_FONT_PREVIEW_MONO_NAME, asStringProperty( FONT_NAME_PREVIEW_MONO_NAME_DEFAULT ) ),
+    entry( KEY_UI_FONT_PREVIEW_MONO_SIZE, asDoubleProperty( FONT_SIZE_PREVIEW_MONO_SIZE_DEFAULT ) ),
 
-    entry( KEY_UI_WINDOW_X, new SimpleDoubleProperty( WINDOW_X_DEFAULT ) ),
-    entry( KEY_UI_WINDOW_Y, new SimpleDoubleProperty( WINDOW_Y_DEFAULT ) ),
-    entry( KEY_UI_WINDOW_W, new SimpleDoubleProperty( WINDOW_W_DEFAULT ) ),
-    entry( KEY_UI_WINDOW_H, new SimpleDoubleProperty( WINDOW_H_DEFAULT ) ),
-    entry( KEY_UI_WINDOW_MAX, new SimpleBooleanProperty() ),
-    entry( KEY_UI_WINDOW_FULL, new SimpleBooleanProperty() )
+    entry( KEY_UI_WINDOW_X, asDoubleProperty( WINDOW_X_DEFAULT ) ),
+    entry( KEY_UI_WINDOW_Y, asDoubleProperty( WINDOW_Y_DEFAULT ) ),
+    entry( KEY_UI_WINDOW_W, asDoubleProperty( WINDOW_W_DEFAULT ) ),
+    entry( KEY_UI_WINDOW_H, asDoubleProperty( WINDOW_H_DEFAULT ) ),
+    entry( KEY_UI_WINDOW_MAX, asBooleanProperty() ),
+    entry( KEY_UI_WINDOW_FULL, asBooleanProperty() )
   );
   //@formatter:on
+
+  private StringProperty asStringProperty( final String defaultValue ) {
+    return new SimpleStringProperty( defaultValue );
+  }
+
+  private DoubleProperty asDoubleProperty( final double defaultValue ) {
+    return new SimpleDoubleProperty( defaultValue );
+  }
+
+  private BooleanProperty asBooleanProperty() {
+    return new SimpleBooleanProperty();
+  }
+
+  private FileProperty asFileProperty( final File defaultValue ) {
+    return new FileProperty( defaultValue );
+  }
+
+  @SuppressWarnings( "SameParameterValue" )
+  private LocaleProperty asLocaleProperty( final Locale defaultValue ) {
+    return new LocaleProperty( defaultValue );
+  }
 
   /**
    * Helps instantiate {@link Property} instances for XML configuration items.
