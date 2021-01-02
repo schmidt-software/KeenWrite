@@ -4,7 +4,6 @@ For best results, it is recommended that the Noto Font family is installed
 on the system. The required font families include:
 
 * Sans-serif --- editor pane
-* Sans-serif monospace --- editor pane
 * Serif --- preview pane
 * Serif monospace --- preview pane
 
@@ -24,7 +23,7 @@ Hong Kong must be paired with the Simplified Chinese.
 The [official versions](https://www.google.com/get/noto/) of these fonts
 are updated regularly at the Noto Fonts
 [repository](https://github.com/googlefonts/noto-fonts/). If downloading
-from the original location, be sure to retrieve all four versions needed
+from the original location, be sure to retrieve all font families needed
 for the application to render text correctly.
 
 # Internationalization
