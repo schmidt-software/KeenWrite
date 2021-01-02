@@ -101,6 +101,9 @@ public class Workspace {
   public static final Key KEY_UI_FONT_PREVIEW = key( KEY_UI_FONT, "preview" );
   public static final Key KEY_UI_FONT_PREVIEW_NAME = key( KEY_UI_FONT_PREVIEW, "name" );
   public static final Key KEY_UI_FONT_PREVIEW_SIZE = key( KEY_UI_FONT_PREVIEW, "size" );
+  public static final Key KEY_UI_FONT_PREVIEW_MONO = key( KEY_UI_FONT_PREVIEW, "mono" );
+  public static final Key KEY_UI_FONT_PREVIEW_MONO_NAME = key( KEY_UI_FONT_PREVIEW_MONO, "name" );
+  public static final Key KEY_UI_FONT_PREVIEW_MONO_SIZE = key( KEY_UI_FONT_PREVIEW_MONO, "size" );
 
   public static final Key KEY_LANGUAGE = key( KEY_ROOT, "language" );
   public static final Key KEY_LANG_LOCALE = key( KEY_LANGUAGE, "locale" );
@@ -138,7 +141,9 @@ public class Workspace {
     entry( KEY_UI_FONT_EDITOR_SIZE, new SimpleDoubleProperty( FONT_SIZE_EDITOR_DEFAULT ) ),
     entry( KEY_UI_FONT_PREVIEW_NAME, new SimpleStringProperty( FONT_NAME_PREVIEW_DEFAULT ) ),
     entry( KEY_UI_FONT_PREVIEW_SIZE, new SimpleDoubleProperty( FONT_SIZE_PREVIEW_DEFAULT ) ),
-    
+    entry( KEY_UI_FONT_PREVIEW_MONO_NAME, new SimpleStringProperty( FONT_NAME_PREVIEW_MONO_NAME_DEFAULT ) ),
+    entry( KEY_UI_FONT_PREVIEW_MONO_SIZE, new SimpleDoubleProperty( FONT_SIZE_PREVIEW_MONO_SIZE_DEFAULT ) ),
+
     entry( KEY_UI_WINDOW_X, new SimpleDoubleProperty( WINDOW_X_DEFAULT ) ),
     entry( KEY_UI_WINDOW_Y, new SimpleDoubleProperty( WINDOW_Y_DEFAULT ) ),
     entry( KEY_UI_WINDOW_W, new SimpleDoubleProperty( WINDOW_W_DEFAULT ) ),

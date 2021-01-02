@@ -7,12 +7,16 @@ import com.dlsc.preferencesfx.PreferencesFxEvent;
 import com.dlsc.preferencesfx.model.Category;
 import com.dlsc.preferencesfx.model.Group;
 import com.dlsc.preferencesfx.model.Setting;
+import com.dlsc.preferencesfx.view.NavigationView;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.StringProperty;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
+import javafx.scene.control.Button;
+import javafx.scene.control.DialogPane;
 import javafx.scene.control.Label;
+import org.controlsfx.control.MasterDetailPane;
 
 import java.io.File;
 
@@ -22,6 +26,8 @@ import static com.keenwrite.Constants.ICON_DIALOG;
 import static com.keenwrite.Messages.get;
 import static com.keenwrite.preferences.LocaleProperty.localeListProperty;
 import static com.keenwrite.preferences.Workspace.*;
+import static javafx.scene.control.ButtonType.CANCEL;
+import static javafx.scene.control.ButtonType.OK;
 
 /**
  * Provides the ability for users to configure their preferences. This links
@@ -38,6 +44,8 @@ public class PreferencesController {
 
     // All properties must be initialized before creating the dialog.
     mPreferencesFx = createPreferencesFx();
+
+    initKeyEventHandler( mPreferencesFx );
   }
 
   /**
@@ -156,34 +164,37 @@ public class PreferencesController {
       Category.of(
         get( KEY_UI_FONT ),
         Group.of(
-          get( KEY_UI_FONT_EDITOR_NAME ),
+          get( KEY_UI_FONT_EDITOR ),
           Setting.of( label( KEY_UI_FONT_EDITOR_NAME ) ),
           Setting.of( title( KEY_UI_FONT_EDITOR_NAME ),
                       createFontNameField(
                         stringProperty( KEY_UI_FONT_EDITOR_NAME ),
                         doubleProperty( KEY_UI_FONT_EDITOR_SIZE ) ),
-                      stringProperty( KEY_UI_FONT_EDITOR_NAME ) )
-        ),
-        Group.of(
-          get( KEY_UI_FONT_EDITOR_SIZE ),
+                      stringProperty( KEY_UI_FONT_EDITOR_NAME ) ),
           Setting.of( label( KEY_UI_FONT_EDITOR_SIZE ) ),
           Setting.of( title( KEY_UI_FONT_EDITOR_SIZE ),
                       doubleProperty( KEY_UI_FONT_EDITOR_SIZE ) )
         ),
         Group.of(
-          get( KEY_UI_FONT_PREVIEW_NAME ),
+          get( KEY_UI_FONT_PREVIEW ),
           Setting.of( label( KEY_UI_FONT_PREVIEW_NAME ) ),
           Setting.of( title( KEY_UI_FONT_PREVIEW_NAME ),
                       createFontNameField(
                         stringProperty( KEY_UI_FONT_PREVIEW_NAME ),
                         doubleProperty( KEY_UI_FONT_PREVIEW_SIZE ) ),
-                      stringProperty( KEY_UI_FONT_PREVIEW_NAME ) )
-        ),
-        Group.of(
-          get( KEY_UI_FONT_PREVIEW_SIZE ),
+                      stringProperty( KEY_UI_FONT_PREVIEW_NAME ) ),
           Setting.of( label( KEY_UI_FONT_PREVIEW_SIZE ) ),
           Setting.of( title( KEY_UI_FONT_PREVIEW_SIZE ),
-                      doubleProperty( KEY_UI_FONT_PREVIEW_SIZE ) )
+                      doubleProperty( KEY_UI_FONT_PREVIEW_SIZE ) ),
+          Setting.of( label( KEY_UI_FONT_PREVIEW_MONO_NAME ) ),
+          Setting.of( title( KEY_UI_FONT_PREVIEW_MONO_NAME ),
+                      createFontNameField(
+                        stringProperty( KEY_UI_FONT_PREVIEW_MONO_NAME ),
+                        doubleProperty( KEY_UI_FONT_PREVIEW_MONO_SIZE ) ),
+                      stringProperty( KEY_UI_FONT_PREVIEW_MONO_NAME ) ),
+          Setting.of( label( KEY_UI_FONT_PREVIEW_MONO_SIZE ) ),
+          Setting.of( title( KEY_UI_FONT_PREVIEW_MONO_SIZE ),
+                      doubleProperty( KEY_UI_FONT_PREVIEW_MONO_SIZE ) )
         )
       ),
       Category.of(
@@ -207,6 +218,21 @@ public class PreferencesController {
     field.multiline( true );
 
     return scriptSetting;
+  }
+
+  private void initKeyEventHandler( final PreferencesFx preferences ) {
+    final var view = preferences.getView();
+    final var nodes = view.getChildrenUnmodifiable();
+    final var master = (MasterDetailPane) nodes.get( 0 );
+    final var detail = (NavigationView) master.getDetailNode();
+    final var pane = (DialogPane) view.getParent();
+
+    detail.setOnKeyReleased( ( key ) -> {
+      switch( key.getCode() ) {
+        case ENTER -> ((Button) pane.lookupButton( OK )).fire();
+        case ESCAPE -> ((Button) pane.lookupButton( CANCEL )).fire();
+      }
+    } );
   }
 
   /**

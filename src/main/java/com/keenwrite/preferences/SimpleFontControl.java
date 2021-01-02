@@ -114,12 +114,9 @@ public class SimpleFontControl extends SimpleControl<StringField, StackPane> {
     buttonOk.setDefaultButton( true );
     buttonCancel.setCancelButton( true );
     pane.setOnKeyReleased( ( keyEvent ) -> {
-      final var code = keyEvent.getCode();
-      if( code == ENTER ) {
-        buttonOk.fire();
-      }
-      else if( code == ESCAPE ) {
-        buttonCancel.fire();
+      switch( keyEvent.getCode() ) {
+        case ENTER -> buttonOk.fire();
+        case ESCAPE -> buttonCancel.fire();
       }
     } );
 

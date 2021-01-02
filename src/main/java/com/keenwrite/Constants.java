@@ -186,6 +186,16 @@ public class Constants {
   public static final float FONT_SIZE_PREVIEW_DEFAULT = 13f;
 
   /**
+   * Default monospace preview font name.
+   */
+  public static final String FONT_NAME_PREVIEW_MONO_NAME_DEFAULT = "Source Code Pro";
+
+  /**
+   * Default monospace preview font size, in points.
+   */
+  public static final float FONT_SIZE_PREVIEW_MONO_SIZE_DEFAULT = 13f;
+
+  /**
    * Default locale for font loading, including ISO 15924 alpha-4 script code.
    */
   public static final Locale LOCALE_DEFAULT = withScript( Locale.getDefault() );
