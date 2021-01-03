@@ -230,6 +230,12 @@ public class LogView extends Alert {
       clazz.startsWith( "org.renjin" );
   }
 
+  /**
+   * Copies the contents of the selected rows into the clipboard. From
+   * <a href="https://stackoverflow.com/a/48126059/59087">StackOverflow</a>.
+   *
+   * @param table The {@link TableView} having selected rows to copy.
+   */
   public void copyToClipboard( final TableView<?> table ) {
     final var sb = new StringBuilder();
     final var rows = new TreeSet<Integer>();
@@ -243,12 +249,15 @@ public class LogView extends Alert {
       if( !firstRow ) {
         sb.append( '\n' );
       }
+
       firstRow = false;
       boolean firstCol = true;
+
       for( final var column : table.getColumns() ) {
         if( !firstCol ) {
           sb.append( '\t' );
         }
+
         firstCol = false;
         final var data = column.getCellData( row );
         sb.append( data == null ? "" : data.toString() );
