@@ -33,7 +33,7 @@ public class RVariableProcessor extends DefinitionProcessor {
    */
   @Override
   protected Map<String, String> getDefinitions() {
-    return toR( super.getDefinitions() );
+    return entoken( super.getDefinitions() );
   }
 
   /**
@@ -42,18 +42,18 @@ public class RVariableProcessor extends DefinitionProcessor {
    * @param map Map of variable names to values.
    * @return Map of R variables.
    */
-  private Map<String, String> toR( final Map<String, String> map ) {
+  private Map<String, String> entoken( final Map<String, String> map ) {
     final var rMap = new HashMap<String, String>( map.size() );
 
     for( final var entry : map.entrySet() ) {
       final var key = entry.getKey();
-      rMap.put( mSigilOperator.entoken( key ), toRValue( map.get( key ) ) );
+      rMap.put( mSigilOperator.entoken( key ), escape( map.get( key ) ) );
     }
 
     return rMap;
   }
 
-  private String toRValue( final String value ) {
+  private String escape( final String value ) {
     return '\'' + escape( value, '\'', "\\'" ) + '\'';
   }
 

@@ -1,10 +1,7 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.processors.markdown.extensions.r;
 
-import com.keenwrite.processors.InlineRProcessor;
-import com.keenwrite.processors.Processor;
-import com.keenwrite.processors.ProcessorContext;
-import com.keenwrite.processors.RVariableProcessor;
+import com.keenwrite.processors.*;
 import com.keenwrite.sigils.RSigilOperator;
 import com.vladsch.flexmark.ast.Text;
 import com.vladsch.flexmark.parser.InlineParserExtensionFactory;
@@ -35,9 +32,14 @@ public final class RExtension implements ParserExtension {
   private final InlineParserFactory FACTORY = CustomParser::new;
 
   private final Processor<String> mProcessor;
+  private final InlineRProcessor mInlineRProcessor;
+  private boolean mReady;
 
-  private RExtension( final Processor<String> processor ) {
-    mProcessor = processor;
+  private RExtension( final ProcessorContext context ) {
+    final var irp = new InlineRProcessor( IDENTITY, context );
+    final var rvp = new RVariableProcessor( irp, context );
+    mProcessor = new ExecutorProcessor<>( rvp );
+    mInlineRProcessor = irp;
   }
 
   /**
@@ -45,9 +47,7 @@ public final class RExtension implements ParserExtension {
    * them from being converted into HTML {@code <code>} elements.
    */
   public static RExtension create( final ProcessorContext context ) {
-    final var irp = new InlineRProcessor( IDENTITY, context );
-    final var rvp = new RVariableProcessor( irp, context );
-    return new RExtension( rvp );
+    return new RExtension( context );
   }
 
   @Override
@@ -85,6 +85,7 @@ public final class RExtension implements ParserExtension {
              delimiterProcessors,
              referenceLinkProcessors,
              inlineParserExtensions );
+      mReady = mInlineRProcessor.init();
     }
 
     /**
@@ -101,7 +102,7 @@ public final class RExtension implements ParserExtension {
     protected final boolean parseBackticks() {
       final var foundTicks = super.parseBackticks();
 
-      if( foundTicks ) {
+      if( foundTicks && mReady ) {
         final var blockNode = getBlock();
         final var codeNode = blockNode.getLastChild();
 

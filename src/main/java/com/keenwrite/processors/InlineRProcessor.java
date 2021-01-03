@@ -20,6 +20,7 @@ import static com.keenwrite.preferences.Workspace.*;
 import static com.keenwrite.processors.text.TextReplacementFactory.replace;
 import static com.keenwrite.sigils.RSigilOperator.PREFIX;
 import static com.keenwrite.sigils.RSigilOperator.SUFFIX;
+import static java.lang.Math.max;
 import static java.lang.Math.min;
 
 /**
@@ -80,8 +81,11 @@ public final class InlineRProcessor extends DefinitionProcessor {
    * Initialises the R code so that R can find imported libraries. Note that
    * any existing R functionality will not be overwritten if this method is
    * called multiple times.
+   *
+   * @return {@code true} if initialization completed and all variables were
+   * replaced; {@code false} if any variables remain.
    */
-  private void init() {
+  public boolean init() {
     final var bootstrap = getBootstrapScript();
 
     if( !bootstrap.isBlank() ) {
@@ -93,8 +97,32 @@ public final class InlineRProcessor extends DefinitionProcessor {
 
       map.put( defBegan + "application.r.working.directory" + defEnded, dir );
 
-      eval( replace( bootstrap, map ) );
+      final var replaced = replace( bootstrap, map );
+      final var bIndex = replaced.indexOf( defBegan );
+
+      //
+      if( bIndex >= 0 ) {
+        var eIndex = replaced.indexOf( defEnded );
+        eIndex = (eIndex == -1) ? replaced.length() - 1 : max( bIndex, eIndex );
+
+        final var def = replaced.substring( bIndex, eIndex );
+        clue( "Main.status.error.bootstrap.eval", def );
+
+        return false;
+      }
+      else {
+        eval( replaced );
+      }
     }
+
+    return true;
+  }
+
+  /**
+   * Empties the cache.
+   */
+  public void clear() {
+    mEvalCache.clear();
   }
 
   /**

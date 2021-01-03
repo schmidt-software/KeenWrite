@@ -56,6 +56,10 @@ public class MarkdownProcessor extends ExecutorProcessor<String> {
     return new MarkdownProcessor( successor, extensions );
   }
 
+  private static List<Extension> createEmptyExtensions() {
+    return new ArrayList<>();
+  }
+
   /**
    * Instantiates a number of extensions to be applied when parsing. These
    * are typically typographic extensions that convert characters into
@@ -89,7 +93,7 @@ public class MarkdownProcessor extends ExecutorProcessor<String> {
    */
   private static List<Extension> createExtensions(
     final ProcessorContext context ) {
-    final var extensions = createDefaultExtensions();
+    final var extensions = createEmptyExtensions();
     final var editorFile = context.getPath();
 
     final var mediaType = MediaType.valueFrom( editorFile );
@@ -97,6 +101,7 @@ public class MarkdownProcessor extends ExecutorProcessor<String> {
       extensions.add( RExtension.create( context ) );
     }
 
+    extensions.addAll( createDefaultExtensions() );
     extensions.add( ImageLinkExtension.create( context ) );
     extensions.add( TeXExtension.create( context ) );
     extensions.add( FencedBlockExtension.create( context ) );

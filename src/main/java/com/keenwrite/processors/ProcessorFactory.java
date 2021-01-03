@@ -43,8 +43,8 @@ public class ProcessorFactory extends AbstractFileFactory {
       : createIdentityProcessor();
 
     final var processor = switch( context.getFileType() ) {
-      case RMARKDOWN -> createRProcessor( successor );
-      case SOURCE -> createMarkdownProcessor( successor );
+      //case RMARKDOWN -> createRProcessor( successor );
+      case SOURCE, RMARKDOWN -> createMarkdownProcessor( successor );
       case RXML -> createRXMLProcessor( successor );
       case XML -> createXMLProcessor( successor );
       default -> createPreformattedProcessor( successor );
