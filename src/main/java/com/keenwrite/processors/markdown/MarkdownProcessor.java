@@ -5,11 +5,11 @@ import com.keenwrite.io.MediaType;
 import com.keenwrite.processors.ExecutorProcessor;
 import com.keenwrite.processors.Processor;
 import com.keenwrite.processors.ProcessorContext;
-import com.keenwrite.processors.markdown.extensions.caret.CaretExtension;
 import com.keenwrite.processors.markdown.extensions.FencedBlockExtension;
 import com.keenwrite.processors.markdown.extensions.ImageLinkExtension;
-import com.keenwrite.processors.markdown.extensions.tex.TeXExtension;
+import com.keenwrite.processors.markdown.extensions.caret.CaretExtension;
 import com.keenwrite.processors.markdown.extensions.r.RExtension;
+import com.keenwrite.processors.markdown.extensions.tex.TeXExtension;
 import com.vladsch.flexmark.ext.definition.DefinitionExtension;
 import com.vladsch.flexmark.ext.gfm.strikethrough.StrikethroughSubscriptExtension;
 import com.vladsch.flexmark.ext.superscript.SuperscriptExtension;
@@ -33,6 +33,9 @@ import static com.keenwrite.processors.IdentityProcessor.IDENTITY;
  * Responsible for parsing a Markdown document and rendering it as HTML.
  */
 public class MarkdownProcessor extends ExecutorProcessor<String> {
+
+  private static final List<Extension> DEFAULT_EXTENSIONS =
+    createDefaultExtensions();
 
   private final IParse mParser;
   private final IRender mRenderer;
@@ -101,7 +104,7 @@ public class MarkdownProcessor extends ExecutorProcessor<String> {
       extensions.add( RExtension.create( context ) );
     }
 
-    extensions.addAll( createDefaultExtensions() );
+    extensions.addAll( DEFAULT_EXTENSIONS );
     extensions.add( ImageLinkExtension.create( context ) );
     extensions.add( TeXExtension.create( context ) );
     extensions.add( FencedBlockExtension.create( context ) );
