@@ -54,8 +54,6 @@ import static org.fxmisc.wellbehaved.event.InputMap.consume;
  * Responsible for editing Markdown documents.
  */
 public class MarkdownEditor extends BorderPane implements TextEditor {
-  private static final String NEWLINE = System.lineSeparator();
-
   /**
    * Regular expression that matches the type of markup block. This is used
    * when Enter is pressed to continue the block environment.

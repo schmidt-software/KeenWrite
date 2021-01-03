@@ -4,9 +4,7 @@ package com.keenwrite.service.events.impl;
 import javafx.scene.Node;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.DialogPane;
-import javafx.stage.Stage;
 
-import static com.keenwrite.Constants.ICON_DIALOG;
 import static com.keenwrite.Constants.sSettings;
 import static javafx.scene.control.ButtonBar.BUTTON_ORDER_WINDOWS;
 
@@ -16,7 +14,6 @@ import static javafx.scene.control.ButtonBar.BUTTON_ORDER_WINDOWS;
  */
 public class ButtonOrderPane extends DialogPane {
   public ButtonOrderPane() {
-    ((Stage) getScene().getWindow()).getIcons().add( ICON_DIALOG );
   }
 
   @Override

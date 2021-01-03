@@ -1,38 +1,15 @@
-/*
- * Copyright 2017 White Magic Software, Ltd.
- *
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- *  o Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- *
- *  o Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+/* Copyright 2017-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.ui.dialogs;
 
-import static com.keenwrite.Messages.get;
 import com.keenwrite.service.events.impl.ButtonOrderPane;
+import javafx.scene.control.Dialog;
+import javafx.stage.Stage;
+import javafx.stage.Window;
+
+import static com.keenwrite.Constants.ICON_DIALOG;
+import static com.keenwrite.Messages.get;
 import static javafx.scene.control.ButtonType.CANCEL;
 import static javafx.scene.control.ButtonType.OK;
-import javafx.scene.control.Dialog;
-import javafx.stage.Window;
 
 /**
  * Superclass that abstracts common behaviours for all dialogs.
@@ -57,6 +34,7 @@ public abstract class AbstractDialog<T> extends Dialog<T> {
     initDialogPane();
     initDialogButtons();
     initComponents();
+    initIcon( (Stage) owner );
   }
 
   /**
@@ -70,7 +48,7 @@ public abstract class AbstractDialog<T> extends Dialog<T> {
   protected void initDialogPane() {
     setDialogPane( new ButtonOrderPane() );
   }
-  
+
   /**
    * Set an OK and CANCEL button on the dialog.
    */
@@ -79,11 +57,15 @@ public abstract class AbstractDialog<T> extends Dialog<T> {
   }
 
   /**
-   * Attaches a setOnCloseRequest to the dialog's [X] button so that the user
+   * Attaches a close request to the dialog's [X] button so that the user
    * can always close the window, even if there's an error.
    */
   protected final void initCloseAction() {
     final Window window = getDialogPane().getScene().getWindow();
     window.setOnCloseRequest( event -> window.hide() );
+  }
+
+  private void initIcon( final Stage owner ) {
+    owner.getIcons().add( ICON_DIALOG );
   }
 }

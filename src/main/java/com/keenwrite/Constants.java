@@ -123,6 +123,8 @@ public class Constants {
   public static final File USER_DIRECTORY =
     new File( System.getProperty( "user.dir" ) );
 
+  public static final String NEWLINE = System.lineSeparator();
+
   /**
    * Default path to use for an untitled (pathless) file.
    */

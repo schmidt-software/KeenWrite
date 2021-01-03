@@ -1,6 +1,7 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.ui.logging;
 
+import com.keenwrite.MainApp;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.ObservableList;
@@ -11,15 +12,16 @@ import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.stage.Stage;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.time.LocalDateTime;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 import static com.keenwrite.Constants.ICON_DIALOG;
+import static com.keenwrite.Constants.NEWLINE;
 import static com.keenwrite.Messages.get;
 import static java.time.LocalDateTime.now;
 import static java.time.format.DateTimeFormatter.ofPattern;
+import static java.util.Arrays.stream;
 import static javafx.collections.FXCollections.observableArrayList;
 import static javafx.scene.control.Alert.AlertType.INFORMATION;
 import static javafx.scene.control.SelectionMode.MULTIPLE;
@@ -56,6 +58,10 @@ public class LogView extends Alert {
   public void view() {
     super.show();
     getStage().toFront();
+  }
+
+  public void clear() {
+    mEntries.clear();
   }
 
   public void log( final String message ) {
@@ -99,7 +105,7 @@ public class LogView extends Alert {
 
     mTable.setMaxWidth( Double.MAX_VALUE );
     mTable.setPrefWidth( 1024 );
-    mTable.getSelectionModel().setSelectionMode( MULTIPLE);
+    mTable.getSelectionModel().setSelectionMode( MULTIPLE );
     mTable.setOnKeyPressed( event -> {
       if( ctrlC.match( event ) || ctrlInsert.match( event ) ) {
         copyToClipboard( mTable );
@@ -166,16 +172,25 @@ public class LogView extends Alert {
     }
 
     private String toString( final Throwable trace ) {
-      try( final StringWriter sw = new StringWriter();
-           final PrintWriter pw = new PrintWriter( sw ) ) {
-        if( trace != null ) {
-          trace.printStackTrace( pw );
-        }
-        return sw.toString();
-      } catch( final Exception ex ) {
-        return "";
+      final var sb = new StringBuilder(256);
+
+      if( trace != null ) {
+        sb.append( trace.getMessage() );
+        stream( trace.getStackTrace() )
+          .takeWhile( LogView::filter )
+          .limit( 10 )
+          .collect( Collectors.toList() )
+          .forEach( e -> sb.append( e.toString() ).append( NEWLINE ) );
       }
+
+      return sb.toString();
     }
+  }
+
+  private static boolean filter( final StackTraceElement e ) {
+    final var clazz = e.getClassName();
+    return clazz.startsWith( MainApp.class.getPackageName() ) ||
+      clazz.startsWith( "org.renjin" );
   }
 
   public void copyToClipboard( final TableView<?> table ) {
