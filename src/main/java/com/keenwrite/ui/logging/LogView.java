@@ -5,9 +5,7 @@ import com.keenwrite.MainApp;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.ObservableList;
-import javafx.scene.control.Alert;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
+import javafx.scene.control.*;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.stage.Stage;
@@ -23,7 +21,9 @@ import static java.time.LocalDateTime.now;
 import static java.time.format.DateTimeFormatter.ofPattern;
 import static java.util.Arrays.stream;
 import static javafx.collections.FXCollections.observableArrayList;
+import static javafx.event.ActionEvent.ACTION;
 import static javafx.scene.control.Alert.AlertType.INFORMATION;
+import static javafx.scene.control.ButtonType.OK;
 import static javafx.scene.control.SelectionMode.MULTIPLE;
 import static javafx.scene.input.Clipboard.getSystemClipboard;
 import static javafx.scene.input.KeyCode.C;
@@ -50,6 +50,9 @@ public class LogView extends Alert {
     initModality( NONE );
     initTableView();
     setResizable( true );
+    initButtons();
+    initIcon();
+    initActions();
   }
 
   /**
@@ -114,9 +117,37 @@ public class LogView extends Alert {
 
     final var pane = getDialogPane();
     pane.setContent( mTable );
+  }
 
+  private void initButtons() {
+    final var pane = getDialogPane();
+    final var CLEAR = new ButtonType( "CLEAR" );
+    pane.getButtonTypes().add( CLEAR );
+
+    final var buttonOk = (Button) pane.lookupButton( OK );
+    final var buttonClear = (Button) pane.lookupButton( CLEAR );
+
+    buttonOk.setDefaultButton( true );
+    buttonClear.addEventFilter( ACTION, event -> {
+      clear();
+      event.consume();
+    } );
+
+    pane.setOnKeyReleased( t -> {
+      switch( t.getCode() ) {
+        case ENTER, ESCAPE -> buttonOk.fire();
+      }
+    } );
+  }
+
+  private void initIcon() {
     final var stage = getStage();
     stage.getIcons().add( ICON_DIALOG );
+  }
+
+  private void initActions() {
+    final var stage = getStage();
+    stage.setOnCloseRequest( event -> stage.hide() );
   }
 
   private Stage getStage() {
@@ -161,21 +192,27 @@ public class LogView extends Alert {
       mTrace = new SimpleStringProperty( toString( trace ) );
     }
 
-    private StringProperty messageProperty() {return mMessage;}
+    private StringProperty messageProperty() {
+      return mMessage;
+    }
 
-    private StringProperty dateProperty() { return mDate;}
+    private StringProperty dateProperty() {
+      return mDate;
+    }
 
-    private StringProperty traceProperty() { return mTrace;}
+    private StringProperty traceProperty() {
+      return mTrace;
+    }
 
     private String toString( final LocalDateTime date ) {
       return date.format( ofPattern( "d MMM u HH:mm:ss" ) );
     }
 
     private String toString( final Throwable trace ) {
-      final var sb = new StringBuilder(256);
+      final var sb = new StringBuilder( 256 );
 
       if( trace != null ) {
-        sb.append( trace.getMessage() );
+        sb.append( trace.getMessage().trim() ).append( NEWLINE );
         stream( trace.getStackTrace() )
           .takeWhile( LogView::filter )
           .limit( 10 )
