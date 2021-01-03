@@ -116,8 +116,8 @@ public class ApplicationMenuBar {
       get( "Main.menu.view" ),
       addAction( "view.refresh", e -> actions.view‿refresh() ),
       SEPARATOR_ACTION,
-      addAction( "view.preview", e -> actions.view‿preview() ),
-      addAction( "view.issues", e -> actions.view‿issues() )
+      addAction( "view.issues", e -> actions.view‿issues() ),
+      addAction( "view.preview", e -> actions.view‿preview() )
     ),
     createMenu(
       get( "Main.menu.help" ),

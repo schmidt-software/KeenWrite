@@ -425,8 +425,12 @@ public class Workspace {
 
       loadValueKeys( ( key ) -> {
         final var configValue = config.getProperty( key.toString() );
-        final var propertyValue = valuesProperty( key );
-        propertyValue.setValue( unmarshall( propertyValue, configValue ) );
+
+        // Allow other properties to load, even if any are missing.
+        if( configValue != null ) {
+          final var propertyValue = valuesProperty( key );
+          propertyValue.setValue( unmarshall( propertyValue, configValue ) );
+        }
       } );
 
       loadSetKeys( ( key ) -> {

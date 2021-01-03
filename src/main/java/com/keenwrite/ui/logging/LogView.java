@@ -63,6 +63,9 @@ public class LogView extends Alert {
     getStage().toFront();
   }
 
+  /**
+   * Removes all the entries from the list.
+   */
   public void clear() {
     mEntries.clear();
   }
@@ -231,7 +234,7 @@ public class LogView extends Alert {
   }
 
   /**
-   * Copies the contents of the selected rows into the clipboard. From
+   * Copies the contents of the selected rows into the clipboard; code is from
    * <a href="https://stackoverflow.com/a/48126059/59087">StackOverflow</a>.
    *
    * @param table The {@link TableView} having selected rows to copy.
