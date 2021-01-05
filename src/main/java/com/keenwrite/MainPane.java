@@ -168,7 +168,11 @@ public final class MainPane extends SplitPane {
           final var tab = model.getSelectedItem();
 
           if( tab != null ) {
-            mActiveDefinitionEditor.set( (TextDefinition) tab.getContent() );
+            final var resource = tab.getContent();
+
+            if( resource instanceof TextDefinition ) {
+              mActiveDefinitionEditor.set( (TextDefinition) tab.getContent() );
+            }
           }
         }
       } )

@@ -8,7 +8,6 @@ import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ToolBar;
-import javafx.scene.layout.VBox;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -19,14 +18,14 @@ import static com.keenwrite.Messages.get;
  * Responsible for wiring all application actions to menus, toolbar buttons,
  * and keyboard shortcuts.
  */
-public class ApplicationMenuBar {
+public class ApplicationBars {
 
-  private final Map<String, Action> mMap = new HashMap<>( 64 );
+  private static final Map<String, Action> sMap = new HashMap<>( 64 );
 
   /**
    * Empty constructor.
    */
-  public ApplicationMenuBar() {
+  public ApplicationBars() {
   }
 
   /**
@@ -36,11 +35,11 @@ public class ApplicationMenuBar {
    *                selections to executable code.
    * @return An instance of {@link Node} that contains the menu and toolbar.
    */
-  public Node createMenuBar( final ApplicationActions actions ) {
+  public static Node createMenuBar( final ApplicationActions actions ) {
     final var SEPARATOR_ACTION = new SeparatorAction();
 
     //@formatter:off
-    final var menuBar = new MenuBar(
+    return new MenuBar(
     createMenu(
       get( "Main.menu.file" ),
       addAction( "file.new", e -> actions.file‿new() ),
@@ -117,16 +116,23 @@ public class ApplicationMenuBar {
       addAction( "view.refresh", e -> actions.view‿refresh() ),
       SEPARATOR_ACTION,
       addAction( "view.issues", e -> actions.view‿issues() ),
-      addAction( "view.preview", e -> actions.view‿preview() )
+      addAction( "view.preview", e -> actions.view‿preview() ),
+      SEPARATOR_ACTION,
+      addAction( "view.toolbar", e -> actions.view‿toolbar() ),
+      addAction( "view.statusbar", e -> actions.view‿statusbar() ),
+      addAction( "view.menubar", e -> actions.view‿menubar() )
     ),
     createMenu(
       get( "Main.menu.help" ),
       addAction( "help.about", e -> actions.help‿about() )
     ) );
     //@formatter:on
+  }
 
-    //@formatter:off
-    final var toolBar = createToolBar(
+  public static Node createToolBar() {
+    final var SEPARATOR_ACTION = new SeparatorAction();
+
+    return createToolBar(
       getAction( "file.new" ),
       getAction( "file.open" ),
       getAction( "file.save" ),
@@ -153,19 +159,16 @@ public class ApplicationMenuBar {
       getAction( "insert.unordered_list" ),
       getAction( "insert.ordered_list" )
     );
-    //@formatter:on
-
-    return new VBox( menuBar, toolBar );
   }
 
   /**
    * Adds a new action to the list of actions.
    *
-   * @param key     The name of the action to register in {@link #mMap}.
+   * @param key     The name of the action to register in {@link #sMap}.
    * @param handler Performs the action upon request.
    * @return The newly registered action.
    */
-  private Action addAction(
+  private static Action addAction(
     final String key, final EventHandler<ActionEvent> handler ) {
     assert key != null;
     assert handler != null;
@@ -176,13 +179,13 @@ public class ApplicationMenuBar {
       .setHandler( handler )
       .build();
 
-    mMap.put( key, action );
+    sMap.put( key, action );
 
     return action;
   }
 
-  private Action getAction( final String key ) {
-    return mMap.get( key );
+  private static Action getAction( final String key ) {
+    return sMap.get( key );
   }
 
   public static Menu createMenu(

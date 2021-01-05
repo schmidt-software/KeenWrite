@@ -3,6 +3,7 @@ package com.keenwrite.ui.actions;
 
 import com.keenwrite.ExportFormat;
 import com.keenwrite.MainPane;
+import com.keenwrite.MainScene;
 import com.keenwrite.StatusNotifier;
 import com.keenwrite.editors.TextDefinition;
 import com.keenwrite.editors.TextEditor;
@@ -49,13 +50,16 @@ public class ApplicationActions {
    */
   private final MainPane mMainPane;
 
+  private final MainScene mMainScene;
+
   /**
    * Tracks finding text in the active document.
    */
   private final SearchModel mSearchModel;
 
-  public ApplicationActions( final MainPane mainPane ) {
-    mMainPane = mainPane;
+  public ApplicationActions( final MainScene scene, final MainPane pane ) {
+    mMainScene = scene;
+    mMainPane = pane;
     mSearchModel = new SearchModel();
     mSearchModel.matchOffsetProperty().addListener( ( c, o, n ) -> {
       final var editor = getActiveTextEditor();
@@ -356,6 +360,18 @@ public class ApplicationActions {
     getMainPane().viewPreview();
   }
 
+  public void view‿menubar() {
+    getMainScene().toggleMenuBar();
+  }
+
+  public void view‿toolbar() {
+    getMainScene().toggleToolBar();
+  }
+
+  public void view‿statusbar() {
+    getMainScene().toggleStatusBar();
+  }
+
   public void view‿issues() {
     StatusNotifier.viewIssues();
   }
@@ -375,16 +391,20 @@ public class ApplicationActions {
     return new FileChooserCommand( getWindow(), dir );
   }
 
-  private MainPane getMainPane() {
-    return mMainPane;
-  }
-
   private TextEditor getActiveTextEditor() {
     return getMainPane().getActiveTextEditor();
   }
 
   private TextDefinition getActiveTextDefinition() {
     return getMainPane().getActiveTextDefinition();
+  }
+
+  private MainScene getMainScene() {
+    return mMainScene;
+  }
+
+  private MainPane getMainPane() {
+    return mMainPane;
   }
 
   private Workspace getWorkspace() {

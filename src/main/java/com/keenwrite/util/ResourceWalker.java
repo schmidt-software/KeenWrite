@@ -2,13 +2,15 @@
 package com.keenwrite.util;
 
 import java.io.IOException;
-import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.function.Consumer;
 
+import static com.keenwrite.util.ProtocolScheme.JAR;
+import static com.keenwrite.util.ProtocolScheme.valueFrom;
 import static java.nio.file.FileSystems.getDefault;
 import static java.nio.file.FileSystems.newFileSystem;
 import static java.util.Collections.emptyMap;
@@ -30,15 +32,23 @@ public class ResourceWalker {
    * @throws IOException        Could not walk the tree.
    */
   public static void walk(
-      final String directory, final String glob, final Consumer<Path> c )
-      throws URISyntaxException, IOException {
+    final String directory, final String glob, final Consumer<Path> c )
+    throws URISyntaxException, IOException {
     final var resource = ResourceWalker.class.getResource( directory );
     final var matcher = getDefault().getPathMatcher( "glob:" + glob );
 
     if( resource != null ) {
       final var uri = resource.toURI();
-      final var jar = uri.getScheme().equals( "jar" );
-      final var path = jar ? toFileSystem( uri, directory ) : Paths.get( uri );
+      final Path path;
+      FileSystem fs = null;
+
+      if( valueFrom( uri ) == JAR ) {
+        fs = newFileSystem( uri, emptyMap() );
+        path = fs.getPath( directory );
+      }
+      else {
+        path = Paths.get( uri );
+      }
 
       try( final var walk = Files.walk( path, 10 ) ) {
         for( final var it = walk.iterator(); it.hasNext(); ) {
@@ -47,14 +57,9 @@ public class ResourceWalker {
             c.accept( p );
           }
         }
+      } finally {
+        if( fs != null ) { fs.close(); }
       }
-    }
-  }
-
-  private static Path toFileSystem( final URI uri, final String directory )
-      throws IOException {
-    try( final var fs = newFileSystem( uri, emptyMap() ) ) {
-      return fs.getPath( directory );
     }
   }
 }

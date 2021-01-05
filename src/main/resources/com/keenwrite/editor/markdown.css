@@ -3,7 +3,7 @@
 .markdown {
   -fx-font-family: 'Noto Sans';
   -fx-font-size: 11pt;
-  -fx-padding: 1em;
+  -fx-padding: .25em;
 }
 
 /* Subtly highlight the current paragraph. */

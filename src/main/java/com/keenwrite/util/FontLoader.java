@@ -37,28 +37,27 @@ public final class FontLoader {
    * supported.
    * </p>
    */
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings( "unchecked" )
   public static void initFonts() {
-    final var ge = getLocalGraphicsEnvironment();
-
     try {
+      final var ge = getLocalGraphicsEnvironment();
       walk(
-          FONT_DIRECTORY, GLOB_FONTS, path -> {
-            final var uri = path.toUri();
-            final var filename = path.toString();
+        FONT_DIRECTORY, GLOB_FONTS, path -> {
+          final var uri = path.toUri();
+          final var filename = path.toString();
 
-            try( final var is = openFont( uri, filename ) ) {
-              final var font = createFont( TRUETYPE_FONT, is );
-              final var attributes =
-                  (Map<TextAttribute, Integer>) font.getAttributes();
+          try( final var is = openFont( uri, filename ) ) {
+            final var font = createFont( TRUETYPE_FONT, is );
+            final var attributes =
+              (Map<TextAttribute, Integer>) font.getAttributes();
 
-              attributes.put( LIGATURES, LIGATURES_ON );
-              attributes.put( KERNING, KERNING_ON );
-              ge.registerFont( font.deriveFont( attributes ) );
-            } catch( final Exception ex ) {
-              clue( ex );
-            }
+            attributes.put( LIGATURES, LIGATURES_ON );
+            attributes.put( KERNING, KERNING_ON );
+            ge.registerFont( font.deriveFont( attributes ) );
+          } catch( final Exception ex ) {
+            clue( ex );
           }
+        }
       );
     } catch( final Exception ex ) {
       clue( ex );
@@ -75,9 +74,9 @@ public final class FontLoader {
    * @throws IOException Could not open the resource as a stream.
    */
   private static InputStream openFont( final URI uri, final String filename )
-      throws IOException {
+    throws IOException {
     return valueFrom( uri ).isJar()
-        ? FontLoader.class.getResourceAsStream( filename )
-        : new FileInputStream( filename );
+      ? FontLoader.class.getResourceAsStream( filename )
+      : new FileInputStream( filename );
   }
 }
