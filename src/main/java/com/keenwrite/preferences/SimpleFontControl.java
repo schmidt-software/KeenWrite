@@ -66,7 +66,7 @@ public class SimpleFontControl extends SimpleControl<StringField, StackPane> {
       createFontSelectorDialog( initialFont )
         .showAndWait()
         .ifPresent( ( font ) -> {
-          mFontName.setText( font.getName() );
+          mFontName.setText( font.getFamily() );
           mFontSize.set( font.getSize() );
         } );
     } );
