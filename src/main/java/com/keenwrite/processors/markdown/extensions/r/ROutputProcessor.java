@@ -2,7 +2,7 @@
 package com.keenwrite.processors.markdown.extensions.r;
 
 import com.keenwrite.processors.ExecutorProcessor;
-import com.keenwrite.processors.InlineRProcessor;
+import com.keenwrite.processors.r.InlineRProcessor;
 import com.keenwrite.processors.markdown.MarkdownProcessor;
 import com.keenwrite.processors.markdown.extensions.tex.TeXExtension;
 import com.vladsch.flexmark.ast.Paragraph;

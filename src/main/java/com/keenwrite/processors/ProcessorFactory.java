@@ -105,9 +105,7 @@ public class ProcessorFactory extends AbstractFileFactory {
 
   private Processor<String> createRProcessor(
     final Processor<String> successor ) {
-    final var irp = new InlineRProcessor( successor, getProcessorContext() );
-    final var rvp = new RVariableProcessor( irp, getProcessorContext() );
-    return MarkdownProcessor.create( rvp, getProcessorContext() );
+    return MarkdownProcessor.create( successor, getProcessorContext() );
   }
 
   protected Processor<String> createRXMLProcessor(

@@ -1,7 +1,9 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
-package com.keenwrite.processors;
+package com.keenwrite.processors.r;
 
 import com.keenwrite.preferences.Workspace;
+import com.keenwrite.processors.DefinitionProcessor;
+import com.keenwrite.processors.ProcessorContext;
 import com.keenwrite.sigils.RSigilOperator;
 import com.keenwrite.sigils.SigilOperator;
 import com.keenwrite.sigils.YamlSigilOperator;

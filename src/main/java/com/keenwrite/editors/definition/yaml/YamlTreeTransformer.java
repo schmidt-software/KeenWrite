@@ -2,7 +2,9 @@
 package com.keenwrite.editors.definition.yaml;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import com.keenwrite.editors.definition.DefinitionTreeItem;
 import com.keenwrite.editors.definition.TreeTransformer;
@@ -10,6 +12,8 @@ import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 
 import java.util.Map.Entry;
+
+import static com.fasterxml.jackson.dataformat.yaml.YAMLGenerator.Feature.MINIMIZE_QUOTES;
 
 /**
  * Transforms a JsonNode hierarchy into a tree that can be displayed in a user
@@ -27,19 +31,48 @@ public final class YamlTreeTransformer implements TreeTransformer {
   @Override
   public String transform( final TreeItem<String> treeItem ) {
     try {
-      final YAMLMapper mapper = new YAMLMapper();
-      final ObjectNode root = mapper.createObjectNode();
+      final var factory = new YAMLFactory();
+      factory.configure( MINIMIZE_QUOTES, true );
+      final var mapper = new YAMLMapper( factory );
+      final var root = mapper.createObjectNode();
 
       // Iterate over the root item's children. The root item is used by the
       // application to ensure definitions can always be added to a tree, as
       // such it is not meant to be exported, only its children.
-      for( final TreeItem<String> child : treeItem.getChildren() ) {
+      for( final var child : treeItem.getChildren() ) {
         transform( child, root );
       }
 
       return mapper.writeValueAsString( root );
     } catch( final Exception ex ) {
       throw new RuntimeException( ex );
+    }
+  }
+
+  /**
+   * Converts a YAML document to a {@link TreeItem} based on the document
+   * keys.
+   *
+   * @param document The YAML document to convert to a hierarchy of
+   *                 {@link TreeItem} instances.
+   * @throws StackOverflowError If infinite recursion is encountered.
+   */
+  @Override
+  public TreeItem<String> transform( final String document ) {
+    final var jsonNode = toJson( document );
+    final var rootItem = createTreeItem( "root" );
+
+    transform( jsonNode, rootItem );
+
+    return rootItem;
+  }
+
+  private JsonNode toJson( final String yaml ) {
+    try {
+      return new ObjectMapper( new YAMLFactory() ).readTree( yaml );
+    } catch( final Exception ex ) {
+      // Ensure that a document root node exists.
+      return new ObjectMapper().createObjectNode();
     }
   }
 
@@ -71,25 +104,6 @@ public final class YamlTreeTransformer implements TreeTransformer {
   }
 
   /**
-   * Converts a YAML document to a {@link TreeItem} based on the document
-   * keys.
-   *
-   * @param document The YAML document to convert to a hierarchy of
-   *                 {@link TreeItem} instances.
-   * @throws StackOverflowError If infinite recursion is encountered.
-   */
-  @Override
-  public TreeItem<String> transform( final String document ) {
-    final var parser = new YamlParser();
-    final var jsonNode = parser.apply( document );
-    final var rootItem = createTreeItem( "root" );
-
-    transform( jsonNode, rootItem );
-
-    return rootItem;
-  }
-
-  /**
    * Iterate over a given root node (at any level of the tree) and adapt each
    * leaf node.
    *
@@ -109,7 +123,7 @@ public final class YamlTreeTransformer implements TreeTransformer {
    * @throws StackOverflowError If infinite recursion is encountered.
    */
   private void transform(
-      final Entry<String, JsonNode> node, final TreeItem<String> item ) {
+    final Entry<String, JsonNode> node, final TreeItem<String> item ) {
     final var leafNode = node.getValue();
     final var key = node.getKey();
     final var leaf = createTreeItem( key );

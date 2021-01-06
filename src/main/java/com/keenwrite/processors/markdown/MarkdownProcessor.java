@@ -10,6 +10,7 @@ import com.keenwrite.processors.markdown.extensions.ImageLinkExtension;
 import com.keenwrite.processors.markdown.extensions.caret.CaretExtension;
 import com.keenwrite.processors.markdown.extensions.r.RExtension;
 import com.keenwrite.processors.markdown.extensions.tex.TeXExtension;
+import com.keenwrite.processors.r.RProcessor;
 import com.vladsch.flexmark.ext.definition.DefinitionExtension;
 import com.vladsch.flexmark.ext.gfm.strikethrough.StrikethroughSubscriptExtension;
 import com.vladsch.flexmark.ext.superscript.SuperscriptExtension;
@@ -98,15 +99,16 @@ public class MarkdownProcessor extends ExecutorProcessor<String> {
     final ProcessorContext context ) {
     final var extensions = createEmptyExtensions();
     final var editorFile = context.getPath();
+    final var rProcessor = new RProcessor( context );
 
     final var mediaType = MediaType.valueFrom( editorFile );
     if( mediaType == TEXT_R_MARKDOWN || mediaType == TEXT_R_XML ) {
-      extensions.add( RExtension.create( context ) );
+      extensions.add( RExtension.create( rProcessor ) );
     }
 
     extensions.addAll( DEFAULT_EXTENSIONS );
     extensions.add( ImageLinkExtension.create( context ) );
-    extensions.add( TeXExtension.create( context ) );
+    extensions.add( TeXExtension.create( context, rProcessor ) );
     extensions.add( FencedBlockExtension.create( context ) );
     extensions.add( CaretExtension.create( context ) );
 

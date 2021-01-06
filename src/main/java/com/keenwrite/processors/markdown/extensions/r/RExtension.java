@@ -1,7 +1,9 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.processors.markdown.extensions.r;
 
-import com.keenwrite.processors.*;
+import com.keenwrite.processors.Processor;
+import com.keenwrite.processors.r.InlineRProcessor;
+import com.keenwrite.processors.r.RProcessor;
 import com.keenwrite.sigils.RSigilOperator;
 import com.vladsch.flexmark.ast.Text;
 import com.vladsch.flexmark.parser.InlineParserExtensionFactory;
@@ -16,7 +18,6 @@ import java.util.BitSet;
 import java.util.List;
 import java.util.Map;
 
-import static com.keenwrite.processors.IdentityProcessor.IDENTITY;
 import static com.vladsch.flexmark.parser.Parser.Builder;
 import static com.vladsch.flexmark.parser.Parser.ParserExtension;
 
@@ -31,23 +32,18 @@ import static com.vladsch.flexmark.parser.Parser.ParserExtension;
 public final class RExtension implements ParserExtension {
   private final InlineParserFactory FACTORY = CustomParser::new;
 
-  private final Processor<String> mProcessor;
-  private final InlineRProcessor mInlineRProcessor;
-  private boolean mReady;
+  private final RProcessor mProcessor;
 
-  private RExtension( final ProcessorContext context ) {
-    final var irp = new InlineRProcessor( IDENTITY, context );
-    final var rvp = new RVariableProcessor( irp, context );
-    mProcessor = new ExecutorProcessor<>( rvp );
-    mInlineRProcessor = irp;
+  private RExtension( final RProcessor processor ) {
+    mProcessor = processor;
   }
 
   /**
    * Creates an extension capable of intercepting R code blocks and preventing
    * them from being converted into HTML {@code <code>} elements.
    */
-  public static RExtension create( final ProcessorContext context ) {
-    return new RExtension( context );
+  public static RExtension create( final RProcessor processor ) {
+    return new RExtension( processor );
   }
 
   @Override
@@ -85,7 +81,7 @@ public final class RExtension implements ParserExtension {
              delimiterProcessors,
              referenceLinkProcessors,
              inlineParserExtensions );
-      mReady = mInlineRProcessor.init();
+      mProcessor.init();
     }
 
     /**
@@ -102,7 +98,7 @@ public final class RExtension implements ParserExtension {
     protected final boolean parseBackticks() {
       final var foundTicks = super.parseBackticks();
 
-      if( foundTicks && mReady ) {
+      if( foundTicks && mProcessor.isReady() ) {
         final var blockNode = getBlock();
         final var codeNode = blockNode.getLastChild();
 

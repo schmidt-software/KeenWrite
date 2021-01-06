@@ -3,6 +3,7 @@ package com.keenwrite.processors.markdown.extensions.tex;
 
 import com.keenwrite.ExportFormat;
 import com.keenwrite.preview.SvgRasterizer;
+import com.keenwrite.processors.r.RProcessor;
 import com.vladsch.flexmark.html.HtmlWriter;
 import com.vladsch.flexmark.html.renderer.NodeRenderer;
 import com.vladsch.flexmark.html.renderer.NodeRendererContext;
@@ -13,33 +14,41 @@ import com.vladsch.flexmark.util.data.DataHolder;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Map;
 import java.util.Set;
 
+import static com.keenwrite.ExportFormat.*;
 import static com.keenwrite.preview.MathRenderer.MATH_RENDERER;
 import static com.keenwrite.processors.markdown.extensions.tex.TexNode.*;
 
 public class TexNodeRenderer {
+  private static final Map<ExportFormat, NodeRenderer> EXPORT_RENDERERS =
+    Map.of(
+      HTML_TEX_SVG, new TexSvgNodeRenderer(),
+      HTML_TEX_DELIMITED, new TexDelimNodeRenderer(),
+      MARKDOWN_PLAIN, new TexDelimNodeRenderer(),
+      NONE, new TexElementNodeRenderer()
+    );
 
   public static class Factory implements NodeRendererFactory {
     private final ExportFormat mExportFormat;
+    private final RProcessor mProcessor;
 
-    public Factory( final ExportFormat exportFormat ) {
+    public Factory(
+      final ExportFormat exportFormat, final RProcessor processor ) {
       mExportFormat = exportFormat;
+      mProcessor = processor;
     }
 
     @NotNull
     @Override
     public NodeRenderer apply( @NotNull DataHolder options ) {
-      return switch( mExportFormat ) {
-        case HTML_TEX_SVG -> new TexSvgNodeRenderer();
-        case HTML_TEX_DELIMITED, MARKDOWN_PLAIN -> new TexDelimNodeRenderer();
-        case NONE -> new TexElementNodeRenderer();
-      };
+      return EXPORT_RENDERERS.get( mExportFormat );
     }
   }
 
   private static abstract class AbstractTexNodeRenderer
-      implements NodeRenderer {
+    implements NodeRenderer {
 
     @Override
     public @Nullable Set<NodeRenderingHandler<?>> getNodeRenderingHandlers() {

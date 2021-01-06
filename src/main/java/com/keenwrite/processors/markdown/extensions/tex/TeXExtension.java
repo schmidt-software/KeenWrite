@@ -5,6 +5,7 @@ import com.keenwrite.ExportFormat;
 import com.keenwrite.processors.ProcessorContext;
 import com.keenwrite.processors.markdown.extensions.HtmlRendererAdapter;
 import com.keenwrite.processors.markdown.extensions.tex.TexNodeRenderer.Factory;
+import com.keenwrite.processors.r.RProcessor;
 import com.vladsch.flexmark.html.HtmlRenderer;
 import com.vladsch.flexmark.parser.Parser;
 import com.vladsch.flexmark.util.data.MutableDataHolder;
@@ -29,8 +30,12 @@ public class TeXExtension extends HtmlRendererAdapter
    */
   private final ExportFormat mExportFormat;
 
-  private TeXExtension( final ProcessorContext context ) {
+  private final RProcessor mProcessor;
+
+  private TeXExtension(
+    final ProcessorContext context, final RProcessor processor ) {
     mExportFormat = context.getExportFormat();
+    mProcessor = processor;
   }
 
   /**
@@ -38,8 +43,9 @@ public class TeXExtension extends HtmlRendererAdapter
    *
    * @return The new {@link TeXExtension}, never {@code null}.
    */
-  public static TeXExtension create( final ProcessorContext context ) {
-    return new TeXExtension( context );
+  public static TeXExtension create(
+    final ProcessorContext context, final RProcessor processor ) {
+    return new TeXExtension( context, processor );
   }
 
   /**
@@ -52,7 +58,7 @@ public class TeXExtension extends HtmlRendererAdapter
   public void extend( @NotNull final HtmlRenderer.Builder builder,
                       @NotNull final String rendererType ) {
     if( "HTML".equalsIgnoreCase( rendererType ) ) {
-      builder.nodeRendererFactory( new Factory( mExportFormat ) );
+      builder.nodeRendererFactory( new Factory( mExportFormat, mProcessor ) );
     }
   }
 

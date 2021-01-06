@@ -1,7 +1,10 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
-package com.keenwrite.processors;
+package com.keenwrite.processors.r;
 
 import com.keenwrite.preferences.Workspace;
+import com.keenwrite.processors.DefinitionProcessor;
+import com.keenwrite.processors.Processor;
+import com.keenwrite.processors.ProcessorContext;
 import com.keenwrite.processors.markdown.extensions.r.ROutputProcessor;
 import com.keenwrite.util.BoundedCache;
 import javafx.beans.property.Property;
@@ -22,6 +25,7 @@ import static com.keenwrite.sigils.RSigilOperator.PREFIX;
 import static com.keenwrite.sigils.RSigilOperator.SUFFIX;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
+import static java.lang.String.format;
 
 /**
  * Transforms a document containing R statements into Markdown.
@@ -100,13 +104,16 @@ public final class InlineRProcessor extends DefinitionProcessor {
       final var replaced = replace( bootstrap, map );
       final var bIndex = replaced.indexOf( defBegan );
 
-      //
+      // If there's a delimiter in the replaced text it means not all variables
+      // are bound, which is an error.
       if( bIndex >= 0 ) {
         var eIndex = replaced.indexOf( defEnded );
         eIndex = (eIndex == -1) ? replaced.length() - 1 : max( bIndex, eIndex );
 
-        final var def = replaced.substring( bIndex, eIndex );
-        clue( "Main.status.error.bootstrap.eval", def );
+        final var def = replaced.substring(
+          bIndex + defBegan.length(), eIndex );
+        clue( "Main.status.error.bootstrap.eval",
+              format( "%s%s%s", defBegan, def, defEnded ) );
 
         return false;
       }

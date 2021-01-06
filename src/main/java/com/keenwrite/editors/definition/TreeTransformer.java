@@ -3,9 +3,6 @@ package com.keenwrite.editors.definition;
 
 import javafx.scene.control.TreeItem;
 
-import java.util.function.Consumer;
-import java.util.function.Function;
-
 /**
  * Responsible for converting an object hierarchy into a {@link TreeItem}
  * hierarchy.
