@@ -118,9 +118,9 @@ public class ApplicationBars {
       addAction( "view.issues", e -> actions.view‿issues() ),
       addAction( "view.preview", e -> actions.view‿preview() ),
       SEPARATOR_ACTION,
+      addAction( "view.menubar", e -> actions.view‿menubar() ),
       addAction( "view.toolbar", e -> actions.view‿toolbar() ),
-      addAction( "view.statusbar", e -> actions.view‿statusbar() ),
-      addAction( "view.menubar", e -> actions.view‿menubar() )
+      addAction( "view.statusbar", e -> actions.view‿statusbar() )
     ),
     createMenu(
       get( "Main.menu.help" ),
