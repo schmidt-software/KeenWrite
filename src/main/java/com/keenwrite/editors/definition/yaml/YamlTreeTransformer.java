@@ -14,12 +14,22 @@ import javafx.scene.control.TreeView;
 import java.util.Map.Entry;
 
 import static com.fasterxml.jackson.dataformat.yaml.YAMLGenerator.Feature.MINIMIZE_QUOTES;
+import static com.fasterxml.jackson.dataformat.yaml.YAMLGenerator.Feature.SPLIT_LINES;
 
 /**
  * Transforms a JsonNode hierarchy into a tree that can be displayed in a user
  * interface and vice-versa.
  */
 public final class YamlTreeTransformer implements TreeTransformer {
+  private static final YAMLFactory sFactory;
+  private static final YAMLMapper sMapper;
+
+  static {
+    sFactory = new YAMLFactory();
+    sFactory.configure( MINIMIZE_QUOTES, true );
+    sFactory.configure( SPLIT_LINES, false );
+    sMapper = new YAMLMapper( sFactory );
+  }
 
   /**
    * Constructs a new instance that will use the given path to read the object
@@ -31,10 +41,7 @@ public final class YamlTreeTransformer implements TreeTransformer {
   @Override
   public String transform( final TreeItem<String> treeItem ) {
     try {
-      final var factory = new YAMLFactory();
-      factory.configure( MINIMIZE_QUOTES, true );
-      final var mapper = new YAMLMapper( factory );
-      final var root = mapper.createObjectNode();
+      final var root = sMapper.createObjectNode();
 
       // Iterate over the root item's children. The root item is used by the
       // application to ensure definitions can always be added to a tree, as
@@ -43,7 +50,7 @@ public final class YamlTreeTransformer implements TreeTransformer {
         transform( child, root );
       }
 
-      return mapper.writeValueAsString( root );
+      return sMapper.writeValueAsString( root );
     } catch( final Exception ex ) {
       throw new RuntimeException( ex );
     }
