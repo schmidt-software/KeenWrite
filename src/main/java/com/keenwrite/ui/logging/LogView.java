@@ -11,6 +11,7 @@ import javafx.scene.input.KeyCodeCombination;
 import javafx.stage.Stage;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
@@ -36,7 +37,7 @@ import static javafx.stage.Modality.NONE;
  */
 public class LogView extends Alert {
   /**
-   * Number of error messages to retain in the {@link TableView}, must be
+   * Number of error messages to retain in the {@link TableView}; must be
    * greater than zero.
    */
   private static final int CACHE_SIZE = 150;
@@ -83,6 +84,12 @@ public class LogView extends Alert {
   }
 
   private void log( final LogEntry logEntry ) {
+    // Exit early if the log already contains the message. The status bar will
+    // remain current.
+    if( mEntries.contains( logEntry ) ) {
+      return;
+    }
+
     mEntries.add( logEntry );
 
     while( mEntries.size() > CACHE_SIZE ) {
@@ -224,6 +231,19 @@ public class LogView extends Alert {
       }
 
       return sb.toString();
+    }
+
+    @Override
+    public boolean equals( final Object o ) {
+      if( this == o ) { return true; }
+      if( o == null || getClass() != o.getClass() ) { return false; }
+
+      return Objects.equals( mMessage.get(), ((LogEntry) o).mMessage.get() );
+    }
+
+    @Override
+    public int hashCode() {
+      return mMessage != null ? mMessage.hashCode() : 0;
     }
   }
 

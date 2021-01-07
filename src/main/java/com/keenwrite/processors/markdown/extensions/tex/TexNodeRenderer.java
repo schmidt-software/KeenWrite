@@ -22,7 +22,7 @@ import static com.keenwrite.preview.MathRenderer.MATH_RENDERER;
 import static com.keenwrite.processors.markdown.extensions.tex.TexNode.*;
 
 public class TexNodeRenderer {
-  private static final Map<ExportFormat, NodeRenderer> EXPORT_RENDERERS =
+  private static final Map<ExportFormat, RendererFacade> EXPORT_RENDERERS =
     Map.of(
       HTML_TEX_SVG, new TexSvgNodeRenderer(),
       HTML_TEX_DELIMITED, new TexDelimNodeRenderer(),
@@ -31,24 +31,24 @@ public class TexNodeRenderer {
     );
 
   public static class Factory implements NodeRendererFactory {
-    private final ExportFormat mExportFormat;
-    private final RProcessor mProcessor;
+    private final RendererFacade mNodeRenderer;
 
     public Factory(
       final ExportFormat exportFormat, final RProcessor processor ) {
-      mExportFormat = exportFormat;
-      mProcessor = processor;
+      mNodeRenderer = EXPORT_RENDERERS.get( exportFormat );
+      mNodeRenderer.setProcessor( processor );
     }
 
     @NotNull
     @Override
     public NodeRenderer apply( @NotNull DataHolder options ) {
-      return EXPORT_RENDERERS.get( mExportFormat );
+      return mNodeRenderer;
     }
   }
 
-  private static abstract class AbstractTexNodeRenderer
+  private static abstract class RendererFacade
     implements NodeRenderer {
+    private RProcessor mProcessor;
 
     @Override
     public @Nullable Set<NodeRenderingHandler<?>> getNodeRenderingHandlers() {
@@ -67,18 +67,26 @@ public class TexNodeRenderer {
     abstract void render( final TexNode node,
                           final NodeRendererContext context,
                           final HtmlWriter html );
+
+    private void setProcessor( final RProcessor processor ) {
+      mProcessor = processor;
+    }
+
+    RProcessor getProcessor() {
+      return mProcessor;
+    }
   }
 
   /**
    * Responsible for rendering a TeX node as an HTML {@code <tex>}
    * element. This is the default behaviour.
    */
-  private static class TexElementNodeRenderer extends AbstractTexNodeRenderer {
+  private static class TexElementNodeRenderer extends RendererFacade {
     void render( final TexNode node,
                  final NodeRendererContext context,
                  final HtmlWriter html ) {
       html.tag( HTML_TEX );
-      html.raw( node.getText() );
+      html.raw( getProcessor().apply( node.getText().toString() ) );
       html.closeTag( HTML_TEX );
     }
   }
@@ -87,12 +95,13 @@ public class TexNodeRenderer {
    * Responsible for rendering a TeX node as an HTML {@code <svg>}
    * element.
    */
-  private static class TexSvgNodeRenderer extends AbstractTexNodeRenderer {
+  private static class TexSvgNodeRenderer extends RendererFacade {
     void render( final TexNode node,
                  final NodeRendererContext context,
                  final HtmlWriter html ) {
       final var tex = node.getText().toStringOrNull();
-      final var doc = MATH_RENDERER.render( tex == null ? "" : tex );
+      final var doc = MATH_RENDERER.render(
+        tex == null ? "" : getProcessor().apply( tex ) );
       final var svg = SvgRasterizer.toSvg( doc.getDocumentElement() );
       html.raw( svg );
     }
@@ -101,12 +110,12 @@ public class TexNodeRenderer {
   /**
    * Responsible for rendering a TeX node as text bracketed by $ tokens.
    */
-  private static class TexDelimNodeRenderer extends AbstractTexNodeRenderer {
+  private static class TexDelimNodeRenderer extends RendererFacade {
     void render( final TexNode node,
                  final NodeRendererContext context,
                  final HtmlWriter html ) {
       html.raw( TOKEN_OPEN );
-      html.raw( node.getText() );
+      html.raw( getProcessor().apply( node.getText().toString() ) );
       html.raw( TOKEN_CLOSE );
     }
   }

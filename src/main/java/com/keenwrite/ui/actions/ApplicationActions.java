@@ -124,7 +124,7 @@ public class ApplicationActions {
 
   private void file‿export( final ExportFormat format ) {
     final var main = getMainPane();
-    final var context = main.createProcessorContext();
+    final var context = main.createProcessorContext( format );
     final var chain = createProcessors( context );
     final var editor = main.getActiveTextEditor();
     final var doc = editor.getText();

@@ -760,8 +760,13 @@ public final class MainPane extends SplitPane {
   }
 
   public ProcessorContext createProcessorContext() {
+    return createProcessorContext( NONE );
+  }
+
+  public ProcessorContext createProcessorContext( final ExportFormat format ) {
     final var editor = getActiveTextEditor();
-    return createProcessorContext( editor.getPath(), editor.getCaret() );
+    return createProcessorContext(
+      editor.getPath(), editor.getCaret(), format );
   }
 
   /**
@@ -773,9 +778,9 @@ public final class MainPane extends SplitPane {
    * {@link Processor}.
    */
   private ProcessorContext createProcessorContext(
-    final Path path, final Caret caret ) {
+    final Path path, final Caret caret, final ExportFormat format ) {
     return new ProcessorContext(
-      mHtmlPreview, mResolvedMap, path, caret, NONE, mWorkspace
+      mHtmlPreview, mResolvedMap, path, caret, format, mWorkspace
     );
   }
 
@@ -799,7 +804,7 @@ public final class MainPane extends SplitPane {
     final var path = file.toPath();
     final var editor = new MarkdownEditor( file, getWorkspace() );
     final var caret = editor.getCaret();
-    final var context = createProcessorContext( path, caret );
+    final var context = createProcessorContext( path, caret, NONE );
 
     mProcessors.computeIfAbsent( editor, p -> createProcessors( context ) );
 

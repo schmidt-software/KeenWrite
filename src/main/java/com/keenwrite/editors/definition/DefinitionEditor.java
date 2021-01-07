@@ -98,7 +98,7 @@ public final class DefinitionEditor extends BorderPane
   /**
    * Constructs a definition pane with a given tree view root.
    *
-   * @param file The file to
+   * @param file The file of definitions to maintain through the UI.
    */
   public DefinitionEditor(
     final File file,
