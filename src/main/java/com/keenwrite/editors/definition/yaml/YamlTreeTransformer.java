@@ -76,7 +76,7 @@ public final class YamlTreeTransformer implements TreeTransformer {
 
   private JsonNode toJson( final String yaml ) {
     try {
-      return new ObjectMapper( new YAMLFactory() ).readTree( yaml );
+      return new ObjectMapper( sFactory ).readTree( yaml );
     } catch( final Exception ex ) {
       // Ensure that a document root node exists.
       return new ObjectMapper().createObjectNode();
