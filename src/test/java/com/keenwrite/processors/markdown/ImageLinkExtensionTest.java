@@ -18,7 +18,6 @@ import org.testfx.framework.junit5.Start;
 
 import java.io.File;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -30,7 +29,8 @@ import static com.keenwrite.Constants.DOCUMENT_DEFAULT;
 import static com.keenwrite.ExportFormat.NONE;
 import static java.lang.String.format;
 import static javafx.application.Platform.runLater;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.testfx.util.WaitForAsyncUtils.waitForFxEvents;
 
 /**
@@ -40,7 +40,8 @@ import static org.testfx.util.WaitForAsyncUtils.waitForFxEvents;
 @ExtendWith( {ApplicationExtension.class, AwaitFxExtension.class} )
 @SuppressWarnings( "SameParameterValue" )
 public class ImageLinkExtensionTest {
-  private static final Workspace sWorkspace = new Workspace();
+  private static final Workspace sWorkspace = new Workspace(
+    getResource( "workspace.xml" ) );
 
   private static final Map<String, String> IMAGES = new HashMap<>();
 
@@ -104,8 +105,7 @@ public class ImageLinkExtensionTest {
    * as the value URIs present in the same map.
    */
   @Test
-  void test_ImageLookup_RelativePathWithExtension_ResolvedSuccessfully()
-    throws URISyntaxException {
+  void test_ImageLookup_RelativePathWithExtension_ResolvedSuccessfully() {
     final var resource = getResourcePath( URI_IMAGE );
     final var imagePath = new File( URI_IMAGE ).toPath();
     final var subpaths = resource.getNameCount() - imagePath.getNameCount();
@@ -163,22 +163,19 @@ public class ImageLinkExtensionTest {
     return clazz.getResource( resourcePath );
   }
 
-  private static URI toUri( final String path ) throws URISyntaxException {
-    return toUrl( path ).toURI();
+  private static URI toUri( final String path ) {
+    try {
+      return toUrl( path ).toURI();
+    } catch( final Exception ex ) {
+      throw new RuntimeException( ex );
+    }
   }
 
-  private static Path getResourcePath( final String path )
-    throws URISyntaxException {
+  private static Path getResourcePath( final String path ) {
     return Paths.get( toUri( path ) );
   }
 
   private static String getResource( final String path ) {
-    try {
-      return toUri( path ).toString();
-    } catch( final URISyntaxException ignored ) {
-    }
-
-    fail();
-    return null;
+    return toUri( path ).toString();
   }
 }

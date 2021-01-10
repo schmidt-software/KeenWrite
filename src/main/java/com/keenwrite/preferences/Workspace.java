@@ -205,7 +205,17 @@ public class Workspace {
    * of {@link Workspace} when necessary without encountering failures.
    */
   public Workspace() {
-    load();
+    load( FILE_PREFERENCES );
+  }
+
+  /**
+   * Creates a new {@link Workspace} that will attempt to load the given
+   * configuration file.
+   *
+   * @param filename The file to load.
+   */
+  public Workspace( final String filename ) {
+    load( filename );
   }
 
   /**
@@ -418,10 +428,12 @@ public class Workspace {
    * Attempts to load the {@link Constants#FILE_PREFERENCES} configuration file.
    * If not found, this will fall back to an empty configuration file, leaving
    * the application to fill in default values.
+   *
+   * @param filename The file containing user preferences to load.
    */
-  private void load() {
+  private void load( final String filename ) {
     try {
-      final var config = new Configurations().xml( FILE_PREFERENCES );
+      final var config = new Configurations().xml( filename );
 
       loadValueKeys( ( key ) -> {
         final var configValue = config.getProperty( key.toString() );

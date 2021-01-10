@@ -13,7 +13,7 @@ import org.xhtmlrenderer.swing.ImageReplacedElement;
 
 import java.awt.image.BufferedImage;
 import java.net.URI;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 
 import static com.keenwrite.StatusNotifier.clue;
 import static com.keenwrite.io.MediaType.*;
@@ -68,8 +68,15 @@ public class SvgReplacedElementFactory extends ReplacedElementAdapter {
           }
           else if( isSvg( MediaType.valueFrom( source ) ) ) {
             // Attempt to rasterize based on file name.
-            final var base = new URI( getBaseUri( e ) ).getPath();
-            uri = Paths.get( base, source ).toUri();
+            final var path = Path.of( new URI( source ).getPath() );
+
+            if( path.isAbsolute() ) {
+              uri = path.toUri();
+            }
+            else {
+              final var base = new URI( getBaseUri( e ) ).getPath();
+              uri = Path.of( base, source ).toUri();
+            }
           }
 
           if( uri != null ) {
