@@ -22,6 +22,10 @@ public enum ProtocolScheme {
    */
   HTTP,
   /**
+   * Denotes FTP.
+   */
+  FTP,
+  /**
    * Denotes Java archive file.
    */
   JAR,
@@ -40,15 +44,15 @@ public enum ProtocolScheme {
     try {
       final var uri = new URI( resource );
       return uri.isAbsolute()
-          ? valueFrom( uri )
-          : valueFrom( new URL( resource ) );
+        ? valueFrom( uri )
+        : valueFrom( new URL( resource ) );
     } catch( final Exception ex ) {
       // Using double-slashes is a short-hand to instruct the browser to
       // reference a resource using the parent URL's security model. This
       // is known as a protocol-relative URL.
       return resource.startsWith( "//" )
-          ? HTTP
-          : valueFrom( new File( resource ) );
+        ? HTTP
+        : valueFrom( new File( resource ) );
     }
   }
 
@@ -120,12 +124,30 @@ public enum ProtocolScheme {
   }
 
   /**
-   * Answers {@code true} if the given protocol is either HTTP or HTTPS.
+   * Answers whether the given protocol is HTTP or HTTPS.
    *
    * @return {@code true} the protocol is either HTTP or HTTPS.
    */
   public boolean isHttp() {
     return this == HTTP;
+  }
+
+  /**
+   * Answers whether the given protocol is FTP.
+   *
+   * @return {@code true} the protocol is FTP.
+   */
+  public boolean isFtp() {
+    return this == HTTP;
+  }
+
+  /**
+   * Answers whether the given protocol represents a remote resource.
+   *
+   * @return {@code true} the protocol is HTTP(S) or FTP.
+   */
+  public boolean isRemote() {
+    return isHttp() || isFtp();
   }
 
   /**

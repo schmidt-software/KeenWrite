@@ -1,6 +1,7 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.processors.markdown.extensions;
 
+import com.keenwrite.ExportFormat;
 import com.keenwrite.exceptions.MissingFileException;
 import com.keenwrite.preferences.Workspace;
 import com.keenwrite.processors.ProcessorContext;
@@ -11,19 +12,18 @@ import com.vladsch.flexmark.html.renderer.LinkResolverBasicContext;
 import com.vladsch.flexmark.html.renderer.ResolvedLink;
 import com.vladsch.flexmark.util.ast.Node;
 import org.jetbrains.annotations.NotNull;
-import org.renjin.repackaged.guava.base.Splitter;
 
 import java.io.File;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
+import static com.keenwrite.ExportFormat.NONE;
 import static com.keenwrite.StatusNotifier.clue;
 import static com.keenwrite.preferences.Workspace.KEY_IMAGES_DIR;
 import static com.keenwrite.preferences.Workspace.KEY_IMAGES_ORDER;
 import static com.keenwrite.util.ProtocolScheme.getProtocol;
 import static com.vladsch.flexmark.html.HtmlRenderer.Builder;
 import static com.vladsch.flexmark.html.renderer.LinkStatus.VALID;
-import static java.lang.String.format;
+import static org.renjin.repackaged.guava.base.Splitter.on;
 
 /**
  * Responsible for ensuring that images can be rendered relative to a path.
@@ -33,10 +33,12 @@ public class ImageLinkExtension extends HtmlRendererAdapter {
 
   private final Path mBaseDir;
   private final Workspace mWorkspace;
+  private final ExportFormat mExportFormat;
 
   private ImageLinkExtension( @NotNull final ProcessorContext context ) {
     mBaseDir = context.getBaseDir();
     mWorkspace = context.getWorkspace();
+    mExportFormat = context.getExportFormat();
   }
 
   /**
@@ -77,47 +79,60 @@ public class ImageLinkExtension extends HtmlRendererAdapter {
       return node instanceof Image ? resolve( link ) : link;
     }
 
+    /**
+     * Algorithm:
+     * <ol>
+     *   <li>Accept remote URLs as valid links.</li>
+     *   <li>Accept existing readable files as valid links.</li>
+     *   <li>Accept non-{@link ExportFormat#NONE} exports as valid links.</li>
+     *   <li>Append the images dir to the edited file's dir (baseDir).</li>
+     *   <li>Search for images by extension.</li>
+     * </ol>
+     *
+     * @param link The link URL to resolve.
+     * @return The {@link ResolvedLink} instance used to render the link.
+     */
     private ResolvedLink resolve( final ResolvedLink link ) {
       var uri = link.getUrl();
       final var protocol = getProtocol( uri );
 
-      if( protocol.isHttp() ) {
+      if( protocol.isRemote() ) {
         return valid( link, uri );
       }
+
+      final var baseDir = getBaseDir();
 
       // Determine the fully-qualified file name (fqfn).
-      final var fqfn = Paths.get( getBaseDir().toString(), uri ).toFile();
+      final var fqfn = Path.of( baseDir.toString(), uri ).toFile();
 
-      if( fqfn.isFile() ) {
+      if( fqfn.isFile() && fqfn.canRead() ) {
         return valid( link, uri );
       }
 
-      // At this point either the image directory is qualified or needs to be
-      // qualified using the image prefix, as set in the user preferences.
-      try {
-        final var imagePrefix = getImagePrefix();
-        final var baseDir = getBaseDir().resolve( imagePrefix );
+      if( mExportFormat != NONE ) {
+        return valid( link, uri );
+      }
 
-        final var imagePrefixDir = Path.of( baseDir.toString(), uri );
-        final var suffixes = getImageExtensions();
+      try {
+        // Compute the path to the image file. The base directory should
+        // be an absolute path to the file being edited, without an extension.
+        final var imagePath = getUserImagesDir().resolve( baseDir );
+        final var imageFile = Path.of( imagePath.toString(), uri );
+
         boolean missing = true;
 
-        // Iterate over the user's preferred image file type extensions.
-        for( final var ext : Splitter.on( ' ' ).split( suffixes ) ) {
-          final var imagePath = format( "%s.%s", imagePrefixDir, ext );
-          final var file = new File( imagePath );
+        for( final var ext : getImageExtensions() ) {
+          var file = new File( imageFile.toString() + '.' + ext );
 
-          if( file.exists() ) {
-            uri += '.' + ext;
-            final var path = Path.of( imagePrefix.toString(), uri );
-            uri = path.normalize().toString();
+          if( file.exists() && file.canRead() ) {
+            uri = file.toURI().toString();
             missing = false;
             break;
           }
         }
 
         if( missing ) {
-          throw new MissingFileException( imagePrefixDir + ".*" );
+          throw new MissingFileException( imageFile + ".*" );
         }
 
         return valid( link, uri );
@@ -132,12 +147,12 @@ public class ImageLinkExtension extends HtmlRendererAdapter {
       return link.withStatus( VALID ).withUrl( url );
     }
 
-    private Path getImagePrefix() {
+    private Path getUserImagesDir() {
       return mWorkspace.toFile( KEY_IMAGES_DIR ).toPath();
     }
 
-    private String getImageExtensions() {
-      return mWorkspace.toString( KEY_IMAGES_ORDER );
+    private Iterable<String> getImageExtensions() {
+      return on( ' ' ).split( mWorkspace.toString( KEY_IMAGES_ORDER ) );
     }
 
     private Path getBaseDir() {

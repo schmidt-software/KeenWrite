@@ -1,5 +1,6 @@
 package com.keenwrite.editors.markdown;
 
+import com.keenwrite.AwaitFxExtension;
 import com.keenwrite.preferences.Workspace;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -8,10 +9,11 @@ import org.testfx.framework.junit5.ApplicationExtension;
 import java.util.regex.Pattern;
 
 import static java.util.regex.Pattern.compile;
+import static javafx.application.Platform.runLater;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@ExtendWith( ApplicationExtension.class )
+@ExtendWith( {ApplicationExtension.class, AwaitFxExtension.class} )
 public class MarkdownEditorTest {
   private static final String[] WORDS = new String[]{
     "Italicize",
@@ -51,19 +53,21 @@ public class MarkdownEditorTest {
    */
   @Test
   public void test_CaretWord_GetISO88591Word_WordSelected() {
-    final var editor = createMarkdownEditor();
+    runLater( () -> {
+      final var editor = createMarkdownEditor();
 
-    for( int i = 0; i < WORDS.length; i++ ) {
-      final var word = WORDS[ i ];
-      final var len = word.length();
-      final var expected = REGEX.matcher( word ).replaceAll( "" );
+      for( int i = 0; i < WORDS.length; i++ ) {
+        final var word = WORDS[ i ];
+        final var len = word.length();
+        final var expected = REGEX.matcher( word ).replaceAll( "" );
 
-      for( int j = 0; j < len; j++ ) {
-        editor.moveTo( offset( i ) + j );
-        final var actual = editor.getCaretWordText();
-        assertEquals( expected, actual );
+        for( int j = 0; j < len; j++ ) {
+          editor.moveTo( offset( i ) + j );
+          final var actual = editor.getCaretWordText();
+          assertEquals( expected, actual );
+        }
       }
-    }
+    } );
   }
 
   /**

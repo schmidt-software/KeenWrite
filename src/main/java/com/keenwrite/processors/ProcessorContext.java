@@ -20,7 +20,7 @@ import static com.keenwrite.Constants.DEFAULT_DIRECTORY;
 public class ProcessorContext {
   private final HtmlPreview mHtmlPreview;
   private final Map<String, String> mResolvedMap;
-  private final Path mPath;
+  private final Path mDocumentPath;
   private final Caret mCaret;
   private final ExportFormat mExportFormat;
   private final Workspace mWorkspace;
@@ -33,7 +33,7 @@ public class ProcessorContext {
    *
    * @param htmlPreview  Where to display the final (HTML) output.
    * @param resolvedMap  Fully expanded interpolated strings.
-   * @param path         Path to the document to process.
+   * @param documentPath         Path to the document to process.
    * @param caret        Location of the caret in the edited document, which is
    *                     used to synchronize the scrollbars.
    * @param exportFormat Indicate configuration options for export format.
@@ -41,20 +41,20 @@ public class ProcessorContext {
   public ProcessorContext(
     final HtmlPreview htmlPreview,
     final Map<String, String> resolvedMap,
-    final Path path,
+    final Path documentPath,
     final Caret caret,
     final ExportFormat exportFormat,
     final Workspace workspace ) {
     assert htmlPreview != null;
     assert resolvedMap != null;
-    assert path != null;
+    assert documentPath != null;
     assert caret != null;
     assert exportFormat != null;
     assert workspace != null;
 
     mHtmlPreview = htmlPreview;
     mResolvedMap = resolvedMap;
-    mPath = path;
+    mDocumentPath = documentPath;
     mCaret = caret;
     mExportFormat = exportFormat;
     mWorkspace = workspace;
@@ -105,16 +105,16 @@ public class ProcessorContext {
    * default user directory if the base path cannot be determined.
    */
   public Path getBaseDir() {
-    final var path = getPath().toAbsolutePath().getParent();
+    final var path = getDocumentPath().toAbsolutePath().getParent();
     return path == null ? DEFAULT_DIRECTORY : path;
   }
 
-  public Path getPath() {
-    return mPath;
+  public Path getDocumentPath() {
+    return mDocumentPath;
   }
 
   FileType getFileType() {
-    return lookup( getPath() );
+    return lookup( getDocumentPath() );
   }
 
   public Workspace getWorkspace() {

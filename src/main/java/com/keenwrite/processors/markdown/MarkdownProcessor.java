@@ -98,7 +98,7 @@ public class MarkdownProcessor extends ExecutorProcessor<String> {
   private static List<Extension> createExtensions(
     final ProcessorContext context ) {
     final var extensions = createEmptyExtensions();
-    final var editorFile = context.getPath();
+    final var editorFile = context.getDocumentPath();
     final var rProcessor = new RProcessor( context );
 
     final var mediaType = MediaType.valueFrom( editorFile );

@@ -187,4 +187,8 @@ distributions {
 
 test {
   useJUnitPlatform()
+
+  testLogging {
+    exceptionFormat = 'full'
+  }
 }

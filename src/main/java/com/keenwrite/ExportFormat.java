@@ -12,24 +12,26 @@ import static org.apache.commons.io.FilenameUtils.removeExtension;
 public enum ExportFormat {
 
   /**
-   * For HTML exports, encode TeX as SVG.
+   * For HTML exports, encode TeX as SVG. Treat image links relatively.
    */
   HTML_TEX_SVG( ".html" ),
 
   /**
    * For HTML exports, encode TeX using {@code $} delimiters, suitable for
    * rendering by an external TeX typesetting engine (or online with KaTeX).
+   * Treat image links relatively.
    */
   HTML_TEX_DELIMITED( ".html" ),
 
   /**
    * Indicates that the processors should export to a Markdown format.
+   * Treat image links relatively.
    */
   MARKDOWN_PLAIN( ".out.md" ),
 
   /**
    * Indicates no special export format is to be created. No extension is
-   * applicable.
+   * applicable. Image links must use absolute directories.
    */
   NONE( "" );
 

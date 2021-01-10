@@ -182,14 +182,23 @@ public class Caret {
    * Returns a human-readable string that shows the current caret position
    * within the text. Typically this will include the current line number,
    * the number of lines, and the character offset into the text.
+   * <p>
+   * If the {@link Caret} has not been properly built, this will return a
+   * string for the status bar having all values set to zero. This can happen
+   * during unit testing, but should not happen any other time.
+   * </p>
    *
    * @return A string to present to an end user.
    */
   @Override
   public String toString() {
-    return get( STATUS_BAR_LINE,
-                getParagraph() + 1,
-                getParagraphCount(),
-                getTextOffset() + 1 );
+    try {
+      return get( STATUS_BAR_LINE,
+                  getParagraph() + 1,
+                  getParagraphCount(),
+                  getTextOffset() + 1 );
+    } catch( final NullPointerException ex ) {
+      return get( STATUS_BAR_LINE, 0, 0, 0 );
+    }
   }
 }

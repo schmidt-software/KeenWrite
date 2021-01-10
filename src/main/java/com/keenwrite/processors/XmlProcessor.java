@@ -58,7 +58,7 @@ public class XmlProcessor extends ExecutorProcessor<String>
       final Processor<String> successor,
       final ProcessorContext context ) {
     super( successor );
-    mPath = context.getPath();
+    mPath = context.getDocumentPath();
 
     // Bubble problems up to the user interface, rather than standard error.
     mTransformerFactory.setErrorListener( this );
