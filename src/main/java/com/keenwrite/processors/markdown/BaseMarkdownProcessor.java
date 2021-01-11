@@ -30,7 +30,7 @@ public class BaseMarkdownProcessor extends ExecutorProcessor<String> {
   private final IParse mParser;
   private final IRender mRenderer;
 
-  BaseMarkdownProcessor(
+  public BaseMarkdownProcessor(
     final Processor<String> successor, final ProcessorContext context ) {
     super( successor );
 
@@ -39,6 +39,25 @@ public class BaseMarkdownProcessor extends ExecutorProcessor<String> {
 
     mParser = Parser.builder().extensions( extensions ).build();
     mRenderer = HtmlRenderer.builder().extensions( extensions ).build();
+  }
+
+  /**
+   * Instantiates a number of extensions to be applied when parsing. These
+   * are typically typographic extensions that convert characters into
+   * HTML entities.
+   *
+   * @param extensions A {@link List} of {@link Extension} instances that
+   *                   change the {@link Parser}'s behaviour.
+   * @param context    The context that subclasses use to configure custom
+   *                   extension behaviour.
+   */
+  void init(
+    final List<Extension> extensions, final ProcessorContext context ) {
+    extensions.add( DefinitionExtension.create() );
+    extensions.add( StrikethroughSubscriptExtension.create() );
+    extensions.add( SuperscriptExtension.create() );
+    extensions.add( TablesExtension.create() );
+    extensions.add( TypographicExtension.create() );
   }
 
   /**
@@ -83,25 +102,6 @@ public class BaseMarkdownProcessor extends ExecutorProcessor<String> {
    */
   private Node parse( final String markdown ) {
     return getParser().parse( markdown );
-  }
-
-  /**
-   * Instantiates a number of extensions to be applied when parsing. These
-   * are typically typographic extensions that convert characters into
-   * HTML entities.
-   *
-   * @param extensions A {@link List} of {@link Extension} instances that
-   *                   change the {@link Parser}'s behaviour.
-   * @param context    The context that subclasses use to configure custom
-   *                   extension behaviour.
-   */
-  void init(
-    final List<Extension> extensions, final ProcessorContext context ) {
-    extensions.add( DefinitionExtension.create() );
-    extensions.add( StrikethroughSubscriptExtension.create() );
-    extensions.add( SuperscriptExtension.create() );
-    extensions.add( TablesExtension.create() );
-    extensions.add( TypographicExtension.create() );
   }
 
   /**

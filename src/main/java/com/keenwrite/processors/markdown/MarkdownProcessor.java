@@ -65,7 +65,7 @@ public class MarkdownProcessor extends BaseMarkdownProcessor {
       processor = IDENTITY;
     }
 
-    // Add typographic extensions.
+    // Add typographic, table, strikethrough, and similar extensions.
     super.init( extensions, context );
 
     extensions.add( ImageLinkExtension.create( context ) );
