@@ -2,10 +2,10 @@
 package com.keenwrite.processors.markdown.extensions.tex;
 
 import com.keenwrite.ExportFormat;
+import com.keenwrite.processors.Processor;
 import com.keenwrite.processors.ProcessorContext;
 import com.keenwrite.processors.markdown.extensions.HtmlRendererAdapter;
 import com.keenwrite.processors.markdown.extensions.tex.TexNodeRenderer.Factory;
-import com.keenwrite.processors.r.RProcessor;
 import com.vladsch.flexmark.html.HtmlRenderer;
 import com.vladsch.flexmark.parser.Parser;
 import com.vladsch.flexmark.util.data.MutableDataHolder;
@@ -30,10 +30,10 @@ public class TeXExtension extends HtmlRendererAdapter
    */
   private final ExportFormat mExportFormat;
 
-  private final RProcessor mProcessor;
+  private final Processor<String> mProcessor;
 
   private TeXExtension(
-    final ProcessorContext context, final RProcessor processor ) {
+    final ProcessorContext context, final Processor<String> processor ) {
     mExportFormat = context.getExportFormat();
     mProcessor = processor;
   }
@@ -44,7 +44,7 @@ public class TeXExtension extends HtmlRendererAdapter
    * @return The new {@link TeXExtension}, never {@code null}.
    */
   public static TeXExtension create(
-    final ProcessorContext context, final RProcessor processor ) {
+    final ProcessorContext context, final Processor<String> processor ) {
     return new TeXExtension( context, processor );
   }
 

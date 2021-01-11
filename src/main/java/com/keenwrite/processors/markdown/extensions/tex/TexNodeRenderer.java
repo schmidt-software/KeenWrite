@@ -3,7 +3,7 @@ package com.keenwrite.processors.markdown.extensions.tex;
 
 import com.keenwrite.ExportFormat;
 import com.keenwrite.preview.SvgRasterizer;
-import com.keenwrite.processors.r.RProcessor;
+import com.keenwrite.processors.Processor;
 import com.vladsch.flexmark.html.HtmlWriter;
 import com.vladsch.flexmark.html.renderer.NodeRenderer;
 import com.vladsch.flexmark.html.renderer.NodeRendererContext;
@@ -34,7 +34,7 @@ public class TexNodeRenderer {
     private final RendererFacade mNodeRenderer;
 
     public Factory(
-      final ExportFormat exportFormat, final RProcessor processor ) {
+      final ExportFormat exportFormat, final Processor<String> processor ) {
       mNodeRenderer = EXPORT_RENDERERS.get( exportFormat );
       mNodeRenderer.setProcessor( processor );
     }
@@ -48,7 +48,7 @@ public class TexNodeRenderer {
 
   private static abstract class RendererFacade
     implements NodeRenderer {
-    private RProcessor mProcessor;
+    private Processor<String> mProcessor;
 
     @Override
     public @Nullable Set<NodeRenderingHandler<?>> getNodeRenderingHandlers() {
@@ -68,11 +68,11 @@ public class TexNodeRenderer {
                           final NodeRendererContext context,
                           final HtmlWriter html );
 
-    private void setProcessor( final RProcessor processor ) {
+    private void setProcessor( final Processor<String> processor ) {
       mProcessor = processor;
     }
 
-    RProcessor getProcessor() {
+    Processor<String> getProcessor() {
       return mProcessor;
     }
   }

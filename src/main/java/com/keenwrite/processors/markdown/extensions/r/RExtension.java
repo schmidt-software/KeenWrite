@@ -31,7 +31,6 @@ import static com.vladsch.flexmark.parser.Parser.ParserExtension;
  */
 public final class RExtension implements ParserExtension {
   private final InlineParserFactory FACTORY = CustomParser::new;
-
   private final RProcessor mProcessor;
 
   private RExtension( final RProcessor processor ) {

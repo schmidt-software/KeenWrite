@@ -117,8 +117,8 @@ public class ImageLinkExtension extends HtmlRendererAdapter {
         // Compute the path to the image file. The base directory should
         // be an absolute path to the file being edited, without an extension.
         final var imagesDir = getUserImagesDir();
-        final var empty = imagesDir.toString().isEmpty();
-        final var relativeDir = empty ? imagesDir : baseDir.relativize( getUserImagesDir() );
+        final var relativeDir = imagesDir.toString().isEmpty()
+          ? imagesDir : baseDir.relativize( imagesDir );
         final var imageFile = Path.of(
           baseDir.toString(), relativeDir.toString(), uri );
 
@@ -127,13 +127,11 @@ public class ImageLinkExtension extends HtmlRendererAdapter {
 
           if( file.exists() && file.canRead() ) {
             uri = file.toURI().toString();
-            return valid( link, uri);
+            return valid( link, uri );
           }
         }
 
         throw new MissingFileException( imageFile + ".*" );
-
-        //return valid( link, uri );
       } catch( final Exception ex ) {
         clue( ex );
       }
