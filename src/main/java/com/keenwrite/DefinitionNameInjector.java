@@ -46,7 +46,8 @@ public final class DefinitionNameInjector {
             clue( STATUS_DEFINITION_MISSING, word );
           }
           else {
-            editor.replaceText( indexes, operator.entoken( leaf.toPath() ) );
+            final var entokened = operator.entoken( leaf.toPath() );
+            editor.replaceText( indexes, operator.apply( entokened ) );
             definitions.expand( leaf );
           }
         }
@@ -62,7 +63,7 @@ public final class DefinitionNameInjector {
    *
    * @param word Match the word by: exact, beginning, containment, or other.
    */
-  @SuppressWarnings("ConstantConditions")
+  @SuppressWarnings( "ConstantConditions" )
   private static DefinitionTreeItem<String> findLeaf(
     final TextDefinition definition, final String word ) {
     assert word != null;

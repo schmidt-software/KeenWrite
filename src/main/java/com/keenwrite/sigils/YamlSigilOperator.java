@@ -35,19 +35,21 @@ public final class YamlSigilOperator extends SigilOperator {
   }
 
   /**
-   * Removes start and stop definition key delimiters from the given key. This
-   * method does not check for delimiters, only that there are sufficient
-   * characters to remove from either end of the given key.
+   * Removes start and stop definition key delimiters from the given key.
    *
-   * @param key The key adorned with start and stop definition tokens.
+   * @param key The key that may have start and stop tokens.
    * @return The given key with the delimiters removed.
    */
   public String detoken( final String key ) {
-    final int beganLen = getBegan().length();
-    final int endedLen = getEnded().length();
+    final var began = getBegan();
+    final var ended = getEnded();
+    final int bLength = began.length();
+    final int eLength = ended.length();
+    final var bIndex = key.indexOf( began );
+    final var eIndex = key.indexOf( ended, bIndex );
+    final var kLength = key.length();
 
-    return key.length() > beganLen + endedLen
-      ? key.substring( beganLen, key.length() - endedLen )
-      : key;
+    return key.substring(
+      bIndex == -1 ? 0 : bLength, eIndex == -1 ? kLength : kLength - eLength );
   }
 }
