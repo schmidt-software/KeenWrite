@@ -10,7 +10,7 @@ import static com.keenwrite.processors.IdentityProcessor.IDENTITY;
 /**
  * Responsible for processing R statements within a text block.
  */
-public class RProcessor extends ExecutorProcessor<String> {
+public final class RProcessor extends ExecutorProcessor<String> {
   private final Processor<String> mProcessor;
   private final InlineRProcessor mInlineRProcessor;
   private volatile boolean mReady;

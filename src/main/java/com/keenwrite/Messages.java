@@ -15,7 +15,7 @@ import static java.util.ResourceBundle.getBundle;
  * Recursively resolves message properties. Property values can refer to other
  * properties using a <code>${var}</code> syntax.
  */
-public class Messages {
+public final class Messages {
 
   private static final ResourceBundle RESOURCE_BUNDLE =
       getBundle( APP_BUNDLE_NAME );

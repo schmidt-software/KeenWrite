@@ -18,7 +18,7 @@ import static java.time.Duration.ofSeconds;
  * Responsible for determining {@link MediaType} based on the content-type from
  * an HTTP request.
  */
-public class HttpMediaType {
+public final class HttpMediaType {
 
   private final static HttpClient HTTP_CLIENT = HttpClient
     .newBuilder()

@@ -12,7 +12,7 @@ import static java.awt.Toolkit.getDefaultToolkit;
  * application, such as image rendering for {@link SvgRasterizer}.
  */
 @SuppressWarnings("rawtypes")
-public class RenderingSettings {
+public final class RenderingSettings {
 
   /**
    * Default hints for high-quality rendering that may be changed by

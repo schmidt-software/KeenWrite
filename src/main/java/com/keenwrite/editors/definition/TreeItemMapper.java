@@ -31,7 +31,7 @@ import static com.keenwrite.Constants.MAP_SIZE_DEFAULT;
  * Reloading the definition file would work, but has a number of drawbacks.
  * </p>
  */
-public class TreeItemMapper {
+public final class TreeItemMapper {
   /**
    * Separates definition keys (e.g., the dots in {@code $root.node.var$}).
    */

@@ -27,7 +27,7 @@ import static com.keenwrite.util.ProtocolScheme.getProtocol;
  * Responsible for running {@link SvgRasterizer} on SVG images detected within
  * a document to transform them into rasterized versions.
  */
-public class SvgReplacedElementFactory extends ReplacedElementAdapter {
+public final class SvgReplacedElementFactory extends ReplacedElementAdapter {
 
   public static final String HTML_IMAGE = "img";
   public static final String HTML_IMAGE_SRC = "src";

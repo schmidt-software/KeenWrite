@@ -53,7 +53,7 @@ import static org.fxmisc.wellbehaved.event.InputMap.consume;
 /**
  * Responsible for editing Markdown documents.
  */
-public class MarkdownEditor extends BorderPane implements TextEditor {
+public final class MarkdownEditor extends BorderPane implements TextEditor {
   /**
    * Regular expression that matches the type of markup block. This is used
    * when Enter is pressed to continue the block environment.

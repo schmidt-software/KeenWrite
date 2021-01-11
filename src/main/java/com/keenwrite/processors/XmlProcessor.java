@@ -32,7 +32,7 @@ import static net.sf.saxon.tree.util.ProcInstParser.getPseudoAttribute;
  * recognized by the next link on the chain.
  * </p>
  */
-public class XmlProcessor extends ExecutorProcessor<String>
+public final class XmlProcessor extends ExecutorProcessor<String>
     implements ErrorListener {
 
   private final Snitch mSnitch = Services.load( Snitch.class );

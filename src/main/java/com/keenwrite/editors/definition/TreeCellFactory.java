@@ -21,7 +21,7 @@ import static javafx.scene.input.TransferMode.MOVE;
  * Responsible for producing {@link TreeCell} instances that can be edited
  * and respond to drag and drop functionality.
  */
-public class TreeCellFactory
+public final class TreeCellFactory
     implements Callback<TreeView<String>, TreeCell<String>> {
   private static final String STYLE_CLASS_DROP_TARGET = "drop-target";
   private static final DataFormat JAVA_FORMAT =

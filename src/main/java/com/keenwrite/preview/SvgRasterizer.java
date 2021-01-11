@@ -35,7 +35,7 @@ import static org.apache.batik.util.XMLResourceDescriptor.getXMLParserClassName;
 /**
  * Responsible for converting SVG images into rasterized PNG images.
  */
-public class SvgRasterizer {
+public final class SvgRasterizer {
   private static final SAXSVGDocumentFactory FACTORY_DOM =
       new SAXSVGDocumentFactory( getXMLParserClassName() );
 

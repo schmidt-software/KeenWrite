@@ -21,7 +21,7 @@ import static javafx.scene.layout.Priority.ALWAYS;
  * @author Amrullah Syadzili
  * @author White Magic Software, Ltd.
  */
-public class DefinitionTabSceneFactory {
+public final class DefinitionTabSceneFactory {
 
   private final Consumer<Tab> mTabSelectionConsumer;
 

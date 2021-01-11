@@ -18,7 +18,7 @@ import java.util.NoSuchElementException;
  *
  * @param <T> The type of list to be cycled.
  */
-public class CyclicIterator<T> implements ListIterator<T> {
+public final class CyclicIterator<T> implements ListIterator<T> {
   private final List<T> mList;
 
   /**

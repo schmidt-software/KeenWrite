@@ -35,7 +35,7 @@ import static javafx.stage.Modality.NONE;
 /**
  * Responsible for logging application issues to {@link TableView} entries.
  */
-public class LogView extends Alert {
+public final class LogView extends Alert {
   /**
    * Number of error messages to retain in the {@link TableView}; must be
    * greater than zero.

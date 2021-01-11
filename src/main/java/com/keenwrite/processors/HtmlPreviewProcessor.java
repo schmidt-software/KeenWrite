@@ -10,7 +10,7 @@ import com.keenwrite.preview.HtmlPreview;
  * final HTML preview is rendered. This is the last link in the processor
  * chain.
  */
-public class HtmlPreviewProcessor extends ExecutorProcessor<String> {
+public final class HtmlPreviewProcessor extends ExecutorProcessor<String> {
 
   /**
    * There is only one preview panel.

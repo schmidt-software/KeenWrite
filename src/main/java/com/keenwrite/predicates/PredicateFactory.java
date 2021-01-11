@@ -12,7 +12,7 @@ import static java.nio.file.FileSystems.getDefault;
  * Provides a number of simple {@link Predicate} instances for various types
  * of string comparisons, including basic strings and file name strings.
  */
-public class PredicateFactory {
+public final class PredicateFactory {
   /**
    * Creates an instance of {@link Predicate} that matches a globbed file
    * name pattern.

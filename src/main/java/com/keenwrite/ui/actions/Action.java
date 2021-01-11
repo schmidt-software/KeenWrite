@@ -22,7 +22,7 @@ import static javafx.scene.input.KeyCombination.valueOf;
 /**
  * Defines actions the user can take through GUI interactions
  */
-public class Action implements MenuAction {
+public final class Action implements MenuAction {
   private final String mText;
   private final KeyCombination mAccelerator;
   private final GlyphIcons mIcon;

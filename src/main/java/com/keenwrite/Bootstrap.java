@@ -13,7 +13,7 @@ import java.util.Properties;
  * See {@link Constants#PATH_PROPERTIES_SETTINGS} for details.
  * </p>
  */
-public class Bootstrap {
+public final class Bootstrap {
   private static final Properties BOOTSTRAP = new Properties();
 
   static {

@@ -9,7 +9,7 @@ import static com.keenwrite.Messages.get;
  * Responsible for informing the user when a file cannot be found.
  * This avoids duplicating the error message prefix.
  */
-public class MissingFileException extends FileNotFoundException {
+public final class MissingFileException extends FileNotFoundException {
   /**
    * Constructs a new {@link MissingFileException} using the given path.
    *

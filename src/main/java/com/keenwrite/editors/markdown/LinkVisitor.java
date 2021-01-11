@@ -36,7 +36,7 @@ import com.vladsch.flexmark.util.ast.VisitHandler;
  * Responsible for extracting a hyperlink from the document so that the user
  * can edit the link within a dialog.
  */
-public class LinkVisitor {
+public final class LinkVisitor {
 
   private NodeVisitor mVisitor;
   private Link mLink;

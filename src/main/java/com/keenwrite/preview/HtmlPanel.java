@@ -27,7 +27,7 @@ import static org.jsoup.Jsoup.parse;
 /**
  * Responsible for configuring FlyingSaucer's {@link XHTMLPanel}.
  */
-public class HtmlPanel extends XHTMLPanel {
+public final class HtmlPanel extends XHTMLPanel {
 
   /**
    * Suppresses scroll attempts until after the document has loaded.

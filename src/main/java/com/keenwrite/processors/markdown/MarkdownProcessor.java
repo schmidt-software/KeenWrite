@@ -21,7 +21,7 @@ import static com.keenwrite.processors.IdentityProcessor.IDENTITY;
 /**
  * Responsible for parsing a Markdown document and rendering it as HTML.
  */
-public class MarkdownProcessor extends BaseMarkdownProcessor {
+public final class MarkdownProcessor extends BaseMarkdownProcessor {
 
   private MarkdownProcessor(
     final Processor<String> successor, final ProcessorContext context ) {

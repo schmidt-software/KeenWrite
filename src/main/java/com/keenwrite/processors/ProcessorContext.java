@@ -17,7 +17,7 @@ import static com.keenwrite.Constants.DEFAULT_DIRECTORY;
 /**
  * Provides a context for configuring a chain of {@link Processor} instances.
  */
-public class ProcessorContext {
+public final class ProcessorContext {
   private final HtmlPreview mHtmlPreview;
   private final Map<String, String> mResolvedMap;
   private final Path mDocumentPath;

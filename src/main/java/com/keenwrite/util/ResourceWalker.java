@@ -18,7 +18,7 @@ import static java.util.Collections.emptyMap;
 /**
  * Responsible for finding file resources.
  */
-public class ResourceWalker {
+public final class ResourceWalker {
   /**
    * Globbing pattern to match font names.
    */

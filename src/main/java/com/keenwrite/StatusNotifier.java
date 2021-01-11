@@ -14,7 +14,7 @@ import static javafx.application.Platform.runLater;
  * messages) through the application. Once the Event Bus is implemented, this
  * class can go away.
  */
-public class StatusNotifier {
+public final class StatusNotifier {
   private static final String OK = get( STATUS_BAR_OK, "OK" );
 
   private static final Notifier sNotifier = Services.load( Notifier.class );

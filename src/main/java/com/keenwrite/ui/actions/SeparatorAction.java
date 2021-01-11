@@ -8,7 +8,7 @@ import javafx.scene.control.*;
  * Represents a {@link MenuBar} or {@link ToolBar} action that has no
  * operation, acting as a placeholder for line separators.
  */
-public class SeparatorAction implements MenuAction {
+public final class SeparatorAction implements MenuAction {
   @Override
   public MenuItem createMenuItem() {
     return new SeparatorMenuItem();

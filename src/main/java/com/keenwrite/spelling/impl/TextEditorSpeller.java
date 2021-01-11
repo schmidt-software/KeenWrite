@@ -20,7 +20,7 @@ import static org.fxmisc.richtext.model.TwoDimensional.Bias.Forward;
 /**
  * Responsible for checking the spelling of a document being edited.
  */
-public class TextEditorSpeller {
+public final class TextEditorSpeller {
   /**
    * Only load the dictionary into memory once, because it's huge.
    */

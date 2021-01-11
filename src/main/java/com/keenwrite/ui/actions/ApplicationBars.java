@@ -18,7 +18,7 @@ import static com.keenwrite.Messages.get;
  * Responsible for wiring all application actions to menus, toolbar buttons,
  * and keyboard shortcuts.
  */
-public class ApplicationBars {
+public final class ApplicationBars {
 
   private static final Map<String, Action> sMap = new HashMap<>( 64 );
 

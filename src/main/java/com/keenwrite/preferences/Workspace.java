@@ -59,7 +59,7 @@ import static javafx.collections.FXCollections.observableSet;
  *   .</dd>
  * </dl>
  */
-public class Workspace {
+public final class Workspace {
   private static final Key KEY_ROOT = key( "workspace" );
 
   public static final Key KEY_META = key( KEY_ROOT, "meta" );

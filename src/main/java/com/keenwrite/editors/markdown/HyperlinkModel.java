@@ -6,7 +6,7 @@ import com.vladsch.flexmark.ast.Link;
 /**
  * Represents the model for a hyperlink: text, url, and title.
  */
-public class HyperlinkModel {
+public final class HyperlinkModel {
 
   private String text;
   private String url;

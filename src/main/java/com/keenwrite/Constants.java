@@ -21,7 +21,7 @@ import static java.lang.System.getProperty;
 /**
  * Defines application-wide default values.
  */
-public class Constants {
+public final class Constants {
 
   /**
    * Used by the default settings to load the {@link Settings} service. This

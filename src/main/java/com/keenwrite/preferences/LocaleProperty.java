@@ -13,7 +13,7 @@ import static com.keenwrite.Constants.LOCALE_DEFAULT;
 import static com.keenwrite.preferences.Workspace.listProperty;
 import static java.util.Locale.forLanguageTag;
 
-public class LocaleProperty extends SimpleObjectProperty<String> {
+public final class LocaleProperty extends SimpleObjectProperty<String> {
 
   /**
    * Lists the locales having fonts that are supported by the application.

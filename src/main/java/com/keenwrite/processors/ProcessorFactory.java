@@ -11,7 +11,7 @@ import static com.keenwrite.ExportFormat.NONE;
  * Responsible for creating processors capable of parsing, transforming,
  * interpolating, and rendering known file types.
  */
-public class ProcessorFactory extends AbstractFileFactory {
+public final class ProcessorFactory extends AbstractFileFactory {
 
   private final ProcessorContext mContext;
 

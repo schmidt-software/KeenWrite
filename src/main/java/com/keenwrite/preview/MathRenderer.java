@@ -12,7 +12,7 @@ import static com.keenwrite.StatusNotifier.clue;
 /**
  * Responsible for rendering formulas as scalable vector graphics (SVG).
  */
-public class MathRenderer {
+public final class MathRenderer {
 
   /**
    * Singleton instance for rendering math symbols.

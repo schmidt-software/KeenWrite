@@ -18,7 +18,7 @@ import static org.ahocorasick.trie.Trie.builder;
  * Responsible for finding words in a text document. This implementation uses
  * a {@link Trie} for efficiency.
  */
-public class SearchModel {
+public final class SearchModel {
   private final ObjectProperty<IndexRange> mMatchOffset =
       new SimpleObjectProperty<>();
   private final ObjectProperty<Integer> mMatchCount =

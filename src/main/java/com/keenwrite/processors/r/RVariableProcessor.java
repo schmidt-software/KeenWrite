@@ -18,7 +18,7 @@ import static com.keenwrite.preferences.Workspace.*;
  * performs a substitution on the text. The default R variable syntax is
  * {@code v$tree$leaf}.
  */
-public class RVariableProcessor extends DefinitionProcessor {
+public final class RVariableProcessor extends DefinitionProcessor {
 
   private final SigilOperator mSigilOperator;
 

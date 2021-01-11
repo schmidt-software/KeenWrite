@@ -19,7 +19,7 @@ import static com.keenwrite.ui.actions.ApplicationBars.createToolBar;
 /**
  * Responsible for creating the bar scene: menu bar, tool bar, and status bar.
  */
-public class MainScene {
+public final class MainScene {
   private final Scene mScene;
   private final Node mMenuBar;
   private final Node mToolBar;

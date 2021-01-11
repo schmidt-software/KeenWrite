@@ -4,7 +4,7 @@ package com.keenwrite.sigils;
 /**
  * Brackets definition keys with token delimiters.
  */
-public class YamlSigilOperator extends SigilOperator {
+public final class YamlSigilOperator extends SigilOperator {
   public static final char KEY_SEPARATOR_DEF = '.';
 
   public YamlSigilOperator( final Tokens tokens ) {

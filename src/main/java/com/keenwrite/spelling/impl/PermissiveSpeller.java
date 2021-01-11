@@ -11,7 +11,7 @@ import java.util.List;
  * implementation cannot be created (for any reason). Does not perform any
  * spell checking and indicates that any given lexeme is in the lexicon.
  */
-public class PermissiveSpeller implements SpellChecker {
+public final class PermissiveSpeller implements SpellChecker {
   /**
    * Returns {@code true}, ignoring the given word.
    *

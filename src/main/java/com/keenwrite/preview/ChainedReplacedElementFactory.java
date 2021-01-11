@@ -40,7 +40,7 @@ import static java.util.Arrays.asList;
  * Responsible for running one or more factories to perform post-processing on
  * the HTML document prior to displaying it.
  */
-public class ChainedReplacedElementFactory extends ReplacedElementAdapter {
+public final class ChainedReplacedElementFactory extends ReplacedElementAdapter {
   /**
    * Retain insertion order so that client classes can control the order that
    * factories are used to resolve images.

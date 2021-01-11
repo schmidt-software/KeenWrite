@@ -42,7 +42,7 @@ import static javafx.stage.WindowEvent.WINDOW_CLOSE_REQUEST;
  * using their respective syntax.
  */
 @SuppressWarnings( "NonAsciiCharacters" )
-public class ApplicationActions {
+public final class ApplicationActions {
   private static final String STYLE_SEARCH = "search";
 
   /**

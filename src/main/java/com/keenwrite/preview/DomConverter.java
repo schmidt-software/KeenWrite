@@ -22,7 +22,7 @@ import static com.keenwrite.processors.text.TextReplacementFactory.replace;
  * {@link #fromJsoup(org.jsoup.nodes.Document)} method to reuse factories,
  * builders, and implementations.
  */
-class DomConverter extends W3CDom {
+final class DomConverter extends W3CDom {
   /**
    * Retain insertion order using an instance of {@link LinkedHashMap} so
    * that ligature substitution uses longer ligatures ahead of shorter

@@ -15,7 +15,7 @@ import java.util.prefs.Preferences;
  * {@link Workspace} does not preserve previous states.
  * </p>
  */
-public class XmlStorageHandler implements StorageHandler {
+public final class XmlStorageHandler implements StorageHandler {
   @Override
   public void saveSelectedCategory( final String breadcrumb ) { }
 

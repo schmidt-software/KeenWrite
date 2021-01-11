@@ -17,7 +17,7 @@ import static java.lang.String.format;
  * because the application should be ported away from Java and JavaFX.
  * </p>
  */
-public class Launcher {
+public final class Launcher {
   /**
    * Delegates to the application entry point.
    *

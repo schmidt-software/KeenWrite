@@ -13,7 +13,7 @@ import static java.util.Arrays.asList;
  * instances. This allows all {@link Locale} objects to produce language tags
  * using the same format.
  */
-public class LocaleScripts {
+public final class LocaleScripts {
   /**
    * ISO 15924 alpha-4 script code to represent Latin scripts.
    */

@@ -23,7 +23,7 @@ import static java.lang.String.format;
  * Responsible for opening a dialog that provides users with the ability to
  * select files.
  */
-public class FileChooserCommand {
+public final class FileChooserCommand {
   private static final String FILTER_EXTENSION_TITLES =
     "Dialog.file.choose.filter";
 

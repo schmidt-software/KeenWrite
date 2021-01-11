@@ -34,7 +34,7 @@ import static javafx.scene.control.ButtonType.OK;
  * the {@link Workspace} model with the {@link PreferencesFx} view, in MVC.
  */
 @SuppressWarnings( "SameParameterValue" )
-public class PreferencesController {
+public final class PreferencesController {
 
   private final Workspace mWorkspace;
   private final PreferencesFx mPreferencesFx;
