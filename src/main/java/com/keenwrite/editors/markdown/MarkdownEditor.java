@@ -338,10 +338,7 @@ public final class MarkdownEditor extends BorderPane implements TextEditor {
 
   @Override
   public void fencedCodeBlock() {
-    final var key = "App.action.insert.fenced_code_block.prompt.text";
-
-    // TODO: Introduce sample text if nothing is selected.
-    //enwrap( "\n\n```\n", "\n```\n\n", get( key ) );
+    enwrap( "\n\n```\n", "\n```\n\n" );
   }
 
   @Override
