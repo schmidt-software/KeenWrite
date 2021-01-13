@@ -5,6 +5,7 @@ import com.keenwrite.Caret;
 import com.keenwrite.Constants;
 import com.keenwrite.processors.ProcessorContext;
 import com.keenwrite.processors.markdown.extensions.HtmlRendererAdapter;
+import com.vladsch.flexmark.ext.tables.TableBlock;
 import com.vladsch.flexmark.html.AttributeProvider;
 import com.vladsch.flexmark.html.AttributeProviderFactory;
 import com.vladsch.flexmark.html.IndependentAttributeProviderFactory;
@@ -16,6 +17,7 @@ import com.vladsch.flexmark.util.html.MutableAttributes;
 import org.jetbrains.annotations.NotNull;
 
 import static com.keenwrite.Constants.CARET_ID;
+import static com.keenwrite.processors.markdown.extensions.r.EmptyNode.EMPTY_NODE;
 import static com.vladsch.flexmark.html.HtmlRenderer.Builder;
 
 /**
@@ -47,13 +49,13 @@ public class CaretExtension extends HtmlRendererAdapter {
    */
   public static class IdAttributeProvider implements AttributeProvider {
     private final Caret mCaret;
+    private boolean mAdded;
 
     public IdAttributeProvider( final Caret caret ) {
       mCaret = caret;
     }
 
-    private static AttributeProviderFactory createFactory(
-      final Caret caret ) {
+    private static AttributeProviderFactory createFactory( final Caret caret ) {
       return new IndependentAttributeProviderFactory() {
         @Override
         public @NotNull AttributeProvider apply(
@@ -67,6 +69,29 @@ public class CaretExtension extends HtmlRendererAdapter {
     public void setAttributes( @NotNull Node curr,
                                @NotNull AttributablePart part,
                                @NotNull MutableAttributes attributes ) {
+      // Optimization: if a caret is inserted, don't try to find another.
+      if( mAdded ) {
+        return;
+      }
+
+      // If a table block has been earmarked with an empty node, it means
+      // another extension has generated code from an external source. The
+      // Markdown processor won't be able to determine the caret position
+      // with any semblance of accuracy, so skip the element. This usually
+      // happens with tables, but in theory any Markdown generated from an
+      // external source (e.g., an R script) could produce text that has no
+      // caret position that can be calculated.
+      var table = curr;
+
+      if( !(curr instanceof TableBlock) ) {
+        table = curr.getAncestorOfType( TableBlock.class );
+      }
+
+      // The table was generated outside the document
+      if( table != null && table.getLastChild() == EMPTY_NODE ) {
+        return;
+      }
+
       final var outside = mCaret.isAfterText() ? 1 : 0;
       final var began = curr.getStartOffset();
       final var ended = curr.getEndOffset() + outside;
@@ -80,6 +105,9 @@ public class CaretExtension extends HtmlRendererAdapter {
         prev != null && mCaret.isBetweenText( prev.getEndOffset(), began ) ) {
         // This line empowers synchronizing the text editor with the preview.
         attributes.addValue( AttributeImpl.of( "id", CARET_ID ) );
+
+        // We're done until the user moves the caret (micro-optimization)
+        mAdded = true;
       }
     }
   }

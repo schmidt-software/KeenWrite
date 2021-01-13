@@ -2,9 +2,12 @@
 package com.keenwrite.processors.markdown.extensions.r;
 
 import com.keenwrite.processors.Processor;
+import com.keenwrite.processors.ProcessorContext;
+import com.keenwrite.processors.markdown.BaseMarkdownProcessor;
 import com.keenwrite.processors.r.InlineRProcessor;
 import com.keenwrite.processors.r.RProcessor;
 import com.keenwrite.sigils.RSigilOperator;
+import com.vladsch.flexmark.ast.Paragraph;
 import com.vladsch.flexmark.ast.Text;
 import com.vladsch.flexmark.parser.InlineParserExtensionFactory;
 import com.vladsch.flexmark.parser.InlineParserFactory;
@@ -18,6 +21,8 @@ import java.util.BitSet;
 import java.util.List;
 import java.util.Map;
 
+import static com.keenwrite.processors.IdentityProcessor.IDENTITY;
+import static com.keenwrite.processors.markdown.extensions.r.EmptyNode.EMPTY_NODE;
 import static com.vladsch.flexmark.parser.Parser.Builder;
 import static com.vladsch.flexmark.parser.Parser.ParserExtension;
 
@@ -32,17 +37,21 @@ import static com.vladsch.flexmark.parser.Parser.ParserExtension;
 public final class RExtension implements ParserExtension {
   private final InlineParserFactory FACTORY = CustomParser::new;
   private final RProcessor mProcessor;
+  private final BaseMarkdownProcessor mMarkdownProcessor;
 
-  private RExtension( final RProcessor processor ) {
+  private RExtension(
+    final RProcessor processor, final ProcessorContext context ) {
     mProcessor = processor;
+    mMarkdownProcessor = new BaseMarkdownProcessor( IDENTITY, context );
   }
 
   /**
    * Creates an extension capable of intercepting R code blocks and preventing
    * them from being converted into HTML {@code <code>} elements.
    */
-  public static RExtension create( final RProcessor processor ) {
-    return new RExtension( processor );
+  public static RExtension create(
+    final RProcessor processor, final ProcessorContext context ) {
+    return new RExtension( processor, context );
   }
 
   @Override
@@ -106,7 +115,21 @@ public final class RExtension implements ParserExtension {
 
           if( code.startsWith( RSigilOperator.PREFIX ) ) {
             codeNode.unlink();
-            blockNode.appendChild( new Text( mProcessor.apply( code ) ) );
+            final var rText = mProcessor.apply( code );
+            var node = mMarkdownProcessor.toNode( rText );
+
+            if( node.getFirstChild() instanceof Paragraph ) {
+              node = new Text( rText );
+            }
+            else {
+              node = node.getFirstChild();
+
+              if( node != null ) {
+                node.appendChild( EMPTY_NODE );
+              }
+            }
+
+            blockNode.appendChild( node );
           }
         }
       }

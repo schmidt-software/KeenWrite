@@ -58,7 +58,7 @@ public final class MarkdownProcessor extends BaseMarkdownProcessor {
 
     if( mediaType == TEXT_R_MARKDOWN || mediaType == TEXT_R_XML ) {
       final var rProcessor = new RProcessor( context );
-      extensions.add( RExtension.create( rProcessor ) );
+      extensions.add( RExtension.create( rProcessor, context ) );
       processor = rProcessor;
     }
     else {

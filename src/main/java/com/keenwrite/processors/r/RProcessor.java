@@ -13,7 +13,8 @@ import static com.keenwrite.processors.IdentityProcessor.IDENTITY;
 public final class RProcessor extends ExecutorProcessor<String> {
   private final Processor<String> mProcessor;
   private final InlineRProcessor mInlineRProcessor;
-  private volatile boolean mReady;
+
+  private boolean mReady;
 
   public RProcessor( final ProcessorContext context ) {
     final var irp = new InlineRProcessor( IDENTITY, context );
@@ -26,11 +27,11 @@ public final class RProcessor extends ExecutorProcessor<String> {
     mReady = mInlineRProcessor.init();
   }
 
-  public boolean isReady() {
-    return mReady;
-  }
-
   public String apply( final String text ) {
     return mProcessor.apply( text );
+  }
+
+  public boolean isReady() {
+    return mReady;
   }
 }

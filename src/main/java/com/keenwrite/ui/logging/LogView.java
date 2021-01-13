@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
 import static com.keenwrite.Constants.ICON_DIALOG;
 import static com.keenwrite.Constants.NEWLINE;
 import static com.keenwrite.Messages.get;
+import static com.keenwrite.StatusNotifier.clue;
 import static java.time.LocalDateTime.now;
 import static java.time.format.DateTimeFormatter.ofPattern;
 import static java.util.Arrays.stream;
@@ -69,6 +70,7 @@ public final class LogView extends Alert {
    */
   public void clear() {
     mEntries.clear();
+    clue();
   }
 
   public void log( final String message ) {
