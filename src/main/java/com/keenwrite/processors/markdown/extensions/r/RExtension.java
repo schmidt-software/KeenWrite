@@ -125,6 +125,8 @@ public final class RExtension implements ParserExtension {
               node = node.getFirstChild();
 
               if( node != null ) {
+                // Mark the node as being generated code, such as text returned
+                // from an R function.
                 node.appendChild( EMPTY_NODE );
               }
             }

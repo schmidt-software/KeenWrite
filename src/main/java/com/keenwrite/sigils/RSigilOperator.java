@@ -7,7 +7,7 @@ import static com.keenwrite.sigils.YamlSigilOperator.KEY_SEPARATOR_DEF;
  * Brackets variable names between {@link #PREFIX} and {@link #SUFFIX} sigils.
  */
 public final class RSigilOperator extends SigilOperator {
-  public static final char KEY_SEPARATOR_R = '$';
+  private static final char KEY_SEPARATOR_R = '$';
 
   public static final String PREFIX = "`r#";
   public static final char SUFFIX = '`';
