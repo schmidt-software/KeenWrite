@@ -20,6 +20,7 @@ public final class RSigilOperator extends SigilOperator {
 
   public RSigilOperator( final Tokens tokens, final SigilOperator antecedent ) {
     super( tokens );
+
     mAntecedent = antecedent;
   }
 
@@ -39,12 +40,30 @@ public final class RSigilOperator extends SigilOperator {
   /**
    * Transforms a definition key (bracketed by token delimiters) into the
    * expected format for an R variable key name.
+   * <p>
+   * The algorithm to entoken a definition name is faster than
+   * {@link String#replace(char, char)}. Faster still would be to cache the
+   * values, but that would mean managing the cache when the user changes
+   * the beginning and ending of the R delimiters. This code gives about a
+   * 2% performance boost when scrolling using cursor keys. After the JIT
+   * warms up, this super-minor bottleneck vanishes.
+   * </p>
    *
    * @param key The variable name to transform, can be empty but not null.
    * @return The transformed variable name.
    */
   public String entoken( final String key ) {
-    return "v$" + mAntecedent.detoken( key )
-                             .replace( KEY_SEPARATOR_DEF, KEY_SEPARATOR_R );
+    final var detokened = new StringBuilder( key.length() );
+    detokened.append( "v$" );
+    detokened.append( mAntecedent.detoken( key ) );
+
+    // The 3 is for "v$X" where X cannot be a period.
+    for( int i = detokened.length() - 1; i >= 3; i-- ) {
+      if( detokened.charAt( i ) == KEY_SEPARATOR_DEF ) {
+        detokened.setCharAt( i, KEY_SEPARATOR_R );
+      }
+    }
+
+    return detokened.toString();
   }
 }
