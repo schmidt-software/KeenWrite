@@ -62,6 +62,7 @@ import static javafx.scene.control.TabPane.TabClosingPolicy.ALL_TABS;
 import static javafx.scene.input.KeyCode.SPACE;
 import static javafx.scene.input.KeyCombination.CONTROL_DOWN;
 import static javafx.util.Duration.millis;
+import static javax.swing.SwingUtilities.invokeLater;
 import static org.fxmisc.wellbehaved.event.EventPattern.keyPressed;
 
 /**
@@ -621,9 +622,11 @@ public final class MainPane extends SplitPane {
    * @param editor Contains the source document to update in the preview pane.
    */
   private void process( final TextEditor editor ) {
-    mProcessors.getOrDefault( editor, IdentityProcessor.IDENTITY )
-               .apply( editor == null ? "" : editor.getText() );
-    mHtmlPreview.scrollTo( CARET_ID );
+    invokeLater( () -> {
+      mProcessors.getOrDefault( editor, IdentityProcessor.IDENTITY )
+                 .apply( editor == null ? "" : editor.getText() );
+      mHtmlPreview.scrollTo( CARET_ID );
+    } );
   }
 
   /**

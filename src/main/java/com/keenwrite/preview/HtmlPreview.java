@@ -3,6 +3,7 @@ package com.keenwrite.preview;
 
 import com.keenwrite.preferences.LocaleProperty;
 import com.keenwrite.preferences.Workspace;
+import javafx.application.Platform;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.StringProperty;
 import javafx.embed.swing.SwingNode;
@@ -177,26 +178,32 @@ public final class HtmlPreview extends SwingNode {
 
   /**
    * Scrolls to the closest element matching the given identifier without
-   * waiting for the document to be ready. Be sure the document is ready
-   * before calling this method.
+   * waiting for the document to be ready.
    *
    * @param id Scroll the preview pane to this unique paragraph identifier.
    */
   public void scrollTo( final String id ) {
-    runLater( () -> {
+    final Runnable scrollToBox = () -> {
       int iter = 0;
       Box box = null;
 
       while( iter++ < 3 && ((box = mView.getBoxById( id )) == null) ) {
         try {
-          sleep( 25 );
+          sleep( 10 );
         } catch( final InterruptedException ex ) {
           clue( ex );
         }
       }
 
       scrollTo( box );
-    } );
+    };
+
+    if( Platform.isFxApplicationThread() ) {
+      scrollToBox.run();
+    }
+    else {
+      runLater( scrollToBox );
+    }
   }
 
   /**

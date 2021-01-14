@@ -22,6 +22,7 @@ import static com.keenwrite.util.ProtocolScheme.getProtocol;
 import static java.awt.Desktop.Action.BROWSE;
 import static java.awt.Desktop.getDesktop;
 import static javax.swing.SwingUtilities.invokeLater;
+import static javax.swing.SwingUtilities.isEventDispatchThread;
 import static org.jsoup.Jsoup.parse;
 
 /**
@@ -104,11 +105,17 @@ public final class HtmlPanel extends XHTMLPanel {
    */
   public void render( final String html, final String baseUri ) {
     final var doc = CONVERTER.fromJsoup( parse( html ) );
+    final Runnable code = () -> setDocument( doc, baseUri, XNH );
 
     // Access to a Swing component must occur from the Event Dispatch
     // Thread (EDT) according to Swing threading restrictions. Setting a new
     // document invokes a Swing repaint operation.
-    invokeLater( () -> setDocument( doc, baseUri, XNH ) );
+    if( isEventDispatchThread() ) {
+      code.run();
+    }
+    else {
+      invokeLater( code );
+    }
   }
 
   /**
