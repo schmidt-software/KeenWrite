@@ -17,9 +17,12 @@ import java.util.Locale;
 
 import static com.keenwrite.Constants.*;
 import static com.keenwrite.Messages.get;
+import static com.keenwrite.StatusNotifier.clue;
 import static com.keenwrite.preferences.Workspace.*;
 import static java.lang.Math.max;
 import static java.lang.String.format;
+import static java.lang.Thread.sleep;
+import static javafx.application.Platform.runLater;
 import static javafx.scene.CacheHint.SPEED;
 import static javax.swing.SwingUtilities.invokeLater;
 
@@ -180,7 +183,20 @@ public final class HtmlPreview extends SwingNode {
    * @param id Scroll the preview pane to this unique paragraph identifier.
    */
   public void scrollTo( final String id ) {
-    scrollTo( mView.getBoxById( id ) );
+    runLater( () -> {
+      int iter = 0;
+      Box box = null;
+
+      while( iter++ < 3 && ((box = mView.getBoxById( id )) == null) ) {
+        try {
+          sleep( 25 );
+        } catch( final InterruptedException ex ) {
+          clue( ex );
+        }
+      }
+
+      scrollTo( box );
+    } );
   }
 
   /**

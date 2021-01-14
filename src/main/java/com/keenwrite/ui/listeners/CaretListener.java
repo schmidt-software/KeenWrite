@@ -12,8 +12,8 @@ import static javafx.geometry.Pos.BASELINE_CENTER;
 
 /**
  * Responsible for updating the UI whenever the caret changes position.
- * Only one instance of {@link CaretListener} is allowed to prevent duplicate
- * adds to the observable property.
+ * Only one instance of {@link CaretListener} is allowed, which prevents
+ * duplicate adds to the observable property.
  */
 public class CaretListener extends VBox implements ChangeListener<Integer> {
 
