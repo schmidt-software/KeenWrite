@@ -50,6 +50,7 @@ public final class MarkdownProcessor extends BaseMarkdownProcessor {
    * @param context    Contains necessary information needed to create
    *                   extensions used by the Markdown parser.
    */
+  @Override
   void init(
     final List<Extension> extensions, final ProcessorContext context ) {
     final var editorFile = context.getDocumentPath();
