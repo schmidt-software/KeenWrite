@@ -61,7 +61,7 @@ public abstract class AbstractDialog<T> extends Dialog<T> {
    * can always close the window, even if there's an error.
    */
   protected final void initCloseAction() {
-    final Window window = getDialogPane().getScene().getWindow();
+    final var window = getDialogPane().getScene().getWindow();
     window.setOnCloseRequest( event -> window.hide() );
   }
 

@@ -4,7 +4,6 @@ package com.keenwrite;
 import com.keenwrite.preferences.Workspace;
 import com.keenwrite.service.Snitch;
 import javafx.application.Application;
-import javafx.application.Platform;
 import javafx.stage.Stage;
 
 import java.util.function.BooleanSupplier;
@@ -16,14 +15,13 @@ import static com.keenwrite.preferences.Workspace.*;
 import static com.keenwrite.util.FontLoader.initFonts;
 import static javafx.scene.input.KeyCode.F11;
 import static javafx.scene.input.KeyEvent.KEY_PRESSED;
-import static javafx.stage.WindowEvent.WINDOW_CLOSE_REQUEST;
 
 /**
  * Application entry point. The application allows users to edit plain text
  * files in a markup notation and see a real-time preview of the formatted
  * output.
  */
-@SuppressWarnings({"FieldCanBeLocal", "unused", "RedundantSuppression"})
+@SuppressWarnings( {"FieldCanBeLocal", "unused", "RedundantSuppression"} )
 public final class MainApp extends Application {
 
   private final Snitch mSnitch = Services.load( Snitch.class );
@@ -68,24 +66,6 @@ public final class MainApp extends Application {
     stage.show();
   }
 
-  /**
-   * Saves the workspace then terminates the application.
-   */
-  @Override
-  public void stop() {
-    save();
-    getSnitch().stop();
-    Platform.exit();
-    System.exit( 0 );
-  }
-
-  /**
-   * Saves the current application state configuration and user preferences.
-   */
-  private void save() {
-    mWorkspace.save();
-  }
-
   private void initState( final Stage stage ) {
     final var enable = createBoundsEnabledSupplier( stage );
 
@@ -106,7 +86,6 @@ public final class MainApp extends Application {
 
   private void initStage( final Stage stage ) {
     stage.setTitle( APP_TITLE );
-    stage.addEventHandler( WINDOW_CLOSE_REQUEST, event -> stop() );
     stage.addEventHandler( KEY_PRESSED, event -> {
       if( F11.equals( event.getCode() ) ) {
         stage.setFullScreen( !stage.isFullScreen() );

@@ -25,6 +25,7 @@ import com.keenwrite.sigils.Tokens;
 import com.keenwrite.sigils.YamlSigilOperator;
 import com.panemu.tiwulfx.control.dock.DetachableTab;
 import com.panemu.tiwulfx.control.dock.DetachableTabPane;
+import javafx.application.Platform;
 import javafx.beans.property.*;
 import javafx.collections.ListChangeListener;
 import javafx.event.ActionEvent;
@@ -161,21 +162,39 @@ public final class MainPane extends SplitPane {
     // Once the main scene's window regains focus, update the active definition
     // editor to the currently selected tab.
     runLater(
-      () -> getWindow().focusedProperty().addListener( ( c, o, n ) -> {
-        if( n != null && n ) {
-          final var pane = mTabPanes.get( TEXT_YAML );
-          final var model = pane.getSelectionModel();
-          final var tab = model.getSelectedItem();
+      () -> {
+        getWindow().focusedProperty().addListener( ( c, o, n ) -> {
+          if( n != null && n ) {
+            final var pane = mTabPanes.get( TEXT_YAML );
+            final var model = pane.getSelectionModel();
+            final var tab = model.getSelectedItem();
 
-          if( tab != null ) {
-            final var resource = tab.getContent();
+            if( tab != null ) {
+              final var resource = tab.getContent();
 
-            if( resource instanceof TextDefinition ) {
-              mActiveDefinitionEditor.set( (TextDefinition) tab.getContent() );
+              if( resource instanceof TextDefinition ) {
+                mActiveDefinitionEditor.set( (TextDefinition) tab.getContent() );
+              }
             }
           }
-        }
-      } )
+        } );
+
+        getWindow().setOnCloseRequest( ( event ) -> {
+          // Order matters here. We want to close all the tabs to ensure each
+          // is saved, but after they are closed, the workspace should still
+          // retain the list of files that were open. If this line came after
+          // closing, then restarting the application would list no files.
+          mWorkspace.save();
+
+          if( closeAll() ) {
+            Platform.exit();
+            System.exit( 0 );
+          }
+          else {
+            event.consume();
+          }
+        } );
+      }
     );
   }
 
@@ -328,12 +347,18 @@ public final class MainPane extends SplitPane {
 
       while( tabIterator.hasNext() ) {
         final var tab = tabIterator.next();
-        final var node = tab.getContent();
+        final var resource = tab.getContent();
 
-        if( node instanceof TextEditor &&
-          (closable &= canClose( (TextEditor) node )) ) {
+        if( !(resource instanceof TextResource) ) {
+          continue;
+        }
+
+        if( canClose( (TextResource) resource ) ) {
           tabIterator.remove();
           close( tab );
+        }
+        else {
+          closable = false;
         }
       }
     }
@@ -356,7 +381,7 @@ public final class MainPane extends SplitPane {
   }
 
   /**
-   * Closes the active tab; delegates to {@link #canClose(TextEditor)}.
+   * Closes the active tab; delegates to {@link #canClose(TextResource)}.
    */
   public void close() {
     final var editor = getActiveTextEditor();
@@ -366,15 +391,15 @@ public final class MainPane extends SplitPane {
   }
 
   /**
-   * Closes the given {@link TextEditor}. This must not be called from within
+   * Closes the given {@link TextResource}. This must not be called from within
    * a loop that iterates over the tab panes using {@code forEach}, lest a
    * concurrent modification exception be thrown.
    *
-   * @param editor The {@link TextEditor} to close, without confirming with
-   *               the user.
+   * @param resource The {@link TextResource} to close, without confirming with
+   *                 the user.
    */
-  private void close( final TextEditor editor ) {
-    getTab( editor ).ifPresent(
+  private void close( final TextResource resource ) {
+    getTab( resource ).ifPresent(
       ( tab ) -> {
         tab.getTabPane().getTabs().remove( tab );
         close( tab );
@@ -383,13 +408,13 @@ public final class MainPane extends SplitPane {
   }
 
   /**
-   * Answers whether the given {@link TextEditor} may be closed.
+   * Answers whether the given {@link TextResource} may be closed.
    *
-   * @param editor The {@link TextEditor} to try closing.
+   * @param editor The {@link TextResource} to try closing.
    * @return {@code true} when the editor may be closed; {@code false} when
    * the user has requested to keep the editor open.
    */
-  private boolean canClose( final TextEditor editor ) {
+  private boolean canClose( final TextResource editor ) {
     final var editorTab = getTab( editor );
     final var canClose = new AtomicBoolean( true );
 
@@ -454,7 +479,7 @@ public final class MainPane extends SplitPane {
    * @param editor The {@link TextEditor} instance to find amongst the tabs.
    * @return The first tab having content that matches the given tab.
    */
-  private Optional<Tab> getTab( final TextEditor editor ) {
+  private Optional<Tab> getTab( final TextResource editor ) {
     return mTabPanes.values()
                     .stream()
                     .flatMap( pane -> pane.getTabs().stream() )

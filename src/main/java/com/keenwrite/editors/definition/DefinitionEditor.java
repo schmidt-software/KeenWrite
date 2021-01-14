@@ -128,8 +128,12 @@ public final class DefinitionEditor extends BorderPane
     setTop( buttonBar );
     setCenter( mTreeView );
     setAlignment( buttonBar, TOP_CENTER );
-    addTreeChangeHandler( event -> mModified.set( true ) );
     mEncoding = open( mFile );
+
+    // After the file is opened, watch for changes, not before. Otherwise,
+    // upon saving, users will be prompted to save a file that hasn't had
+    // any modifications (from their perspective).
+    addTreeChangeHandler( event -> mModified.set( true ) );
   }
 
   @Override
