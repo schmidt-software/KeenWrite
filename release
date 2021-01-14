@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+
+# ---------------------------------------------------------------------------
+# This script builds Windows, Linux, and Java archive binaries for a
+# release.
+# ---------------------------------------------------------------------------
+
+source $HOME/bin/build-template
+
+readonly FILE_PROPERTIES="${SCRIPT_DIR}/src/main/resources/bootstrap.properties"
+readonly BIN_INSTALLER="${SCRIPT_DIR}/installer"
+
+DEPENDENCIES=(
+  "gradle,https://gradle.org"
+  "${FILE_PROPERTIES},File containing application name"
+)
+
+execute() {
+  $log "Build Windows installer binary"
+  ${BIN_INSTALLER} -o windows
+
+  $log "Build Linux installer binary"
+  ${BIN_INSTALLER} -o linux
+
+  $log "Build Java archive"
+  gradle clean jar
+  mv "build/libs/${application_title}.jar" .
+}
+
+preprocess() {
+  while IFS='=' read -r key value; do
+    if [[ "${key}" = "" || "${key}" = "#"* ]]; then
+      continue
+    fi
+
+    key=$(echo $key | tr '.' '_')
+    eval ${key}=\${value}
+  done < "${FILE_PROPERTIES}"
+
+  application_title="${application_title,,}"
+
+  return 1
+}
+
+main "$@"
+
