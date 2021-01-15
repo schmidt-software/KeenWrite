@@ -52,18 +52,21 @@ public final class Constants {
   /**
    * Prevent double events when updating files on Linux (save and timestamp).
    */
-  public static final int APP_WATCHDOG_TIMEOUT = get(
-    "application.watchdog.timeout", 200 );
+  public static final int APP_WATCHDOG_TIMEOUT =
+    get( "application.watchdog.timeout", 200 );
 
-  public static final String STYLESHEET_MARKDOWN = get(
-    "file.stylesheet.markdown" );
+  public static final String STYLESHEET_APPLICATION_BASE =
+    get( "file.stylesheet.application.base" );
+  public static final String STYLESHEET_APPLICATION_THEME =
+    get( "file.stylesheet.application.theme" );
+  public static final String STYLESHEET_MARKDOWN =
+    get( "file.stylesheet.markdown" );
   public static final String STYLESHEET_MARKDOWN_LOCALE =
     "file.stylesheet.markdown.locale";
-  public static final String STYLESHEET_PREVIEW = get(
-    "file.stylesheet.preview" );
+  public static final String STYLESHEET_PREVIEW =
+    get( "file.stylesheet.preview" );
   public static final String STYLESHEET_PREVIEW_LOCALE =
     "file.stylesheet.preview.locale";
-  public static final String STYLESHEET_SCENE = get( "file.stylesheet.scene" );
 
   public static final List<Image> LOGOS = createImages(
     "file.logo.16",
@@ -190,7 +193,8 @@ public final class Constants {
   /**
    * Default monospace preview font name.
    */
-  public static final String FONT_NAME_PREVIEW_MONO_NAME_DEFAULT = "Source Code Pro";
+  public static final String FONT_NAME_PREVIEW_MONO_NAME_DEFAULT =
+    "Source Code Pro";
 
   /**
    * Default monospace preview font size, in points.
@@ -201,6 +205,11 @@ public final class Constants {
    * Default locale for font loading, including ISO 15924 alpha-4 script code.
    */
   public static final Locale LOCALE_DEFAULT = withScript( Locale.getDefault() );
+
+  /**
+   * Default CSS theme to apply (resolves to an empty file).
+   */
+  public static final String THEME_DEFAULT = "Modena Light";
 
   /**
    * Default identifier to use for synchronized scrolling.

@@ -25,6 +25,7 @@ import static com.dlsc.preferencesfx.PreferencesFxEvent.EVENT_PREFERENCES_SAVED;
 import static com.keenwrite.Constants.ICON_DIALOG;
 import static com.keenwrite.Messages.get;
 import static com.keenwrite.preferences.LocaleProperty.localeListProperty;
+import static com.keenwrite.preferences.ThemeProperty.themeListProperty;
 import static com.keenwrite.preferences.WorkspaceKeys.*;
 import static javafx.scene.control.ButtonType.CANCEL;
 import static javafx.scene.control.ButtonType.OK;
@@ -198,6 +199,16 @@ public final class PreferencesController {
         )
       ),
       Category.of(
+        get( KEY_UI_THEME ),
+        Group.of(
+          get( KEY_UI_THEME_SELECTION ),
+          Setting.of( label( KEY_UI_THEME_SELECTION ) ),
+          Setting.of( title( KEY_UI_THEME_SELECTION ),
+                      themeListProperty(),
+                      themeProperty( KEY_UI_THEME_SELECTION ) )
+        )
+      ),
+      Category.of(
         get( KEY_LANGUAGE ),
         Group.of(
           get( KEY_LANGUAGE_LOCALE ),
@@ -264,6 +275,10 @@ public final class PreferencesController {
   @SuppressWarnings( "SameParameterValue" )
   private DoubleProperty doubleProperty( final Key key ) {
     return mWorkspace.doubleProperty( key );
+  }
+
+  private ObjectProperty<String> themeProperty( final Key key ) {
+    return mWorkspace.themeProperty( key );
   }
 
   private ObjectProperty<String> localeProperty( final Key key ) {

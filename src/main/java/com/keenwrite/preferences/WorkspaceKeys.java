@@ -53,9 +53,6 @@ public final class WorkspaceKeys {
   public static final Key KEY_UI_FONT_PREVIEW_MONO_NAME = key( KEY_UI_FONT_PREVIEW_MONO, "name" );
   public static final Key KEY_UI_FONT_PREVIEW_MONO_SIZE = key( KEY_UI_FONT_PREVIEW_MONO, "size" );
 
-  public static final Key KEY_LANGUAGE = key( KEY_ROOT, "language" );
-  public static final Key KEY_LANGUAGE_LOCALE = key( KEY_LANGUAGE, "locale" );
-
   public static final Key KEY_UI_WINDOW = key( KEY_UI, "window" );
   public static final Key KEY_UI_WINDOW_X = key( KEY_UI_WINDOW, "x" );
   public static final Key KEY_UI_WINDOW_Y = key( KEY_UI_WINDOW, "y" );
@@ -63,6 +60,33 @@ public final class WorkspaceKeys {
   public static final Key KEY_UI_WINDOW_H = key( KEY_UI_WINDOW, "height" );
   public static final Key KEY_UI_WINDOW_MAX = key( KEY_UI_WINDOW, "maximized" );
   public static final Key KEY_UI_WINDOW_FULL = key( KEY_UI_WINDOW, "full" );
+
+  public static final Key KEY_UI_THEME = key( KEY_UI, "theme" );
+  public static final Key KEY_UI_THEME_SELECTION = key( KEY_UI_THEME, "selection" );
+
+//  public static final Key KEY_UI_THEME_CUSTOM = key( KEY_UI_THEME, "custom" );
+//  public static final Key KEY_UI_THEME_CUSTOM_FONT = key( KEY_UI_THEME_CUSTOM, "font" );
+//  public static final Key KEY_UI_THEME_CUSTOM_FONT_SIZE = key( KEY_UI_THEME_CUSTOM_FONT, "size" );
+//  public static final Key KEY_UI_THEME_CUSTOM_COLOURS = key( KEY_UI_THEME_CUSTOM, "colours" );
+//  public static final Key KEY_UI_THEME_CUSTOM_COLOURS_BASE = key( KEY_UI_THEME_CUSTOM_COLOURS, "base" );
+//  public static final Key KEY_UI_THEME_CUSTOM_COLOURS_BG = key( KEY_UI_THEME_CUSTOM_COLOURS, "background" );
+//  public static final Key KEY_UI_THEME_CUSTOM_COLOURS_CONTROLS = key( KEY_UI_THEME_CUSTOM_COLOURS, "controls" );
+//  public static final Key KEY_UI_THEME_CUSTOM_COLOURS_ROW1 = key( KEY_UI_THEME_CUSTOM_COLOURS, "row" );
+//  public static final Key KEY_UI_THEME_CUSTOM_COLOURS_ROW2 = key( KEY_UI_THEME_CUSTOM_COLOURS, "row" );
+//  public static final Key KEY_UI_THEME_CUSTOM_COLOURS_FG = key( KEY_UI_THEME_CUSTOM_COLOURS, "foreground" );
+//  public static final Key KEY_UI_THEME_CUSTOM_COLOURS_FG_LIGHT = key( KEY_UI_THEME_CUSTOM_COLOURS_FG, "light" );
+//  public static final Key KEY_UI_THEME_CUSTOM_COLOURS_FG_MEDIUM = key( KEY_UI_THEME_CUSTOM_COLOURS_FG, "medium" );
+//  public static final Key KEY_UI_THEME_CUSTOM_COLOURS_FG_DARK = key( KEY_UI_THEME_CUSTOM_COLOURS_FG, "dark" );
+//  public static final Key KEY_UI_THEME_CUSTOM_COLOURS_ACCENT = key( KEY_UI_THEME_CUSTOM_COLOURS, "accent" );
+//  public static final Key KEY_UI_THEME_CUSTOM_COLOURS_UNFOCUSED = key( KEY_UI_THEME_CUSTOM_COLOURS, "unfocused" );
+//  public static final Key KEY_UI_THEME_CUSTOM_COLOURS_SCROLLBAR = key( KEY_UI_THEME_CUSTOM_COLOURS, "scrollbar" );
+//  public static final Key KEY_UI_THEME_CUSTOM_COLOURS_SCROLLBAR_BUTTON = key( KEY_UI_THEME_CUSTOM_COLOURS_SCROLLBAR, "button" );
+//  public static final Key KEY_UI_THEME_CUSTOM_COLOURS_SCROLLBAR_BUTTON_RELEASED = key( KEY_UI_THEME_CUSTOM_COLOURS_SCROLLBAR_BUTTON, "released" );
+//  public static final Key KEY_UI_THEME_CUSTOM_COLOURS_SCROLLBAR_BUTTON_PRESSED = key( KEY_UI_THEME_CUSTOM_COLOURS_SCROLLBAR_BUTTON, "pressed" );
+//  public static final Key KEY_UI_THEME_CUSTOM_COLOURS_SCROLLBAR_BUTTON_HOVER = key( KEY_UI_THEME_CUSTOM_COLOURS_SCROLLBAR_BUTTON, "hover" );
+
+  public static final Key KEY_LANGUAGE = key( KEY_ROOT, "language" );
+  public static final Key KEY_LANGUAGE_LOCALE = key( KEY_LANGUAGE, "locale" );
   //@formatter:on
 
   /**

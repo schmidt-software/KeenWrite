@@ -13,6 +13,9 @@ import static com.keenwrite.Constants.LOCALE_DEFAULT;
 import static com.keenwrite.preferences.Workspace.listProperty;
 import static java.util.Locale.forLanguageTag;
 
+/**
+ * Responsible for providing a list of locales from which the user may pick.
+ */
 public final class LocaleProperty extends SimpleObjectProperty<String> {
 
   /**
@@ -73,6 +76,7 @@ public final class LocaleProperty extends SimpleObjectProperty<String> {
   }
 
   private static Locale sanitize( final Locale locale ) {
+    // If the language is "und"efined then use the default locale.
     return locale == null || "und".equalsIgnoreCase( locale.toLanguageTag() )
       ? LOCALE_DEFAULT
       : locale;

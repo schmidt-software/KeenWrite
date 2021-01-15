@@ -11,8 +11,12 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import org.controlsfx.control.StatusBar;
 
-import static com.keenwrite.Constants.STYLESHEET_SCENE;
+import static com.keenwrite.Constants.STYLESHEET_APPLICATION_BASE;
+import static com.keenwrite.Constants.STYLESHEET_APPLICATION_THEME;
+import static com.keenwrite.Messages.get;
 import static com.keenwrite.StatusNotifier.getStatusBar;
+import static com.keenwrite.preferences.ThemeProperty.toFilename;
+import static com.keenwrite.preferences.WorkspaceKeys.KEY_UI_THEME_SELECTION;
 import static com.keenwrite.ui.actions.ApplicationBars.createMenuBar;
 import static com.keenwrite.ui.actions.ApplicationBars.createToolBar;
 
@@ -41,6 +45,7 @@ public final class MainScene {
     appPane.setBottom( mStatusBar );
 
     mScene = createScene( appPane );
+    initStylesheets( mScene, workspace );
   }
 
   /**
@@ -68,6 +73,26 @@ public final class MainScene {
     node.setVisible( !node.isVisible() );
   }
 
+  private void initStylesheets( final Scene scene, final Workspace workspace ) {
+    final var stylesheets = scene.getStylesheets();
+    stylesheets.add( STYLESHEET_APPLICATION_BASE );
+
+    final var property = workspace.themeProperty( KEY_UI_THEME_SELECTION );
+    property.addListener( ( c, o, n ) -> {
+      while( stylesheets.size() > 1 ) {
+        stylesheets.remove( stylesheets.size() - 1 );
+      }
+
+      stylesheets.add( getStylesheet( toFilename( property.get() ) ) );
+    } );
+
+    stylesheets.add( getStylesheet( toFilename( property.get() ) ) );
+  }
+
+  private String getStylesheet( final String filename ) {
+    return get( STYLESHEET_APPLICATION_THEME, filename );
+  }
+
   private MainPane createMainPane( final Workspace workspace ) {
     return new MainPane( workspace );
   }
@@ -75,14 +100,6 @@ public final class MainScene {
   private ApplicationActions createApplicationActions(
     final MainPane mainPane ) {
     return new ApplicationActions( this, mainPane );
-  }
-
-  private Scene createScene( final Parent parent ) {
-    final var scene = new Scene( parent );
-    final var stylesheets = scene.getStylesheets();
-    stylesheets.add( STYLESHEET_SCENE );
-
-    return scene;
   }
 
   /**
@@ -96,9 +113,14 @@ public final class MainScene {
     return new CaretListener( mainPane.activeTextEditorProperty() );
   }
 
+  private Scene createScene( final Parent parent ) {
+    return new Scene( parent );
+  }
+
   /**
    * Binds the visible property of the node to the managed property so that
    * hiding the node also removes the screen real estate that it occupies.
+   * This allows the user to hide the menu bar, tool bar, etc.
    *
    * @param node The node to have its real estate bound to visibility.
    * @return The given node.

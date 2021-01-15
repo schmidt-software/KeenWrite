@@ -1,12 +1,12 @@
 package com.keenwrite.ui.listeners;
 
-import com.keenwrite.editors.TextEditor;
 import com.keenwrite.Caret;
+import com.keenwrite.editors.TextEditor;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
-import javafx.scene.text.Text;
 
 import static javafx.geometry.Pos.BASELINE_CENTER;
 
@@ -17,7 +17,10 @@ import static javafx.geometry.Pos.BASELINE_CENTER;
  */
 public class CaretListener extends VBox implements ChangeListener<Integer> {
 
-  private final Text mLineNumberText = new Text();
+  /**
+   * Use an instance of {@link Label} for its built-in CSS style class.
+   */
+  private final Label mLineNumberText = new Label();
   private volatile Caret mCaret;
 
   public CaretListener( final ReadOnlyObjectProperty<TextEditor> editor ) {

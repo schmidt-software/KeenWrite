@@ -76,12 +76,11 @@ public final class Workspace {
     entry( KEY_DEF_PATH, asFileProperty( DEFINITION_DEFAULT ) ),
     entry( KEY_DEF_DELIM_BEGAN, asStringProperty( DEF_DELIM_BEGAN_DEFAULT ) ),
     entry( KEY_DEF_DELIM_ENDED, asStringProperty( DEF_DELIM_ENDED_DEFAULT ) ),
-    
+
     entry( KEY_UI_RECENT_DIR, asFileProperty( USER_DIRECTORY ) ),
     entry( KEY_UI_RECENT_DOCUMENT, asFileProperty( DOCUMENT_DEFAULT ) ),
     entry( KEY_UI_RECENT_DEFINITION, asFileProperty( DEFINITION_DEFAULT ) ),
     
-    entry( KEY_LANGUAGE_LOCALE, asLocaleProperty( LOCALE_DEFAULT ) ),
     entry( KEY_UI_FONT_EDITOR_NAME, asStringProperty( FONT_NAME_EDITOR_DEFAULT ) ),
     entry( KEY_UI_FONT_EDITOR_SIZE, asDoubleProperty( FONT_SIZE_EDITOR_DEFAULT ) ),
     entry( KEY_UI_FONT_PREVIEW_NAME, asStringProperty( FONT_NAME_PREVIEW_DEFAULT ) ),
@@ -94,8 +93,12 @@ public final class Workspace {
     entry( KEY_UI_WINDOW_W, asDoubleProperty( WINDOW_W_DEFAULT ) ),
     entry( KEY_UI_WINDOW_H, asDoubleProperty( WINDOW_H_DEFAULT ) ),
     entry( KEY_UI_WINDOW_MAX, asBooleanProperty() ),
-    entry( KEY_UI_WINDOW_FULL, asBooleanProperty() )
-  );
+    entry( KEY_UI_WINDOW_FULL, asBooleanProperty() ),
+
+    entry( KEY_UI_THEME_SELECTION, asThemeProperty( THEME_DEFAULT ) ),
+
+    entry( KEY_LANGUAGE_LOCALE, asLocaleProperty( LOCALE_DEFAULT ) )
+    );
   //@formatter:on
 
   private StringProperty asStringProperty( final String defaultValue ) {
@@ -112,6 +115,11 @@ public final class Workspace {
 
   private FileProperty asFileProperty( final File defaultValue ) {
     return new FileProperty( defaultValue );
+  }
+
+  @SuppressWarnings( "SameParameterValue" )
+  private ThemeProperty asThemeProperty( final String defaultValue ) {
+    return new ThemeProperty( defaultValue );
   }
 
   @SuppressWarnings( "SameParameterValue" )
@@ -254,6 +262,10 @@ public final class Workspace {
    * @return The value associated with the given {@link Key}.
    */
   public ObjectProperty<File> fileProperty( final Key key ) {
+    return valuesProperty( key );
+  }
+
+  public ObjectProperty<String> themeProperty( final Key key ) {
     return valuesProperty( key );
   }
 
