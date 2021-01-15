@@ -18,8 +18,8 @@ import java.nio.file.Path;
 
 import static com.keenwrite.ExportFormat.NONE;
 import static com.keenwrite.StatusNotifier.clue;
-import static com.keenwrite.preferences.Workspace.KEY_IMAGES_DIR;
-import static com.keenwrite.preferences.Workspace.KEY_IMAGES_ORDER;
+import static com.keenwrite.preferences.WorkspaceKeys.KEY_IMAGES_DIR;
+import static com.keenwrite.preferences.WorkspaceKeys.KEY_IMAGES_ORDER;
 import static com.keenwrite.util.ProtocolScheme.getProtocol;
 import static com.vladsch.flexmark.html.HtmlRenderer.Builder;
 import static com.vladsch.flexmark.html.renderer.LinkStatus.VALID;

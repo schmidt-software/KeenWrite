@@ -11,7 +11,7 @@ import java.util.logging.LogManager;
 
 import static com.keenwrite.Bootstrap.APP_TITLE;
 import static com.keenwrite.Constants.LOGOS;
-import static com.keenwrite.preferences.Workspace.*;
+import static com.keenwrite.preferences.WorkspaceKeys.*;
 import static com.keenwrite.util.FontLoader.initFonts;
 import static javafx.scene.input.KeyCode.F11;
 import static javafx.scene.input.KeyEvent.KEY_PRESSED;

@@ -28,7 +28,7 @@ import static com.keenwrite.ExportFormat.*;
 import static com.keenwrite.Messages.get;
 import static com.keenwrite.StatusNotifier.clue;
 import static com.keenwrite.StatusNotifier.getStatusBar;
-import static com.keenwrite.preferences.Workspace.KEY_UI_RECENT_DIR;
+import static com.keenwrite.preferences.WorkspaceKeys.KEY_UI_RECENT_DIR;
 import static com.keenwrite.processors.ProcessorFactory.createProcessors;
 import static java.nio.file.Files.writeString;
 import static javafx.event.Event.fireEvent;

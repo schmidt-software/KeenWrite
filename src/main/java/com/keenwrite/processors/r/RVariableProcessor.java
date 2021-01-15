@@ -11,7 +11,7 @@ import com.keenwrite.sigils.YamlSigilOperator;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.keenwrite.preferences.Workspace.*;
+import static com.keenwrite.preferences.WorkspaceKeys.*;
 
 /**
  * Converts the keys of the resolved map from default form to R form, then
@@ -67,7 +67,7 @@ public final class RVariableProcessor extends DefinitionProcessor {
    * @param thread   Replace the needle with this text, if the needle is found.
    * @return The haystack with the all instances of needle replaced with thread.
    */
-  @SuppressWarnings("SameParameterValue")
+  @SuppressWarnings( "SameParameterValue" )
   private String escape(
     final String haystack, final char needle, final String thread ) {
     int end = haystack.indexOf( needle );
@@ -98,8 +98,7 @@ public final class RVariableProcessor extends DefinitionProcessor {
     return new RSigilOperator( tokens, antecedent );
   }
 
-  private SigilOperator createDefinitionOperator(
-    final Workspace workspace ) {
+  private SigilOperator createDefinitionOperator( final Workspace workspace ) {
     final var tokens = workspace.toTokens(
       KEY_DEF_DELIM_BEGAN, KEY_DEF_DELIM_ENDED );
     return new YamlSigilOperator( tokens );

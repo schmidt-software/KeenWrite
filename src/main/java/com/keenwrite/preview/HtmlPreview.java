@@ -19,7 +19,7 @@ import java.util.Locale;
 import static com.keenwrite.Constants.*;
 import static com.keenwrite.Messages.get;
 import static com.keenwrite.StatusNotifier.clue;
-import static com.keenwrite.preferences.Workspace.*;
+import static com.keenwrite.preferences.WorkspaceKeys.*;
 import static java.lang.Math.max;
 import static java.lang.String.format;
 import static java.lang.Thread.sleep;
@@ -301,7 +301,7 @@ public final class HtmlPreview extends SwingNode {
   }
 
   private LocaleProperty localeProperty() {
-    return mWorkspace.localeProperty( KEY_LANG_LOCALE );
+    return mWorkspace.localeProperty( KEY_LANGUAGE_LOCALE );
   }
 
   private String getFontName() {

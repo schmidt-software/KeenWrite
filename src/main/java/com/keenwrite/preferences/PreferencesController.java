@@ -25,7 +25,7 @@ import static com.dlsc.preferencesfx.PreferencesFxEvent.EVENT_PREFERENCES_SAVED;
 import static com.keenwrite.Constants.ICON_DIALOG;
 import static com.keenwrite.Messages.get;
 import static com.keenwrite.preferences.LocaleProperty.localeListProperty;
-import static com.keenwrite.preferences.Workspace.*;
+import static com.keenwrite.preferences.WorkspaceKeys.*;
 import static javafx.scene.control.ButtonType.CANCEL;
 import static javafx.scene.control.ButtonType.OK;
 
@@ -200,11 +200,11 @@ public final class PreferencesController {
       Category.of(
         get( KEY_LANGUAGE ),
         Group.of(
-          get( KEY_LANG_LOCALE ),
-          Setting.of( label( KEY_LANG_LOCALE ) ),
-          Setting.of( title( KEY_LANG_LOCALE ),
+          get( KEY_LANGUAGE_LOCALE ),
+          Setting.of( label( KEY_LANGUAGE_LOCALE ) ),
+          Setting.of( title( KEY_LANGUAGE_LOCALE ),
                       localeListProperty(),
-                      localeProperty( KEY_LANG_LOCALE ) )
+                      localeProperty( KEY_LANGUAGE_LOCALE ) )
         )
       )
     ).instantPersistent( false ).dialogIcon( ICON_DIALOG );

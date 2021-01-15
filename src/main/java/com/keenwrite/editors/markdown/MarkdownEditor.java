@@ -6,6 +6,7 @@ import com.keenwrite.Constants;
 import com.keenwrite.editors.TextEditor;
 import com.keenwrite.preferences.LocaleProperty;
 import com.keenwrite.preferences.Workspace;
+import com.keenwrite.preferences.WorkspaceKeys;
 import com.keenwrite.spelling.impl.TextEditorSpeller;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
@@ -34,7 +35,7 @@ import java.util.regex.Pattern;
 import static com.keenwrite.Constants.*;
 import static com.keenwrite.Messages.get;
 import static com.keenwrite.StatusNotifier.clue;
-import static com.keenwrite.preferences.Workspace.*;
+import static com.keenwrite.preferences.WorkspaceKeys.*;
 import static java.lang.Character.isWhitespace;
 import static java.lang.Math.max;
 import static java.lang.String.format;
@@ -154,9 +155,8 @@ public final class MarkdownEditor extends BorderPane implements TextEditor {
     } );
 
     fontNameProperty().addListener(
-      ( c, o, n ) -> {
-        mTextArea.setStyle( format( "-fx-font-family: '%s';", getFontName() ) );
-      }
+      ( c, o, n ) ->
+        mTextArea.setStyle( format( "-fx-font-family: '%s';", getFontName() ) )
     );
 
     fontSizeProperty().addListener(
@@ -182,6 +182,7 @@ public final class MarkdownEditor extends BorderPane implements TextEditor {
     addEventListener( keyPressed( X, CONTROL_DOWN ), this::cut );
     addEventListener( keyPressed( TAB ), this::tab );
     addEventListener( keyPressed( TAB, SHIFT_DOWN ), this::untab );
+    addEventListener( keyPressed( INSERT ), this::onInsertPressed );
   }
 
   private void initUndoManager() {
@@ -476,8 +477,7 @@ public final class MarkdownEditor extends BorderPane implements TextEditor {
     Nodes.addInputMap( mTextArea, consume( event, consumer ) );
   }
 
-  @SuppressWarnings( "unused" )
-  private void onEnterPressed( final KeyEvent event ) {
+  private void onEnterPressed( final KeyEvent ignored ) {
     final var currentLine = getCaretParagraph();
     final var matcher = PATTERN_AUTO_INDENT.matcher( currentLine );
 
@@ -499,6 +499,13 @@ public final class MarkdownEditor extends BorderPane implements TextEditor {
     }
 
     mTextArea.replaceSelection( newText );
+  }
+
+  /**
+   * TODO: 105 - Insert key toggle overwrite (typeover) mode
+   * @param ignored Unused.
+   */
+  private void onInsertPressed( final KeyEvent ignored ) {
   }
 
   private void cut( final KeyEvent event ) {
@@ -705,7 +712,7 @@ public final class MarkdownEditor extends BorderPane implements TextEditor {
   }
 
   private LocaleProperty localeProperty() {
-    return mWorkspace.localeProperty( KEY_LANG_LOCALE );
+    return mWorkspace.localeProperty( KEY_LANGUAGE_LOCALE );
   }
 
   private String getFontName() {

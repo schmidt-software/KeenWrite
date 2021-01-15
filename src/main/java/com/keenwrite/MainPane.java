@@ -52,7 +52,7 @@ import static com.keenwrite.ExportFormat.NONE;
 import static com.keenwrite.Messages.get;
 import static com.keenwrite.StatusNotifier.clue;
 import static com.keenwrite.io.MediaType.*;
-import static com.keenwrite.preferences.Workspace.*;
+import static com.keenwrite.preferences.WorkspaceKeys.*;
 import static com.keenwrite.processors.ProcessorFactory.createProcessors;
 import static com.keenwrite.service.events.Notifier.NO;
 import static com.keenwrite.service.events.Notifier.YES;
