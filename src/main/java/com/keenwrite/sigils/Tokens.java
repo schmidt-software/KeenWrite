@@ -6,7 +6,7 @@ import javafx.beans.property.StringProperty;
 import java.util.AbstractMap.SimpleImmutableEntry;
 
 /**
- * Convenience class for pairing a start and end sigil together.
+ * Convenience class for pairing a start and an end sigil together.
  */
 public final class Tokens
   extends SimpleImmutableEntry<StringProperty, StringProperty> {

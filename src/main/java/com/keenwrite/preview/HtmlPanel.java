@@ -105,16 +105,16 @@ public final class HtmlPanel extends XHTMLPanel {
    */
   public void render( final String html, final String baseUri ) {
     final var doc = CONVERTER.fromJsoup( parse( html ) );
-    final Runnable code = () -> setDocument( doc, baseUri, XNH );
+    final Runnable renderDocument = () -> setDocument( doc, baseUri, XNH );
 
     // Access to a Swing component must occur from the Event Dispatch
     // Thread (EDT) according to Swing threading restrictions. Setting a new
     // document invokes a Swing repaint operation.
     if( isEventDispatchThread() ) {
-      code.run();
+      renderDocument.run();
     }
     else {
-      invokeLater( code );
+      invokeLater( renderDocument );
     }
   }
 

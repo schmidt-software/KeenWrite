@@ -18,6 +18,13 @@ public final class RSigilOperator extends SigilOperator {
    */
   private final SigilOperator mAntecedent;
 
+  /**
+   * Constructs a new {@link RSigilOperator} capable of wrapping tokens around
+   * variable names (keys).
+   *
+   * @param tokens     The starting and ending tokens.
+   * @param antecedent The operator to use to undo any previous entokenizing.
+   */
   public RSigilOperator( final Tokens tokens, final SigilOperator antecedent ) {
     super( tokens );
 
@@ -25,16 +32,15 @@ public final class RSigilOperator extends SigilOperator {
   }
 
   /**
-   * Returns the given string R-escaping backticks prepended and appended. This
-   * is not null safe. Do not pass null into this method.
+   * Returns the given string with backticks prepended and appended. The
    *
    * @param key The string to adorn with R token delimiters.
-   * @return PREFIX + delimiterBegan + variableName+ delimiterEnded + SUFFIX.
+   * @return PREFIX + delimiterBegan + variableName + delimiterEnded + SUFFIX.
    */
   @Override
   public String apply( final String key ) {
     assert key != null;
-    return PREFIX + getBegan() + entoken( key ) + getEnded() + SUFFIX;
+    return PREFIX + getBegan() + key + getEnded() + SUFFIX;
   }
 
   /**
