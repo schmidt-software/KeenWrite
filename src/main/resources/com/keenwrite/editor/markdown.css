@@ -6,19 +6,29 @@
   -fx-padding: .25em;
 }
 
+/* Editor background color */
+.styled-text-area {
+  -fx-background-color: -fx-control-inner-background;
+}
+
+/* Text foreground colour */
+.styled-text-area .text {
+  -fx-fill: -fx-text-foreground;
+}
+
 /* Subtly highlight the current paragraph. */
 .markdown .paragraph-box:has-caret {
-  -fx-background-color: #fcfeff;
+  -fx-background-color: -fx-text-background;
 }
 
 /* Light colour for selection highlight. */
 .markdown .selection {
-  -fx-fill: #a6d2ff;
+  -fx-fill: -fx-text-selection;
 }
 
 /* Decoration for words not found in the lexicon. */
 .markdown .spelling {
-  -rtfx-underline-color: rgba(255, 131, 67, .7);
+  -rtfx-underline-color: rgba( 255, 131, 67, .7 );
   -rtfx-underline-dash-array: 4, 2;
   -rtfx-underline-width: 2;
   -rtfx-underline-cap: round;

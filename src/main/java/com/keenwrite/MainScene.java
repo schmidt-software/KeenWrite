@@ -11,8 +11,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import org.controlsfx.control.StatusBar;
 
-import static com.keenwrite.Constants.STYLESHEET_APPLICATION_BASE;
-import static com.keenwrite.Constants.STYLESHEET_APPLICATION_THEME;
+import static com.keenwrite.Constants.*;
 import static com.keenwrite.Messages.get;
 import static com.keenwrite.StatusNotifier.getStatusBar;
 import static com.keenwrite.preferences.ThemeProperty.toFilename;
@@ -74,19 +73,18 @@ public final class MainScene {
   }
 
   private void initStylesheets( final Scene scene, final Workspace workspace ) {
+    final var property = workspace.themeProperty( KEY_UI_THEME_SELECTION );
     final var stylesheets = scene.getStylesheets();
     stylesheets.add( STYLESHEET_APPLICATION_BASE );
+    stylesheets.add( STYLESHEET_MARKDOWN );
+    stylesheets.add( getStylesheet( toFilename( property.get() ) ) );
 
-    final var property = workspace.themeProperty( KEY_UI_THEME_SELECTION );
     property.addListener( ( c, o, n ) -> {
-      while( stylesheets.size() > 1 ) {
-        stylesheets.remove( stylesheets.size() - 1 );
-      }
-
+      stylesheets.clear();
+      stylesheets.add( STYLESHEET_APPLICATION_BASE );
+      stylesheets.add( STYLESHEET_MARKDOWN );
       stylesheets.add( getStylesheet( toFilename( property.get() ) ) );
     } );
-
-    stylesheets.add( getStylesheet( toFilename( property.get() ) ) );
   }
 
   private String getStylesheet( final String filename ) {

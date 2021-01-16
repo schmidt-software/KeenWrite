@@ -6,7 +6,6 @@ import com.keenwrite.Constants;
 import com.keenwrite.editors.TextEditor;
 import com.keenwrite.preferences.LocaleProperty;
 import com.keenwrite.preferences.Workspace;
-import com.keenwrite.preferences.WorkspaceKeys;
 import com.keenwrite.spelling.impl.TextEditorSpeller;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
@@ -37,7 +36,6 @@ import static com.keenwrite.Messages.get;
 import static com.keenwrite.StatusNotifier.clue;
 import static com.keenwrite.preferences.WorkspaceKeys.*;
 import static java.lang.Character.isWhitespace;
-import static java.lang.Math.max;
 import static java.lang.String.format;
 import static java.util.Collections.singletonList;
 import static javafx.scene.control.ScrollPane.ScrollBarPolicy.ALWAYS;
@@ -144,12 +142,11 @@ public final class MarkdownEditor extends BorderPane implements TextEditor {
     textArea.getStyleClass().add( "markdown" );
 
     final var stylesheets = textArea.getStylesheets();
-    stylesheets.add( STYLESHEET_MARKDOWN );
     stylesheets.add( getStylesheetPath( getLocale() ) );
 
     localeProperty().addListener( ( c, o, n ) -> {
       if( n != null ) {
-        stylesheets.remove( max( 0, stylesheets.size() - 1 ) );
+        stylesheets.clear();
         stylesheets.add( getStylesheetPath( getLocale() ) );
       }
     } );
@@ -503,6 +500,7 @@ public final class MarkdownEditor extends BorderPane implements TextEditor {
 
   /**
    * TODO: 105 - Insert key toggle overwrite (typeover) mode
+   *
    * @param ignored Unused.
    */
   private void onInsertPressed( final KeyEvent ignored ) {
