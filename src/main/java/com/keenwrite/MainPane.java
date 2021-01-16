@@ -622,6 +622,10 @@ public final class MainPane extends SplitPane {
    * @param editor Contains the source document to update in the preview pane.
    */
   private void process( final TextEditor editor ) {
+    // Ensure that these are run from within the Swing event dispatch thread
+    // so that the text editor thread is immediately freed for caret movement.
+    // This means that the preview will have a slight delay when catching up
+    // to the caret position.
     invokeLater( () -> {
       mProcessors.getOrDefault( editor, IdentityProcessor.IDENTITY )
                  .apply( editor == null ? "" : editor.getText() );
