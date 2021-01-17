@@ -5,35 +5,35 @@
   -fx-base: rgb( 0, 43, 54 );
   -fx-background: -fx-base;
 
-	/* Brighten controls */
-	-fx-color: derive( -fx-base, -40% );
+  /* Brighten controls */
+  -fx-color: derive( -fx-base, -40% );
 
   -fx-control-inner-background: -fx-base;
-	-fx-control-inner-background-alt: derive( -fx-control-inner-background, 2.5% );
+  -fx-control-inner-background-alt: derive( -fx-control-inner-background, 2.5% );
 
-	/* Text colors */
+  /* Text colors */
   /* Solarized: base0 */
-	-fx-light-text-color: rgb( 131, 148, 150 );
+  -fx-light-text-color: rgb( 131, 148, 150 );
   /* Solarized: base1 */
-	-fx-mid-text-color: rgb( 147, 161, 161);
+  -fx-mid-text-color: rgb( 147, 161, 161);
   /* Solarized: base1 */
-	-fx-dark-text-color: rgb( 20, 20, 20 );
-	-fx-text-foreground: -fx-light-text-color;
-	-fx-text-background: derive( -fx-control-inner-background, 7.5% );
-	-fx-text-selection: derive( -fx-control-inner-background, 45% );
+  -fx-dark-text-color: rgb( 20, 20, 20 );
+  -fx-text-foreground: -fx-light-text-color;
+  -fx-text-background: derive( -fx-control-inner-background, 7.5% );
+  -fx-text-selection: derive( -fx-control-inner-background, 45% );
 
-	-fx-mid-text-color: derive( -fx-base, 100% );
-	-fx-dark-text-color: derive( -fx-base, 25% );
-	-fx-text-foreground: -fx-light-text-color;
-	-fx-text-background: derive( -fx-control-inner-background, 7.5% );
-	-fx-text-selection: derive( -fx-control-inner-background, 45% );
+  -fx-mid-text-color: derive( -fx-base, 100% );
+  -fx-dark-text-color: derive( -fx-base, 25% );
+  -fx-text-foreground: -fx-light-text-color;
+  -fx-text-background: derive( -fx-control-inner-background, 7.5% );
+  -fx-text-selection: derive( -fx-control-inner-background, 45% );
 
-	/* Accent colors */
-	-fx-accent: rgb( 38, 139, 210 );
-	-fx-focus-color: rgb( 253, 246, 227 );
+  /* Accent colors */
+  -fx-accent: rgb( 38, 139, 210 );
+  -fx-focus-color: rgb( 253, 246, 227 );
 
-	/* Non-focused-selected elements */
-	-fx-selection-bar-non-focused: rgb( 0, 43, 54 );
+  /* Non-focused-selected elements */
+  -fx-selection-bar-non-focused: rgb( 0, 43, 54 );
 }
 
 .glyph-icon {

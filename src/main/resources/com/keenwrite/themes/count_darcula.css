@@ -4,9 +4,9 @@
   -fx-light-text-color: rgb( 220, 220, 220 );
   -fx-mid-text-color: rgb( 100, 100, 100 );
   -fx-dark-text-color: rgb( 20, 20, 20 );
-	-fx-text-foreground: -fx-light-text-color;
-	-fx-text-background: derive( -fx-control-inner-background, 7.5% );
-	-fx-text-selection: derive( -fx-control-inner-background, 45% );
+  -fx-text-foreground: -fx-light-text-color;
+  -fx-text-background: derive( -fx-control-inner-background, 7.5% );
+  -fx-text-selection: derive( -fx-control-inner-background, 45% );
 }
 
 .glyph-icon {

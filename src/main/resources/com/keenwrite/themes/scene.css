@@ -26,20 +26,20 @@
  */
 
 .tool-bar {
-	-fx-spacing: 0;
+  -fx-spacing: 0;
 }
 
 .tool-bar .button {
-	-fx-background-color: transparent;
+  -fx-background-color: transparent;
 }
 
 .tool-bar .button:hover {
-	-fx-background-color: -fx-shadow-highlight-color, -fx-outer-border, -fx-inner-border, -fx-body-color;
-	-fx-color: -fx-hover-base;
+  -fx-background-color: -fx-shadow-highlight-color, -fx-outer-border, -fx-inner-border, -fx-body-color;
+  -fx-color: -fx-hover-base;
 }
 
 .tool-bar .button:armed {
-	-fx-color: -fx-pressed-base;
+  -fx-color: -fx-pressed-base;
 }
 
 /* Definition editor drag and drop target.

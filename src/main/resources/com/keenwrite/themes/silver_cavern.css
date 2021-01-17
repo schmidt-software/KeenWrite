@@ -5,12 +5,12 @@
   -fx-background: -fx-base;
   -fx-control-inner-background: -fx-base;
 
-	-fx-light-text-color: derive( -fx-base, 150% );
-	-fx-mid-text-color: derive( -fx-base, 100% );
-	-fx-dark-text-color: derive( -fx-base, 25% );
-	-fx-text-foreground: -fx-light-text-color;
-	-fx-text-background: derive( -fx-control-inner-background, 7.5% );
-	-fx-text-selection: derive( -fx-control-inner-background, 45% );
+  -fx-light-text-color: derive( -fx-base, 150% );
+  -fx-mid-text-color: derive( -fx-base, 100% );
+  -fx-dark-text-color: derive( -fx-base, 25% );
+  -fx-text-foreground: -fx-light-text-color;
+  -fx-text-background: derive( -fx-control-inner-background, 7.5% );
+  -fx-text-selection: derive( -fx-control-inner-background, 45% );
 }
 
 .glyph-icon {

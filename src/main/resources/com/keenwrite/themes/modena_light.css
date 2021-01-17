@@ -1,5 +1,5 @@
 .root {
-	-fx-text-foreground: -fx-dark-text-color;
-	-fx-text-background: derive( -fx-accent, 124% );
-	-fx-text-selection: #a6d2ff;
+  -fx-text-foreground: -fx-dark-text-color;
+  -fx-text-background: derive( -fx-accent, 124% );
+  -fx-text-selection: #a6d2ff;
 }
