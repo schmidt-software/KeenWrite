@@ -136,8 +136,7 @@ public final class ApplicationActions {
     file.ifPresent( ( f ) -> {
       try {
         writeString( f.toPath(), export );
-        final var m = get( "Main.status.export.success", f.toString() );
-        clue( m );
+        clue( get( "Main.status.export.success", f.toString() ) );
       } catch( final Exception ex ) {
         clue( ex );
       }

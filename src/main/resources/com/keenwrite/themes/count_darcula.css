@@ -1,12 +1,21 @@
 .root {
-  -fx-base: rgba( 60, 63, 65, 255 );
+  -fx-base: rgb( 43, 43, 43 );
+  -fx-background: -fx-base;
+  -fx-control-inner-background: -fx-base;
 
-  -fx-light-text-color: rgb( 220, 220, 220 );
-  -fx-mid-text-color: rgb( 100, 100, 100 );
-  -fx-dark-text-color: rgb( 20, 20, 20 );
+  -fx-light-text-color: rgb( 187, 187, 187 );
+  -fx-mid-text-color: derive( -fx-base, 100% );
+  -fx-dark-text-color: derive( -fx-base, 25% );
   -fx-text-foreground: -fx-light-text-color;
   -fx-text-background: derive( -fx-control-inner-background, 7.5% );
   -fx-text-selection: derive( -fx-control-inner-background, 45% );
+
+  /* Make controls ( buttons, thumb, etc. ) slightly lighter */
+  -fx-color: derive( -fx-base, 20% );
+}
+
+.caret {
+  -fx-stroke: -fx-accent;
 }
 
 .glyph-icon {
@@ -16,4 +25,30 @@
 
 .glyph-icon:hover {
   -fx-effect: dropshadow( three-pass-box, rgba( 0, 0, 0, 0.2 ), 4, 0, 0, 0 );
+}
+
+/* Fix derived prompt color for text fields */
+.text-input {
+  -fx-prompt-text-fill: derive( -fx-control-inner-background, +50% );
+}
+
+/* Keep prompt invisible when focused ( above color fix overrides it ) */
+.text-input:focused {
+  -fx-prompt-text-fill: transparent;
+}
+
+/* Fix scroll bar buttons arrows colors */
+.scroll-bar > .increment-button > .increment-arrow,
+.scroll-bar > .decrement-button > .decrement-arrow {
+  -fx-background-color: -fx-mark-highlight-color,  -fx-light-text-color;
+}
+
+.scroll-bar > .increment-button:hover > .increment-arrow,
+.scroll-bar > .decrement-button:hover > .decrement-arrow {
+  -fx-background-color: -fx-mark-highlight-color, rgb( 240, 240, 240 );
+}
+
+.scroll-bar > .increment-button:pressed > .increment-arrow,
+.scroll-bar > .decrement-button:pressed > .decrement-arrow {
+  -fx-background-color: -fx-mark-highlight-color, rgb( 255, 255, 255 );
 }

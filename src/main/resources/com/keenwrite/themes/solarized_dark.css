@@ -48,3 +48,8 @@
 .scroll-bar {
   -fx-background-color: derive( -fx-base, 45% );
 }
+
+.caret {
+  -fx-stroke: -fx-accent;
+}
+

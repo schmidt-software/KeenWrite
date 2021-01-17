@@ -11,15 +11,11 @@ import javafx.event.EventHandler;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.control.Button;
-import javafx.scene.control.Separator;
-import javafx.scene.control.TextField;
-import javafx.scene.control.Tooltip;
+import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
-import javafx.scene.text.Text;
 import org.controlsfx.control.textfield.CustomTextField;
 
 import static com.keenwrite.Messages.get;
@@ -38,7 +34,7 @@ public final class SearchBar extends HBox {
   private final Button mButtonNext = createButton( "next" );
   private final Button mButtonPrev = createButton( "prev" );
   private final TextField mFind = createTextField();
-  private final Text mMatches = new Text();
+  private final Label mMatches = new Label();
   private final IntegerProperty mMatchIndex = new SimpleIntegerProperty();
   private final IntegerProperty mMatchCount = new SimpleIntegerProperty();
 
