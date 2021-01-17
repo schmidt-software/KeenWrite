@@ -23,7 +23,7 @@ public class FileWatchService implements Runnable {
   /**
    * Set to {@code false} when {@link #stop()} is called.
    */
-  private volatile boolean mRunning = true;
+  private volatile boolean mRunning;
 
   /**
    * Contains the listeners to notify when a given file has changed.
@@ -37,15 +37,23 @@ public class FileWatchService implements Runnable {
    * Creates a new file system watch service with the given files to watch.
    *
    * @param files The files to watch for file system events.
-   * @throws IOException Could not create watch service, or could not
-   *                     register a file.
    */
-  public FileWatchService( final File... files ) throws IOException {
-    mWatchService = FileSystems.getDefault().newWatchService();
+  public FileWatchService( final File... files ) {
+    WatchService watchService;
 
-    for( final var file : files ) {
-      register( file );
+    try {
+      watchService = FileSystems.getDefault().newWatchService();
+
+      for( final var file : files ) {
+        register( file );
+      }
+    } catch( final IOException ex ) {
+      // Create a fallback that allows the class to be instantiated and used
+      // without without preventing the application from launching.
+      watchService = new PollingWatchService();
     }
+
+    mWatchService = watchService;
   }
 
   /**
@@ -55,6 +63,8 @@ public class FileWatchService implements Runnable {
    */
   @Override
   public void run() {
+    mRunning = true;
+
     while( mRunning ) {
       handleEvents();
     }
@@ -151,6 +161,7 @@ public class FileWatchService implements Runnable {
 
   /**
    * Adds a listener to be notified when a file under watch has been modified.
+   * Listeners are backed by a set.
    *
    * @param listener The {@link FileModifiedListener} to add to the list.
    * @return {@code true} if this set did not already contain listener.
@@ -170,15 +181,6 @@ public class FileWatchService implements Runnable {
   }
 
   /**
-   * Answers whether this service is actively monitoring files for changes.
-   *
-   * @return {@code true} if the file watch service is active.
-   */
-  public boolean isRunning() {
-    return mRunning;
-  }
-
-  /**
    * Shuts down the file watch service and clears both watchers and listeners.
    *
    * @throws IOException Could not close the watch service.
@@ -186,7 +188,7 @@ public class FileWatchService implements Runnable {
   public void stop() throws IOException {
     mRunning = false;
 
-    for( final File file : mWatched.keySet() ) {
+    for( final var file : mWatched.keySet() ) {
       cancel( file );
     }
 

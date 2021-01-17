@@ -1,8 +1,6 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.processors;
 
-import com.keenwrite.Services;
-import com.keenwrite.service.Snitch;
 import net.sf.saxon.TransformerFactoryImpl;
 import net.sf.saxon.trans.XPathException;
 
@@ -19,6 +17,7 @@ import java.io.StringWriter;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import static javax.xml.stream.XMLInputFactory.newInstance;
 import static net.sf.saxon.tree.util.ProcInstParser.getPseudoAttribute;
 
 /**
@@ -33,14 +32,11 @@ import static net.sf.saxon.tree.util.ProcInstParser.getPseudoAttribute;
  * </p>
  */
 public final class XmlProcessor extends ExecutorProcessor<String>
-    implements ErrorListener {
+  implements ErrorListener {
 
-  private final Snitch mSnitch = Services.load( Snitch.class );
-
-  private final XMLInputFactory mXmlInputFactory =
-      XMLInputFactory.newInstance();
+  private final XMLInputFactory mXmlInputFactory = newInstance();
   private final TransformerFactory mTransformerFactory =
-      new TransformerFactoryImpl();
+    new TransformerFactoryImpl();
   private Transformer mTransformer;
 
   private final Path mPath;
@@ -55,8 +51,8 @@ public final class XmlProcessor extends ExecutorProcessor<String>
    * @param context   Contains path to the XML file content to be processed.
    */
   public XmlProcessor(
-      final Processor<String> successor,
-      final ProcessorContext context ) {
+    final Processor<String> successor,
+    final ProcessorContext context ) {
     super( successor );
     mPath = context.getDocumentPath();
 
@@ -93,15 +89,16 @@ public final class XmlProcessor extends ExecutorProcessor<String>
     final Path xsl = getXslPath( template );
 
     try(
-        final StringWriter output = new StringWriter( text.length() );
-        final StringReader input = new StringReader( text ) ) {
+      final StringWriter output = new StringWriter( text.length() );
+      final StringReader input = new StringReader( text ) ) {
 
+      // TODO: Use FileWatchService
       // Listen for external file modification events.
-      mSnitch.listen( xsl );
+      // mSnitch.listen( xsl );
 
       getTransformer( xsl ).transform(
-          new StreamSource( input ),
-          new StreamResult( output )
+        new StreamSource( input ),
+        new StreamResult( output )
       );
 
       return output.toString();
@@ -114,13 +111,11 @@ public final class XmlProcessor extends ExecutorProcessor<String>
    * this will return the associated transformer.
    *
    * @param xsl The path to an XSLT file.
-   * @return A transformer that will transform XML documents using the given
-   * XSLT file.
-   * @throws TransformerConfigurationException Could not instantiate the
-   *                                           transformer.
+   * @return Transformer that transforms XML documents using said XSLT file.
+   * @throws TransformerConfigurationException Instantiate transformer failed.
    */
   private synchronized Transformer getTransformer( final Path xsl )
-      throws TransformerConfigurationException {
+    throws TransformerConfigurationException {
     if( mTransformer == null ) {
       mTransformer = createTransformer( xsl );
     }
@@ -132,12 +127,11 @@ public final class XmlProcessor extends ExecutorProcessor<String>
    * Creates a configured transformer ready to run.
    *
    * @param xsl The stylesheet to use for transforming XML documents.
-   * @return The edited XML document transformed into another format (usually
-   * Markdown).
+   * @return XML document transformed into another format (usually Markdown).
    * @throws TransformerConfigurationException Could not create the transformer.
    */
   protected Transformer createTransformer( final Path xsl )
-      throws TransformerConfigurationException {
+    throws TransformerConfigurationException {
     final var xslt = new StreamSource( xsl.toFile() );
 
     return getTransformerFactory().newTransformer( xslt );
@@ -159,7 +153,7 @@ public final class XmlProcessor extends ExecutorProcessor<String>
    * @throws XMLStreamException Could not parse the XML file.
    */
   private String getXsltFilename( final String xml )
-      throws XMLStreamException, XPathException {
+    throws XMLStreamException, XPathException {
     String result = "";
 
     try( final StringReader sr = new StringReader( xml ) ) {
@@ -188,7 +182,7 @@ public final class XmlProcessor extends ExecutorProcessor<String>
   }
 
   private XMLEventReader createXmlEventReader( final Reader reader )
-      throws XMLStreamException {
+    throws XMLStreamException {
     return mXmlInputFactory.createXMLEventReader( reader );
   }
 

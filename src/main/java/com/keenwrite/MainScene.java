@@ -1,6 +1,8 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite;
 
+import com.keenwrite.io.FileModifiedListener;
+import com.keenwrite.io.FileWatchService;
 import com.keenwrite.preferences.Workspace;
 import com.keenwrite.ui.actions.ApplicationActions;
 import com.keenwrite.ui.listeners.CaretListener;
@@ -15,12 +17,14 @@ import java.io.File;
 
 import static com.keenwrite.Constants.*;
 import static com.keenwrite.Messages.get;
+import static com.keenwrite.StatusNotifier.clue;
 import static com.keenwrite.StatusNotifier.getStatusBar;
 import static com.keenwrite.preferences.ThemeProperty.toFilename;
 import static com.keenwrite.preferences.WorkspaceKeys.KEY_UI_THEME_CUSTOM;
 import static com.keenwrite.preferences.WorkspaceKeys.KEY_UI_THEME_SELECTION;
 import static com.keenwrite.ui.actions.ApplicationBars.createMenuBar;
 import static com.keenwrite.ui.actions.ApplicationBars.createToolBar;
+import static javafx.application.Platform.runLater;
 
 /**
  * Responsible for creating the bar scene: menu bar, tool bar, and status bar.
@@ -30,6 +34,7 @@ public final class MainScene {
   private final Node mMenuBar;
   private final Node mToolBar;
   private final StatusBar mStatusBar;
+  private final FileWatchService mFileWatchService = new FileWatchService();
 
   public MainScene( final Workspace workspace ) {
     final var mainPane = createMainPane( workspace );
@@ -45,6 +50,8 @@ public final class MainScene {
     appPane.setTop( new VBox( mMenuBar, mToolBar ) );
     appPane.setCenter( mainPane );
     appPane.setBottom( mStatusBar );
+
+    new Thread( mFileWatchService ).start();
 
     mScene = createScene( appPane );
     initStylesheets( mScene, workspace );
@@ -75,35 +82,67 @@ public final class MainScene {
     node.setVisible( !node.isVisible() );
   }
 
+  FileModifiedListener mStylesheetFileListener = ( event ) -> {};
+
   private void initStylesheets( final Scene scene, final Workspace workspace ) {
     final var internal = workspace.themeProperty( KEY_UI_THEME_SELECTION );
-    applyStylesheets( scene, internal.get() );
-
-    internal.addListener( ( c, o, n ) -> {
-      applyStylesheets( scene, internal.get() );
-    } );
-
     final var external = workspace.fileProperty( KEY_UI_THEME_CUSTOM );
-    external.addListener( ( c, o, n ) -> {
-      applyStylesheets( scene, internal.get(), external.get() );
-    } );
+    final var inTheme = internal.get();
+    final var exTheme = external.get();
+    applyStylesheets( scene, inTheme, exTheme );
+
+    internal.addListener(
+      ( c, o, n ) -> applyStylesheets( scene, inTheme, exTheme )
+    );
+
+    external.addListener(
+      ( c, o, n ) -> {
+        if( o != null ) {
+          mFileWatchService.unregister( o );
+        }
+
+        if( n != null ) {
+          try {
+            applyStylesheets( scene, inTheme, n );
+          } catch( final Exception ex ) {
+            // Changes to the CSS file won't autoload, which is okay.
+            clue( ex );
+          }
+        }
+      }
+    );
+
+    mFileWatchService.removeListener( mStylesheetFileListener );
+    mStylesheetFileListener = ( event ) ->
+      runLater( () -> applyStylesheets( scene, inTheme, event.getFile() ) );
+    mFileWatchService.addListener( mStylesheetFileListener );
   }
 
   private String getStylesheet( final String filename ) {
     return get( STYLESHEET_APPLICATION_THEME, filename );
   }
 
-  private void applyStylesheets( final Scene scene, final String filename ) {
+  /**
+   * Clears then re-applies all the internal stylesheets.
+   *
+   * @param scene    The scene to stylize.
+   * @param internal The CSS file name bundled with the application.
+   */
+  private void applyStylesheets(
+    final Scene scene, final String internal, final File external ) {
     final var stylesheets = scene.getStylesheets();
     stylesheets.clear();
     stylesheets.add( STYLESHEET_APPLICATION_BASE );
     stylesheets.add( STYLESHEET_MARKDOWN );
-    stylesheets.add( getStylesheet( toFilename( filename ) ) );
-  }
+    stylesheets.add( getStylesheet( toFilename( internal ) ) );
 
-  private void applyStylesheets( final Scene scene, final String internal,
-                                 final File external ) {
+    try {
+      stylesheets.add( external.toURI().toURL().toString() );
 
+      mFileWatchService.register( external );
+    } catch( final Exception ex ) {
+      clue( ex );
+    }
   }
 
   private MainPane createMainPane( final Workspace workspace ) {

@@ -2,7 +2,6 @@
 package com.keenwrite;
 
 import com.keenwrite.preferences.Workspace;
-import com.keenwrite.service.Snitch;
 import javafx.application.Application;
 import javafx.stage.Stage;
 
@@ -21,10 +20,7 @@ import static javafx.scene.input.KeyEvent.KEY_PRESSED;
  * files in a markup notation and see a real-time preview of the formatted
  * output.
  */
-@SuppressWarnings( {"FieldCanBeLocal", "unused", "RedundantSuppression"} )
 public final class MainApp extends Application {
-
-  private final Snitch mSnitch = Services.load( Snitch.class );
 
   private Workspace mWorkspace;
 
@@ -61,7 +57,6 @@ public final class MainApp extends Application {
     initStage( stage );
     initIcons( stage );
     initScene( stage );
-    initSnitch();
 
     stage.show();
   }
@@ -102,13 +97,6 @@ public final class MainApp extends Application {
   }
 
   /**
-   * Watch for file system changes.
-   */
-  private void initSnitch() {
-    getSnitch().start();
-  }
-
-  /**
    * When the window is maximized, full screen, or iconified, prevent updating
    * the window bounds. This is used so that if the user exits the application
    * when full screen (or maximized), restarting the application will recall
@@ -120,9 +108,5 @@ public final class MainApp extends Application {
   private BooleanSupplier createBoundsEnabledSupplier( final Stage stage ) {
     return () ->
       !(stage.isMaximized() || stage.isFullScreen() || stage.isIconified());
-  }
-
-  private Snitch getSnitch() {
-    return mSnitch;
   }
 }
