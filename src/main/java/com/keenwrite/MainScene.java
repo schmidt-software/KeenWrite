@@ -51,7 +51,9 @@ public final class MainScene {
     appPane.setCenter( mainPane );
     appPane.setBottom( mStatusBar );
 
-    new Thread( mFileWatchService ).start();
+    final var watchThread = new Thread( mFileWatchService );
+    watchThread.setDaemon( true );
+    watchThread.start();
 
     mScene = createScene( appPane );
     initStylesheets( mScene, workspace );
@@ -137,9 +139,11 @@ public final class MainScene {
     stylesheets.add( getStylesheet( toFilename( internal ) ) );
 
     try {
-      stylesheets.add( external.toURI().toURL().toString() );
+      if( external.canRead() && !external.isDirectory() ) {
+        stylesheets.add( external.toURI().toURL().toString() );
 
-      mFileWatchService.register( external );
+        mFileWatchService.register( external );
+      }
     } catch( final Exception ex ) {
       clue( ex );
     }
