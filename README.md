@@ -48,6 +48,7 @@ The application offers:
 * Real-time spell check
 * Real-time rendering of math using TeX notation
 * Diagrams: Mermaid, GraphViz, UML, sequence, timing, and [many more](https://kroki.io/)!
+* Dark, custom, and responsive themes
 * R integration
 * XML transformation using XSLT3 or older
 * Customizable user interface having detachable tabs
@@ -55,8 +56,11 @@ The application offers:
 
 ## Usage
 
-See the [detailed documentation](docs/README.md) for information about
-using the application.
+Read the [detailed documentation](docs/README.md) for using the application.
+
+### Themes
+
+Read the [themes documentation](docs/themes.md) to learn about themes.
 
 ## Screenshots
 

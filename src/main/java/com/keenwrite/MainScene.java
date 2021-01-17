@@ -6,7 +6,6 @@ import com.keenwrite.io.FileWatchService;
 import com.keenwrite.preferences.Workspace;
 import com.keenwrite.ui.actions.ApplicationActions;
 import com.keenwrite.ui.listeners.CaretListener;
-import javafx.scene.AccessibleRole;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -26,9 +25,6 @@ import static com.keenwrite.preferences.WorkspaceKeys.KEY_UI_THEME_SELECTION;
 import static com.keenwrite.ui.actions.ApplicationBars.createMenuBar;
 import static com.keenwrite.ui.actions.ApplicationBars.createToolBar;
 import static javafx.application.Platform.runLater;
-import static javafx.scene.input.KeyCode.ALT;
-import static javafx.scene.input.KeyCode.ALT_GRAPH;
-import static javafx.scene.input.KeyEvent.KEY_PRESSED;
 
 /**
  * Responsible for creating the bar scene: menu bar, tool bar, and status bar.
