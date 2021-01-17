@@ -11,10 +11,13 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import org.controlsfx.control.StatusBar;
 
+import java.io.File;
+
 import static com.keenwrite.Constants.*;
 import static com.keenwrite.Messages.get;
 import static com.keenwrite.StatusNotifier.getStatusBar;
 import static com.keenwrite.preferences.ThemeProperty.toFilename;
+import static com.keenwrite.preferences.WorkspaceKeys.KEY_UI_THEME_CUSTOM;
 import static com.keenwrite.preferences.WorkspaceKeys.KEY_UI_THEME_SELECTION;
 import static com.keenwrite.ui.actions.ApplicationBars.createMenuBar;
 import static com.keenwrite.ui.actions.ApplicationBars.createToolBar;
@@ -73,22 +76,34 @@ public final class MainScene {
   }
 
   private void initStylesheets( final Scene scene, final Workspace workspace ) {
-    final var property = workspace.themeProperty( KEY_UI_THEME_SELECTION );
-    final var stylesheets = scene.getStylesheets();
-    stylesheets.add( STYLESHEET_APPLICATION_BASE );
-    stylesheets.add( STYLESHEET_MARKDOWN );
-    stylesheets.add( getStylesheet( toFilename( property.get() ) ) );
+    final var internal = workspace.themeProperty( KEY_UI_THEME_SELECTION );
+    applyStylesheets( scene, internal.get() );
 
-    property.addListener( ( c, o, n ) -> {
-      stylesheets.clear();
-      stylesheets.add( STYLESHEET_APPLICATION_BASE );
-      stylesheets.add( STYLESHEET_MARKDOWN );
-      stylesheets.add( getStylesheet( toFilename( property.get() ) ) );
+    internal.addListener( ( c, o, n ) -> {
+      applyStylesheets( scene, internal.get() );
+    } );
+
+    final var external = workspace.fileProperty( KEY_UI_THEME_CUSTOM );
+    external.addListener( ( c, o, n ) -> {
+      applyStylesheets( scene, internal.get(), external.get() );
     } );
   }
 
   private String getStylesheet( final String filename ) {
     return get( STYLESHEET_APPLICATION_THEME, filename );
+  }
+
+  private void applyStylesheets( final Scene scene, final String filename ) {
+    final var stylesheets = scene.getStylesheets();
+    stylesheets.clear();
+    stylesheets.add( STYLESHEET_APPLICATION_BASE );
+    stylesheets.add( STYLESHEET_MARKDOWN );
+    stylesheets.add( getStylesheet( toFilename( filename ) ) );
+  }
+
+  private void applyStylesheets( final Scene scene, final String internal,
+                                 final File external ) {
+
   }
 
   private MainPane createMainPane( final Workspace workspace ) {

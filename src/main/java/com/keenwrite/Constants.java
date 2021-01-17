@@ -207,9 +207,14 @@ public final class Constants {
   public static final Locale LOCALE_DEFAULT = withScript( Locale.getDefault() );
 
   /**
-   * Default CSS theme to apply (resolves to an empty file).
+   * Default CSS theme to apply (resolves to a minimal implementation).
    */
   public static final String THEME_DEFAULT = "Modena Light";
+
+  /**
+   * Custom CSS theme to apply.
+   */
+  public static final File THEME_CUSTOM_DEFAULT = null;
 
   /**
    * Default identifier to use for synchronized scrolling.

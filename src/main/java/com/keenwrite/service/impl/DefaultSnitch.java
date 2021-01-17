@@ -1,6 +1,7 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.service.impl;
 
+import com.keenwrite.io.FileModifiedListener;
 import com.keenwrite.service.Snitch;
 
 import java.io.IOException;
@@ -18,7 +19,10 @@ import static java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY;
 /**
  * Listens for file changes. Other classes can register paths to be monitored
  * and listen for changes to those paths.
+ *
+ * @deprecated Use {@link FileModifiedListener} and {@link FileWatchService}.
  */
+@Deprecated
 public class DefaultSnitch extends Observable implements Snitch {
   private final Thread mSnitchThread = new Thread( this );
 

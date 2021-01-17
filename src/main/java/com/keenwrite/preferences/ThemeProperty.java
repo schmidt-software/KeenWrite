@@ -21,10 +21,12 @@ public final class ThemeProperty extends SimpleObjectProperty<String> {
   private static final Set<String> sThemes = new LinkedHashSet<>();
 
   static {
+    sThemes.add( "Count Darcula" );
     sThemes.add( "Haunted Grey" );
     sThemes.add( "Modena Dark" );
     sThemes.add( THEME_DEFAULT );
     sThemes.add( "Silver Cavern" );
+    sThemes.add( "Solarized Dark" );
     sThemes.add( "Vampire Byte" );
   }
 

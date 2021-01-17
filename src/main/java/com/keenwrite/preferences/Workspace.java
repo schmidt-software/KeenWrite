@@ -96,6 +96,7 @@ public final class Workspace {
     entry( KEY_UI_WINDOW_FULL, asBooleanProperty() ),
 
     entry( KEY_UI_THEME_SELECTION, asThemeProperty( THEME_DEFAULT ) ),
+    entry( KEY_UI_THEME_CUSTOM, asFileProperty( THEME_CUSTOM_DEFAULT ) ),
 
     entry( KEY_LANGUAGE_LOCALE, asLocaleProperty( LOCALE_DEFAULT ) )
     );

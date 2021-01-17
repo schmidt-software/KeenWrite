@@ -64,6 +64,8 @@ public final class WorkspaceKeys {
   public static final Key KEY_UI_THEME = key( KEY_UI, "theme" );
   public static final Key KEY_UI_THEME_SELECTION = key( KEY_UI_THEME, "selection" );
 
+  public static final Key KEY_UI_THEME_CUSTOM = key( KEY_UI_THEME, "custom" );
+
 //  public static final Key KEY_UI_THEME_CUSTOM = key( KEY_UI_THEME, "custom" );
 //  public static final Key KEY_UI_THEME_CUSTOM_FONT = key( KEY_UI_THEME_CUSTOM, "font" );
 //  public static final Key KEY_UI_THEME_CUSTOM_FONT_SIZE = key( KEY_UI_THEME_CUSTOM_FONT, "size" );

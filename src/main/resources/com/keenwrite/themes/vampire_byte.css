@@ -2,7 +2,7 @@
  */
 .root {
 	-fx-base: rgb( 45, 45, 46 );
-	-fx-background: rgb( 45, 45, 46 );
+	-fx-background: -fx-base;
 
 	/* Brighten controls */
 	-fx-color: derive( -fx-base, -40% );

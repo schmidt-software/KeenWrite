@@ -1,13 +1,18 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.service;
 
+import com.keenwrite.io.FileModifiedListener;
+
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Observer;
 
 /**
  * Listens for changes to file system files and directories.
+ *
+ * @deprecated Use {@link FileModifiedListener} and {@link FileWatchService}.
  */
+@Deprecated
 public interface Snitch extends Service, Runnable {
 
   /**

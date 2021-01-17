@@ -78,5 +78,5 @@
 .list-cell,
 .table-row-cell {
   -fx-border-color: transparent;
-  -fx-table-cell-border-color:transparent;
+  -fx-table-cell-border-color: transparent;
 }

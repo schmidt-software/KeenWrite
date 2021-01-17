@@ -206,6 +206,12 @@ public final class PreferencesController {
           Setting.of( title( KEY_UI_THEME_SELECTION ),
                       themeListProperty(),
                       themeProperty( KEY_UI_THEME_SELECTION ) )
+        ),
+        Group.of(
+          get( KEY_UI_THEME_CUSTOM ),
+          Setting.of( label( KEY_UI_THEME_CUSTOM ) ),
+          Setting.of( title( KEY_UI_THEME_CUSTOM ),
+                      fileProperty( KEY_UI_THEME_CUSTOM ), false )
         )
       ),
       Category.of(
