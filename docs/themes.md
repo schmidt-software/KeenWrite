@@ -93,3 +93,8 @@ The application uses RichTextFX to render the text editor. Styling various
 text editor classes can require using the prefix `-rtfx` instead of the
 regular JavaFX `-fx`.
 
+# Submit
+
+Send in your themes! If you have a theme you'd like to contribute to the
+project, or improvements to an existing theme, do pass it along. Either open a new issue in the [issue tracker](https://github.com/DaveJarvis/keenwrite/issues) that contains the CSS file or submit a pull request.
+
