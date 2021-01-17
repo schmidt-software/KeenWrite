@@ -3,10 +3,9 @@ package com.keenwrite;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Calendar;
 import java.util.Properties;
 
-import static com.keenwrite.Bootstrap.APP_TITLE;
+import static com.keenwrite.Bootstrap.*;
 import static java.lang.String.format;
 
 /**
@@ -30,8 +29,8 @@ public final class Launcher {
 
   @SuppressWarnings("RedundantStringFormatCall")
   private static void showAppInfo() {
-    out( format( "%s version %s", APP_TITLE, getVersion() ) );
-    out( format( "Copyright 2016-%s White Magic Software, Ltd.", getYear() ) );
+    out( format( "%s version %s", APP_TITLE, APP_VERSION ) );
+    out( format( "Copyright 2016-%s White Magic Software, Ltd.", APP_YEAR ) );
     out( format( "Portions copyright 2015-2020 Karl Tauber." ) );
   }
 
@@ -54,10 +53,6 @@ public final class Launcher {
     } catch( final Exception ex ) {
       throw new RuntimeException( ex );
     }
-  }
-
-  private static String getYear() {
-    return Integer.toString( Calendar.getInstance().get( Calendar.YEAR ) );
   }
 
   @SuppressWarnings("SameParameterValue")

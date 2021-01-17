@@ -49,12 +49,6 @@ public final class Constants {
 
   public static final String APP_BUNDLE_NAME = get( "application.messages" );
 
-  /**
-   * Prevent double events when updating files on Linux (save and timestamp).
-   */
-  public static final int APP_WATCHDOG_TIMEOUT =
-    get( "application.watchdog.timeout", 200 );
-
   public static final String STYLESHEET_APPLICATION_BASE =
     get( "file.stylesheet.application.base" );
   public static final String STYLESHEET_APPLICATION_THEME =
@@ -229,11 +223,6 @@ public final class Constants {
 
   private static String get( final String key ) {
     return sSettings.getSetting( key, "" );
-  }
-
-  @SuppressWarnings( "SameParameterValue" )
-  private static int get( final String key, final int defaultValue ) {
-    return sSettings.getSetting( key, defaultValue );
   }
 
   /**

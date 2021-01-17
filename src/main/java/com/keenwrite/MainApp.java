@@ -3,6 +3,10 @@ package com.keenwrite;
 
 import com.keenwrite.preferences.Workspace;
 import javafx.application.Application;
+import javafx.event.Event;
+import javafx.event.EventType;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 
 import java.util.function.BooleanSupplier;
@@ -12,8 +16,10 @@ import static com.keenwrite.Bootstrap.APP_TITLE;
 import static com.keenwrite.Constants.LOGOS;
 import static com.keenwrite.preferences.WorkspaceKeys.*;
 import static com.keenwrite.util.FontLoader.initFonts;
+import static javafx.scene.input.KeyCode.ALT;
 import static javafx.scene.input.KeyCode.F11;
 import static javafx.scene.input.KeyEvent.KEY_PRESSED;
+import static javafx.scene.input.KeyEvent.KEY_RELEASED;
 
 /**
  * Application entry point. The application allows users to edit plain text
@@ -86,6 +92,22 @@ public final class MainApp extends Application {
         stage.setFullScreen( !stage.isFullScreen() );
       }
     } );
+
+    // After the app loses focus, when the user switches back using Alt+Tab,
+    // the menu mnemonic is sometimes engaged, swallowing the first letter that
+    // the user types---if it is a menu mnemonic. This consumes the Alt key
+    // event to work around the bug.
+    //
+    // See: https://bugs.openjdk.java.net/browse/JDK-8090647
+    stage.focusedProperty().addListener( ( c, lost, show ) -> {
+      if( lost ) {
+        for( final var mnemonics : stage.getScene().getMnemonics().values() ) {
+          for( final var mnemonic : mnemonics ) {
+            mnemonic.getNode().fireEvent( keyUp( ALT, false ) );
+          }
+        }
+      }
+    } );
   }
 
   private void initIcons( final Stage stage ) {
@@ -108,5 +130,20 @@ public final class MainApp extends Application {
   private BooleanSupplier createBoundsEnabledSupplier( final Stage stage ) {
     return () ->
       !(stage.isMaximized() || stage.isFullScreen() || stage.isIconified());
+  }
+
+  public static Event keyDown( final KeyCode code, final boolean shift ) {
+    return keyEvent( KEY_PRESSED, code, shift );
+  }
+
+  public static Event keyUp( final KeyCode code, final boolean shift ) {
+    return keyEvent( KEY_RELEASED, code, shift );
+  }
+
+  private static Event keyEvent(
+    final EventType<KeyEvent> type, final KeyCode code, final boolean shift ) {
+    return new KeyEvent(
+      type, "", "", code, shift, false, false, false
+    );
   }
 }

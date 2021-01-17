@@ -6,6 +6,7 @@ import com.keenwrite.io.FileWatchService;
 import com.keenwrite.preferences.Workspace;
 import com.keenwrite.ui.actions.ApplicationActions;
 import com.keenwrite.ui.listeners.CaretListener;
+import javafx.scene.AccessibleRole;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -25,6 +26,9 @@ import static com.keenwrite.preferences.WorkspaceKeys.KEY_UI_THEME_SELECTION;
 import static com.keenwrite.ui.actions.ApplicationBars.createMenuBar;
 import static com.keenwrite.ui.actions.ApplicationBars.createToolBar;
 import static javafx.application.Platform.runLater;
+import static javafx.scene.input.KeyCode.ALT;
+import static javafx.scene.input.KeyCode.ALT_GRAPH;
+import static javafx.scene.input.KeyEvent.KEY_PRESSED;
 
 /**
  * Responsible for creating the bar scene: menu bar, tool bar, and status bar.
@@ -35,6 +39,7 @@ public final class MainScene {
   private final Node mToolBar;
   private final StatusBar mStatusBar;
   private final FileWatchService mFileWatchService = new FileWatchService();
+  private FileModifiedListener mStylesheetFileListener = event -> {};
 
   public MainScene( final Workspace workspace ) {
     final var mainPane = createMainPane( workspace );
@@ -84,8 +89,6 @@ public final class MainScene {
     node.setVisible( !node.isVisible() );
   }
 
-  FileModifiedListener mStylesheetFileListener = ( event ) -> {};
-
   private void initStylesheets( final Scene scene, final Workspace workspace ) {
     final var internal = workspace.themeProperty( KEY_UI_THEME_SELECTION );
     final var external = workspace.fileProperty( KEY_UI_THEME_CUSTOM );
@@ -115,7 +118,7 @@ public final class MainScene {
     );
 
     mFileWatchService.removeListener( mStylesheetFileListener );
-    mStylesheetFileListener = ( event ) ->
+    mStylesheetFileListener = event ->
       runLater( () -> applyStylesheets( scene, inTheme, event.getFile() ) );
     mFileWatchService.addListener( mStylesheetFileListener );
   }
@@ -169,6 +172,12 @@ public final class MainScene {
     return new CaretListener( mainPane.activeTextEditorProperty() );
   }
 
+  /**
+   * Creates a new scene that is attached to the given {@link Parent}.
+   *
+   * @param parent The container for the scene.
+   * @return A scene to capture user interactions, UI styles, etc.
+   */
   private Scene createScene( final Parent parent ) {
     return new Scene( parent );
   }

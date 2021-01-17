@@ -1,6 +1,8 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite;
 
+import java.io.InputStream;
+import java.util.Calendar;
 import java.util.Properties;
 
 /**
@@ -14,18 +16,30 @@ import java.util.Properties;
  * </p>
  */
 public final class Bootstrap {
-  private static final Properties BOOTSTRAP = new Properties();
+  /**
+   * Order matters, this must be populated before deriving the app title.
+   */
+  private static final Properties P = new Properties();
 
   static {
-    try( final var stream =
-             Constants.class.getResourceAsStream( "/bootstrap.properties" ) ) {
-      BOOTSTRAP.load( stream );
+    try( final var in = openResource( "/bootstrap.properties" ) ) {
+      P.load( in );
     } catch( final Exception ignored ) {
       // Bootstrap properties cannot be found, throw in the towel.
     }
   }
 
-  public static final String APP_TITLE =
-      BOOTSTRAP.getProperty( "application.title" );
+  public static final String APP_TITLE = P.getProperty( "application.title" );
   public static final String APP_TITLE_LOWERCASE = APP_TITLE.toLowerCase();
+  public static final String APP_VERSION = Launcher.getVersion();
+  public static final String APP_YEAR = getYear();
+
+  @SuppressWarnings( "SameParameterValue" )
+  private static InputStream openResource( final String path ) {
+    return Constants.class.getResourceAsStream( path );
+  }
+
+  private static String getYear() {
+    return Integer.toString( Calendar.getInstance().get( Calendar.YEAR ) );
+  }
 }

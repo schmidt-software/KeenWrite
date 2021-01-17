@@ -3,6 +3,7 @@ package com.keenwrite.editors.markdown;
 
 import com.keenwrite.Caret;
 import com.keenwrite.Constants;
+import com.keenwrite.MainApp;
 import com.keenwrite.editors.TextEditor;
 import com.keenwrite.preferences.LocaleProperty;
 import com.keenwrite.preferences.Workspace;
@@ -13,7 +14,6 @@ import javafx.beans.value.ChangeListener;
 import javafx.event.Event;
 import javafx.scene.Node;
 import javafx.scene.control.IndexRange;
-import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
 import org.fxmisc.flowless.VirtualizedScrollPane;
@@ -32,6 +32,7 @@ import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
 import static com.keenwrite.Constants.*;
+import static com.keenwrite.MainApp.keyDown;
 import static com.keenwrite.Messages.get;
 import static com.keenwrite.StatusNotifier.clue;
 import static com.keenwrite.preferences.WorkspaceKeys.*;
@@ -42,7 +43,6 @@ import static javafx.scene.control.ScrollPane.ScrollBarPolicy.ALWAYS;
 import static javafx.scene.input.KeyCode.*;
 import static javafx.scene.input.KeyCombination.CONTROL_DOWN;
 import static javafx.scene.input.KeyCombination.SHIFT_DOWN;
-import static javafx.scene.input.KeyEvent.KEY_PRESSED;
 import static org.apache.commons.lang3.StringUtils.stripEnd;
 import static org.apache.commons.lang3.StringUtils.stripStart;
 import static org.fxmisc.richtext.model.StyleSpans.singleton;
@@ -271,17 +271,11 @@ public final class MarkdownEditor extends BorderPane implements TextEditor {
     // Emulate selecting the current line by firing Home then Shift+Down Arrow.
     if( selected == null || selected.isEmpty() ) {
       // Note: mTextArea.selectLine() does not select empty lines.
-      mTextArea.fireEvent( keyEvent( HOME, false ) );
-      mTextArea.fireEvent( keyEvent( DOWN, true ) );
+      mTextArea.fireEvent( keyDown( HOME, false ) );
+      mTextArea.fireEvent( keyDown( DOWN, true ) );
     }
 
     mTextArea.cut();
-  }
-
-  private Event keyEvent( final KeyCode code, final boolean shift ) {
-    return new KeyEvent(
-      KEY_PRESSED, "", "", code, shift, false, false, false
-    );
   }
 
   @Override

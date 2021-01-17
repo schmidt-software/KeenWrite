@@ -22,7 +22,7 @@ import javafx.scene.control.Dialog;
 import javafx.stage.Window;
 import javafx.stage.WindowEvent;
 
-import static com.keenwrite.Bootstrap.APP_TITLE;
+import static com.keenwrite.Bootstrap.*;
 import static com.keenwrite.Constants.ICON_DIALOG_NODE;
 import static com.keenwrite.ExportFormat.*;
 import static com.keenwrite.Messages.get;
@@ -376,10 +376,11 @@ public final class ApplicationActions {
   }
 
   public void help‿about() {
-    final Alert alert = new Alert( INFORMATION );
-    alert.setTitle( get( "Dialog.about.title", APP_TITLE ) );
-    alert.setHeaderText( get( "Dialog.about.header", APP_TITLE ) );
-    alert.setContentText( get( "Dialog.about.content" ) );
+    final var alert = new Alert( INFORMATION );
+    final var prefix = "Dialog.about.";
+    alert.setTitle( get( prefix + "title", APP_TITLE ) );
+    alert.setHeaderText( get( prefix + "header", APP_TITLE ) );
+    alert.setContentText( get( prefix + "content", APP_YEAR, APP_VERSION ) );
     alert.setGraphic( ICON_DIALOG_NODE );
     alert.initOwner( getWindow() );
     alert.showAndWait();
