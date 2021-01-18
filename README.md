@@ -49,7 +49,7 @@ The application offers:
 * Real-time rendering of math using TeX notation
 * Diagrams: Mermaid, GraphViz, UML, sequence, timing, and [many more](https://kroki.io/)!
 * Dark, custom, and responsive themes
-* Internationalized font support (e.g., Chinese, Japense, and Korean glyphs)
+* Internationalized font support (e.g., Chinese, Japanese, Korean, etc.)
 * R integration
 * XML transformation using XSLT3 or older
 * Customizable user interface having detachable tabs
