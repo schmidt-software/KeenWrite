@@ -9,6 +9,7 @@ import com.keenwrite.ui.listeners.CaretListener;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.MenuBar;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import org.controlsfx.control.StatusBar;
@@ -25,13 +26,16 @@ import static com.keenwrite.preferences.WorkspaceKeys.KEY_UI_THEME_SELECTION;
 import static com.keenwrite.ui.actions.ApplicationBars.createMenuBar;
 import static com.keenwrite.ui.actions.ApplicationBars.createToolBar;
 import static javafx.application.Platform.runLater;
+import static javafx.scene.input.KeyCode.ALT;
+import static javafx.scene.input.KeyCode.ALT_GRAPH;
+import static javafx.scene.input.KeyEvent.KEY_PRESSED;
 
 /**
  * Responsible for creating the bar scene: menu bar, tool bar, and status bar.
  */
 public final class MainScene {
   private final Scene mScene;
-  private final Node mMenuBar;
+  private final MenuBar mMenuBar;
   private final Node mToolBar;
   private final StatusBar mStatusBar;
   private final FileWatchService mFileWatchService = new FileWatchService();
@@ -83,6 +87,10 @@ public final class MainScene {
   public void toggleStatusBar() {
     final var node = mStatusBar;
     node.setVisible( !node.isVisible() );
+  }
+
+  MenuBar getMenuBar() {
+    return mMenuBar;
   }
 
   private void initStylesheets( final Scene scene, final Workspace workspace ) {
@@ -175,7 +183,23 @@ public final class MainScene {
    * @return A scene to capture user interactions, UI styles, etc.
    */
   private Scene createScene( final Parent parent ) {
-    return new Scene( parent );
+    final var scene = new Scene( parent );
+
+    // After the app loses focus, when the user switches back using Alt+Tab,
+    // the menu is sometimes engaged. See MainApp::initStage().
+    //
+    // JavaFX Bug: https://bugs.openjdk.java.net/browse/JDK-8090647
+    scene.addEventHandler( KEY_PRESSED, event -> {
+      final var code = event.getCode();
+
+      // Only consume lone ALT key press events. If the modifier is used in
+      // combination with another key, don't consume the event.
+      if( event.isAltDown() && (code == ALT_GRAPH || code == ALT) ) {
+        event.consume();
+      }
+    } );
+
+    return scene;
   }
 
   /**

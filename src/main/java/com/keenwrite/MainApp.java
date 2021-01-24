@@ -29,6 +29,7 @@ import static javafx.scene.input.KeyEvent.KEY_RELEASED;
 public final class MainApp extends Application {
 
   private Workspace mWorkspace;
+  private MainScene mMainScene;
 
   /**
    * Application entry point.
@@ -95,16 +96,17 @@ public final class MainApp extends Application {
 
     // After the app loses focus, when the user switches back using Alt+Tab,
     // the menu mnemonic is sometimes engaged, swallowing the first letter that
-    // the user types---if it is a menu mnemonic. This consumes the Alt key
-    // event to work around the bug.
+    // the user types---if it is a menu mnemonic. See MainScene::createScene().
     //
-    // See: https://bugs.openjdk.java.net/browse/JDK-8090647
+    // JavaFX Bug: https://bugs.openjdk.java.net/browse/JDK-8090647
     stage.focusedProperty().addListener( ( c, lost, show ) -> {
-      if( lost ) {
-        for( final var mnemonics : stage.getScene().getMnemonics().values() ) {
-          for( final var mnemonic : mnemonics ) {
-            mnemonic.getNode().fireEvent( keyUp( ALT, false ) );
-          }
+      for( final var menu : mMainScene.getMenuBar().getMenus() ) {
+        menu.hide();
+      }
+
+      for( final var mnemonics : stage.getScene().getMnemonics().values() ) {
+        for( final var mnemonic : mnemonics ) {
+          mnemonic.getNode().fireEvent( keyUp( ALT ) );
         }
       }
     } );
@@ -115,7 +117,8 @@ public final class MainApp extends Application {
   }
 
   private void initScene( final Stage stage ) {
-    stage.setScene( (new MainScene( mWorkspace )).getScene() );
+    mMainScene = new MainScene( mWorkspace );
+    stage.setScene( mMainScene.getScene() );
   }
 
   /**
@@ -138,6 +141,16 @@ public final class MainApp extends Application {
 
   public static Event keyUp( final KeyCode code, final boolean shift ) {
     return keyEvent( KEY_RELEASED, code, shift );
+  }
+
+  /**
+   * Returns a key released event without any modifier keys held.
+   *
+   * @param code The key code representing a key to simulate releasing.
+   * @return An instance of {@link KeyEvent}.
+   */
+  public static Event keyUp( final KeyCode code ) {
+    return keyUp( code, false );
   }
 
   private static Event keyEvent(

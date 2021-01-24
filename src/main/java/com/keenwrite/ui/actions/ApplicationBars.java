@@ -33,9 +33,9 @@ public final class ApplicationBars {
    *
    * @param actions The {@link ApplicationActions} that map user interface
    *                selections to executable code.
-   * @return An instance of {@link Node} that contains the menu and toolbar.
+   * @return An instance of {@link MenuBar} that contains the menu.
    */
-  public static Node createMenuBar( final ApplicationActions actions ) {
+  public static MenuBar createMenuBar( final ApplicationActions actions ) {
     final var SEPARATOR_ACTION = new SeparatorAction();
 
     //@formatter:off
