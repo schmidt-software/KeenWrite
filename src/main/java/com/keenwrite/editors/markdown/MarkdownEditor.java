@@ -3,7 +3,6 @@ package com.keenwrite.editors.markdown;
 
 import com.keenwrite.Caret;
 import com.keenwrite.Constants;
-import com.keenwrite.MainApp;
 import com.keenwrite.editors.TextEditor;
 import com.keenwrite.preferences.LocaleProperty;
 import com.keenwrite.preferences.Workspace;

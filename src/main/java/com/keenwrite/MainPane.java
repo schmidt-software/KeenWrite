@@ -1,11 +1,11 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite;
 
+import com.keenwrite.editors.TabSceneFactory;
 import com.keenwrite.editors.TextDefinition;
 import com.keenwrite.editors.TextEditor;
 import com.keenwrite.editors.TextResource;
 import com.keenwrite.editors.definition.DefinitionEditor;
-import com.keenwrite.editors.definition.DefinitionTabSceneFactory;
 import com.keenwrite.editors.definition.TreeTransformer;
 import com.keenwrite.editors.definition.yaml.YamlTreeTransformer;
 import com.keenwrite.editors.markdown.MarkdownEditor;
@@ -122,11 +122,18 @@ public final class MainPane extends SplitPane {
     createActiveDefinitionEditor( mActiveTextEditor );
 
   /**
-   * Responsible for creating a new scene when a tab is detached into
+   * Responsible for creating a new scene when a definition editor is detached
+   * into its own window frame.
+   */
+  private final TabSceneFactory mDefinitionTabSceneFactory =
+    createTabSceneFactory( mActiveDefinitionEditor );
+
+  /**
+   * Responsible for creating a new scene when a text editor is detached into
    * its own window frame.
    */
-  private final DefinitionTabSceneFactory mDefinitionTabSceneFactory =
-    createDefinitionTabSceneFactory( mActiveDefinitionEditor );
+  private final TabSceneFactory mTextTabSceneFactory =
+    createTabSceneFactory( mActiveTextEditor );
 
   /**
    * Tracks the number of detached tab panels opened into their own windows,
@@ -166,15 +173,20 @@ public final class MainPane extends SplitPane {
       () -> {
         getWindow().focusedProperty().addListener( ( c, o, n ) -> {
           if( n != null && n ) {
-            final var pane = mTabPanes.get( TEXT_YAML );
-            final var model = pane.getSelectionModel();
-            final var tab = model.getSelectedItem();
+            for( final var pane : mTabPanes.values() ) {
+              final var tab = pane.getSelectionModel().getSelectedItem();
 
-            if( tab != null ) {
+              if( tab == null ) {
+                continue;
+              }
+
               final var resource = tab.getContent();
 
               if( resource instanceof TextDefinition ) {
-                mActiveDefinitionEditor.set( (TextDefinition) tab.getContent() );
+                mActiveDefinitionEditor.set( (TextDefinition) resource );
+              }
+              else if( resource instanceof TextEditor ) {
+                mActiveTextEditor.set( (TextEditor) resource );
               }
             }
           }
@@ -235,19 +247,22 @@ public final class MainPane extends SplitPane {
     final var node = tab.getContent();
     final var mediaType = MediaType.valueFrom( file );
     final var tabPane = obtainDetachableTabPane( mediaType );
-    final var newTabPane = !getItems().contains( tabPane );
 
     tab.setTooltip( createTooltip( file ) );
     tabPane.setFocusTraversable( false );
     tabPane.setTabClosingPolicy( ALL_TABS );
     tabPane.getTabs().add( tab );
 
-    if( newTabPane ) {
+    // Attach the tab scene factory for new tab panes.
+    if( !getItems().contains( tabPane ) ) {
       var index = getItems().size();
 
       if( node instanceof TextDefinition ) {
         tabPane.setSceneFactory( mDefinitionTabSceneFactory::create );
         index = 0;
+      }
+      else if( node instanceof TextEditor ) {
+        tabPane.setSceneFactory( mTextTabSceneFactory::create );
       }
 
       addTabPane( index, tabPane );
@@ -511,24 +526,22 @@ public final class MainPane extends SplitPane {
 
   /**
    * Instantiates a factory that's responsible for creating new scenes when
-   * a tab is dropped outside of any application window. The definition tabs
-   * are fairly complex in that only one may be active at any time. When
-   * activated, the {@link #mResolvedMap} must be updated to reflect the
-   * hierarchy displayed in the {@link DefinitionEditor}.
+   * a tab is dropped outside of any application window. The tabs are fairly
+   * in that only one may be the "active" one at any time.
+   * <p>
+   * For definition tabs, upon activation the {@link #mResolvedMap} must be
+   * updated to reflect the hierarchy displayed in the {@link DefinitionEditor}.
+   * </p>
    *
-   * @param activeDefinitionEditor The current {@link DefinitionEditor}.
-   * @return An object that listens to {@link DefinitionEditor} tab focus
-   * changes.
+   * @param activeEditor A reference to the active editor property.
+   * @return An object that listens to tab focus changes.
    */
-  private DefinitionTabSceneFactory createDefinitionTabSceneFactory(
-    final ObjectProperty<TextDefinition> activeDefinitionEditor ) {
-    return new DefinitionTabSceneFactory( ( tab ) -> {
+  @SuppressWarnings( "unchecked" )
+  private <T extends TextResource> TabSceneFactory createTabSceneFactory(
+    final ObjectProperty<T> activeEditor ) {
+    return new TabSceneFactory( ( tab ) -> {
       assert tab != null;
-
-      var node = tab.getContent();
-      if( node instanceof TextDefinition ) {
-        activeDefinitionEditor.set( (DefinitionEditor) node );
-      }
+      activeEditor.set( (T) tab.getContent() );
     } );
   }
 
@@ -757,11 +770,12 @@ public final class MainPane extends SplitPane {
           // Changing the active node will fire an event, which will
           // update the preview panel and grab focus.
           mActiveTextEditor.set( (TextEditor) node );
-          runLater( node::requestFocus );
         }
         else if( node instanceof TextDefinition ) {
           mActiveDefinitionEditor.set( (DefinitionEditor) node );
         }
+
+        runLater( node::requestFocus );
       }
     } );
   }

@@ -1,5 +1,5 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
-package com.keenwrite.editors.definition;
+package com.keenwrite.editors;
 
 import com.panemu.tiwulfx.control.dock.DetachableTabPane;
 import javafx.beans.property.ReadOnlyObjectProperty;
@@ -21,11 +21,11 @@ import static javafx.scene.layout.Priority.ALWAYS;
  * @author Amrullah Syadzili
  * @author White Magic Software, Ltd.
  */
-public final class DefinitionTabSceneFactory {
+public final class TabSceneFactory {
 
   private final Consumer<Tab> mTabSelectionConsumer;
 
-  public DefinitionTabSceneFactory( final Consumer<Tab> tabSelectionConsumer ) {
+  public TabSceneFactory( final Consumer<Tab> tabSelectionConsumer ) {
     mTabSelectionConsumer = tabSelectionConsumer;
   }
 
@@ -33,13 +33,15 @@ public final class DefinitionTabSceneFactory {
     final var container = new TabContainer( tabPane );
     final var scene = new Scene( container, 300, 900 );
 
-    scene.windowProperty().addListener( ( c, o, n ) -> {
-      if( n != null ) {
-        n.focusedProperty().addListener( ( __ ) -> {
-          final var tab = container.getSelectedTab();
+    scene.windowProperty().addListener( ( cWin, oWin, nWin ) -> {
+      if( nWin != null ) {
+        nWin.focusedProperty().addListener( ( c, o, n ) -> {
+          if( n ) {
+            final var tab = container.getSelectedTab();
 
-          if( tab != null ) {
-            mTabSelectionConsumer.accept( tab );
+            if( tab != null ) {
+              mTabSelectionConsumer.accept( tab );
+            }
           }
         } );
       }
@@ -57,11 +59,11 @@ public final class DefinitionTabSceneFactory {
       getChildren().add( tabPane );
 
       selectedItemProperty().addListener(
-          ( c, o, n ) -> {
-            if( n != null ) {
-              mTabSelectionConsumer.accept( n );
-            }
+        ( c, o, n ) -> {
+          if( n != null ) {
+            mTabSelectionConsumer.accept( n );
           }
+        }
       );
     }
 
