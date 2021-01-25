@@ -10,6 +10,7 @@ import com.keenwrite.editors.definition.TreeTransformer;
 import com.keenwrite.editors.definition.yaml.YamlTreeTransformer;
 import com.keenwrite.editors.markdown.MarkdownEditor;
 import com.keenwrite.io.MediaType;
+import com.keenwrite.outline.DocumentOutline;
 import com.keenwrite.preferences.Key;
 import com.keenwrite.preferences.Workspace;
 import com.keenwrite.preview.HtmlPreview;
@@ -31,6 +32,7 @@ import javafx.collections.ListChangeListener;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.event.EventHandler;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.Tab;
@@ -104,6 +106,11 @@ public final class MainPane extends SplitPane {
    * Renders the actively selected plain text editor tab.
    */
   private final HtmlPreview mHtmlPreview;
+
+  /**
+   * Provides an interactive document outline.
+   */
+  private final DocumentOutline mDocumentOutline = new DocumentOutline();
 
   /**
    * Changing the active editor fires the value changed event. This allows
@@ -468,20 +475,30 @@ public final class MainPane extends SplitPane {
   }
 
   /**
-   * Adds the HTML preview tab to its own tab pane. This will only add the
-   * preview once.
+   * Adds the HTML preview tab to its own, singular tab pane.
    */
   public void viewPreview() {
-    final var tabPane = obtainDetachableTabPane( TEXT_HTML );
+    viewTab( mHtmlPreview, TEXT_HTML, "HTML" );
+  }
 
-    // Prevent multiple HTML previews because in the end, there can be only one.
+  /**
+   * Adds the document outline tab to its own, singular tab pane.
+   */
+  public void viewOutline() {
+    viewTab( mDocumentOutline, APP_DOCUMENT_OUTLINE, "Outline" );
+  }
+
+  private void viewTab(
+    final Node node, final MediaType mediaType, final String name ) {
+    final var tabPane = obtainDetachableTabPane( mediaType );
+
     for( final var tab : tabPane.getTabs() ) {
-      if( tab.getContent() == mHtmlPreview ) {
+      if( tab.getContent() == node ) {
         return;
       }
     }
 
-    tabPane.addTab( "HTML", mHtmlPreview );
+    tabPane.addTab( name, node );
     addTabPane( tabPane );
   }
 

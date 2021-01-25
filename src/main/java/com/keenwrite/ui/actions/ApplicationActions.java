@@ -64,7 +64,7 @@ public final class ApplicationActions {
     mSearchModel.matchOffsetProperty().addListener( ( c, o, n ) -> {
       final var editor = getActiveTextEditor();
 
-      // Clear highlighted areas before adding highlighting to a new region.
+      // Clear highlighted areas before highlighting a new region.
       if( o != null ) {
         editor.unstylize( STYLE_SEARCH );
       }
@@ -357,6 +357,10 @@ public final class ApplicationActions {
 
   public void view‿preview() {
     getMainPane().viewPreview();
+  }
+
+  public void view‿outline() {
+    getMainPane().viewOutline();
   }
 
   public void view‿menubar() {

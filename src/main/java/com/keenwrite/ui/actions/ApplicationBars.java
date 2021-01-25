@@ -120,7 +120,9 @@ public final class ApplicationBars {
       SEPARATOR_ACTION,
       addAction( "view.menubar", e -> actions.view‿menubar() ),
       addAction( "view.toolbar", e -> actions.view‿toolbar() ),
-      addAction( "view.statusbar", e -> actions.view‿statusbar() )
+      addAction( "view.statusbar", e -> actions.view‿statusbar() ),
+      SEPARATOR_ACTION,
+      addAction( "view.outline", e -> actions.view‿outline() )
     ),
     createMenu(
       get( "Main.menu.help" ),

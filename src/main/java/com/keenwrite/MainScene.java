@@ -209,7 +209,7 @@ public final class MainScene {
    * This allows the user to hide the menu bar, tool bar, etc.
    *
    * @param node The node to have its real estate bound to visibility.
-   * @return The given node.
+   * @return The given node for fluent-like convenience.
    */
   private <T extends Node> T setManagedLayout( final T node ) {
     node.managedProperty().bind( node.visibleProperty() );
