@@ -115,14 +115,14 @@ public final class ApplicationBars {
       get( "Main.menu.view" ),
       addAction( "view.refresh", e -> actions.view‿refresh() ),
       SEPARATOR_ACTION,
-      addAction( "view.issues", e -> actions.view‿issues() ),
       addAction( "view.preview", e -> actions.view‿preview() ),
+      addAction( "view.outline", e -> actions.view‿outline() ),
       SEPARATOR_ACTION,
       addAction( "view.menubar", e -> actions.view‿menubar() ),
       addAction( "view.toolbar", e -> actions.view‿toolbar() ),
       addAction( "view.statusbar", e -> actions.view‿statusbar() ),
       SEPARATOR_ACTION,
-      addAction( "view.outline", e -> actions.view‿outline() )
+      addAction( "view.issues", e -> actions.view‿issues() )
     ),
     createMenu(
       get( "Main.menu.help" ),
