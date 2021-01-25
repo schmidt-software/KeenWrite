@@ -190,12 +190,13 @@ public final class MainScene {
     //
     // JavaFX Bug: https://bugs.openjdk.java.net/browse/JDK-8090647
     scene.addEventHandler( KEY_PRESSED, event -> {
-      final var code = event.getCode();
-
       // Only consume lone ALT key press events. If the modifier is used in
-      // combination with another key, don't consume the event.
-      if( event.isAltDown() && (code == ALT_GRAPH || code == ALT) ) {
-        event.consume();
+      // combination with another key, don't consume the event. First check
+      // if ALT is down before getting the key code as a micro-optimization.
+      if( event.isAltDown() ) {
+        if( event.getCode() == ALT || event.getCode() == ALT_GRAPH ) {
+          event.consume();
+        }
       }
     } );
 

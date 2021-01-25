@@ -159,10 +159,6 @@ public class SymSpellSpeller implements SpellChecker {
    * @return Alternative lexemes.
    */
   private List<SuggestItem> lookup( final String lexeme, final Verbosity v ) {
-    return getSpeller().lookup( lexeme, v );
-  }
-
-  private SymSpell getSpeller() {
-    return mSymSpell;
+    return mSymSpell.lookup( lexeme, v );
   }
 }
