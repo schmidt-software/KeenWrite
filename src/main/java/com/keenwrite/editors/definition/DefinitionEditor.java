@@ -26,7 +26,7 @@ import java.util.regex.Pattern;
 
 import static com.keenwrite.Constants.DEFINITION_DEFAULT;
 import static com.keenwrite.Messages.get;
-import static com.keenwrite.StatusNotifier.clue;
+import static com.keenwrite.events.StatusEvent.clue;
 import static java.lang.String.format;
 import static java.util.regex.Pattern.compile;
 import static java.util.regex.Pattern.quote;

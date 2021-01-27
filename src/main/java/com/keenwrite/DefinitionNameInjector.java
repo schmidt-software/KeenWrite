@@ -7,7 +7,7 @@ import com.keenwrite.editors.definition.DefinitionTreeItem;
 import com.keenwrite.sigils.SigilOperator;
 
 import static com.keenwrite.Constants.*;
-import static com.keenwrite.StatusNotifier.clue;
+import static com.keenwrite.events.StatusEvent.clue;
 
 /**
  * Provides the logic for injecting variable names within the editor.

@@ -23,7 +23,7 @@ import java.net.URI;
 import java.nio.file.Path;
 import java.text.NumberFormat;
 
-import static com.keenwrite.StatusNotifier.clue;
+import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.preview.RenderingSettings.RENDERING_HINTS;
 import static java.awt.image.BufferedImage.TYPE_INT_RGB;
 import static java.nio.charset.StandardCharsets.UTF_8;

@@ -20,7 +20,7 @@ import java.util.function.Function;
 import static com.keenwrite.Bootstrap.APP_TITLE_LOWERCASE;
 import static com.keenwrite.Constants.*;
 import static com.keenwrite.Launcher.getVersion;
-import static com.keenwrite.StatusNotifier.clue;
+import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.preferences.WorkspaceKeys.*;
 import static java.util.Map.entry;
 import static javafx.application.Platform.runLater;

@@ -18,7 +18,7 @@ import java.io.File;
 
 import static com.keenwrite.Constants.*;
 import static com.keenwrite.Messages.get;
-import static com.keenwrite.StatusNotifier.clue;
+import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.preferences.ThemeProperty.toFilename;
 import static com.keenwrite.preferences.WorkspaceKeys.KEY_UI_THEME_CUSTOM;
 import static com.keenwrite.preferences.WorkspaceKeys.KEY_UI_THEME_SELECTION;

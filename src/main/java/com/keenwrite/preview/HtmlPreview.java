@@ -18,7 +18,7 @@ import java.util.Locale;
 
 import static com.keenwrite.Constants.*;
 import static com.keenwrite.Messages.get;
-import static com.keenwrite.StatusNotifier.clue;
+import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.preferences.WorkspaceKeys.*;
 import static java.lang.Math.max;
 import static java.lang.String.format;

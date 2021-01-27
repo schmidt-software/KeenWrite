@@ -15,7 +15,7 @@ import java.awt.image.BufferedImage;
 import java.net.URI;
 import java.nio.file.Path;
 
-import static com.keenwrite.StatusNotifier.clue;
+import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.io.MediaType.*;
 import static com.keenwrite.preview.MathRenderer.MATH_RENDERER;
 import static com.keenwrite.preview.SvgRasterizer.BROKEN_IMAGE_PLACEHOLDER;
