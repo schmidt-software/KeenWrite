@@ -27,7 +27,6 @@ import static com.keenwrite.Constants.ICON_DIALOG_NODE;
 import static com.keenwrite.ExportFormat.*;
 import static com.keenwrite.Messages.get;
 import static com.keenwrite.StatusNotifier.clue;
-import static com.keenwrite.StatusNotifier.getStatusBar;
 import static com.keenwrite.preferences.WorkspaceKeys.KEY_UI_RECENT_DIR;
 import static com.keenwrite.processors.ProcessorFactory.createProcessors;
 import static java.nio.file.Files.writeString;
@@ -173,7 +172,7 @@ public final class ApplicationActions {
   }
 
   public void edit‿find() {
-    final var nodes = getStatusBar().getLeftItems();
+    final var nodes = getMainScene().getStatusBar().getLeftItems();
 
     if( nodes.isEmpty() ) {
       final var searchBar = new SearchBar();

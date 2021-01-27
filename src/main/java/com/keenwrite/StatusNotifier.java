@@ -1,13 +1,10 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite;
 
-import com.keenwrite.service.events.Notifier;
+import com.keenwrite.events.StatusEvent;
 import com.keenwrite.ui.logging.LogView;
-import org.controlsfx.control.StatusBar;
 
-import static com.keenwrite.Constants.STATUS_BAR_OK;
 import static com.keenwrite.Messages.get;
-import static javafx.application.Platform.runLater;
 
 /**
  * Responsible for passing notifications about exceptions (or other error
@@ -15,20 +12,14 @@ import static javafx.application.Platform.runLater;
  * class can go away.
  */
 public final class StatusNotifier {
-  private static final String OK = get( STATUS_BAR_OK, "OK" );
 
-  private static final Notifier sNotifier = Services.load( Notifier.class );
-  private static final StatusBar sStatusBar = new StatusBar();
   private static final LogView sLogView = new LogView();
 
   /**
    * Resets the status bar to a default message.
    */
   public static void clue() {
-    // Don't burden the repaint thread if there's no status bar change.
-    if( !OK.equals( sStatusBar.getText() ) ) {
-      update( OK );
-    }
+    StatusEvent.OK.fire();
   }
 
   /**
@@ -64,33 +55,8 @@ public final class StatusNotifier {
     sLogView.log( t );
   }
 
-  /**
-   * Returns the global {@link Notifier} instance that can be used for opening
-   * pop-up alert messages.
-   *
-   * @return The pop-up {@link Notifier} dispatcher.
-   */
-  public static Notifier getNotifier() {
-    return sNotifier;
-  }
-
-  public static StatusBar getStatusBar() {
-    return sStatusBar;
-  }
-
-  /**
-   * Updates the status bar to show the first line of the given message.
-   *
-   * @param message The message to show in the status bar.
-   */
-  private static void update( final String message ) {
-    runLater(
-      () -> {
-        final var s = message == null ? "" : message;
-        final var i = s.indexOf( '\n' );
-        sStatusBar.setText( s.substring( 0, i > 0 ? i : s.length() ) );
-      }
-    );
+  public static void update( final String message ) {
+    new StatusEvent( message ).fire();
   }
 
   public static void viewIssues() {

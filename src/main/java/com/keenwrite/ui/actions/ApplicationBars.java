@@ -1,6 +1,7 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.ui.actions;
 
+import com.keenwrite.ui.controls.EventedStatusBar;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
@@ -8,6 +9,7 @@ import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ToolBar;
+import org.controlsfx.control.StatusBar;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -161,6 +163,10 @@ public final class ApplicationBars {
       getAction( "insert.unordered_list" ),
       getAction( "insert.ordered_list" )
     );
+  }
+
+  public static StatusBar createStatusBar() {
+    return new EventedStatusBar();
   }
 
   /**
