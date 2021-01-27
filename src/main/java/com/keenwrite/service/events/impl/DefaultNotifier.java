@@ -13,6 +13,7 @@ import static com.keenwrite.Constants.ICON_DIALOG_NODE;
 import static com.keenwrite.Messages.get;
 import static javafx.scene.control.Alert.AlertType.CONFIRMATION;
 import static javafx.scene.control.Alert.AlertType.ERROR;
+import static javafx.scene.control.ButtonType.*;
 
 /**
  * Provides the ability to notify the user of events that need attention,

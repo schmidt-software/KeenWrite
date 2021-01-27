@@ -1,6 +1,7 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.preview;
 
+import com.keenwrite.events.FileOpenEvent;
 import com.keenwrite.ui.adapters.DocumentAdapter;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -66,22 +67,20 @@ public final class HtmlPanel extends XHTMLPanel {
    */
   private static final class HyperlinkListener extends LinkListener {
     @Override
-    public void linkClicked( final BasicPanel panel, final String link ) {
-      switch( getProtocol( link ) ) {
-        case HTTP -> {
-          final var desktop = getDesktop();
+    public void linkClicked( final BasicPanel panel, final String uri ) {
+      try {
+        switch( getProtocol( uri ) ) {
+          case HTTP -> {
+            final var desktop = getDesktop();
 
-          if( desktop.isSupported( BROWSE ) ) {
-            try {
-              desktop.browse( new URI( link ) );
-            } catch( final Exception ex ) {
-              clue( ex );
+            if( desktop.isSupported( BROWSE ) ) {
+              desktop.browse( new URI( uri ) );
             }
           }
+          case FILE -> new FileOpenEvent( new URI( uri ) ).fire();
         }
-        case FILE -> {
-          // TODO: #88 -- publish a message to the event bus.
-        }
+      } catch( final Exception ex ) {
+        clue( ex );
       }
     }
   }

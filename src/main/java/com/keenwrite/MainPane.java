@@ -9,10 +9,12 @@ import com.keenwrite.editors.definition.DefinitionEditor;
 import com.keenwrite.editors.definition.TreeTransformer;
 import com.keenwrite.editors.definition.yaml.YamlTreeTransformer;
 import com.keenwrite.editors.markdown.MarkdownEditor;
+import com.keenwrite.events.FileOpenEvent;
 import com.keenwrite.io.MediaType;
 import com.keenwrite.outline.DocumentOutline;
 import com.keenwrite.preferences.Key;
 import com.keenwrite.preferences.Workspace;
+import com.keenwrite.preview.HtmlPanel;
 import com.keenwrite.preview.HtmlPreview;
 import com.keenwrite.processors.IdentityProcessor;
 import com.keenwrite.processors.Processor;
@@ -41,8 +43,10 @@ import javafx.scene.control.TreeItem.TreeModificationEvent;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 import javafx.stage.Window;
+import org.greenrobot.eventbus.Subscribe;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -52,14 +56,15 @@ import java.util.stream.Collectors;
 import static com.keenwrite.Constants.*;
 import static com.keenwrite.ExportFormat.NONE;
 import static com.keenwrite.Messages.get;
+import static com.keenwrite.events.Bus.register;
 import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.io.MediaType.*;
 import static com.keenwrite.preferences.WorkspaceKeys.*;
 import static com.keenwrite.processors.ProcessorFactory.createProcessors;
-import static com.keenwrite.service.events.Notifier.NO;
-import static com.keenwrite.service.events.Notifier.YES;
 import static java.util.stream.Collectors.groupingBy;
 import static javafx.application.Platform.runLater;
+import static javafx.scene.control.ButtonType.NO;
+import static javafx.scene.control.ButtonType.YES;
 import static javafx.scene.control.TabPane.TabClosingPolicy.ALL_TABS;
 import static javafx.scene.input.KeyCode.SPACE;
 import static javafx.scene.input.KeyCombination.CONTROL_DOWN;
@@ -216,6 +221,38 @@ public final class MainPane extends SplitPane {
         } );
       }
     );
+
+    register( this );
+  }
+
+  /**
+   * Typically called when a file name is clicked in the {@link HtmlPanel}.
+   *
+   * @param event The event to process, must contain a valid file reference.
+   */
+  @Subscribe
+  public void handle( final FileOpenEvent event ) {
+    final File eventFile;
+    final var eventUri = event.getUri();
+
+    if( eventUri.isAbsolute() ) {
+      eventFile = new File( eventUri.getPath() );
+    }
+    else {
+      final var activeFile = getActiveTextEditor().getFile();
+      final var parent = activeFile.getParentFile();
+
+      if( parent == null ) {
+        clue( new FileNotFoundException( eventUri.getPath() ) );
+        return;
+      }
+      else {
+        final var parentPath = parent.getAbsolutePath();
+        eventFile = Path.of( parentPath, eventUri.getPath() ).toFile();
+      }
+    }
+
+    runLater( () -> open( eventFile ) );
   }
 
   /**

@@ -8,14 +8,13 @@ import java.util.stream.Collectors;
 import static com.keenwrite.Constants.NEWLINE;
 import static com.keenwrite.Constants.STATUS_BAR_OK;
 import static com.keenwrite.Messages.get;
-import static com.keenwrite.events.Bus.post;
 import static java.util.Arrays.stream;
 
 /**
- * Responsible for collating all information about an application issue. The
- * issues can be exceptions, state problems, parsing errors, and so forth.
+ * Collates information about an application issue. The issues can be
+ * exceptions, state problems, parsing errors, and so forth.
  */
-public class StatusEvent {
+public class StatusEvent implements AppEvent {
   /**
    * Indicates that there are no issues to bring to the user's attention.
    */
@@ -53,13 +52,6 @@ public class StatusEvent {
     assert message != null;
     mMessage = message;
     mProblem = problem;
-  }
-
-  /**
-   * Submits this event to the {@link Bus}.
-   */
-  public void fire() {
-    post( this );
   }
 
   /**

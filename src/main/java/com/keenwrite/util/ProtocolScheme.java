@@ -22,7 +22,7 @@ public enum ProtocolScheme {
    */
   HTTP,
   /**
-   * Denotes FTP.
+   * Denotes the File Transfer Protocol.
    */
   FTP,
   /**
