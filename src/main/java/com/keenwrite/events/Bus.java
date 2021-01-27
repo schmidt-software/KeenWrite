@@ -9,7 +9,8 @@ import org.greenrobot.eventbus.EventBus;
  * implementation.
  */
 public class Bus {
-  private static final EventBus sEventBus = EventBus.getDefault();
+  private static final EventBus sEventBus = EventBus
+    .builder().logNoSubscriberMessages( false ).installDefaultEventBus();
 
   public static <Subscriber> void register( final Subscriber subscriber ) {
     sEventBus.register( subscriber );
