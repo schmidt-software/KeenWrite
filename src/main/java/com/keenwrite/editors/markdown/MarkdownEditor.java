@@ -34,6 +34,7 @@ import static com.keenwrite.Constants.*;
 import static com.keenwrite.MainApp.keyDown;
 import static com.keenwrite.Messages.get;
 import static com.keenwrite.events.StatusEvent.clue;
+import static com.keenwrite.events.TextEditorFocusEvent.fireTextEditorFocus;
 import static com.keenwrite.preferences.WorkspaceKeys.*;
 import static java.lang.Character.isWhitespace;
 import static java.lang.String.format;
@@ -130,10 +131,17 @@ public final class MarkdownEditor extends BorderPane implements TextEditor {
       // Prevent a caret position change from raising the dirty bits.
       mDirty.set( true );
     } );
+
     textArea.caretPositionProperty().addListener( ( c, o, n ) -> {
       // Fire when the caret position has changed and the text has not.
       mDirty.set( true );
       mDirty.set( false );
+    } );
+
+    textArea.focusedProperty().addListener( ( c, o, n ) -> {
+      if( n != null && n ) {
+        fireTextEditorFocus( this );
+      }
     } );
   }
 

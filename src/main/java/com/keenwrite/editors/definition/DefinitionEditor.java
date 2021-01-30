@@ -9,6 +9,7 @@ import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
@@ -27,6 +28,7 @@ import java.util.regex.Pattern;
 import static com.keenwrite.Constants.DEFINITION_DEFAULT;
 import static com.keenwrite.Messages.get;
 import static com.keenwrite.events.StatusEvent.clue;
+import static com.keenwrite.events.TextDefinitionFocusEvent.fireTextDefinitionFocus;
 import static java.lang.String.format;
 import static java.util.regex.Pattern.compile;
 import static java.util.regex.Pattern.quote;
@@ -114,6 +116,7 @@ public final class DefinitionEditor extends BorderPane
     mTreeView.setContextMenu( createContextMenu() );
     mTreeView.addEventFilter( KEY_PRESSED, this::keyEventFilter );
     mTreeView.setShowRoot( false );
+    mTreeView.focusedProperty().addListener( this::focused );
     getSelectionModel().setSelectionMode( MULTIPLE );
 
     final var buttonBar = new HBox();
@@ -280,11 +283,6 @@ public final class DefinitionEditor extends BorderPane
     final var root = getTreeView().getRoot();
     root.addEventHandler( valueChangedEvent(), handler );
     root.addEventHandler( childrenModificationEvent(), handler );
-  }
-
-  public void addKeyEventHandler(
-    final EventHandler<? super KeyEvent> handler ) {
-    getKeyEventHandlers().add( handler );
   }
 
   /**
@@ -486,6 +484,23 @@ public final class DefinitionEditor extends BorderPane
   }
 
   /**
+   * Called when the editor's input focus changes. This will fire an event
+   * for subscribers.
+   *
+   * @param ignored Not used.
+   * @param o       The old input focus property value.
+   * @param n       The new input focus property value.
+   */
+  private void focused(
+    final ObservableValue<? extends Boolean> ignored,
+    final Boolean o,
+    final Boolean n ) {
+    if( n != null && n ) {
+      fireTextDefinitionFocus( this );
+    }
+  }
+
+  /**
    * Adds a menu item to a list of menu items.
    *
    * @param items    The list of menu items to append to.
@@ -521,7 +536,7 @@ public final class DefinitionEditor extends BorderPane
 
   @Override
   public void requestFocus() {
-    super.requestFocus();
+    //super.requestFocus();
     getTreeView().requestFocus();
   }
 

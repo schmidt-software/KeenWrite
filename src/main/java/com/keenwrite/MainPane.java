@@ -1,7 +1,6 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite;
 
-import com.keenwrite.editors.TabSceneFactory;
 import com.keenwrite.editors.TextDefinition;
 import com.keenwrite.editors.TextEditor;
 import com.keenwrite.editors.TextResource;
@@ -10,6 +9,8 @@ import com.keenwrite.editors.definition.TreeTransformer;
 import com.keenwrite.editors.definition.yaml.YamlTreeTransformer;
 import com.keenwrite.editors.markdown.MarkdownEditor;
 import com.keenwrite.events.FileOpenEvent;
+import com.keenwrite.events.TextDefinitionFocusEvent;
+import com.keenwrite.events.TextEditorFocusEvent;
 import com.keenwrite.io.MediaType;
 import com.keenwrite.outline.DocumentOutline;
 import com.keenwrite.preferences.Key;
@@ -38,6 +39,7 @@ import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
 import javafx.scene.control.Tooltip;
 import javafx.scene.control.TreeItem.TreeModificationEvent;
 import javafx.scene.input.KeyEvent;
@@ -134,20 +136,6 @@ public final class MainPane extends SplitPane {
     createActiveDefinitionEditor( mActiveTextEditor );
 
   /**
-   * Responsible for creating a new scene when a definition editor is detached
-   * into its own window frame.
-   */
-  private final TabSceneFactory mDefinitionTabSceneFactory =
-    createTabSceneFactory( mActiveDefinitionEditor );
-
-  /**
-   * Responsible for creating a new scene when a text editor is detached into
-   * its own window frame.
-   */
-  private final TabSceneFactory mTextTabSceneFactory =
-    createTabSceneFactory( mActiveTextEditor );
-
-  /**
    * Tracks the number of detached tab panels opened into their own windows,
    * which allows unique identification of subordinate windows by their title.
    * It is doubtful more than 128 windows, much less 256, will be created.
@@ -182,47 +170,34 @@ public final class MainPane extends SplitPane {
     // Once the main scene's window regains focus, update the active definition
     // editor to the currently selected tab.
     runLater(
-      () -> {
-        getWindow().focusedProperty().addListener( ( c, o, n ) -> {
-          if( n != null && n ) {
-            for( final var pane : mTabPanes.values() ) {
-              final var tab = pane.getSelectionModel().getSelectedItem();
+      () -> getWindow().setOnCloseRequest( ( event ) -> {
+        // Order matters here. We want to close all the tabs to ensure each
+        // is saved, but after they are closed, the workspace should still
+        // retain the list of files that were open. If this line came after
+        // closing, then restarting the application would list no files.
+        mWorkspace.save();
 
-              if( tab == null ) {
-                continue;
-              }
-
-              final var resource = tab.getContent();
-
-              if( resource instanceof TextDefinition ) {
-                mActiveDefinitionEditor.set( (TextDefinition) resource );
-              }
-              else if( resource instanceof TextEditor ) {
-                mActiveTextEditor.set( (TextEditor) resource );
-              }
-            }
-          }
-        } );
-
-        getWindow().setOnCloseRequest( ( event ) -> {
-          // Order matters here. We want to close all the tabs to ensure each
-          // is saved, but after they are closed, the workspace should still
-          // retain the list of files that were open. If this line came after
-          // closing, then restarting the application would list no files.
-          mWorkspace.save();
-
-          if( closeAll() ) {
-            Platform.exit();
-            System.exit( 0 );
-          }
-          else {
-            event.consume();
-          }
-        } );
-      }
+        if( closeAll() ) {
+          Platform.exit();
+          System.exit( 0 );
+        }
+        else {
+          event.consume();
+        }
+      } )
     );
 
     register( this );
+  }
+
+  @Subscribe
+  public void handle( final TextEditorFocusEvent event ) {
+    mActiveTextEditor.set( event.get() );
+  }
+
+  @Subscribe
+  public void handle( final TextDefinitionFocusEvent event ) {
+    mActiveDefinitionEditor.set( event.get() );
   }
 
   /**
@@ -299,17 +274,9 @@ public final class MainPane extends SplitPane {
 
     // Attach the tab scene factory for new tab panes.
     if( !getItems().contains( tabPane ) ) {
-      var index = getItems().size();
-
-      if( node instanceof TextDefinition ) {
-        tabPane.setSceneFactory( mDefinitionTabSceneFactory::create );
-        index = 0;
-      }
-      else if( node instanceof TextEditor ) {
-        tabPane.setSceneFactory( mTextTabSceneFactory::create );
-      }
-
-      addTabPane( index, tabPane );
+      addTabPane(
+        node instanceof TextDefinition ? 0 : getItems().size(), tabPane
+      );
     }
 
     getRecentFiles().add( file.getAbsolutePath() );
@@ -578,28 +545,7 @@ public final class MainPane extends SplitPane {
     return definitions;
   }
 
-  /**
-   * Instantiates a factory that's responsible for creating new scenes when
-   * a tab is dropped outside of any application window. The tabs are fairly
-   * in that only one may be the "active" one at any time.
-   * <p>
-   * For definition tabs, upon activation the {@link #mResolvedMap} must be
-   * updated to reflect the hierarchy displayed in the {@link DefinitionEditor}.
-   * </p>
-   *
-   * @param activeEditor A reference to the active editor property.
-   * @return An object that listens to tab focus changes.
-   */
-  @SuppressWarnings( "unchecked" )
-  private <T extends TextResource> TabSceneFactory createTabSceneFactory(
-    final ObjectProperty<T> activeEditor ) {
-    return new TabSceneFactory( ( tab ) -> {
-      assert tab != null;
-      activeEditor.set( (T) tab.getContent() );
-    } );
-  }
-
-  private DetachableTab createTab( final File file ) {
+  private Tab createTab( final File file ) {
     final var r = createTextResource( file );
     final var tab = new DetachableTab( r.getFilename(), r.getNode() );
 
@@ -612,6 +558,18 @@ public final class MainPane extends SplitPane {
     tab.setOnClosed(
       ( __ ) -> getRecentFiles().remove( file.getAbsolutePath() )
     );
+
+    tab.tabPaneProperty().addListener( ( cPane, oPane, nPane ) -> {
+      if( nPane != null ) {
+        nPane.focusedProperty().addListener( ( c, o, n ) -> {
+          if( n != null && n ) {
+            final var selected = nPane.getSelectionModel().getSelectedItem();
+            final var node = selected.getContent();
+            node.requestFocus();
+          }
+        } );
+      }
+    } );
 
     return tab;
   }
@@ -727,7 +685,6 @@ public final class MainPane extends SplitPane {
 
     initStageOwnerFactory( tabPane );
     initTabListener( tabPane );
-    initSelectionModelListener( tabPane );
 
     return tabPane;
   }
@@ -769,9 +726,9 @@ public final class MainPane extends SplitPane {
    * Note that multiple tabs can be added simultaneously.
    * </p>
    *
-   * @param tabPane A new {@link DetachableTabPane} to configure.
+   * @param tabPane A new {@link TabPane} to configure.
    */
-  private void initTabListener( final DetachableTabPane tabPane ) {
+  private void initTabListener( final TabPane tabPane ) {
     tabPane.getTabs().addListener(
       ( final ListChangeListener.Change<? extends Tab> listener ) -> {
         while( listener.next() ) {
@@ -797,41 +754,6 @@ public final class MainPane extends SplitPane {
         }
       }
     );
-  }
-
-  /**
-   * Responsible for handling tab change events.
-   *
-   * @param tabPane A new {@link DetachableTabPane} to configure.
-   */
-  private void initSelectionModelListener( final DetachableTabPane tabPane ) {
-    final var model = tabPane.getSelectionModel();
-
-    model.selectedItemProperty().addListener( ( c, o, n ) -> {
-      if( o != null && n == null ) {
-        final var node = o.getContent();
-
-        // If the last definition editor in the active pane was closed,
-        // clear out the definitions then refresh the text editor.
-        if( node instanceof TextDefinition ) {
-          mActiveDefinitionEditor.set( createDefinitionEditor() );
-        }
-      }
-      else if( n != null ) {
-        final var node = n.getContent();
-
-        if( node instanceof TextEditor ) {
-          // Changing the active node will fire an event, which will
-          // update the preview panel and grab focus.
-          mActiveTextEditor.set( (TextEditor) node );
-        }
-        else if( node instanceof TextDefinition ) {
-          mActiveDefinitionEditor.set( (DefinitionEditor) node );
-        }
-
-        runLater( node::requestFocus );
-      }
-    } );
   }
 
   /**
