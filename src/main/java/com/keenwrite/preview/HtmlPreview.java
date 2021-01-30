@@ -190,7 +190,7 @@ public final class HtmlPreview extends SwingNode {
       while( iter++ < 3 && ((box = mView.getBoxById( id )) == null) ) {
         try {
           sleep( 10 );
-        } catch( final InterruptedException ex ) {
+        } catch( final Exception ex ) {
           clue( ex );
         }
       }

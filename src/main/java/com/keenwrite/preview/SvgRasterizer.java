@@ -10,7 +10,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
@@ -53,7 +52,7 @@ public final class SvgRasterizer {
       t.setOutputProperty( METHOD, "xml" );
       t.setOutputProperty( INDENT, "no" );
       t.setOutputProperty( ENCODING, UTF_8.name() );
-    } catch( final TransformerConfigurationException e ) {
+    } catch( final Exception ignored ) {
       t = null;
     }
 

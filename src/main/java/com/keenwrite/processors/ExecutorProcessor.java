@@ -4,6 +4,8 @@ package com.keenwrite.processors;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
+import static com.keenwrite.events.StatusEvent.clue;
+
 /**
  * Responsible for transforming data through a variety of chained handlers.
  *
@@ -43,7 +45,12 @@ public class ExecutorProcessor<T> implements Processor<T> {
 
     while( handler.isPresent() ) {
       handler = handler.flatMap( p -> {
-        result.set( p.apply( result.get() ) );
+        try {
+          result.set( p.apply( result.get() ) );
+        } catch( final Exception ex ) {
+          clue( ex );
+        }
+
         return p.next();
       } );
     }

@@ -17,7 +17,6 @@ import com.keenwrite.preferences.Key;
 import com.keenwrite.preferences.Workspace;
 import com.keenwrite.preview.HtmlPanel;
 import com.keenwrite.preview.HtmlPreview;
-import com.keenwrite.processors.IdentityProcessor;
 import com.keenwrite.processors.Processor;
 import com.keenwrite.processors.ProcessorContext;
 import com.keenwrite.processors.ProcessorFactory;
@@ -62,6 +61,7 @@ import static com.keenwrite.events.Bus.register;
 import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.io.MediaType.*;
 import static com.keenwrite.preferences.WorkspaceKeys.*;
+import static com.keenwrite.processors.IdentityProcessor.IDENTITY;
 import static com.keenwrite.processors.ProcessorFactory.createProcessors;
 import static java.util.stream.Collectors.groupingBy;
 import static javafx.application.Platform.runLater;
@@ -652,8 +652,8 @@ public final class MainPane extends SplitPane {
     // This means that the preview will have a slight delay when catching up
     // to the caret position.
     invokeLater( () -> {
-      mProcessors.getOrDefault( editor, IdentityProcessor.IDENTITY )
-                 .apply( editor == null ? "" : editor.getText() );
+      final var processor = mProcessors.getOrDefault( editor, IDENTITY );
+      processor.apply( editor == null ? "" : editor.getText() );
       mHtmlPreview.scrollTo( CARET_ID );
     } );
   }

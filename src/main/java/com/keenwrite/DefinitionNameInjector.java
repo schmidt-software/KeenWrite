@@ -52,8 +52,8 @@ public final class DefinitionNameInjector {
           }
         }
       }
-    } catch( final Exception ignored ) {
-      clue( STATUS_DEFINITION_BLANK );
+    } catch( final Exception ex ) {
+      clue( STATUS_DEFINITION_BLANK, ex );
     }
   }
 

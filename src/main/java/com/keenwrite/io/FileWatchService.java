@@ -47,7 +47,7 @@ public class FileWatchService implements Runnable {
       for( final var file : files ) {
         register( file );
       }
-    } catch( final IOException ex ) {
+    } catch( final Exception ignored ) {
       // Create a fallback that allows the class to be instantiated and used
       // without without preventing the application from launching.
       watchService = new PollingWatchService();

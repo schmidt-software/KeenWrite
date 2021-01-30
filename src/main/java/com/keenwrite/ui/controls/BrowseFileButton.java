@@ -104,7 +104,7 @@ public class BrowseFileButton extends Button {
     String newUrl;
     try {
       newUrl = getBasePath().relativize( file.toPath() ).toString();
-    } catch( IllegalArgumentException ex ) {
+    } catch( final Exception ex ) {
       newUrl = file.toString();
     }
     mUrl.set( newUrl.replace( '\\', '/' ) );

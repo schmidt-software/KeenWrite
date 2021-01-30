@@ -79,7 +79,7 @@ public class StatusEvent implements AppEvent {
 
   private static boolean filter( final StackTraceElement e ) {
     final var clazz = e.getClassName();
-    return clazz.startsWith( MainApp.class.getPackageName() ) ||
+    return clazz.contains( MainApp.class.getPackageName() ) ||
       clazz.startsWith( "org.renjin" );
   }
 
