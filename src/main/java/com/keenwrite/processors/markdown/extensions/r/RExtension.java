@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.keenwrite.processors.IdentityProcessor.IDENTITY;
-import static com.keenwrite.processors.markdown.extensions.r.EmptyNode.EMPTY_NODE;
+import static com.keenwrite.processors.markdown.extensions.EmptyNode.EMPTY_NODE;
 import static com.vladsch.flexmark.parser.Parser.Builder;
 import static com.vladsch.flexmark.parser.Parser.ParserExtension;
 

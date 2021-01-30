@@ -1,7 +1,6 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.preview;
 
-import com.keenwrite.events.FileOpenEvent;
 import com.keenwrite.ui.adapters.DocumentAdapter;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -18,6 +17,7 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.net.URI;
 
+import static com.keenwrite.events.FileOpenEvent.fireFileOpenEvent;
 import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.util.ProtocolScheme.getProtocol;
 import static java.awt.Desktop.Action.BROWSE;
@@ -77,7 +77,7 @@ public final class HtmlPanel extends XHTMLPanel {
               desktop.browse( new URI( uri ) );
             }
           }
-          case FILE -> new FileOpenEvent( new URI( uri ) ).fire();
+          case FILE -> fireFileOpenEvent( new URI( uri ) );
         }
       } catch( final Exception ex ) {
         clue( ex );

@@ -12,14 +12,18 @@ import java.net.URI;
 public class FileOpenEvent implements AppEvent {
   private final URI mUri;
 
+  private FileOpenEvent( final URI uri ) {
+    assert uri != null;
+    mUri = uri;
+  }
+
   /**
-   * Creates a new event using an instance of {@link URI}.
+   * Fires a new file open event using the given {@link URI} instance.
    *
    * @param uri The instance of {@link URI} to open as a file in a text editor.
    */
-  public FileOpenEvent( final URI uri ) {
-    assert uri != null;
-    mUri = uri;
+  public static void fireFileOpenEvent( final URI uri ) {
+    new FileOpenEvent( uri ).fire();
   }
 
   /**

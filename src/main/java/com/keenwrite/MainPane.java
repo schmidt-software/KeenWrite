@@ -20,7 +20,7 @@ import com.keenwrite.processors.IdentityProcessor;
 import com.keenwrite.processors.Processor;
 import com.keenwrite.processors.ProcessorContext;
 import com.keenwrite.processors.ProcessorFactory;
-import com.keenwrite.processors.markdown.extensions.caret.CaretExtension;
+import com.keenwrite.processors.markdown.extensions.CaretExtension;
 import com.keenwrite.service.events.Notifier;
 import com.keenwrite.sigils.RSigilOperator;
 import com.keenwrite.sigils.SigilOperator;

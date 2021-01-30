@@ -106,7 +106,7 @@ public class StatusEvent implements AppEvent {
    * @param args The placeholder values to substitute into the key's value.
    */
   public static void clue( final String key, final Object... args ) {
-    update( get( key, args ) );
+    fireStatusEvent( get( key, args ) );
   }
 
   /**
@@ -116,7 +116,7 @@ public class StatusEvent implements AppEvent {
    * @param problem The exception that triggered the status update.
    */
   public static void clue( final String message, final Throwable problem ) {
-    update( message, problem );
+    fireStatusEvent( message, problem );
   }
 
   /**
@@ -125,14 +125,14 @@ public class StatusEvent implements AppEvent {
    * @param problem The exception with a message to display to the user.
    */
   public static void clue( final Throwable problem ) {
-    update( problem.getMessage() );
+    fireStatusEvent( problem.getMessage() );
   }
 
-  private static void update( final String message ) {
+  private static void fireStatusEvent( final String message ) {
     new StatusEvent( message ).fire();
   }
 
-  private static void update( final String message, final Throwable problem ) {
+  private static void fireStatusEvent( final String message, final Throwable problem ) {
     new StatusEvent( message, problem ).fire();
   }
 }
