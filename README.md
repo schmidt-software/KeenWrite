@@ -49,6 +49,7 @@ The application offers:
 * Real-time rendering of math using TeX notation
 * Diagrams: Mermaid, GraphViz, UML, sequence, timing, and [many more](https://kroki.io/)!
 * Dark, custom, and responsive themes
+* Interactive document outline
 * Internationalized font support (e.g., Chinese, Japanese, Korean, etc.)
 * R integration
 * XML transformation using XSLT3 or older
@@ -67,15 +68,19 @@ Read the [themes documentation](docs/themes.md) to learn about themes.
 
 Diagram that includes variables:
 
-![GraphViz Diagram Screenshot](docs/images/screenshots/01.png)
+![GraphViz diagram screenshot](docs/images/screenshots/01.png)
 
 Poem with locale settings:
 
-![Korean Poem Screenshot](docs/images/screenshots/02.png)
+![Korean poem screenshot](docs/images/screenshots/02.png)
 
 TeX equations with detached preview:
 
-![TeX Equations Screenshot](docs/images/screenshots/03.png)
+![TeX equations screenshot](docs/images/screenshots/03.png)
+
+Document outline opened and docked in bottom-left corner:
+
+![Document outline](docs/images/screenshots/04.png)
 
 ## License
 
