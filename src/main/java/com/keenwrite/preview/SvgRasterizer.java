@@ -10,7 +10,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
@@ -23,7 +22,7 @@ import java.net.URI;
 import java.nio.file.Path;
 import java.text.NumberFormat;
 
-import static com.keenwrite.StatusNotifier.clue;
+import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.preview.RenderingSettings.RENDERING_HINTS;
 import static java.awt.image.BufferedImage.TYPE_INT_RGB;
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -53,7 +52,7 @@ public final class SvgRasterizer {
       t.setOutputProperty( METHOD, "xml" );
       t.setOutputProperty( INDENT, "no" );
       t.setOutputProperty( ENCODING, UTF_8.name() );
-    } catch( final TransformerConfigurationException e ) {
+    } catch( final Exception ignored ) {
       t = null;
     }
 

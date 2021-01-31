@@ -1,7 +1,7 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.ui.logging;
 
-import com.keenwrite.MainApp;
+import com.keenwrite.events.StatusEvent;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.ObservableList;
@@ -9,19 +9,18 @@ import javafx.scene.control.*;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.stage.Stage;
+import org.greenrobot.eventbus.Subscribe;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.TreeSet;
-import java.util.stream.Collectors;
 
 import static com.keenwrite.Constants.ICON_DIALOG;
-import static com.keenwrite.Constants.NEWLINE;
 import static com.keenwrite.Messages.get;
-import static com.keenwrite.StatusNotifier.clue;
+import static com.keenwrite.events.Bus.register;
+import static com.keenwrite.events.StatusEvent.clue;
 import static java.time.LocalDateTime.now;
 import static java.time.format.DateTimeFormatter.ofPattern;
-import static java.util.Arrays.stream;
 import static javafx.collections.FXCollections.observableArrayList;
 import static javafx.event.ActionEvent.ACTION;
 import static javafx.scene.control.Alert.AlertType.INFORMATION;
@@ -55,6 +54,22 @@ public final class LogView extends Alert {
     initButtons();
     initIcon();
     initActions();
+    register( this );
+  }
+
+  @Subscribe
+  public void log( final StatusEvent event ) {
+    final var logEntry = new LogEntry( event );
+
+    if( !mEntries.contains( logEntry ) ) {
+      mEntries.add( logEntry );
+
+      while( mEntries.size() > CACHE_SIZE ) {
+        mEntries.remove( 0 );
+      }
+
+      mTable.scrollTo( logEntry );
+    }
   }
 
   /**
@@ -71,34 +86,6 @@ public final class LogView extends Alert {
   public void clear() {
     mEntries.clear();
     clue();
-  }
-
-  public void log( final String message ) {
-    log( new LogEntry( message ) );
-  }
-
-  public void log( final Throwable error ) {
-    log( new LogEntry( error ) );
-  }
-
-  public void log( final String message, final Throwable trace ) {
-    log( new LogEntry( message, trace ) );
-  }
-
-  private void log( final LogEntry logEntry ) {
-    // Exit early if the log already contains the message. The status bar will
-    // remain current.
-    if( mEntries.contains( logEntry ) ) {
-      return;
-    }
-
-    mEntries.add( logEntry );
-
-    while( mEntries.size() > CACHE_SIZE ) {
-      mEntries.remove( 0 );
-    }
-
-    mTable.scrollTo( logEntry );
   }
 
   private void initTableView() {
@@ -172,36 +159,12 @@ public final class LogView extends Alert {
     private final StringProperty mTrace;
 
     /**
-     * Constructs a new {@link LogEntry} for the current time, and having
-     * no associated stack trace.
-     *
-     * @param message The error message.
+     * Constructs a new {@link LogEntry} for the current time.
      */
-    public LogEntry( final String message ) {
-      this( message, null );
-    }
-
-    /**
-     * Constructs a new {@link LogEntry} for the current time, and using
-     * the given error's message.
-     *
-     * @param error The stack trace, must not be {@code null}.
-     */
-    public LogEntry( final Throwable error ) {
-      this( error.getMessage(), error );
-    }
-
-    /**
-     * Constructs a new {@link LogEntry} with the current date and time.
-     *
-     * @param message The error message.
-     * @param trace   The stack trace associated with the message, may be
-     *                {@code null}.
-     */
-    public LogEntry( final String message, final Throwable trace ) {
+    public LogEntry( final StatusEvent event ) {
       mDate = new SimpleStringProperty( toString( now() ) );
-      mMessage = new SimpleStringProperty( message );
-      mTrace = new SimpleStringProperty( toString( trace ) );
+      mMessage = new SimpleStringProperty( event.toString() );
+      mTrace = new SimpleStringProperty( event.getProblem() );
     }
 
     private StringProperty messageProperty() {
@@ -220,21 +183,6 @@ public final class LogView extends Alert {
       return date.format( ofPattern( "d MMM u HH:mm:ss" ) );
     }
 
-    private String toString( final Throwable trace ) {
-      final var sb = new StringBuilder( 256 );
-
-      if( trace != null ) {
-        sb.append( trace.getMessage().trim() ).append( NEWLINE );
-        stream( trace.getStackTrace() )
-          .takeWhile( LogView::filter )
-          .limit( 10 )
-          .collect( Collectors.toList() )
-          .forEach( e -> sb.append( e.toString() ).append( NEWLINE ) );
-      }
-
-      return sb.toString();
-    }
-
     @Override
     public boolean equals( final Object o ) {
       if( this == o ) { return true; }
@@ -247,12 +195,6 @@ public final class LogView extends Alert {
     public int hashCode() {
       return mMessage != null ? mMessage.hashCode() : 0;
     }
-  }
-
-  private static boolean filter( final StackTraceElement e ) {
-    final var clazz = e.getClassName();
-    return clazz.startsWith( MainApp.class.getPackageName() ) ||
-      clazz.startsWith( "org.renjin" );
   }
 
   /**

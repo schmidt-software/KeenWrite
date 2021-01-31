@@ -5,6 +5,8 @@ import java.io.File;
 import java.net.URI;
 import java.net.URL;
 
+import static com.keenwrite.events.StatusEvent.clue;
+
 /**
  * Represents the type of data encoding scheme used for a universal resource
  * indicator. Prefer to use the {@code is*} methods to check equality because
@@ -22,7 +24,7 @@ public enum ProtocolScheme {
    */
   HTTP,
   /**
-   * Denotes FTP.
+   * Denotes the File Transfer Protocol.
    */
   FTP,
   /**
@@ -98,6 +100,7 @@ public enum ProtocolScheme {
     try {
       return valueFrom( uri.toURL() );
     } catch( final Exception ex ) {
+      clue( ex );
       return UNKNOWN;
     }
   }

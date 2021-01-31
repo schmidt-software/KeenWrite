@@ -1,7 +1,6 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite;
 
-import com.keenwrite.editors.TabSceneFactory;
 import com.keenwrite.editors.TextDefinition;
 import com.keenwrite.editors.TextEditor;
 import com.keenwrite.editors.TextResource;
@@ -9,15 +8,20 @@ import com.keenwrite.editors.definition.DefinitionEditor;
 import com.keenwrite.editors.definition.TreeTransformer;
 import com.keenwrite.editors.definition.yaml.YamlTreeTransformer;
 import com.keenwrite.editors.markdown.MarkdownEditor;
+import com.keenwrite.events.CaretNavigationEvent;
+import com.keenwrite.events.FileOpenEvent;
+import com.keenwrite.events.TextDefinitionFocusEvent;
+import com.keenwrite.events.TextEditorFocusEvent;
 import com.keenwrite.io.MediaType;
+import com.keenwrite.outline.DocumentOutline;
 import com.keenwrite.preferences.Key;
 import com.keenwrite.preferences.Workspace;
+import com.keenwrite.preview.HtmlPanel;
 import com.keenwrite.preview.HtmlPreview;
-import com.keenwrite.processors.IdentityProcessor;
 import com.keenwrite.processors.Processor;
 import com.keenwrite.processors.ProcessorContext;
 import com.keenwrite.processors.ProcessorFactory;
-import com.keenwrite.processors.markdown.extensions.caret.CaretExtension;
+import com.keenwrite.processors.markdown.extensions.CaretExtension;
 import com.keenwrite.service.events.Notifier;
 import com.keenwrite.sigils.RSigilOperator;
 import com.keenwrite.sigils.SigilOperator;
@@ -31,16 +35,20 @@ import javafx.collections.ListChangeListener;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.event.EventHandler;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
 import javafx.scene.control.Tooltip;
 import javafx.scene.control.TreeItem.TreeModificationEvent;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 import javafx.stage.Window;
+import org.greenrobot.eventbus.Subscribe;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -50,14 +58,16 @@ import java.util.stream.Collectors;
 import static com.keenwrite.Constants.*;
 import static com.keenwrite.ExportFormat.NONE;
 import static com.keenwrite.Messages.get;
-import static com.keenwrite.StatusNotifier.clue;
+import static com.keenwrite.events.Bus.register;
+import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.io.MediaType.*;
 import static com.keenwrite.preferences.WorkspaceKeys.*;
+import static com.keenwrite.processors.IdentityProcessor.IDENTITY;
 import static com.keenwrite.processors.ProcessorFactory.createProcessors;
-import static com.keenwrite.service.events.Notifier.NO;
-import static com.keenwrite.service.events.Notifier.YES;
 import static java.util.stream.Collectors.groupingBy;
 import static javafx.application.Platform.runLater;
+import static javafx.scene.control.ButtonType.NO;
+import static javafx.scene.control.ButtonType.YES;
 import static javafx.scene.control.TabPane.TabClosingPolicy.ALL_TABS;
 import static javafx.scene.input.KeyCode.SPACE;
 import static javafx.scene.input.KeyCombination.CONTROL_DOWN;
@@ -92,7 +102,7 @@ public final class MainPane extends SplitPane {
   /**
    * Groups similar file type tabs together.
    */
-  private final Map<MediaType, DetachableTabPane> mTabPanes = new HashMap<>();
+  private final Map<MediaType, TabPane> mTabPanes = new HashMap<>();
 
   /**
    * Stores definition names and values.
@@ -104,6 +114,11 @@ public final class MainPane extends SplitPane {
    * Renders the actively selected plain text editor tab.
    */
   private final HtmlPreview mHtmlPreview;
+
+  /**
+   * Provides an interactive document outline.
+   */
+  private final DocumentOutline mDocumentOutline = new DocumentOutline();
 
   /**
    * Changing the active editor fires the value changed event. This allows
@@ -120,20 +135,6 @@ public final class MainPane extends SplitPane {
    */
   private final ObjectProperty<TextDefinition> mActiveDefinitionEditor =
     createActiveDefinitionEditor( mActiveTextEditor );
-
-  /**
-   * Responsible for creating a new scene when a definition editor is detached
-   * into its own window frame.
-   */
-  private final TabSceneFactory mDefinitionTabSceneFactory =
-    createTabSceneFactory( mActiveDefinitionEditor );
-
-  /**
-   * Responsible for creating a new scene when a text editor is detached into
-   * its own window frame.
-   */
-  private final TabSceneFactory mTextTabSceneFactory =
-    createTabSceneFactory( mActiveTextEditor );
 
   /**
    * Tracks the number of detached tab panels opened into their own windows,
@@ -170,45 +171,74 @@ public final class MainPane extends SplitPane {
     // Once the main scene's window regains focus, update the active definition
     // editor to the currently selected tab.
     runLater(
-      () -> {
-        getWindow().focusedProperty().addListener( ( c, o, n ) -> {
-          if( n != null && n ) {
-            for( final var pane : mTabPanes.values() ) {
-              final var tab = pane.getSelectionModel().getSelectedItem();
+      () -> getWindow().setOnCloseRequest( ( event ) -> {
+        // Order matters here. We want to close all the tabs to ensure each
+        // is saved, but after they are closed, the workspace should still
+        // retain the list of files that were open. If this line came after
+        // closing, then restarting the application would list no files.
+        mWorkspace.save();
 
-              if( tab == null ) {
-                continue;
-              }
-
-              final var resource = tab.getContent();
-
-              if( resource instanceof TextDefinition ) {
-                mActiveDefinitionEditor.set( (TextDefinition) resource );
-              }
-              else if( resource instanceof TextEditor ) {
-                mActiveTextEditor.set( (TextEditor) resource );
-              }
-            }
-          }
-        } );
-
-        getWindow().setOnCloseRequest( ( event ) -> {
-          // Order matters here. We want to close all the tabs to ensure each
-          // is saved, but after they are closed, the workspace should still
-          // retain the list of files that were open. If this line came after
-          // closing, then restarting the application would list no files.
-          mWorkspace.save();
-
-          if( closeAll() ) {
-            Platform.exit();
-            System.exit( 0 );
-          }
-          else {
-            event.consume();
-          }
-        } );
-      }
+        if( closeAll() ) {
+          Platform.exit();
+          System.exit( 0 );
+        }
+        else {
+          event.consume();
+        }
+      } )
     );
+
+    register( this );
+  }
+
+  @Subscribe
+  public void handle( final TextEditorFocusEvent event ) {
+    mActiveTextEditor.set( event.get() );
+  }
+
+  @Subscribe
+  public void handle( final TextDefinitionFocusEvent event ) {
+    mActiveDefinitionEditor.set( event.get() );
+  }
+
+  /**
+   * Typically called when a file name is clicked in the {@link HtmlPanel}.
+   *
+   * @param event The event to process, must contain a valid file reference.
+   */
+  @Subscribe
+  public void handle( final FileOpenEvent event ) {
+    final File eventFile;
+    final var eventUri = event.getUri();
+
+    if( eventUri.isAbsolute() ) {
+      eventFile = new File( eventUri.getPath() );
+    }
+    else {
+      final var activeFile = getActiveTextEditor().getFile();
+      final var parent = activeFile.getParentFile();
+
+      if( parent == null ) {
+        clue( new FileNotFoundException( eventUri.getPath() ) );
+        return;
+      }
+      else {
+        final var parentPath = parent.getAbsolutePath();
+        eventFile = Path.of( parentPath, eventUri.getPath() ).toFile();
+      }
+    }
+
+    runLater( () -> open( eventFile ) );
+  }
+
+  @Subscribe
+  public void handle( final CaretNavigationEvent event ) {
+    runLater( () -> {
+      final var textArea = getActiveTextEditor().getTextArea();
+      textArea.moveTo( event.getOffset() );
+      textArea.requestFollowCaret();
+      textArea.requestFocus();
+    } );
   }
 
   /**
@@ -246,7 +276,7 @@ public final class MainPane extends SplitPane {
     final var tab = createTab( file );
     final var node = tab.getContent();
     final var mediaType = MediaType.valueFrom( file );
-    final var tabPane = obtainDetachableTabPane( mediaType );
+    final var tabPane = obtainTabPane( mediaType );
 
     tab.setTooltip( createTooltip( file ) );
     tabPane.setFocusTraversable( false );
@@ -255,17 +285,9 @@ public final class MainPane extends SplitPane {
 
     // Attach the tab scene factory for new tab panes.
     if( !getItems().contains( tabPane ) ) {
-      var index = getItems().size();
-
-      if( node instanceof TextDefinition ) {
-        tabPane.setSceneFactory( mDefinitionTabSceneFactory::create );
-        index = 0;
-      }
-      else if( node instanceof TextEditor ) {
-        tabPane.setSceneFactory( mTextTabSceneFactory::create );
-      }
-
-      addTabPane( index, tabPane );
+      addTabPane(
+        node instanceof TextDefinition ? 0 : getItems().size(), tabPane
+      );
     }
 
     getRecentFiles().add( file.getAbsolutePath() );
@@ -468,20 +490,30 @@ public final class MainPane extends SplitPane {
   }
 
   /**
-   * Adds the HTML preview tab to its own tab pane. This will only add the
-   * preview once.
+   * Adds the HTML preview tab to its own, singular tab pane.
    */
   public void viewPreview() {
-    final var tabPane = obtainDetachableTabPane( TEXT_HTML );
+    viewTab( mHtmlPreview, TEXT_HTML, "HTML" );
+  }
 
-    // Prevent multiple HTML previews because in the end, there can be only one.
+  /**
+   * Adds the document outline tab to its own, singular tab pane.
+   */
+  public void viewOutline() {
+    viewTab( mDocumentOutline, APP_DOCUMENT_OUTLINE, "Outline" );
+  }
+
+  private void viewTab(
+    final Node node, final MediaType mediaType, final String name ) {
+    final var tabPane = obtainTabPane( mediaType );
+
     for( final var tab : tabPane.getTabs() ) {
-      if( tab.getContent() == mHtmlPreview ) {
+      if( tab.getContent() == node ) {
         return;
       }
     }
 
-    tabPane.addTab( "HTML", mHtmlPreview );
+    tabPane.getTabs().add( createTab( name, node ) );
     addTabPane( tabPane );
   }
 
@@ -524,30 +556,13 @@ public final class MainPane extends SplitPane {
     return definitions;
   }
 
-  /**
-   * Instantiates a factory that's responsible for creating new scenes when
-   * a tab is dropped outside of any application window. The tabs are fairly
-   * in that only one may be the "active" one at any time.
-   * <p>
-   * For definition tabs, upon activation the {@link #mResolvedMap} must be
-   * updated to reflect the hierarchy displayed in the {@link DefinitionEditor}.
-   * </p>
-   *
-   * @param activeEditor A reference to the active editor property.
-   * @return An object that listens to tab focus changes.
-   */
-  @SuppressWarnings( "unchecked" )
-  private <T extends TextResource> TabSceneFactory createTabSceneFactory(
-    final ObjectProperty<T> activeEditor ) {
-    return new TabSceneFactory( ( tab ) -> {
-      assert tab != null;
-      activeEditor.set( (T) tab.getContent() );
-    } );
+  private Tab createTab( final String filename, final Node node ) {
+    return new DetachableTab( filename, node );
   }
 
-  private DetachableTab createTab( final File file ) {
+  private Tab createTab( final File file ) {
     final var r = createTextResource( file );
-    final var tab = new DetachableTab( r.getFilename(), r.getNode() );
+    final var tab = createTab( r.getFilename(), r.getNode() );
 
     r.modifiedProperty().addListener(
       ( c, o, n ) -> tab.setText( r.getFilename() + (n ? "*" : "") )
@@ -558,6 +573,18 @@ public final class MainPane extends SplitPane {
     tab.setOnClosed(
       ( __ ) -> getRecentFiles().remove( file.getAbsolutePath() )
     );
+
+    tab.tabPaneProperty().addListener( ( cPane, oPane, nPane ) -> {
+      if( nPane != null ) {
+        nPane.focusedProperty().addListener( ( c, o, n ) -> {
+          if( n != null && n ) {
+            final var selected = nPane.getSelectionModel().getSelectedItem();
+            final var node = selected.getContent();
+            node.requestFocus();
+          }
+        } );
+      }
+    } );
 
     return tab;
   }
@@ -640,40 +667,36 @@ public final class MainPane extends SplitPane {
     // This means that the preview will have a slight delay when catching up
     // to the caret position.
     invokeLater( () -> {
-      mProcessors.getOrDefault( editor, IdentityProcessor.IDENTITY )
-                 .apply( editor == null ? "" : editor.getText() );
+      final var processor = mProcessors.getOrDefault( editor, IDENTITY );
+      processor.apply( editor == null ? "" : editor.getText() );
       mHtmlPreview.scrollTo( CARET_ID );
     } );
   }
 
   /**
-   * Lazily creates a {@link DetachableTabPane} configured to handle focus
-   * requests by delegating to the selected tab's content. The tab pane is
-   * associated with a given media type so that similar files can be grouped
-   * together.
+   * Lazily creates a {@link TabPane} configured to listen for tab select
+   * events. The tab pane is associated with a given media type so that
+   * similar files can be grouped together.
    *
    * @param mediaType The media type to associate with the tab pane.
-   * @return An instance of {@link DetachableTabPane} that will handle
-   * docking of tabs.
+   * @return An instance of {@link TabPane} that will handle tab docking.
    */
-  private DetachableTabPane obtainDetachableTabPane(
-    final MediaType mediaType ) {
+  private TabPane obtainTabPane( final MediaType mediaType ) {
     return mTabPanes.computeIfAbsent(
-      mediaType, ( mt ) -> createDetachableTabPane()
+      mediaType, ( mt ) -> createTabPane()
     );
   }
 
   /**
-   * Creates an initialized {@link DetachableTabPane} instance.
+   * Creates an initialized {@link TabPane} instance.
    *
-   * @return A new {@link DetachableTabPane} with all listeners configured.
+   * @return A new {@link TabPane} with all listeners configured.
    */
-  private DetachableTabPane createDetachableTabPane() {
+  private TabPane createTabPane() {
     final var tabPane = new DetachableTabPane();
 
     initStageOwnerFactory( tabPane );
     initTabListener( tabPane );
-    initSelectionModelListener( tabPane );
 
     return tabPane;
   }
@@ -698,6 +721,7 @@ public final class MainPane extends SplitPane {
         ((Stage) getWindow()).getTitle(), ++mWindowCount
       );
       stage.setTitle( title );
+
       return getScene().getWindow();
     } );
   }
@@ -715,9 +739,9 @@ public final class MainPane extends SplitPane {
    * Note that multiple tabs can be added simultaneously.
    * </p>
    *
-   * @param tabPane A new {@link DetachableTabPane} to configure.
+   * @param tabPane A new {@link TabPane} to configure.
    */
-  private void initTabListener( final DetachableTabPane tabPane ) {
+  private void initTabListener( final TabPane tabPane ) {
     tabPane.getTabs().addListener(
       ( final ListChangeListener.Change<? extends Tab> listener ) -> {
         while( listener.next() ) {
@@ -746,41 +770,6 @@ public final class MainPane extends SplitPane {
   }
 
   /**
-   * Responsible for handling tab change events.
-   *
-   * @param tabPane A new {@link DetachableTabPane} to configure.
-   */
-  private void initSelectionModelListener( final DetachableTabPane tabPane ) {
-    final var model = tabPane.getSelectionModel();
-
-    model.selectedItemProperty().addListener( ( c, o, n ) -> {
-      if( o != null && n == null ) {
-        final var node = o.getContent();
-
-        // If the last definition editor in the active pane was closed,
-        // clear out the definitions then refresh the text editor.
-        if( node instanceof TextDefinition ) {
-          mActiveDefinitionEditor.set( createDefinitionEditor() );
-        }
-      }
-      else if( n != null ) {
-        final var node = n.getContent();
-
-        if( node instanceof TextEditor ) {
-          // Changing the active node will fire an event, which will
-          // update the preview panel and grab focus.
-          mActiveTextEditor.set( (TextEditor) node );
-        }
-        else if( node instanceof TextDefinition ) {
-          mActiveDefinitionEditor.set( (DefinitionEditor) node );
-        }
-
-        runLater( node::requestFocus );
-      }
-    } );
-  }
-
-  /**
    * Synchronizes scrollbar positions between the given {@link Tab} that
    * contains an instance of {@link TextEditor} and {@link HtmlPreview} pane.
    *
@@ -794,14 +783,14 @@ public final class MainPane extends SplitPane {
     handler.enabledProperty().bind( tab.selectedProperty() );
   }
 
-  private void addTabPane( final int index, final DetachableTabPane tabPane ) {
+  private void addTabPane( final int index, final TabPane tabPane ) {
     final var items = getItems();
     if( !items.contains( tabPane ) ) {
       items.add( index, tabPane );
     }
   }
 
-  private void addTabPane( final DetachableTabPane tabPane ) {
+  private void addTabPane( final TabPane tabPane ) {
     addTabPane( getItems().size(), tabPane );
   }
 

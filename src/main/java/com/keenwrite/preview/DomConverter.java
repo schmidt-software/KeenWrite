@@ -13,7 +13,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import static com.keenwrite.StatusNotifier.clue;
+import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.processors.text.TextReplacementFactory.replace;
 
 /**

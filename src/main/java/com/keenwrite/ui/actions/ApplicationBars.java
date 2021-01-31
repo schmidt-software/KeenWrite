@@ -1,6 +1,7 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.ui.actions;
 
+import com.keenwrite.ui.controls.EventedStatusBar;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
@@ -8,6 +9,7 @@ import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ToolBar;
+import org.controlsfx.control.StatusBar;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -115,12 +117,14 @@ public final class ApplicationBars {
       get( "Main.menu.view" ),
       addAction( "view.refresh", e -> actions.view‿refresh() ),
       SEPARATOR_ACTION,
-      addAction( "view.issues", e -> actions.view‿issues() ),
       addAction( "view.preview", e -> actions.view‿preview() ),
+      addAction( "view.outline", e -> actions.view‿outline() ),
       SEPARATOR_ACTION,
       addAction( "view.menubar", e -> actions.view‿menubar() ),
       addAction( "view.toolbar", e -> actions.view‿toolbar() ),
-      addAction( "view.statusbar", e -> actions.view‿statusbar() )
+      addAction( "view.statusbar", e -> actions.view‿statusbar() ),
+      SEPARATOR_ACTION,
+      addAction( "view.issues", e -> actions.view‿issues() )
     ),
     createMenu(
       get( "Main.menu.help" ),
@@ -159,6 +163,10 @@ public final class ApplicationBars {
       getAction( "insert.unordered_list" ),
       getAction( "insert.ordered_list" )
     );
+  }
+
+  public static StatusBar createStatusBar() {
+    return new EventedStatusBar();
   }
 
   /**

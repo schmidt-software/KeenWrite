@@ -3,7 +3,7 @@ package com.keenwrite.ui.adapters;
 
 import org.xhtmlrenderer.event.DocumentListener;
 
-import static com.keenwrite.StatusNotifier.clue;
+import static com.keenwrite.events.StatusEvent.clue;
 
 /**
  * Allows subclasses to implement only specific events of interest.

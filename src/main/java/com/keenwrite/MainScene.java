@@ -18,13 +18,11 @@ import java.io.File;
 
 import static com.keenwrite.Constants.*;
 import static com.keenwrite.Messages.get;
-import static com.keenwrite.StatusNotifier.clue;
-import static com.keenwrite.StatusNotifier.getStatusBar;
+import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.preferences.ThemeProperty.toFilename;
 import static com.keenwrite.preferences.WorkspaceKeys.KEY_UI_THEME_CUSTOM;
 import static com.keenwrite.preferences.WorkspaceKeys.KEY_UI_THEME_SELECTION;
-import static com.keenwrite.ui.actions.ApplicationBars.createMenuBar;
-import static com.keenwrite.ui.actions.ApplicationBars.createToolBar;
+import static com.keenwrite.ui.actions.ApplicationBars.*;
 import static javafx.application.Platform.runLater;
 import static javafx.scene.input.KeyCode.ALT;
 import static javafx.scene.input.KeyCode.ALT_GRAPH;
@@ -47,7 +45,7 @@ public final class MainScene {
     final var caretListener = createCaretListener( mainPane );
     mMenuBar = setManagedLayout( createMenuBar( actions ) );
     mToolBar = setManagedLayout( createToolBar() );
-    mStatusBar = setManagedLayout( getStatusBar() );
+    mStatusBar = setManagedLayout( createStatusBar() );
 
     mStatusBar.getRightItems().add( caretListener );
 
@@ -92,6 +90,8 @@ public final class MainScene {
   MenuBar getMenuBar() {
     return mMenuBar;
   }
+
+  public StatusBar getStatusBar() { return mStatusBar; }
 
   private void initStylesheets( final Scene scene, final Workspace workspace ) {
     final var internal = workspace.themeProperty( KEY_UI_THEME_SELECTION );
@@ -209,7 +209,7 @@ public final class MainScene {
    * This allows the user to hide the menu bar, tool bar, etc.
    *
    * @param node The node to have its real estate bound to visibility.
-   * @return The given node.
+   * @return The given node for fluent-like convenience.
    */
   private <T extends Node> T setManagedLayout( final T node ) {
     node.managedProperty().bind( node.visibleProperty() );

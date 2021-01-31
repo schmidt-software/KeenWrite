@@ -17,7 +17,7 @@ import javafx.stage.Stage;
 import org.controlsfx.dialog.FontSelectorDialog;
 
 import static com.keenwrite.Constants.ICON_DIALOG;
-import static com.keenwrite.StatusNotifier.clue;
+import static com.keenwrite.events.StatusEvent.clue;
 import static java.lang.System.currentTimeMillis;
 import static javafx.geometry.Pos.CENTER_LEFT;
 import static javafx.scene.control.ButtonType.CANCEL;

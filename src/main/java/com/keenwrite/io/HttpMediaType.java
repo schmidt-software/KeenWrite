@@ -7,7 +7,7 @@ import java.net.URL;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 
-import static com.keenwrite.StatusNotifier.clue;
+import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.io.MediaType.UNDEFINED;
 import static java.net.http.HttpClient.Redirect.NORMAL;
 import static java.net.http.HttpRequest.BodyPublishers.noBody;

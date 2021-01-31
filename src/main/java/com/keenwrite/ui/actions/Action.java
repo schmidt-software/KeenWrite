@@ -1,6 +1,7 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.ui.actions;
 
+import com.keenwrite.Constants;
 import com.keenwrite.Messages;
 import com.keenwrite.util.GenericBuilder;
 import de.jensd.fx.glyphs.GlyphIcons;
@@ -108,7 +109,7 @@ public final class Action implements MenuAction {
 
   private Button createIconButton() {
     final var button = new Button();
-    button.setGraphic( get().createIcon( mIcon, "1.2em" ) );
+    button.setGraphic( get().createIcon( mIcon, Constants.ICON_SIZE_DEFAULT ) );
     return button;
   }
 

@@ -19,6 +19,9 @@ public enum MediaType {
   APP_JAVA_OBJECT(
     APPLICATION, "x-java-serialized-object"
   ),
+  APP_DOCUMENT_OUTLINE(
+    APPLICATION, "x-document-outline"
+  ),
 
   FONT_OTF( "otf" ),
   FONT_TTF( "ttf" ),

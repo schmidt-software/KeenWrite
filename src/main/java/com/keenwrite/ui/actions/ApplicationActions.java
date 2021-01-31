@@ -4,7 +4,6 @@ package com.keenwrite.ui.actions;
 import com.keenwrite.ExportFormat;
 import com.keenwrite.MainPane;
 import com.keenwrite.MainScene;
-import com.keenwrite.StatusNotifier;
 import com.keenwrite.editors.TextDefinition;
 import com.keenwrite.editors.TextEditor;
 import com.keenwrite.editors.markdown.HyperlinkModel;
@@ -16,6 +15,7 @@ import com.keenwrite.search.SearchModel;
 import com.keenwrite.ui.controls.SearchBar;
 import com.keenwrite.ui.dialogs.ImageDialog;
 import com.keenwrite.ui.dialogs.LinkDialog;
+import com.keenwrite.ui.logging.LogView;
 import com.vladsch.flexmark.ast.Link;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Dialog;
@@ -26,8 +26,7 @@ import static com.keenwrite.Bootstrap.*;
 import static com.keenwrite.Constants.ICON_DIALOG_NODE;
 import static com.keenwrite.ExportFormat.*;
 import static com.keenwrite.Messages.get;
-import static com.keenwrite.StatusNotifier.clue;
-import static com.keenwrite.StatusNotifier.getStatusBar;
+import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.preferences.WorkspaceKeys.KEY_UI_RECENT_DIR;
 import static com.keenwrite.processors.ProcessorFactory.createProcessors;
 import static java.nio.file.Files.writeString;
@@ -52,6 +51,8 @@ public final class ApplicationActions {
 
   private final MainScene mMainScene;
 
+  private final LogView mLogView;
+
   /**
    * Tracks finding text in the active document.
    */
@@ -60,11 +61,12 @@ public final class ApplicationActions {
   public ApplicationActions( final MainScene scene, final MainPane pane ) {
     mMainScene = scene;
     mMainPane = pane;
+    mLogView = new LogView();
     mSearchModel = new SearchModel();
     mSearchModel.matchOffsetProperty().addListener( ( c, o, n ) -> {
       final var editor = getActiveTextEditor();
 
-      // Clear highlighted areas before adding highlighting to a new region.
+      // Clear highlighted areas before highlighting a new region.
       if( o != null ) {
         editor.unstylize( STYLE_SEARCH );
       }
@@ -173,7 +175,7 @@ public final class ApplicationActions {
   }
 
   public void edit‿find() {
-    final var nodes = getStatusBar().getLeftItems();
+    final var nodes = getMainScene().getStatusBar().getLeftItems();
 
     if( nodes.isEmpty() ) {
       final var searchBar = new SearchBar();
@@ -359,6 +361,10 @@ public final class ApplicationActions {
     getMainPane().viewPreview();
   }
 
+  public void view‿outline() {
+    getMainPane().viewOutline();
+  }
+
   public void view‿menubar() {
     getMainScene().toggleMenuBar();
   }
@@ -372,7 +378,7 @@ public final class ApplicationActions {
   }
 
   public void view‿issues() {
-    StatusNotifier.viewIssues();
+    mLogView.view();
   }
 
   public void help‿about() {

@@ -17,7 +17,8 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.net.URI;
 
-import static com.keenwrite.StatusNotifier.clue;
+import static com.keenwrite.events.FileOpenEvent.fireFileOpenEvent;
+import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.util.ProtocolScheme.getProtocol;
 import static java.awt.Desktop.Action.BROWSE;
 import static java.awt.Desktop.getDesktop;
@@ -66,22 +67,20 @@ public final class HtmlPanel extends XHTMLPanel {
    */
   private static final class HyperlinkListener extends LinkListener {
     @Override
-    public void linkClicked( final BasicPanel panel, final String link ) {
-      switch( getProtocol( link ) ) {
-        case HTTP -> {
-          final var desktop = getDesktop();
+    public void linkClicked( final BasicPanel panel, final String uri ) {
+      try {
+        switch( getProtocol( uri ) ) {
+          case HTTP -> {
+            final var desktop = getDesktop();
 
-          if( desktop.isSupported( BROWSE ) ) {
-            try {
-              desktop.browse( new URI( link ) );
-            } catch( final Exception ex ) {
-              clue( ex );
+            if( desktop.isSupported( BROWSE ) ) {
+              desktop.browse( new URI( uri ) );
             }
           }
+          case FILE -> fireFileOpenEvent( new URI( uri ) );
         }
-        case FILE -> {
-          // TODO: #88 -- publish a message to the event bus.
-        }
+      } catch( final Exception ex ) {
+        clue( ex );
       }
     }
   }

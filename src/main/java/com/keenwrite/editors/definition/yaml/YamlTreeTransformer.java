@@ -15,6 +15,7 @@ import java.util.Map.Entry;
 
 import static com.fasterxml.jackson.dataformat.yaml.YAMLGenerator.Feature.MINIMIZE_QUOTES;
 import static com.fasterxml.jackson.dataformat.yaml.YAMLGenerator.Feature.SPLIT_LINES;
+import static com.keenwrite.events.StatusEvent.clue;
 
 /**
  * Transforms a JsonNode hierarchy into a tree that can be displayed in a user
@@ -52,6 +53,7 @@ public final class YamlTreeTransformer implements TreeTransformer {
 
       return sMapper.writeValueAsString( root );
     } catch( final Exception ex ) {
+      clue( ex );
       throw new RuntimeException( ex );
     }
   }

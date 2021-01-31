@@ -2,7 +2,6 @@
 package com.keenwrite.service.events;
 
 import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
 import javafx.stage.Window;
 
 import java.nio.file.Path;
@@ -11,10 +10,6 @@ import java.nio.file.Path;
  * Provides the application with a uniform way to notify the user of events.
  */
 public interface Notifier {
-
-  ButtonType YES = ButtonType.YES;
-  ButtonType NO = ButtonType.NO;
-  ButtonType CANCEL = ButtonType.CANCEL;
 
   /**
    * Constructs an alert message text for a modal alert dialog.
@@ -26,11 +21,11 @@ public interface Notifier {
    * @param ex         The problem that requires user attention.
    */
   void alert(
-      Window parent,
-      Path path,
-      String titleKey,
-      String messageKey,
-      Exception ex );
+    Window parent,
+    Path path,
+    String titleKey,
+    String messageKey,
+    Exception ex );
 
   /**
    * Constructs an alert message text for a modal alert dialog.
@@ -41,10 +36,10 @@ public interface Notifier {
    * @param ex     The problem that requires user attention.
    */
   default void alert(
-      Window parent,
-      Path path,
-      String key,
-      Exception ex ) {
+    Window parent,
+    Path path,
+    String key,
+    Exception ex ) {
     alert( parent, path, key + ".title", key + ".message", ex );
   }
 
@@ -57,9 +52,9 @@ public interface Notifier {
    * @return The message suitable for building a modal alert dialog.
    */
   Notification createNotification(
-      String title,
-      String message,
-      Object... args );
+    String title,
+    String message,
+    Object... args );
 
   /**
    * Creates an alert of alert type error with a message showing the cause of

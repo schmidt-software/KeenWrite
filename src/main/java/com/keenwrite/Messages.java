@@ -18,7 +18,7 @@ import static java.util.ResourceBundle.getBundle;
 public final class Messages {
 
   private static final ResourceBundle RESOURCE_BUNDLE =
-      getBundle( APP_BUNDLE_NAME );
+    getBundle( APP_BUNDLE_NAME );
 
   private Messages() {
   }
@@ -31,7 +31,7 @@ public final class Messages {
    * @param s     The value for a key to resolve.
    * @return The value of the key with all references recursively dereferenced.
    */
-  @SuppressWarnings("SameParameterValue")
+  @SuppressWarnings( "SameParameterValue" )
   private static String resolve( final ResourceBundle props, final String s ) {
     final int len = s.length();
     final Stack<StringBuilder> stack = new Stack<>();

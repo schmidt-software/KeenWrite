@@ -7,7 +7,7 @@ import org.w3c.dom.Document;
 
 import java.util.function.Supplier;
 
-import static com.keenwrite.StatusNotifier.clue;
+import static com.keenwrite.events.StatusEvent.clue;
 
 /**
  * Responsible for rendering formulas as scalable vector graphics (SVG).

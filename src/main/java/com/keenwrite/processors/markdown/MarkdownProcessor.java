@@ -4,9 +4,10 @@ package com.keenwrite.processors.markdown;
 import com.keenwrite.io.MediaType;
 import com.keenwrite.processors.Processor;
 import com.keenwrite.processors.ProcessorContext;
+import com.keenwrite.processors.markdown.extensions.DocumentOutlineExtension;
 import com.keenwrite.processors.markdown.extensions.FencedBlockExtension;
 import com.keenwrite.processors.markdown.extensions.ImageLinkExtension;
-import com.keenwrite.processors.markdown.extensions.caret.CaretExtension;
+import com.keenwrite.processors.markdown.extensions.CaretExtension;
 import com.keenwrite.processors.markdown.extensions.r.RExtension;
 import com.keenwrite.processors.markdown.extensions.tex.TeXExtension;
 import com.keenwrite.processors.r.RProcessor;
@@ -73,5 +74,6 @@ public final class MarkdownProcessor extends BaseMarkdownProcessor {
     extensions.add( TeXExtension.create( context, processor ) );
     extensions.add( FencedBlockExtension.create( context ) );
     extensions.add( CaretExtension.create( context ) );
+    extensions.add( DocumentOutlineExtension.create( processor ) );
   }
 }

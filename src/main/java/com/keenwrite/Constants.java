@@ -2,6 +2,8 @@
 package com.keenwrite;
 
 import com.keenwrite.service.Settings;
+import javafx.scene.control.ToolBar;
+import javafx.scene.control.TreeItem;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
@@ -214,6 +216,11 @@ public final class Constants {
    * Default identifier to use for synchronized scrolling.
    */
   public static final String CARET_ID = "caret";
+
+  /**
+   * Default icon size for {@link ToolBar}, {@link TreeItem}s, etc.
+   */
+  public static final String ICON_SIZE_DEFAULT = "1.2em";
 
   /**
    * Prevent instantiation.

@@ -1,10 +1,9 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
-package com.keenwrite.processors.markdown.extensions.caret;
+package com.keenwrite.processors.markdown.extensions;
 
 import com.keenwrite.Caret;
 import com.keenwrite.Constants;
 import com.keenwrite.processors.ProcessorContext;
-import com.keenwrite.processors.markdown.extensions.HtmlRendererAdapter;
 import com.vladsch.flexmark.ext.tables.TableBlock;
 import com.vladsch.flexmark.html.AttributeProvider;
 import com.vladsch.flexmark.html.AttributeProviderFactory;
@@ -17,7 +16,7 @@ import com.vladsch.flexmark.util.html.MutableAttributes;
 import org.jetbrains.annotations.NotNull;
 
 import static com.keenwrite.Constants.CARET_ID;
-import static com.keenwrite.processors.markdown.extensions.r.EmptyNode.EMPTY_NODE;
+import static com.keenwrite.processors.markdown.extensions.EmptyNode.EMPTY_NODE;
 import static com.vladsch.flexmark.html.HtmlRenderer.Builder;
 
 /**

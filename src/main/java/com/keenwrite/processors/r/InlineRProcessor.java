@@ -18,7 +18,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.keenwrite.Constants.STATUS_PARSE_ERROR;
 import static com.keenwrite.Messages.get;
-import static com.keenwrite.StatusNotifier.clue;
+import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.preferences.WorkspaceKeys.*;
 import static com.keenwrite.processors.text.TextReplacementFactory.replace;
 import static com.keenwrite.sigils.RSigilOperator.PREFIX;

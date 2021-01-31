@@ -197,7 +197,7 @@ public class Caret {
                   getParagraph() + 1,
                   getParagraphCount(),
                   getTextOffset() + 1 );
-    } catch( final NullPointerException ex ) {
+    } catch( final Exception ex ) {
       return get( STATUS_BAR_LINE, 0, 0, 0 );
     }
   }

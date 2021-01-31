@@ -30,8 +30,7 @@ public final class HtmlPreviewProcessor extends ExecutorProcessor<String> {
    * Update the preview panel using HTML from the succession chain.
    *
    * @param html The document content to render in the preview pane. The HTML
-   *             should not contain a doctype, head, or body tag, only
-   *             content to render within the body.
+   *             should not contain a doctype, head, or body tag.
    * @return The given {@code html} string.
    */
   @Override
