@@ -48,8 +48,10 @@ public final class DocumentOutlineExtension implements ParserExtension {
       final var matcher = sRegex.matcher( heading );
 
       if( matcher.find() ) {
-        final var hashes = matcher.group().length();
-        fireNewHeadingEvent( heading.substring( hashes ), hashes );
+        final var level = matcher.group().length();
+        final var text = heading.substring( level );
+        final var offset = node.getStartOffset();
+        fireNewHeadingEvent( level, text, offset );
       }
     }
   }

@@ -8,7 +8,7 @@ import com.keenwrite.processors.Processor;
  * all pertinent {@link Processor}s applied.
  */
 public class ParseHeadingEvent implements AppEvent {
-  private static final int NEW_OUTLINE_LEVEL = -1;
+  private static final int NEW_OUTLINE_LEVEL = 0;
 
   /**
    * The heading text, which may be {@code null} upon creating a new outline.
@@ -21,47 +21,45 @@ public class ParseHeadingEvent implements AppEvent {
    */
   private final int mLevel;
 
-  private ParseHeadingEvent( final String text, final int level ) {
+  /**
+   * Offset into the text where the heading is found.
+   */
+  private final int mOffset;
+
+  private ParseHeadingEvent(
+    final int level, final String text, final int offset ) {
     mText = text;
     mLevel = level;
+    mOffset = offset;
   }
 
   /**
    * Call to indicate a new outline is to be created.
    */
   public static void fireNewOutlineEvent() {
-    new ParseHeadingEvent( "", NEW_OUTLINE_LEVEL ).fire();
+    new ParseHeadingEvent( NEW_OUTLINE_LEVEL, "Document", 0 ).fire();
   }
 
   /**
    * Call to indicate that a new heading must be added to the document outline.
    *
-   * @param text  The heading text (parsed and processed).
-   * @param level A value between 1 and 6.
+   * @param text   The heading text (parsed and processed).
+   * @param level  A value between 1 and 6.
+   * @param offset Absolute offset into document where heading is found.
    */
-  public static void fireNewHeadingEvent( final String text, final int level ) {
+  public static void fireNewHeadingEvent(
+    final int level, final String text, final int offset ) {
     assert text != null;
     assert 1 <= level && level <= 6;
-    new ParseHeadingEvent( text, level ).fire();
+    assert offset >= 0;
+    new ParseHeadingEvent( level, text, offset ).fire();
   }
 
   public boolean isNewOutline() {
     return getLevel() == NEW_OUTLINE_LEVEL;
   }
 
-  public boolean isSibling( final ParseHeadingEvent event ) {
-    return event.getLevel() == getLevel();
-  }
-
-  public boolean isChild( final ParseHeadingEvent event ) {
-    return event.getLevel() > getLevel();
-  }
-
-  public boolean isParent( final ParseHeadingEvent event ) {
-    return event.getLevel() < getLevel();
-  }
-
-  private int getLevel() {
+  public int getLevel() {
     return mLevel;
   }
 
@@ -70,8 +68,16 @@ public class ParseHeadingEvent implements AppEvent {
    *
    * @return The post-parsed and processed heading text from the document.
    */
+  public String getText() {
+    return mText;
+  }
+
+  public int getOffset() {
+    return mOffset;
+  }
+
   @Override
   public String toString() {
-    return mText;
+    return getText();
   }
 }

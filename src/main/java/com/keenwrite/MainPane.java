@@ -8,6 +8,7 @@ import com.keenwrite.editors.definition.DefinitionEditor;
 import com.keenwrite.editors.definition.TreeTransformer;
 import com.keenwrite.editors.definition.yaml.YamlTreeTransformer;
 import com.keenwrite.editors.markdown.MarkdownEditor;
+import com.keenwrite.events.CaretNavigationEvent;
 import com.keenwrite.events.FileOpenEvent;
 import com.keenwrite.events.TextDefinitionFocusEvent;
 import com.keenwrite.events.TextEditorFocusEvent;
@@ -101,7 +102,7 @@ public final class MainPane extends SplitPane {
   /**
    * Groups similar file type tabs together.
    */
-  private final Map<MediaType, DetachableTabPane> mTabPanes = new HashMap<>();
+  private final Map<MediaType, TabPane> mTabPanes = new HashMap<>();
 
   /**
    * Stores definition names and values.
@@ -230,6 +231,16 @@ public final class MainPane extends SplitPane {
     runLater( () -> open( eventFile ) );
   }
 
+  @Subscribe
+  public void handle( final CaretNavigationEvent event ) {
+    runLater( () -> {
+      final var textArea = getActiveTextEditor().getTextArea();
+      textArea.moveTo( event.getOffset() );
+      textArea.requestFollowCaret();
+      textArea.requestFocus();
+    } );
+  }
+
   /**
    * TODO: Load divider positions from exported settings, see bin() comment.
    */
@@ -265,7 +276,7 @@ public final class MainPane extends SplitPane {
     final var tab = createTab( file );
     final var node = tab.getContent();
     final var mediaType = MediaType.valueFrom( file );
-    final var tabPane = obtainDetachableTabPane( mediaType );
+    final var tabPane = obtainTabPane( mediaType );
 
     tab.setTooltip( createTooltip( file ) );
     tabPane.setFocusTraversable( false );
@@ -494,7 +505,7 @@ public final class MainPane extends SplitPane {
 
   private void viewTab(
     final Node node, final MediaType mediaType, final String name ) {
-    final var tabPane = obtainDetachableTabPane( mediaType );
+    final var tabPane = obtainTabPane( mediaType );
 
     for( final var tab : tabPane.getTabs() ) {
       if( tab.getContent() == node ) {
@@ -502,7 +513,7 @@ public final class MainPane extends SplitPane {
       }
     }
 
-    tabPane.addTab( name, node );
+    tabPane.getTabs().add( createTab( name, node ) );
     addTabPane( tabPane );
   }
 
@@ -545,9 +556,13 @@ public final class MainPane extends SplitPane {
     return definitions;
   }
 
+  private Tab createTab( final String filename, final Node node ) {
+    return new DetachableTab( filename, node );
+  }
+
   private Tab createTab( final File file ) {
     final var r = createTextResource( file );
-    final var tab = new DetachableTab( r.getFilename(), r.getNode() );
+    final var tab = createTab( r.getFilename(), r.getNode() );
 
     r.modifiedProperty().addListener(
       ( c, o, n ) -> tab.setText( r.getFilename() + (n ? "*" : "") )
@@ -659,28 +674,25 @@ public final class MainPane extends SplitPane {
   }
 
   /**
-   * Lazily creates a {@link DetachableTabPane} configured to handle focus
-   * requests by delegating to the selected tab's content. The tab pane is
-   * associated with a given media type so that similar files can be grouped
-   * together.
+   * Lazily creates a {@link TabPane} configured to listen for tab select
+   * events. The tab pane is associated with a given media type so that
+   * similar files can be grouped together.
    *
    * @param mediaType The media type to associate with the tab pane.
-   * @return An instance of {@link DetachableTabPane} that will handle
-   * docking of tabs.
+   * @return An instance of {@link TabPane} that will handle tab docking.
    */
-  private DetachableTabPane obtainDetachableTabPane(
-    final MediaType mediaType ) {
+  private TabPane obtainTabPane( final MediaType mediaType ) {
     return mTabPanes.computeIfAbsent(
-      mediaType, ( mt ) -> createDetachableTabPane()
+      mediaType, ( mt ) -> createTabPane()
     );
   }
 
   /**
-   * Creates an initialized {@link DetachableTabPane} instance.
+   * Creates an initialized {@link TabPane} instance.
    *
-   * @return A new {@link DetachableTabPane} with all listeners configured.
+   * @return A new {@link TabPane} with all listeners configured.
    */
-  private DetachableTabPane createDetachableTabPane() {
+  private TabPane createTabPane() {
     final var tabPane = new DetachableTabPane();
 
     initStageOwnerFactory( tabPane );
@@ -709,6 +721,7 @@ public final class MainPane extends SplitPane {
         ((Stage) getWindow()).getTitle(), ++mWindowCount
       );
       stage.setTitle( title );
+
       return getScene().getWindow();
     } );
   }
@@ -770,14 +783,14 @@ public final class MainPane extends SplitPane {
     handler.enabledProperty().bind( tab.selectedProperty() );
   }
 
-  private void addTabPane( final int index, final DetachableTabPane tabPane ) {
+  private void addTabPane( final int index, final TabPane tabPane ) {
     final var items = getItems();
     if( !items.contains( tabPane ) ) {
       items.add( index, tabPane );
     }
   }
 
-  private void addTabPane( final DetachableTabPane tabPane ) {
+  private void addTabPane( final TabPane tabPane ) {
     addTabPane( getItems().size(), tabPane );
   }
 
