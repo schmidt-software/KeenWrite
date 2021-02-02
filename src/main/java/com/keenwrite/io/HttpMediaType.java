@@ -1,11 +1,16 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.io;
 
+import javax.net.ssl.*;
 import java.net.MalformedURLException;
+import java.net.Socket;
 import java.net.URI;
 import java.net.URL;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.X509Certificate;
 
 import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.io.MediaType.UNDEFINED;
@@ -20,7 +25,11 @@ import static java.time.Duration.ofSeconds;
  */
 public final class HttpMediaType {
 
-  private final static HttpClient HTTP_CLIENT = HttpClient
+  static {
+    disableSSLVerification();
+  }
+
+  private static final HttpClient HTTP_CLIENT = HttpClient
     .newBuilder()
     .connectTimeout( ofSeconds( 10 ) )
     .followRedirects( NORMAL )
@@ -76,5 +85,63 @@ public final class HttpMediaType {
     }
 
     return mediaType[ 0 ];
+  }
+
+  // Method used for bypassing SSL verification
+  private static void disableSSLVerification() {
+
+    TrustManager[] trustAllCerts =
+      new TrustManager[]{new X509ExtendedTrustManager() {
+        @Override
+        public void checkClientTrusted( X509Certificate[] chain,
+                                        String authType,
+                                        Socket socket ) {
+
+        }
+
+        @Override
+        public void checkServerTrusted( X509Certificate[] chain,
+                                        String authType,
+                                        Socket socket ) {
+
+        }
+
+        @Override
+        public void checkClientTrusted( X509Certificate[] chain,
+                                        String authType,
+                                        SSLEngine engine ) {
+
+        }
+
+        @Override
+        public void checkServerTrusted( X509Certificate[] chain,
+                                        String authType,
+                                        SSLEngine engine ) {
+
+        }
+
+        @Override
+        public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+          return null;
+        }
+
+        @Override
+        public void checkClientTrusted(
+          X509Certificate[] certs, String authType ) {
+        }
+
+        @Override
+        public void checkServerTrusted(
+          X509Certificate[] certs, String authType ) {
+        }
+      }};
+
+    try {
+      final var context = SSLContext.getInstance( "SSL" );
+      context.init( null, trustAllCerts, new java.security.SecureRandom() );
+      HttpsURLConnection.setDefaultSSLSocketFactory( context.getSocketFactory() );
+    } catch( KeyManagementException | NoSuchAlgorithmException e ) {
+      e.printStackTrace();
+    }
   }
 }
