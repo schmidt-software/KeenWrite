@@ -8,8 +8,6 @@ import java.net.URI;
 import java.net.URL;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
 import java.security.cert.X509Certificate;
 
 import static com.keenwrite.events.StatusEvent.clue;
@@ -140,8 +138,9 @@ public final class HttpMediaType {
       final var context = SSLContext.getInstance( "SSL" );
       context.init( null, trustAllCerts, new java.security.SecureRandom() );
       HttpsURLConnection.setDefaultSSLSocketFactory( context.getSocketFactory() );
-    } catch( KeyManagementException | NoSuchAlgorithmException e ) {
-      e.printStackTrace();
+      HttpsURLConnection.setDefaultHostnameVerifier( ( hostname, session ) -> true );
+    } catch( final Exception ex ) {
+      clue( ex );
     }
   }
 }
