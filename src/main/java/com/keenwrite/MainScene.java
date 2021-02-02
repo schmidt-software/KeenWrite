@@ -146,7 +146,7 @@ public final class MainScene {
     stylesheets.add( getStylesheet( toFilename( internal ) ) );
 
     try {
-      if( external.canRead() && !external.isDirectory() ) {
+      if( !external.isDirectory() ) {
         stylesheets.add( external.toURI().toURL().toString() );
 
         mFileWatchService.register( external );

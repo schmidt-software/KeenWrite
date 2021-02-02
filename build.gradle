@@ -78,6 +78,7 @@ dependencies {
   // HTML parsing and rendering
   implementation 'org.jsoup:jsoup:1.13.1'
   implementation 'org.xhtmlrenderer:flying-saucer-core:9.1.20'
+  implementation 'com.squareup.okhttp3:okhttp:4.9.1'
 
   // R
   implementation 'org.renjin:renjin-script-engine:3.5-beta76'
