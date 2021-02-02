@@ -11,7 +11,7 @@ import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.io.MediaType.UNDEFINED;
 import static java.net.http.HttpClient.Redirect.NORMAL;
 import static java.net.http.HttpRequest.BodyPublishers.noBody;
-import static java.net.http.HttpResponse.BodyHandlers.discarding;
+import static java.net.http.HttpResponse.BodyHandlers.ofString;
 import static java.time.Duration.ofSeconds;
 
 /**
@@ -22,7 +22,7 @@ public final class HttpMediaType {
 
   private final static HttpClient HTTP_CLIENT = HttpClient
     .newBuilder()
-    .connectTimeout( ofSeconds( 5 ) )
+    .connectTimeout( ofSeconds( 10 ) )
     .followRedirects( NORMAL )
     .build();
 
@@ -43,11 +43,12 @@ public final class HttpMediaType {
     try {
       clue( "Main.status.image.request.init" );
       final var request = HttpRequest
-        .newBuilder( uri )
+        .newBuilder()
         .method( "HEAD", noBody() )
+        .uri( uri )
         .build();
       clue( "Main.status.image.request.fetch", uri.getHost() );
-      final var response = HTTP_CLIENT.send( request, discarding() );
+      final var response = HTTP_CLIENT.send( request, ofString() );
       final var headers = response.headers();
       final var map = headers.map();
 
@@ -68,6 +69,8 @@ public final class HttpMediaType {
           clue( "Main.status.image.request.success", mediaType[ 0 ] );
         }
       } );
+
+      clue();
     } catch( final Exception ex ) {
       clue( ex );
     }
