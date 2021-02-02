@@ -10,6 +10,8 @@
 # BINARY FILES:
 #   Disable line ending normalize on checkin.
 
+*.bin binary
+*.exe binary
 *.gif binary
 *.jar binary
 *.png binary
