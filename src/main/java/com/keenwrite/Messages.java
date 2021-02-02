@@ -95,7 +95,7 @@ public final class Messages {
   public static String get( final String key ) {
     try {
       return resolve( RESOURCE_BUNDLE, RESOURCE_BUNDLE.getString( key ) );
-    } catch( final Exception ex ) {
+    } catch( final Exception ignored ) {
       return key;
     }
   }

@@ -222,6 +222,8 @@ public final class Constants {
    */
   public static final String ICON_SIZE_DEFAULT = "1.2em";
 
+  public static final String DIAGRAM_SERVER_NAME = "kroki.io";
+
   /**
    * Prevent instantiation.
    */

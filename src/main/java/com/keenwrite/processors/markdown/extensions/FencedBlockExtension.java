@@ -17,6 +17,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.zip.Deflater;
 
+import static com.keenwrite.Constants.DIAGRAM_SERVER_NAME;
 import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.processors.IdentityProcessor.IDENTITY;
 import static com.vladsch.flexmark.html.HtmlRenderer.Builder;
@@ -96,7 +97,7 @@ public class FencedBlockExtension extends HtmlRendererAdapter {
           final var text = FencedBlockExtension.this.mProcessor.apply( content );
           final var encoded = encode( text );
           final var source = format(
-            "https://kroki.io/%s/svg/%s", type, encoded );
+            "https://%s/%s/svg/%s", DIAGRAM_SERVER_NAME, type, encoded );
 
           final var link = context.resolveLink( LINK, source, false );
 
