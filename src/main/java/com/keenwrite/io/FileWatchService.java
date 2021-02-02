@@ -6,13 +6,13 @@ import org.renjin.repackaged.guava.collect.HashBiMap;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static java.nio.file.FileSystems.getDefault;
 import static java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY;
 import static java.util.Collections.newSetFromMap;
 
@@ -39,21 +39,15 @@ public class FileWatchService implements Runnable {
    * @param files The files to watch for file system events.
    */
   public FileWatchService( final File... files ) {
-    WatchService watchService;
+    mWatchService = createWatchService();
 
     try {
-      watchService = FileSystems.getDefault().newWatchService();
-
       for( final var file : files ) {
         register( file );
       }
-    } catch( final Exception ignored ) {
-      // Create a fallback that allows the class to be instantiated and used
-      // without without preventing the application from launching.
-      watchService = new PollingWatchService();
+    } catch( final Exception ex ) {
+      throw new RuntimeException( ex );
     }
-
-    mWatchService = watchService;
   }
 
   /**
@@ -215,5 +209,15 @@ public class FileWatchService implements Runnable {
     }
 
     return directory.toPath();
+  }
+
+  private WatchService createWatchService() {
+    try {
+      return getDefault().newWatchService();
+    } catch( final Exception ex ) {
+      // Create a fallback that allows the class to be instantiated and used
+      // without without preventing the application from launching.
+      return new PollingWatchService();
+    }
   }
 }
