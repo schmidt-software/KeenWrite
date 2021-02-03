@@ -136,6 +136,7 @@ public final class MainScene {
    *
    * @param scene    The scene to stylize.
    * @param internal The CSS file name bundled with the application.
+   * @param external The (optional) customized CSS file specified by the user.
    */
   private void applyStylesheets(
     final Scene scene, final String internal, final File external ) {
@@ -146,9 +147,8 @@ public final class MainScene {
     stylesheets.add( getStylesheet( toFilename( internal ) ) );
 
     try {
-      if( !external.isDirectory() ) {
+      if( external != null && external.canRead() && !external.isDirectory() ) {
         stylesheets.add( external.toURI().toURL().toString() );
-
         mFileWatchService.register( external );
       }
     } catch( final Exception ex ) {

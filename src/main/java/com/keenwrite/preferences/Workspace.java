@@ -423,7 +423,9 @@ public final class Workspace {
   }
 
   private Object marshall( final Property<?> property ) {
-    return MARSHALL
+    return property.getValue() == null
+      ? null
+      : MARSHALL
       .getOrDefault( property.getClass(), ( __ ) -> property.getValue() )
       .apply( property.getValue().toString() );
   }

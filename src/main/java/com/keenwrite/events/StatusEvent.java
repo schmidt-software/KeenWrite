@@ -125,7 +125,7 @@ public class StatusEvent implements AppEvent {
    * @param problem The exception with a message to display to the user.
    */
   public static void clue( final Throwable problem ) {
-    fireStatusEvent( problem.getMessage() );
+    fireStatusEvent( problem.getMessage(), problem );
   }
 
   private static void fireStatusEvent( final String message ) {

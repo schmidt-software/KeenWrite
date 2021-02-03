@@ -15,10 +15,15 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.TreeSet;
 
+import static com.keenwrite.Bootstrap.APP_TITLE_LOWERCASE;
 import static com.keenwrite.Constants.ICON_DIALOG;
 import static com.keenwrite.Messages.get;
 import static com.keenwrite.events.Bus.register;
 import static com.keenwrite.events.StatusEvent.clue;
+import static java.nio.file.Files.createTempFile;
+import static java.nio.file.Files.write;
+import static java.nio.file.StandardOpenOption.APPEND;
+import static java.nio.file.StandardOpenOption.CREATE;
 import static java.time.LocalDateTime.now;
 import static java.time.format.DateTimeFormatter.ofPattern;
 import static javafx.collections.FXCollections.observableArrayList;
@@ -179,8 +184,17 @@ public final class LogView extends Alert {
       return mTrace;
     }
 
-    private String toString( final LocalDateTime date ) {
-      return date.format( ofPattern( "d MMM u HH:mm:ss" ) );
+    /**
+     * Call from constructor to save log message for debugging purposes.
+     */
+    @SuppressWarnings( "unused" )
+    private void persist() {
+      try {
+        final var file = createTempFile( APP_TITLE_LOWERCASE, ".log" );
+        write( file, toString().getBytes(), CREATE, APPEND );
+      } catch( final Exception ex ) {
+        System.out.println( toString() );
+      }
     }
 
     @Override
@@ -194,6 +208,23 @@ public final class LogView extends Alert {
     @Override
     public int hashCode() {
       return mMessage != null ? mMessage.hashCode() : 0;
+    }
+
+    @Override
+    public String toString() {
+      final var date = mDate == null ? "" : mDate.get();
+      final var message = mMessage == null ? "" : mMessage.get();
+      final var trace = mTrace == null ? "" : mTrace.get();
+
+      return "LogEntry{" +
+        "mDate=" + (date == null ? "''" : date) +
+        ", mMessage=" + (message == null ? "''" : message) +
+        ", mTrace=" + (trace == null ? "''" : trace) +
+        '}';
+    }
+
+    private String toString( final LocalDateTime date ) {
+      return date.format( ofPattern( "d MMM u HH:mm:ss" ) );
     }
   }
 
