@@ -101,7 +101,11 @@ public final class MainScene {
     applyStylesheets( scene, inTheme, exTheme );
 
     internal.addListener(
-      ( c, o, n ) -> applyStylesheets( scene, inTheme, exTheme )
+      ( c, o, n ) -> {
+        if( n != null ) {
+          applyStylesheets( scene, n, exTheme );
+        }
+      }
     );
 
     external.addListener(
