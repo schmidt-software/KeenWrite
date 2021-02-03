@@ -168,7 +168,7 @@ public final class LogView extends Alert {
      */
     public LogEntry( final StatusEvent event ) {
       mDate = new SimpleStringProperty( toString( now() ) );
-      mMessage = new SimpleStringProperty( event.toString() );
+      mMessage = new SimpleStringProperty( event.getMessage() );
       mTrace = new SimpleStringProperty( event.getProblem() );
     }
 

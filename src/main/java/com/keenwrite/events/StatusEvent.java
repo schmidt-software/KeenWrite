@@ -15,6 +15,8 @@ import static java.util.Arrays.stream;
  * exceptions, state problems, parsing errors, and so forth.
  */
 public class StatusEvent implements AppEvent {
+  private static final String PACKAGE_NAME = MainApp.class.getPackageName();
+
   /**
    * Indicates that there are no issues to bring to the user's attention.
    */
@@ -79,8 +81,10 @@ public class StatusEvent implements AppEvent {
 
   private static boolean filter( final StackTraceElement e ) {
     final var clazz = e.getClassName();
-    return clazz.contains( MainApp.class.getPackageName() ) ||
-      clazz.startsWith( "org.renjin" );
+    return clazz.contains( PACKAGE_NAME ) ||
+      clazz.contains( "org.renjin." ) ||
+      clazz.contains( "sun." ) ||
+      clazz.contains( "java." );
   }
 
   /**
@@ -88,7 +92,7 @@ public class StatusEvent implements AppEvent {
    *
    * @return The message for this event.
    */
-  public String toString() {
+  public String getMessage() {
     return mMessage;
   }
 
@@ -132,7 +136,8 @@ public class StatusEvent implements AppEvent {
     new StatusEvent( message ).fire();
   }
 
-  private static void fireStatusEvent( final String message, final Throwable problem ) {
+  private static void fireStatusEvent(
+    final String message, final Throwable problem ) {
     new StatusEvent( message, problem ).fire();
   }
 }
