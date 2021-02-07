@@ -159,15 +159,23 @@ public final class HtmlPreview extends SwingNode {
     mDocument.setLength( 0 );
     mDocument.append( html );
 
-    // Head and tali must be separate from mHtmlDocument due to re-rendering.
+    // Head and tail must be separate from document due to re-rendering.
     return mHead + mDocument.toString() + HTML_TAIL;
   }
 
+  /**
+   * Called when settings are changed that affect the HTML document preamble.
+   * This is a minor performance optimization to avoid generating the head
+   * each time that the document itself changes.
+   *
+   * @return A new doctype and HTML {@code head} element.
+   */
   private String generateHead() {
     final var locale = getLocale();
     final var url = toUrl( locale );
     final var base = getBaseUri();
 
+    // Point sizes are converted to pixels because of a rendering bug.
     return format(
       HTML_HEAD,
       locale.getLanguage(),
