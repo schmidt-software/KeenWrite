@@ -22,6 +22,8 @@ import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.util.ProtocolScheme.getProtocol;
 import static java.awt.Desktop.Action.BROWSE;
 import static java.awt.Desktop.getDesktop;
+import static java.lang.Boolean.FALSE;
+import static java.lang.Boolean.TRUE;
 import static javax.swing.SwingUtilities.invokeLater;
 import static javax.swing.SwingUtilities.isEventDispatchThread;
 import static org.jsoup.Jsoup.parse;
@@ -39,12 +41,12 @@ public final class HtmlPanel extends XHTMLPanel {
 
     @Override
     public void documentStarted() {
-      mReadyProperty.setValue( Boolean.FALSE );
+      mReadyProperty.setValue( FALSE );
     }
 
     @Override
     public void documentLoaded() {
-      mReadyProperty.setValue( Boolean.TRUE );
+      mReadyProperty.setValue( TRUE );
     }
   }
 

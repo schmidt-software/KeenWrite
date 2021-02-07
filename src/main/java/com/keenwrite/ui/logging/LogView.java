@@ -26,6 +26,7 @@ import static java.nio.file.StandardOpenOption.APPEND;
 import static java.nio.file.StandardOpenOption.CREATE;
 import static java.time.LocalDateTime.now;
 import static java.time.format.DateTimeFormatter.ofPattern;
+import static javafx.application.Platform.runLater;
 import static javafx.collections.FXCollections.observableArrayList;
 import static javafx.event.ActionEvent.ACTION;
 import static javafx.scene.control.Alert.AlertType.INFORMATION;
@@ -64,17 +65,19 @@ public final class LogView extends Alert {
 
   @Subscribe
   public void log( final StatusEvent event ) {
-    final var logEntry = new LogEntry( event );
+    runLater( () ->{
+      final var logEntry = new LogEntry( event );
 
-    if( !mEntries.contains( logEntry ) ) {
-      mEntries.add( logEntry );
+      if( !mEntries.contains( logEntry ) ) {
+        mEntries.add( logEntry );
 
-      while( mEntries.size() > CACHE_SIZE ) {
-        mEntries.remove( 0 );
+        while( mEntries.size() > CACHE_SIZE ) {
+          mEntries.remove( 0 );
+        }
+
+        mTable.scrollTo( logEntry );
       }
-
-      mTable.scrollTo( logEntry );
-    }
+    });
   }
 
   /**
@@ -192,7 +195,7 @@ public final class LogView extends Alert {
       try {
         final var file = createTempFile( APP_TITLE_LOWERCASE, ".log" );
         write( file, toString().getBytes(), CREATE, APPEND );
-      } catch( final Exception ex ) {
+      } catch( final Exception ignored ) {
         System.out.println( toString() );
       }
     }

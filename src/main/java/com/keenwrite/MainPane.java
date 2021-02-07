@@ -387,11 +387,14 @@ public final class MainPane extends SplitPane {
         final var tab = tabIterator.next();
         final var resource = tab.getContent();
 
-        if( !(resource instanceof TextResource) ) {
+        // The definition panes auto-save, so being specific here prevents
+        // closing the definitions in the situation where the user wants to
+        // continue editing (i.e., possibly save unsaved work).
+        if( !(resource instanceof TextEditor) ) {
           continue;
         }
 
-        if( canClose( (TextResource) resource ) ) {
+        if( canClose( (TextEditor) resource ) ) {
           tabIterator.remove();
           close( tab );
         }

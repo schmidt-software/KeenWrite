@@ -179,7 +179,7 @@ public final class Constants {
   /**
    * Default preview font name.
    */
-  public static final String FONT_NAME_PREVIEW_DEFAULT = "Source Serif Pro";
+  public static final String FONT_NAME_PREVIEW_DEFAULT = "Source Serif 4";
 
   /**
    * Default preview font size, in points.

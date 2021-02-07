@@ -417,9 +417,16 @@ public final class Workspace {
 
   private Object unmarshall(
     final Property<?> property, final Object configValue ) {
+    String setting = configValue.toString();
+
+    // TODO: #118 - Font upgrade, which can be removed in a few releases.
+    if( setting.equalsIgnoreCase( "Source Serif Pro" ) ) {
+      setting = "Source Serif 4";
+    }
+
     return UNMARSHALL
       .getOrDefault( property.getClass(), ( value ) -> value )
-      .apply( configValue.toString() );
+      .apply( setting );
   }
 
   private Object marshall( final Property<?> property ) {

@@ -1,6 +1,7 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.preview;
 
+import com.keenwrite.Constants;
 import com.keenwrite.preferences.LocaleProperty;
 import com.keenwrite.preferences.Workspace;
 import javafx.application.Platform;
@@ -32,10 +33,12 @@ import static javax.swing.SwingUtilities.invokeLater;
  */
 public final class HtmlPreview extends SwingNode {
 
-  // The order is important: Swing factory will replace SVG images with
-  // a blank image, which will cause the chained factory to cache the image
-  // and exit. Instead, the SVG must execute first to rasterize the content.
-  // Consequently, the chained factory must maintain insertion order.
+  /**
+   * The order is important: Swing factory will replace SVG images with
+   * a blank image, which will cause the chained factory to cache the image
+   * and exit. Instead, the SVG must execute first to rasterize the content.
+   * Consequently, the chained factory must maintain insertion order.
+   */
   private static final ChainedReplacedElementFactory FACTORY
     = new ChainedReplacedElementFactory(
     new SvgReplacedElementFactory(),
@@ -43,18 +46,26 @@ public final class HtmlPreview extends SwingNode {
   );
 
   /**
+   * Used to populate the {@link #HTML_HEAD} with stylesheet file references.
+   */
+  private static final String HTML_STYLESHEET =
+    "<link rel='stylesheet' href='%s'/>";
+
+  /**
    * Render CSS using points (pt) not pixels (px) to reduce the chance of
    * poor rendering. The {@link #head()} method fills out the placeholders.
+   * When the user has not set a locale, only one stylesheet is added to
+   * the document.
+   * <p>
+   * Do not use points, only pixels here.
+   * </p>
    */
   private static final String HTML_HEAD =
     """
-      <!DOCTYPE html>
-      <html lang='%s'><head><title> </title><meta charset='utf-8'>
-      <link rel='stylesheet' href='%s'>
-      <link rel='stylesheet' href='%s'>
-      <style>body{font-family:'%s';font-size: %spt;}</style>
-      <base href='%s'>
-      </head><body>
+      <!doctype html>
+      <html lang='%s'><head><title> </title><meta charset='utf-8'/>
+      %s%s<style>body{font-family:'%s';font-size: %dpx;}</style>
+      <base href='%s'/></head><body>
       """;
 
   private static final String HTML_TAIL = "</body></html>";
@@ -69,7 +80,12 @@ public final class HtmlPreview extends SwingNode {
   private HtmlPanel mView;
   private JScrollPane mScrollPane;
   private String mBaseUriPath = "";
+
+  /**
+   * Populates {@link Constants#STYLESHEET_PREVIEW_LOCALE} for stylesheet.
+   */
   private URL mLocaleUrl;
+
   private final Workspace mWorkspace;
 
   /**
@@ -104,7 +120,7 @@ public final class HtmlPreview extends SwingNode {
         rerender();
       } );
 
-      fontNameProperty().addListener( ( c, o, n ) -> rerender() );
+      fontFamilyProperty().addListener( ( c, o, n ) -> rerender() );
       fontSizeProperty().addListener( ( c, o, n ) -> rerender() );
     } );
   }
@@ -139,18 +155,20 @@ public final class HtmlPreview extends SwingNode {
    */
   private String decorate( final String html ) {
     mHtmlDocument.setLength( 0 );
+    mHtmlDocument.append( head() );
     mHtmlDocument.append( html );
-    return head() + mHtmlDocument + tail();
+    mHtmlDocument.append( tail() );
+    return mHtmlDocument.toString();
   }
 
   private String head() {
     return format(
       HTML_HEAD,
       getLocale().getLanguage(),
-      HTML_STYLE_PREVIEW,
-      mLocaleUrl,
-      getFontName(),
-      getFontSize(),
+      format( HTML_STYLESHEET, HTML_STYLE_PREVIEW ),
+      mLocaleUrl == null ? "" : format( HTML_STYLESHEET, mLocaleUrl ),
+      getFontFamily(),
+      (int) (getFontSize() * (1 + 1 / 3f)),
       mBaseUriPath
     );
   }
@@ -304,11 +322,11 @@ public final class HtmlPreview extends SwingNode {
     return mWorkspace.localeProperty( KEY_LANGUAGE_LOCALE );
   }
 
-  private String getFontName() {
-    return fontNameProperty().get();
+  private String getFontFamily() {
+    return fontFamilyProperty().get();
   }
 
-  private StringProperty fontNameProperty() {
+  private StringProperty fontFamilyProperty() {
     return mWorkspace.stringProperty( KEY_UI_FONT_PREVIEW_NAME );
   }
 
@@ -316,6 +334,10 @@ public final class HtmlPreview extends SwingNode {
     return fontSizeProperty().get();
   }
 
+  /**
+   * Returns the font size in points.
+   * @return The user-defined font size (in pt).
+   */
   private DoubleProperty fontSizeProperty() {
     return mWorkspace.doubleProperty( KEY_UI_FONT_PREVIEW_SIZE );
   }

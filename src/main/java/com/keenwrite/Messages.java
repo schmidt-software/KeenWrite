@@ -33,14 +33,13 @@ public final class Messages {
    */
   @SuppressWarnings( "SameParameterValue" )
   private static String resolve( final ResourceBundle props, final String s ) {
-    final int len = s.length();
-    final Stack<StringBuilder> stack = new Stack<>();
+    final var len = s.length();
+    final var stack = new Stack<StringBuilder>();
+    var sb = new StringBuilder( 256 );
+    var open = false;
 
-    StringBuilder sb = new StringBuilder( 256 );
-    boolean open = false;
-
-    for( int i = 0; i < len; i++ ) {
-      final char c = s.charAt( i );
+    for( var i = 0; i < len; i++ ) {
+      final var c = s.charAt( i );
 
       switch( c ) {
         case '$': {
@@ -63,7 +62,7 @@ public final class Messages {
         case '}': {
           if( open ) {
             open = false;
-            final String name = sb.toString();
+            final var name = sb.toString();
 
             sb = stack.pop();
             sb.append( props.getString( name ) );
