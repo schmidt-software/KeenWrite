@@ -109,7 +109,7 @@ The preview panel shows:
 Calling `setwd` using `'{{application.r.working.directory}}'` changes the
 working directory where the R engine searches for source files.
 
-# YAML definitions
+# YAML variable definitions
 
 To see how variable definitions work in R, try the following:
 
@@ -122,7 +122,7 @@ To see how variable definitions work in R, try the following:
     ```
 1. Save the file as `definitions.yaml`.
 1. Click **File → Open**.
-1. Set **Source Files** to **Definition Files**.
+1. Set **Source Files** to **Variable Files**.
 1. Select `definitions.yaml`.
 1. Click **Open**.
 1. Open `sum.Rmd` if it is not already open.
@@ -141,7 +141,7 @@ The preview panel shows:
 r#x( 'Project Title' )
 ```
 
-This is because the application inserts definition reference names based
+This is because the application inserts variable reference names based
 on the type of file being edited. By default, the R engine does not have
 a function named `x` defined.
 
@@ -172,7 +172,7 @@ Project Title
 ```
 
 The `x` function attempts to evaluate the expression defined by the YAML
-variable. This means that the YAML definitions can also include expressions
+variable. This means that the YAML variables can also include expressions
 that R is capable of evaluating.
 
 While the `x` function can be defined within the R Startup Script, it is

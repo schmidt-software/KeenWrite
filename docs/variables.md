@@ -56,11 +56,11 @@ Start a new document as follows:
 1. Start the application.
 1. Click **File → New** to create an empty document to edit.
 1. Click **File → Open** to open a variable definition file.
-1. Change **Source Files** to **Definition Files** to list definition files.
+1. Change **Source Files** to **Variable Files** to list variable definition files.
 1. Browse to and select a file saved with a `.yaml` or `.yml` extension.
 1. Click **Open**.
 
-The variable definitions appear in the variable definition pane under the heading of **Definitions**.
+The variable definitions appear in the variable definition pane under the heading of **Variables**.
 
 ## Edit document
 
