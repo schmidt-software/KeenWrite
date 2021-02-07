@@ -1,7 +1,6 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.preview;
 
-import com.keenwrite.Constants;
 import com.keenwrite.preferences.LocaleProperty;
 import com.keenwrite.preferences.Workspace;
 import javafx.application.Platform;
@@ -49,23 +48,30 @@ public final class HtmlPreview extends SwingNode {
    * Used to populate the {@link #HTML_HEAD} with stylesheet file references.
    */
   private static final String HTML_STYLESHEET =
-    "<link rel='stylesheet' href='%s'/>";
+    "<link rel='stylesheet' href='%s'>";
+
+  private static final String HTML_BASE =
+    "<base href='%s'>";
 
   /**
    * Render CSS using points (pt) not pixels (px) to reduce the chance of
-   * poor rendering. The {@link #head()} method fills out the placeholders.
+   * poor rendering. The {@link #generateHead()} method fills placeholders.
    * When the user has not set a locale, only one stylesheet is added to
-   * the document.
-   * <p>
-   * Do not use points, only pixels here.
+   * the document. In order, the placeholders are as follows:
+   * <ol>
+   * <li>%s --- language</li>
+   * <li>%s --- default stylesheet</li>
+   * <li>%s --- language-specific stylesheet</li>
+   * <li>%s --- font family</li>
+   * <li>%d --- font size (must be pixels, not points due to bug)</li>
+   * <li>%s --- base href</li>
    * </p>
    */
   private static final String HTML_HEAD =
     """
       <!doctype html>
-      <html lang='%s'><head><title> </title><meta charset='utf-8'/>
-      %s%s<style>body{font-family:'%s';font-size: %dpx;}</style>
-      <base href='%s'/></head><body>
+      <html lang='%s'><head><title> </title><meta charset='utf-8'>
+      %s%s<style>body{font-family:'%s';font-size: %dpx;}</style>%s</head><body>
       """;
 
   private static final String HTML_TAIL = "</body></html>";
@@ -73,18 +79,14 @@ public final class HtmlPreview extends SwingNode {
   private static final URL HTML_STYLE_PREVIEW = toUrl( STYLESHEET_PREVIEW );
 
   /**
-   * The buffer is reused so that previous memory allocations need not repeat.
+   * Reusing this buffer prevents repetitious memory re-allocations.
    */
-  private final StringBuilder mHtmlDocument = new StringBuilder( 65536 );
+  private final StringBuilder mDocument = new StringBuilder( 65536 );
 
   private HtmlPanel mView;
   private JScrollPane mScrollPane;
   private String mBaseUriPath = "";
-
-  /**
-   * Populates {@link Constants#STYLESHEET_PREVIEW_LOCALE} for stylesheet.
-   */
-  private URL mLocaleUrl;
+  private String mHead = "";
 
   private final Workspace mWorkspace;
 
@@ -96,12 +98,12 @@ public final class HtmlPreview extends SwingNode {
    */
   public HtmlPreview( final Workspace workspace ) {
     mWorkspace = workspace;
-    mLocaleUrl = toUrl( getLocale() );
 
     // Attempts to prevent a flash of black un-styled content upon load.
     setStyle( "-fx-background-color: white;" );
 
     invokeLater( () -> {
+      mHead = generateHead();
       mView = new HtmlPanel();
       mScrollPane = new JScrollPane( mView );
 
@@ -115,11 +117,7 @@ public final class HtmlPreview extends SwingNode {
       context.setReplacedElementFactory( FACTORY );
       textRenderer.setSmoothingThreshold( 0 );
 
-      localeProperty().addListener( ( c, o, n ) -> {
-        mLocaleUrl = toUrl( getLocale() );
-        rerender();
-      } );
-
+      localeProperty().addListener( ( c, o, n ) -> rerender() );
       fontFamilyProperty().addListener( ( c, o, n ) -> rerender() );
       fontSizeProperty().addListener( ( c, o, n ) -> rerender() );
     } );
@@ -142,8 +140,12 @@ public final class HtmlPreview extends SwingNode {
     rerender();
   }
 
+  /**
+   * Recomputes the HTML head then renders the document.
+   */
   private void rerender() {
-    render( mHtmlDocument.toString() );
+    mHead = generateHead();
+    render( mDocument.toString() );
   }
 
   /**
@@ -154,27 +156,27 @@ public final class HtmlPreview extends SwingNode {
    * @return A complete HTML document, ready for rendering.
    */
   private String decorate( final String html ) {
-    mHtmlDocument.setLength( 0 );
-    mHtmlDocument.append( head() );
-    mHtmlDocument.append( html );
-    mHtmlDocument.append( tail() );
-    return mHtmlDocument.toString();
+    mDocument.setLength( 0 );
+    mDocument.append( html );
+
+    // Head and tali must be separate from mHtmlDocument due to re-rendering.
+    return mHead + mDocument.toString() + HTML_TAIL;
   }
 
-  private String head() {
+  private String generateHead() {
+    final var locale = getLocale();
+    final var url = toUrl( locale );
+    final var base = getBaseUri();
+
     return format(
       HTML_HEAD,
-      getLocale().getLanguage(),
+      locale.getLanguage(),
       format( HTML_STYLESHEET, HTML_STYLE_PREVIEW ),
-      mLocaleUrl == null ? "" : format( HTML_STYLESHEET, mLocaleUrl ),
+      url == null ? "" : format( HTML_STYLESHEET, url ),
       getFontFamily(),
       (int) (getFontSize() * (1 + 1 / 3f)),
-      mBaseUriPath
+      base.isBlank() ? "" : format( HTML_BASE, base )
     );
-  }
-
-  private String tail() {
-    return HTML_TAIL;
   }
 
   /**
@@ -336,6 +338,7 @@ public final class HtmlPreview extends SwingNode {
 
   /**
    * Returns the font size in points.
+   *
    * @return The user-defined font size (in pt).
    */
   private DoubleProperty fontSizeProperty() {

@@ -113,12 +113,12 @@ public final class MainPane extends SplitPane {
   /**
    * Renders the actively selected plain text editor tab.
    */
-  private final HtmlPreview mHtmlPreview;
+  private final HtmlPreview mPreview;
 
   /**
    * Provides an interactive document outline.
    */
-  private final DocumentOutline mDocumentOutline = new DocumentOutline();
+  private final DocumentOutline mOutline = new DocumentOutline();
 
   /**
    * Changing the active editor fires the value changed event. This allows
@@ -162,7 +162,7 @@ public final class MainPane extends SplitPane {
    */
   public MainPane( final Workspace workspace ) {
     mWorkspace = workspace;
-    mHtmlPreview = new HtmlPreview( workspace );
+    mPreview = new HtmlPreview( workspace );
 
     open( bin( getRecentFiles() ) );
     viewPreview();
@@ -484,7 +484,7 @@ public final class MainPane extends SplitPane {
 
     editor.addListener( ( c, o, n ) -> {
       if( n != null ) {
-        mHtmlPreview.setBaseUri( n.getPath() );
+        mPreview.setBaseUri( n.getPath() );
         process( n );
       }
     } );
@@ -496,14 +496,14 @@ public final class MainPane extends SplitPane {
    * Adds the HTML preview tab to its own, singular tab pane.
    */
   public void viewPreview() {
-    viewTab( mHtmlPreview, TEXT_HTML, "HTML" );
+    viewTab( mPreview, TEXT_HTML, get( "Pane.preview.title" ) );
   }
 
   /**
    * Adds the document outline tab to its own, singular tab pane.
    */
   public void viewOutline() {
-    viewTab( mDocumentOutline, APP_DOCUMENT_OUTLINE, "Outline" );
+    viewTab( mOutline, APP_DOCUMENT_OUTLINE, get( "Pane.outline.title" ) );
   }
 
   private void viewTab(
@@ -521,7 +521,7 @@ public final class MainPane extends SplitPane {
   }
 
   public void viewRefresh() {
-    mHtmlPreview.refresh();
+    mPreview.refresh();
   }
 
   /**
@@ -672,7 +672,7 @@ public final class MainPane extends SplitPane {
     invokeLater( () -> {
       final var processor = mProcessors.getOrDefault( editor, IDENTITY );
       processor.apply( editor == null ? "" : editor.getText() );
-      mHtmlPreview.scrollTo( CARET_ID );
+      mPreview.scrollTo( CARET_ID );
     } );
   }
 
@@ -781,7 +781,7 @@ public final class MainPane extends SplitPane {
   private void initScrollEventListener( final Tab tab ) {
     final var editor = (TextEditor) tab.getContent();
     final var scrollPane = editor.getScrollPane();
-    final var scrollBar = mHtmlPreview.getVerticalScrollBar();
+    final var scrollBar = mPreview.getVerticalScrollBar();
     final var handler = new ScrollEventHandler( scrollPane, scrollBar );
     handler.enabledProperty().bind( tab.selectedProperty() );
   }
@@ -818,7 +818,7 @@ public final class MainPane extends SplitPane {
   private ProcessorContext createProcessorContext(
     final Path path, final Caret caret, final ExportFormat format ) {
     return new ProcessorContext(
-      mHtmlPreview, mResolvedMap, path, caret, format, mWorkspace
+      mPreview, mResolvedMap, path, caret, format, mWorkspace
     );
   }
 
