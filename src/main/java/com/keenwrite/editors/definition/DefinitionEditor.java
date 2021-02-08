@@ -4,6 +4,8 @@ package com.keenwrite.editors.definition;
 import com.keenwrite.Constants;
 import com.keenwrite.editors.TextDefinition;
 import com.keenwrite.sigils.Tokens;
+import com.keenwrite.ui.tree.AltTreeView;
+import com.keenwrite.ui.tree.TreeItemConverter;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
 import javafx.beans.property.BooleanProperty;
@@ -54,9 +56,15 @@ public final class DefinitionEditor extends BorderPane
   private final DefinitionTreeItem<String> mTreeRoot = createRootTreeItem();
 
   /**
+   * Converts a tree item value to and from a string..
+   */
+  private final TreeItemConverter mConverter = new TreeItemConverter();
+
+  /**
    * Contains a view of the definitions.
    */
-  private final TreeView<String> mTreeView = new TreeView<>( mTreeRoot );
+  private final TreeView<String> mTreeView =
+    new AltTreeView<>( mTreeRoot, mConverter );
 
   /**
    * Used to adapt the structured document into a {@link TreeView}.
@@ -111,11 +119,9 @@ public final class DefinitionEditor extends BorderPane
     mFile = file;
     mTreeTransformer = treeTransformer;
 
-    mTreeView.setEditable( true );
-    mTreeView.setCellFactory( new TreeCellFactory() );
+    //mTreeView.setCellFactory( new TreeCellFactory() );
     mTreeView.setContextMenu( createContextMenu() );
     mTreeView.addEventFilter( KEY_PRESSED, this::keyEventFilter );
-    mTreeView.setShowRoot( false );
     mTreeView.focusedProperty().addListener( this::focused );
     getSelectionModel().setSelectionMode( MULTIPLE );
 
