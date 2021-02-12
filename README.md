@@ -1,3 +1,5 @@
+![Release Downloads](https://img.shields.io/github/downloads/DaveJarvis/keenwrite/latest/total?style=for-the-badge) ![Total Downloads](https://img.shields.io/github/downloads/DaveJarvis/keenwrite/total?style=for-the-badge) ![Release Date](https://img.shields.io/github/release-date/DaveJarvis/keenwrite?style=for-the-badge) ![Release Version](https://img.shields.io/github/v/release/DaveJarvis/keenwrite?style=for-the-badge)
+
 # ![Logo](docs/images/app-title.png)
 
 A text editor that uses [interpolated strings](https://en.wikipedia.org/wiki/String_interpolation) to reference externally defined values.

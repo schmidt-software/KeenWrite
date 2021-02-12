@@ -56,15 +56,10 @@ public final class DefinitionEditor extends BorderPane
   private final DefinitionTreeItem<String> mTreeRoot = createRootTreeItem();
 
   /**
-   * Converts a tree item value to and from a string..
-   */
-  private final TreeItemConverter mConverter = new TreeItemConverter();
-
-  /**
    * Contains a view of the definitions.
    */
   private final TreeView<String> mTreeView =
-    new AltTreeView<>( mTreeRoot, mConverter );
+    new AltTreeView<>( mTreeRoot, new TreeItemConverter() );
 
   /**
    * Used to adapt the structured document into a {@link TreeView}.
