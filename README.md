@@ -1,4 +1,4 @@
-![Total Downloads](https://img.shields.io/github/downloads/DaveJarvis/keenwrite/total?color=blue&label=total%20downloads&style=flat) ![Release Downloads](https://img.shields.io/github/downloads/DaveJarvis/keenwrite/latest/total?color=purple&label=Release%20Downloads&style=flat) ![Release Date](https://img.shields.io/github/release-date/DaveJarvis/keenwrite?color=orange&style=flat) ![Release Version](https://img.shields.io/github/v/release/DaveJarvis/keenwrite?style=flat)
+![Total Downloads](https://img.shields.io/github/downloads/DaveJarvis/keenwrite/total?color=blue&label=total%20downloads&style=flat) ![Release Downloads](https://img.shields.io/github/downloads/DaveJarvis/keenwrite/latest/total?color=purple&label=Release%20Downloads&style=flat) ![Release Date](https://img.shields.io/github/release-date/DaveJarvis/keenwrite?color=red&style=flat) ![Release Version](https://img.shields.io/github/v/release/DaveJarvis/keenwrite?style=flat)
 
 # ![Logo](docs/images/app-title.png)
 
