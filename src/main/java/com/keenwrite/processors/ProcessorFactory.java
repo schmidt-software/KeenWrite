@@ -43,10 +43,9 @@ public final class ProcessorFactory extends AbstractFileFactory {
       : createIdentityProcessor();
 
     final var processor = switch( context.getFileType() ) {
-      //case RMARKDOWN -> createRProcessor( successor );
       case SOURCE, RMARKDOWN -> createMarkdownProcessor( successor );
-      case RXML -> createRXMLProcessor( successor );
-      case XML -> createXMLProcessor( successor );
+      case RXML -> createRXmlProcessor( successor );
+      case XML -> createXmlProcessor( successor );
       default -> createPreformattedProcessor( successor );
     };
 
@@ -103,18 +102,14 @@ public final class ProcessorFactory extends AbstractFileFactory {
     return new DefinitionProcessor( successor, getProcessorContext() );
   }
 
-  private Processor<String> createRProcessor(
+  protected Processor<String> createRXmlProcessor(
     final Processor<String> successor ) {
-    return MarkdownProcessor.create( successor, getProcessorContext() );
+    final var context = getProcessorContext();
+    final var rp = MarkdownProcessor.create( successor, context );
+    return new XmlProcessor( rp, context );
   }
 
-  protected Processor<String> createRXMLProcessor(
-    final Processor<String> successor ) {
-    final var xmlp = new XmlProcessor( successor, getProcessorContext() );
-    return createRProcessor( xmlp );
-  }
-
-  private Processor<String> createXMLProcessor(
+  private Processor<String> createXmlProcessor(
     final Processor<String> successor ) {
     final var xmlp = new XmlProcessor( successor, getProcessorContext() );
     return createDefinitionProcessor( xmlp );

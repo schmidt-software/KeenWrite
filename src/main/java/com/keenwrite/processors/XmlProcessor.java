@@ -1,7 +1,9 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.processors;
 
+import net.sf.saxon.Configuration;
 import net.sf.saxon.TransformerFactoryImpl;
+import net.sf.saxon.om.IgnorableSpaceStrippingRule;
 import net.sf.saxon.trans.XPathException;
 
 import javax.xml.stream.XMLEventReader;
@@ -17,6 +19,7 @@ import java.io.StringWriter;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import static com.keenwrite.events.StatusEvent.clue;
 import static javax.xml.stream.XMLInputFactory.newInstance;
 import static net.sf.saxon.tree.util.ProcInstParser.getPseudoAttribute;
 
@@ -35,8 +38,9 @@ public final class XmlProcessor extends ExecutorProcessor<String>
   implements ErrorListener {
 
   private final XMLInputFactory mXmlInputFactory = newInstance();
+  private final Configuration mConfiguration = new Configuration();
   private final TransformerFactory mTransformerFactory =
-    new TransformerFactoryImpl();
+    new TransformerFactoryImpl(mConfiguration);
   private Transformer mTransformer;
 
   private final Path mPath;
@@ -58,6 +62,8 @@ public final class XmlProcessor extends ExecutorProcessor<String>
 
     // Bubble problems up to the user interface, rather than standard error.
     mTransformerFactory.setErrorListener( this );
+    final var options = mConfiguration.getParseOptions();
+    options.setSpaceStrippingRule( IgnorableSpaceStrippingRule.getInstance() );
   }
 
   /**
@@ -71,6 +77,7 @@ public final class XmlProcessor extends ExecutorProcessor<String>
     try {
       return text.isEmpty() ? text : transform( text );
     } catch( final Exception ex ) {
+      clue( ex );
       throw new RuntimeException( ex );
     }
   }
@@ -84,13 +91,12 @@ public final class XmlProcessor extends ExecutorProcessor<String>
    * @return The transformed text.
    */
   private String transform( final String text ) throws Exception {
-    // Extract the XML stylesheet processing instruction.
-    final String template = getXsltFilename( text );
-    final Path xsl = getXslPath( template );
-
     try(
-      final StringWriter output = new StringWriter( text.length() );
-      final StringReader input = new StringReader( text ) ) {
+      final var output = new StringWriter( text.length() );
+      final var input = new StringReader( text ) ) {
+      // Extract the XML stylesheet processing instruction.
+      final var template = getXsltFilename( text );
+      final var xsl = getXslPath( template );
 
       // TODO: Use FileWatchService
       // Listen for external file modification events.
@@ -154,12 +160,12 @@ public final class XmlProcessor extends ExecutorProcessor<String>
    */
   private String getXsltFilename( final String xml )
     throws XMLStreamException, XPathException {
-    String result = "";
+    var result = "";
 
-    try( final StringReader sr = new StringReader( xml ) ) {
-      final XMLEventReader reader = createXmlEventReader( sr );
-      boolean found = false;
-      int count = 0;
+    try( final var sr = new StringReader( xml ) ) {
+      final var reader = createXmlEventReader( sr );
+      var found = false;
+      var count = 0;
 
       // If the processing instruction wasn't found in the first 10 lines,
       // fail fast. This should iterate twice through the loop.
@@ -197,7 +203,7 @@ public final class XmlProcessor extends ExecutorProcessor<String>
    */
   @Override
   public void warning( final TransformerException ex ) {
-    throw new RuntimeException( ex );
+    clue( ex );
   }
 
   /**
@@ -207,17 +213,17 @@ public final class XmlProcessor extends ExecutorProcessor<String>
    */
   @Override
   public void error( final TransformerException ex ) {
-    throw new RuntimeException( ex );
+    clue( ex );
   }
 
   /**
    * Called when the XSL transformer issues a fatal error, which is probably
-   * a bit over-dramatic a method name.
+   * a bit over-dramatic for a method name.
    *
    * @param ex The problem the transformer encountered.
    */
   @Override
   public void fatalError( final TransformerException ex ) {
-    throw new RuntimeException( ex );
+    clue( ex );
   }
 }

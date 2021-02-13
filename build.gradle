@@ -72,8 +72,8 @@ dependencies {
 
   // XML and XSL
   implementation 'com.ximpleware:vtd-xml:2.13.4'
-  implementation 'net.sf.saxon:Saxon-HE:10.1'
-  implementation 'xalan:xalan:2.7.2'
+  implementation 'net.sf.saxon:Saxon-HE:10.3'
+  //implementation 'xalan:xalan:2.7.2'
 
   // HTML parsing and rendering
   implementation 'org.jsoup:jsoup:1.13.1'
