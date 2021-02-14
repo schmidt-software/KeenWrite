@@ -34,8 +34,7 @@ public class BaseMarkdownProcessor extends ExecutorProcessor<String> {
     final Processor<String> successor, final ProcessorContext context ) {
     super( successor );
 
-    final var extensions = new ArrayList<Extension>();
-    init( extensions, context );
+    final var extensions = createExtensions( context );
 
     mParser = Parser.builder().extensions( extensions ).build();
     mRenderer = HtmlRenderer.builder().extensions( extensions ).build();
@@ -46,18 +45,21 @@ public class BaseMarkdownProcessor extends ExecutorProcessor<String> {
    * are typically typographic extensions that convert characters into
    * HTML entities.
    *
-   * @param extensions A {@link List} of {@link Extension} instances that
-   *                   change the {@link Parser}'s behaviour.
-   * @param context    The context that subclasses use to configure custom
-   *                   extension behaviour.
+   * @param context The context that subclasses use to configure custom
+   *                extension behaviour.
+   * @return A {@link List} of {@link Extension} instances that change the
+   * {@link Parser}'s behaviour.
    */
-  void init(
-    final List<Extension> extensions, final ProcessorContext context ) {
+  List<Extension> createExtensions( final ProcessorContext context ) {
+    final var extensions = new ArrayList<Extension>();
+
     extensions.add( DefinitionExtension.create() );
     extensions.add( StrikethroughSubscriptExtension.create() );
     extensions.add( SuperscriptExtension.create() );
     extensions.add( TablesExtension.create() );
     extensions.add( TypographicExtension.create() );
+
+    return extensions;
   }
 
   /**

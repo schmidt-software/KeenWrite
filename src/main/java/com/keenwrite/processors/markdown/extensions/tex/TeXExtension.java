@@ -26,16 +26,19 @@ public class TeXExtension extends HtmlRendererAdapter
   implements ParserExtension {
 
   /**
+   * Responsible for pre-parsing the input.
+   */
+  private final Processor<String> mProcessor;
+
+  /**
    * Controls how the node renderer produces TeX code within HTML output.
    */
   private final ExportFormat mExportFormat;
 
-  private final Processor<String> mProcessor;
-
   private TeXExtension(
-    final ProcessorContext context, final Processor<String> processor ) {
-    mExportFormat = context.getExportFormat();
+    final Processor<String> processor, final ProcessorContext context  ) {
     mProcessor = processor;
+    mExportFormat = context.getExportFormat();
   }
 
   /**
@@ -44,8 +47,8 @@ public class TeXExtension extends HtmlRendererAdapter
    * @return The new {@link TeXExtension}, never {@code null}.
    */
   public static TeXExtension create(
-    final ProcessorContext context, final Processor<String> processor ) {
-    return new TeXExtension( context, processor );
+    final Processor<String> processor, final ProcessorContext context  ) {
+    return new TeXExtension( processor, context );
   }
 
   /**

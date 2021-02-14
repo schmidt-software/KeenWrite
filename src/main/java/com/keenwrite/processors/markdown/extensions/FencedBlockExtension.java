@@ -2,7 +2,7 @@
 package com.keenwrite.processors.markdown.extensions;
 
 import com.keenwrite.processors.DefinitionProcessor;
-import com.keenwrite.processors.ProcessorContext;
+import com.keenwrite.processors.Processor;
 import com.keenwrite.processors.markdown.MarkdownProcessor;
 import com.vladsch.flexmark.ast.FencedCodeBlock;
 import com.vladsch.flexmark.html.renderer.DelegatingNodeRendererFactory;
@@ -19,7 +19,6 @@ import java.util.zip.Deflater;
 
 import static com.keenwrite.Constants.DIAGRAM_SERVER_NAME;
 import static com.keenwrite.events.StatusEvent.clue;
-import static com.keenwrite.processors.IdentityProcessor.IDENTITY;
 import static com.vladsch.flexmark.html.HtmlRenderer.Builder;
 import static com.vladsch.flexmark.html.renderer.LinkType.LINK;
 import static java.lang.String.format;
@@ -35,11 +34,11 @@ public class FencedBlockExtension extends HtmlRendererAdapter {
   private final static String DIAGRAM_STYLE = "diagram-";
   private final static int DIAGRAM_STYLE_LEN = DIAGRAM_STYLE.length();
 
-  private final DefinitionProcessor mProcessor;
+  private final Processor<String> mProcessor;
 
-  public FencedBlockExtension( final ProcessorContext context ) {
-    assert context != null;
-    mProcessor = new DefinitionProcessor( IDENTITY, context );
+  public FencedBlockExtension( final Processor<String> processor ) {
+    assert processor != null;
+    mProcessor = processor;
   }
 
   /**
@@ -56,12 +55,13 @@ public class FencedBlockExtension extends HtmlRendererAdapter {
    * interpolated before being sent to the diagram web service.
    * </p>
    *
-   * @param context Used to create a new {@link DefinitionProcessor}.
+   * @param processor Used to pre-process the text.
    * @return A new {@link FencedBlockExtension} capable of shunting ASCII
    * diagrams to a service for conversion to SVG.
    */
-  public static FencedBlockExtension create( final ProcessorContext context ) {
-    return new FencedBlockExtension( context );
+  public static FencedBlockExtension create(
+    final Processor<String> processor ) {
+    return new FencedBlockExtension( processor );
   }
 
   @Override
@@ -94,7 +94,7 @@ public class FencedBlockExtension extends HtmlRendererAdapter {
         if( style.startsWith( DIAGRAM_STYLE ) ) {
           final var type = style.substring( DIAGRAM_STYLE_LEN );
           final var content = node.getContentChars().normalizeEOL();
-          final var text = FencedBlockExtension.this.mProcessor.apply( content );
+          final var text = mProcessor.apply( content );
           final var encoded = encode( text );
           final var source = format(
             "https://%s/%s/svg/%s", DIAGRAM_SERVER_NAME, type, encoded );

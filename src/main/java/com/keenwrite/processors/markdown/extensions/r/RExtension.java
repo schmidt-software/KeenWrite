@@ -35,7 +35,7 @@ import static com.vladsch.flexmark.parser.Parser.ParserExtension;
  * reason, some pre-conversion is necessary.
  */
 public final class RExtension implements ParserExtension {
-  private final InlineParserFactory FACTORY = CustomParser::new;
+  private final InlineParserFactory INLINE_FACTORY = InlineParser::new;
   private final RProcessor mProcessor;
   private final BaseMarkdownProcessor mMarkdownProcessor;
 
@@ -56,7 +56,7 @@ public final class RExtension implements ParserExtension {
 
   @Override
   public void extend( final Builder builder ) {
-    builder.customInlineParserFactory( FACTORY );
+    builder.customInlineParserFactory( INLINE_FACTORY );
   }
 
   @Override
@@ -75,8 +75,8 @@ public final class RExtension implements ParserExtension {
    * {@link InlineRProcessor}.
    * </p>
    */
-  private class CustomParser extends InlineParserImpl {
-    private CustomParser(
+  private class InlineParser extends InlineParserImpl {
+    private InlineParser(
       final DataHolder options,
       final BitSet specialCharacters,
       final BitSet delimiterCharacters,
@@ -96,7 +96,7 @@ public final class RExtension implements ParserExtension {
      * The superclass handles a number backtick parsing edge cases; this method
      * changes the behaviour to retain R code snippets, identified by
      * {@link RSigilOperator#PREFIX}, so that subsequent processing can
-     * invoke R. If other languages are added, the {@link CustomParser} will
+     * invoke R. If other languages are added, the {@link InlineParser} will
      * have to be rewritten to identify more than merely R.
      *
      * @return The return value from {@link super#parseBackticks()}.

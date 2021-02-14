@@ -2,17 +2,19 @@
 package com.keenwrite.processors.markdown;
 
 import com.keenwrite.io.MediaType;
+import com.keenwrite.processors.DefinitionProcessor;
 import com.keenwrite.processors.Processor;
 import com.keenwrite.processors.ProcessorContext;
+import com.keenwrite.processors.markdown.extensions.CaretExtension;
 import com.keenwrite.processors.markdown.extensions.DocumentOutlineExtension;
 import com.keenwrite.processors.markdown.extensions.FencedBlockExtension;
 import com.keenwrite.processors.markdown.extensions.ImageLinkExtension;
-import com.keenwrite.processors.markdown.extensions.CaretExtension;
 import com.keenwrite.processors.markdown.extensions.r.RExtension;
 import com.keenwrite.processors.markdown.extensions.tex.TeXExtension;
 import com.keenwrite.processors.r.RProcessor;
 import com.vladsch.flexmark.util.misc.Extension;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.keenwrite.io.MediaType.TEXT_R_MARKDOWN;
@@ -47,16 +49,16 @@ public final class MarkdownProcessor extends BaseMarkdownProcessor {
    * document being edited from the preview pane so that multiple document
    * formats can be edited.
    *
-   * @param extensions {@link List} of extensions invoked when parsing Markdown.
-   * @param context    Contains necessary information needed to create
-   *                   extensions used by the Markdown parser.
+   * @param context Contains necessary information needed to create
+   *                extensions used by the Markdown parser.
+   * @return {@link List} of extensions invoked when parsing Markdown.
    */
   @Override
-  void init(
-    final List<Extension> extensions, final ProcessorContext context ) {
+  List<Extension> createExtensions( final ProcessorContext context ) {
     final var editorFile = context.getDocumentPath();
     final var mediaType = MediaType.valueFrom( editorFile );
     final Processor<String> processor;
+    final List<Extension> extensions = new ArrayList<>();
 
     if( mediaType == TEXT_R_MARKDOWN || mediaType == TEXT_R_XML ) {
       final var rProcessor = new RProcessor( context );
@@ -64,16 +66,17 @@ public final class MarkdownProcessor extends BaseMarkdownProcessor {
       processor = rProcessor;
     }
     else {
-      processor = IDENTITY;
+      processor = new DefinitionProcessor( IDENTITY, context );
     }
 
     // Add typographic, table, strikethrough, and similar extensions.
-    super.init( extensions, context );
+    extensions.addAll( super.createExtensions( context ) );
 
     extensions.add( ImageLinkExtension.create( context ) );
-    extensions.add( TeXExtension.create( context, processor ) );
-    extensions.add( FencedBlockExtension.create( context ) );
+    extensions.add( TeXExtension.create( processor, context ) );
+    extensions.add( FencedBlockExtension.create( processor ) );
     extensions.add( CaretExtension.create( context ) );
     extensions.add( DocumentOutlineExtension.create( processor ) );
+    return extensions;
   }
 }

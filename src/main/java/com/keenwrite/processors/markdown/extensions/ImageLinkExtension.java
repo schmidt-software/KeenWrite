@@ -35,7 +35,8 @@ public class ImageLinkExtension extends HtmlRendererAdapter {
   private final Workspace mWorkspace;
   private final ExportFormat mExportFormat;
 
-  private ImageLinkExtension( @NotNull final ProcessorContext context ) {
+  private ImageLinkExtension(
+    @NotNull final ProcessorContext context ) {
     mBaseDir = context.getBaseDir();
     mWorkspace = context.getWorkspace();
     mExportFormat = context.getExportFormat();
@@ -55,10 +56,10 @@ public class ImageLinkExtension extends HtmlRendererAdapter {
   @Override
   public void extend(
     @NotNull final Builder builder, @NotNull final String rendererType ) {
-    builder.linkResolverFactory( new Factory() );
+    builder.linkResolverFactory( new ResolverFactory() );
   }
 
-  private class Factory extends IndependentLinkResolverFactory {
+  private final class ResolverFactory extends IndependentLinkResolverFactory {
     @Override
     public @NotNull LinkResolver apply(
       @NotNull final LinkResolverBasicContext context ) {
@@ -76,7 +77,7 @@ public class ImageLinkExtension extends HtmlRendererAdapter {
       @NotNull final Node node,
       @NotNull final LinkResolverBasicContext context,
       @NotNull final ResolvedLink link ) {
-      return node instanceof Image ? resolve( link ) : link;
+      return node instanceof Image ? forImage( link ) : link;
     }
 
     /**
@@ -92,7 +93,7 @@ public class ImageLinkExtension extends HtmlRendererAdapter {
      * @param link The link URL to resolve.
      * @return The {@link ResolvedLink} instance used to render the link.
      */
-    private ResolvedLink resolve( final ResolvedLink link ) {
+    private ResolvedLink forImage( final ResolvedLink link ) {
       var uri = link.getUrl();
       final var protocol = getProtocol( uri );
 
