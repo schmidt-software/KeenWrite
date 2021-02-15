@@ -68,9 +68,11 @@ Read the [themes documentation](docs/themes.md) to learn about themes.
 
 ## Screenshots
 
-Diagram that includes variables:
+Diagrams that include variables:
 
 ![GraphViz diagram screenshot](docs/images/screenshots/01.png)
+
+![Family tree diagram screenshot](docs/images/screenshots/05.png)
 
 Poem with locale settings:
 
