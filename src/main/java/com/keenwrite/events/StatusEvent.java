@@ -68,7 +68,6 @@ public class StatusEvent implements AppEvent {
     final var trace = mProblem;
 
     if( trace != null ) {
-      sb.append( trace.getMessage().trim() ).append( NEWLINE );
       stream( trace.getStackTrace() )
         .takeWhile( StatusEvent::filter )
         .limit( 10 )
@@ -84,6 +83,7 @@ public class StatusEvent implements AppEvent {
     return clazz.contains( PACKAGE_NAME ) ||
       clazz.contains( "org.renjin." ) ||
       clazz.contains( "sun." ) ||
+      clazz.contains( "flexmark." ) ||
       clazz.contains( "java." );
   }
 
