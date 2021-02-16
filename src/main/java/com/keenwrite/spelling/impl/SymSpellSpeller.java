@@ -29,7 +29,6 @@ import static java.nio.charset.StandardCharsets.UTF_8;
  */
 public class SymSpellSpeller implements SpellChecker {
   private final BreakIterator mBreakIterator = BreakIterator.getWordInstance();
-
   private final SymSpell mSymSpell;
 
   /**
@@ -52,11 +51,11 @@ public class SymSpellSpeller implements SpellChecker {
   }
 
   private static SpellChecker forLexicon(
-      final Collection<String> lexiconWords ) {
+    final Collection<String> lexiconWords ) {
     assert lexiconWords != null && !lexiconWords.isEmpty();
 
     final var builder = new SymSpellBuilder()
-        .setLexiconWords( lexiconWords );
+      .setLexiconWords( lexiconWords );
 
     return new SymSpellSpeller( builder.build() );
   }
@@ -95,7 +94,7 @@ public class SymSpellSpeller implements SpellChecker {
 
   @Override
   public void proofread(
-      final String text, final SpellCheckListener consumer ) {
+    final String text, final SpellCheckListener consumer ) {
     assert text != null;
     assert consumer != null;
 
@@ -105,8 +104,8 @@ public class SymSpellSpeller implements SpellChecker {
     int previousIndex = 0;
 
     while( boundaryIndex != BreakIterator.DONE ) {
-      final var lex = text.substring( previousIndex, boundaryIndex )
-                          .toLowerCase();
+      final var lex =
+        text.substring( previousIndex, boundaryIndex ).toLowerCase();
 
       // Get the lexeme for the possessive.
       final var pos = lex.endsWith( "'s" ) || lex.endsWith( "’s" );
@@ -121,13 +120,13 @@ public class SymSpellSpeller implements SpellChecker {
     }
   }
 
-  @SuppressWarnings("SameParameterValue")
+  @SuppressWarnings( "SameParameterValue" )
   private static Collection<String> readLexicon( final String filename )
-      throws Exception {
+    throws Exception {
     final var path = '/' + LEXICONS_DIRECTORY + '/' + filename;
 
     try( final var resource =
-             SymSpellSpeller.class.getResourceAsStream( path ) ) {
+           SymSpellSpeller.class.getResourceAsStream( path ) ) {
       if( resource == null ) {
         throw new MissingFileException( path );
       }

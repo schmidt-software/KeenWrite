@@ -51,7 +51,7 @@ public class ParseHeadingEvent implements AppEvent {
     final int level, final String text, final int offset ) {
     assert text != null;
     assert 1 <= level && level <= 6;
-    assert offset >= 0;
+    assert 0 <= offset;
     new ParseHeadingEvent( level, text, offset ).fire();
   }
 
@@ -72,6 +72,11 @@ public class ParseHeadingEvent implements AppEvent {
     return mText;
   }
 
+  /**
+   * Returns an offset into the document where the heading is found.
+   *
+   * @return A zero-based document offset.
+   */
   public int getOffset() {
     return mOffset;
   }

@@ -2,13 +2,9 @@ package com.keenwrite.outline;
 
 import com.keenwrite.events.Bus;
 import com.keenwrite.events.ParseHeadingEvent;
-import javafx.event.Event;
-import javafx.event.EventDispatchChain;
-import javafx.event.EventDispatcher;
 import javafx.scene.control.TreeCell;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.text.Text;
 import javafx.util.Callback;
 import org.greenrobot.eventbus.Subscribe;
@@ -123,25 +119,5 @@ public class DocumentOutline extends TreeView<ParseHeadingEvent> {
 
   private Text createIcon() {
     return get().createIcon( valueOf( "BOOKMARK" ), ICON_SIZE_DEFAULT );
-  }
-
-  private class TreeMouseEventDispatcher implements EventDispatcher {
-    private final EventDispatcher mDispatcher;
-
-    public TreeMouseEventDispatcher( final EventDispatcher dispatcher ) {
-      mDispatcher = dispatcher;
-    }
-
-    @Override
-    public Event dispatchEvent( final Event e, final EventDispatchChain tail ) {
-      if( e instanceof MouseEvent ) {
-        final var event = (MouseEvent) e;
-        if( event.getButton() == PRIMARY && event.getClickCount() >= 2 ) {
-          e.consume();
-        }
-      }
-
-      return mDispatcher.dispatchEvent( e, tail );
-    }
   }
 }

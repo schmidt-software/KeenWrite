@@ -8,7 +8,7 @@ import javafx.util.StringConverter;
 /**
  * Responsible for allowing users to edit items in the tree as well as
  * drag and drop. The goal is to be a drop-in replacement for the regular
- * JavaFX {@link TreeView} that does not offer editing and moving {@link
+ * JavaFX {@link TreeView}, which does not offer editing and moving {@link
  * TreeItem} instances.
  *
  * @param <T> The type of data to edit.

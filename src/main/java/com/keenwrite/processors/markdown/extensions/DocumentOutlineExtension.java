@@ -40,7 +40,6 @@ public final class DocumentOutlineExtension implements ParserExtension {
   }
 
   private class HeadingNodePostProcessor extends NodePostProcessor {
-
     @Override
     public void process(
       @NotNull final NodeTracker state, @NotNull final Node node ) {
