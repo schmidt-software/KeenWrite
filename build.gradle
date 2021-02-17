@@ -35,10 +35,10 @@ javafx {
 }
 
 dependencies {
-  def v_junit = '5.5.1'
+  def v_junit = '5.5.2'
   def v_flexmark = '0.62.2'
-  def v_jackson = '2.12.0'
-  def v_batik = '1.13'
+  def v_jackson = '2.12.1'
+  def v_batik = '1.14'
 
   // JavaFX
   implementation 'org.controlsfx:controlsfx:11.0.3'
