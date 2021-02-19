@@ -1,4 +1,4 @@
-package com.keenwrite.outline;
+package com.keenwrite.ui.outline;
 
 import com.keenwrite.events.Bus;
 import com.keenwrite.events.ParseHeadingEvent;

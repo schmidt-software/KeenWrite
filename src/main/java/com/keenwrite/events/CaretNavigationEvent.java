@@ -1,7 +1,7 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.events;
 
-import com.keenwrite.outline.DocumentOutline;
+import com.keenwrite.ui.outline.DocumentOutline;
 
 /**
  * Collates information about a caret event, which is typically triggered when

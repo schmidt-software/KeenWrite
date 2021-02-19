@@ -133,7 +133,7 @@ public final class HtmlPreview extends SwingNode {
   }
 
   /**
-   * Clears the caches then rerenders the content.
+   * Clears the caches then re-renders the content.
    */
   public void refresh() {
     FACTORY.clearCache();

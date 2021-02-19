@@ -8,12 +8,8 @@ import com.keenwrite.editors.definition.DefinitionEditor;
 import com.keenwrite.editors.definition.TreeTransformer;
 import com.keenwrite.editors.definition.yaml.YamlTreeTransformer;
 import com.keenwrite.editors.markdown.MarkdownEditor;
-import com.keenwrite.events.CaretNavigationEvent;
-import com.keenwrite.events.FileOpenEvent;
-import com.keenwrite.events.TextDefinitionFocusEvent;
-import com.keenwrite.events.TextEditorFocusEvent;
+import com.keenwrite.events.*;
 import com.keenwrite.io.MediaType;
-import com.keenwrite.outline.DocumentOutline;
 import com.keenwrite.preferences.Key;
 import com.keenwrite.preferences.Workspace;
 import com.keenwrite.preview.HtmlPanel;
@@ -27,6 +23,8 @@ import com.keenwrite.sigils.RSigilOperator;
 import com.keenwrite.sigils.SigilOperator;
 import com.keenwrite.sigils.Tokens;
 import com.keenwrite.sigils.YamlSigilOperator;
+import com.keenwrite.ui.heuristics.DocumentStatistics;
+import com.keenwrite.ui.outline.DocumentOutline;
 import com.panemu.tiwulfx.control.dock.DetachableTab;
 import com.panemu.tiwulfx.control.dock.DetachableTabPane;
 import javafx.application.Platform;
@@ -154,6 +152,8 @@ public final class MainPane extends SplitPane {
       process( getActiveTextEditor() );
       save( editor );
     };
+
+  private final DocumentStatistics mDocStats = new DocumentStatistics();
 
   /**
    * Adds all content panels to the main user interface. This will load the

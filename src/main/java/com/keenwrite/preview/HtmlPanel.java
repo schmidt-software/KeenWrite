@@ -18,6 +18,7 @@ import java.awt.event.ComponentEvent;
 import java.net.URI;
 
 import static com.keenwrite.events.FileOpenEvent.fireFileOpenEvent;
+import static com.keenwrite.events.DocumentChangedEvent.fireDocumentChangedEvent;
 import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.util.ProtocolScheme.getProtocol;
 import static java.awt.Desktop.Action.BROWSE;
@@ -105,7 +106,8 @@ public final class HtmlPanel extends XHTMLPanel {
    * @param baseUri URI to use for finding relative files, such as images.
    */
   public void render( final String html, final String baseUri ) {
-    final var doc = CONVERTER.fromJsoup( parse( html ) );
+    final var soup = parse( html );
+    final var doc = CONVERTER.fromJsoup( soup );
     final Runnable renderDocument = () -> setDocument( doc, baseUri, XNH );
 
     // Access to a Swing component must occur from the Event Dispatch
@@ -117,6 +119,10 @@ public final class HtmlPanel extends XHTMLPanel {
     else {
       invokeLater( renderDocument );
     }
+
+    // When the text changes, let subscribers know. This allows for text
+    // analysis to occur on a separate thread.
+    fireDocumentChangedEvent( soup );
   }
 
   /**
