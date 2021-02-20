@@ -365,6 +365,10 @@ public final class ApplicationActions {
     getMainPane().viewOutline();
   }
 
+  public void view‿statistics() {
+    getMainPane().viewStatistics();
+  }
+
   public void view‿menubar() {
     getMainScene().toggleMenuBar();
   }

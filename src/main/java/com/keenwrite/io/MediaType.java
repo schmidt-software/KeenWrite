@@ -16,16 +16,32 @@ import static org.apache.commons.io.FilenameUtils.getExtension;
  * Media Types</a>
  */
 public enum MediaType {
-  APP_JAVA_OBJECT(
-    APPLICATION, "x-java-serialized-object"
-  ),
+  /*
+   * Internal values applied to non-editor tabs.
+   */
   APP_DOCUMENT_OUTLINE(
     APPLICATION, "x-document-outline"
   ),
+  APP_DOCUMENT_STATISTICS(
+    APPLICATION, "x-document-statistics"
+  ),
 
+  /*
+   * Internal values used to distinguish document outline tabs from editors.
+   */
+  APP_JAVA_OBJECT(
+    APPLICATION, "x-java-serialized-object"
+  ),
+
+  /*
+   * Standard font types.
+   */
   FONT_OTF( "otf" ),
   FONT_TTF( "ttf" ),
 
+  /*
+   * Standard image types.
+   */
   IMAGE_APNG( "apng" ),
   IMAGE_ACES( "aces" ),
   IMAGE_AVCI( "avci" ),
@@ -67,6 +83,10 @@ public enum MediaType {
   IMAGE_WEBP( "webp" ),
   IMAGE_WMF( "wmf" ),
 
+  /*
+   * Document types for editing or displaying documents, mix of standard and
+   * application-specific.
+   */
   TEXT_HTML( TEXT, "html" ),
   TEXT_MARKDOWN( TEXT, "markdown" ),
   TEXT_PLAIN( TEXT, "plain" ),
@@ -74,6 +94,9 @@ public enum MediaType {
   TEXT_R_XML( TEXT, "R+xml" ),
   TEXT_YAML( TEXT, "yaml" ),
 
+  /*
+   * When all other lights go out.
+   */
   UNDEFINED( TypeName.UNDEFINED, "undefined" );
 
   /**

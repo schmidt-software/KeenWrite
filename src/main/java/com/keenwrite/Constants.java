@@ -222,7 +222,17 @@ public final class Constants {
    */
   public static final String ICON_SIZE_DEFAULT = "1.2em";
 
+  /**
+   * Default server name for rendering diagrams.
+   *
+   * TODO: Make this a preference so that local installs are possible.
+   */
   public static final String DIAGRAM_SERVER_NAME = "kroki.io";
+
+  /**
+   * Application action messages properties prefix.
+   */
+  public static final String ACTION_PREFIX = "Action.";
 
   /**
    * Prevent instantiation.

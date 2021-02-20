@@ -119,6 +119,7 @@ public final class ApplicationBars {
       SEPARATOR_ACTION,
       addAction( "view.preview", e -> actions.view‿preview() ),
       addAction( "view.outline", e -> actions.view‿outline() ),
+      addAction( "view.statistics", e-> actions.view‿statistics() ),
       SEPARATOR_ACTION,
       addAction( "view.menubar", e -> actions.view‿menubar() ),
       addAction( "view.toolbar", e -> actions.view‿toolbar() ),

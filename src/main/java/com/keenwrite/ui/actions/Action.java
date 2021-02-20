@@ -17,6 +17,7 @@ import javafx.scene.input.KeyCombination;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.keenwrite.Constants.ACTION_PREFIX;
 import static de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory.get;
 import static javafx.scene.input.KeyCombination.valueOf;
 
@@ -146,14 +147,14 @@ public final class Action implements MenuAction {
 
     /**
      * Sets the text, icon, and accelerator for a given action identifier.
-     * See the "App.action" entries in the messages properties file for details.
+     * See the messages properties file for details.
      *
      * @param id The identifier to look up in the properties file.
      * @return An instance of {@link Builder} that can be built into an
      * instance of {@link Action}.
      */
     public Builder setId( final String id ) {
-      final var prefix = "App.action." + id + ".";
+      final var prefix = ACTION_PREFIX + id + ".";
       final var text = prefix + "text";
       final var icon = prefix + "icon";
       final var accelerator = prefix + "accelerator";

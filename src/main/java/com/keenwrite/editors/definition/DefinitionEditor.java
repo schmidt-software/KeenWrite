@@ -27,6 +27,7 @@ import java.nio.charset.Charset;
 import java.util.*;
 import java.util.regex.Pattern;
 
+import static com.keenwrite.Constants.ACTION_PREFIX;
 import static com.keenwrite.Constants.DEFINITION_DEFAULT;
 import static com.keenwrite.Messages.get;
 import static com.keenwrite.events.StatusEvent.clue;
@@ -205,7 +206,7 @@ public final class DefinitionEditor extends BorderPane
 
   private Button createButton(
     final String msgKey, final EventHandler<ActionEvent> eventHandler ) {
-    final var keyPrefix = "App.action.definition." + msgKey;
+    final var keyPrefix = Constants.ACTION_PREFIX + "definition." + msgKey;
     final var button = new Button( get( keyPrefix + ".text" ) );
     final var icon = get( keyPrefix + ".icon" );
     final var glyph = FontAwesomeIcon.valueOf( icon.toUpperCase() );
@@ -445,11 +446,11 @@ public final class DefinitionEditor extends BorderPane
     final var menu = new ContextMenu();
     final var items = menu.getItems();
 
-    addMenuItem( items, "App.action.definition.create.text" )
+    addMenuItem( items, ACTION_PREFIX + "definition.create.text" )
       .setOnAction( e -> createDefinition() );
-    addMenuItem( items, "App.action.definition.rename.text" )
+    addMenuItem( items, ACTION_PREFIX + "definition.rename.text" )
       .setOnAction( e -> renameDefinition() );
-    addMenuItem( items, "App.action.definition.delete.text" )
+    addMenuItem( items, ACTION_PREFIX + "definition.delete.text" )
       .setOnAction( e -> deleteSelectedItem() );
 
     return menu;

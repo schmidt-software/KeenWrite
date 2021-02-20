@@ -16,6 +16,7 @@ import java.util.Objects;
 import java.util.TreeSet;
 
 import static com.keenwrite.Bootstrap.APP_TITLE_LOWERCASE;
+import static com.keenwrite.Constants.ACTION_PREFIX;
 import static com.keenwrite.Constants.ICON_DIALOG;
 import static com.keenwrite.Messages.get;
 import static com.keenwrite.events.Bus.register;
@@ -53,7 +54,7 @@ public final class LogView extends Alert {
 
   public LogView() {
     super( INFORMATION );
-    setTitle( get( "App.action.view.issues.text" ) );
+    setTitle( get( ACTION_PREFIX + "view.issues.text" ) );
     initModality( NONE );
     initTableView();
     setResizable( true );

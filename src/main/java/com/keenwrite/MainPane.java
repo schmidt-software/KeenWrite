@@ -153,7 +153,7 @@ public final class MainPane extends SplitPane {
       save( editor );
     };
 
-  private final DocumentStatistics mDocStats = new DocumentStatistics();
+  private final DocumentStatistics mStatistics = new DocumentStatistics();
 
   /**
    * Adds all content panels to the main user interface. This will load the
@@ -504,6 +504,10 @@ public final class MainPane extends SplitPane {
    */
   public void viewOutline() {
     viewTab( mOutline, APP_DOCUMENT_OUTLINE, get( "Pane.outline.title" ) );
+  }
+
+  public void viewStatistics() {
+    viewTab( mStatistics, APP_DOCUMENT_STATISTICS, get( "Pane.statistics.title") );
   }
 
   private void viewTab(
