@@ -8,7 +8,10 @@ import com.keenwrite.editors.definition.DefinitionEditor;
 import com.keenwrite.editors.definition.TreeTransformer;
 import com.keenwrite.editors.definition.yaml.YamlTreeTransformer;
 import com.keenwrite.editors.markdown.MarkdownEditor;
-import com.keenwrite.events.*;
+import com.keenwrite.events.CaretNavigationEvent;
+import com.keenwrite.events.FileOpenEvent;
+import com.keenwrite.events.TextDefinitionFocusEvent;
+import com.keenwrite.events.TextEditorFocusEvent;
 import com.keenwrite.io.MediaType;
 import com.keenwrite.preferences.Key;
 import com.keenwrite.preferences.Workspace;
@@ -153,7 +156,7 @@ public final class MainPane extends SplitPane {
       save( editor );
     };
 
-  private final DocumentStatistics mStatistics = new DocumentStatistics();
+  private final DocumentStatistics mStatistics;
 
   /**
    * Adds all content panels to the main user interface. This will load the
@@ -163,6 +166,7 @@ public final class MainPane extends SplitPane {
   public MainPane( final Workspace workspace ) {
     mWorkspace = workspace;
     mPreview = new HtmlPreview( workspace );
+    mStatistics = new DocumentStatistics( workspace );
 
     open( bin( getRecentFiles() ) );
     viewPreview();
@@ -496,22 +500,22 @@ public final class MainPane extends SplitPane {
    * Adds the HTML preview tab to its own, singular tab pane.
    */
   public void viewPreview() {
-    viewTab( mPreview, TEXT_HTML, get( "Pane.preview.title" ) );
+    viewTab( mPreview, TEXT_HTML, "Pane.preview.title" );
   }
 
   /**
    * Adds the document outline tab to its own, singular tab pane.
    */
   public void viewOutline() {
-    viewTab( mOutline, APP_DOCUMENT_OUTLINE, get( "Pane.outline.title" ) );
+    viewTab( mOutline, APP_DOCUMENT_OUTLINE, "Pane.outline.title" );
   }
 
   public void viewStatistics() {
-    viewTab( mStatistics, APP_DOCUMENT_STATISTICS, get( "Pane.statistics.title") );
+    viewTab( mStatistics, APP_DOCUMENT_STATISTICS, "Pane.statistics.title" );
   }
 
   private void viewTab(
-    final Node node, final MediaType mediaType, final String name ) {
+    final Node node, final MediaType mediaType, final String key ) {
     final var tabPane = obtainTabPane( mediaType );
 
     for( final var tab : tabPane.getTabs() ) {
@@ -520,7 +524,7 @@ public final class MainPane extends SplitPane {
       }
     }
 
-    tabPane.getTabs().add( createTab( name, node ) );
+    tabPane.getTabs().add( createTab( get( key ), node ) );
     addTabPane( tabPane );
   }
 

@@ -80,3 +80,8 @@
   -fx-border-color: transparent;
   -fx-table-cell-border-color: transparent;
 }
+
+/* Avoid clipping text descenders in statistics table row. */
+.table-row-cell {
+  -fx-cell-size: 30px;
+}

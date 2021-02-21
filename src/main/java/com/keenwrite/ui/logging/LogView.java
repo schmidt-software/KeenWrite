@@ -49,8 +49,8 @@ public final class LogView extends Alert {
    */
   private static final int CACHE_SIZE = 150;
 
-  private final ObservableList<LogEntry> mEntries = observableArrayList();
-  private final TableView<LogEntry> mTable = new TableView<>( mEntries );
+  private final ObservableList<LogEntry> mItems = observableArrayList();
+  private final TableView<LogEntry> mTable = new TableView<>( mItems );
 
   public LogView() {
     super( INFORMATION );
@@ -66,19 +66,19 @@ public final class LogView extends Alert {
 
   @Subscribe
   public void log( final StatusEvent event ) {
-    runLater( () ->{
+    runLater( () -> {
       final var logEntry = new LogEntry( event );
 
-      if( !mEntries.contains( logEntry ) ) {
-        mEntries.add( logEntry );
+      if( !mItems.contains( logEntry ) ) {
+        mItems.add( logEntry );
 
-        while( mEntries.size() > CACHE_SIZE ) {
-          mEntries.remove( 0 );
+        while( mItems.size() > CACHE_SIZE ) {
+          mItems.remove( 0 );
         }
 
         mTable.scrollTo( logEntry );
       }
-    });
+    } );
   }
 
   /**
@@ -93,7 +93,7 @@ public final class LogView extends Alert {
    * Removes all the entries from the list.
    */
   public void clear() {
-    mEntries.clear();
+    mItems.clear();
     clue();
   }
 

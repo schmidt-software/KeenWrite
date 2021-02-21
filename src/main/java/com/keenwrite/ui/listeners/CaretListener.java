@@ -1,13 +1,18 @@
+/* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.ui.listeners;
 
 import com.keenwrite.Caret;
 import com.keenwrite.editors.TextEditor;
+import com.keenwrite.events.WordCountEvent;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
+import org.greenrobot.eventbus.Subscribe;
 
+import static com.keenwrite.events.Bus.register;
+import static javafx.application.Platform.runLater;
 import static javafx.geometry.Pos.BASELINE_CENTER;
 
 /**
@@ -23,6 +28,11 @@ public class CaretListener extends VBox implements ChangeListener<Integer> {
   private final Label mLineNumberText = new Label();
   private volatile Caret mCaret;
 
+  /**
+   * Approximate number of words in the document.
+   */
+  private volatile int mCount;
+
   public CaretListener( final ReadOnlyObjectProperty<TextEditor> editor ) {
     assert editor != null;
 
@@ -36,6 +46,7 @@ public class CaretListener extends VBox implements ChangeListener<Integer> {
     } );
 
     updateListener( editor.get().getCaret() );
+    register( this );
   }
 
   /**
@@ -47,8 +58,14 @@ public class CaretListener extends VBox implements ChangeListener<Integer> {
    */
   @Override
   public void changed(
-      final ObservableValue<? extends Integer> c,
-      final Integer o, final Integer n ) {
+    final ObservableValue<? extends Integer> c,
+    final Integer o, final Integer n ) {
+    updateLineNumber();
+  }
+
+  @Subscribe
+  public void handle( final WordCountEvent event ) {
+    mCount = event.getCount();
     updateLineNumber();
   }
 
@@ -64,6 +81,8 @@ public class CaretListener extends VBox implements ChangeListener<Integer> {
   }
 
   private void updateLineNumber() {
-    mLineNumberText.setText( mCaret.toString() );
+    runLater(
+      () -> mLineNumberText.setText( mCaret.toString() + " | " + mCount )
+    );
   }
 }
