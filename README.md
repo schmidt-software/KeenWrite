@@ -49,7 +49,8 @@ The application offers:
 * Auto-complete variable names based on variable values
 * Real-time spell check
 * Real-time rendering of math using TeX notation
-* Diagrams: Mermaid, GraphViz, UML, sequence, timing, and [many more](https://kroki.io/)!
+* Real-time, internationalized word count statistics
+* Diagrams: Mermaid, GraphViz, UML, sequence, timing, and more
 * Dark, custom, and responsive themes
 * Interactive document outline
 * Internationalized font support (e.g., Chinese, Japanese, Korean, etc.)
