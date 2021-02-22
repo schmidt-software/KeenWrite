@@ -49,7 +49,7 @@ The application offers:
 * Auto-complete variable names based on variable values
 * Real-time spell check
 * Real-time rendering of math using TeX notation
-* Real-time, internationalized word count statistics
+* Real-time document statistics (with CJK word separation)
 * Diagrams: Mermaid, GraphViz, UML, sequence, timing, and more
 * Dark, custom, and responsive themes
 * Interactive document outline
