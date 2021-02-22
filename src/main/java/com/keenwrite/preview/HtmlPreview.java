@@ -182,7 +182,7 @@ public final class HtmlPreview extends SwingNode {
       format( HTML_STYLESHEET, HTML_STYLE_PREVIEW ),
       url == null ? "" : format( HTML_STYLESHEET, url ),
       getFontFamily(),
-      (int) (getFontSize() * (1 + 1 / 3f)),
+      toPixels( getFontSize() ),
       base.isBlank() ? "" : format( HTML_BASE, base )
     );
   }

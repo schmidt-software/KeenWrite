@@ -39,6 +39,7 @@ import static com.keenwrite.preferences.WorkspaceKeys.*;
 import static java.lang.Character.isWhitespace;
 import static java.lang.String.format;
 import static java.util.Collections.singletonList;
+import static javafx.application.Platform.runLater;
 import static javafx.scene.control.ScrollPane.ScrollBarPolicy.ALWAYS;
 import static javafx.scene.input.KeyCode.*;
 import static javafx.scene.input.KeyCombination.CONTROL_DOWN;
@@ -160,13 +161,15 @@ public final class MarkdownEditor extends BorderPane implements TextEditor {
 
     fontNameProperty().addListener(
       ( c, o, n ) ->
-        mTextArea.setStyle( format( "-fx-font-family: '%s';", getFontName() ) )
+        setFont( mTextArea, getFontName(), getFontSize() )
     );
 
     fontSizeProperty().addListener(
       ( c, o, n ) ->
-        mTextArea.setStyle( format( "-fx-font-size: %spt;", getFontSize() ) )
+        setFont( mTextArea, getFontName(), getFontSize() )
     );
+
+    setFont( mTextArea, getFontName(), getFontSize() );
   }
 
   private void initScrollPane(
@@ -712,6 +715,24 @@ public final class MarkdownEditor extends BorderPane implements TextEditor {
 
   private LocaleProperty localeProperty() {
     return mWorkspace.localeProperty( KEY_LANGUAGE_LOCALE );
+  }
+
+  /**
+   * Sets the font family name and font size at the same time. When the
+   * workspace is loaded, the default font values are changed, which results
+   * in this method being called.
+   *
+   * @param area Change the font settings for this text area.
+   * @param name New font family name to apply.
+   * @param points New font size to apply (in points, not pixels).
+   */
+  private void setFont(
+    final StyleClassedTextArea area, final String name, final double points ) {
+    runLater( () -> area.setStyle(
+      format(
+        "-fx-font-family:'%s';-fx-font-size:%spx;", name, toPixels( points )
+      )
+    ) );
   }
 
   private String getFontName() {

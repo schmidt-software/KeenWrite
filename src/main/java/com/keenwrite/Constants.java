@@ -224,7 +224,7 @@ public final class Constants {
 
   /**
    * Default server name for rendering diagrams.
-   *
+   * <p>
    * TODO: Make this a preference so that local installs are possible.
    */
   public static final String DIAGRAM_SERVER_NAME = "kroki.io";
@@ -238,6 +238,17 @@ public final class Constants {
    * Prevent instantiation.
    */
   private Constants() {
+  }
+
+  /**
+   * Converts from points to pixels because FlyingSaucer cannot handle points
+   * properly. This is used to convert font sizes.
+   *
+   * @param points The points to convert to pixels.
+   * @return The given number of points in equivalent pixels.
+   */
+  public static int toPixels( final double points ) {
+    return (int) (points * (1 + 1 / 3f));
   }
 
   private static String get( final String key ) {

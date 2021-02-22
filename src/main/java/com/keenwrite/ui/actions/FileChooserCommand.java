@@ -59,7 +59,7 @@ public final class FileChooserCommand {
     final var dialog = createFileChooser(
       "Dialog.file.choose.open.title" );
     final var list = dialog.showOpenMultipleDialog( mParent );
-    final List<java.io.File> selected = list == null ? List.of() : list;
+    final List<File> selected = list == null ? List.of() : list;
     final var files = new ArrayList<File>( selected.size() );
 
     files.addAll( selected );
@@ -108,16 +108,22 @@ public final class FileChooserCommand {
 
   /**
    * Opens a new {@link FileChooser} at the previously selected directory.
+   * If the initial directory is missing, this will attempt to default to
+   * the user's home directory. If the home directory is missing, this will
+   * use whatever JavaFX chooses for the initial directory. Without such an
+   * intervention, an {@link IllegalArgumentException} would be thrown.
    *
    * @param key Message key from resource bundle.
    * @return {@link FileChooser} GUI allowing the user to pick a file.
    */
   private FileChooser createFileChooser( final String key ) {
+    final var prefDir = mDirectory.getValue();
+    final var openDir = prefDir.isDirectory() ? prefDir : USER_DIRECTORY;
     final var chooser = new FileChooser();
 
     chooser.setTitle( get( key ) );
     chooser.getExtensionFilters().addAll( createExtensionFilters() );
-    chooser.setInitialDirectory( mDirectory.getValue() );
+    chooser.setInitialDirectory( openDir.isDirectory() ? openDir : null );
 
     return chooser;
   }

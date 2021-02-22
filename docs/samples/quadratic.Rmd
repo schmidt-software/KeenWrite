@@ -1,4 +1,4 @@
-![Logo](images/app-title)
+![Logo](../images/app-title)
 
 Given the quadratic formula:
 

@@ -25,6 +25,8 @@ import static com.keenwrite.events.Bus.register;
 import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.events.WordCountEvent.fireWordCountEvent;
 import static com.keenwrite.preferences.WorkspaceKeys.KEY_LANGUAGE_LOCALE;
+import static com.keenwrite.preferences.WorkspaceKeys.KEY_UI_FONT_EDITOR_NAME;
+import static java.lang.String.format;
 import static java.util.Locale.ENGLISH;
 import static javafx.application.Platform.runLater;
 import static javafx.collections.FXCollections.observableArrayList;
@@ -56,6 +58,18 @@ public final class DocumentStatistics
     initView();
     initListeners( workspace );
     register( this );
+
+    final var fontName = workspace.stringProperty( KEY_UI_FONT_EDITOR_NAME );
+
+    fontName.addListener(
+      ( c, o, n ) -> {
+        if( n != null ) {
+          setFontFamily( n );
+        }
+      }
+    );
+
+    setFontFamily( fontName.getValue() );
   }
 
   /**
@@ -111,6 +125,8 @@ public final class DocumentStatistics
     setPrefWidth( 128 );
     setColumnResizePolicy( CONSTRAINED_RESIZE_POLICY );
     getSortOrder().setAll( colCount, colWord );
+
+    getStyleClass().add( "" );
   }
 
   private void initListeners( final Workspace workspace ) {
@@ -131,6 +147,10 @@ public final class DocumentStatistics
 
   private <E, T> TableColumn<E, T> createColumn( final String key ) {
     return new TableColumn<>( key );
+  }
+
+  private void setFontFamily( final String value ) {
+    runLater( () -> setStyle( format( "-fx-font-family:'%s';", value ) ) );
   }
 
   /**
