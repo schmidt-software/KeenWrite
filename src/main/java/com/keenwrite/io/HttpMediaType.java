@@ -44,6 +44,7 @@ public final class HttpMediaType {
       clue( "Main.status.image.request.init" );
       final var request = HttpRequest
         .newBuilder()
+        .setHeader( "User-Agent", System.getProperty( "http.agent" ) )
         .method( "HEAD", noBody() )
         .uri( uri )
         .build();

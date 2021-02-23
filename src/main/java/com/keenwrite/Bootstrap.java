@@ -5,6 +5,8 @@ import java.io.InputStream;
 import java.util.Calendar;
 import java.util.Properties;
 
+import static org.apache.batik.util.ParsedURL.setGlobalUserAgent;
+
 /**
  * Responsible for loading the bootstrap.properties file, which is
  * tactically located outside of the standard resource reverse domain name
@@ -33,6 +35,11 @@ public final class Bootstrap {
   public static final String APP_TITLE_LOWERCASE = APP_TITLE.toLowerCase();
   public static final String APP_VERSION = Launcher.getVersion();
   public static final String APP_YEAR = getYear();
+
+  static {
+    System.setProperty( "http.agent", APP_TITLE + " " + APP_VERSION );
+    setGlobalUserAgent( System.getProperty( "http.agent" ) );
+  }
 
   @SuppressWarnings( "SameParameterValue" )
   private static InputStream openResource( final String path ) {
