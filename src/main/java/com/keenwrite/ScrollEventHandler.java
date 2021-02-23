@@ -16,6 +16,8 @@ import org.fxmisc.richtext.StyleClassedTextArea;
 import javax.swing.*;
 import java.util.function.Consumer;
 
+import static java.awt.Toolkit.getDefaultToolkit;
+import static java.awt.event.KeyEvent.VK_SCROLL_LOCK;
 import static javafx.geometry.Orientation.VERTICAL;
 
 /**
@@ -68,19 +70,19 @@ public final class ScrollEventHandler implements EventHandler<Event> {
    * @param previewScrollBar Scroll event destination (corresponding movement).
    */
   public ScrollEventHandler(
-      final VirtualizedScrollPane<StyleClassedTextArea> editorScrollPane,
-      final JScrollBar previewScrollBar ) {
+    final VirtualizedScrollPane<StyleClassedTextArea> editorScrollPane,
+    final JScrollBar previewScrollBar ) {
     mEditorScrollPane = editorScrollPane;
     mPreviewScrollBar = previewScrollBar;
 
     mEditorScrollPane.addEventFilter( ScrollEvent.ANY, new ScrollHandler() );
 
     initVerticalScrollBarThumb(
-        mEditorScrollPane,
-        thumb -> {
-          final var handler = new MouseHandler( thumb.getOnMouseDragged() );
-          thumb.setOnMouseDragged( handler );
-        }
+      mEditorScrollPane,
+      thumb -> {
+        final var handler = new MouseHandler( thumb.getOnMouseDragged() );
+        thumb.setOnMouseDragged( handler );
+      }
     );
   }
 
@@ -107,12 +109,12 @@ public final class ScrollEventHandler implements EventHandler<Event> {
     if( isEnabled() ) {
       final var eScrollPane = getEditorScrollPane();
       final var eScrollY =
-          eScrollPane.estimatedScrollYProperty().getValue().intValue();
+        eScrollPane.estimatedScrollYProperty().getValue().intValue();
       final var eHeight = (int)
-          (eScrollPane.totalHeightEstimateProperty().getValue().intValue()
-              - eScrollPane.getHeight());
+        (eScrollPane.totalHeightEstimateProperty().getValue().intValue()
+          - eScrollPane.getHeight());
       final var eRatio = eHeight > 0
-          ? Math.min( Math.max( eScrollY / (float) eHeight, 0 ), 1 ) : 0;
+        ? Math.min( Math.max( eScrollY / (float) eHeight, 0 ), 1 ) : 0;
 
       final var pScrollBar = getPreviewScrollBar();
       final var pHeight = pScrollBar.getMaximum() - pScrollBar.getHeight();
@@ -124,8 +126,8 @@ public final class ScrollEventHandler implements EventHandler<Event> {
   }
 
   private void initVerticalScrollBarThumb(
-      final VirtualizedScrollPane<StyleClassedTextArea> pane,
-      final Consumer<StackPane> consumer ) {
+    final VirtualizedScrollPane<StyleClassedTextArea> pane,
+    final Consumer<StackPane> consumer ) {
     // When the skin property is set, the stack pane is available (not null).
     getVerticalScrollBar( pane ).skinProperty().addListener( ( c, o, n ) -> {
       for( final var node : ((ScrollBarSkin) n).getChildren() ) {
@@ -147,7 +149,7 @@ public final class ScrollEventHandler implements EventHandler<Event> {
    * @throws IllegalStateException Could not obtain the vertical scroll bar.
    */
   private ScrollBar getVerticalScrollBar(
-      final VirtualizedScrollPane<StyleClassedTextArea> pane ) {
+    final VirtualizedScrollPane<StyleClassedTextArea> pane ) {
 
     for( final var node : pane.getChildrenUnmodifiable() ) {
       if( node instanceof ScrollBar ) {
@@ -166,7 +168,11 @@ public final class ScrollEventHandler implements EventHandler<Event> {
     // TODO: As a minor optimization, when this is set to false, it could remove
     // the MouseHandler and ScrollHandler so that events only dispatch to one
     // object (instead of one per editor tab).
-    return mEnabled.get();
+    return mEnabled.get() && !isLocked();
+  }
+
+  private boolean isLocked() {
+    return getDefaultToolkit().getLockingKeyState( VK_SCROLL_LOCK );
   }
 
   private VirtualizedScrollPane<StyleClassedTextArea> getEditorScrollPane() {
