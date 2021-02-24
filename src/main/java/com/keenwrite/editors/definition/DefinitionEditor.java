@@ -25,7 +25,8 @@ import java.nio.charset.Charset;
 import java.util.*;
 import java.util.regex.Pattern;
 
-import static com.keenwrite.Constants.*;
+import static com.keenwrite.Constants.ACTION_PREFIX;
+import static com.keenwrite.Constants.DEFINITION_DEFAULT;
 import static com.keenwrite.Messages.get;
 import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.events.TextDefinitionFocusEvent.fireTextDefinitionFocus;
@@ -206,8 +207,7 @@ public final class DefinitionEditor extends BorderPane
     final String msgKey, final EventHandler<ActionEvent> eventHandler ) {
     final var keyPrefix = Constants.ACTION_PREFIX + "definition." + msgKey;
     final var button = new Button( get( keyPrefix + ".text" ) );
-    final var icon = get( keyPrefix + ".icon" );
-    final var graphic = createGraphic( icon.toUpperCase() );
+    final var graphic = createGraphic( get( keyPrefix + ".icon" ) );
 
     button.setOnAction( eventHandler );
     button.setGraphic( graphic );

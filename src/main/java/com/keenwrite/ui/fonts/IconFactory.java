@@ -5,6 +5,9 @@ import javafx.scene.Node;
 import org.controlsfx.glyphfont.FontAwesome;
 import org.controlsfx.glyphfont.Glyph;
 
+import java.awt.*;
+
+import static java.awt.Font.BOLD;
 import static org.controlsfx.glyphfont.FontAwesome.Glyph.valueOf;
 
 /**
@@ -46,6 +49,10 @@ public class IconFactory {
    */
   public static Node createGraphic( final FontAwesome.Glyph glyph ) {
     return FONT_AWESOME.create( glyph );
+  }
+
+  public static java.awt.Font getIconFont( final int size ) {
+    return new Font( FONT_AWESOME.getName(), BOLD, size );
   }
 
   private static Node createGlyph( final String icon ) {

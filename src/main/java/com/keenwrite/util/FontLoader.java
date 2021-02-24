@@ -37,12 +37,20 @@ public final class FontLoader {
    * supported.
    * </p>
    */
-  @SuppressWarnings( "unchecked" )
   public static void initFonts() {
+    // Editor, preview, and TeX fonts
+    initFonts( FONT_DIRECTORY );
+
+    // FontAwesome font
+    initFonts( "/org" );
+  }
+
+  @SuppressWarnings( "unchecked" )
+  private static void initFonts( final String directory ) {
     try {
       final var ge = getLocalGraphicsEnvironment();
       walk(
-        FONT_DIRECTORY, GLOB_FONTS, path -> {
+        directory, GLOB_FONTS, path -> {
           final var uri = path.toUri();
           final var filename = path.toString();
 

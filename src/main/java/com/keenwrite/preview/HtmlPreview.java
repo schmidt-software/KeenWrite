@@ -20,12 +20,16 @@ import static com.keenwrite.Constants.*;
 import static com.keenwrite.Messages.get;
 import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.preferences.WorkspaceKeys.*;
+import static com.keenwrite.ui.fonts.IconFactory.getIconFont;
+import static java.awt.BorderLayout.*;
 import static java.lang.Math.max;
 import static java.lang.String.format;
 import static java.lang.Thread.sleep;
 import static javafx.application.Platform.runLater;
 import static javafx.scene.CacheHint.SPEED;
 import static javax.swing.SwingUtilities.invokeLater;
+import static org.controlsfx.glyphfont.FontAwesome.Glyph.LOCK;
+import static org.controlsfx.glyphfont.FontAwesome.Glyph.UNLOCK_ALT;
 
 /**
  * Responsible for parsing an HTML document.
@@ -87,6 +91,7 @@ public final class HtmlPreview extends SwingNode {
   private JScrollPane mScrollPane;
   private String mBaseUriPath = "";
   private String mHead = "";
+  private boolean mLocked;
 
   private final Workspace mWorkspace;
 
@@ -106,16 +111,25 @@ public final class HtmlPreview extends SwingNode {
       mHead = generateHead();
       mView = new HtmlPanel();
       mScrollPane = new JScrollPane( mView );
-
-      final var scrollLock = new JButton( "X" );
       final var verticalBar = mScrollPane.getVerticalScrollBar();
       final var verticalPanel = new JPanel( new BorderLayout() );
-      verticalPanel.add( verticalBar, BorderLayout.CENTER );
-      verticalPanel.add( scrollLock, BorderLayout.PAGE_END );
+      final var scrollLock = new JButton();
+
+      scrollLock.setFont( getIconFont( 14 ) );
+      scrollLock.setText( getLockText() );
+      scrollLock.setMargin( new Insets( 1, 0, 0, 0 ) );
+
+      scrollLock.addActionListener( e -> {
+        mLocked = !mLocked;
+        scrollLock.setText( getLockText() );
+      } );
+
+      verticalPanel.add( verticalBar, CENTER );
+      verticalPanel.add( scrollLock, PAGE_END );
 
       final var wrapper = new JPanel( new BorderLayout() );
-      wrapper.add( mScrollPane, BorderLayout.CENTER );
-      wrapper.add( verticalPanel, BorderLayout.LINE_END );
+      wrapper.add( mScrollPane, CENTER );
+      wrapper.add( verticalPanel, LINE_END );
 
       // Enabling the cache attempts to prevent black flashes when resizing.
       setCache( true );
@@ -361,5 +375,13 @@ public final class HtmlPreview extends SwingNode {
    */
   private DoubleProperty fontSizeProperty() {
     return mWorkspace.doubleProperty( KEY_UI_FONT_PREVIEW_SIZE );
+  }
+
+  private String getLockText() {
+    return Character.toString( (isLocked() ? LOCK : UNLOCK_ALT).getChar() );
+  }
+
+  public boolean isLocked() {
+    return mLocked;
   }
 }
