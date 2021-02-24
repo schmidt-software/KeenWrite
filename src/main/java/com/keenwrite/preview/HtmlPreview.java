@@ -107,10 +107,20 @@ public final class HtmlPreview extends SwingNode {
       mView = new HtmlPanel();
       mScrollPane = new JScrollPane( mView );
 
+      final var scrollLock = new JButton( "X" );
+      final var verticalBar = mScrollPane.getVerticalScrollBar();
+      final var verticalPanel = new JPanel( new BorderLayout() );
+      verticalPanel.add( verticalBar, BorderLayout.CENTER );
+      verticalPanel.add( scrollLock, BorderLayout.PAGE_END );
+
+      final var wrapper = new JPanel( new BorderLayout() );
+      wrapper.add( mScrollPane, BorderLayout.CENTER );
+      wrapper.add( verticalPanel, BorderLayout.LINE_END );
+
       // Enabling the cache attempts to prevent black flashes when resizing.
       setCache( true );
       setCacheHint( SPEED );
-      setContent( mScrollPane );
+      setContent( wrapper );
 
       final var context = mView.getSharedContext();
       final var textRenderer = context.getTextRenderer();

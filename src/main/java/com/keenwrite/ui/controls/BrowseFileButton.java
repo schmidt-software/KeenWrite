@@ -28,8 +28,6 @@
 package com.keenwrite.ui.controls;
 
 import com.keenwrite.Messages;
-import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
-import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.event.ActionEvent;
@@ -45,6 +43,9 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.keenwrite.ui.fonts.IconFactory.createGraphic;
+import static org.controlsfx.glyphfont.FontAwesome.Glyph.FILE_ALT;
+
 /**
  * Button that opens a file chooser to select a local file for a URL.
  */
@@ -55,9 +56,7 @@ public class BrowseFileButton extends Button {
   private final ObjectProperty<String> mUrl = new SimpleObjectProperty<>();
 
   public BrowseFileButton() {
-    setGraphic(
-        FontAwesomeIconFactory.get().createIcon( FontAwesomeIcon.FILE_ALT )
-    );
+    setGraphic( createGraphic( FILE_ALT ) );
     setTooltip( new Tooltip( Messages.get( "BrowseFileButton.tooltip" ) ) );
     setOnAction( this::browse );
 

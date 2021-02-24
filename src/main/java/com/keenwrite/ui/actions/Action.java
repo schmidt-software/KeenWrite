@@ -1,11 +1,8 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.ui.actions;
 
-import com.keenwrite.Constants;
 import com.keenwrite.Messages;
 import com.keenwrite.util.GenericBuilder;
-import de.jensd.fx.glyphs.GlyphIcons;
-import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.control.Button;
@@ -18,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.keenwrite.Constants.ACTION_PREFIX;
-import static de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory.get;
+import static com.keenwrite.ui.fonts.IconFactory.createGraphic;
 import static javafx.scene.input.KeyCombination.valueOf;
 
 /**
@@ -27,14 +24,14 @@ import static javafx.scene.input.KeyCombination.valueOf;
 public final class Action implements MenuAction {
   private final String mText;
   private final KeyCombination mAccelerator;
-  private final GlyphIcons mIcon;
+  private final String mIcon;
   private final EventHandler<ActionEvent> mHandler;
   private final List<MenuAction> mSubActions = new ArrayList<>();
 
   public Action(
     final String text,
     final String accelerator,
-    final GlyphIcons icon,
+    final String icon,
     final EventHandler<ActionEvent> handler ) {
     assert text != null;
     assert handler != null;
@@ -80,7 +77,7 @@ public final class Action implements MenuAction {
     }
 
     if( mIcon != null ) {
-      menuItem.setGraphic( get().createIcon( mIcon ) );
+      menuItem.setGraphic( createGraphic( mIcon ) );
     }
 
     menuItem.setOnAction( mHandler );
@@ -109,9 +106,7 @@ public final class Action implements MenuAction {
   }
 
   private Button createIconButton() {
-    final var button = new Button();
-    button.setGraphic( get().createIcon( mIcon, Constants.ICON_SIZE_DEFAULT ) );
-    return button;
+    return new Button( null, createGraphic( mIcon ) );
   }
 
   /**
@@ -142,7 +137,7 @@ public final class Action implements MenuAction {
   public static class Builder {
     private String mText;
     private String mAccelerator;
-    private GlyphIcons mIcon;
+    private String mIcon;
     private EventHandler<ActionEvent> mHandler;
 
     /**
@@ -181,19 +176,15 @@ public final class Action implements MenuAction {
       return this;
     }
 
-    private Builder setIcon( final GlyphIcons icon ) {
-      mIcon = icon;
-      return this;
-    }
-
     private Builder setIcon( final String iconKey ) {
       assert iconKey != null;
 
-      final var iconValue = Messages.get( iconKey );
+      // If there's no icon associated with the icon key name, don't attempt
+      // to create a graphic for the icon, because it won't exist.
+      final var iconName = Messages.get( iconKey );
+      mIcon = iconKey.equals( iconName ) ? "" : iconName;
 
-      return iconKey.equals( iconValue )
-        ? this
-        : setIcon( getIcon( iconValue ) );
+      return this;
     }
 
     public Builder setHandler( final EventHandler<ActionEvent> handler ) {
@@ -203,10 +194,6 @@ public final class Action implements MenuAction {
 
     public Action build() {
       return new Action( mText, mAccelerator, mIcon, mHandler );
-    }
-
-    private GlyphIcons getIcon( final String name ) {
-      return FontAwesomeIcon.valueOf( name.toUpperCase() );
     }
   }
 }

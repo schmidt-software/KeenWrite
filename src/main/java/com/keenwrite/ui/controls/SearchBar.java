@@ -1,26 +1,25 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.ui.controls;
 
-import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
-import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import org.controlsfx.control.textfield.CustomTextField;
 
 import static com.keenwrite.Messages.get;
+import static com.keenwrite.ui.fonts.IconFactory.createGraphic;
 import static java.lang.StrictMath.max;
 import static java.lang.String.format;
+import static javafx.geometry.Orientation.VERTICAL;
+import static javafx.scene.layout.Priority.ALWAYS;
 
 /**
  * Responsible for presenting user interface options for searching through
@@ -41,18 +40,18 @@ public final class SearchBar extends HBox {
   public SearchBar() {
     setAlignment( Pos.CENTER );
     addAll(
-        mButtonStop,
-        createSpacer( 10 ),
-        mFind,
-        createSpacer( 10 ),
-        mButtonNext,
-        createSpacer( 10 ),
-        mButtonPrev,
-        createSpacer( 10 ),
-        mMatches,
-        createSpacer( 10 ),
-        createSeparatorVertical(),
-        createSpacer( 5 )
+      mButtonStop,
+      createSpacer( 10 ),
+      mFind,
+      createSpacer( 10 ),
+      mButtonNext,
+      createSpacer( 10 ),
+      mButtonPrev,
+      createSpacer( 10 ),
+      mMatches,
+      createSpacer( 10 ),
+      createSeparatorVertical(),
+      createSpacer( 5 )
     );
 
     mMatchIndex.addListener( ( c, o, n ) -> updateMatchText() );
@@ -173,7 +172,7 @@ public final class SearchBar extends HBox {
    * @return A vertical separator.
    */
   private Node createSeparatorVertical() {
-    return new Separator( Orientation.VERTICAL );
+    return new Separator( VERTICAL );
   }
 
   /**
@@ -186,14 +185,12 @@ public final class SearchBar extends HBox {
   private Node createSpacer( final int width ) {
     final var spacer = new Region();
     spacer.setPrefWidth( width );
-    VBox.setVgrow( spacer, Priority.ALWAYS );
+    VBox.setVgrow( spacer, ALWAYS );
     return spacer;
   }
 
   private Node getIcon( final String id ) {
-    final var name = getMessageValue( id, "icon" );
-    final var glyph = FontAwesomeIcon.valueOf( name.toUpperCase() );
-    return FontAwesomeIconFactory.get().createIcon( glyph );
+    return createGraphic( getMessageValue( id, "icon" ) );
   }
 
   private String getMessageValue( final String id, final String suffix ) {

@@ -6,8 +6,6 @@ import com.keenwrite.editors.TextDefinition;
 import com.keenwrite.sigils.Tokens;
 import com.keenwrite.ui.tree.AltTreeView;
 import com.keenwrite.ui.tree.TreeItemConverter;
-import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
-import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -27,11 +25,11 @@ import java.nio.charset.Charset;
 import java.util.*;
 import java.util.regex.Pattern;
 
-import static com.keenwrite.Constants.ACTION_PREFIX;
-import static com.keenwrite.Constants.DEFINITION_DEFAULT;
+import static com.keenwrite.Constants.*;
 import static com.keenwrite.Messages.get;
 import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.events.TextDefinitionFocusEvent.fireTextDefinitionFocus;
+import static com.keenwrite.ui.fonts.IconFactory.createGraphic;
 import static java.lang.String.format;
 import static java.util.regex.Pattern.compile;
 import static java.util.regex.Pattern.quote;
@@ -209,12 +207,10 @@ public final class DefinitionEditor extends BorderPane
     final var keyPrefix = Constants.ACTION_PREFIX + "definition." + msgKey;
     final var button = new Button( get( keyPrefix + ".text" ) );
     final var icon = get( keyPrefix + ".icon" );
-    final var glyph = FontAwesomeIcon.valueOf( icon.toUpperCase() );
+    final var graphic = createGraphic( icon.toUpperCase() );
 
     button.setOnAction( eventHandler );
-    button.setGraphic(
-      FontAwesomeIconFactory.get().createIcon( glyph )
-    );
+    button.setGraphic( graphic );
     button.setTooltip( new Tooltip( get( keyPrefix + ".tooltip" ) ) );
 
     return button;

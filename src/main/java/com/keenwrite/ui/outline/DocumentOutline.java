@@ -2,18 +2,16 @@ package com.keenwrite.ui.outline;
 
 import com.keenwrite.events.Bus;
 import com.keenwrite.events.ParseHeadingEvent;
+import javafx.scene.Node;
 import javafx.scene.control.TreeCell;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
-import javafx.scene.text.Text;
 import javafx.util.Callback;
 import org.greenrobot.eventbus.Subscribe;
 
-import static com.keenwrite.Constants.ICON_SIZE_DEFAULT;
 import static com.keenwrite.events.Bus.register;
 import static com.keenwrite.events.CaretNavigationEvent.fireCaretNavigationEvent;
-import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.valueOf;
-import static de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory.get;
+import static com.keenwrite.ui.fonts.IconFactory.createGraphic;
 import static javafx.application.Platform.runLater;
 import static javafx.scene.input.MouseButton.PRIMARY;
 import static javafx.scene.input.MouseEvent.MOUSE_PRESSED;
@@ -117,7 +115,7 @@ public class DocumentOutline extends TreeView<ParseHeadingEvent> {
     return item;
   }
 
-  private Text createIcon() {
-    return get().createIcon( valueOf( "BOOKMARK" ), ICON_SIZE_DEFAULT );
+  private Node createIcon() {
+    return createGraphic( "BOOKMARK" );// get().createIcon( valueOf( "BOOKMARK" ), ICON_SIZE_DEFAULT );
   }
 }

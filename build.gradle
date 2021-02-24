@@ -48,12 +48,6 @@ dependencies {
   implementation('com.dlsc.preferencesfx:preferencesfx-core:11.7.0') {
     exclude group: 'org.openjfx'
   }
-  implementation('de.jensd:fontawesomefx-commons:11.0') {
-    exclude group: 'org.openjfx'
-  }
-  implementation('de.jensd:fontawesomefx-fontawesome:4.7.0-11') {
-    exclude group: 'org.openjfx'
-  }
 
   // Markdown
   implementation "com.vladsch.flexmark:flexmark:${v_flexmark}"
