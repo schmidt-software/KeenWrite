@@ -365,6 +365,8 @@ public final class ApplicationActions {
     getMainPane().viewOutline();
   }
 
+  public void view‿files() { getMainPane().viewFiles(); }
+
   public void view‿statistics() {
     getMainPane().viewStatistics();
   }

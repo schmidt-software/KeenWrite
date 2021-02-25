@@ -23,8 +23,6 @@ public class DocumentOutline extends TreeView<ParseHeadingEvent> {
    * Registers with the {@link Bus}.
    */
   public DocumentOutline() {
-    register( this );
-
     // Override double-click to issue a caret navigation event.
     setCellFactory( new Callback<>() {
       @Override
@@ -55,6 +53,8 @@ public class DocumentOutline extends TreeView<ParseHeadingEvent> {
         return cell;
       }
     } );
+
+    register( this );
   }
 
   /**

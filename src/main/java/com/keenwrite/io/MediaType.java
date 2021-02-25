@@ -25,6 +25,9 @@ public enum MediaType {
   APP_DOCUMENT_STATISTICS(
     APPLICATION, "x-document-statistics"
   ),
+  APP_FILE_MANAGER(
+    APPLICATION, "x-file-manager"
+  ),
 
   /*
    * Internal values used to distinguish document outline tabs from editors.

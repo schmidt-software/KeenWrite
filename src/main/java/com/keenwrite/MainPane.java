@@ -26,6 +26,7 @@ import com.keenwrite.sigils.RSigilOperator;
 import com.keenwrite.sigils.SigilOperator;
 import com.keenwrite.sigils.Tokens;
 import com.keenwrite.sigils.YamlSigilOperator;
+import com.keenwrite.ui.explorer.FilesView;
 import com.keenwrite.ui.heuristics.DocumentStatistics;
 import com.keenwrite.ui.outline.DocumentOutline;
 import com.panemu.tiwulfx.control.dock.DetachableTab;
@@ -513,6 +514,15 @@ public final class MainPane extends SplitPane {
 
   public void viewStatistics() {
     viewTab( mStatistics, APP_DOCUMENT_STATISTICS, "Pane.statistics.title" );
+  }
+
+  public void viewFiles() {
+    try {
+      final var fileManager = new FilesView( USER_DIRECTORY.toPath() );
+      viewTab( fileManager, APP_FILE_MANAGER, "Pane.files.title" );
+    } catch( final Exception ex ) {
+      clue( ex );
+    }
   }
 
   private void viewTab(
