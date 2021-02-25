@@ -135,16 +135,33 @@ public final class MainApp extends Application {
       !(stage.isMaximized() || stage.isFullScreen() || stage.isIconified());
   }
 
+  /**
+   * Creates an instance of {@link KeyEvent} that represents pressing a key.
+   *
+   * @param code  The key to simulate being pressed down.
+   * @param shift Whether shift key modifier shall modify the key code.
+   * @return An instance of {@link KeyEvent} that may be used to simulate
+   * a key being pressed.
+   */
   public static Event keyDown( final KeyCode code, final boolean shift ) {
     return keyEvent( KEY_PRESSED, code, shift );
   }
 
+  /**
+   * Creates an instance of {@link KeyEvent} that represents releasing a key.
+   *
+   * @param code  The key to simulate being released up.
+   * @param shift Whether shift key modifier shall modify the key code.
+   * @return An instance of {@link KeyEvent} that may be used to simulate
+   * a key being released.
+   */
   public static Event keyUp( final KeyCode code, final boolean shift ) {
     return keyEvent( KEY_RELEASED, code, shift );
   }
 
   /**
-   * Returns a key released event without any modifier keys held.
+   * Creates an instance of {@link KeyEvent} that represents a key released
+   * event without any modifier keys held.
    *
    * @param code The key code representing a key to simulate releasing.
    * @return An instance of {@link KeyEvent}.

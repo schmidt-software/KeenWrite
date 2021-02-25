@@ -430,6 +430,7 @@ public final class MainPane extends SplitPane {
    */
   public void close() {
     final var editor = getActiveTextEditor();
+
     if( canClose( editor ) ) {
       close( editor );
     }

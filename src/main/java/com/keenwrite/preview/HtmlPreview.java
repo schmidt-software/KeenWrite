@@ -245,6 +245,10 @@ public final class HtmlPreview extends SwingNode {
    * @param id Scroll the preview pane to this unique paragraph identifier.
    */
   public void scrollTo( final String id ) {
+    if( mLocked ) {
+      return;
+    }
+
     final Runnable scrollToBox = () -> {
       int iter = 0;
       Box box = null;

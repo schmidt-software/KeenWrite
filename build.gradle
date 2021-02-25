@@ -45,6 +45,7 @@ dependencies {
   implementation 'org.fxmisc.richtext:richtextfx:0.10.5'
   implementation 'org.fxmisc.wellbehaved:wellbehavedfx:0.3.3'
   implementation 'com.miglayout:miglayout-javafx:5.2'
+  implementation 'org.fxmisc.livedirs:livedirsfx:1.0.0-SNAPSHOT'
   implementation('com.dlsc.preferencesfx:preferencesfx-core:11.7.0') {
     exclude group: 'org.openjfx'
   }
