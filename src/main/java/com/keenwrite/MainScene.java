@@ -18,14 +18,18 @@ import java.io.File;
 
 import static com.keenwrite.Constants.*;
 import static com.keenwrite.Messages.get;
+import static com.keenwrite.events.ScrollLockEvent.fireScrollLockEvent;
 import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.preferences.ThemeProperty.toFilename;
-import static com.keenwrite.preferences.WorkspaceKeys.*;
+import static com.keenwrite.preferences.WorkspaceKeys.KEY_UI_THEME_CUSTOM;
+import static com.keenwrite.preferences.WorkspaceKeys.KEY_UI_THEME_SELECTION;
 import static com.keenwrite.ui.actions.ApplicationBars.*;
+import static java.awt.Toolkit.getDefaultToolkit;
+import static java.awt.event.KeyEvent.VK_SCROLL_LOCK;
 import static javafx.application.Platform.runLater;
-import static javafx.scene.input.KeyCode.ALT;
-import static javafx.scene.input.KeyCode.ALT_GRAPH;
+import static javafx.scene.input.KeyCode.*;
 import static javafx.scene.input.KeyEvent.KEY_PRESSED;
+import static javafx.scene.input.KeyEvent.KEY_RELEASED;
 
 /**
  * Responsible for creating the bar scene: menu bar, tool bar, and status bar.
@@ -200,6 +204,13 @@ public final class MainScene {
         if( event.getCode() == ALT || event.getCode() == ALT_GRAPH ) {
           event.consume();
         }
+      }
+    } );
+
+    // Update the synchronized scrolling status when user presses scroll lock.
+    scene.addEventHandler( KEY_RELEASED, event -> {
+      if( event.getCode() == SCROLL_LOCK ) {
+        fireScrollLockEvent();
       }
     } );
 

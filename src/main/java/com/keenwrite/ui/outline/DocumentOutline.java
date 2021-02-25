@@ -116,6 +116,6 @@ public class DocumentOutline extends TreeView<ParseHeadingEvent> {
   }
 
   private Node createIcon() {
-    return createGraphic( "BOOKMARK" );// get().createIcon( valueOf( "BOOKMARK" ), ICON_SIZE_DEFAULT );
+    return createGraphic( "BOOKMARK" );
   }
 }

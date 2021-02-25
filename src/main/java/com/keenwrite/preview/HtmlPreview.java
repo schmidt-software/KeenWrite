@@ -1,12 +1,14 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.preview;
 
+import com.keenwrite.events.ScrollLockEvent;
 import com.keenwrite.preferences.LocaleProperty;
 import com.keenwrite.preferences.Workspace;
 import javafx.application.Platform;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.StringProperty;
 import javafx.embed.swing.SwingNode;
+import org.greenrobot.eventbus.Subscribe;
 import org.xhtmlrenderer.render.Box;
 import org.xhtmlrenderer.swing.SwingReplacedElementFactory;
 
@@ -18,6 +20,8 @@ import java.util.Locale;
 
 import static com.keenwrite.Constants.*;
 import static com.keenwrite.Messages.get;
+import static com.keenwrite.events.Bus.register;
+import static com.keenwrite.events.ScrollLockEvent.fireScrollLockEvent;
 import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.preferences.WorkspaceKeys.*;
 import static com.keenwrite.ui.fonts.IconFactory.getIconFont;
@@ -87,11 +91,14 @@ public final class HtmlPreview extends SwingNode {
    */
   private final StringBuilder mDocument = new StringBuilder( 65536 );
 
+
   private HtmlPanel mView;
   private JScrollPane mScrollPane;
   private String mBaseUriPath = "";
   private String mHead = "";
+
   private boolean mLocked;
+  private final JButton mScrollLockButton = new JButton();
 
   private final Workspace mWorkspace;
 
@@ -113,19 +120,14 @@ public final class HtmlPreview extends SwingNode {
       mScrollPane = new JScrollPane( mView );
       final var verticalBar = mScrollPane.getVerticalScrollBar();
       final var verticalPanel = new JPanel( new BorderLayout() );
-      final var scrollLock = new JButton();
 
-      scrollLock.setFont( getIconFont( 14 ) );
-      scrollLock.setText( getLockText() );
-      scrollLock.setMargin( new Insets( 1, 0, 0, 0 ) );
-
-      scrollLock.addActionListener( e -> {
-        mLocked = !mLocked;
-        scrollLock.setText( getLockText() );
-      } );
+      mScrollLockButton.setFont( getIconFont( 14 ) );
+      mScrollLockButton.setText( getLockText( mLocked ) );
+      mScrollLockButton.setMargin( new Insets( 1, 0, 0, 0 ) );
+      mScrollLockButton.addActionListener( e -> fireScrollLockEvent( !mLocked ) );
 
       verticalPanel.add( verticalBar, CENTER );
-      verticalPanel.add( scrollLock, PAGE_END );
+      verticalPanel.add( mScrollLockButton, PAGE_END );
 
       final var wrapper = new JPanel( new BorderLayout() );
       wrapper.add( mScrollPane, CENTER );
@@ -145,6 +147,14 @@ public final class HtmlPreview extends SwingNode {
       fontFamilyProperty().addListener( ( c, o, n ) -> rerender() );
       fontSizeProperty().addListener( ( c, o, n ) -> rerender() );
     } );
+
+    register( this );
+  }
+
+  @Subscribe
+  public void handle( final ScrollLockEvent event ) {
+    mLocked = event.isLocked();
+    invokeLater( () -> mScrollLockButton.setText( getLockText( mLocked ) ) );
   }
 
   /**
@@ -377,11 +387,7 @@ public final class HtmlPreview extends SwingNode {
     return mWorkspace.doubleProperty( KEY_UI_FONT_PREVIEW_SIZE );
   }
 
-  private String getLockText() {
-    return Character.toString( (isLocked() ? LOCK : UNLOCK_ALT).getChar() );
-  }
-
-  public boolean isLocked() {
-    return mLocked;
+  private String getLockText( final boolean locked ) {
+    return Character.toString( (locked ? LOCK : UNLOCK_ALT).getChar() );
   }
 }

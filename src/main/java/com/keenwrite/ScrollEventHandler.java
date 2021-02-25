@@ -1,6 +1,7 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite;
 
+import com.keenwrite.events.ScrollLockEvent;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.event.Event;
@@ -12,12 +13,14 @@ import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.StackPane;
 import org.fxmisc.flowless.VirtualizedScrollPane;
 import org.fxmisc.richtext.StyleClassedTextArea;
+import org.greenrobot.eventbus.Subscribe;
 
 import javax.swing.*;
 import java.util.function.Consumer;
 
-import static java.awt.Toolkit.getDefaultToolkit;
-import static java.awt.event.KeyEvent.VK_SCROLL_LOCK;
+import static com.keenwrite.events.Bus.register;
+import static java.lang.Math.max;
+import static java.lang.Math.min;
 import static javafx.geometry.Orientation.VERTICAL;
 
 /**
@@ -65,6 +68,8 @@ public final class ScrollEventHandler implements EventHandler<Event> {
   private final JScrollBar mPreviewScrollBar;
   private final BooleanProperty mEnabled = new SimpleBooleanProperty();
 
+  private boolean mLocked;
+
   /**
    * @param editorScrollPane Scroll event source (human movement).
    * @param previewScrollBar Scroll event destination (corresponding movement).
@@ -84,6 +89,8 @@ public final class ScrollEventHandler implements EventHandler<Event> {
         thumb.setOnMouseDragged( handler );
       }
     );
+
+    register( this );
   }
 
   /**
@@ -114,7 +121,7 @@ public final class ScrollEventHandler implements EventHandler<Event> {
         (eScrollPane.totalHeightEstimateProperty().getValue().intValue()
           - eScrollPane.getHeight());
       final var eRatio = eHeight > 0
-        ? Math.min( Math.max( eScrollY / (float) eHeight, 0 ), 1 ) : 0;
+        ? min( max( eScrollY / (float) eHeight, 0 ), 1 ) : 0;
 
       final var pScrollBar = getPreviewScrollBar();
       final var pHeight = pScrollBar.getMaximum() - pScrollBar.getHeight();
@@ -123,6 +130,11 @@ public final class ScrollEventHandler implements EventHandler<Event> {
       pScrollBar.setValue( pScrollY );
       pScrollBar.getParent().repaint();
     }
+  }
+
+  @Subscribe
+  public void handle( final ScrollLockEvent event ) {
+    mLocked = event.isLocked();
   }
 
   private void initVerticalScrollBarThumb(
@@ -168,11 +180,7 @@ public final class ScrollEventHandler implements EventHandler<Event> {
     // TODO: As a minor optimization, when this is set to false, it could remove
     // the MouseHandler and ScrollHandler so that events only dispatch to one
     // object (instead of one per editor tab).
-    return mEnabled.get() && !isLocked();
-  }
-
-  private boolean isLocked() {
-    return getDefaultToolkit().getLockingKeyState( VK_SCROLL_LOCK );
+    return mEnabled.get() && !mLocked;
   }
 
   private VirtualizedScrollPane<StyleClassedTextArea> getEditorScrollPane() {
