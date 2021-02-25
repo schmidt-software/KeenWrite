@@ -2,8 +2,6 @@
 package com.keenwrite;
 
 import com.keenwrite.service.Settings;
-import javafx.scene.control.ToolBar;
-import javafx.scene.control.TreeItem;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
@@ -218,9 +216,9 @@ public final class Constants {
   public static final String CARET_ID = "caret";
 
   /**
-   * Default icon size for {@link ToolBar}, {@link TreeItem}s, etc.
+   * Default spacing for UI items (e.g., toolbars).
    */
-  public static final String ICON_SIZE_DEFAULT = "1.2em";
+  public static final int UI_CONTROL_SPACING = 10;
 
   /**
    * Default server name for rendering diagrams.

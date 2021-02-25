@@ -25,8 +25,7 @@ import java.nio.charset.Charset;
 import java.util.*;
 import java.util.regex.Pattern;
 
-import static com.keenwrite.Constants.ACTION_PREFIX;
-import static com.keenwrite.Constants.DEFINITION_DEFAULT;
+import static com.keenwrite.Constants.*;
 import static com.keenwrite.Messages.get;
 import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.events.TextDefinitionFocusEvent.fireTextDefinitionFocus;
@@ -127,7 +126,7 @@ public final class DefinitionEditor extends BorderPane
       createButton( "delete", e -> deleteDefinitions() )
     );
     buttonBar.setAlignment( CENTER );
-    buttonBar.setSpacing( 10 );
+    buttonBar.setSpacing( UI_CONTROL_SPACING );
 
     setTop( buttonBar );
     setCenter( mTreeView );
