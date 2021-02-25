@@ -24,8 +24,6 @@ import static com.keenwrite.preferences.ThemeProperty.toFilename;
 import static com.keenwrite.preferences.WorkspaceKeys.KEY_UI_THEME_CUSTOM;
 import static com.keenwrite.preferences.WorkspaceKeys.KEY_UI_THEME_SELECTION;
 import static com.keenwrite.ui.actions.ApplicationBars.*;
-import static java.awt.Toolkit.getDefaultToolkit;
-import static java.awt.event.KeyEvent.VK_SCROLL_LOCK;
 import static javafx.application.Platform.runLater;
 import static javafx.scene.input.KeyCode.*;
 import static javafx.scene.input.KeyEvent.KEY_PRESSED;

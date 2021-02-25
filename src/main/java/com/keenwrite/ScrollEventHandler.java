@@ -22,6 +22,7 @@ import static com.keenwrite.events.Bus.register;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 import static javafx.geometry.Orientation.VERTICAL;
+import static javax.swing.SwingUtilities.invokeLater;
 
 /**
  * Converts scroll events from {@link VirtualizedScrollPane} scroll bars to
@@ -113,23 +114,27 @@ public final class ScrollEventHandler implements EventHandler<Event> {
    */
   @Override
   public void handle( final Event event ) {
-    if( isEnabled() ) {
-      final var eScrollPane = getEditorScrollPane();
-      final var eScrollY =
-        eScrollPane.estimatedScrollYProperty().getValue().intValue();
-      final var eHeight = (int)
-        (eScrollPane.totalHeightEstimateProperty().getValue().intValue()
-          - eScrollPane.getHeight());
-      final var eRatio = eHeight > 0
-        ? min( max( eScrollY / (float) eHeight, 0 ), 1 ) : 0;
+    invokeLater( () -> {
+      if( isEnabled() ) {
+        // e is for editor pane
+        final var eScrollPane = getEditorScrollPane();
+        final var eScrollY =
+          eScrollPane.estimatedScrollYProperty().getValue().intValue();
+        final var eHeight = (int)
+          (eScrollPane.totalHeightEstimateProperty().getValue().intValue()
+            - eScrollPane.getHeight());
+        final var eRatio = eHeight > 0
+          ? min( max( eScrollY / (float) eHeight, 0 ), 1 ) : 0;
 
-      final var pScrollBar = getPreviewScrollBar();
-      final var pHeight = pScrollBar.getMaximum() - pScrollBar.getHeight();
-      final var pScrollY = (int) (pHeight * eRatio);
+        // p is for preview pane
+        final var pScrollBar = getPreviewScrollBar();
+        final var pHeight = pScrollBar.getMaximum() - pScrollBar.getHeight();
+        final var pScrollY = (int) (pHeight * eRatio);
 
-      pScrollBar.setValue( pScrollY );
-      pScrollBar.getParent().repaint();
-    }
+        pScrollBar.setValue( pScrollY );
+        pScrollBar.getParent().repaint();
+      }
+    } );
   }
 
   @Subscribe

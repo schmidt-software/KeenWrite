@@ -35,6 +35,12 @@ public class ScrollLockEvent implements AppEvent {
     fire( getScrollLockKeyStatus() );
   }
 
+  /**
+   * Answers whether the synchronized scrolling should be locked in place
+   * (i.e., prevent sync scrolling).
+   *
+   * @return {@code true} when the user has locked the scrollbar position.
+   */
   public boolean isLocked() {
     return mLocked;
   }
@@ -43,6 +49,11 @@ public class ScrollLockEvent implements AppEvent {
     new ScrollLockEvent( locked ).fire();
   }
 
+  /**
+   * Returns the state of the scroll lock key.
+   *
+   * @return {@code true} when the scroll lock key is in the on state.
+   */
   private static boolean getScrollLockKeyStatus() {
     return getDefaultToolkit().getLockingKeyState( VK_SCROLL_LOCK );
   }
