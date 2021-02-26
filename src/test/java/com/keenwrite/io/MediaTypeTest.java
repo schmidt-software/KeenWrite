@@ -2,6 +2,8 @@
 package com.keenwrite.io;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.testfx.framework.junit5.ApplicationExtension;
 
 import java.net.URI;
 import java.util.Map;
@@ -13,6 +15,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * Test that {@link MediaType} instances can be queried and return reliable
  * results.
  */
+@ExtendWith( ApplicationExtension.class )
 public class MediaTypeTest {
   /**
    * Test that {@link MediaType#equals(String, String)} is case insensitive.
@@ -52,7 +55,7 @@ public class MediaTypeTest {
     //@formatter:off
     final var map = Map.of(
        "https://stackoverflow.com/robots.txt", TEXT_PLAIN,
-       "https://placekitten.com/g/400/400", IMAGE_JPEG,
+       "https://place-hold.it/300x500", IMAGE_GIF,
        "https://upload.wikimedia.org/wikipedia/commons/9/9f/Vimlogo.svg", IMAGE_SVG_XML,
        "https://kroki.io//graphviz/svg/eNpLyUwvSizIUHBXqPZIzcnJ17ULzy_KSanlAgB1EAjQ", TEXT_PLAIN
     );
