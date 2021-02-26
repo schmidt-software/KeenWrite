@@ -5,7 +5,7 @@ import java.io.File;
 import java.nio.file.Path;
 
 import static com.keenwrite.io.MediaType.TypeName.*;
-import static com.keenwrite.io.MediaTypeExtensions.getMediaType;
+import static com.keenwrite.io.MediaTypeExtension.getMediaType;
 import static org.apache.commons.io.FilenameUtils.getExtension;
 
 /**
@@ -230,21 +230,22 @@ public enum MediaType {
   }
 
   /**
-   * Returns the IANA-defined type and sub-type.
-   *
-   * @return The unique media type identifier.
-   */
-  public String toString() {
-    return mMediaType;
-  }
-
-  /**
-   * Used by {@link MediaTypeExtensions} to initialize associations where the
+   * Used by {@link MediaTypeExtension} to initialize associations where the
    * subtype name and the file name extension have a 1:1 mapping.
    *
    * @return The IANA subtype value.
    */
   String getSubtype() {
     return mSubtype;
+  }
+
+  /**
+   * Returns the IANA-defined type and sub-type.
+   *
+   * @return The unique media type identifier.
+   */
+  @Override
+  public String toString() {
+    return mMediaType;
   }
 }

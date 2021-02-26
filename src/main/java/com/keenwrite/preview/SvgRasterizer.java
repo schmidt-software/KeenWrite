@@ -1,6 +1,7 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.preview;
 
+import javafx.scene.image.ImageView;
 import org.apache.batik.anim.dom.SAXSVGDocumentFactory;
 import org.apache.batik.gvt.renderer.ImageRenderer;
 import org.apache.batik.transcoder.TranscoderInput;
@@ -16,6 +17,7 @@ import javax.xml.transform.stream.StreamResult;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.InputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.net.URI;
@@ -27,6 +29,7 @@ import static com.keenwrite.preview.RenderingSettings.RENDERING_HINTS;
 import static java.awt.image.BufferedImage.TYPE_INT_RGB;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.text.NumberFormat.getIntegerInstance;
+import static javafx.embed.swing.SwingFXUtils.toFXImage;
 import static javax.xml.transform.OutputKeys.*;
 import static org.apache.batik.transcoder.SVGAbstractTranscoder.KEY_WIDTH;
 import static org.apache.batik.util.XMLResourceDescriptor.getXMLParserClassName;
@@ -36,10 +39,10 @@ import static org.apache.batik.util.XMLResourceDescriptor.getXMLParserClassName;
  */
 public final class SvgRasterizer {
   private static final SAXSVGDocumentFactory FACTORY_DOM =
-      new SAXSVGDocumentFactory( getXMLParserClassName() );
+    new SAXSVGDocumentFactory( getXMLParserClassName() );
 
   private static final TransformerFactory FACTORY_TRANSFORM =
-      TransformerFactory.newInstance();
+    TransformerFactory.newInstance();
 
   private static final Transformer sTransformer;
 
@@ -67,31 +70,31 @@ public final class SvgRasterizer {
    * A FontAwesome camera icon, cleft asunder.
    */
   public static final String BROKEN_IMAGE_SVG =
-      "<svg height='19pt' viewBox='0 0 25 19' width='25pt' xmlns='http://www" +
-          ".w3.org/2000/svg'><g fill='#454545'><path d='m8.042969 11.085938c" +
-          ".332031 1.445312 1.660156 2.503906 3.214843 2.558593zm0 0'/><path " +
-          "d='m6.792969 9.621094-.300781.226562.242187.195313c.015625-.144531" +
-          ".03125-.28125.058594-.421875zm0 0'/><path d='m10.597656.949219-2" +
-          ".511718.207031c-.777344.066406-1.429688.582031-1.636719 1.292969l-" +
-          ".367188 1.253906-3.414062.28125c-1.027344.085937-1.792969.949219-1" +
-          ".699219 1.925781l.976562 10.621094c.089844.976562.996094 1.699219 " +
-          "2.023438 1.613281l11.710938-.972656-3.117188-2.484375c-.246094" +
-          ".0625-.5.109375-.765625.132812-2.566406.210938-4.835937-1.597656-5" +
-          ".0625-4.039062-.023437-.25-.019531-.496094 0-.738281l-.242187-" +
-          ".195313.300781-.226562c.359375-1.929688 2.039062-3.472656 4" +
-          ".191406-3.652344.207031-.015625.414063-.015625.617187-.007812l" +
-          ".933594-.707032zm0 0'/><path d='m10.234375 11.070312 2.964844 2" +
-          ".820313c.144531.015625.285156.027344.433593.027344 1.890626 0 3" +
-          ".429688-1.460938 3.429688-3.257813 0-1.792968-1.539062-3.257812-3" +
-          ".429688-3.257812-1.890624 0-3.429687 1.464844-3.429687 3.257812 0 " +
-          ".140625.011719.277344.03125.410156zm0 0'/><path d='m14.488281" +
-          ".808594 1.117188 4.554687-1.042969.546875c2.25.476563 3.84375 2" +
-          ".472656 3.636719 4.714844-.199219 2.191406-2.050781 3.871094-4" +
-          ".285157 4.039062l2.609376 2.957032 4.4375.371094c1.03125.085937 1" +
-          ".9375-.640626 2.027343-1.617188l.976563-10.617188c.089844-.980468-" +
-          ".667969-1.839843-1.699219-1.925781l-3.414063-.285156-.371093-1" +
-          ".253906c-.207031-.710938-.859375-1.226563-1.636719-1.289063zm0 " +
-          "0'/></g></svg>";
+    "<svg height='19pt' viewBox='0 0 25 19' width='25pt' xmlns='http://www" +
+      ".w3.org/2000/svg'><g fill='#454545'><path d='m8.042969 11.085938c" +
+      ".332031 1.445312 1.660156 2.503906 3.214843 2.558593zm0 0'/><path " +
+      "d='m6.792969 9.621094-.300781.226562.242187.195313c.015625-.144531" +
+      ".03125-.28125.058594-.421875zm0 0'/><path d='m10.597656.949219-2" +
+      ".511718.207031c-.777344.066406-1.429688.582031-1.636719 1.292969l-" +
+      ".367188 1.253906-3.414062.28125c-1.027344.085937-1.792969.949219-1" +
+      ".699219 1.925781l.976562 10.621094c.089844.976562.996094 1.699219 " +
+      "2.023438 1.613281l11.710938-.972656-3.117188-2.484375c-.246094" +
+      ".0625-.5.109375-.765625.132812-2.566406.210938-4.835937-1.597656-5" +
+      ".0625-4.039062-.023437-.25-.019531-.496094 0-.738281l-.242187-" +
+      ".195313.300781-.226562c.359375-1.929688 2.039062-3.472656 4" +
+      ".191406-3.652344.207031-.015625.414063-.015625.617187-.007812l" +
+      ".933594-.707032zm0 0'/><path d='m10.234375 11.070312 2.964844 2" +
+      ".820313c.144531.015625.285156.027344.433593.027344 1.890626 0 3" +
+      ".429688-1.460938 3.429688-3.257813 0-1.792968-1.539062-3.257812-3" +
+      ".429688-3.257812-1.890624 0-3.429687 1.464844-3.429687 3.257812 0 " +
+      ".140625.011719.277344.03125.410156zm0 0'/><path d='m14.488281" +
+      ".808594 1.117188 4.554687-1.042969.546875c2.25.476563 3.84375 2" +
+      ".472656 3.636719 4.714844-.199219 2.191406-2.050781 3.871094-4" +
+      ".285157 4.039062l2.609376 2.957032 4.4375.371094c1.03125.085937 1" +
+      ".9375-.640626 2.027343-1.617188l.976563-10.617188c.089844-.980468-" +
+      ".667969-1.839843-1.699219-1.925781l-3.414063-.285156-.371093-1" +
+      ".253906c-.207031-.710938-.859375-1.226563-1.636719-1.289063zm0 " +
+      "0'/></g></svg>";
 
   static {
     // The width and height cannot be embedded in the SVG above because the
@@ -136,7 +139,7 @@ public final class SvgRasterizer {
 
     @Override
     public void writeImage(
-        final BufferedImage image, final TranscoderOutput output ) {
+      final BufferedImage image, final TranscoderOutput output ) {
       mImage = image;
     }
 
@@ -153,6 +156,25 @@ public final class SvgRasterizer {
 
       return renderer;
     }
+  }
+
+  /**
+   * Rasterizes the resource specified by the path into an image.
+   *
+   * @param svg The SVG data to rasterize.
+   * @return The resource at the given path as an {@link ImageView}.
+   */
+  public static javafx.scene.image.Image rasterize( final InputStream svg ) {
+    try {
+      final var in = new TranscoderInput( svg );
+      final var transcoder = new BufferedImageTranscoder();
+      transcoder.transcode( in, null );
+      return toFXImage( transcoder.getImage(), null );
+    } catch( final Exception ex ) {
+      clue( ex );
+    }
+
+    return null;
   }
 
   /**
@@ -295,7 +317,7 @@ public final class SvgRasterizer {
   private static Document toDocument( final String xml ) {
     try( final var reader = new StringReader( xml ) ) {
       return FACTORY_DOM.createSVGDocument(
-          "http://www.w3.org/2000/svg", reader );
+        "http://www.w3.org/2000/svg", reader );
     } catch( final Exception ex ) {
       throw new IllegalArgumentException( ex );
     }

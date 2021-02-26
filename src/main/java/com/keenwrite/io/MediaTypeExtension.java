@@ -1,22 +1,23 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.io;
 
-import java.util.Set;
+import java.util.List;
 
 import static com.keenwrite.io.MediaType.*;
-import static java.util.Set.of;
+import static java.util.List.of;
 
 /**
  * Responsible for associating file extensions with {@link MediaType} instances.
+ * Insertion order must be maintained because the first element in the list
+ * represents the file name extension that corresponds to its icon.
  */
-enum MediaTypeExtensions {
+public enum MediaTypeExtension {
   MEDIA_FONT_OTF( FONT_OTF ),
   MEDIA_FONT_TTF( FONT_TTF ),
 
   MEDIA_IMAGE_APNG( IMAGE_APNG ),
   MEDIA_IMAGE_BMP( IMAGE_BMP ),
   MEDIA_IMAGE_GIF( IMAGE_GIF ),
-  MEDIA_IMAGE_ICO( IMAGE_X_ICON, of( "ico", "cur" ) ),
   MEDIA_IMAGE_JPEG( IMAGE_JPEG, of( "jpg", "jpeg", "jfif", "pjpeg", "pjp" ) ),
   MEDIA_IMAGE_PNG( IMAGE_PNG ),
   MEDIA_IMAGE_SVG( IMAGE_SVG_XML, of( "svg" ) ),
@@ -29,10 +30,12 @@ enum MediaTypeExtensions {
   MEDIA_TEXT_PLAIN( TEXT_PLAIN, of( "asc", "ascii", "txt", "text", "utxt" ) ),
   MEDIA_TEXT_R_MARKDOWN( TEXT_R_MARKDOWN, of( "Rmd" ) ),
   MEDIA_TEXT_R_XML( TEXT_R_XML, of( "Rxml" ) ),
-  MEDIA_TEXT_YAML( TEXT_YAML, of( "yaml", "yml" ) );
+  MEDIA_TEXT_YAML( TEXT_YAML, of( "yaml", "yml" ) ),
+
+  MEDIA_UNDEFINED( UNDEFINED, of( "undefined" ) );
 
   private final MediaType mMediaType;
-  private final Set<String> mExtensions;
+  private final List<String> mExtensions;
 
   /**
    * Several media types have only one corresponding standard file name
@@ -43,7 +46,7 @@ enum MediaTypeExtensions {
    *
    * @param mediaType The {@link MediaType} containing only one extension.
    */
-  MediaTypeExtensions( final MediaType mediaType ) {
+  MediaTypeExtension( final MediaType mediaType ) {
     this( mediaType, of( mediaType.getSubtype() ) );
   }
 
@@ -56,14 +59,44 @@ enum MediaTypeExtensions {
    * @param extensions The file name extensions used to lookup a corresponding
    *                   {@link MediaType}.
    */
-  MediaTypeExtensions(
-    final MediaType mediaType, final Set<String> extensions ) {
+  MediaTypeExtension(
+    final MediaType mediaType, final List<String> extensions ) {
     assert mediaType != null;
     assert extensions != null;
     assert !extensions.isEmpty();
 
     mMediaType = mediaType;
     mExtensions = extensions;
+  }
+
+  /**
+   * Returns the first file name extension in the list of file names given
+   * at construction time.
+   *
+   * @return The one file name to rule them all.
+   */
+  public String getExtension() {
+    return mExtensions.get( 0 );
+  }
+
+  /**
+   * Returns the {@link MediaTypeExtension} that matches the given media type.
+   *
+   * @param mediaType The media type to find.
+   * @return The correlated value or {@link #MEDIA_UNDEFINED} if not found.
+   */
+  public static MediaTypeExtension valueFrom( final MediaType mediaType ) {
+    for( final var type : values() ) {
+      if( type.isMediaType( mediaType ) ) {
+        return type;
+      }
+    }
+
+    return MEDIA_UNDEFINED;
+  }
+
+  boolean isMediaType( final MediaType mediaType ) {
+    return mMediaType == mediaType;
   }
 
   /**
@@ -76,7 +109,7 @@ enum MediaTypeExtensions {
   static MediaType getMediaType( final String extension ) {
     final var sanitized = sanitize( extension );
 
-    for( final var mediaType : MediaTypeExtensions.values() ) {
+    for( final var mediaType : MediaTypeExtension.values() ) {
       if( mediaType.isType( sanitized ) ) {
         return mediaType.getMediaType();
       }
