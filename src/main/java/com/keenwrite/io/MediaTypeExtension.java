@@ -18,10 +18,11 @@ public enum MediaTypeExtension {
   MEDIA_IMAGE_APNG( IMAGE_APNG ),
   MEDIA_IMAGE_BMP( IMAGE_BMP ),
   MEDIA_IMAGE_GIF( IMAGE_GIF ),
-  MEDIA_IMAGE_JPEG( IMAGE_JPEG, of( "jpg", "jpeg", "jfif", "pjpeg", "pjp" ) ),
+  MEDIA_IMAGE_JPEG( IMAGE_JPEG,
+                    of( "jpg", "jpe", "jpeg", "jfif", "pjpeg", "pjp" ) ),
   MEDIA_IMAGE_PNG( IMAGE_PNG ),
   MEDIA_IMAGE_SVG( IMAGE_SVG_XML, of( "svg" ) ),
-  MEDIA_IMAGE_TIFF( IMAGE_TIFF, of( "tif", "tiff" ) ),
+  MEDIA_IMAGE_TIFF( IMAGE_TIFF, of( "tiff", "tif" ) ),
   MEDIA_IMAGE_WEBP( IMAGE_WEBP ),
 
   MEDIA_TEXT_MARKDOWN( TEXT_MARKDOWN, of(
