@@ -28,7 +28,7 @@ public enum MediaTypeExtension {
   MEDIA_TEXT_MARKDOWN( TEXT_MARKDOWN, of(
     "md", "markdown", "mdown", "mdtxt", "mdtext", "mdwn", "mkd", "mkdown",
     "mkdn" ) ),
-  MEDIA_TEXT_PLAIN( TEXT_PLAIN, of( "asc", "ascii", "txt", "text", "utxt" ) ),
+  MEDIA_TEXT_PLAIN( TEXT_PLAIN, of( "txt", "asc", "ascii", "text", "utxt" ) ),
   MEDIA_TEXT_R_MARKDOWN( TEXT_R_MARKDOWN, of( "Rmd" ) ),
   MEDIA_TEXT_R_XML( TEXT_R_XML, of( "Rxml" ) ),
   MEDIA_TEXT_YAML( TEXT_YAML, of( "yaml", "yml" ) ),

@@ -4,6 +4,7 @@ package com.keenwrite.preview;
 import javafx.scene.image.ImageView;
 import org.apache.batik.anim.dom.SAXSVGDocumentFactory;
 import org.apache.batik.gvt.renderer.ImageRenderer;
+import org.apache.batik.transcoder.TranscoderException;
 import org.apache.batik.transcoder.TranscoderInput;
 import org.apache.batik.transcoder.TranscoderOutput;
 import org.apache.batik.transcoder.image.ImageTranscoder;
@@ -29,7 +30,6 @@ import static com.keenwrite.preview.RenderingSettings.RENDERING_HINTS;
 import static java.awt.image.BufferedImage.TYPE_INT_RGB;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.text.NumberFormat.getIntegerInstance;
-import static javafx.embed.swing.SwingFXUtils.toFXImage;
 import static javax.xml.transform.OutputKeys.*;
 import static org.apache.batik.transcoder.SVGAbstractTranscoder.KEY_WIDTH;
 import static org.apache.batik.util.XMLResourceDescriptor.getXMLParserClassName;
@@ -164,17 +164,12 @@ public final class SvgRasterizer {
    * @param svg The SVG data to rasterize.
    * @return The resource at the given path as an {@link ImageView}.
    */
-  public static javafx.scene.image.Image rasterize( final InputStream svg ) {
-    try {
-      final var in = new TranscoderInput( svg );
-      final var transcoder = new BufferedImageTranscoder();
-      transcoder.transcode( in, null );
-      return toFXImage( transcoder.getImage(), null );
-    } catch( final Exception ex ) {
-      clue( ex );
-    }
-
-    return null;
+  public static BufferedImage rasterize( final InputStream svg )
+    throws TranscoderException {
+    final var in = new TranscoderInput( svg );
+    final var transcoder = new BufferedImageTranscoder();
+    transcoder.transcode( in, null );
+    return transcoder.getImage();
   }
 
   /**

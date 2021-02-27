@@ -101,7 +101,7 @@ public final class LogView extends Alert {
     final var ctrlC = new KeyCodeCombination( C, CONTROL_ANY );
     final var ctrlInsert = new KeyCodeCombination( INSERT, CONTROL_ANY );
 
-    final var colDate = new TableColumn<LogEntry, String>( "Date" );
+    final var colDate = new TableColumn<LogEntry, String>( "Timestamp" );
     final var colMessage = new TableColumn<LogEntry, String>( "Message" );
     final var colTrace = new TableColumn<LogEntry, String>( "Trace" );
 

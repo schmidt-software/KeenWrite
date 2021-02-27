@@ -52,6 +52,7 @@ The application offers:
 * Real-time document statistics (with CJK word separation)
 * Diagrams: Mermaid, GraphViz, UML, sequence, timing, and more
 * Dark, custom, and responsive themes
+* Integrated file manager
 * Interactive document outline
 * Internationalized font support (e.g., Chinese, Japanese, Korean, etc.)
 * R integration

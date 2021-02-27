@@ -1,31 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg version="1.1" viewBox="0 0 72 55" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<defs>
-<radialGradient id="b" cx="35.95" cy="32.15" r="12.794" gradientTransform="matrix(-.70711 -.70711 .40993 -.40993 48.355 75.41)" gradientUnits="userSpaceOnUse" xlink:href="#a"/>
-<linearGradient id="c" x1="35.943" x2="35.943" y1="54.263" y2="9.981" gradientTransform="matrix(1 0 0 -1 58.097 161.76)" gradientUnits="userSpaceOnUse">
-<stop stop-color="#932a8e" offset="0"/>
-<stop stop-color="#9c4598" offset=".066"/>
-<stop stop-color="#ab68a9" offset=".181"/>
-<stop stop-color="#ba84b9" offset=".302"/>
-<stop stop-color="#c79dc7" offset=".425"/>
-<stop stop-color="#d2b1d4" offset=".553"/>
-<stop stop-color="#dbc0dd" offset=".687"/>
-<stop stop-color="#e0cae2" offset=".83"/>
-<stop stop-color="#e2cde4" offset="1"/>
-</linearGradient>
-</defs>
-<style>.st0{fill:url(#a)}.st0,.st1,.st2{stroke:#434242;stroke-width:1.25;stroke-miterlimit:10}.st1{fill:url(#d)}.st2{fill:#434242}</style>
-<linearGradient id="a" x1="35.943" x2="35.943" y1="56.21" y2="38.664" gradientTransform="matrix(1 0 0 -1 0 57)" gradientUnits="userSpaceOnUse">
-<stop stop-color="#fcfcfd" offset="0"/>
-<stop stop-color="#fff" offset="1"/>
-</linearGradient>
-<path class="st0" d="M2.6 18.3V2.5c0-.9.7-1.7 1.7-1.7h23.3l6.7 5h33.3c.9 0 1.7.8 1.7 1.7v10.9H2.6z"/>
-<linearGradient id="d" x1="35.943" x2="35.943" y1="54.263" y2="9.981" gradientUnits="userSpaceOnUse">
-<stop stop-color="#debe00" offset=".109"/>
-<stop stop-color="#cfad04" offset=".532"/>
-<stop stop-color="#a07802" offset="1"/>
-</linearGradient>
-<path class="st1" d="M4.3 54.3h63.3c.9 0 1.6-.8 1.7-1.7L71 11.7c0-.9-.7-1.7-1.7-1.7h-25l-6.7 5h-35c-.9 0-1.7.8-1.7 1.7l1.7 35.9c.1.9.8 1.7 1.7 1.7z" fill="url(#c)"/>
-<path class="st2" d="M7.6 4.1h18.3c.9 0 1.7.8 1.7 1.7s-.7 1.7-1.7 1.7H7.6c-.9 0-1.7-.8-1.7-1.7s.8-1.7 1.7-1.7z"/>
-<path d="m50.007 41.01c-8.3293 7.7064-21.677 6.7672-21.295-7.9208l-6.8189-0.125 10.419-10.446 10.54 10.571s-6.8414 1e-6 -6.8414 1e-6c-0.28784 12.265 8.3411 11.042 13.996 7.9208z" color="#000000" display="block" fill="url(#b)" opacity=".69886"/>
+<svg version="1.1" viewBox="0 0 72 63" xmlns="http://www.w3.org/2000/svg">
+<path d="M69.5 63h-67C1.1 63 0 61.9 0 60.5V21h72v39.5c0 1.4-1.1 2.5-2.5 2.5z" fill="#efce4a"/>
+<path d="M32.3 9.9V2.5c0-1.4-1.1-2.5-2.5-2.5H2.5C1.1 0 0 1.1 0 2.5V21h72v-8.6c0-1.4-1.1-2.5-2.5-2.5H32.3z" fill="#ebba16"/>
+<path class="st0" d="m36 31.1-9.6 10.6h6.4v11.2h6.4v-11.2h6.4z" fill="#fff"/>
 </svg>

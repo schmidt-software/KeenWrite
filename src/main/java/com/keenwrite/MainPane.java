@@ -518,9 +518,7 @@ public final class MainPane extends SplitPane {
 
   public void viewFiles() {
     try {
-      final var directory = mWorkspace.toFile( KEY_UI_RECENT_DIR );
-      final var locale = mWorkspace.getLocale();
-      final var fileManager = new FilesView( directory, locale );
+      final var fileManager = new FilesView( mWorkspace );
       viewTab( fileManager, APP_FILE_MANAGER, "Pane.files.title" );
     } catch( final Exception ex ) {
       clue( ex );
