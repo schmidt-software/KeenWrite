@@ -2,8 +2,6 @@
 package com.keenwrite.io;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.testfx.framework.junit5.ApplicationExtension;
 
 import java.net.URI;
 import java.util.Map;
@@ -15,7 +13,6 @@ import static org.junit.jupiter.api.Assertions.*;
  * Test that {@link MediaType} instances can be queried and return reliable
  * results.
  */
-@ExtendWith( ApplicationExtension.class )
 public class MediaTypeTest {
   /**
    * Test that {@link MediaType#equals(String, String)} is case insensitive.
