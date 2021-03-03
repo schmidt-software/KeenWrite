@@ -4,6 +4,7 @@ package com.keenwrite.processors.markdown;
 import com.keenwrite.processors.ExecutorProcessor;
 import com.keenwrite.processors.Processor;
 import com.keenwrite.processors.ProcessorContext;
+import com.keenwrite.processors.markdown.extensions.fences.FencedDivExtension;
 import com.keenwrite.processors.markdown.extensions.r.RExtension;
 import com.vladsch.flexmark.ext.definition.DefinitionExtension;
 import com.vladsch.flexmark.ext.gfm.strikethrough.StrikethroughSubscriptExtension;
@@ -58,6 +59,7 @@ public class BaseMarkdownProcessor extends ExecutorProcessor<String> {
     extensions.add( SuperscriptExtension.create() );
     extensions.add( TablesExtension.create() );
     extensions.add( TypographicExtension.create() );
+    extensions.add( FencedDivExtension.create() );
 
     return extensions;
   }

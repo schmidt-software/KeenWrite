@@ -1,9 +1,10 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
-package com.keenwrite.processors.markdown.extensions;
+package com.keenwrite.processors.markdown.extensions.fences;
 
 import com.keenwrite.processors.DefinitionProcessor;
 import com.keenwrite.processors.Processor;
 import com.keenwrite.processors.markdown.MarkdownProcessor;
+import com.keenwrite.processors.markdown.extensions.HtmlRendererAdapter;
 import com.vladsch.flexmark.ast.FencedCodeBlock;
 import com.vladsch.flexmark.html.renderer.DelegatingNodeRendererFactory;
 import com.vladsch.flexmark.html.renderer.NodeRenderer;

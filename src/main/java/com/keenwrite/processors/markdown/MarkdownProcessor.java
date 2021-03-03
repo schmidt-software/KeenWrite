@@ -6,6 +6,7 @@ import com.keenwrite.processors.DefinitionProcessor;
 import com.keenwrite.processors.Processor;
 import com.keenwrite.processors.ProcessorContext;
 import com.keenwrite.processors.markdown.extensions.*;
+import com.keenwrite.processors.markdown.extensions.fences.FencedBlockExtension;
 import com.keenwrite.processors.markdown.extensions.r.RExtension;
 import com.keenwrite.processors.markdown.extensions.tex.TeXExtension;
 import com.keenwrite.processors.r.RProcessor;

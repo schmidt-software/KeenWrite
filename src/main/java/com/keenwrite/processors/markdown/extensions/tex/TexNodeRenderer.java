@@ -52,8 +52,9 @@ public class TexNodeRenderer {
 
     @Override
     public @Nullable Set<NodeRenderingHandler<?>> getNodeRenderingHandlers() {
-      final var h = new NodeRenderingHandler<>( TexNode.class, this::render );
-      return Set.of( h );
+      return Set.of(
+        new NodeRenderingHandler<>( TexNode.class, this::render )
+      );
     }
 
     /**
