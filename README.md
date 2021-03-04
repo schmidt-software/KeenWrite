@@ -55,6 +55,7 @@ The application offers:
 * Integrated file manager
 * Interactive document outline
 * Internationalized font support (e.g., Chinese, Japanese, Korean, etc.)
+* Support for Pandoc's fenced div extended attribute syntax
 * R integration
 * XML transformation using XSLT3 or older
 * Customizable user interface having detachable tabs
