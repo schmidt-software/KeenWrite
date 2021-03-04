@@ -53,10 +53,10 @@ And Immortality.</p>
 </div>
 ```
 
-Note that when usingn the extended syntax, class styles must be prefixed with
+Note that when using the extended syntax, class styles must be prefixed with
 a period (e.g., `.stanza` in the example).
 
-# Nested
+# Nested Syntax
 
 Fenced divs may be nested, such as in the following example:
 

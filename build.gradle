@@ -93,7 +93,7 @@ dependencies {
   implementation "org.apache.xmlgraphics:batik-xml:${v_batik}"
 
   // Misc.
-  implementation 'org.ahocorasick:ahocorasick:0.4.0'
+  implementation 'org.ahocorasick:ahocorasick:0.6.3'
   implementation 'org.apache.commons:commons-configuration2:2.7'
   implementation 'com.googlecode.juniversalchardet:juniversalchardet:1.0.3'
   implementation 'javax.validation:validation-api:2.0.1.Final'

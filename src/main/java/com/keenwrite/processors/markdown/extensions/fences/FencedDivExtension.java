@@ -64,7 +64,7 @@ public class FencedDivExtension extends HtmlRendererAdapter
    * After a fenced div is detected, this will match the opening fence.
    */
   private static final Pattern FENCE_OPENING = Pattern.compile(
-    "^:::+\\s+(\\w[\\w-]*|\\{.+})\\s*$" );
+    "^:::+\\s+([\\p{IsAlphabetic}\\p{IsDigit}-_]+|\\{.+})\\s*$" );
 
   /**
    * Matches whether extended syntax is being used.
@@ -79,7 +79,8 @@ public class FencedDivExtension extends HtmlRendererAdapter
   private static final Pattern ATTR_PAIRS = Pattern.compile(
     "\\s*" +
       "(?<d>[#.][\\p{IsAlphabetic}\\p{IsDigit}-_]+[^\\s=])|" +
-      "((?<k>[\\p{IsAlphabetic}\\p{IsDigit}-_]+)=\"*(?<v>(?<=\")[^\"]+(?=\")|([^\\s]+))\"*)" );
+      "((?<k>[\\p{IsAlphabetic}\\p{IsDigit}-_]+)=" +
+      "\"*(?<v>(?<=\")[^\"]+(?=\")|([^\\s]+))\"*)" );
 
   public static FencedDivExtension create() {
     return new FencedDivExtension();
