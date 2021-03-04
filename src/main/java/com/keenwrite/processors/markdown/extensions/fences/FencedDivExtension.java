@@ -66,14 +66,21 @@ public class FencedDivExtension extends HtmlRendererAdapter
   private static final Pattern FENCE_OPENING = Pattern.compile(
     "^:::+\\s+(\\w[\\w-]*|\\{.+})\\s*$" );
 
+  /**
+   * Matches whether extended syntax is being used.
+   */
   private static final Pattern ATTR_CSS = Pattern.compile( "\\{(.+)}" );
 
+  /**
+   * Matches either individual CSS definitions (id/class, {@code <d>}) or
+   * key/value pairs ({@code <k>} and {@link <v>}). The key/value pair
+   * will match optional quotes.
+   */
   private static final Pattern ATTR_PAIRS = Pattern.compile(
     "\\s*" +
-      "(?<d>[#.]\\w+[^\\s=])|" +
-      "((?<k>\\w+)=\"*(?<v>(?<=\")[^\"]+(?=\")|([^\\s]+))\"*)" );
+      "(?<d>[#.][\\p{IsAlphabetic}\\p{IsDigit}-_]+[^\\s=])|" +
+      "((?<k>[\\p{IsAlphabetic}\\p{IsDigit}-_]+)=\"*(?<v>(?<=\")[^\"]+(?=\")|([^\\s]+))\"*)" );
 
-  // TODO: HtmlRendererAdapter?
   public static FencedDivExtension create() {
     return new FencedDivExtension();
   }
