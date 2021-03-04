@@ -15,7 +15,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Set;
-import java.util.StringTokenizer;
 import java.util.regex.Pattern;
 
 import static com.vladsch.flexmark.parser.Parser.ParserExtension;
@@ -38,7 +37,7 @@ import static com.vladsch.flexmark.parser.Parser.ParserExtension;
  * As well as:
  * </p>
  * <p>
- * ::: {#verse .poem .dark k=v author="Emily Dickinson" type='slant rhyme'}
+ * ::: {#verse .p .d k=v author="Emily Dickinson"}
  * Because I could not stop for Death --
  * He kindly stopped for me --
  * The Carriage held but just Ourselves --
@@ -50,8 +49,7 @@ import static com.vladsch.flexmark.parser.Parser.ParserExtension;
  * The second example produces the following starting {@code div} element:
  * </p>
  * <p>
- * &lt;div id="verse" class="poem dark" data-k="v" data-author="Emily Dickson"
- * data-type="slant rhyme"&gt;
+ * &lt;div id="verse" class="p d" data-k="v" data-author="Emily Dickson"&gt;
  * </p>
  */
 public class FencedDivExtension extends HtmlRendererAdapter
@@ -68,7 +66,12 @@ public class FencedDivExtension extends HtmlRendererAdapter
   private static final Pattern FENCE_OPENING = Pattern.compile(
     "^:::+\\s+(\\w[\\w-]*|\\{.+})\\s*$" );
 
-  private static final Pattern ATTR_MULTIPLE = Pattern.compile( "\\{(.+)}" );
+  private static final Pattern ATTR_CSS = Pattern.compile( "\\{(.+)}" );
+
+  private static final Pattern ATTR_PAIRS = Pattern.compile(
+    "\\s*" +
+      "(?<d>[#.]\\w+[^\\s=])|" +
+      "((?<k>\\w+)=\"*(?<v>(?<=\")[^\"]+(?=\")|([^\\s]+))\"*)" );
 
   // TODO: HtmlRendererAdapter?
   public static FencedDivExtension create() {
@@ -187,32 +190,38 @@ public class FencedDivExtension extends HtmlRendererAdapter
      */
     public OpeningParser( final String args ) {
       final var attrs = new ArrayList<Attribute>();
-      final var matcher = ATTR_MULTIPLE.matcher( args );
+      final var cssMatcher = ATTR_CSS.matcher( args );
 
-      if( matcher.matches() ) {
-        // Split on whitespace (tabs, spaces, etc.)
-        final var st = new StringTokenizer( matcher.group( 1 ) );
-        String name;
+      if( cssMatcher.matches() ) {
+        // Split the text between braces into tokens and/or key-value pairs.
+        final var pairMatcher = ATTR_PAIRS.matcher( cssMatcher.group( 1 ) );
 
-        while( st.hasMoreTokens() ) {
-          final var token = st.nextToken();
-          int index = 1;
+        while( pairMatcher.find() ) {
+          final var cssDef = pairMatcher.group( "d" );
+          String cssAttrKey = "class";
+          String cssAttrVal;
 
-          if( token.startsWith( "#" ) ) {
-            name = "id";
-          }
-          else if( token.startsWith( "." ) ) {
-            name = "class";
-          }
-          else if( !token.contains( "=" ) ) {
-            name = token;
-            index = 0;
+          // When no regular CSS definition (id or class), use key/value pairs.
+          if( cssDef == null ) {
+            cssAttrKey = "data-" + pairMatcher.group( "k" );
+            cssAttrVal = pairMatcher.group( "v" );
           }
           else {
-            name = "data";
+            // This will strip the "#" and "." off the start of CSS definition.
+            var index = 1;
+
+            // Default CSS attribute name is "class", switch to "id" for #.
+            if( cssDef.startsWith( "#" ) ) {
+              cssAttrKey = "id";
+            }
+            else if( !cssDef.startsWith( "." ) ) {
+              index = 0;
+            }
+
+            cssAttrVal = cssDef.substring( index );
           }
 
-          attrs.add( AttributeImpl.of( name, token.substring( index ) ) );
+          attrs.add( AttributeImpl.of( cssAttrKey, cssAttrVal ) );
         }
       }
       else {
