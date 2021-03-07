@@ -120,6 +120,10 @@ public final class ApplicationActions {
     file‿export( HTML_TEX_DELIMITED );
   }
 
+  public void file‿export‿xhtml_tex() {
+    file‿export( XHTML_TEX );
+  }
+
   public void file‿export‿markdown() {
     file‿export( MARKDOWN_PLAIN );
   }

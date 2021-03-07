@@ -1,0 +1,57 @@
+\startxmlsetups xml:xhtmlsetups
+  % Do not typeset the HTML document's header title element.
+  \xmlsetsetup{\xmldocument}{*}{-}
+
+  % Typeset the elements that follow.
+  \xmlsetsetup{\xmldocument}{html|body|h1|h2|h3|p|em|strong|q|div}{xml:*}
+\stopxmlsetups
+
+\xmlregistersetup{xml:xhtmlsetups}
+
+\startxmlsetups xml:html
+  \xmlflush{#1}
+\stopxmlsetups
+
+\startxmlsetups xml:body
+  \xmlflush{#1}
+\stopxmlsetups
+
+\startxmlsetups xml:h1
+  \chapter{\xmlflush{#1}}
+\stopxmlsetups
+
+\startxmlsetups xml:h2
+  \section{\xmlflush{#1}}
+\stopxmlsetups
+
+\startxmlsetups xml:h3
+  \subsection{\xmlflush{#1}}
+\stopxmlsetups
+
+\startxmlsetups xml:p
+  \xmlflush{#1}\par
+\stopxmlsetups
+
+\startxmlsetups xml:em
+  \dontleavehmode{\em\xmlflush{#1}}
+\stopxmlsetups
+
+\startxmlsetups xml:strong
+  \dontleavehmode{\bf\xmlflush{#1}}
+\stopxmlsetups
+
+\startxmlsetups xml:q
+  \quotation{\xmlflush{#1}}
+\stopxmlsetups
+
+\startxmlsetups xml:div
+  GOT DIV?
+\stopxmlsetups
+
+\xmltexentity{ldquo}{\symbol[leftquotation]{}}
+\xmltexentity{rdquo}{\symbol[rightquotation]{}}
+\xmltexentity{rsquo}{\quotesingle{}}
+\xmltexentity{mdash}{\emdash{}}
+\xmltexentity{ndash}{\endash{}}
+\xmltexentity{hellip}{\dots{}}
+

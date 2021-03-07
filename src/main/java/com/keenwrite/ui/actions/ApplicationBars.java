@@ -58,6 +58,7 @@ public final class ApplicationBars {
         .addSubActions(
           addAction( "file.export.html_svg", e -> actions.file‿export‿html_svg() ),
           addAction( "file.export.html_tex", e -> actions.file‿export‿html_tex() ),
+          addAction( "file.export.xhtml_tex", e -> actions.file‿export‿xhtml_tex() ),
           addAction( "file.export.markdown", e -> actions.file‿export‿markdown() )
         ),
       SEPARATOR_ACTION,

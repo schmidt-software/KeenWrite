@@ -4,11 +4,11 @@ package com.keenwrite.processors;
 import com.keenwrite.preview.HtmlPreview;
 
 /**
- * Responsible for notifying the HTMLPreviewPane when the succession chain has
- * updated. This decouples knowledge of changes to the editor panel from the
- * HTML preview panel as well as any processing that takes place before the
- * final HTML preview is rendered. This is the last link in the processor
- * chain.
+ * Responsible for notifying the {@link HtmlPreview} when the succession
+ * chain has updated. This decouples knowledge of changes to the editor panel
+ * from the HTML preview panel as well as any processing that takes place
+ * before the final HTML preview is rendered. This is the last link in the
+ * processor chain.
  */
 public final class HtmlPreviewProcessor extends ExecutorProcessor<String> {
 

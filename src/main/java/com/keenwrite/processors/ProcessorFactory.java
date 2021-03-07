@@ -6,6 +6,7 @@ import com.keenwrite.preview.HtmlPreview;
 import com.keenwrite.processors.markdown.MarkdownProcessor;
 
 import static com.keenwrite.ExportFormat.NONE;
+import static com.keenwrite.ExportFormat.XHTML_TEX;
 
 /**
  * Responsible for creating processors capable of parsing, transforming,
@@ -40,6 +41,8 @@ public final class ProcessorFactory extends AbstractFileFactory {
     // math (such as using the JavaScript-based KaTeX engine).
     final var successor = context.isExportFormat( NONE )
       ? createHtmlPreviewProcessor()
+      : context.isExportFormat( XHTML_TEX )
+      ? createXhtmlProcessor()
       : createIdentityProcessor();
 
     final var processor = switch( context.getFileType() ) {
@@ -53,8 +56,8 @@ public final class ProcessorFactory extends AbstractFileFactory {
   }
 
   /**
-   * Creates a processor chain suitable for parsing and rendering the file
-   * opened at the given tab.
+   * Creates a new {@link Processor} chain suitable for parsing and rendering
+   * the file opened at the given tab.
    *
    * @param context The tab containing a text editor, path, and caret position.
    * @return A processor that can render the given tab's text.
@@ -72,6 +75,18 @@ public final class ProcessorFactory extends AbstractFileFactory {
    */
   private Processor<String> createIdentityProcessor() {
     return IdentityProcessor.IDENTITY;
+  }
+
+  /**
+   * Instantiates a new {@link Processor} that wraps an HTML document into
+   * its final, well-formed state (including head and body tags). This is
+   * useful for generating XHTML documents suitable for typesetting (using
+   * an engine such as LuaTeX).
+   *
+   * @return An instance of {@link Processor} that completes an HTML document.
+   */
+  private Processor<String> createXhtmlProcessor() {
+    return new XhtmlProcessor();
   }
 
   /**

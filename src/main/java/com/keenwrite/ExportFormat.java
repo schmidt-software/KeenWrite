@@ -24,6 +24,11 @@ public enum ExportFormat {
   HTML_TEX_DELIMITED( ".html" ),
 
   /**
+   * For XHTML exports, encode TeX using {@code $} delimiters.
+   */
+  XHTML_TEX( ".xml" ),
+
+  /**
    * Indicates that the processors should export to a Markdown format.
    * Treat image links relatively.
    */

@@ -1,12 +1,12 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.processors;
 
+import com.keenwrite.Caret;
 import com.keenwrite.Constants;
 import com.keenwrite.ExportFormat;
 import com.keenwrite.io.FileType;
 import com.keenwrite.preferences.Workspace;
 import com.keenwrite.preview.HtmlPreview;
-import com.keenwrite.Caret;
 
 import java.nio.file.Path;
 import java.util.Map;
@@ -33,7 +33,7 @@ public final class ProcessorContext {
    *
    * @param htmlPreview  Where to display the final (HTML) output.
    * @param resolvedMap  Fully expanded interpolated strings.
-   * @param documentPath         Path to the document to process.
+   * @param documentPath Path to the document to process.
    * @param caret        Location of the caret in the edited document, which is
    *                     used to synchronize the scrollbars.
    * @param exportFormat Indicate configuration options for export format.
@@ -60,8 +60,7 @@ public final class ProcessorContext {
     mWorkspace = workspace;
   }
 
-  @SuppressWarnings( "SameParameterValue" )
-  boolean isExportFormat( final ExportFormat format ) {
+  public boolean isExportFormat( final ExportFormat format ) {
     return mExportFormat == format;
   }
 
