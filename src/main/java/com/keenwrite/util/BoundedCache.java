@@ -24,8 +24,7 @@ public final class BoundedCache<K, V> extends LinkedHashMap<K, V> {
   }
 
   @Override
-  protected boolean removeEldestEntry(
-      final Map.Entry<K, V> eldest ) {
+  protected boolean removeEldestEntry( final Map.Entry<K, V> eldest ) {
     return size() > mCacheSize;
   }
 }

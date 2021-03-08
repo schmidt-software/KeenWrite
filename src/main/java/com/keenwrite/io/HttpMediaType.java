@@ -55,18 +55,7 @@ public final class HttpMediaType {
 
       map.forEach( ( key, values ) -> {
         if( "content-type".equalsIgnoreCase( key ) ) {
-          var header = values.get( 0 );
-          // Trim off the character encoding.
-          var i = header.indexOf( ';' );
-          header = header.substring( 0, i == -1 ? header.length() : i );
-
-          // Split the type and subtype.
-          i = header.indexOf( '/' );
-          i = i == -1 ? header.length() : i;
-          final var type = header.substring( 0, i );
-          final var subtype = header.substring( i + 1 );
-
-          mediaType[ 0 ] = MediaType.valueFrom( type, subtype );
+          mediaType[ 0 ] = MediaType.valueFrom( values.get( 0 ) );
           clue( "Main.status.image.request.success", mediaType[ 0 ] );
         }
       } );
@@ -78,4 +67,5 @@ public final class HttpMediaType {
 
     return mediaType[ 0 ];
   }
+
 }

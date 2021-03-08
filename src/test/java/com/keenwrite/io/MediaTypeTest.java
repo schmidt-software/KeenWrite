@@ -25,7 +25,7 @@ public class MediaTypeTest {
   }
 
   /**
-   * Test that {@link MediaType#valueFrom(String)} can lookup by file name.
+   * Test that {@link MediaType#fromFilename(String)} can lookup by file name.
    */
   @Test
   public void test_FilenameExtensions_Supported_Success() {
@@ -40,7 +40,7 @@ public class MediaTypeTest {
       "yml", TEXT_YAML
     );
 
-    map.forEach( ( k, v ) -> assertEquals( v, valueFrom( "f." + k ) ) );
+    map.forEach( ( k, v ) -> assertEquals( v, fromFilename( "f." + k ) ) );
   }
 
   /**

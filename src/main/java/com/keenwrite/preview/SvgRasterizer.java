@@ -1,7 +1,6 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.preview;
 
-import javafx.scene.image.ImageView;
 import org.apache.batik.anim.dom.SAXSVGDocumentFactory;
 import org.apache.batik.gvt.renderer.ImageRenderer;
 import org.apache.batik.transcoder.TranscoderException;
@@ -32,6 +31,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.text.NumberFormat.getIntegerInstance;
 import static javax.xml.transform.OutputKeys.*;
 import static org.apache.batik.transcoder.SVGAbstractTranscoder.KEY_WIDTH;
+import static org.apache.batik.transcoder.image.ImageTranscoder.KEY_PIXEL_UNIT_TO_MILLIMETER;
 import static org.apache.batik.util.XMLResourceDescriptor.getXMLParserClassName;
 
 /**
@@ -159,16 +159,31 @@ public final class SvgRasterizer {
   }
 
   /**
-   * Rasterizes the resource specified by the path into an image.
+   * Rasterizes the given SVG input stream into an image at 96 DPI.
    *
-   * @param svg The SVG data to rasterize.
-   * @return The resource at the given path as an {@link ImageView}.
+   * @param svg The SVG data to rasterize, must be closed by caller.
+   * @return The given input stream converted to a rasterized image.
    */
   public static BufferedImage rasterize( final InputStream svg )
     throws TranscoderException {
-    final var in = new TranscoderInput( svg );
+    return rasterize( svg, 96 );
+  }
+
+  /**
+   * Rasterizes the given SVG input stream into an image.
+   *
+   * @param svg The SVG data to rasterize, must be closed by caller.
+   * @param dpi Resolution to use when rasterizing (default is 96 DPI).
+   * @return The given input stream converted to a rasterized image at the
+   * given resolution.
+   */
+  public static BufferedImage rasterize(
+    final InputStream svg, final float dpi )
+    throws TranscoderException {
     final var transcoder = new BufferedImageTranscoder();
-    transcoder.transcode( in, null );
+    transcoder.addTranscodingHint(
+      KEY_PIXEL_UNIT_TO_MILLIMETER, 1f / dpi * 25.4f );
+    transcoder.transcode( new TranscoderInput( svg ), null );
     return transcoder.getImage();
   }
 
@@ -194,6 +209,14 @@ public final class SvgRasterizer {
     return BROKEN_IMAGE_PLACEHOLDER;
   }
 
+  /**
+   * Rasterizes the given vector graphic file using the width dimension
+   * specified by the document's width attribute.
+   *
+   * @param document The {@link Document} containing a vector graphic.
+   * @return A rasterized image as an instance of {@link BufferedImage}, or
+   * {@link #BROKEN_IMAGE_PLACEHOLDER} if the graphic could not be rasterized.
+   */
   public static BufferedImage rasterize( final Document document ) {
     try {
       final var root = document.getDocumentElement();

@@ -1,12 +1,17 @@
-\startxmlsetups xml:xhtmlsetups
+% XML setups map ConTeXt commands to HTML elements.
+
+\startxmlsetups xml:xhtml
   % Do not typeset the HTML document's header title element.
   \xmlsetsetup{\xmldocument}{*}{-}
 
-  % Typeset the elements that follow.
-  \xmlsetsetup{\xmldocument}{html|body|h1|h2|h3|p|em|strong|q|div}{xml:*}
+  % Only elements included in this list are typeset.
+  \xmlsetsetup{\xmldocument}{%
+    html|body|div|h1|h2|h3|h4|h5|h6|p|blockquote|span|em|q|b|strong|%
+    a|ul|ol|li|dl|dt|dd|hr|br|sup|sub|code|img%
+  }{xml:*}
 \stopxmlsetups
 
-\xmlregistersetup{xml:xhtmlsetups}
+\xmlregistersetup{xml:xhtml}
 
 \startxmlsetups xml:html
   \xmlflush{#1}
@@ -28,24 +33,36 @@
   \subsection{\xmlflush{#1}}
 \stopxmlsetups
 
+% Paragraphs are followed by a paragraph break.
 \startxmlsetups xml:p
   \xmlflush{#1}\par
 \stopxmlsetups
 
+% Emphasized text is italicized, typically.
 \startxmlsetups xml:em
   \dontleavehmode{\em\xmlflush{#1}}
 \stopxmlsetups
 
+% Strong text is bolded, typically.
 \startxmlsetups xml:strong
   \dontleavehmode{\bf\xmlflush{#1}}
+\stopxmlsetups
+
+\startxmlsetups xml:img
+	\placefigure[none]{}{%
+		\externalfigure[\xmlatt{#1}{src}]
+	}
 \stopxmlsetups
 
 \startxmlsetups xml:q
   \quotation{\xmlflush{#1}}
 \stopxmlsetups
 
+% Map arbitrary div classes, defined by fenced divs.
 \startxmlsetups xml:div
-  GOT DIV?
+  \start[\xmlatt{#1}{class}]
+    \xmlflush{#1}
+  \stop
 \stopxmlsetups
 
 \xmltexentity{ldquo}{\symbol[leftquotation]{}}

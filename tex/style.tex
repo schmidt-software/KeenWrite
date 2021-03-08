@@ -20,3 +20,16 @@
 
 \setupindenting[medium, yes]
 
+\setupexternalfigures[
+  %order={svg,pdf,png},
+  %directory={images},
+  %maxwidth=\makeupwidth,
+  width=\makeupwidth,
+]
+
+% Force images to flow exactly where they fall in the text.
+\setupfloat[figure][default=force]
+
+% Indent the paragraph following each image.
+\setupfloats[indentnext=yes]
+

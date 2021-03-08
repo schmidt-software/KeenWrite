@@ -641,7 +641,7 @@ public final class MainPane extends SplitPane {
     final var bins = paths
       .stream()
       .collect(
-        groupingBy( path -> bin.apply( MediaType.valueFrom( path ) ) )
+        groupingBy( path -> bin.apply( MediaType.fromFilename( path ) ) )
       );
 
     bins.putIfAbsent( TEXT_YAML, List.of( DEFINITION_DEFAULT.toString() ) );

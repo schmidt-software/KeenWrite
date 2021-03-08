@@ -2,6 +2,7 @@
 package com.keenwrite.processors;
 
 import com.keenwrite.AbstractFileFactory;
+import com.keenwrite.preferences.Workspace;
 import com.keenwrite.preview.HtmlPreview;
 import com.keenwrite.processors.markdown.MarkdownProcessor;
 
@@ -42,7 +43,7 @@ public final class ProcessorFactory extends AbstractFileFactory {
     final var successor = context.isExportFormat( NONE )
       ? createHtmlPreviewProcessor()
       : context.isExportFormat( XHTML_TEX )
-      ? createXhtmlProcessor()
+      ? createXhtmlProcessor( context.getWorkspace() )
       : createIdentityProcessor();
 
     final var processor = switch( context.getFileType() ) {
@@ -85,8 +86,8 @@ public final class ProcessorFactory extends AbstractFileFactory {
    *
    * @return An instance of {@link Processor} that completes an HTML document.
    */
-  private Processor<String> createXhtmlProcessor() {
-    return new XhtmlProcessor();
+  private Processor<String> createXhtmlProcessor( final Workspace workspace ) {
+    return new XhtmlProcessor( workspace );
   }
 
   /**

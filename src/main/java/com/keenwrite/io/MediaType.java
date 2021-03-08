@@ -158,7 +158,20 @@ public enum MediaType {
    * {@link File}'s file name extension.
    */
   public static MediaType valueFrom( final File file ) {
-    return valueFrom( file.getName() );
+    return fromFilename( file.getName() );
+  }
+
+  /**
+   * Returns the {@link MediaType} associated with the given file name.
+   *
+   * @param filename The file name that may contain an extension associated
+   *                 with a known {@link MediaType}.
+   * @return {@link MediaType#UNDEFINED} if the extension has not been
+   * assigned, otherwise the {@link MediaType} associated with this
+   * URL's file name extension.
+   */
+  public static MediaType fromFilename( final String filename ) {
+    return getMediaType( getExtension( filename ) );
   }
 
   /**
@@ -175,16 +188,26 @@ public enum MediaType {
   }
 
   /**
-   * Returns the {@link MediaType} associated with the given file name.
+   * Determines the media type an IANA-defined, semi-colon-separated string.
+   * This is often used after making an HTTP request to extract the type
+   * and subtype from the content-type.
    *
-   * @param filename The file name that may contain an extension associated
-   *                 with a known {@link MediaType}.
-   * @return {@link MediaType#UNDEFINED} if the extension has not been
-   * assigned, otherwise the {@link MediaType} associated with this
-   * URL's file name extension.
+   * @param header The content-type header value.
+   * @return The data type for the resource or {@link MediaType#UNDEFINED} if
+   * unmapped.
    */
-  public static MediaType valueFrom( final String filename ) {
-    return getMediaType( getExtension( filename ) );
+  public static MediaType valueFrom( String header ) {
+    // Trim off the character encoding.
+    var i = header.indexOf( ';' );
+    header = header.substring( 0, i == -1 ? header.length() : i );
+
+    // Split the type and subtype.
+    i = header.indexOf( '/' );
+    i = i == -1 ? header.length() : i;
+    final var type = header.substring( 0, i );
+    final var subtype = header.substring( i + 1 );
+
+    return valueFrom( type, subtype );
   }
 
   /**
@@ -230,12 +253,13 @@ public enum MediaType {
   }
 
   /**
-   * Used by {@link MediaTypeExtension} to initialize associations where the
-   * subtype name and the file name extension have a 1:1 mapping.
+   * Returns the IANA-defined subtype classification. Primarily used by
+   * {@link MediaTypeExtension} to initialize associations where the subtype
+   * name and the file name extension have a 1:1 mapping.
    *
    * @return The IANA subtype value.
    */
-  String getSubtype() {
+  public String getSubtype() {
     return mSubtype;
   }
 

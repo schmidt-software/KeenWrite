@@ -55,7 +55,7 @@ public final class SvgReplacedElementFactory extends ReplacedElementAdapter {
           URI uri = null;
 
           if( getProtocol( source ).isHttp() ) {
-            var mediaType = MediaType.valueFrom( source );
+            var mediaType = MediaType.fromFilename( source );
 
             if( isSvg( mediaType ) || mediaType == UNDEFINED ) {
               uri = new URI( source );
@@ -66,7 +66,7 @@ public final class SvgReplacedElementFactory extends ReplacedElementAdapter {
               }
             }
           }
-          else if( isSvg( MediaType.valueFrom( source ) ) ) {
+          else if( isSvg( MediaType.fromFilename( source ) ) ) {
             // Attempt to rasterize based on file name.
             final var path = Path.of( new URI( source ).getPath() );
 
