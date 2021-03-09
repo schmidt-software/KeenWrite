@@ -49,9 +49,7 @@
 \stopxmlsetups
 
 \startxmlsetups xml:img
-	\placefigure[none]{}{%
-		\externalfigure[\xmlatt{#1}{src}]
-	}
+	\placefigure{}{\externalfigure[\xmlatt{#1}{src}]}
 \stopxmlsetups
 
 \startxmlsetups xml:q
@@ -64,11 +62,4 @@
     \xmlflush{#1}
   \stop
 \stopxmlsetups
-
-\xmltexentity{ldquo}{\symbol[leftquotation]{}}
-\xmltexentity{rdquo}{\symbol[rightquotation]{}}
-\xmltexentity{rsquo}{\quotesingle{}}
-\xmltexentity{mdash}{\emdash{}}
-\xmltexentity{ndash}{\endash{}}
-\xmltexentity{hellip}{\dots{}}
 

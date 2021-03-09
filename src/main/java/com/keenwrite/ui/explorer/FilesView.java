@@ -17,7 +17,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
-import java.util.Comparator;
 import java.util.Locale;
 
 import static com.keenwrite.Constants.UI_CONTROL_SPACING;
@@ -29,9 +28,10 @@ import static java.nio.file.Files.size;
 import static java.time.Instant.ofEpochMilli;
 import static java.time.ZoneId.systemDefault;
 import static java.time.format.DateTimeFormatter.ofPattern;
-import static java.util.Comparator.*;
+import static java.util.Comparator.comparing;
 import static javafx.collections.FXCollections.observableArrayList;
 import static javafx.scene.control.TableView.CONSTRAINED_RESIZE_POLICY;
+import static javafx.scene.input.KeyCode.ENTER;
 import static javafx.scene.layout.Priority.ALWAYS;
 import static org.apache.commons.io.FilenameUtils.getExtension;
 
@@ -118,6 +118,12 @@ public class FilesView extends BorderPane {
 
     mDirectory.addListener( ( c, o, n ) -> {
       if( n != null ) { field.setText( n.getAbsolutePath() ); }
+    } );
+
+    field.setOnKeyPressed( event -> {
+      if( event.getCode() == ENTER ) {
+        mDirectory.set( new File( field.getText() ) );
+      }
     } );
 
     final var button = new BrowseButton( directory, mDirectory::set );

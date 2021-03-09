@@ -108,12 +108,22 @@ public enum ProtocolScheme {
   /**
    * Determines the protocol scheme for a given {@link URL}.
    *
-   * @param url A {@link URL} that contains a protocol scheme.
+   * @param url The {@link URL} containing a protocol scheme.
    * @return {@link #UNKNOWN} if the protocol is unrecognized, otherwise a
    * valid value from this enumeration.
    */
   public static ProtocolScheme valueFrom( final URL url ) {
     return valueFrom( url.getProtocol() );
+  }
+
+  /**
+   * Answers whether the given {@link URL} points to a remote resource.
+   *
+   * @param url The {@link URL} containing a protocol scheme.
+   * @return {@link true} if the protocol must be fetched via HTTP or FTP.
+   */
+  public static boolean isRemote( final URL url ) {
+    return valueFrom( url ).isRemote();
   }
 
   /**
@@ -147,7 +157,7 @@ public enum ProtocolScheme {
   /**
    * Answers whether the given protocol represents a remote resource.
    *
-   * @return {@code true} the protocol is HTTP(S) or FTP.
+   * @return {@code true} the protocol is HTTP or FTP.
    */
   public boolean isRemote() {
     return isHttp() || isFtp();

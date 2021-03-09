@@ -5,17 +5,18 @@ import com.keenwrite.io.MediaType;
 import com.keenwrite.preferences.Workspace;
 import com.keenwrite.util.ProtocolScheme;
 
-import javax.imageio.ImageIO;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.nio.file.Files;
+import java.nio.file.Path;
 
 import static com.keenwrite.Bootstrap.APP_TITLE_LOWERCASE;
 import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.io.MediaTypeExtension.valueFrom;
-import static com.keenwrite.preview.SvgRasterizer.rasterize;
+import static com.keenwrite.preferences.WorkspaceKeys.KEY_IMAGES_DIR;
+import static com.keenwrite.util.ProtocolScheme.isRemote;
 import static java.io.File.createTempFile;
+import static java.nio.file.Files.copy;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import static org.jsoup.Jsoup.parse;
 import static org.jsoup.nodes.Document.OutputSettings.Syntax;
@@ -38,13 +39,14 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
     doc.outputSettings().syntax( Syntax.xml );
 
     for( final var img : doc.getElementsByTag( "img" ) ) {
-      final var src = img.absUrl( "src" );
+      final var src = img.attr( "src" );
 
       try {
-        final var url = new URL( src );
-        final var protocol = ProtocolScheme.valueFrom( url );
+        final var protocol = ProtocolScheme.getProtocol( src );
+        final File imageFile;
 
         if( protocol.isRemote() ) {
+          final var url = new URL( src );
           final var conn = url.openConnection();
           conn.setUseCaches( false );
 
@@ -52,30 +54,25 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
           final var media = MediaType.valueFrom( type );
 
           try( final var in = conn.getInputStream() ) {
-            File imageFile;
-
-            if( media == MediaType.IMAGE_SVG_XML ) {
-              // Rasterize.
-              final var image = rasterize( in, 300f );
-              final var mt = MediaType.IMAGE_PNG;
-              imageFile = createTemporaryFile( mt );
-              ImageIO.write( image, mt.getSubtype(), imageFile );
-            }
-            else {
-              // Download into temporary directory.
-              imageFile = createTemporaryFile( media );
-              Files.copy( in, imageFile.toPath(), REPLACE_EXISTING );
-            }
-
-            img.attr( "src", imageFile.getAbsolutePath() );
+            imageFile = createTemporaryFile( media );
+            copy( in, imageFile.toPath(), REPLACE_EXISTING );
           }
         }
+        else {
+          imageFile = Path.of( getImagePath(), src ).toFile();
+        }
+
+        img.attr( "src", imageFile.getAbsolutePath() );
       } catch( final Exception ex ) {
         clue( ex );
       }
     }
 
     return doc.html();
+  }
+
+  private String getImagePath() {
+    return mWorkspace.fileProperty( KEY_IMAGES_DIR ).get().toString();
   }
 
   private static File createTemporaryFile( final MediaType media )
