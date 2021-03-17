@@ -89,6 +89,7 @@ dependencies {
   implementation "org.apache.xmlgraphics:batik-svg-dom:${v_batik}"
   implementation "org.apache.xmlgraphics:batik-svggen:${v_batik}"
   implementation "org.apache.xmlgraphics:batik-transcoder:${v_batik}"
+  implementation "org.apache.xmlgraphics:batik-rasterizer:${v_batik}"
   implementation "org.apache.xmlgraphics:batik-util:${v_batik}"
   implementation "org.apache.xmlgraphics:batik-xml:${v_batik}"
 

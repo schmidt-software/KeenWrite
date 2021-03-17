@@ -34,6 +34,7 @@ import com.whitemagicsoftware.tex.TeXLayout;
 import com.whitemagicsoftware.tex.graphics.AbstractGraphics2D;
 import com.whitemagicsoftware.tex.graphics.SvgDomGraphics2D;
 import com.whitemagicsoftware.tex.graphics.SvgGraphics2D;
+import org.apache.batik.transcoder.TranscoderException;
 import org.junit.jupiter.api.Test;
 import org.xml.sax.SAXException;
 
@@ -45,6 +46,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.text.ParseException;
 
 import static com.keenwrite.preview.SvgRasterizer.*;
 import static java.lang.System.getProperty;
@@ -74,7 +76,7 @@ public class TeXRasterization {
    */
   @Test
   public void test_Rasterize_SimpleFormula_CorrectImageSize()
-      throws IOException {
+    throws IOException, ParseException, TranscoderException {
     final var g = new SvgGraphics2D();
     drawGraphics( g );
     verifyImage( rasterizeString( g.toString() ) );
@@ -86,7 +88,8 @@ public class TeXRasterization {
    */
   @Test
   public void getTest_SvgDomGraphics2D_InputElement_OutputRasterizedImage()
-      throws ParserConfigurationException, IOException, SAXException {
+    throws ParserConfigurationException, IOException, SAXException,
+    ParseException, TranscoderException {
     final var g = new SvgGraphics2D();
     drawGraphics( g );
 
@@ -111,7 +114,7 @@ public class TeXRasterization {
    */
   @Test
   public void test_SvgDomGraphics2D_InputDom_OutputRasterizedImage()
-      throws IOException {
+    throws IOException, ParseException, TranscoderException {
     final var g = new SvgDomGraphics2D();
     drawGraphics( g );
 

@@ -131,7 +131,9 @@ public final class RExtension implements ParserExtension {
               }
             }
 
-            blockNode.appendChild( node );
+            if( node != null ) {
+              blockNode.appendChild( node );
+            }
           }
         }
       }

@@ -12,6 +12,8 @@ import static java.util.List.of;
  * represents the file name extension that corresponds to its icon.
  */
 public enum MediaTypeExtension {
+  MEDIA_APP_PDF( APP_PDF ),
+
   MEDIA_FONT_OTF( FONT_OTF ),
   MEDIA_FONT_TTF( FONT_TTF ),
 

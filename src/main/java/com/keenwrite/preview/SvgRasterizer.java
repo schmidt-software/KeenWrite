@@ -16,16 +16,17 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.InputStream;
-import java.io.StringReader;
-import java.io.StringWriter;
+import java.io.*;
 import java.net.URI;
 import java.nio.file.Path;
 import java.text.NumberFormat;
+import java.text.ParseException;
+import java.util.HashMap;
+import java.util.Map;
 
 import static com.keenwrite.events.StatusEvent.clue;
-import static com.keenwrite.preview.RenderingSettings.RENDERING_HINTS;
+import static java.awt.RenderingHints.*;
+import static java.awt.Toolkit.getDefaultToolkit;
 import static java.awt.image.BufferedImage.TYPE_INT_RGB;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.text.NumberFormat.getIntegerInstance;
@@ -37,7 +38,45 @@ import static org.apache.batik.util.XMLResourceDescriptor.getXMLParserClassName;
 /**
  * Responsible for converting SVG images into rasterized PNG images.
  */
+@SuppressWarnings( "rawtypes" )
 public final class SvgRasterizer {
+  /**
+   * Default hints for high-quality rendering that may be changed by
+   * the system's rendering hints.
+   */
+  private static final Map<Object, Object> DEFAULT_HINTS = Map.of(
+    KEY_ANTIALIASING, VALUE_ANTIALIAS_ON,
+    KEY_ALPHA_INTERPOLATION, VALUE_ALPHA_INTERPOLATION_QUALITY,
+    KEY_COLOR_RENDERING, VALUE_COLOR_RENDER_QUALITY,
+    KEY_DITHERING, VALUE_DITHER_DISABLE,
+    KEY_FRACTIONALMETRICS, VALUE_FRACTIONALMETRICS_ON,
+    KEY_INTERPOLATION, VALUE_INTERPOLATION_BICUBIC,
+    KEY_RENDERING, VALUE_RENDER_QUALITY,
+    KEY_STROKE_CONTROL, VALUE_STROKE_PURE,
+    KEY_TEXT_ANTIALIASING, VALUE_TEXT_ANTIALIAS_ON
+  );
+
+  /**
+   * Shared hints for high-quality rendering.
+   */
+  public static final Map<Object, Object> RENDERING_HINTS = new HashMap<>(
+    DEFAULT_HINTS
+  );
+
+  static {
+    final var toolkit = getDefaultToolkit();
+    final var hints = toolkit.getDesktopProperty( "awt.font.desktophints" );
+
+    if( hints instanceof Map ) {
+      final var map = (Map) hints;
+
+      for( final var key : map.keySet() ) {
+        final var hint = map.get( key );
+        RENDERING_HINTS.put( key, hint );
+      }
+    }
+  }
+
   private static final SAXSVGDocumentFactory FACTORY_DOM =
     new SAXSVGDocumentFactory( getXMLParserClassName() );
 
@@ -194,19 +233,14 @@ public final class SvgRasterizer {
    * @param width The rasterized image's width (in pixels).
    * @return The rasterized image.
    */
-  public static BufferedImage rasterize( final Document svg, final int width ) {
-    try {
-      final var transcoder = new BufferedImageTranscoder();
-      final var input = new TranscoderInput( svg );
+  public static BufferedImage rasterize( final Document svg, final int width )
+    throws TranscoderException {
+    final var transcoder = new BufferedImageTranscoder();
+    final var input = new TranscoderInput( svg );
 
-      transcoder.addTranscodingHint( KEY_WIDTH, (float) width );
-      transcoder.transcode( input, null );
-      return transcoder.getImage();
-    } catch( final Exception ex ) {
-      clue( ex );
-    }
-
-    return BROKEN_IMAGE_PLACEHOLDER;
+    transcoder.addTranscodingHint( KEY_WIDTH, (float) width );
+    transcoder.transcode( input, null );
+    return transcoder.getImage();
   }
 
   /**
@@ -217,16 +251,11 @@ public final class SvgRasterizer {
    * @return A rasterized image as an instance of {@link BufferedImage}, or
    * {@link #BROKEN_IMAGE_PLACEHOLDER} if the graphic could not be rasterized.
    */
-  public static BufferedImage rasterize( final Document document ) {
-    try {
-      final var root = document.getDocumentElement();
-      final var width = root.getAttribute( "width" );
-      return rasterize( document, INT_FORMAT.parse( width ).intValue() );
-    } catch( final Exception ex ) {
-      clue( ex );
-    }
-
-    return BROKEN_IMAGE_PLACEHOLDER;
+  public static BufferedImage rasterize( final Document document )
+    throws ParseException, TranscoderException {
+    final var root = document.getDocumentElement();
+    final var width = root.getAttribute( "width" );
+    return rasterize( document, INT_FORMAT.parse( width ).intValue() );
   }
 
   /**
@@ -282,17 +311,12 @@ public final class SvgRasterizer {
    * @param xml The SVG xml document.
    * @return The vector graphic transcoded into a raster image format.
    */
-  public static BufferedImage rasterizeString( final String xml ) {
-    try {
-      final var document = toDocument( xml );
-      final var root = document.getDocumentElement();
-      final var width = root.getAttribute( "width" );
-      return rasterizeString( xml, INT_FORMAT.parse( width ).intValue() );
-    } catch( final Exception ex ) {
-      clue( ex );
-    }
-
-    return BROKEN_IMAGE_PLACEHOLDER;
+  public static BufferedImage rasterizeString( final String xml )
+    throws ParseException, TranscoderException {
+    final var document = toDocument( xml );
+    final var root = document.getDocumentElement();
+    final var width = root.getAttribute( "width" );
+    return rasterizeString( xml, INT_FORMAT.parse( width ).intValue() );
   }
 
   /**
@@ -304,7 +328,8 @@ public final class SvgRasterizer {
    *            maintained).
    * @return The vector graphic transcoded into a raster image format.
    */
-  public static BufferedImage rasterizeString( final String svg, final int w ) {
+  public static BufferedImage rasterizeString( final String svg, final int w )
+    throws TranscoderException {
     return rasterize( toDocument( svg ), w );
   }
 

@@ -37,6 +37,14 @@ public enum MediaType {
   ),
 
   /*
+   * PDF Media Type.
+   * https://www.rfc-editor.org/rfc/rfc3778.txt
+   */
+  APP_PDF(
+    APPLICATION, "pdf"
+  ),
+
+  /*
    * Standard font types.
    */
   FONT_OTF( "otf" ),

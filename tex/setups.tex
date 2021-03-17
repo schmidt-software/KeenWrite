@@ -11,7 +11,6 @@
   }{xml:*}
 \stopxmlsetups
 
-\xmlregistersetup{xml:xhtml}
 
 \startxmlsetups xml:html
   \xmlflush{#1}
@@ -49,7 +48,11 @@
 \stopxmlsetups
 
 \startxmlsetups xml:img
-	\placefigure{}{\externalfigure[\xmlatt{#1}{src}]}
+  \starttexcode
+    \placefigure{}{%
+      \externalfigure[\xmlatt{#1}{src}][conversion=mp]%
+    }
+  \stoptexcode
 \stopxmlsetups
 
 \startxmlsetups xml:q
@@ -62,4 +65,6 @@
     \xmlflush{#1}
   \stop
 \stopxmlsetups
+
+\xmlregistersetup{xml:xhtml}
 
