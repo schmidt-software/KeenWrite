@@ -3,16 +3,16 @@
 
 \setupbodyfontenvironment[default][em=italic]
 
+\setupinteraction[state=start]
+
 \setuphead[chapter][
   page=yes,
   header=empty,
-  align=middle,
   after={\blank[line]}
 ]
 
 \setuphead[section,subsection][
   page=no,
-  align=middle,
   number=no,
   before={\blank[big]},
   after={\blank[line]}
@@ -31,4 +31,13 @@
 
 % Indent the paragraph following each image.
 \setupfloats[indentnext=yes]
+
+\definesymbol[bullet][•]
+
+% Reduce the spacing around bullets.
+\setupitemgroup[itemize][1][packed,paragraph][
+  leftmargin=2em,
+  distance=\zeropoint,
+  symbol=bullet,
+]
 

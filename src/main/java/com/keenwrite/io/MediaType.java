@@ -261,6 +261,15 @@ public enum MediaType {
   }
 
   /**
+   * Answers whether this instance is a scalable vector graphic.
+   *
+   * @return {@code true} if this instance represents an SVG object.
+   */
+  public boolean isSvg() {
+    return this == IMAGE_SVG_XML;
+  }
+
+  /**
    * Returns the IANA-defined subtype classification. Primarily used by
    * {@link MediaTypeExtension} to initialize associations where the subtype
    * name and the file name extension have a 1:1 mapping.

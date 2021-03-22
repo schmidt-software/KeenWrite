@@ -91,7 +91,6 @@ public final class HtmlPreview extends SwingNode {
    */
   private final StringBuilder mDocument = new StringBuilder( 65536 );
 
-
   private HtmlPanel mView;
   private JScrollPane mScrollPane;
   private String mBaseUriPath = "";

@@ -67,5 +67,4 @@ public final class HttpMediaType {
 
     return mediaType[ 0 ];
   }
-
 }

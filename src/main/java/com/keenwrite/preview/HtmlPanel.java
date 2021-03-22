@@ -109,6 +109,7 @@ public final class HtmlPanel extends XHTMLPanel {
     final var soup = parse( html );
     final var doc = CONVERTER.fromJsoup( soup );
     final Runnable renderDocument = () -> setDocument( doc, baseUri, XNH );
+    doc.setDocumentURI( baseUri );
 
     // Access to a Swing component must occur from the Event Dispatch
     // Thread (EDT) according to Swing threading restrictions. Setting a new

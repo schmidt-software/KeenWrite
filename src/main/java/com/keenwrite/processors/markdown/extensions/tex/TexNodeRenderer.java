@@ -26,7 +26,7 @@ public class TexNodeRenderer {
     Map.of(
       HTML_TEX_SVG, new TexSvgNodeRenderer(),
       HTML_TEX_DELIMITED, new TexDelimNodeRenderer(),
-      XHTML_TEX, new TexDelimNodeRenderer(),
+      XHTML_TEX, new TexElementNodeRenderer(),
       MARKDOWN_PLAIN, new TexDelimNodeRenderer(),
       NONE, new TexElementNodeRenderer()
     );

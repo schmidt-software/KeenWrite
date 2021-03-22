@@ -4,7 +4,6 @@ package com.keenwrite.preview;
 import com.keenwrite.io.HttpMediaType;
 import com.keenwrite.io.MediaType;
 import com.keenwrite.ui.adapters.ReplacedElementAdapter;
-import org.w3c.dom.Element;
 import org.xhtmlrenderer.extend.ReplacedElement;
 import org.xhtmlrenderer.extend.UserAgentCallback;
 import org.xhtmlrenderer.layout.LayoutContext;
@@ -16,7 +15,7 @@ import java.net.URI;
 import java.nio.file.Path;
 
 import static com.keenwrite.events.StatusEvent.clue;
-import static com.keenwrite.io.MediaType.*;
+import static com.keenwrite.io.MediaType.UNDEFINED;
 import static com.keenwrite.preview.MathRenderer.MATH_RENDERER;
 import static com.keenwrite.preview.SvgRasterizer.BROKEN_IMAGE_PLACEHOLDER;
 import static com.keenwrite.preview.SvgRasterizer.rasterize;
@@ -57,16 +56,16 @@ public final class SvgReplacedElementFactory extends ReplacedElementAdapter {
           if( getProtocol( source ).isHttp() ) {
             var mediaType = MediaType.fromFilename( source );
 
-            if( isSvg( mediaType ) || mediaType == UNDEFINED ) {
+            if( mediaType.isSvg() || mediaType == UNDEFINED ) {
               uri = new URI( source );
 
               // Attempt to rasterize SVG depending on URL resource content.
-              if( !isSvg( HttpMediaType.valueFrom( uri ) ) ) {
+              if( !HttpMediaType.valueFrom( uri ).isSvg() ) {
                 uri = null;
               }
             }
           }
-          else if( isSvg( MediaType.fromFilename( source ) ) ) {
+          else if( MediaType.fromFilename( source ).isSvg() ) {
             // Attempt to rasterize based on file name.
             final var path = Path.of( new URI( source ).getPath() );
 
@@ -74,7 +73,7 @@ public final class SvgReplacedElementFactory extends ReplacedElementAdapter {
               uri = path.toUri();
             }
             else {
-              final var base = new URI( getBaseUri( e ) ).getPath();
+              final var base = new URI( e.getBaseURI() ).getPath();
               uri = Path.of( base, source ).toUri();
             }
           }
@@ -99,37 +98,8 @@ public final class SvgReplacedElementFactory extends ReplacedElementAdapter {
     return image;
   }
 
-  private String getBaseUri( final Element e ) {
-    try {
-      final var doc = e.getOwnerDocument();
-      final var html = doc.getDocumentElement();
-      final var head = html.getFirstChild();
-      final var children = head.getChildNodes();
-
-      for( int i = children.getLength() - 1; i >= 0; i-- ) {
-        final var child = children.item( i );
-        final var name = child.getLocalName();
-
-        if( "base".equalsIgnoreCase( name ) ) {
-          final var attrs = child.getAttributes();
-          final var item = attrs.getNamedItem( "href" );
-
-          return item.getNodeValue();
-        }
-      }
-    } catch( final Exception ex ) {
-      clue( ex );
-    }
-
-    return "";
-  }
-
   private static ImageReplacedElement createImageReplacedElement(
     final BufferedImage bi ) {
     return new ImageReplacedElement( bi, bi.getWidth(), bi.getHeight() );
-  }
-
-  private static boolean isSvg( final MediaType mediaType ) {
-    return mediaType == TEXT_PLAIN || mediaType == IMAGE_SVG_XML;
   }
 }

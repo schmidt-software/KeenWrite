@@ -2,11 +2,14 @@
 package com.keenwrite.preview;
 
 import org.apache.batik.anim.dom.SAXSVGDocumentFactory;
+import org.apache.batik.css.parser.Parser;
 import org.apache.batik.gvt.renderer.ImageRenderer;
 import org.apache.batik.transcoder.TranscoderException;
 import org.apache.batik.transcoder.TranscoderInput;
 import org.apache.batik.transcoder.TranscoderOutput;
 import org.apache.batik.transcoder.image.ImageTranscoder;
+import org.apache.batik.util.XMLResourceDescriptor;
+import org.w3c.css.sac.CSSException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -59,7 +62,7 @@ public final class SvgRasterizer {
   /**
    * Shared hints for high-quality rendering.
    */
-  public static final Map<Object, Object> RENDERING_HINTS = new HashMap<>(
+  private static final Map<Object, Object> RENDERING_HINTS = new HashMap<>(
     DEFAULT_HINTS
   );
 
@@ -75,6 +78,24 @@ public final class SvgRasterizer {
         RENDERING_HINTS.put( key, hint );
       }
     }
+  }
+
+  /**
+   * <a href="https://issues.apache.org/jira/browse/BATIK-1112">Bug fix</a>
+   */
+  public static final class InkscapeCssParser extends Parser {
+    public void parseStyleDeclaration( final String source )
+      throws CSSException, IOException {
+      super.parseStyleDeclaration(
+        source.replaceAll( "-inkscape-font-specification:[^;\"]*;", "" )
+      );
+    }
+  }
+
+  static {
+    XMLResourceDescriptor.setCSSParserClassName(
+      InkscapeCssParser.class.getName()
+    );
   }
 
   private static final SAXSVGDocumentFactory FACTORY_DOM =
@@ -217,8 +238,7 @@ public final class SvgRasterizer {
    * given resolution.
    */
   public static BufferedImage rasterize(
-    final InputStream svg, final float dpi )
-    throws TranscoderException {
+    final InputStream svg, final float dpi ) throws TranscoderException {
     final var transcoder = new BufferedImageTranscoder();
     transcoder.addTranscodingHint(
       KEY_PIXEL_UNIT_TO_MILLIMETER, 1f / dpi * 25.4f );
@@ -236,10 +256,8 @@ public final class SvgRasterizer {
   public static BufferedImage rasterize( final Document svg, final int width )
     throws TranscoderException {
     final var transcoder = new BufferedImageTranscoder();
-    final var input = new TranscoderInput( svg );
-
     transcoder.addTranscodingHint( KEY_WIDTH, (float) width );
-    transcoder.transcode( input, null );
+    transcoder.transcode( new TranscoderInput( svg ), null );
     return transcoder.getImage();
   }
 

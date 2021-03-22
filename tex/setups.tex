@@ -4,13 +4,27 @@
   % Do not typeset the HTML document's header title element.
   \xmlsetsetup{\xmldocument}{*}{-}
 
-  % Only elements included in this list are typeset.
-  \xmlsetsetup{\xmldocument}{%
-    html|body|div|h1|h2|h3|h4|h5|h6|p|blockquote|span|em|q|b|strong|%
-    a|ul|ol|li|dl|dt|dd|hr|br|sup|sub|code|img%
-  }{xml:*}
-\stopxmlsetups
+  % Document elements
+  \xmlsetsetup{\xmldocument}{html|body}{xml:*}
 
+  % Header elements
+  \xmlsetsetup{\xmldocument}{h1|h2|h3|h4|h5|h6}{xml:*}
+
+  % Block elements
+  \xmlsetsetup{\xmldocument}{p|q|blockquote|div}{xml:*}
+
+  % List elements
+  \xmlsetsetup{\xmldocument}{ul|ol|li|dl|dt|dd}{xml:*}
+
+  % Break elements
+  \xmlsetsetup{\xmldocument}{hr|br}{xml:*}
+
+  % Inline elements
+  \xmlsetsetup{\xmldocument}{span|em|b|strong|a|sup|sub|code|img}{xml:*}
+
+  % TeX elements
+  \xmlsetsetup{\xmldocument}{tex}{xml:*}
+\stopxmlsetups
 
 \startxmlsetups xml:html
   \xmlflush{#1}
@@ -35,6 +49,25 @@
 % Paragraphs are followed by a paragraph break.
 \startxmlsetups xml:p
   \xmlflush{#1}\par
+\stopxmlsetups
+
+\startxmlsetups xml:ul
+  \startitemize
+    \xmlflush{#1}
+  \stopitemize
+\stopxmlsetups
+
+\startxmlsetups xml:li
+  \startitem \xmlflush{#1} \stopitem
+\stopxmlsetups
+
+% Requires the \href macro.
+\startxmlsetups xml:a
+  \href{\xmlflush{#1}}{\xmlatt{#1}{href}}
+\stopxmlsetups
+
+\startxmlsetups xml:tex
+  \mathematics{\xmlflushcontext{#1}}
 \stopxmlsetups
 
 % Emphasized text is italicized, typically.
