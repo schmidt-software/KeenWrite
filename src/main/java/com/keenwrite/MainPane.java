@@ -817,27 +817,36 @@ public final class MainPane extends SplitPane {
   }
 
   public ProcessorContext createProcessorContext() {
-    return createProcessorContext( NONE );
+    return createProcessorContext( null, NONE );
   }
 
-  public ProcessorContext createProcessorContext( final ExportFormat format ) {
+  public ProcessorContext createProcessorContext(
+    final File exportPath, final ExportFormat format ) {
     final var editor = getActiveTextEditor();
     return createProcessorContext(
-      editor.getPath(), editor.getCaret(), format );
+      editor.getPath(), editor.getCaret(), exportPath, format );
+  }
+
+  private ProcessorContext createProcessorContext(
+    final Path path, final Caret caret ) {
+    return createProcessorContext( path, caret, null, ExportFormat.NONE );
   }
 
   /**
-   * @param path  Used by {@link ProcessorFactory} to determine
-   *              {@link Processor} type to create based on file type.
-   * @param caret Used by {@link CaretExtension} to add ID attribute into
-   *              preview document for scrollbar synchronization.
+   * @param path       Used by {@link ProcessorFactory} to determine
+   *                   {@link Processor} type to create based on file type.
+   * @param caret      Used by {@link CaretExtension} to add ID attribute into
+   *                   preview document for scrollbar synchronization.
+   * @param exportPath Used when exporting to a PDF file (binary).
+   * @param format     Used when processors export to a new text format.
    * @return A new {@link ProcessorContext} to use when creating an instance of
    * {@link Processor}.
    */
   private ProcessorContext createProcessorContext(
-    final Path path, final Caret caret, final ExportFormat format ) {
+    final Path path, final Caret caret,
+    final File exportPath, final ExportFormat format ) {
     return new ProcessorContext(
-      mPreview, mResolvedMap, path, caret, format, mWorkspace
+      mPreview, mResolvedMap, path, caret, exportPath, format, mWorkspace
     );
   }
 
@@ -861,7 +870,7 @@ public final class MainPane extends SplitPane {
     final var path = file.toPath();
     final var editor = new MarkdownEditor( file, getWorkspace() );
     final var caret = editor.getCaret();
-    final var context = createProcessorContext( path, caret, NONE );
+    final var context = createProcessorContext( path, caret );
 
     mProcessors.computeIfAbsent( editor, p -> createProcessors( context ) );
 

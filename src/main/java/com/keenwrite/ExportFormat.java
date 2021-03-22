@@ -35,6 +35,11 @@ public enum ExportFormat {
   MARKDOWN_PLAIN( ".out.md" ),
 
   /**
+   * Exports as PDF file format.
+   */
+  APPLICATION_PDF( ".pdf" ),
+
+  /**
    * Indicates no special export format is to be created. No extension is
    * applicable. Image links must use absolute directories.
    */

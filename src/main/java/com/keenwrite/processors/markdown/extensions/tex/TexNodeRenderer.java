@@ -22,13 +22,16 @@ import static com.keenwrite.preview.MathRenderer.MATH_RENDERER;
 import static com.keenwrite.processors.markdown.extensions.tex.TexNode.*;
 
 public class TexNodeRenderer {
+  private static final RendererFacade RENDERER = new TexElementNodeRenderer();
+
   private static final Map<ExportFormat, RendererFacade> EXPORT_RENDERERS =
     Map.of(
+      APPLICATION_PDF, new TexElementNodeRenderer(),
       HTML_TEX_SVG, new TexSvgNodeRenderer(),
       HTML_TEX_DELIMITED, new TexDelimNodeRenderer(),
       XHTML_TEX, new TexElementNodeRenderer(),
       MARKDOWN_PLAIN, new TexDelimNodeRenderer(),
-      NONE, new TexElementNodeRenderer()
+      NONE, RENDERER
     );
 
   public static class Factory implements NodeRendererFactory {
@@ -36,13 +39,13 @@ public class TexNodeRenderer {
 
     public Factory(
       final ExportFormat exportFormat, final Processor<String> processor ) {
-      mNodeRenderer = EXPORT_RENDERERS.get( exportFormat );
+      mNodeRenderer = EXPORT_RENDERERS.getOrDefault( exportFormat, RENDERER );
       mNodeRenderer.setProcessor( processor );
     }
 
     @NotNull
     @Override
-    public NodeRenderer apply( @NotNull DataHolder options ) {
+    public NodeRenderer apply( @NotNull final DataHolder options ) {
       return mNodeRenderer;
     }
   }

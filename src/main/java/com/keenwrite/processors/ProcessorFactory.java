@@ -6,8 +6,8 @@ import com.keenwrite.preferences.Workspace;
 import com.keenwrite.preview.HtmlPreview;
 import com.keenwrite.processors.markdown.MarkdownProcessor;
 
-import static com.keenwrite.ExportFormat.NONE;
-import static com.keenwrite.ExportFormat.XHTML_TEX;
+import static com.keenwrite.ExportFormat.*;
+import static com.keenwrite.processors.IdentityProcessor.IDENTITY;
 
 /**
  * Responsible for creating processors capable of parsing, transforming,
@@ -44,6 +44,8 @@ public final class ProcessorFactory extends AbstractFileFactory {
       ? createHtmlPreviewProcessor()
       : context.isExportFormat( XHTML_TEX )
       ? createXhtmlProcessor( context.getWorkspace() )
+      : context.isExportFormat( APPLICATION_PDF )
+      ? createPdfProcessor( context )
       : createIdentityProcessor();
 
     final var processor = switch( context.getFileType() ) {
@@ -75,19 +77,7 @@ public final class ProcessorFactory extends AbstractFileFactory {
    * @return An instance of {@link Processor} that performs no processing.
    */
   private Processor<String> createIdentityProcessor() {
-    return IdentityProcessor.IDENTITY;
-  }
-
-  /**
-   * Instantiates a new {@link Processor} that wraps an HTML document into
-   * its final, well-formed state (including head and body tags). This is
-   * useful for generating XHTML documents suitable for typesetting (using
-   * an engine such as LuaTeX).
-   *
-   * @return An instance of {@link Processor} that completes an HTML document.
-   */
-  private Processor<String> createXhtmlProcessor( final Workspace workspace ) {
-    return new XhtmlProcessor( workspace );
+    return IDENTITY;
   }
 
   /**
@@ -129,6 +119,29 @@ public final class ProcessorFactory extends AbstractFileFactory {
     final Processor<String> successor ) {
     final var xmlp = new XmlProcessor( successor, getProcessorContext() );
     return createDefinitionProcessor( xmlp );
+  }
+
+  /**
+   * Instantiates a new {@link Processor} that wraps an HTML document into
+   * its final, well-formed state (including head and body tags). This is
+   * useful for generating XHTML documents suitable for typesetting (using
+   * an engine such as LuaTeX).
+   *
+   * @return An instance of {@link Processor} that completes an HTML document.
+   */
+  private Processor<String> createXhtmlProcessor( final Workspace workspace ) {
+    return createXhtmlProcessor( IDENTITY, workspace );
+  }
+
+  private Processor<String> createXhtmlProcessor(
+    final Processor<String> successor, final Workspace workspace ) {
+    return new XhtmlProcessor( successor, workspace );
+  }
+
+  private Processor<String> createPdfProcessor(
+    final ProcessorContext context ) {
+    final var pdfp = new PdfProcessor( context.getExportPath() );
+    return createXhtmlProcessor( pdfp, context.getWorkspace() );
   }
 
   private Processor<String> createPreformattedProcessor(

@@ -8,6 +8,7 @@ import com.keenwrite.io.FileType;
 import com.keenwrite.preferences.Workspace;
 import com.keenwrite.preview.HtmlPreview;
 
+import java.io.File;
 import java.nio.file.Path;
 import java.util.Map;
 
@@ -22,6 +23,7 @@ public final class ProcessorContext {
   private final Map<String, String> mResolvedMap;
   private final Path mDocumentPath;
   private final Caret mCaret;
+  private final File mExportPath;
   private final ExportFormat mExportFormat;
   private final Workspace mWorkspace;
 
@@ -36,13 +38,16 @@ public final class ProcessorContext {
    * @param documentPath Path to the document to process.
    * @param caret        Location of the caret in the edited document, which is
    *                     used to synchronize the scrollbars.
+   * @param exportPath   Fully qualified filename to use when exporting.
    * @param exportFormat Indicate configuration options for export format.
+   * @param workspace    Persistent user preferences settings.
    */
   public ProcessorContext(
     final HtmlPreview htmlPreview,
     final Map<String, String> resolvedMap,
     final Path documentPath,
     final Caret caret,
+    final File exportPath,
     final ExportFormat exportFormat,
     final Workspace workspace ) {
     assert htmlPreview != null;
@@ -56,6 +61,7 @@ public final class ProcessorContext {
     mResolvedMap = resolvedMap;
     mDocumentPath = documentPath;
     mCaret = caret;
+    mExportPath = exportPath;
     mExportFormat = exportFormat;
     mWorkspace = workspace;
   }
@@ -75,6 +81,10 @@ public final class ProcessorContext {
    */
   Map<String, String> getResolvedMap() {
     return mResolvedMap;
+  }
+
+  public File getExportPath() {
+    return mExportPath;
   }
 
   public ExportFormat getExportFormat() {

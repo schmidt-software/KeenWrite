@@ -94,6 +94,10 @@ public final class Action implements MenuAction {
       tooltip = tooltip.substring( 0, tooltip.length() - 3 );
     }
 
+    // Do not display mnemonic accelerator character in tooltip text.
+    // The accelerator key will still be available, this is display-only.
+    tooltip = tooltip.replace( "_", "" );
+
     if( mAccelerator != null ) {
       tooltip += " (" + mAccelerator.getDisplayText() + ')';
     }

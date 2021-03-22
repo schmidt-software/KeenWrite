@@ -37,7 +37,9 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
     compile( "\\p{Blank}", UNICODE_CHARACTER_CLASS );
   private final Workspace mWorkspace;
 
-  public XhtmlProcessor( final Workspace workspace ) {
+  public XhtmlProcessor(
+    final Processor<String> successor, final Workspace workspace ) {
+    super( successor );
     mWorkspace = workspace;
   }
 
@@ -71,7 +73,7 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
   private Path exportImage( final String src ) throws Exception {
     MediaType mediaType;
     Path imageFile = null;
-    InputStream svgIn ;
+    InputStream svgIn;
 
     final var protocol = ProtocolScheme.getProtocol( src );
 

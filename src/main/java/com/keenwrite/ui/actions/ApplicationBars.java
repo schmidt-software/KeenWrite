@@ -56,6 +56,7 @@ public final class ApplicationBars {
       SEPARATOR_ACTION,
       addAction( "file.export", e -> {} )
         .addSubActions(
+          addAction( "file.export.pdf", e -> actions.file‿export‿pdf() ),
           addAction( "file.export.html_svg", e -> actions.file‿export‿html_svg() ),
           addAction( "file.export.html_tex", e -> actions.file‿export‿html_tex() ),
           addAction( "file.export.xhtml_tex", e -> actions.file‿export‿xhtml_tex() ),
@@ -143,6 +144,8 @@ public final class ApplicationBars {
       getAction( "file.new" ),
       getAction( "file.open" ),
       getAction( "file.save" ),
+      SEPARATOR_ACTION,
+      getAction( "file.export.pdf" ),
       SEPARATOR_ACTION,
       getAction( "edit.undo" ),
       getAction( "edit.redo" ),

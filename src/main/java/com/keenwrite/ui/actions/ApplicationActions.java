@@ -112,6 +112,36 @@ public final class ApplicationActions {
     getMainPane().saveAll();
   }
 
+  private void file‿export( final ExportFormat format ) {
+    final var main = getMainPane();
+    final var editor = main.getActiveTextEditor();
+    final var filename = format.toExportFilename( editor.getPath() );
+    final var chooser = createFileChooser();
+    final var selection = chooser.exportAs( filename );
+
+    selection.ifPresent( ( file ) -> {
+      final var doc = editor.getText();
+      final var context = main.createProcessorContext( file, format );
+      final var chain = createProcessors( context );
+      final var export = chain.apply( doc );
+
+      try {
+        // Processors can export in binary formats that are incompatible with
+        // Java language String objects. In such cases, the processor will
+        // return the null sentinel to signal no further processing is needed.
+        if( export != null ) {
+          writeString( file.toPath(), export );
+        }
+
+        clue( get( "Main.status.export.success", file.toString() ) );
+      } catch( final Exception ex ) {
+        clue( ex );
+      }
+    } );
+  }
+
+  public void file‿export‿pdf() { file‿export( APPLICATION_PDF ); }
+
   public void file‿export‿html_svg() {
     file‿export( HTML_TEX_SVG );
   }
@@ -126,27 +156,6 @@ public final class ApplicationActions {
 
   public void file‿export‿markdown() {
     file‿export( MARKDOWN_PLAIN );
-  }
-
-  private void file‿export( final ExportFormat format ) {
-    final var main = getMainPane();
-    final var context = main.createProcessorContext( format );
-    final var chain = createProcessors( context );
-    final var editor = main.getActiveTextEditor();
-    final var doc = editor.getText();
-    final var export = chain.apply( doc );
-    final var filename = format.toExportFilename( editor.getPath() );
-    final var chooser = createFileChooser();
-    final var file = chooser.exportAs( filename );
-
-    file.ifPresent( ( f ) -> {
-      try {
-        writeString( f.toPath(), export );
-        clue( get( "Main.status.export.success", f.toString() ) );
-      } catch( final Exception ex ) {
-        clue( ex );
-      }
-    } );
   }
 
   public void file‿exit() {
