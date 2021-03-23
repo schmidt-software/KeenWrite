@@ -2,12 +2,8 @@
 package com.keenwrite.processors;
 
 import java.io.File;
-import java.nio.file.Paths;
-import java.util.stream.Stream;
 
-import static java.io.File.pathSeparator;
-import static java.lang.System.getenv;
-import static java.util.regex.Pattern.quote;
+import static com.keenwrite.util.ResourceWalker.canExecute;
 
 /**
  * Responsible for using a typesetting engine to convert an XHTML document
@@ -38,28 +34,5 @@ public final class PdfProcessor extends ExecutorProcessor<String> {
     }
 
     return null;
-  }
-
-  @SuppressWarnings( "SameParameterValue" )
-  private boolean canExecute( final String exe ) {
-    final var paths = getenv( "PATH" ).split( quote( pathSeparator ) );
-    return Stream.of( paths ).map( Paths::get ).anyMatch(
-      path -> {
-        final var p = path.resolve( exe );
-        final var extensions = new String[]{"", ".com", ".exe", ".bat", ".cmd"};
-        var found = false;
-
-        for( final var extension : extensions ) {
-          final var f = new File( p.toString() + extension );
-
-          if( f.exists() && f.canExecute() ) {
-            found = true;
-            break;
-          }
-        }
-
-        return found;
-      }
-    );
   }
 }

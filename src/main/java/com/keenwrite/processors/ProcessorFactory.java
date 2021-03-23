@@ -2,7 +2,6 @@
 package com.keenwrite.processors;
 
 import com.keenwrite.AbstractFileFactory;
-import com.keenwrite.preferences.Workspace;
 import com.keenwrite.preview.HtmlPreview;
 import com.keenwrite.processors.markdown.MarkdownProcessor;
 
@@ -43,7 +42,7 @@ public final class ProcessorFactory extends AbstractFileFactory {
     final var successor = context.isExportFormat( NONE )
       ? createHtmlPreviewProcessor()
       : context.isExportFormat( XHTML_TEX )
-      ? createXhtmlProcessor( context.getWorkspace() )
+      ? createXhtmlProcessor( context )
       : context.isExportFormat( APPLICATION_PDF )
       ? createPdfProcessor( context )
       : createIdentityProcessor();
@@ -129,19 +128,20 @@ public final class ProcessorFactory extends AbstractFileFactory {
    *
    * @return An instance of {@link Processor} that completes an HTML document.
    */
-  private Processor<String> createXhtmlProcessor( final Workspace workspace ) {
-    return createXhtmlProcessor( IDENTITY, workspace );
+  private Processor<String> createXhtmlProcessor(
+    final ProcessorContext context ) {
+    return createXhtmlProcessor( IDENTITY, context );
   }
 
   private Processor<String> createXhtmlProcessor(
-    final Processor<String> successor, final Workspace workspace ) {
-    return new XhtmlProcessor( successor, workspace );
+    final Processor<String> successor, final ProcessorContext context ) {
+    return new XhtmlProcessor( successor, context );
   }
 
   private Processor<String> createPdfProcessor(
     final ProcessorContext context ) {
     final var pdfp = new PdfProcessor( context.getExportPath() );
-    return createXhtmlProcessor( pdfp, context.getWorkspace() );
+    return createXhtmlProcessor( pdfp, context );
   }
 
   private Processor<String> createPreformattedProcessor(

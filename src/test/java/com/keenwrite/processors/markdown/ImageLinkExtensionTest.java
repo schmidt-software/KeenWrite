@@ -151,6 +151,7 @@ public class ImageLinkExtensionTest {
       new HashMap<>(),
       documentPath,
       Caret.builder().build(),
+      null,
       NONE,
       sWorkspace
     );

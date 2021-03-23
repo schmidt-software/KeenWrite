@@ -35,12 +35,16 @@ import static org.jsoup.nodes.Document.OutputSettings.Syntax;
 public final class XhtmlProcessor extends ExecutorProcessor<String> {
   private final static Pattern BLANK =
     compile( "\\p{Blank}", UNICODE_CHARACTER_CLASS );
-  private final Workspace mWorkspace;
+
+  private final ProcessorContext mContext;
 
   public XhtmlProcessor(
-    final Processor<String> successor, final Workspace workspace ) {
+    final Processor<String> successor, final ProcessorContext context ) {
     super( successor );
-    mWorkspace = workspace;
+
+    assert context != null;
+
+    mContext = context;
   }
 
   @Override
@@ -95,7 +99,8 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
     }
     else {
       final var extensions = " " + getImageOrder().trim();
-      final var imagePath = getImagePath();
+      var imagePath = getImagePath();
+      var found = false;
 
       // By including " " in the extensions, the first element returned
       // will be the empty string. Thus the first extension to try is the
@@ -107,14 +112,18 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
         imageFile = Path.of( imagePath, filename );
 
         if( imageFile.toFile().exists() ) {
+          found = true;
           break;
         }
       }
 
-      // If a file name and extension combo could not be found, tell the user.
-      if( imageFile == null ) {
+      if( !found ) {
+        imagePath = getDocumentDir().toString();
         imageFile = Path.of( imagePath, src );
-        throw new FileNotFoundException( imageFile.toString() );
+
+        if( !imageFile.toFile().exists() ) {
+          throw new FileNotFoundException( imageFile.toString() );
+        }
       }
     }
 
@@ -122,11 +131,25 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
   }
 
   private String getImagePath() {
-    return mWorkspace.fileProperty( KEY_IMAGES_DIR ).get().toString();
+    return getWorkspace().fileProperty( KEY_IMAGES_DIR ).get().toString();
   }
 
   private String getImageOrder() {
-    return mWorkspace.stringProperty( KEY_IMAGES_ORDER ).get();
+    return getWorkspace().stringProperty( KEY_IMAGES_ORDER ).get();
+  }
+
+  /**
+   * Returns the absolute path to the document being edited, which can be used
+   * to find files included using relative paths.
+   *
+   * @return The directory containing the edited file.
+   */
+  private Path getDocumentDir() {
+    return mContext.getBaseDir();
+  }
+
+  private Workspace getWorkspace() {
+    return mContext.getWorkspace();
   }
 
   private static Path createTemporaryFile( final MediaType media )
