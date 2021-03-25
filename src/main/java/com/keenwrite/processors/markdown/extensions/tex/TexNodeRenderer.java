@@ -22,14 +22,15 @@ import static com.keenwrite.preview.MathRenderer.MATH_RENDERER;
 import static com.keenwrite.processors.markdown.extensions.tex.TexNode.*;
 
 public class TexNodeRenderer {
-  private static final RendererFacade RENDERER = new TexElementNodeRenderer();
+  private static final RendererFacade RENDERER =
+    new TexElementNodeRenderer( false );
 
   private static final Map<ExportFormat, RendererFacade> EXPORT_RENDERERS =
     Map.of(
-      APPLICATION_PDF, new TexElementNodeRenderer(),
+      APPLICATION_PDF, new TexElementNodeRenderer( true ),
       HTML_TEX_SVG, new TexSvgNodeRenderer(),
       HTML_TEX_DELIMITED, new TexDelimNodeRenderer(),
-      XHTML_TEX, new TexElementNodeRenderer(),
+      XHTML_TEX, new TexElementNodeRenderer( true ),
       MARKDOWN_PLAIN, new TexDelimNodeRenderer(),
       NONE, RENDERER
     );
@@ -87,11 +88,22 @@ public class TexNodeRenderer {
    * element. This is the default behaviour.
    */
   private static class TexElementNodeRenderer extends RendererFacade {
+    private final boolean mIncludeDelimiter;
+
+    private TexElementNodeRenderer( final boolean includeDelimiter ) {
+      mIncludeDelimiter = includeDelimiter;
+    }
+
     void render( final TexNode node,
                  final NodeRendererContext context,
                  final HtmlWriter html ) {
+      final var text = getProcessor().apply( node.getText().toString() );
+      final var content =
+        mIncludeDelimiter
+          ? node.getOpeningDelimiter() + text + node.getClosingDelimiter()
+          : text;
       html.tag( HTML_TEX );
-      html.raw( getProcessor().apply( node.getText().toString() ) );
+      html.raw( content );
       html.closeTag( HTML_TEX );
     }
   }

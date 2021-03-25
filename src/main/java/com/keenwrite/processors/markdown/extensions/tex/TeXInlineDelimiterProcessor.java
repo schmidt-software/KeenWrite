@@ -13,7 +13,7 @@ public class TeXInlineDelimiterProcessor implements DelimiterProcessor {
   public void process( final Delimiter opener,
                        final Delimiter closer,
                        final int delimitersUsed ) {
-    final var node = new TexNode();
+    final var node = new TexNode( opener, closer );
     opener.moveNodesBetweenDelimitersTo( node, closer );
   }
 
@@ -42,7 +42,7 @@ public class TeXInlineDelimiterProcessor implements DelimiterProcessor {
    */
   @Override
   public int getDelimiterUse(
-      final DelimiterRun opener, final DelimiterRun closer ) {
+    final DelimiterRun opener, final DelimiterRun closer ) {
     return 1;
   }
 
@@ -72,7 +72,7 @@ public class TeXInlineDelimiterProcessor implements DelimiterProcessor {
 
   @Override
   public Node unmatchedDelimiterNode(
-      final InlineParser inlineParser, final DelimiterRun delimiter ) {
+    final InlineParser inlineParser, final DelimiterRun delimiter ) {
     return null;
   }
 
