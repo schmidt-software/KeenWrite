@@ -1,16 +1,21 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.processors;
 
-import java.io.File;
+import com.keenwrite.typesetting.Typesetter;
 
-import static com.keenwrite.util.ResourceWalker.canExecute;
+import java.io.File;
+import java.io.IOException;
+
+import static com.keenwrite.events.StatusEvent.clue;
+import static com.keenwrite.io.MediaType.APP_PDF;
+import static com.keenwrite.util.FileUtils.createTemporaryFile;
 
 /**
  * Responsible for using a typesetting engine to convert an XHTML document
  * into a PDF file.
  */
 public final class PdfProcessor extends ExecutorProcessor<String> {
-  private static final String TYPESETTER = "context";
+  private static final Typesetter sTypesetter = new Typesetter();
 
   private final File mExportPath;
 
@@ -28,9 +33,11 @@ public final class PdfProcessor extends ExecutorProcessor<String> {
    * a PDF file.
    */
   public String apply( final String xhtml ) {
-    if( canExecute( TYPESETTER ) ) {
-      System.out.println( "CONTEXT IS CONFIGURED" );
-      System.out.println( "EXPORT AS: " + mExportPath );
+    try {
+      final var document = createTemporaryFile( APP_PDF );
+      sTypesetter.typeset( document, mExportPath );
+    } catch( final IOException ex ) {
+      clue( ex );
     }
 
     return null;

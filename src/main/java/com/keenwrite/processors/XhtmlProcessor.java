@@ -6,19 +6,16 @@ import com.keenwrite.preferences.Workspace;
 import com.keenwrite.util.ProtocolScheme;
 
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.nio.file.Path;
 import java.util.regex.Pattern;
 
-import static com.keenwrite.Bootstrap.APP_TITLE_LOWERCASE;
 import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.io.MediaType.IMAGE_SVG_XML;
-import static com.keenwrite.io.MediaTypeExtension.valueFrom;
 import static com.keenwrite.preferences.WorkspaceKeys.KEY_IMAGES_DIR;
 import static com.keenwrite.preferences.WorkspaceKeys.KEY_IMAGES_ORDER;
-import static java.io.File.createTempFile;
+import static com.keenwrite.util.FileUtils.createTemporaryFile;
 import static java.lang.String.format;
 import static java.nio.file.Files.copy;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
@@ -150,13 +147,5 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
 
   private Workspace getWorkspace() {
     return mContext.getWorkspace();
-  }
-
-  private static Path createTemporaryFile( final MediaType media )
-    throws IOException {
-    final var file = createTempFile(
-      APP_TITLE_LOWERCASE, '.' + valueFrom( media ).getExtension() );
-    file.deleteOnExit();
-    return file.toPath();
   }
 }

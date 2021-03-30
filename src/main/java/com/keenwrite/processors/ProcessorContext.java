@@ -83,6 +83,11 @@ public final class ProcessorContext {
     return mResolvedMap;
   }
 
+  /**
+   * Fully qualified file name to use when exporting (e.g., document.pdf).
+   *
+   * @return Full path to a file name.
+   */
   public File getExportPath() {
     return mExportPath;
   }
