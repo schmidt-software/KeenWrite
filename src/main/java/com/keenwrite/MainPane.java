@@ -821,32 +821,32 @@ public final class MainPane extends SplitPane {
   }
 
   public ProcessorContext createProcessorContext(
-    final File exportPath, final ExportFormat format ) {
+    final Path exportPath, final ExportFormat format ) {
     final var editor = getActiveTextEditor();
     return createProcessorContext(
-      editor.getPath(), editor.getCaret(), exportPath, format );
+      editor.getPath(), exportPath, format, editor.getCaret() );
   }
 
   private ProcessorContext createProcessorContext(
     final Path path, final Caret caret ) {
-    return createProcessorContext( path, caret, null, ExportFormat.NONE );
+    return createProcessorContext( path, null, ExportFormat.NONE, caret );
   }
 
   /**
    * @param path       Used by {@link ProcessorFactory} to determine
    *                   {@link Processor} type to create based on file type.
-   * @param caret      Used by {@link CaretExtension} to add ID attribute into
-   *                   preview document for scrollbar synchronization.
    * @param exportPath Used when exporting to a PDF file (binary).
    * @param format     Used when processors export to a new text format.
+   * @param caret      Used by {@link CaretExtension} to add ID attribute into
+   *                   preview document for scrollbar synchronization.
    * @return A new {@link ProcessorContext} to use when creating an instance of
    * {@link Processor}.
    */
   private ProcessorContext createProcessorContext(
-    final Path path, final Caret caret,
-    final File exportPath, final ExportFormat format ) {
+    final Path path, final Path exportPath, final ExportFormat format,
+    final Caret caret ) {
     return new ProcessorContext(
-      mPreview, mResolvedMap, path, caret, exportPath, format, mWorkspace
+      mPreview, mResolvedMap, path, exportPath, format, mWorkspace, caret
     );
   }
 

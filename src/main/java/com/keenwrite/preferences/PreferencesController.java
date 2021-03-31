@@ -223,6 +223,18 @@ public final class PreferencesController {
                       localeListProperty(),
                       localeProperty( KEY_LANGUAGE_LOCALE ) )
         )
+      ),
+      Category.of(
+        get( KEY_TYPESET ),
+        Group.of(
+          get( KEY_TYPESET_CONTEXT ),
+          Setting.of( label( KEY_TYPESET_CONTEXT_PATH ) ),
+          Setting.of( title( KEY_TYPESET_CONTEXT_PATH ),
+                      stringProperty( KEY_TYPESET_CONTEXT_PATH ) ),
+          Setting.of( label( KEY_TYPESET_CONTEXT_ENV ) ),
+          Setting.of( title( KEY_TYPESET_CONTEXT_ENV ),
+                      stringProperty( KEY_TYPESET_CONTEXT_ENV ) )
+        )
       )
     ).instantPersistent( false ).dialogIcon( ICON_DIALOG );
   }

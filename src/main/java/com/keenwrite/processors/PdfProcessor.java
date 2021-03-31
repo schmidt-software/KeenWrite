@@ -3,25 +3,22 @@ package com.keenwrite.processors;
 
 import com.keenwrite.typesetting.Typesetter;
 
-import java.io.File;
-import java.io.IOException;
-
 import static com.keenwrite.events.StatusEvent.clue;
-import static com.keenwrite.io.MediaType.APP_PDF;
+import static com.keenwrite.io.MediaType.TEXT_XML;
 import static com.keenwrite.util.FileUtils.createTemporaryFile;
+import static java.nio.file.Files.writeString;
 
 /**
  * Responsible for using a typesetting engine to convert an XHTML document
  * into a PDF file.
  */
 public final class PdfProcessor extends ExecutorProcessor<String> {
-  private static final Typesetter sTypesetter = new Typesetter();
 
-  private final File mExportPath;
+  private final ProcessorContext mContext;
 
-  public PdfProcessor( final File exportPath ) {
-    assert exportPath != null;
-    mExportPath = exportPath;
+  public PdfProcessor( final ProcessorContext context ) {
+    assert context != null;
+    mContext = context;
   }
 
   /**
@@ -34,12 +31,15 @@ public final class PdfProcessor extends ExecutorProcessor<String> {
    */
   public String apply( final String xhtml ) {
     try {
-      final var document = createTemporaryFile( APP_PDF );
-      sTypesetter.typeset( document, mExportPath );
-    } catch( final IOException ex ) {
+      final var sTypesetter = new Typesetter( mContext.getWorkspace() );
+      final var document = createTemporaryFile( TEXT_XML );
+      final var exportPath = mContext.getExportPath();
+      sTypesetter.typeset( writeString( document, xhtml ), exportPath );
+    } catch( final Exception ex ) {
       clue( ex );
     }
 
+    // Do not continue processing (the document was typeset into a binary).
     return null;
   }
 }

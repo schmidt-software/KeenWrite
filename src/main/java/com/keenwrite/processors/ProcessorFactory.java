@@ -140,7 +140,7 @@ public final class ProcessorFactory extends AbstractFileFactory {
 
   private Processor<String> createPdfProcessor(
     final ProcessorContext context ) {
-    final var pdfp = new PdfProcessor( context.getExportPath() );
+    final var pdfp = new PdfProcessor( context );
     return createXhtmlProcessor( pdfp, context );
   }
 

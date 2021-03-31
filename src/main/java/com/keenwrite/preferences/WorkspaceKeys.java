@@ -66,33 +66,17 @@ public final class WorkspaceKeys {
 
   public static final Key KEY_UI_THEME_CUSTOM = key( KEY_UI_THEME, "custom" );
 
-//  public static final Key KEY_UI_THEME_CUSTOM = key( KEY_UI_THEME, "custom" );
-//  public static final Key KEY_UI_THEME_CUSTOM_FONT = key( KEY_UI_THEME_CUSTOM, "font" );
-//  public static final Key KEY_UI_THEME_CUSTOM_FONT_SIZE = key( KEY_UI_THEME_CUSTOM_FONT, "size" );
-//  public static final Key KEY_UI_THEME_CUSTOM_COLOURS = key( KEY_UI_THEME_CUSTOM, "colours" );
-//  public static final Key KEY_UI_THEME_CUSTOM_COLOURS_BASE = key( KEY_UI_THEME_CUSTOM_COLOURS, "base" );
-//  public static final Key KEY_UI_THEME_CUSTOM_COLOURS_BG = key( KEY_UI_THEME_CUSTOM_COLOURS, "background" );
-//  public static final Key KEY_UI_THEME_CUSTOM_COLOURS_CONTROLS = key( KEY_UI_THEME_CUSTOM_COLOURS, "controls" );
-//  public static final Key KEY_UI_THEME_CUSTOM_COLOURS_ROW1 = key( KEY_UI_THEME_CUSTOM_COLOURS, "row" );
-//  public static final Key KEY_UI_THEME_CUSTOM_COLOURS_ROW2 = key( KEY_UI_THEME_CUSTOM_COLOURS, "row" );
-//  public static final Key KEY_UI_THEME_CUSTOM_COLOURS_FG = key( KEY_UI_THEME_CUSTOM_COLOURS, "foreground" );
-//  public static final Key KEY_UI_THEME_CUSTOM_COLOURS_FG_LIGHT = key( KEY_UI_THEME_CUSTOM_COLOURS_FG, "light" );
-//  public static final Key KEY_UI_THEME_CUSTOM_COLOURS_FG_MEDIUM = key( KEY_UI_THEME_CUSTOM_COLOURS_FG, "medium" );
-//  public static final Key KEY_UI_THEME_CUSTOM_COLOURS_FG_DARK = key( KEY_UI_THEME_CUSTOM_COLOURS_FG, "dark" );
-//  public static final Key KEY_UI_THEME_CUSTOM_COLOURS_ACCENT = key( KEY_UI_THEME_CUSTOM_COLOURS, "accent" );
-//  public static final Key KEY_UI_THEME_CUSTOM_COLOURS_UNFOCUSED = key( KEY_UI_THEME_CUSTOM_COLOURS, "unfocused" );
-//  public static final Key KEY_UI_THEME_CUSTOM_COLOURS_SCROLLBAR = key( KEY_UI_THEME_CUSTOM_COLOURS, "scrollbar" );
-//  public static final Key KEY_UI_THEME_CUSTOM_COLOURS_SCROLLBAR_BUTTON = key( KEY_UI_THEME_CUSTOM_COLOURS_SCROLLBAR, "button" );
-//  public static final Key KEY_UI_THEME_CUSTOM_COLOURS_SCROLLBAR_BUTTON_RELEASED = key( KEY_UI_THEME_CUSTOM_COLOURS_SCROLLBAR_BUTTON, "released" );
-//  public static final Key KEY_UI_THEME_CUSTOM_COLOURS_SCROLLBAR_BUTTON_PRESSED = key( KEY_UI_THEME_CUSTOM_COLOURS_SCROLLBAR_BUTTON, "pressed" );
-//  public static final Key KEY_UI_THEME_CUSTOM_COLOURS_SCROLLBAR_BUTTON_HOVER = key( KEY_UI_THEME_CUSTOM_COLOURS_SCROLLBAR_BUTTON, "hover" );
-
   public static final Key KEY_LANGUAGE = key( KEY_ROOT, "language" );
   public static final Key KEY_LANGUAGE_LOCALE = key( KEY_LANGUAGE, "locale" );
+
+  public static final Key KEY_TYPESET = key( KEY_ROOT, "typeset" );
+  public static final Key KEY_TYPESET_CONTEXT = key( KEY_TYPESET, "context" );
+  public static final Key KEY_TYPESET_CONTEXT_PATH = key( KEY_TYPESET_CONTEXT, "path" );
+  public static final Key KEY_TYPESET_CONTEXT_ENV = key( KEY_TYPESET_CONTEXT, "environment" );
   //@formatter:on
 
   /**
-   *
+   * Only for constants, do not instantiate.
    */
   private WorkspaceKeys() { }
 }

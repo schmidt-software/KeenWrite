@@ -8,7 +8,6 @@ import com.keenwrite.io.FileType;
 import com.keenwrite.preferences.Workspace;
 import com.keenwrite.preview.HtmlPreview;
 
-import java.io.File;
 import java.nio.file.Path;
 import java.util.Map;
 
@@ -22,8 +21,8 @@ public final class ProcessorContext {
   private final HtmlPreview mHtmlPreview;
   private final Map<String, String> mResolvedMap;
   private final Path mDocumentPath;
+  private final Path mExportPath;
   private final Caret mCaret;
-  private final File mExportPath;
   private final ExportFormat mExportFormat;
   private final Workspace mWorkspace;
 
@@ -36,26 +35,26 @@ public final class ProcessorContext {
    * @param htmlPreview  Where to display the final (HTML) output.
    * @param resolvedMap  Fully expanded interpolated strings.
    * @param documentPath Path to the document to process.
-   * @param caret        Location of the caret in the edited document, which is
-   *                     used to synchronize the scrollbars.
    * @param exportPath   Fully qualified filename to use when exporting.
    * @param exportFormat Indicate configuration options for export format.
    * @param workspace    Persistent user preferences settings.
+   * @param caret        Location of the caret in the edited document, which is
+   *                     used to synchronize the scrollbars.
    */
   public ProcessorContext(
     final HtmlPreview htmlPreview,
     final Map<String, String> resolvedMap,
     final Path documentPath,
-    final Caret caret,
-    final File exportPath,
+    final Path exportPath,
     final ExportFormat exportFormat,
-    final Workspace workspace ) {
+    final Workspace workspace,
+    final Caret caret ) {
     assert htmlPreview != null;
     assert resolvedMap != null;
     assert documentPath != null;
-    assert caret != null;
     assert exportFormat != null;
     assert workspace != null;
+    assert caret != null;
 
     mHtmlPreview = htmlPreview;
     mResolvedMap = resolvedMap;
@@ -88,7 +87,7 @@ public final class ProcessorContext {
    *
    * @return Full path to a file name.
    */
-  public File getExportPath() {
+  public Path getExportPath() {
     return mExportPath;
   }
 

@@ -103,6 +103,8 @@ public enum MediaType {
   TEXT_PLAIN( TEXT, "plain" ),
   TEXT_R_MARKDOWN( TEXT, "R+markdown" ),
   TEXT_R_XML( TEXT, "R+xml" ),
+  TEXT_XHTML( TEXT, "xhtml+xml" ),
+  TEXT_XML( TEXT, "xml" ),
   TEXT_YAML( TEXT, "yaml" ),
 
   /*
@@ -266,7 +268,8 @@ public enum MediaType {
    * @return {@code true} if this instance represents an SVG object.
    */
   public boolean isSvg() {
-    return this == IMAGE_SVG_XML;
+    // Kroki serves HTTP HEAD requests back as text/plain for SVG images.
+    return this == IMAGE_SVG_XML || this == TEXT_PLAIN;
   }
 
   /**

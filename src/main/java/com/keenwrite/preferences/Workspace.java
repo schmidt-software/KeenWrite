@@ -98,8 +98,11 @@ public final class Workspace {
     entry( KEY_UI_THEME_SELECTION, asThemeProperty( THEME_DEFAULT ) ),
     entry( KEY_UI_THEME_CUSTOM, asFileProperty( THEME_CUSTOM_DEFAULT ) ),
 
-    entry( KEY_LANGUAGE_LOCALE, asLocaleProperty( LOCALE_DEFAULT ) )
-    );
+    entry( KEY_LANGUAGE_LOCALE, asLocaleProperty( LOCALE_DEFAULT ) ),
+
+    entry( KEY_TYPESET_CONTEXT_PATH, asStringProperty( USER_DIRECTORY.toString() ) ),
+    entry( KEY_TYPESET_CONTEXT_ENV, asStringProperty( "" ) )
+  );
   //@formatter:on
 
   private StringProperty asStringProperty( final String defaultValue ) {

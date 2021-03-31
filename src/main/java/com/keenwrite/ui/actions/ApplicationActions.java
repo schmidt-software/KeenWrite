@@ -121,7 +121,7 @@ public final class ApplicationActions {
 
     selection.ifPresent( ( file ) -> {
       final var doc = editor.getText();
-      final var context = main.createProcessorContext( file, format );
+      final var context = main.createProcessorContext( file.toPath(), format );
       final var chain = createProcessors( context );
       final var export = chain.apply( doc );
 
@@ -131,9 +131,10 @@ public final class ApplicationActions {
         // return the null sentinel to signal no further processing is needed.
         if( export != null ) {
           writeString( file.toPath(), export );
-        }
 
-        clue( get( "Main.status.export.success", file.toString() ) );
+          // Binary formats must notify users of success independently.
+          clue( get( "Main.status.export.success", file.toString() ) );
+        }
       } catch( final Exception ex ) {
         clue( ex );
       }
