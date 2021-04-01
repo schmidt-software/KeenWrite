@@ -25,7 +25,7 @@ import static com.dlsc.preferencesfx.PreferencesFxEvent.EVENT_PREFERENCES_SAVED;
 import static com.keenwrite.Constants.ICON_DIALOG;
 import static com.keenwrite.Messages.get;
 import static com.keenwrite.preferences.LocaleProperty.localeListProperty;
-import static com.keenwrite.preferences.ThemeProperty.themeListProperty;
+import static com.keenwrite.preferences.SkinProperty.skinListProperty;
 import static com.keenwrite.preferences.WorkspaceKeys.*;
 import static javafx.scene.control.ButtonType.CANCEL;
 import static javafx.scene.control.ButtonType.OK;
@@ -199,19 +199,19 @@ public final class PreferencesController {
         )
       ),
       Category.of(
-        get( KEY_UI_THEME ),
+        get( KEY_UI_SKIN ),
         Group.of(
-          get( KEY_UI_THEME_SELECTION ),
-          Setting.of( label( KEY_UI_THEME_SELECTION ) ),
-          Setting.of( title( KEY_UI_THEME_SELECTION ),
-                      themeListProperty(),
-                      themeProperty( KEY_UI_THEME_SELECTION ) )
+          get( KEY_UI_SKIN_SELECTION ),
+          Setting.of( label( KEY_UI_SKIN_SELECTION ) ),
+          Setting.of( title( KEY_UI_SKIN_SELECTION ),
+                      skinListProperty(),
+                      skinProperty( KEY_UI_SKIN_SELECTION ) )
         ),
         Group.of(
-          get( KEY_UI_THEME_CUSTOM ),
-          Setting.of( label( KEY_UI_THEME_CUSTOM ) ),
-          Setting.of( title( KEY_UI_THEME_CUSTOM ),
-                      fileProperty( KEY_UI_THEME_CUSTOM ), false )
+          get( KEY_UI_SKIN_CUSTOM ),
+          Setting.of( label( KEY_UI_SKIN_CUSTOM ) ),
+          Setting.of( title( KEY_UI_SKIN_CUSTOM ),
+                      fileProperty( KEY_UI_SKIN_CUSTOM ), false )
         )
       ),
       Category.of(
@@ -295,8 +295,8 @@ public final class PreferencesController {
     return mWorkspace.doubleProperty( key );
   }
 
-  private ObjectProperty<String> themeProperty( final Key key ) {
-    return mWorkspace.themeProperty( key );
+  private ObjectProperty<String> skinProperty( final Key key ) {
+    return mWorkspace.skinProperty( key );
   }
 
   private ObjectProperty<String> localeProperty( final Key key ) {

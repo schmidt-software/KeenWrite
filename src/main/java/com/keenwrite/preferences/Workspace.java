@@ -95,8 +95,8 @@ public final class Workspace {
     entry( KEY_UI_WINDOW_MAX, asBooleanProperty() ),
     entry( KEY_UI_WINDOW_FULL, asBooleanProperty() ),
 
-    entry( KEY_UI_THEME_SELECTION, asThemeProperty( THEME_DEFAULT ) ),
-    entry( KEY_UI_THEME_CUSTOM, asFileProperty( THEME_CUSTOM_DEFAULT ) ),
+    entry( KEY_UI_SKIN_SELECTION, asSkinProperty( SKIN_DEFAULT ) ),
+    entry( KEY_UI_SKIN_CUSTOM, asFileProperty( SKIN_CUSTOM_DEFAULT ) ),
 
     entry( KEY_LANGUAGE_LOCALE, asLocaleProperty( LOCALE_DEFAULT ) ),
 
@@ -122,8 +122,8 @@ public final class Workspace {
   }
 
   @SuppressWarnings( "SameParameterValue" )
-  private ThemeProperty asThemeProperty( final String defaultValue ) {
-    return new ThemeProperty( defaultValue );
+  private SkinProperty asSkinProperty( final String defaultValue ) {
+    return new SkinProperty( defaultValue );
   }
 
   @SuppressWarnings( "SameParameterValue" )
@@ -269,7 +269,7 @@ public final class Workspace {
     return valuesProperty( key );
   }
 
-  public ObjectProperty<String> themeProperty( final Key key ) {
+  public ObjectProperty<String> skinProperty( final Key key ) {
     return valuesProperty( key );
   }
 

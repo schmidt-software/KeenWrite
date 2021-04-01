@@ -1,12 +1,12 @@
-# Themes
+# Skins
 
-The application provides bundled themes and the ability to add custom
-themes. This document describes the interplay between bundled themes
-and building your own theme.
+The application provides bundled skins and the ability to add custom
+skins. This document describes the interplay between bundled skins
+and building your own look and feel.
 
-A theme is a set of styles, similar to cascading style sheet classes,
-that instruct the user interface on how to apply colours, fonts, spacing,
-highlights, drop-shadows, gradients, and so forth.
+A skin is a set of styles, similar to cascading style sheet classes,
+that configures the user interface colours, fonts, spacing, highlights,
+drop-shadows, gradients, and more.
 
 For more information on CSS, see the [W3C CSS tutorial](https://www.w3.org/Style/Examples/011/firstcss).
 
@@ -18,12 +18,12 @@ is made up of the following stylesheets, applied in the order listed:
 
 * **scene.css** --- Defines toolbar styling.
 * **markdown.css** --- Defines text editor styling.
-* **themes/theme_name.css** --- Bundled theme selected in preferences.
+* **skins/skin_name.css** --- Bundled skin selected in preferences.
 * **custom.css** --- User-defined file set in preferences.
 
 # Customization
 
-Create a custom theme as follows:
+Create a custom skin as follows:
 
 1. Start the application.
 1. Click **File → New** to create a new file.
@@ -37,11 +37,11 @@ Create a custom theme as follows:
 }
 ```
 
-Next, apply the theme as follows:
+Next, apply the skin as follows:
 
 1. Click **Edit → Preferences** to open the preferences dialog.
-1. Click **Themes** to view the theme options.
-1. Click **Browse** to select a custom theme file.
+1. Click **Skins** to view the available options.
+1. Click **Browse** to select a custom file.
 1. Browse to and select `custom.css`, created previously.
 1. Click **Open**.
 1. Click **Apply**.
@@ -56,13 +56,13 @@ The user interface immediately changes colour.
 
 # Classes
 
-When creating your own theme, there many classes that can be styled. The
-previous section showed how to set up a rudimentary theme. Instead, start
+When creating your own skin, there many classes that can be styled. The
+previous section showed how to set up a rudimentary skin. Instead, start
 with a template that already has a number of classes defined so that you
 can tweak them to your taste. Accomplish this as follows:
 
-1. Visit the [themes](https://github.com/DaveJarvis/keenwrite/tree/master/src/main/resources/com/keenwrite/themes) repository directory
-1. Click one of the themes (e.g., `haunted_grey.css`).
+1. Visit the [skin](https://github.com/DaveJarvis/keenwrite/tree/master/src/main/resources/com/keenwrite/skins) repository directory
+1. Click one of the files (e.g., `haunted_grey.css`).
 1. Click **Raw**.
 1. Copy the entire text.
 1. Return to `custom.css`.
@@ -75,7 +75,7 @@ To see how the CSS styles are applied to the text editor, open
 
 # Modena
 
-The basic theme used by the application is _Modena Light_. Typically we
+The basic look used by the application is _Modena Light_. Typically we
 only need to override a few classes to completely change the application's
 look and feel. For a full listing of available styles see the OpenJDK's
 [Modena CSS file](https://github.com/openjdk/jfx/blob/master/modules/javafx.controls/src/main/resources/com/sun/javafx/scene/control/skin/modena/modena.css).
@@ -95,6 +95,6 @@ regular JavaFX `-fx`.
 
 # Submit
 
-Send in your themes! If you have a theme you'd like to contribute to the
-project, or improvements to an existing theme, do pass it along. Either open a new issue in the [issue tracker](https://github.com/DaveJarvis/keenwrite/issues) that contains the CSS file or submit a pull request.
+If you have a look that you'd like to contribute to the project, do pass
+it along. Either open a new issue in the [issue tracker](https://github.com/DaveJarvis/keenwrite/issues) that contains the CSS file or submit a pull request.
 

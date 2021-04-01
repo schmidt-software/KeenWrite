@@ -51,7 +51,7 @@ The application offers:
 * Real-time rendering of math using TeX notation
 * Real-time document statistics (with CJK word separation)
 * Diagrams: Mermaid, GraphViz, UML, sequence, timing, and more
-* Dark, custom, and responsive themes
+* Dark, custom, and responsive user interface skins
 * Integrated file manager
 * Interactive document outline
 * Internationalized font support (e.g., Chinese, Japanese, Korean, etc.)
@@ -65,9 +65,10 @@ The application offers:
 
 Read the [detailed documentation](docs/README.md) for using the application.
 
-### Themes
+### Skins
 
-Read the [themes documentation](docs/themes.md) to learn about themes.
+Read the [skins documentation](docs/skins.md) to learn about how to change
+the user interface appearance.
 
 ## Screenshots
 

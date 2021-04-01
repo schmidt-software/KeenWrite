@@ -20,9 +20,9 @@ import static com.keenwrite.Constants.*;
 import static com.keenwrite.Messages.get;
 import static com.keenwrite.events.ScrollLockEvent.fireScrollLockEvent;
 import static com.keenwrite.events.StatusEvent.clue;
-import static com.keenwrite.preferences.ThemeProperty.toFilename;
-import static com.keenwrite.preferences.WorkspaceKeys.KEY_UI_THEME_CUSTOM;
-import static com.keenwrite.preferences.WorkspaceKeys.KEY_UI_THEME_SELECTION;
+import static com.keenwrite.preferences.SkinProperty.toFilename;
+import static com.keenwrite.preferences.WorkspaceKeys.KEY_UI_SKIN_CUSTOM;
+import static com.keenwrite.preferences.WorkspaceKeys.KEY_UI_SKIN_SELECTION;
 import static com.keenwrite.ui.actions.ApplicationBars.*;
 import static javafx.application.Platform.runLater;
 import static javafx.scene.input.KeyCode.*;
@@ -95,16 +95,16 @@ public final class MainScene {
   public StatusBar getStatusBar() { return mStatusBar; }
 
   private void initStylesheets( final Scene scene, final Workspace workspace ) {
-    final var internal = workspace.themeProperty( KEY_UI_THEME_SELECTION );
-    final var external = workspace.fileProperty( KEY_UI_THEME_CUSTOM );
-    final var inTheme = internal.get();
-    final var exTheme = external.get();
-    applyStylesheets( scene, inTheme, exTheme );
+    final var internal = workspace.skinProperty( KEY_UI_SKIN_SELECTION );
+    final var external = workspace.fileProperty( KEY_UI_SKIN_CUSTOM );
+    final var inSkin = internal.get();
+    final var exSkin = external.get();
+    applyStylesheets( scene, inSkin, exSkin );
 
     internal.addListener(
       ( c, o, n ) -> {
         if( n != null ) {
-          applyStylesheets( scene, n, exTheme );
+          applyStylesheets( scene, n, exSkin );
         }
       }
     );
@@ -117,7 +117,7 @@ public final class MainScene {
 
         if( n != null ) {
           try {
-            applyStylesheets( scene, inTheme, n );
+            applyStylesheets( scene, inSkin, n );
           } catch( final Exception ex ) {
             // Changes to the CSS file won't autoload, which is okay.
             clue( ex );
@@ -128,12 +128,12 @@ public final class MainScene {
 
     mFileWatchService.removeListener( mStylesheetFileListener );
     mStylesheetFileListener = event ->
-      runLater( () -> applyStylesheets( scene, inTheme, event.getFile() ) );
+      runLater( () -> applyStylesheets( scene, inSkin, event.getFile() ) );
     mFileWatchService.addListener( mStylesheetFileListener );
   }
 
   private String getStylesheet( final String filename ) {
-    return get( STYLESHEET_APPLICATION_THEME, filename );
+    return get( STYLESHEET_APPLICATION_SKIN, filename );
   }
 
   /**

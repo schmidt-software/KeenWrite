@@ -51,8 +51,8 @@ public final class Constants {
 
   public static final String STYLESHEET_APPLICATION_BASE =
     get( "file.stylesheet.application.base" );
-  public static final String STYLESHEET_APPLICATION_THEME =
-    get( "file.stylesheet.application.theme" );
+  public static final String STYLESHEET_APPLICATION_SKIN =
+    get( "file.stylesheet.application.skin" );
   public static final String STYLESHEET_MARKDOWN =
     get( "file.stylesheet.markdown" );
   public static final String STYLESHEET_MARKDOWN_LOCALE =
@@ -201,14 +201,14 @@ public final class Constants {
   public static final Locale LOCALE_DEFAULT = withScript( Locale.getDefault() );
 
   /**
-   * Default CSS theme to apply (resolves to a minimal implementation).
+   * Default CSS to apply (resolves to a minimal implementation).
    */
-  public static final String THEME_DEFAULT = "Modena Light";
+  public static final String SKIN_DEFAULT = "Modena Light";
 
   /**
-   * Custom CSS theme to apply.
+   * Custom CSS to apply.
    */
-  public static final File THEME_CUSTOM_DEFAULT = null;
+  public static final File SKIN_CUSTOM_DEFAULT = null;
 
   /**
    * Default identifier to use for synchronized scrolling.

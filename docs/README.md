@@ -7,7 +7,7 @@ See the following documents for more information:
 * [variables.md](variables.md) -- Variable definitions and interpolation
 * [r.md](r.md) -- Call R functions within R Markdown documents
 * [svg.md](svg.md) -- Fix known issues with displaying SVG files
-* [themes.md](themes.md) -- Describes how to add and customize themes
+* [skins.md](skins.md) -- Describes how to customize the user interface
 * [credits.md](credits.md) -- Thanks to authors of contributing projects
 * [samples](samples) -- Contains example documents
 

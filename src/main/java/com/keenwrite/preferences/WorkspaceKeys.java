@@ -61,10 +61,9 @@ public final class WorkspaceKeys {
   public static final Key KEY_UI_WINDOW_MAX = key( KEY_UI_WINDOW, "maximized" );
   public static final Key KEY_UI_WINDOW_FULL = key( KEY_UI_WINDOW, "full" );
 
-  public static final Key KEY_UI_THEME = key( KEY_UI, "theme" );
-  public static final Key KEY_UI_THEME_SELECTION = key( KEY_UI_THEME, "selection" );
-
-  public static final Key KEY_UI_THEME_CUSTOM = key( KEY_UI_THEME, "custom" );
+  public static final Key KEY_UI_SKIN = key( KEY_UI, "skin" );
+  public static final Key KEY_UI_SKIN_SELECTION = key( KEY_UI_SKIN, "selection" );
+  public static final Key KEY_UI_SKIN_CUSTOM = key( KEY_UI_SKIN, "custom" );
 
   public static final Key KEY_LANGUAGE = key( KEY_ROOT, "language" );
   public static final Key KEY_LANGUAGE_LOCALE = key( KEY_LANGUAGE, "locale" );
