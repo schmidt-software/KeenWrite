@@ -113,7 +113,7 @@ public class Typesetter {
   }
 
   private String getProperty( final Key key ) {
-    return mWorkspace.stringProperty( key ).toString();
+    return mWorkspace.stringProperty( key ).get();
   }
 
   /**
