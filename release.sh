@@ -8,7 +8,7 @@
 source $HOME/bin/build-template
 
 readonly FILE_PROPERTIES="${SCRIPT_DIR}/src/main/resources/bootstrap.properties"
-readonly BIN_INSTALLER="${SCRIPT_DIR}/installer"
+readonly BIN_INSTALLER="${SCRIPT_DIR}/installer.sh"
 
 DEPENDENCIES=(
   "gradle,https://gradle.org"
