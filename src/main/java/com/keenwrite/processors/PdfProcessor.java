@@ -3,9 +3,9 @@ package com.keenwrite.processors;
 
 import com.keenwrite.typesetting.Typesetter;
 
+import static com.keenwrite.Bootstrap.APP_TITLE_LOWERCASE;
 import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.io.MediaType.TEXT_XML;
-import static com.keenwrite.util.FileUtils.createTemporaryFile;
 import static java.nio.file.Files.writeString;
 
 /**
@@ -32,7 +32,7 @@ public final class PdfProcessor extends ExecutorProcessor<String> {
   public String apply( final String xhtml ) {
     try {
       final var sTypesetter = new Typesetter( mContext.getWorkspace() );
-      final var document = createTemporaryFile( TEXT_XML );
+      final var document = TEXT_XML.createTemporaryFile( APP_TITLE_LOWERCASE );
       final var exportPath = mContext.getExportPath();
       sTypesetter.typeset( writeString( document, xhtml ), exportPath );
     } catch( final Exception ex ) {

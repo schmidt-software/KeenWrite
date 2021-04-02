@@ -1,6 +1,7 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.typesetting;
 
+import com.keenwrite.io.File;
 import com.keenwrite.preferences.Key;
 import com.keenwrite.preferences.Workspace;
 
@@ -16,7 +17,6 @@ import static com.keenwrite.Messages.get;
 import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.preferences.WorkspaceKeys.KEY_TYPESET_CONTEXT_ENV;
 import static com.keenwrite.preferences.WorkspaceKeys.KEY_TYPESET_CONTEXT_PATH;
-import static com.keenwrite.util.FileUtils.canExecute;
 import static java.lang.String.format;
 import static java.lang.System.currentTimeMillis;
 import static java.util.concurrent.Executors.newFixedThreadPool;
@@ -27,7 +27,7 @@ import static java.util.concurrent.TimeUnit.*;
  * construct suitable command-line arguments to invoke the typesetting engine.
  */
 public class Typesetter {
-  private static final String TYPESETTER = "context";
+  private static final File TYPESETTER = new File( "context");
 
   private static final ExecutorService sService = newFixedThreadPool( 5 );
 
@@ -49,7 +49,7 @@ public class Typesetter {
    */
   public void typeset( final Path input, final Path output )
     throws IOException {
-    if( isInstalled() ) {
+    if( TYPESETTER.canExecute() ) {
       sService.submit( new TypesetTask( input, output ) );
     }
   }
@@ -80,7 +80,7 @@ public class Typesetter {
       final var paths = getProperty( KEY_TYPESET_CONTEXT_PATH );
       final var envs = getProperty( KEY_TYPESET_CONTEXT_ENV );
 
-      mArgs.add( TYPESETTER );
+      mArgs.add( TYPESETTER.getName() );
       mArgs.add( "--batchmode" );
       mArgs.add( "--purgeall" );
       mArgs.add( "--path='" + paths + "'" );
@@ -114,15 +114,6 @@ public class Typesetter {
 
   private String getProperty( final Key key ) {
     return mWorkspace.stringProperty( key ).get();
-  }
-
-  /**
-   * Helps ensure that the typesetting software can be run.
-   *
-   * @return {@code true} when the typesetting software is available.
-   */
-  private boolean isInstalled() {
-    return canExecute( TYPESETTER );
   }
 
   /**

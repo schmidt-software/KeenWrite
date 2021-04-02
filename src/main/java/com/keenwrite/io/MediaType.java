@@ -2,10 +2,12 @@
 package com.keenwrite.io;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Path;
 
 import static com.keenwrite.io.MediaType.TypeName.*;
 import static com.keenwrite.io.MediaTypeExtension.getMediaType;
+import static java.io.File.createTempFile;
 import static org.apache.commons.io.FilenameUtils.getExtension;
 
 /**
@@ -281,6 +283,21 @@ public enum MediaType {
    */
   public String getSubtype() {
     return mSubtype;
+  }
+
+  /**
+   * Creates a temporary file for the given {@link MediaType}, which will be
+   * deleted when the application exits.
+   *
+   * @param prefix The file name begins with this string (may be empty).
+   * @return The fully qualified path to a file.
+   * @throws IOException Could not create the temporary file.
+   */
+  public Path createTemporaryFile( final String prefix ) throws IOException {
+    final var file = createTempFile(
+      prefix, '.' + MediaTypeExtension.valueFrom( this ).getExtension() );
+    file.deleteOnExit();
+    return file.toPath();
   }
 
   /**
