@@ -1,18 +1,17 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.processors;
 
-import com.keenwrite.io.MediaType;
 import com.keenwrite.preferences.Workspace;
 
 import java.io.FileNotFoundException;
-import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.file.Path;
 import java.util.regex.Pattern;
 
 import static com.keenwrite.Bootstrap.APP_TITLE_LOWERCASE;
 import static com.keenwrite.events.StatusEvent.clue;
-import static com.keenwrite.io.MediaType.IMAGE_SVG_XML;
+import static com.keenwrite.io.MediaType.valueFrom;
 import static com.keenwrite.preferences.WorkspaceKeys.KEY_IMAGES_DIR;
 import static com.keenwrite.preferences.WorkspaceKeys.KEY_IMAGES_ORDER;
 import static com.keenwrite.util.ProtocolScheme.getProtocol;
@@ -72,26 +71,26 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
    * @throws Exception Could not read from, write to, or find a file.
    */
   private Path exportImage( final String src ) throws Exception {
-    MediaType mediaType;
     Path imageFile = null;
-    InputStream svgIn;
 
     final var protocol = getProtocol( src );
 
+    // Download remote resources into temporary files.
     if( protocol.isRemote() ) {
       final var url = new URL( src );
       final var conn = url.openConnection();
       conn.setUseCaches( false );
 
       final var type = conn.getContentType();
-      mediaType = MediaType.valueFrom( type );
-      svgIn = conn.getInputStream();
+      final var mediaType = valueFrom( type );
+      imageFile = mediaType.createTemporaryFile( APP_TITLE_LOWERCASE );
 
-      if( mediaType != IMAGE_SVG_XML ) {
-        // Download into temporary directory.
-        imageFile = mediaType.createTemporaryFile( APP_TITLE_LOWERCASE );
+      try( final var svgIn = conn.getInputStream() ) {
         copy( svgIn, imageFile, REPLACE_EXISTING );
-        svgIn.close();
+      }
+
+      if( conn instanceof HttpURLConnection ) {
+        ((HttpURLConnection) conn).disconnect();
       }
     }
     else {

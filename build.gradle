@@ -37,12 +37,12 @@ javafx {
 dependencies {
   def v_junit = '5.5.2'
   def v_flexmark = '0.62.2'
-  def v_jackson = '2.12.1'
+  def v_jackson = '2.12.2'
   def v_batik = '1.14'
 
   // JavaFX
-  implementation 'org.controlsfx:controlsfx:11.0.3'
-  implementation 'org.fxmisc.richtext:richtextfx:0.10.5'
+  implementation 'org.controlsfx:controlsfx:11.1.0'
+  implementation 'org.fxmisc.richtext:richtextfx:0.10.6'
   implementation 'org.fxmisc.wellbehaved:wellbehavedfx:0.3.3'
   implementation 'com.miglayout:miglayout-javafx:5.2'
   implementation('com.dlsc.preferencesfx:preferencesfx-core:11.7.0') {

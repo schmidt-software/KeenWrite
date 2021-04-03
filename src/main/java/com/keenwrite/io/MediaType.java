@@ -286,11 +286,11 @@ public enum MediaType {
   }
 
   /**
-   * Creates a temporary file for the given {@link MediaType}, which will be
-   * deleted when the application exits.
+   * Creates a temporary {@link File} that starts with the given prefix. The
+   * file will be deleted when the application exits.
    *
    * @param prefix The file name begins with this string (may be empty).
-   * @return The fully qualified path to a file.
+   * @return The fully qualified path to the temporary file.
    * @throws IOException Could not create the temporary file.
    */
   public Path createTemporaryFile( final String prefix ) throws IOException {

@@ -81,11 +81,9 @@
 \stopxmlsetups
 
 \startxmlsetups xml:img
-  \starttexcode
-    \placefigure{}{%
-      \externalfigure[\xmlatt{#1}{src}][conversion=mp]%
-    }
-  \stoptexcode
+  \placefigure{}{%
+    \externalfigure[\xmlatt{#1}{src}]
+  }
 \stopxmlsetups
 
 \startxmlsetups xml:q
