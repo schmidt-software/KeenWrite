@@ -96,7 +96,8 @@ public class StreamMediaType {
 
   /**
    * Convenience method to return the probed media type for the given
-   * {@link InputStream} instance.
+   * {@link InputStream} instance. The caller is responsible for closing
+   * the stream.
    *
    * @param is Data source to ascertain the {@link MediaType}.
    * @return The IANA-defined {@link MediaType}, or
