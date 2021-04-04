@@ -88,7 +88,8 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
       conn.setUseCaches( false );
       conn.setInstanceFollowRedirects( true );
 
-      final var mediaType = valueFrom( conn.getContentType() );
+      final var contentType = conn.getContentType();
+      final var mediaType = valueFrom( contentType );
       imageFile = mediaType.createTemporaryFile( APP_TITLE_LOWERCASE );
 
       try( final var svgIn = conn.getInputStream() ) {
@@ -137,7 +138,7 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
 
   /**
    * Remove whitespace, comments, and XML/DOCTYPE declarations to make
-   * processing work with ConTeXT.
+   * processing work with ConTeXt.
    *
    * @param path The SVG file to process.
    * @throws Exception The file could not be processed.

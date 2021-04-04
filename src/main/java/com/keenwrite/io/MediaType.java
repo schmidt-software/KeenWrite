@@ -18,33 +18,17 @@ import static org.apache.commons.io.FilenameUtils.getExtension;
  * Media Types</a>
  */
 public enum MediaType {
-  /*
-   * Internal values applied to non-editor tabs.
-   */
-  APP_DOCUMENT_OUTLINE(
-    APPLICATION, "x-document-outline"
-  ),
-  APP_DOCUMENT_STATISTICS(
-    APPLICATION, "x-document-statistics"
-  ),
-  APP_FILE_MANAGER(
-    APPLICATION, "x-file-manager"
-  ),
+  APP_DOCUMENT_OUTLINE( APPLICATION, "x-document-outline" ),
+  APP_DOCUMENT_STATISTICS( APPLICATION, "x-document-statistics" ),
+  APP_FILE_MANAGER( APPLICATION, "x-file-manager" ),
 
-  /*
-   * Internal values used to distinguish document outline tabs from editors.
-   */
-  APP_JAVA_OBJECT(
-    APPLICATION, "x-java-serialized-object"
-  ),
-
-  /*
-   * PDF Media Type.
-   * https://www.rfc-editor.org/rfc/rfc3778.txt
-   */
-  APP_PDF(
-    APPLICATION, "pdf"
-  ),
+  APP_ACAD( APPLICATION, "acad" ),
+  APP_JAVA_OBJECT( APPLICATION, "x-java-serialized-object" ),
+  APP_JAVA( APPLICATION, "java" ),
+  APP_PS( APPLICATION, "postscript" ),
+  APP_EPS( APPLICATION, "eps" ),
+  APP_PDF( APPLICATION, "pdf" ),
+  APP_ZIP( APPLICATION, "zip" ),
 
   /*
    * Standard font types.
@@ -90,11 +74,26 @@ public enum MediaType {
   IMAGE_KTX2( "ktx2" ),
   IMAGE_NAPLPS( "naplps" ),
   IMAGE_PNG( "png" ),
+  IMAGE_PHOTOSHOP( "photoshop" ),
   IMAGE_SVG_XML( "svg+xml" ),
   IMAGE_T38( "t38" ),
   IMAGE_TIFF( "tiff" ),
   IMAGE_WEBP( "webp" ),
   IMAGE_WMF( "wmf" ),
+  IMAGE_X_BITMAP( "x-xbitmap" ),
+  IMAGE_X_PIXMAP( "x-xpixmap" ),
+
+  /*
+   * Standard audio types.
+   */
+  AUDIO_BASIC( AUDIO, "basic" ),
+  AUDIO_MP3( AUDIO, "mp3" ),
+  AUDIO_WAV( AUDIO, "x-wav" ),
+
+  /*
+   * Standard video types.
+   */
+  VIDEO_MNG( VIDEO, "x-mng" ),
 
   /*
    * Document types for editing or displaying documents, mix of standard and
@@ -119,9 +118,11 @@ public enum MediaType {
    */
   public enum TypeName {
     APPLICATION,
+    AUDIO,
     IMAGE,
     TEXT,
-    UNDEFINED
+    UNDEFINED,
+    VIDEO
   }
 
   /**
@@ -170,6 +171,7 @@ public enum MediaType {
    * {@link File}'s file name extension.
    */
   public static MediaType valueFrom( final File file ) {
+    assert file != null;
     return fromFilename( file.getName() );
   }
 
@@ -183,6 +185,7 @@ public enum MediaType {
    * URL's file name extension.
    */
   public static MediaType fromFilename( final String filename ) {
+    assert filename != null;
     return getMediaType( getExtension( filename ) );
   }
 
@@ -196,6 +199,7 @@ public enum MediaType {
    * {@link File}'s file name extension.
    */
   public static MediaType valueFrom( final Path path ) {
+    assert path != null;
     return valueFrom( path.toFile() );
   }
 
@@ -204,11 +208,15 @@ public enum MediaType {
    * This is often used after making an HTTP request to extract the type
    * and subtype from the content-type.
    *
-   * @param header The content-type header value.
+   * @param header The content-type header value, may be {@code null}.
    * @return The data type for the resource or {@link MediaType#UNDEFINED} if
    * unmapped.
    */
   public static MediaType valueFrom( String header ) {
+    if( header == null || header.isBlank() ) {
+      return UNDEFINED;
+    }
+
     // Trim off the character encoding.
     var i = header.indexOf( ';' );
     header = header.substring( 0, i == -1 ? header.length() : i );
@@ -232,7 +240,10 @@ public enum MediaType {
    */
   public static MediaType valueFrom(
     final String type, final String subtype ) {
-    for( final var mediaType : MediaType.values() ) {
+    assert type != null;
+    assert subtype != null;
+
+    for( final var mediaType : values() ) {
       if( mediaType.equals( type, subtype ) ) {
         return mediaType;
       }
@@ -250,6 +261,9 @@ public enum MediaType {
    * @return {@code true} when the type and subtype name match.
    */
   public boolean equals( final String type, final String subtype ) {
+    assert type != null;
+    assert subtype != null;
+
     return mTypeName.name().equalsIgnoreCase( type ) &&
       mSubtype.equalsIgnoreCase( subtype );
   }
@@ -273,6 +287,10 @@ public enum MediaType {
     return this == IMAGE_SVG_XML;
   }
 
+  public boolean isUndefined() {
+    return this == UNDEFINED;
+  }
+
   /**
    * Returns the IANA-defined subtype classification. Primarily used by
    * {@link MediaTypeExtension} to initialize associations where the subtype
@@ -293,6 +311,8 @@ public enum MediaType {
    * @throws IOException Could not create the temporary file.
    */
   public Path createTemporaryFile( final String prefix ) throws IOException {
+    assert prefix != null;
+
     final var file = createTempFile(
       prefix, '.' + MediaTypeExtension.valueFrom( this ).getExtension() );
     file.deleteOnExit();

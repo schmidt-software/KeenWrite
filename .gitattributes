@@ -10,13 +10,18 @@
 # BINARY FILES:
 #   Disable line ending normalize on checkin.
 
+*.blend binary
+
 *.bin binary
+*.bmp binary
+*.eps binary
 *.exe binary
 *.gif binary
 *.jar binary
+*.jpg binary
+*.mng binary
 *.png binary
 *.zip binary
-*.ttf binary
 *.otf binary
-*.blend binary
+*.ttf binary
 

@@ -150,10 +150,10 @@ public class ImageLinkExtensionTest {
       mPreview,
       new HashMap<>(),
       documentPath,
-      Caret.builder().build(),
       null,
       NONE,
-      sWorkspace
+      sWorkspace,
+      Caret.builder().build()
     );
   }
 

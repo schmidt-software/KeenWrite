@@ -21,11 +21,6 @@ import static java.util.Collections.emptyMap;
 public final class ResourceWalker {
 
   /**
-   * Globbing pattern to match font names.
-   */
-  public static final String GLOB_FONTS = "**.{ttf,otf}";
-
-  /**
    * @param directory Root directory to scan for files matching the glob.
    * @param c         Function to call for each matching path found.
    * @throws URISyntaxException Could not convert the resource to a URI.

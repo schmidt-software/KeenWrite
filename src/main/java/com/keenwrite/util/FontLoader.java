@@ -14,7 +14,6 @@ import java.util.Map;
 import static com.keenwrite.Constants.FONT_DIRECTORY;
 import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.util.ProtocolScheme.valueFrom;
-import static com.keenwrite.util.ResourceWalker.GLOB_FONTS;
 import static com.keenwrite.util.ResourceWalker.walk;
 import static java.awt.Font.TRUETYPE_FONT;
 import static java.awt.Font.createFont;
@@ -27,6 +26,10 @@ import static java.awt.font.TextAttribute.*;
  * the text using a non-system font.
  */
 public final class FontLoader {
+  /**
+   * Globbing pattern to match font names.
+   */
+  public static final String GLOB_FONTS = "**.{ttf,otf}";
 
   /**
    * Walks the resources associated with the application to load all TrueType

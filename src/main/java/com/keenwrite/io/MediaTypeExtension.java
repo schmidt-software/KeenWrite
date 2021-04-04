@@ -12,7 +12,15 @@ import static java.util.List.of;
  * represents the file name extension that corresponds to its icon.
  */
 public enum MediaTypeExtension {
+  MEDIA_APP_ACAD( APP_ACAD, of( "dwg" ) ),
   MEDIA_APP_PDF( APP_PDF ),
+  MEDIA_APP_PS( APP_PS, of( "ps" ) ),
+  MEDIA_APP_EPS( APP_EPS ),
+  MEDIA_APP_ZIP( APP_ZIP ),
+
+  MEDIA_AUDIO_MP3( AUDIO_MP3 ),
+  MEDIA_AUDIO_BASIC( AUDIO_BASIC, of( "au" ) ),
+  MEDIA_AUDIO_WAV( AUDIO_WAV, of( "wav" ) ),
 
   MEDIA_FONT_OTF( FONT_OTF ),
   MEDIA_FONT_TTF( FONT_TTF ),
@@ -23,9 +31,14 @@ public enum MediaTypeExtension {
   MEDIA_IMAGE_JPEG( IMAGE_JPEG,
                     of( "jpg", "jpe", "jpeg", "jfif", "pjpeg", "pjp" ) ),
   MEDIA_IMAGE_PNG( IMAGE_PNG ),
+  MEDIA_IMAGE_PSD( IMAGE_PHOTOSHOP, of( "psd" ) ),
   MEDIA_IMAGE_SVG( IMAGE_SVG_XML, of( "svg" ) ),
   MEDIA_IMAGE_TIFF( IMAGE_TIFF, of( "tiff", "tif" ) ),
   MEDIA_IMAGE_WEBP( IMAGE_WEBP ),
+  MEDIA_IMAGE_X_BITMAP( IMAGE_X_BITMAP, of( "xbm" ) ),
+  MEDIA_IMAGE_X_PIXMAP( IMAGE_X_PIXMAP, of( "xpm" ) ),
+
+  MEDIA_VIDEO_MNG( VIDEO_MNG, of( "mng" ) ),
 
   MEDIA_TEXT_MARKDOWN( TEXT_MARKDOWN, of(
     "md", "markdown", "mdown", "mdtxt", "mdtext", "mdwn", "mkd", "mkdown",
