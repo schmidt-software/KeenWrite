@@ -38,7 +38,7 @@ public class File extends java.io.File {
    * @return {@code true} when the given file name references an executable
    * file located in the PATH environment variable.
    */
-  public boolean canExecute() {
+  public boolean canRun() {
     final var exe = getName();
     final var paths = getenv( "PATH" ).split( quote( pathSeparator ) );
     return Stream.of( paths ).map( Paths::get ).anyMatch(

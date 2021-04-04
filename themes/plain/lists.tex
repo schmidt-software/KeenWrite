@@ -1,0 +1,15 @@
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+%
+% Configure bullet and enumerated lists
+%
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+
+\definesymbol[bullet][•]
+
+% Reduce the spacing around bullets.
+\setupitemgroup[itemize][1][packed,paragraph][
+  leftmargin=2em,
+  distance=\zeropoint,
+  symbol=bullet,
+]
+

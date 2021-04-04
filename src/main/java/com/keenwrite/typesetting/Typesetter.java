@@ -49,7 +49,7 @@ public class Typesetter {
    */
   public void typeset( final Path input, final Path output )
     throws IOException {
-    if( TYPESETTER.canExecute() ) {
+    if( TYPESETTER.canRun() ) {
       sService.submit( new TypesetTask( input, output ) );
     }
   }

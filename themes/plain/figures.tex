@@ -1,11 +1,12 @@
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
 %
-% Custom styling for annotations that appear in the document
+% Configure how images are presented
 %
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
 
-\defineframedtext[projection][
-  style=tt,
-  width=\textwidth,
+\setupexternalfigures[
+  order={svg,pdf,png},
+  maxwidth=\makeupwidth,
+  width=\makeupwidth,
 ]
 

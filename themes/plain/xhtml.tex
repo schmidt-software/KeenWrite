@@ -1,7 +1,11 @@
-% XML setups map ConTeXt commands to HTML elements.
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+%
+% Map XHTML elements to ConTeXt commands
+%
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
 
 \startxmlsetups xml:xhtml
-  % Do not typeset the HTML document's header title element.
+  % Do not typeset the HTML document's header title element
   \xmlsetsetup{\xmldocument}{*}{-}
 
   % Document elements
@@ -15,6 +19,9 @@
 
   % List elements
   \xmlsetsetup{\xmldocument}{ul|ol|li|dl|dt|dd}{xml:*}
+
+  % Table elements
+  \xmlsetsetup{\xmldocument}{table|thead|tbody|tfoot|tr|th|td|caption}{xml:*}
 
   % Break elements
   \xmlsetsetup{\xmldocument}{hr|br}{xml:*}
@@ -81,20 +88,68 @@
 \stopxmlsetups
 
 \startxmlsetups xml:img
-  \placefigure{}{%
-    \externalfigure[\xmlatt{#1}{src}]
-  }
+  \starttexcode
+    \placefigure{}{%
+      \externalfigure[\xmlatt{#1}{src}][conversion=mp]
+    }
+  \stoptexcode
 \stopxmlsetups
 
 \startxmlsetups xml:q
   \quotation{\xmlflush{#1}}
 \stopxmlsetups
 
+\startxmlsetups xml:b
+  \bold{\xmlflush{#1}}
+\stopxmlsetups
+
+\startxmlsetups xml:table
+  \blank[medium]
+  \startembeddedxtable
+    \xmlflush{#1}
+  \stopembeddedxtable
+  \blank[medium]
+\stopxmlsetups
+
+\startxmlsetups xml:thead
+	\startxtablebody[head]
+    \xmlflush{#1}
+	\stopxtablebody
+\stopxmlsetups
+
+\startxmlsetups xml:tbody
+	\startxtablebody[body]
+		\xmlflush{#1}
+	\stopxtablebody
+\stopxmlsetups
+
+\startxmlsetups xml:tfoot
+	\startxtablebody[foot]
+		\xmlflush{#1}
+	\stopxtablebody
+\stopxmlsetups
+
+\startxmlsetups xml:tr
+  \startxrow
+    \xmlflush{#1}
+  \stopxrow
+\stopxmlsetups
+
+\startxmlsetups xml:th
+  \startxcell
+    \bold{\xmlflush{#1}}
+  \stopxcell
+\stopxmlsetups
+
+\startxmlsetups xml:td
+  \startxcell
+    \xmlflush{#1}
+  \stopxcell
+\stopxmlsetups
+
 % Map arbitrary div classes, defined by fenced divs.
 \startxmlsetups xml:div
-  \start[\xmlatt{#1}{class}]
-    \xmlflush{#1}
-  \stop
+  \start[\xmlatt{#1}{class}]\xmlflush{#1}\stop
 \stopxmlsetups
 
 \xmlregistersetup{xml:xhtml}

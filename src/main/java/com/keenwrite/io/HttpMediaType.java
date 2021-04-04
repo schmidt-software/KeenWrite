@@ -27,7 +27,7 @@ public final class HttpMediaType {
     .build();
 
   /**
-   * Performs an HTTP HEAD request to determine the media type based on the
+   * Performs an HTTP request to determine the media type based on the
    * Content-Type header returned from the server.
    *
    * @param uri Determine the media type for this resource.
@@ -45,7 +45,7 @@ public final class HttpMediaType {
       final var request = HttpRequest
         .newBuilder()
         .setHeader( "User-Agent", System.getProperty( "http.agent" ) )
-        .method( "HEAD", noBody() )
+        .method( "GET", noBody() )
         .uri( uri )
         .build();
       clue( "Main.status.image.request.fetch", uri.getHost() );

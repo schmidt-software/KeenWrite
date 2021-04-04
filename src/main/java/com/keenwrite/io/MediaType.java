@@ -270,8 +270,7 @@ public enum MediaType {
    * @return {@code true} if this instance represents an SVG object.
    */
   public boolean isSvg() {
-    // Kroki serves HTTP HEAD requests back as text/plain for SVG images.
-    return this == IMAGE_SVG_XML || this == TEXT_PLAIN;
+    return this == IMAGE_SVG_XML;
   }
 
   /**

@@ -3,7 +3,13 @@ package com.keenwrite.processors;
 
 import com.keenwrite.preferences.Workspace;
 
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.file.Path;
@@ -20,6 +26,8 @@ import static java.nio.file.Files.copy;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import static java.util.regex.Pattern.UNICODE_CHARACTER_CLASS;
 import static java.util.regex.Pattern.compile;
+import static javax.xml.transform.OutputKeys.INDENT;
+import static javax.xml.transform.OutputKeys.OMIT_XML_DECLARATION;
 import static org.jsoup.Jsoup.parse;
 import static org.jsoup.nodes.Document.OutputSettings.Syntax;
 
@@ -78,19 +86,22 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
     // Download remote resources into temporary files.
     if( protocol.isRemote() ) {
       final var url = new URL( src );
-      final var conn = url.openConnection();
+      final var conn = (HttpURLConnection) url.openConnection();
       conn.setUseCaches( false );
+      conn.setInstanceFollowRedirects( true );
 
-      final var type = conn.getContentType();
-      final var mediaType = valueFrom( type );
+      final var mediaType = valueFrom( conn.getContentType() );
       imageFile = mediaType.createTemporaryFile( APP_TITLE_LOWERCASE );
 
       try( final var svgIn = conn.getInputStream() ) {
         copy( svgIn, imageFile, REPLACE_EXISTING );
       }
 
-      if( conn instanceof HttpURLConnection ) {
-        ((HttpURLConnection) conn).disconnect();
+      conn.disconnect();
+
+      // Strip comments, superfluous whitespace, DOCTYPE, and XML declarations.
+      if( mediaType.isSvg() ) {
+        sanitize( imageFile );
       }
     }
     else {
@@ -124,6 +135,74 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
     }
 
     return imageFile;
+  }
+
+  /**
+   * Remove whitespace, comments, and XML/DOCTYPE declarations to make
+   * processing work with ConTeXT.
+   *
+   * @param path The SVG file to process.
+   * @throws Exception The file could not be processed.
+   */
+  private void sanitize( final Path path )
+    throws Exception {
+    final var file = path.toFile();
+
+    final var dbf = DocumentBuilderFactory.newInstance();
+    dbf.setIgnoringComments( true );
+    dbf.setIgnoringElementContentWhitespace( true );
+
+    final var db = dbf.newDocumentBuilder();
+    final var document = db.parse( file );
+
+    final var tf = TransformerFactory.newInstance();
+    final var transformer = tf.newTransformer();
+
+    final var source = new DOMSource( document );
+    final var result = new StreamResult( file );
+    transformer.setOutputProperty( OMIT_XML_DECLARATION, "yes" );
+    transformer.setOutputProperty( INDENT, "no" );
+    transformer.transform( source, result );
+  }
+
+  /**
+   * Overwrites content in the given file up to the first occurrence of a
+   * terminal token.
+   * <p>
+   * Kroki adds XML and DOCTYPE declarations to SVG files, which ConTeXt cannot
+   * parse. This method overwrites them with spaces without reloading the
+   * whole file.
+   * </p>
+   *
+   * @param path        Path to the file subject to overwriting.
+   * @param terminal    The token string that indicates the search is over.
+   * @param replacement The replacement byte to use for overwriting.
+   * @throws IOException Could not perform I/O operations on the file.
+   */
+  private void overwrite(
+    final Path path, final String terminal, final byte replacement )
+    throws IOException {
+    assert terminal != null;
+
+    try( final var raf = new RandomAccessFile( path.toFile(), "rw" ) ) {
+      final var bytes = terminal.getBytes();
+      final var length = raf.length();
+      var index = 0;
+      raf.seek( 0 );
+
+      while( raf.getFilePointer() < length && index < bytes.length ) {
+        final var b = raf.read();
+        index += bytes[ index ] == b ? 1 : -index;
+        raf.seek( raf.getFilePointer() - 1 );
+        raf.write( replacement );
+      }
+
+      // Restore the terminal token.
+      if( index == bytes.length ) {
+        raf.seek( raf.getFilePointer() - index );
+        raf.write( bytes );
+      }
+    }
   }
 
   private String getImagePath() {
