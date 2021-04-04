@@ -3,6 +3,7 @@ package com.keenwrite.io;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Path;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -71,6 +72,10 @@ public class StreamMediaType {
   }
 
   private StreamMediaType() {
+  }
+
+  public static MediaType getMediaType( final Path path ) throws IOException {
+    return getMediaType( path.toFile() );
   }
 
   /**

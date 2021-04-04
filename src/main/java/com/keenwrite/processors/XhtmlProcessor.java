@@ -1,6 +1,7 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.processors;
 
+import com.keenwrite.io.StreamMediaType;
 import com.keenwrite.preferences.Workspace;
 
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -21,6 +22,7 @@ import static com.keenwrite.preferences.WorkspaceKeys.KEY_IMAGES_ORDER;
 import static com.keenwrite.util.ProtocolScheme.getProtocol;
 import static java.lang.String.format;
 import static java.nio.file.Files.copy;
+import static java.nio.file.Files.move;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import static java.util.regex.Pattern.UNICODE_CHARACTER_CLASS;
 import static java.util.regex.Pattern.compile;
@@ -89,14 +91,22 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
       conn.setInstanceFollowRedirects( true );
 
       final var contentType = conn.getContentType();
-      final var mediaType = valueFrom( contentType );
+      var mediaType = valueFrom( contentType );
+
       imageFile = mediaType.createTemporaryFile( APP_TITLE_LOWERCASE );
 
-      try( final var svgIn = conn.getInputStream() ) {
-        copy( svgIn, imageFile, REPLACE_EXISTING );
+      try( final var image = conn.getInputStream() ) {
+        copy( image, imageFile, REPLACE_EXISTING );
       }
 
       conn.disconnect();
+
+      if( mediaType.isUndefined() ) {
+        mediaType = StreamMediaType.getMediaType( imageFile );
+        final var file = mediaType.createTemporaryFile( APP_TITLE_LOWERCASE );
+        move( imageFile, file, REPLACE_EXISTING );
+        imageFile = file;
+      }
 
       // Strip comments, superfluous whitespace, DOCTYPE, and XML declarations.
       if( mediaType.isSvg() ) {
