@@ -8,8 +8,6 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.RandomAccessFile;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.file.Path;
@@ -163,46 +161,6 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
     transformer.setOutputProperty( OMIT_XML_DECLARATION, "yes" );
     transformer.setOutputProperty( INDENT, "no" );
     transformer.transform( source, result );
-  }
-
-  /**
-   * Overwrites content in the given file up to the first occurrence of a
-   * terminal token.
-   * <p>
-   * Kroki adds XML and DOCTYPE declarations to SVG files, which ConTeXt cannot
-   * parse. This method overwrites them with spaces without reloading the
-   * whole file.
-   * </p>
-   *
-   * @param path        Path to the file subject to overwriting.
-   * @param terminal    The token string that indicates the search is over.
-   * @param replacement The replacement byte to use for overwriting.
-   * @throws IOException Could not perform I/O operations on the file.
-   */
-  private void overwrite(
-    final Path path, final String terminal, final byte replacement )
-    throws IOException {
-    assert terminal != null;
-
-    try( final var raf = new RandomAccessFile( path.toFile(), "rw" ) ) {
-      final var bytes = terminal.getBytes();
-      final var length = raf.length();
-      var index = 0;
-      raf.seek( 0 );
-
-      while( raf.getFilePointer() < length && index < bytes.length ) {
-        final var b = raf.read();
-        index += bytes[ index ] == b ? 1 : -index;
-        raf.seek( raf.getFilePointer() - 1 );
-        raf.write( replacement );
-      }
-
-      // Restore the terminal token.
-      if( index == bytes.length ) {
-        raf.seek( raf.getFilePointer() - index );
-        raf.write( bytes );
-      }
-    }
   }
 
   private String getImagePath() {
