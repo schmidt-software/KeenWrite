@@ -1,7 +1,6 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.preview;
 
-import com.keenwrite.io.HttpMediaType;
 import com.keenwrite.io.MediaType;
 import com.keenwrite.ui.adapters.ReplacedElementAdapter;
 import org.xhtmlrenderer.extend.ReplacedElement;
@@ -15,7 +14,7 @@ import java.net.URI;
 import java.nio.file.Path;
 
 import static com.keenwrite.events.StatusEvent.clue;
-import static com.keenwrite.io.MediaType.UNDEFINED;
+import static com.keenwrite.io.HttpFacade.httpGet;
 import static com.keenwrite.preview.MathRenderer.MATH_RENDERER;
 import static com.keenwrite.preview.SvgRasterizer.BROKEN_IMAGE_PLACEHOLDER;
 import static com.keenwrite.preview.SvgRasterizer.rasterize;
@@ -51,21 +50,24 @@ public final class SvgReplacedElementFactory extends ReplacedElementAdapter {
       switch( e.getNodeName() ) {
         case HTML_IMAGE -> {
           final var source = e.getAttribute( HTML_IMAGE_SRC );
+          var mediaType = MediaType.fromFilename( source );
           URI uri = null;
 
           if( getProtocol( source ).isHttp() ) {
-            var mediaType = MediaType.fromFilename( source );
-
-            if( mediaType.isSvg() || mediaType == UNDEFINED ) {
+            if( mediaType.isSvg() || mediaType.isUndefined() ) {
               uri = new URI( source );
 
+              try( final var response = httpGet( uri ) ) {
+                mediaType = response.getMediaType();
+              }
+
               // Attempt to rasterize SVG depending on URL resource content.
-              if( !HttpMediaType.valueFrom( uri ).isSvg() ) {
+              if( !mediaType.isSvg() ) {
                 uri = null;
               }
             }
           }
-          else if( MediaType.fromFilename( source ).isSvg() ) {
+          else if( mediaType.isSvg() ) {
             // Attempt to rasterize based on file name.
             final var path = Path.of( new URI( source ).getPath() );
 

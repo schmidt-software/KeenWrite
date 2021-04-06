@@ -23,7 +23,7 @@ import javafx.stage.Window;
 import javafx.stage.WindowEvent;
 
 import static com.keenwrite.Bootstrap.*;
-import static com.keenwrite.Constants.ICON_DIALOG_NODE;
+import static com.keenwrite.GraphicsConstants.ICON_DIALOG_NODE;
 import static com.keenwrite.ExportFormat.*;
 import static com.keenwrite.Messages.get;
 import static com.keenwrite.events.StatusEvent.clue;

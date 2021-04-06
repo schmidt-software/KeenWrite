@@ -8,10 +8,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * Responsible for testing that {@link StreamMediaType} can return the
+ * Responsible for testing that {@link MediaTypeSniffer} can return the
  * correct IANA-defined {@link MediaType} for known file types.
  */
-class StreamMediaTypeTest {
+class MediaTypeSnifferTest {
 
   @Test
   void test_Read_KnownFileTypes_MediaTypeReturned()
@@ -28,7 +28,7 @@ class StreamMediaTypeTest {
       final var path = new File( url.toURI().getPath() );
 
       for( final var image : path.listFiles() ) {
-        final var media = StreamMediaType.getMediaType( image );
+        final var media = MediaTypeSniffer.getMediaType( image );
         final var actualExtension = valueFrom( media ).getExtension();
         final var expectedExtension = getExtension( image.toString() );
         assertEquals( expectedExtension, actualExtension );

@@ -9,7 +9,7 @@ import javafx.stage.Window;
 
 import java.nio.file.Path;
 
-import static com.keenwrite.Constants.ICON_DIALOG_NODE;
+import static com.keenwrite.GraphicsConstants.ICON_DIALOG_NODE;
 import static com.keenwrite.Messages.get;
 import static javafx.scene.control.Alert.AlertType.CONFIRMATION;
 import static javafx.scene.control.Alert.AlertType.ERROR;

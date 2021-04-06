@@ -2,14 +2,10 @@
 package com.keenwrite;
 
 import com.keenwrite.service.Settings;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 
 import java.io.File;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Locale;
 
 import static com.keenwrite.Bootstrap.APP_TITLE_LOWERCASE;
@@ -61,17 +57,6 @@ public final class Constants {
     get( "file.stylesheet.preview" );
   public static final String STYLESHEET_PREVIEW_LOCALE =
     "file.stylesheet.preview.locale";
-
-  public static final List<Image> LOGOS = createImages(
-    "file.logo.16",
-    "file.logo.32",
-    "file.logo.128",
-    "file.logo.256",
-    "file.logo.512"
-  );
-
-  public static final Image ICON_DIALOG = LOGOS.get( 1 );
-  public static final ImageView ICON_DIALOG_NODE = new ImageView( ICON_DIALOG );
 
   public static final String FILE_PREFERENCES = getPreferencesFilename();
 
@@ -249,7 +234,7 @@ public final class Constants {
     return (int) (points * (1 + 1 / 3f));
   }
 
-  private static String get( final String key ) {
+  static String get( final String key ) {
     return sSettings.getSetting( key, "" );
   }
 
@@ -273,21 +258,5 @@ public final class Constants {
       separator,
       APP_TITLE_LOWERCASE
     );
-  }
-
-  /**
-   * Converts the given file names to images, such as application icons.
-   *
-   * @param keys The file names to convert to images.
-   * @return The images loaded from the file name references.
-   */
-  private static List<Image> createImages( final String... keys ) {
-    final List<Image> images = new ArrayList<>( keys.length );
-
-    for( final var key : keys ) {
-      images.add( new Image( get( key ) ) );
-    }
-
-    return images;
   }
 }

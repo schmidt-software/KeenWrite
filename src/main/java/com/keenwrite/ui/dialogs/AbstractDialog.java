@@ -6,7 +6,7 @@ import javafx.scene.control.Dialog;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 
-import static com.keenwrite.Constants.ICON_DIALOG;
+import static com.keenwrite.GraphicsConstants.ICON_DIALOG;
 import static com.keenwrite.Messages.get;
 import static javafx.scene.control.ButtonType.CANCEL;
 import static javafx.scene.control.ButtonType.OK;

@@ -18,12 +18,6 @@ public class StatusEvent implements AppEvent {
   private static final String PACKAGE_NAME = MainApp.class.getPackageName();
 
   /**
-   * Indicates that there are no issues to bring to the user's attention.
-   */
-  private static final StatusEvent OK =
-    new StatusEvent( get( STATUS_BAR_OK, "OK" ) );
-
-  /**
    * Detailed information about a problem.
    */
   private final String mMessage;
@@ -100,7 +94,8 @@ public class StatusEvent implements AppEvent {
    * Resets the status bar to a default message.
    */
   public static void clue() {
-    OK.fire();
+    // Indicates that there are no issues to bring to the user's attention.
+    new StatusEvent( get( STATUS_BAR_OK, "OK" ) );
   }
 
   /**

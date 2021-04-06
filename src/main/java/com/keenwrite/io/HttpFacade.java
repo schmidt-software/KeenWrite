@@ -10,6 +10,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.zip.GZIPInputStream;
 
+import static com.keenwrite.events.StatusEvent.clue;
 import static java.lang.System.getProperty;
 import static java.lang.System.setProperty;
 import static java.net.HttpURLConnection.HTTP_OK;
@@ -47,6 +48,7 @@ public class HttpFacade {
    * @see #httpGet(URL)
    */
   public static Response httpGet( final URI uri ) throws IOException {
+    clue( "Main.status.image.request.init" );
     return httpGet( uri.toURL() );
   }
 
@@ -82,6 +84,7 @@ public class HttpFacade {
         mConn.setConnectTimeout( 15000 );
         mConn.setRequestProperty( "connection", "close" );
         mConn.connect();
+        clue( "Main.status.image.request.fetch", url.getHost() );
 
         final var code = mConn.getResponseCode();
 
@@ -110,9 +113,10 @@ public class HttpFacade {
       var mediaType = MediaType.valueFrom( contentType );
 
       if( mediaType.isUndefined() ) {
-        mediaType = StreamMediaType.getMediaType( mStream );
+        mediaType = MediaTypeSniffer.getMediaType( mStream );
       }
 
+      clue( "Main.status.image.request.success", mediaType );
       return mediaType;
     }
 

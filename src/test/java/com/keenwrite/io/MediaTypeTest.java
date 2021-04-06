@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import java.net.URI;
 import java.util.Map;
 
+import static com.keenwrite.io.HttpFacade.httpGet;
 import static com.keenwrite.io.MediaType.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -44,8 +45,8 @@ public class MediaTypeTest {
   }
 
   /**
-   * Test that {@link HttpMediaType#valueFrom(URI)} will pull and identify the
-   * type of resource based on the HTTP Content-Type header.
+   * Test that remote fetches will pull and identify the type of resource
+   * based on the HTTP Content-Type header (or shallow decoding).
    */
   @Test
   public void test_HttpRequest_Supported_Success() {
@@ -53,14 +54,15 @@ public class MediaTypeTest {
     final var map = Map.of(
        "https://stackoverflow.com/robots.txt", TEXT_PLAIN,
        "https://place-hold.it/300x500", IMAGE_GIF,
+       "https://placekitten.com/g/200/300", IMAGE_JPEG,
        "https://upload.wikimedia.org/wikipedia/commons/9/9f/Vimlogo.svg", IMAGE_SVG_XML,
-       "https://kroki.io//graphviz/svg/eNpLyUwvSizIUHBXqPZIzcnJ17ULzy_KSanlAgB1EAjQ", TEXT_PLAIN
+       "https://kroki.io//graphviz/svg/eNpLyUwvSizIUHBXqPZIzcnJ17ULzy_KSanlAgB1EAjQ", IMAGE_SVG_XML
     );
     //@formatter:on
 
     map.forEach( ( k, v ) -> {
-      try {
-        assertEquals( v, HttpMediaType.valueFrom( new URI( k ) ) );
+      try( var response = httpGet( new URI( k ) ) ) {
+        assertEquals( v, response.getMediaType() );
       } catch( Exception e ) {
         fail();
       }
