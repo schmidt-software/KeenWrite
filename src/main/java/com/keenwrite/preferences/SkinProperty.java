@@ -1,14 +1,14 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.preferences;
 
-import com.keenwrite.Constants;
+import com.keenwrite.constants.Constants;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.ObservableList;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import static com.keenwrite.Constants.SKIN_DEFAULT;
+import static com.keenwrite.constants.Constants.SKIN_DEFAULT;
 import static com.keenwrite.preferences.Workspace.listProperty;
 
 /**

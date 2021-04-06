@@ -8,7 +8,7 @@ import java.util.Enumeration;
 import java.util.ResourceBundle;
 import java.util.Stack;
 
-import static com.keenwrite.Constants.APP_BUNDLE_NAME;
+import static com.keenwrite.constants.Constants.APP_BUNDLE_NAME;
 import static java.util.ResourceBundle.getBundle;
 
 /**

@@ -16,7 +16,7 @@ import org.controlsfx.control.StatusBar;
 
 import java.io.File;
 
-import static com.keenwrite.Constants.*;
+import static com.keenwrite.constants.Constants.*;
 import static com.keenwrite.Messages.get;
 import static com.keenwrite.events.ScrollLockEvent.fireScrollLockEvent;
 import static com.keenwrite.events.StatusEvent.clue;

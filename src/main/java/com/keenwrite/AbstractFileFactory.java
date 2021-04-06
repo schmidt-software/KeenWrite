@@ -5,8 +5,8 @@ import com.keenwrite.io.FileType;
 
 import java.nio.file.Path;
 
-import static com.keenwrite.Constants.GLOB_PREFIX_FILE;
-import static com.keenwrite.Constants.sSettings;
+import static com.keenwrite.constants.Constants.GLOB_PREFIX_FILE;
+import static com.keenwrite.constants.Constants.sSettings;
 import static com.keenwrite.io.FileType.UNKNOWN;
 import static com.keenwrite.predicates.PredicateFactory.createFileTypePredicate;
 

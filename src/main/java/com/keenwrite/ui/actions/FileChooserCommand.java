@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static com.keenwrite.Constants.*;
+import static com.keenwrite.constants.Constants.*;
 import static com.keenwrite.Messages.get;
 import static com.keenwrite.io.FileType.*;
 import static java.lang.String.format;

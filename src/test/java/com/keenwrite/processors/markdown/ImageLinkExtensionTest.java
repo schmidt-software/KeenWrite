@@ -25,7 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.keenwrite.Constants.DOCUMENT_DEFAULT;
+import static com.keenwrite.constants.Constants.DOCUMENT_DEFAULT;
 import static com.keenwrite.ExportFormat.NONE;
 import static java.lang.String.format;
 import static javafx.application.Platform.runLater;

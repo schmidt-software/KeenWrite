@@ -11,7 +11,7 @@ import java.io.InputStream;
 import java.net.URI;
 import java.util.Map;
 
-import static com.keenwrite.Constants.FONT_DIRECTORY;
+import static com.keenwrite.constants.Constants.FONT_DIRECTORY;
 import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.util.ProtocolScheme.valueFrom;
 import static com.keenwrite.util.ResourceWalker.walk;

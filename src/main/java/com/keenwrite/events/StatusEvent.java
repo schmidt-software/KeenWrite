@@ -5,8 +5,8 @@ import com.keenwrite.MainApp;
 
 import java.util.stream.Collectors;
 
-import static com.keenwrite.Constants.NEWLINE;
-import static com.keenwrite.Constants.STATUS_BAR_OK;
+import static com.keenwrite.constants.Constants.NEWLINE;
+import static com.keenwrite.constants.Constants.STATUS_BAR_OK;
 import static com.keenwrite.Messages.get;
 import static java.util.Arrays.stream;
 

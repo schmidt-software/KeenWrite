@@ -2,7 +2,7 @@
 package com.keenwrite.processors.markdown.extensions;
 
 import com.keenwrite.Caret;
-import com.keenwrite.Constants;
+import com.keenwrite.constants.Constants;
 import com.keenwrite.processors.ProcessorContext;
 import com.vladsch.flexmark.ext.tables.TableBlock;
 import com.vladsch.flexmark.html.AttributeProvider;
@@ -15,7 +15,7 @@ import com.vladsch.flexmark.util.html.AttributeImpl;
 import com.vladsch.flexmark.util.html.MutableAttributes;
 import org.jetbrains.annotations.NotNull;
 
-import static com.keenwrite.Constants.CARET_ID;
+import static com.keenwrite.constants.Constants.CARET_ID;
 import static com.keenwrite.processors.markdown.extensions.EmptyNode.EMPTY_NODE;
 import static com.vladsch.flexmark.html.HtmlRenderer.Builder;
 

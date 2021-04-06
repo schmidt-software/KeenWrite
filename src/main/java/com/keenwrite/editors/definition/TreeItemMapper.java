@@ -11,7 +11,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Stack;
 
-import static com.keenwrite.Constants.MAP_SIZE_DEFAULT;
+import static com.keenwrite.constants.Constants.MAP_SIZE_DEFAULT;
 
 /**
  * Given a {@link TreeItem}, this will generate a flat map with all the

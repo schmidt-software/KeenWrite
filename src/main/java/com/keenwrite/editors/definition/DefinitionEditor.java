@@ -1,7 +1,7 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.editors.definition;
 
-import com.keenwrite.Constants;
+import com.keenwrite.constants.Constants;
 import com.keenwrite.editors.TextDefinition;
 import com.keenwrite.sigils.Tokens;
 import com.keenwrite.ui.tree.AltTreeView;
@@ -25,7 +25,7 @@ import java.nio.charset.Charset;
 import java.util.*;
 import java.util.regex.Pattern;
 
-import static com.keenwrite.Constants.*;
+import static com.keenwrite.constants.Constants.*;
 import static com.keenwrite.Messages.get;
 import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.events.TextDefinitionFocusEvent.fireTextDefinitionFocus;

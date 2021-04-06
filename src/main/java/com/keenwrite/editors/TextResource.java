@@ -10,7 +10,7 @@ import java.io.File;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
 
-import static com.keenwrite.Constants.DEFAULT_CHARSET;
+import static com.keenwrite.constants.Constants.DEFAULT_CHARSET;
 import static com.keenwrite.events.StatusEvent.clue;
 import static java.nio.charset.Charset.forName;
 import static java.nio.file.Files.readAllBytes;

@@ -12,7 +12,7 @@ import java.nio.charset.Charset;
 import java.util.Iterator;
 import java.util.List;
 
-import static com.keenwrite.Constants.PATH_PROPERTIES_SETTINGS;
+import static com.keenwrite.constants.Constants.PATH_PROPERTIES_SETTINGS;
 
 /**
  * Responsible for loading settings that help avoid hard-coded assumptions.

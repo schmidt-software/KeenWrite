@@ -18,7 +18,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.zip.Deflater;
 
-import static com.keenwrite.Constants.DIAGRAM_SERVER_NAME;
+import static com.keenwrite.constants.Constants.DIAGRAM_SERVER_NAME;
 import static com.keenwrite.events.StatusEvent.clue;
 import static com.vladsch.flexmark.html.HtmlRenderer.Builder;
 import static com.vladsch.flexmark.html.renderer.LinkType.LINK;

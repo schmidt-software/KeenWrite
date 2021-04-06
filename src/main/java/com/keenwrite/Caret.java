@@ -9,7 +9,7 @@ import org.reactfx.collection.LiveList;
 
 import java.util.Collection;
 
-import static com.keenwrite.Constants.STATUS_BAR_LINE;
+import static com.keenwrite.constants.Constants.STATUS_BAR_LINE;
 import static com.keenwrite.Messages.get;
 
 /**

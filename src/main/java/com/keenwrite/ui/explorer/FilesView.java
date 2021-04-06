@@ -19,7 +19,7 @@ import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 
-import static com.keenwrite.Constants.UI_CONTROL_SPACING;
+import static com.keenwrite.constants.Constants.UI_CONTROL_SPACING;
 import static com.keenwrite.events.FileOpenEvent.fireFileOpenEvent;
 import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.preferences.WorkspaceKeys.KEY_UI_RECENT_DIR;

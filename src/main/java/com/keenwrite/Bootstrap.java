@@ -1,6 +1,8 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite;
 
+import com.keenwrite.constants.Constants;
+
 import java.io.InputStream;
 import java.util.Calendar;
 import java.util.Properties;

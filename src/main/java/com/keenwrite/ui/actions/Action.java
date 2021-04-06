@@ -14,7 +14,7 @@ import javafx.scene.input.KeyCombination;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.keenwrite.Constants.ACTION_PREFIX;
+import static com.keenwrite.constants.Constants.ACTION_PREFIX;
 import static com.keenwrite.ui.fonts.IconFactory.createGraphic;
 import static javafx.scene.input.KeyCombination.valueOf;
 

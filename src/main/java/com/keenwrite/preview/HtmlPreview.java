@@ -18,7 +18,7 @@ import java.net.URL;
 import java.nio.file.Path;
 import java.util.Locale;
 
-import static com.keenwrite.Constants.*;
+import static com.keenwrite.constants.Constants.*;
 import static com.keenwrite.Messages.get;
 import static com.keenwrite.events.Bus.register;
 import static com.keenwrite.events.ScrollLockEvent.fireScrollLockEvent;

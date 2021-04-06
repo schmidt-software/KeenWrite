@@ -13,7 +13,7 @@ import java.util.function.BooleanSupplier;
 import java.util.logging.LogManager;
 
 import static com.keenwrite.Bootstrap.APP_TITLE;
-import static com.keenwrite.GraphicsConstants.LOGOS;
+import static com.keenwrite.constants.GraphicsConstants.LOGOS;
 import static com.keenwrite.preferences.WorkspaceKeys.*;
 import static com.keenwrite.util.FontLoader.initFonts;
 import static javafx.scene.input.KeyCode.ALT;

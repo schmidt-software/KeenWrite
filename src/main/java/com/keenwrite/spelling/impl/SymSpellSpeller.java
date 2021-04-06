@@ -16,7 +16,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.keenwrite.Constants.LEXICONS_DIRECTORY;
+import static com.keenwrite.constants.Constants.LEXICONS_DIRECTORY;
 import static com.keenwrite.events.StatusEvent.clue;
 import static io.gitlab.rxp90.jsymspell.SymSpell.Verbosity;
 import static io.gitlab.rxp90.jsymspell.SymSpell.Verbosity.ALL;

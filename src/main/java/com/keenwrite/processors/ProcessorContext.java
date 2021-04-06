@@ -2,7 +2,7 @@
 package com.keenwrite.processors;
 
 import com.keenwrite.Caret;
-import com.keenwrite.Constants;
+import com.keenwrite.constants.Constants;
 import com.keenwrite.ExportFormat;
 import com.keenwrite.io.FileType;
 import com.keenwrite.preferences.Workspace;
@@ -12,7 +12,7 @@ import java.nio.file.Path;
 import java.util.Map;
 
 import static com.keenwrite.AbstractFileFactory.lookup;
-import static com.keenwrite.Constants.DEFAULT_DIRECTORY;
+import static com.keenwrite.constants.Constants.DEFAULT_DIRECTORY;
 
 /**
  * Provides a context for configuring a chain of {@link Processor} instances.

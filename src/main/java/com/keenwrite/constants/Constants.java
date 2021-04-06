@@ -1,6 +1,8 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
-package com.keenwrite;
+package com.keenwrite.constants;
 
+import com.keenwrite.Bootstrap;
+import com.keenwrite.Services;
 import com.keenwrite.service.Settings;
 
 import java.io.File;

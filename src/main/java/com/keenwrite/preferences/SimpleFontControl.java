@@ -16,7 +16,7 @@ import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import org.controlsfx.dialog.FontSelectorDialog;
 
-import static com.keenwrite.GraphicsConstants.ICON_DIALOG;
+import static com.keenwrite.constants.GraphicsConstants.ICON_DIALOG;
 import static com.keenwrite.events.StatusEvent.clue;
 import static java.lang.System.currentTimeMillis;
 import static javafx.geometry.Pos.CENTER_LEFT;

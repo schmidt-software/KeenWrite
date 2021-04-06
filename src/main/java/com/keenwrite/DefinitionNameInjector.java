@@ -6,7 +6,7 @@ import com.keenwrite.editors.TextEditor;
 import com.keenwrite.editors.definition.DefinitionTreeItem;
 import com.keenwrite.sigils.SigilOperator;
 
-import static com.keenwrite.Constants.*;
+import static com.keenwrite.constants.Constants.*;
 import static com.keenwrite.events.StatusEvent.clue;
 
 /**

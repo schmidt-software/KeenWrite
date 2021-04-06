@@ -2,7 +2,7 @@
 package com.keenwrite.editors.markdown;
 
 import com.keenwrite.Caret;
-import com.keenwrite.Constants;
+import com.keenwrite.constants.Constants;
 import com.keenwrite.editors.TextEditor;
 import com.keenwrite.preferences.LocaleProperty;
 import com.keenwrite.preferences.Workspace;
@@ -30,7 +30,7 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
-import static com.keenwrite.Constants.*;
+import static com.keenwrite.constants.Constants.*;
 import static com.keenwrite.MainApp.keyDown;
 import static com.keenwrite.Messages.get;
 import static com.keenwrite.events.StatusEvent.clue;

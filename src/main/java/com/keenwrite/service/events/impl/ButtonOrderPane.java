@@ -5,7 +5,7 @@ import javafx.scene.Node;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.DialogPane;
 
-import static com.keenwrite.Constants.sSettings;
+import static com.keenwrite.constants.Constants.sSettings;
 import static javafx.scene.control.ButtonBar.BUTTON_ORDER_WINDOWS;
 
 /**

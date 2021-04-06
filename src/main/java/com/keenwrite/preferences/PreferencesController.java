@@ -22,7 +22,7 @@ import java.io.File;
 
 import static com.dlsc.formsfx.model.structure.Field.ofStringType;
 import static com.dlsc.preferencesfx.PreferencesFxEvent.EVENT_PREFERENCES_SAVED;
-import static com.keenwrite.GraphicsConstants.ICON_DIALOG;
+import static com.keenwrite.constants.GraphicsConstants.ICON_DIALOG;
 import static com.keenwrite.Messages.get;
 import static com.keenwrite.preferences.LocaleProperty.localeListProperty;
 import static com.keenwrite.preferences.SkinProperty.skinListProperty;

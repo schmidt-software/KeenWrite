@@ -9,7 +9,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 
-import static com.keenwrite.Constants.LOCALE_DEFAULT;
+import static com.keenwrite.constants.Constants.LOCALE_DEFAULT;
 import static com.keenwrite.preferences.Workspace.listProperty;
 import static java.util.Locale.forLanguageTag;
 

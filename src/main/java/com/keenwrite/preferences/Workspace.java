@@ -1,7 +1,7 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.preferences;
 
-import com.keenwrite.Constants;
+import com.keenwrite.constants.Constants;
 import com.keenwrite.sigils.Tokens;
 import javafx.application.Platform;
 import javafx.beans.property.*;
@@ -18,7 +18,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 import static com.keenwrite.Bootstrap.APP_TITLE_LOWERCASE;
-import static com.keenwrite.Constants.*;
+import static com.keenwrite.constants.Constants.*;
 import static com.keenwrite.Launcher.getVersion;
 import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.preferences.WorkspaceKeys.*;

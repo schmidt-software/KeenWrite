@@ -16,8 +16,8 @@ import java.util.Objects;
 import java.util.TreeSet;
 
 import static com.keenwrite.Bootstrap.APP_TITLE_LOWERCASE;
-import static com.keenwrite.Constants.ACTION_PREFIX;
-import static com.keenwrite.GraphicsConstants.ICON_DIALOG;
+import static com.keenwrite.constants.Constants.ACTION_PREFIX;
+import static com.keenwrite.constants.GraphicsConstants.ICON_DIALOG;
 import static com.keenwrite.Messages.get;
 import static com.keenwrite.events.Bus.register;
 import static com.keenwrite.events.StatusEvent.clue;
