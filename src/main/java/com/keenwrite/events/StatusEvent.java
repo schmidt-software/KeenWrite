@@ -5,9 +5,9 @@ import com.keenwrite.MainApp;
 
 import java.util.stream.Collectors;
 
+import static com.keenwrite.Messages.get;
 import static com.keenwrite.constants.Constants.NEWLINE;
 import static com.keenwrite.constants.Constants.STATUS_BAR_OK;
-import static com.keenwrite.Messages.get;
 import static java.util.Arrays.stream;
 
 /**
@@ -91,11 +91,11 @@ public class StatusEvent implements AppEvent {
   }
 
   /**
-   * Resets the status bar to a default message.
+   * Resets the status bar to a default message. Indicates that there are no
+   * issues to bring to the user's attention.
    */
   public static void clue() {
-    // Indicates that there are no issues to bring to the user's attention.
-    new StatusEvent( get( STATUS_BAR_OK, "OK" ) );
+    fireStatusEvent( get( STATUS_BAR_OK, "OK" ) );
   }
 
   /**
