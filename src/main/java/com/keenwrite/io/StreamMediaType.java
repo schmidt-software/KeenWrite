@@ -1,5 +1,6 @@
 package com.keenwrite.io;
 
+import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -74,6 +75,48 @@ public class StreamMediaType {
   private StreamMediaType() {
   }
 
+  /**
+   * Returns the {@link MediaType} for a given set of bytes.
+   *
+   * @param data Binary data to compare against the list of known formats.
+   * @return The IANA-defined {@link MediaType}, or
+   * {@link MediaType#UNDEFINED} if indeterminate.
+   */
+  public static MediaType getMediaType( final byte[] data ) {
+    assert data != null;
+
+    final var source = new int[]{
+      0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
+
+    for( int i = 0; i < data.length; i++ ) {
+      source[ i ] = data[ i ] & 0xFF;
+    }
+
+    for( final var key : FORMAT.keySet() ) {
+      int i = -1;
+      boolean matches = true;
+
+      while( ++i < FORMAT_LENGTH && key[ i ] != END_OF_DATA && matches ) {
+        matches = key[ i ] == source[ i ] || key[ i ] == -1;
+      }
+
+      if( matches ) {
+        return FORMAT.get( key );
+      }
+    }
+
+    return UNDEFINED;
+  }
+
+  /**
+   * Convenience method to return the probed media type for the given
+   * {@link Path} instance by delegating to {@link #getMediaType(InputStream)}.
+   *
+   * @param path Path to ascertain the {@link MediaType}.
+   * @return The IANA-defined {@link MediaType}, or
+   * {@link MediaType#UNDEFINED} if indeterminate.
+   * @throws IOException Could not read from the {@link File}.
+   */
   public static MediaType getMediaType( final Path path ) throws IOException {
     return getMediaType( path.toFile() );
   }
@@ -96,15 +139,38 @@ public class StreamMediaType {
 
   /**
    * Convenience method to return the probed media type for the given
-   * {@link InputStream} instance. The caller is responsible for closing
+   * {@link BufferedInputStream} instance. <strong>This resets the stream
+   * pointer</strong> making the call idempotent. Users of this class should
+   * prefer to call this method when operating on streams to avoid advancing
    * the stream.
+   *
+   * @param bis Data source to ascertain the {@link MediaType}.
+   * @return The IANA-defined {@link MediaType}, or
+   * {@link MediaType#UNDEFINED} if indeterminate.
+   * @throws IOException Could not read from the {@link File}.
+   */
+  public static MediaType getMediaType( final BufferedInputStream bis )
+    throws IOException {
+    bis.mark( FORMAT_LENGTH );
+    final var result = getMediaType( (InputStream) bis );
+    bis.reset();
+
+    return result;
+  }
+
+  /**
+   * Helper method to return the probed media type for the given
+   * {@link InputStream} instance. The caller is responsible for closing
+   * the stream. <strong>This advances the stream pointer.</strong>
    *
    * @param is Data source to ascertain the {@link MediaType}.
    * @return The IANA-defined {@link MediaType}, or
    * {@link MediaType#UNDEFINED} if indeterminate.
    * @throws IOException Could not read from the {@link InputStream}.
+   * @see #getMediaType(BufferedInputStream) to perform a non-destructive
+   * read.
    */
-  public static MediaType getMediaType( final InputStream is )
+  private static MediaType getMediaType( final InputStream is )
     throws IOException {
     final var input = new byte[ FORMAT_LENGTH ];
     final var count = is.read( input, 0, FORMAT_LENGTH );
@@ -113,39 +179,6 @@ public class StreamMediaType {
       final var available = new byte[ count ];
       arraycopy( input, 0, available, 0, count );
       return getMediaType( available );
-    }
-
-    return UNDEFINED;
-  }
-
-  /**
-   * Returns the {@link MediaType} for a given set of bytes.
-   *
-   * @param source Binary data to compare against the list of known formats.
-   * @return The IANA-defined {@link MediaType}, or
-   * {@link MediaType#UNDEFINED} if indeterminate.
-   */
-  public static MediaType getMediaType( final byte[] source ) {
-    assert source != null;
-
-    final var header = new int[]{
-      0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
-
-    for( int i = 0; i < source.length; i++ ) {
-      header[ i ] = source[ i ] & 0xFF;
-    }
-
-    for( final var key : FORMAT.keySet() ) {
-      int i = -1;
-      boolean matches = true;
-
-      while( ++i < FORMAT_LENGTH && key[ i ] != END_OF_DATA && matches ) {
-        matches = key[ i ] == header[ i ];
-      }
-
-      if( matches ) {
-        return FORMAT.get( key );
-      }
     }
 
     return UNDEFINED;

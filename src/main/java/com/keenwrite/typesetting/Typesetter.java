@@ -27,7 +27,7 @@ import static java.util.concurrent.TimeUnit.*;
  * construct suitable command-line arguments to invoke the typesetting engine.
  */
 public class Typesetter {
-  private static final File TYPESETTER = new File( "context");
+  private static final File TYPESETTER = new File( "context" );
 
   private static final ExecutorService sService = newFixedThreadPool( 5 );
 
@@ -97,6 +97,11 @@ public class Typesetter {
 
       final var builder = new ProcessBuilder( mArgs );
       builder.directory( mDirectory.toFile() );
+
+      // TODO: Create luatex-cache directory in system temporary directory.
+//      final var env = builder.environment();
+//      env.put( "TEXMFCACHE", System.getProperty( "java.io.tmpdir" ) );
+
       final var process = builder.start();
       process.waitFor();
 

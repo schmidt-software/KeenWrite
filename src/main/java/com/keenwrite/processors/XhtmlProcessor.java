@@ -1,7 +1,7 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.processors;
 
-import com.keenwrite.io.StreamMediaType;
+import com.keenwrite.io.HttpFacade;
 import com.keenwrite.preferences.Workspace;
 
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -9,20 +9,16 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.FileNotFoundException;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.nio.file.Path;
 import java.util.regex.Pattern;
 
 import static com.keenwrite.Bootstrap.APP_TITLE_LOWERCASE;
 import static com.keenwrite.events.StatusEvent.clue;
-import static com.keenwrite.io.MediaType.valueFrom;
 import static com.keenwrite.preferences.WorkspaceKeys.KEY_IMAGES_DIR;
 import static com.keenwrite.preferences.WorkspaceKeys.KEY_IMAGES_ORDER;
 import static com.keenwrite.util.ProtocolScheme.getProtocol;
 import static java.lang.String.format;
 import static java.nio.file.Files.copy;
-import static java.nio.file.Files.move;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import static java.util.regex.Pattern.UNICODE_CHARACTER_CLASS;
 import static java.util.regex.Pattern.compile;
@@ -85,27 +81,13 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
 
     // Download remote resources into temporary files.
     if( protocol.isRemote() ) {
-      final var url = new URL( src );
-      final var conn = (HttpURLConnection) url.openConnection();
-      conn.setUseCaches( false );
-      conn.setInstanceFollowRedirects( true );
-
-      final var contentType = conn.getContentType();
-      var mediaType = valueFrom( contentType );
+      final var response = HttpFacade.httpGet( src);
+      final var mediaType = response.getMediaType();
 
       imageFile = mediaType.createTemporaryFile( APP_TITLE_LOWERCASE );
 
-      try( final var image = conn.getInputStream() ) {
+      try( final var image = response.getInputStream() ) {
         copy( image, imageFile, REPLACE_EXISTING );
-      }
-
-      conn.disconnect();
-
-      if( mediaType.isUndefined() ) {
-        mediaType = StreamMediaType.getMediaType( imageFile );
-        final var file = mediaType.createTemporaryFile( APP_TITLE_LOWERCASE );
-        move( imageFile, file, REPLACE_EXISTING );
-        imageFile = file;
       }
 
       // Strip comments, superfluous whitespace, DOCTYPE, and XML declarations.

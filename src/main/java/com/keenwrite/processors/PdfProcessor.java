@@ -4,6 +4,7 @@ package com.keenwrite.processors;
 import com.keenwrite.typesetting.Typesetter;
 
 import static com.keenwrite.Bootstrap.APP_TITLE_LOWERCASE;
+import static com.keenwrite.Messages.get;
 import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.io.MediaType.TEXT_XML;
 import static java.nio.file.Files.writeString;
@@ -31,10 +32,13 @@ public final class PdfProcessor extends ExecutorProcessor<String> {
    */
   public String apply( final String xhtml ) {
     try {
+      clue( get( "Main.status.typeset.create" ) );
       final var sTypesetter = new Typesetter( mContext.getWorkspace() );
       final var document = TEXT_XML.createTemporaryFile( APP_TITLE_LOWERCASE );
-      final var exportPath = mContext.getExportPath();
-      sTypesetter.typeset( writeString( document, xhtml ), exportPath );
+      final var pathOutput = mContext.getExportPath();
+      clue( get( "Main.status.typeset.export" ) );
+      final var pathInput = writeString( document, xhtml );
+      sTypesetter.typeset( pathInput, pathOutput );
     } catch( final Exception ex ) {
       clue( ex );
     }
