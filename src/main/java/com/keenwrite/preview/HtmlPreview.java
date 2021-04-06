@@ -258,25 +258,11 @@ public final class HtmlPreview extends SwingNode {
         }
       }
 
-      scrollTo( box );
+      if( box != null ) {
+        mView.scrollTo( createPoint( box ) );
+        getScrollPane().repaint();
+      }
     } );
-  }
-
-  /**
-   * Scrolls to the location specified by the {@link Box} that corresponds
-   * to a point somewhere in the preview pane. If there is no caret, then
-   * this will not change the scroll position. Changing the scroll position
-   * to the top if the {@link Box} instance is {@code null} will result in
-   * jumping around a lot and inconsistent synchronization issues.
-   *
-   * @param box The rectangular region containing the caret, or {@code null}
-   *            if the HTML does not have a caret.
-   */
-  private void scrollTo( final Box box ) {
-    if( box != null ) {
-      mView.scrollTo( createPoint( box ) );
-      getScrollPane().repaint();
-    }
   }
 
   /**
