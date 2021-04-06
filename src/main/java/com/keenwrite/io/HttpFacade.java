@@ -10,7 +10,6 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.zip.GZIPInputStream;
 
-import static com.keenwrite.events.StatusEvent.clue;
 import static java.lang.System.getProperty;
 import static java.lang.System.setProperty;
 import static java.net.HttpURLConnection.HTTP_OK;
@@ -36,8 +35,8 @@ public class HttpFacade {
    * @param url The remote resource to fetch.
    * @return The server response.
    */
-  public static Response httpGet( final URL url ) throws IOException {
-    return new Response( url );
+  public static Response httpGet( final URL url ) throws Exception {
+    return new Response(url);
   }
 
   /**
@@ -47,8 +46,7 @@ public class HttpFacade {
    * @return The server response.
    * @see #httpGet(URL)
    */
-  public static Response httpGet( final URI uri ) throws IOException {
-    clue( "Main.status.image.request.init" );
+  public static Response httpGet( final URI uri ) throws Exception {
     return httpGet( uri.toURL() );
   }
 
@@ -59,7 +57,7 @@ public class HttpFacade {
    * @return The server response.
    * @see #httpGet(URL)
    */
-  public static Response httpGet( final String url ) throws IOException {
+  public static Response httpGet( final String url ) throws Exception {
     return httpGet( new URL( url ) );
   }
 
@@ -72,6 +70,8 @@ public class HttpFacade {
 
     private Response( final URL url ) throws IOException {
       assert url != null;
+
+      //clue( "Main.status.image.request.init" );
       final var connection = url.openConnection();
 
       if( connection instanceof HttpURLConnection ) {
@@ -84,7 +84,7 @@ public class HttpFacade {
         mConn.setConnectTimeout( 15000 );
         mConn.setRequestProperty( "connection", "close" );
         mConn.connect();
-        clue( "Main.status.image.request.fetch", url.getHost() );
+        //clue( "Main.status.image.request.fetch", url.getHost() );
 
         final var code = mConn.getResponseCode();
 
@@ -116,7 +116,7 @@ public class HttpFacade {
         mediaType = MediaTypeSniffer.getMediaType( mStream );
       }
 
-      clue( "Main.status.image.request.success", mediaType );
+      //clue( "Main.status.image.request.success", mediaType );
       return mediaType;
     }
 

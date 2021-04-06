@@ -4,7 +4,6 @@ package com.keenwrite.preview;
 import com.keenwrite.events.ScrollLockEvent;
 import com.keenwrite.preferences.LocaleProperty;
 import com.keenwrite.preferences.Workspace;
-import javafx.application.Platform;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.StringProperty;
 import javafx.embed.swing.SwingNode;
@@ -18,8 +17,8 @@ import java.net.URL;
 import java.nio.file.Path;
 import java.util.Locale;
 
-import static com.keenwrite.constants.Constants.*;
 import static com.keenwrite.Messages.get;
+import static com.keenwrite.constants.Constants.*;
 import static com.keenwrite.events.Bus.register;
 import static com.keenwrite.events.ScrollLockEvent.fireScrollLockEvent;
 import static com.keenwrite.events.StatusEvent.clue;
@@ -29,7 +28,6 @@ import static java.awt.BorderLayout.*;
 import static java.lang.Math.max;
 import static java.lang.String.format;
 import static java.lang.Thread.sleep;
-import static javafx.application.Platform.runLater;
 import static javafx.scene.CacheHint.SPEED;
 import static javax.swing.SwingUtilities.invokeLater;
 import static org.controlsfx.glyphfont.FontAwesome.Glyph.LOCK;
@@ -96,7 +94,7 @@ public final class HtmlPreview extends SwingNode {
   private String mBaseUriPath = "";
   private String mHead = "";
 
-  private boolean mLocked;
+  private volatile boolean mLocked;
   private final JButton mScrollLockButton = new JButton();
 
   private final Workspace mWorkspace;
@@ -248,7 +246,7 @@ public final class HtmlPreview extends SwingNode {
       return;
     }
 
-    final Runnable scrollToBox = () -> {
+    invokeLater( () -> {
       int iter = 0;
       Box box = null;
 
@@ -261,14 +259,7 @@ public final class HtmlPreview extends SwingNode {
       }
 
       scrollTo( box );
-    };
-
-    if( Platform.isFxApplicationThread() ) {
-      scrollToBox.run();
-    }
-    else {
-      runLater( scrollToBox );
-    }
+    } );
   }
 
   /**
@@ -283,15 +274,9 @@ public final class HtmlPreview extends SwingNode {
    */
   private void scrollTo( final Box box ) {
     if( box != null ) {
-      scrollTo( createPoint( box ) );
-    }
-  }
-
-  private void scrollTo( final Point point ) {
-    invokeLater( () -> {
-      mView.scrollTo( point );
+      mView.scrollTo( createPoint( box ) );
       getScrollPane().repaint();
-    } );
+    }
   }
 
   /**

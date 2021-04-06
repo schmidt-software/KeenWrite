@@ -1,7 +1,6 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.processors;
 
-import com.keenwrite.io.HttpFacade;
 import com.keenwrite.preferences.Workspace;
 
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -14,6 +13,7 @@ import java.util.regex.Pattern;
 
 import static com.keenwrite.Bootstrap.APP_TITLE_LOWERCASE;
 import static com.keenwrite.events.StatusEvent.clue;
+import static com.keenwrite.io.HttpFacade.httpGet;
 import static com.keenwrite.preferences.WorkspaceKeys.KEY_IMAGES_DIR;
 import static com.keenwrite.preferences.WorkspaceKeys.KEY_IMAGES_ORDER;
 import static com.keenwrite.util.ProtocolScheme.getProtocol;
@@ -43,7 +43,6 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
     super( successor );
 
     assert context != null;
-
     mContext = context;
   }
 
@@ -81,7 +80,7 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
 
     // Download remote resources into temporary files.
     if( protocol.isRemote() ) {
-      final var response = HttpFacade.httpGet( src);
+      final var response = httpGet( src);
       final var mediaType = response.getMediaType();
 
       imageFile = mediaType.createTemporaryFile( APP_TITLE_LOWERCASE );

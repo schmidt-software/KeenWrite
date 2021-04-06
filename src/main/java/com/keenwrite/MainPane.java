@@ -879,7 +879,7 @@ public final class MainPane extends SplitPane {
         // Reset the status to OK after changing the text.
         clue();
 
-        // Processing the text will update the status bar.
+        // Processing the text may update the status bar.
         process( getActiveTextEditor() );
       }
     } );

@@ -6,6 +6,7 @@ import org.controlsfx.control.StatusBar;
 import org.greenrobot.eventbus.Subscribe;
 
 import static com.keenwrite.events.Bus.register;
+import static javafx.application.Platform.isFxApplicationThread;
 import static javafx.application.Platform.runLater;
 
 /**
@@ -30,13 +31,18 @@ public class EventedStatusBar extends StatusBar {
 
     // Don't burden the repaint thread if there's no status bar change.
     if( !getText().equals( message ) ) {
-      runLater(
-        () -> {
-          final var s = message == null ? "" : message;
-          final var i = s.indexOf( '\n' );
-          setText( s.substring( 0, i > 0 ? i : s.length() ) );
-        }
-      );
+      final var s = message == null ? "" : message;
+      final var i = s.indexOf( '\n' );
+
+      final Runnable update =
+        () -> setText( s.substring( 0, i > 0 ? i : s.length() ) );
+
+      if( isFxApplicationThread() ) {
+        update.run();
+      }
+      else {
+        runLater( update );
+      }
     }
   }
 }

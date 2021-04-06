@@ -4,32 +4,30 @@ package com.keenwrite.typesetting;
 import com.keenwrite.io.File;
 import com.keenwrite.preferences.Key;
 import com.keenwrite.preferences.Workspace;
+import javafx.concurrent.Task;
 
-import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.TimeoutException;
 
-import static com.keenwrite.constants.Constants.DEFAULT_DIRECTORY;
 import static com.keenwrite.Messages.get;
+import static com.keenwrite.constants.Constants.DEFAULT_DIRECTORY;
 import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.preferences.WorkspaceKeys.KEY_TYPESET_CONTEXT_ENV;
 import static com.keenwrite.preferences.WorkspaceKeys.KEY_TYPESET_CONTEXT_PATH;
+import static java.lang.Long.MAX_VALUE;
 import static java.lang.String.format;
 import static java.lang.System.currentTimeMillis;
 import static java.util.concurrent.Executors.newFixedThreadPool;
 import static java.util.concurrent.TimeUnit.*;
 
 /**
- * Represents the executable responsible for typesetting text. This will
+ * Responsible for invoking an executable to typeset text. This will
  * construct suitable command-line arguments to invoke the typesetting engine.
  */
 public class Typesetter {
-  private static final File TYPESETTER = new File( "context" );
-
-  private static final ExecutorService sService = newFixedThreadPool( 5 );
+  private static final File TYPESETTER = new File( "mtxrun" );
 
   private final Workspace mWorkspace;
 
@@ -48,16 +46,43 @@ public class Typesetter {
    * @param output Path to the finished typeset document.
    */
   public void typeset( final Path input, final Path output )
-    throws IOException {
+    throws Exception {
     if( TYPESETTER.canRun() ) {
-      sService.submit( new TypesetTask( input, output ) );
+      final var executor = newFixedThreadPool( 5 );
+      final var task = new TypesetTask( input, output );
+      final var elapsed = currentTimeMillis();
+
+      task.setOnRunning(
+        e -> clue( get(
+          "Main.status.typeset.began", output
+        ) )
+      );
+
+      task.setOnSucceeded(
+        e -> clue( get(
+          "Main.status.typeset.ended.success", output, since( elapsed )
+        ) )
+      );
+
+      task.setOnFailed(
+        e -> clue( get(
+          "Main.status.typeset.ended.failure",
+          output, since( elapsed ), task.getValue()
+        ) )
+      );
+
+      executor.execute( task );
+      executor.shutdown();
+      if( !executor.awaitTermination( MAX_VALUE, NANOSECONDS ) ) {
+        throw new TimeoutException();
+      }
     }
   }
 
   /**
    * Launches a task to typeset a document.
    */
-  public class TypesetTask implements Callable<Integer> {
+  private class TypesetTask extends Task<Integer> {
     private final List<String> mArgs = new ArrayList<>();
 
     /**
@@ -66,21 +91,18 @@ public class Typesetter {
      */
     private final Path mDirectory;
 
-    /**
-     * Fully qualified destination file name.
-     */
-    private final Path mOutput;
-
     public TypesetTask( final Path input, final Path output ) {
       final var filename = output.getFileName();
       final var parentDir = output.getParent();
       mDirectory = (parentDir == null ? DEFAULT_DIRECTORY : parentDir);
-      mOutput = output;
 
       final var paths = getProperty( KEY_TYPESET_CONTEXT_PATH );
       final var envs = getProperty( KEY_TYPESET_CONTEXT_ENV );
 
       mArgs.add( TYPESETTER.getName() );
+      mArgs.add( "--autogenerate" );
+      mArgs.add( "--script" );
+      mArgs.add( "mtx-context" );
       mArgs.add( "--batchmode" );
       mArgs.add( "--purgeall" );
       mArgs.add( "--path='" + paths + "'" );
@@ -91,34 +113,36 @@ public class Typesetter {
 
     @Override
     public Integer call() throws Exception {
-      final var elapsed = currentTimeMillis();
-      final var output = mOutput.toString();
-      clue( get( "Main.status.typeset.began", output ) );
-
       final var builder = new ProcessBuilder( mArgs );
       builder.directory( mDirectory.toFile() );
 
-      // TODO: Create luatex-cache directory in system temporary directory.
-//      final var env = builder.environment();
-//      env.put( "TEXMFCACHE", System.getProperty( "java.io.tmpdir" ) );
+      final var env = builder.environment();
+      env.put( "TEXMFCACHE", System.getProperty( "java.io.tmpdir" ) );
 
+      //final var process = builder.inheritIO().start();
       final var process = builder.start();
       process.waitFor();
-
-      final var code = process.exitValue();
-      final var time = asElapsed( currentTimeMillis() - elapsed );
-      clue(
-        code == 0
-          ? get( "Main.status.typeset.ended.success", output, time )
-          : get( "Main.status.typeset.ended.failure", output, time, code )
-      );
-
-      return code;
+      final int exit = process.exitValue();
+      process.destroy();
+      return exit;
     }
   }
 
   private String getProperty( final Key key ) {
     return mWorkspace.stringProperty( key ).get();
+  }
+
+  /**
+   * Calculates the time that has elapsed from the current time to the
+   * given moment in time.
+   *
+   * @param start The starting time, which really should be before the
+   *              current time.
+   * @return A human-readable formatted time.
+   * @see #asElapsed(long)
+   */
+  private static String since( final long start ) {
+    return asElapsed( currentTimeMillis() - start );
   }
 
   /**
