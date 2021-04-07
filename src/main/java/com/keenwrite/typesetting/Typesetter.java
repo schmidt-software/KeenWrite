@@ -4,22 +4,19 @@ package com.keenwrite.typesetting;
 import com.keenwrite.io.File;
 import com.keenwrite.preferences.Key;
 import com.keenwrite.preferences.Workspace;
-import javafx.concurrent.Task;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeoutException;
+import java.util.concurrent.Callable;
 
 import static com.keenwrite.Messages.get;
 import static com.keenwrite.constants.Constants.DEFAULT_DIRECTORY;
 import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.preferences.WorkspaceKeys.KEY_TYPESET_CONTEXT_ENV;
 import static com.keenwrite.preferences.WorkspaceKeys.KEY_TYPESET_CONTEXT_PATH;
-import static java.lang.Long.MAX_VALUE;
 import static java.lang.String.format;
 import static java.lang.System.currentTimeMillis;
-import static java.util.concurrent.Executors.newFixedThreadPool;
 import static java.util.concurrent.TimeUnit.*;
 
 /**
@@ -42,47 +39,28 @@ public class Typesetter {
   /**
    * This will typeset the document using a new process.
    *
-   * @param input  The input document to typeset.
-   * @param output Path to the finished typeset document.
+   * @param in  The input document to typeset.
+   * @param out Path to the finished typeset document.
    */
-  public void typeset( final Path input, final Path output )
+  public void typeset( final Path in, final Path out )
     throws Exception {
     if( TYPESETTER.canRun() ) {
-      final var executor = newFixedThreadPool( 5 );
-      final var task = new TypesetTask( input, output );
-      final var elapsed = currentTimeMillis();
+      clue( get( "Main.status.typeset.began", out ) );
+      final var task = new TypesetTask( in, out );
+      final var time = currentTimeMillis();
+      final var code = task.call();
+      final var message = code == 0
+        ? get( "Main.status.typeset.ended.success", out, since( time ) )
+        : get( "Main.status.typeset.ended.failure", out, since( time ), code );
 
-      task.setOnRunning(
-        e -> clue( get(
-          "Main.status.typeset.began", output
-        ) )
-      );
-
-      task.setOnSucceeded(
-        e -> clue( get(
-          "Main.status.typeset.ended.success", output, since( elapsed )
-        ) )
-      );
-
-      task.setOnFailed(
-        e -> clue( get(
-          "Main.status.typeset.ended.failure",
-          output, since( elapsed ), task.getValue()
-        ) )
-      );
-
-      executor.execute( task );
-      executor.shutdown();
-      if( !executor.awaitTermination( MAX_VALUE, NANOSECONDS ) ) {
-        throw new TimeoutException();
-      }
+      clue( message );
     }
   }
 
   /**
    * Launches a task to typeset a document.
    */
-  private class TypesetTask extends Task<Integer> {
+  private class TypesetTask implements Callable<Integer> {
     private final List<String> mArgs = new ArrayList<>();
 
     /**

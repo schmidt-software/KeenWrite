@@ -34,6 +34,7 @@ import com.panemu.tiwulfx.control.dock.DetachableTabPane;
 import javafx.application.Platform;
 import javafx.beans.property.*;
 import javafx.collections.ListChangeListener;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.event.EventHandler;
@@ -53,19 +54,21 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static com.keenwrite.constants.Constants.*;
 import static com.keenwrite.ExportFormat.NONE;
 import static com.keenwrite.Messages.get;
+import static com.keenwrite.constants.Constants.*;
 import static com.keenwrite.events.Bus.register;
 import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.io.MediaType.*;
 import static com.keenwrite.preferences.WorkspaceKeys.*;
 import static com.keenwrite.processors.IdentityProcessor.IDENTITY;
 import static com.keenwrite.processors.ProcessorFactory.createProcessors;
+import static java.util.concurrent.Executors.newFixedThreadPool;
 import static java.util.stream.Collectors.groupingBy;
 import static javafx.application.Platform.runLater;
 import static javafx.scene.control.ButtonType.NO;
@@ -83,6 +86,8 @@ import static org.fxmisc.wellbehaved.event.EventPattern.keyPressed;
  * text editors, and preview pane along with any corresponding controllers.
  */
 public final class MainPane extends SplitPane {
+  private static final ExecutorService sExecutor = newFixedThreadPool( 1 );
+
   private static final Notifier sNotifier = Services.load( Notifier.class );
 
   /**
@@ -684,15 +689,25 @@ public final class MainPane extends SplitPane {
    * @param editor Contains the source document to update in the preview pane.
    */
   private void process( final TextEditor editor ) {
-    // Ensure that these are run from within the Swing event dispatch thread
-    // so that the text editor thread is immediately freed for caret movement.
-    // This means that the preview will have a slight delay when catching up
-    // to the caret position.
-    invokeLater( () -> {
-      final var processor = mProcessors.getOrDefault( editor, IDENTITY );
-      processor.apply( editor == null ? "" : editor.getText() );
-      mPreview.scrollTo( CARET_ID );
-    } );
+    // Ensure processing does not run on the JavaFX thread, which frees the
+    // text editor immediately for caret movement. The preview will have a
+    // slight delay when catching up to the caret position.
+    final var task = new Task<Void>() {
+      @Override
+      public Void call() {
+        final var processor = mProcessors.getOrDefault( editor, IDENTITY );
+        processor.apply( editor == null ? "" : editor.getText() );
+        return null;
+      }
+    };
+
+    task.setOnSucceeded(
+      e -> invokeLater( () -> mPreview.scrollTo( CARET_ID ) )
+    );
+
+    // Prevents multiple process requests from executing simultaneously (due
+    // to having a restricted queue size).
+    sExecutor.execute( task );
   }
 
   /**

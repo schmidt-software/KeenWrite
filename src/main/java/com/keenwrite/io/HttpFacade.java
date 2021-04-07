@@ -10,6 +10,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.zip.GZIPInputStream;
 
+import static com.keenwrite.events.StatusEvent.clue;
 import static java.lang.System.getProperty;
 import static java.lang.System.setProperty;
 import static java.net.HttpURLConnection.HTTP_OK;
@@ -71,7 +72,7 @@ public class HttpFacade {
     private Response( final URL url ) throws IOException {
       assert url != null;
 
-      //clue( "Main.status.image.request.init" );
+      clue( "Main.status.image.request.init" );
       final var connection = url.openConnection();
 
       if( connection instanceof HttpURLConnection ) {
@@ -84,7 +85,7 @@ public class HttpFacade {
         mConn.setConnectTimeout( 15000 );
         mConn.setRequestProperty( "connection", "close" );
         mConn.connect();
-        //clue( "Main.status.image.request.fetch", url.getHost() );
+        clue( "Main.status.image.request.fetch", url.getHost() );
 
         final var code = mConn.getResponseCode();
 
@@ -116,7 +117,7 @@ public class HttpFacade {
         mediaType = MediaTypeSniffer.getMediaType( mStream );
       }
 
-      //clue( "Main.status.image.request.success", mediaType );
+      clue( "Main.status.image.request.success", mediaType );
       return mediaType;
     }
 

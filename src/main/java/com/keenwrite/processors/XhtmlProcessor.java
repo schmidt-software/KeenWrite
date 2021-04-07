@@ -12,6 +12,7 @@ import java.nio.file.Path;
 import java.util.regex.Pattern;
 
 import static com.keenwrite.Bootstrap.APP_TITLE_LOWERCASE;
+import static com.keenwrite.Messages.get;
 import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.io.HttpFacade.httpGet;
 import static com.keenwrite.preferences.WorkspaceKeys.KEY_IMAGES_DIR;
@@ -48,6 +49,8 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
 
   @Override
   public String apply( final String html ) {
+    clue( get( "Main.status.typeset.xhtml" ) );
+
     final var doc = parse( html );
     doc.outputSettings().syntax( Syntax.xml );
 

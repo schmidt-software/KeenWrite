@@ -2,25 +2,18 @@
 package com.keenwrite.processors;
 
 import com.keenwrite.typesetting.Typesetter;
-import javafx.concurrent.Task;
-
-import java.nio.file.Path;
-import java.util.concurrent.ExecutorService;
 
 import static com.keenwrite.Bootstrap.APP_TITLE_LOWERCASE;
 import static com.keenwrite.Messages.get;
 import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.io.MediaType.TEXT_XML;
 import static java.nio.file.Files.writeString;
-import static java.util.concurrent.Executors.newFixedThreadPool;
 
 /**
  * Responsible for using a typesetting engine to convert an XHTML document
- * into a PDF file.
+ * into a PDF file. This must not be run from the JavaFX thread.
  */
 public final class PdfProcessor extends ExecutorProcessor<String> {
-  private static final ExecutorService sExecutor = newFixedThreadPool( 5 );
-
   private final ProcessorContext mContext;
 
   public PdfProcessor( final ProcessorContext context ) {
@@ -37,43 +30,19 @@ public final class PdfProcessor extends ExecutorProcessor<String> {
    * a PDF file.
    */
   public String apply( final String xhtml ) {
-    final var exporter = new Exporter( xhtml );
-    exporter.setOnRunning( e -> clue( get( "Main.status.typeset.create" ) ) );
-    exporter.setOnSucceeded( e -> {
-      clue( get( "Main.status.typeset.export" ) );
-
+    try {
+      clue( get( "Main.status.typeset.create" ) );
+      final var document = TEXT_XML.createTemporaryFile( APP_TITLE_LOWERCASE );
+      final var pathInput = writeString( document, xhtml );
       final var pathOutput = mContext.getExportPath();
-      final var pathInput = exporter.getValue();
       final var typesetter = new Typesetter( mContext.getWorkspace() );
 
-      try {
-        typesetter.typeset( pathInput, pathOutput );
-      } catch( final Exception ex ) {
-        clue( ex );
-      }
-    } );
-
-    sExecutor.execute( exporter );
+      typesetter.typeset( pathInput, pathOutput );
+    } catch( final Exception ex ) {
+      clue( ex );
+    }
 
     // Do not continue processing (the document was typeset into a binary).
     return null;
-  }
-
-  /**
-   * Responsible for exporting the active document to a file. That file is
-   * then read and typeset by a third-party application.
-   */
-  private static class Exporter extends Task<Path> {
-    private final String mXhtml;
-
-    private Exporter( final String xhtml ) {
-      mXhtml = xhtml;
-    }
-
-    @Override
-    protected Path call() throws Exception {
-      final var document = TEXT_XML.createTemporaryFile( APP_TITLE_LOWERCASE );
-      return writeString( document, mXhtml );
-    }
   }
 }

@@ -17,19 +17,24 @@ import com.keenwrite.ui.dialogs.ImageDialog;
 import com.keenwrite.ui.dialogs.LinkDialog;
 import com.keenwrite.ui.logging.LogView;
 import com.vladsch.flexmark.ast.Link;
+import javafx.concurrent.Task;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Dialog;
 import javafx.stage.Window;
 import javafx.stage.WindowEvent;
 
+import java.nio.file.Path;
+import java.util.concurrent.ExecutorService;
+
 import static com.keenwrite.Bootstrap.*;
-import static com.keenwrite.constants.GraphicsConstants.ICON_DIALOG_NODE;
 import static com.keenwrite.ExportFormat.*;
 import static com.keenwrite.Messages.get;
+import static com.keenwrite.constants.GraphicsConstants.ICON_DIALOG_NODE;
 import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.preferences.WorkspaceKeys.KEY_UI_RECENT_DIR;
 import static com.keenwrite.processors.ProcessorFactory.createProcessors;
 import static java.nio.file.Files.writeString;
+import static java.util.concurrent.Executors.newFixedThreadPool;
 import static javafx.event.Event.fireEvent;
 import static javafx.scene.control.Alert.AlertType.INFORMATION;
 import static javafx.stage.WindowEvent.WINDOW_CLOSE_REQUEST;
@@ -42,6 +47,8 @@ import static javafx.stage.WindowEvent.WINDOW_CLOSE_REQUEST;
  */
 @SuppressWarnings( "NonAsciiCharacters" )
 public final class ApplicationActions {
+  private static final ExecutorService sExecutor = newFixedThreadPool( 1 );
+
   private static final String STYLE_SEARCH = "search";
 
   /**
@@ -116,28 +123,38 @@ public final class ApplicationActions {
     final var main = getMainPane();
     final var editor = main.getActiveTextEditor();
     final var filename = format.toExportFilename( editor.getPath() );
-    final var chooser = createFileChooser();
-    final var selection = chooser.exportAs( filename );
+    final var selection = createFileChooser().exportAs( filename );
 
     selection.ifPresent( ( file ) -> {
-      final var doc = editor.getText();
-      final var context = main.createProcessorContext( file.toPath(), format );
-      final var chain = createProcessors( context );
-      final var export = chain.apply( doc );
+      final var task = new Task<Path>() {
+        @Override
+        protected Path call() throws Exception {
+          final var path = file.toPath();
+          final var doc = editor.getText();
+          final var context = main.createProcessorContext( path, format );
+          final var chain = createProcessors( context );
+          final var export = chain.apply( doc );
 
-      try {
-        // Processors can export in binary formats that are incompatible with
-        // Java language String objects. In such cases, the processor will
-        // return the null sentinel to signal no further processing is needed.
-        if( export != null ) {
-          writeString( file.toPath(), export );
+          // Processors can export binary files. In such cases, processors
+          // return null to prevent further processing.
+          return export == null ? null : writeString( path, export );
+        }
+      };
+
+      task.setOnSucceeded(
+        e -> {
+          final var result = task.getValue();
 
           // Binary formats must notify users of success independently.
-          clue( get( "Main.status.export.success", file.toString() ) );
+          if( result != null ) {
+            clue( get( "Main.status.export.success", result ) );
+          }
         }
-      } catch( final Exception ex ) {
-        clue( ex );
-      }
+      );
+
+      task.setOnFailed( e -> clue( task.getException() ) );
+
+      sExecutor.execute( task );
     } );
   }
 
