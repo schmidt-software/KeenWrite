@@ -126,14 +126,15 @@ public final class ApplicationActions {
     final var selection = createFileChooser().exportAs( filename );
 
     selection.ifPresent( ( file ) -> {
+      final var path = file.toPath();
+      final var document = editor.getText();
+      final var context = main.createProcessorContext( path, format );
+
       final var task = new Task<Path>() {
         @Override
         protected Path call() throws Exception {
-          final var path = file.toPath();
-          final var doc = editor.getText();
-          final var context = main.createProcessorContext( path, format );
           final var chain = createProcessors( context );
-          final var export = chain.apply( doc );
+          final var export = chain.apply( document );
 
           // Processors can export binary files. In such cases, processors
           // return null to prevent further processing.
@@ -158,7 +159,9 @@ public final class ApplicationActions {
     } );
   }
 
-  public void file‿export‿pdf() { file‿export( APPLICATION_PDF ); }
+  public void file‿export‿pdf() {
+    file‿export( APPLICATION_PDF );
+  }
 
   public void file‿export‿html_svg() {
     file‿export( HTML_TEX_SVG );

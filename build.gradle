@@ -29,13 +29,13 @@ if (project.hasProperty('targetOs')) {
 }
 
 javafx {
-  version = "15"
+  version = "16"
   modules = ['javafx.controls', 'javafx.swing']
   configuration = 'compileOnly'
 }
 
 dependencies {
-  def v_junit = '5.5.2'
+  def v_junit = '5.7.1'
   def v_flexmark = '0.62.2'
   def v_jackson = '2.12.2'
   def v_batik = '1.14'
@@ -135,12 +135,13 @@ file("${resourceDir}/bootstrap.properties").withInputStream {
 
 application {
   applicationName = config["application.title"].toLowerCase()
-  mainClassName = "com.${applicationName}.Main"
+  mainClass.set("com.${applicationName}.Main")
 
   applicationDefaultJvmArgs = [
       "--add-opens=javafx.controls/javafx.scene.control=ALL-UNNAMED",
       "--add-opens=javafx.controls/javafx.scene.control.skin=ALL-UNNAMED",
       "--add-opens=javafx.graphics/com.sun.javafx.css=ALL-UNNAMED",
+      "--add-exports=javafx.graphics/com.sun.javafx.application=ALL-UNNAMED",
   ]
 }
 
@@ -183,6 +184,14 @@ distributions {
 
 test {
   useJUnitPlatform()
+
+  doFirst {
+    jvmArgs = [
+        '--add-exports', "javafx.base/com.sun.javafx.event=ALL-UNNAMED",
+    ]
+
+    classpath = files()
+  }
 
   testLogging {
     exceptionFormat = 'full'
