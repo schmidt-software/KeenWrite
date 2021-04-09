@@ -48,6 +48,9 @@ dependencies {
   implementation('com.dlsc.preferencesfx:preferencesfx-core:11.7.0') {
     exclude group: 'org.openjfx'
   }
+  implementation 'com.io7m.jwheatsheaf:com.io7m.jwheatsheaf:2.0.1'
+  implementation 'com.io7m.jwheatsheaf:com.io7m.jwheatsheaf.api:2.0.1'
+  implementation 'com.io7m.jwheatsheaf:com.io7m.jwheatsheaf.ui:2.0.1'
 
   // Markdown
   implementation "com.vladsch.flexmark:flexmark:${v_flexmark}"

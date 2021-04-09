@@ -26,7 +26,7 @@ import com.keenwrite.sigils.RSigilOperator;
 import com.keenwrite.sigils.SigilOperator;
 import com.keenwrite.sigils.Tokens;
 import com.keenwrite.sigils.YamlSigilOperator;
-import com.keenwrite.ui.explorer.FilesView;
+import com.keenwrite.ui.explorer.FilePickerFactory;
 import com.keenwrite.ui.heuristics.DocumentStatistics;
 import com.keenwrite.ui.outline.DocumentOutline;
 import com.panemu.tiwulfx.control.dock.DetachableTab;
@@ -346,12 +346,15 @@ public final class MainPane extends SplitPane {
   /**
    * Saves the active {@link TextEditor} under a new name.
    *
-   * @param file The new active editor {@link File} reference.
+   * @param files The new active editor {@link File} reference, must contain
+   *              at least one element.
    */
-  public void saveAs( final File file ) {
-    assert file != null;
+  public void saveAs( final List<File> files ) {
+    assert files != null;
+    assert !files.isEmpty();
     final var editor = getActiveTextEditor();
     final var tab = getTab( editor );
+    final var file = files.get( 0 );
 
     editor.rename( file );
     tab.ifPresent( t -> {
@@ -523,7 +526,8 @@ public final class MainPane extends SplitPane {
 
   public void viewFiles() {
     try {
-      final var fileManager = new FilesView( mWorkspace );
+      final var factory = new FilePickerFactory( mWorkspace );
+      final var fileManager = factory.createModeless();
       viewTab( fileManager, APP_FILE_MANAGER, "Pane.files.title" );
     } catch( final Exception ex ) {
       clue( ex );

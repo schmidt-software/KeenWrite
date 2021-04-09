@@ -42,14 +42,6 @@ public final class Action implements MenuAction {
     mHandler = handler;
   }
 
-  /**
-   * Runs this action. Most actions are mapped to menu items, but some actions
-   * (such as the Insert key to toggle overwrite mode) are not.
-   */
-  public void execute() {
-    mHandler.handle( new ActionEvent() );
-  }
-
   @Override
   public MenuItem createMenuItem() {
     // This will either become a menu or a menu item, depending on whether

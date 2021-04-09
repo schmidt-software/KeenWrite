@@ -1,7 +1,6 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.ui.explorer;
 
-import com.keenwrite.preferences.Workspace;
 import com.keenwrite.ui.controls.BrowseButton;
 import javafx.beans.property.*;
 import javafx.collections.ObservableList;
@@ -9,6 +8,7 @@ import javafx.collections.transformation.SortedList;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import javafx.stage.FileChooser;
 import javafx.util.Callback;
 
 import java.io.File;
@@ -17,12 +17,13 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 
 import static com.keenwrite.constants.Constants.UI_CONTROL_SPACING;
 import static com.keenwrite.events.FileOpenEvent.fireFileOpenEvent;
 import static com.keenwrite.events.StatusEvent.clue;
-import static com.keenwrite.preferences.WorkspaceKeys.KEY_UI_RECENT_DIR;
 import static com.keenwrite.ui.fonts.IconFactory.createFileIcon;
 import static java.nio.file.Files.size;
 import static java.time.Instant.ofEpochMilli;
@@ -38,7 +39,7 @@ import static org.apache.commons.io.FilenameUtils.getExtension;
 /**
  * Responsible for browsing files.
  */
-public class FilesView extends BorderPane {
+public class FilesView extends BorderPane implements FilePicker {
   /**
    * When this directory changes, the input field will update accordingly.
    */
@@ -64,14 +65,12 @@ public class FilesView extends BorderPane {
    * therein. This will update the recent directory so that it will be
    * restored upon restart.
    *
-   * @param workspace Contains the initial (recent) directory and locale.
+   * @param recent Contains the initial (recent) directory.
+   * @param locale Contains the language settings.
    */
-  public FilesView( final Workspace workspace ) {
-    assert workspace != null;
-
-    mDirectory = workspace.fileProperty( KEY_UI_RECENT_DIR );
-
-    final var locale = workspace.getLocale();
+  public FilesView(
+    final ObjectProperty<File> recent, final Locale locale ) {
+    mDirectory = recent;
     mDateFormatter = createFormatter( "yyyy-MMM-dd", locale );
     mTimeFormatter = createFormatter( "HH:mm:ss", locale );
 
@@ -87,6 +86,11 @@ public class FilesView extends BorderPane {
 
     mDirectory.addListener( ( c, o, n ) -> updateListing( n ) );
     updateListing( mDirectory.get() );
+  }
+
+  @Override
+  public Optional<List<File>> choose() {
+    return Optional.empty();
   }
 
   private void updateListing( final File directory ) {
@@ -110,6 +114,12 @@ public class FilesView extends BorderPane {
     }
   }
 
+  /**
+   * Allows the user to use an instance of {@link FileChooser} to change the
+   * directory.
+   *
+   * @return The browse button and input field.
+   */
   private HBox createDirectoryChooser() {
     final var dirProperty = directoryProperty();
     final var directory = dirProperty.get();

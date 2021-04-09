@@ -15,6 +15,8 @@ import com.keenwrite.search.SearchModel;
 import com.keenwrite.ui.controls.SearchBar;
 import com.keenwrite.ui.dialogs.ImageDialog;
 import com.keenwrite.ui.dialogs.LinkDialog;
+import com.keenwrite.ui.explorer.FilePicker;
+import com.keenwrite.ui.explorer.FilePickerFactory;
 import com.keenwrite.ui.logging.LogView;
 import com.vladsch.flexmark.ast.Link;
 import javafx.concurrent.Task;
@@ -23,7 +25,10 @@ import javafx.scene.control.Dialog;
 import javafx.stage.Window;
 import javafx.stage.WindowEvent;
 
+import java.io.File;
 import java.nio.file.Path;
+import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 
 import static com.keenwrite.Bootstrap.*;
@@ -31,8 +36,9 @@ import static com.keenwrite.ExportFormat.*;
 import static com.keenwrite.Messages.get;
 import static com.keenwrite.constants.GraphicsConstants.ICON_DIALOG_NODE;
 import static com.keenwrite.events.StatusEvent.clue;
-import static com.keenwrite.preferences.WorkspaceKeys.KEY_UI_RECENT_DIR;
 import static com.keenwrite.processors.ProcessorFactory.createProcessors;
+import static com.keenwrite.ui.explorer.FilePickerFactory.Options;
+import static com.keenwrite.ui.explorer.FilePickerFactory.Options.*;
 import static java.nio.file.Files.writeString;
 import static java.util.concurrent.Executors.newFixedThreadPool;
 import static javafx.event.Event.fireEvent;
@@ -95,7 +101,7 @@ public final class ApplicationActions {
   }
 
   public void file‿open() {
-    getMainPane().open( createFileChooser().openFiles() );
+    pickFiles( FILE_OPEN_MULTIPLE ).ifPresent( l -> getMainPane().open( l ) );
   }
 
   public void file‿close() {
@@ -111,8 +117,7 @@ public final class ApplicationActions {
   }
 
   public void file‿save_as() {
-    final var file = createFileChooser().saveAs();
-    file.ifPresent( ( f ) -> getMainPane().saveAs( f ) );
+    pickFiles( FILE_SAVE_AS ).ifPresent( l -> getMainPane().saveAs( l ) );
   }
 
   public void file‿save_all() {
@@ -123,9 +128,10 @@ public final class ApplicationActions {
     final var main = getMainPane();
     final var editor = main.getActiveTextEditor();
     final var filename = format.toExportFilename( editor.getPath() );
-    final var selection = createFileChooser().exportAs( filename );
+    final var selection = pickFiles( filename, FILE_EXPORT );
 
-    selection.ifPresent( ( file ) -> {
+    selection.ifPresent( ( files ) -> {
+      final var file = files.get(0);
       final var path = file.toPath();
       final var document = editor.getText();
       final var context = main.createProcessorContext( path, format );
@@ -432,9 +438,20 @@ public final class ApplicationActions {
     alert.showAndWait();
   }
 
-  private FileChooserCommand createFileChooser() {
-    final var dir = getWorkspace().fileProperty( KEY_UI_RECENT_DIR );
-    return new FileChooserCommand( getWindow(), dir );
+  private Optional<List<File>> pickFiles( final Options... options ) {
+    return createPicker( options ).choose();
+  }
+
+  private Optional<List<File>> pickFiles(
+    final File filename, final Options... options ) {
+    final var picker = createPicker( options);
+    picker.setInitialFilename( filename );
+    return picker.choose();
+  }
+
+  private FilePicker createPicker( final Options... options ) {
+    final var factory = new FilePickerFactory( getWorkspace() );
+    return factory.createModal( getWindow(), options );
   }
 
   private TextEditor getActiveTextEditor() {
