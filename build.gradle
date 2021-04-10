@@ -106,7 +106,7 @@ dependencies {
   implementation 'javax.validation:validation-api:2.0.1.Final'
   implementation 'org.greenrobot:eventbus:3.2.0'
 
-  // Configuration
+  // Configuration: Update Workspace to use Jackson, instead could shave ~800kb
   implementation 'org.apache.commons:commons-configuration2:2.7'
   implementation 'commons-beanutils:commons-beanutils:1.9.4'
 
