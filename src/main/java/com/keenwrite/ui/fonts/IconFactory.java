@@ -32,6 +32,10 @@ import static org.controlsfx.glyphfont.FontAwesome.Glyph.valueOf;
  * Responsible for creating FontAwesome glyphs and graphics.
  */
 public class IconFactory {
+  /**
+   * File icon height, in pixels.
+   */
+  private static final int ICON_HEIGHT = 16;
 
   /**
    * Singleton to prevent re-loading the TTF file.
@@ -120,7 +124,7 @@ public class IconFactory {
       ICONS.computeIfAbsent( extension, IconFactory::createFxImage );
     final var imageView = new ImageView();
     imageView.setPreserveRatio( true );
-    imageView.setFitHeight( 52 );
+    imageView.setFitHeight( ICON_HEIGHT );
     imageView.setImage( image );
 
     return imageView;
