@@ -1,7 +1,6 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.ui.explorer;
 
-import com.io7m.jwheatsheaf.api.JWFileChoosersType;
 import com.io7m.jwheatsheaf.ui.JWFileChoosers;
 import com.keenwrite.preferences.Workspace;
 import javafx.beans.property.ObjectProperty;
@@ -20,6 +19,7 @@ import static com.io7m.jwheatsheaf.api.JWFileChooserAction.*;
 import static com.io7m.jwheatsheaf.api.JWFileChooserConfiguration.Builder;
 import static com.io7m.jwheatsheaf.api.JWFileChooserConfiguration.builder;
 import static com.keenwrite.constants.Constants.USER_DIRECTORY;
+import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.preferences.WorkspaceKeys.KEY_UI_RECENT_DIR;
 import static java.nio.file.FileSystems.getDefault;
 import static java.util.Optional.ofNullable;
@@ -66,7 +66,6 @@ public class FilePickerFactory {
    */
   private class PureFilePicker implements FilePicker {
     private final Window mParent;
-    private final JWFileChoosersType mChooserType = JWFileChoosers.create();
     private final Builder mBuilder;
 
     private PureFilePicker( final Window window, final Options... options ) {
@@ -102,7 +101,8 @@ public class FilePickerFactory {
     @Override
     public Optional<List<File>> choose() {
       final var config = mBuilder.build();
-      final var chooser = mChooserType.create( mParent, config );
+      final var chooserType = JWFileChoosers.create();
+      final var chooser = chooserType.create( mParent, config );
       final var paths = chooser.showAndWait();
       final var files = new ArrayList<File>( paths.size() );
       paths.forEach( path -> {
@@ -112,6 +112,12 @@ public class FilePickerFactory {
         // Set to the directory of the last file opened successfully.
         setRecentDirectory( file );
       } );
+
+      try {
+        chooserType.close();
+      } catch( final Exception e ) {
+        clue( e );
+      }
 
       return files.isEmpty() ? Optional.empty() : Optional.of( files );
     }
