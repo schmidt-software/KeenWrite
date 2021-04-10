@@ -7,6 +7,7 @@ import com.dlsc.preferencesfx.PreferencesFxEvent;
 import com.dlsc.preferencesfx.model.Category;
 import com.dlsc.preferencesfx.model.Group;
 import com.dlsc.preferencesfx.model.Setting;
+import com.dlsc.preferencesfx.util.StorageHandler;
 import com.dlsc.preferencesfx.view.NavigationView;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ObjectProperty;
@@ -22,8 +23,8 @@ import java.io.File;
 
 import static com.dlsc.formsfx.model.structure.Field.ofStringType;
 import static com.dlsc.preferencesfx.PreferencesFxEvent.EVENT_PREFERENCES_SAVED;
-import static com.keenwrite.constants.GraphicsConstants.ICON_DIALOG;
 import static com.keenwrite.Messages.get;
+import static com.keenwrite.constants.GraphicsConstants.ICON_DIALOG;
 import static com.keenwrite.preferences.LocaleProperty.localeListProperty;
 import static com.keenwrite.preferences.SkinProperty.skinListProperty;
 import static com.keenwrite.preferences.WorkspaceKeys.*;
@@ -87,45 +88,50 @@ public final class PreferencesController {
   }
 
   /**
-   * Creates the preferences dialog.
-   * <p>
-   * TODO: Make this dynamic by iterating over all "Preferences.*" values
-   * that follow a particular naming pattern.
-   * </p>
+   * Creates the preferences dialog based using {@link XmlStorageHandler} and
+   * numerous {@link Category} objects.
    *
-   * @return A new instance of preferences for users to edit.
+   * @return A component for editing preferences.
    */
   private PreferencesFx createPreferencesFx() {
-    return PreferencesFx.of(
-      new XmlStorageHandler(),
-      Category.of(
-        get( KEY_R ),
-        Group.of(
-          get( KEY_R_DIR ),
-          Setting.of( label( KEY_R_DIR,
-                             stringProperty( KEY_DEF_DELIM_BEGAN ).get(),
-                             stringProperty( KEY_DEF_DELIM_ENDED ).get() ) ),
-          Setting.of( title( KEY_R_DIR ),
-                      fileProperty( KEY_R_DIR ), true )
-        ),
-        Group.of(
-          get( KEY_R_SCRIPT ),
-          Setting.of( label( KEY_R_SCRIPT ) ),
-          createScriptSetting()
-        ),
-        Group.of(
-          get( KEY_R_DELIM_BEGAN ),
-          Setting.of( label( KEY_R_DELIM_BEGAN ) ),
-          Setting.of( title( KEY_R_DELIM_BEGAN ),
-                      stringProperty( KEY_R_DELIM_BEGAN ) )
-        ),
-        Group.of(
-          get( KEY_R_DELIM_ENDED ),
-          Setting.of( label( KEY_R_DELIM_ENDED ) ),
-          Setting.of( title( KEY_R_DELIM_ENDED ),
-                      stringProperty( KEY_R_DELIM_ENDED ) )
-        )
+    return PreferencesFx.of( createStorageHandler(), createCategories() )
+                        .instantPersistent( false )
+                        .dialogIcon( ICON_DIALOG );
+  }
+
+  private StorageHandler createStorageHandler() {
+    return new XmlStorageHandler();
+  }
+
+  private Category[] createCategories() {
+    return new Category[]{Category.of(
+      get( KEY_R ),
+      Group.of(
+        get( KEY_R_DIR ),
+        Setting.of( label( KEY_R_DIR,
+                           stringProperty( KEY_DEF_DELIM_BEGAN ).get(),
+                           stringProperty( KEY_DEF_DELIM_ENDED ).get() ) ),
+        Setting.of( title( KEY_R_DIR ),
+                    fileProperty( KEY_R_DIR ), true )
       ),
+      Group.of(
+        get( KEY_R_SCRIPT ),
+        Setting.of( label( KEY_R_SCRIPT ) ),
+        createScriptSetting()
+      ),
+      Group.of(
+        get( KEY_R_DELIM_BEGAN ),
+        Setting.of( label( KEY_R_DELIM_BEGAN ) ),
+        Setting.of( title( KEY_R_DELIM_BEGAN ),
+                    stringProperty( KEY_R_DELIM_BEGAN ) )
+      ),
+      Group.of(
+        get( KEY_R_DELIM_ENDED ),
+        Setting.of( label( KEY_R_DELIM_ENDED ) ),
+        Setting.of( title( KEY_R_DELIM_ENDED ),
+                    stringProperty( KEY_R_DELIM_ENDED ) )
+      )
+    ),
       Category.of(
         get( KEY_IMAGES ),
         Group.of(
@@ -235,8 +241,7 @@ public final class PreferencesController {
           Setting.of( title( KEY_TYPESET_CONTEXT_ENV ),
                       stringProperty( KEY_TYPESET_CONTEXT_ENV ) )
         )
-      )
-    ).instantPersistent( false ).dialogIcon( ICON_DIALOG );
+      )};
   }
 
   @SuppressWarnings( "unchecked" )
