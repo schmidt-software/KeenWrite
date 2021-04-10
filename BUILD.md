@@ -6,7 +6,7 @@ This document describes how to build the application and platform binaries.
 
 Download and install the following software packages:
 
-* [OpenJDK 15](https://openjdk.java.net) (full JDK, must include JavaFX)
+* [JDK 15](https://bell-sw.com/pages/downloads/?version=java-15) (Full JDK + JavaFX)
 * [Gradle 7.0](https://services.gradle.org/distributions)
 * [Git 2.28.0](https://git-scm.com/downloads)
 
