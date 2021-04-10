@@ -6,7 +6,7 @@ This document describes how to build the application and platform binaries.
 
 Download and install the following software packages:
 
-* [OpenJDK 16](https://openjdk.java.net) (full JDK, must include JavaFX)
+* [OpenJDK 15](https://openjdk.java.net) (full JDK, must include JavaFX)
 * [Gradle 7.0](https://services.gradle.org/distributions)
 * [Git 2.28.0](https://git-scm.com/downloads)
 

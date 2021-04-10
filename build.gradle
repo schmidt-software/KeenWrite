@@ -29,7 +29,7 @@ if (project.hasProperty('targetOs')) {
 }
 
 javafx {
-  version = "16"
+  version = "15"
   modules = ['javafx.controls', 'javafx.swing']
   configuration = 'compileOnly'
 }

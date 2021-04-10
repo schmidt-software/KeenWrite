@@ -101,25 +101,24 @@ public class FilePickerFactory {
     @Override
     public Optional<List<File>> choose() {
       final var config = mBuilder.build();
-      final var chooserType = JWFileChoosers.create();
-      final var chooser = chooserType.create( mParent, config );
-      final var paths = chooser.showAndWait();
-      final var files = new ArrayList<File>( paths.size() );
-      paths.forEach( path -> {
-        final var file = path.toFile();
-        files.add( file );
+      try( final var chooserType = JWFileChoosers.create() ) {
+        final var chooser = chooserType.create( mParent, config );
+        final var paths = chooser.showAndWait();
+        final var files = new ArrayList<File>( paths.size() );
+        paths.forEach( path -> {
+          final var file = path.toFile();
+          files.add( file );
 
-        // Set to the directory of the last file opened successfully.
-        setRecentDirectory( file );
-      } );
+          // Set to the directory of the last file opened successfully.
+          setRecentDirectory( file );
+        } );
 
-      try {
-        chooserType.close();
-      } catch( final Exception e ) {
-        clue( e );
+        return files.isEmpty() ? Optional.empty() : Optional.of( files );
+      } catch( final Exception ex ) {
+        clue( ex );
       }
 
-      return files.isEmpty() ? Optional.empty() : Optional.of( files );
+      return Optional.empty();
     }
   }
 
