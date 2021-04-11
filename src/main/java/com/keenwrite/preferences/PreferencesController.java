@@ -92,6 +92,9 @@ public final class PreferencesController {
    * numerous {@link Category} objects.
    *
    * @return A component for editing preferences.
+   * @throws RuntimeException Could not construct the {@link PreferencesFx}
+   *                          object (e.g., illegal access permissions,
+   *                          unmapped XML resource).
    */
   private PreferencesFx createPreferencesFx() {
     return PreferencesFx.of( createStorageHandler(), createCategories() )

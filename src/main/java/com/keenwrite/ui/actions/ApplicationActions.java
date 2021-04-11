@@ -131,7 +131,7 @@ public final class ApplicationActions {
     final var selection = pickFiles( filename, FILE_EXPORT );
 
     selection.ifPresent( ( files ) -> {
-      final var file = files.get(0);
+      final var file = files.get( 0 );
       final var path = file.toPath();
       final var document = editor.getText();
       final var context = main.createProcessorContext( path, format );
@@ -256,7 +256,11 @@ public final class ApplicationActions {
   }
 
   public void edit‿preferences() {
-    new PreferencesController( getWorkspace() ).show();
+    try {
+      new PreferencesController( getWorkspace() ).show();
+    } catch( final Exception ex ) {
+      clue( ex );
+    }
   }
 
   public void format‿bold() {
@@ -444,7 +448,7 @@ public final class ApplicationActions {
 
   private Optional<List<File>> pickFiles(
     final File filename, final Options... options ) {
-    final var picker = createPicker( options);
+    final var picker = createPicker( options );
     picker.setInitialFilename( filename );
     return picker.choose();
   }

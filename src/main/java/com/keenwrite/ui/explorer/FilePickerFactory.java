@@ -81,10 +81,16 @@ public class FilePickerFactory {
       // multiple files.
       for( final var arg : args ) {
         switch( arg ) {
-          case FILE_EXPORT -> title = "Dialog.file.choose.export.title";
-          case FILE_SAVE_AS -> title = "Dialog.file.choose.save.title";
+          case FILE_EXPORT -> {
+            title = "Dialog.file.choose.export.title";
+            action = CREATE;
+          }
+          case FILE_SAVE_AS -> {
+            title = "Dialog.file.choose.save.title";
+            action = CREATE;
+          }
+          case FILE_OPEN_SINGLE -> action = OPEN_EXISTING_SINGLE;
           case FILE_OPEN_MULTIPLE -> action = OPEN_EXISTING_MULTIPLE;
-          case FILE_OPEN_NEW -> action = CREATE;
           case PERMIT_CREATE_DIRS -> mBuilder.setAllowDirectoryCreation( true );
         }
       }
