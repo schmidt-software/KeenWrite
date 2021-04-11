@@ -39,7 +39,7 @@ public final class PdfProcessor extends ExecutorProcessor<String> {
 
       typesetter.typeset( pathInput, pathOutput );
     } catch( final Exception ex ) {
-      clue( ex );
+      clue( get( "Main.status.typeset.failed" ), ex );
     }
 
     // Do not continue processing (the document was typeset into a binary).

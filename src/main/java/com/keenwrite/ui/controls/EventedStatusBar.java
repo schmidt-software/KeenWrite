@@ -27,15 +27,14 @@ public class EventedStatusBar extends StatusBar {
    */
   @Subscribe
   public void handle( final StatusEvent event ) {
-    final var message = event.getMessage();
+    final var m = event.getMessage() + event.getException();
 
     // Don't burden the repaint thread if there's no status bar change.
-    if( !getText().equals( message ) ) {
-      final var s = message == null ? "" : message;
-      final var i = s.indexOf( '\n' );
+    if( !getText().equals( m ) ) {
+      final var i = m.indexOf( '\n' );
 
       final Runnable update =
-        () -> setText( s.substring( 0, i > 0 ? i : s.length() ) );
+        () -> setText( m.substring( 0, i > 0 ? i : m.length() ) );
 
       if( isFxApplicationThread() ) {
         update.run();

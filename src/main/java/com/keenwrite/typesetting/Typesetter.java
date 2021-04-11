@@ -5,10 +5,14 @@ import com.keenwrite.io.File;
 import com.keenwrite.preferences.Key;
 import com.keenwrite.preferences.Workspace;
 
+import java.io.*;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 import java.util.concurrent.Callable;
+import java.util.regex.Pattern;
 
 import static com.keenwrite.Messages.get;
 import static com.keenwrite.constants.Constants.DEFAULT_DIRECTORY;
@@ -18,6 +22,7 @@ import static com.keenwrite.preferences.WorkspaceKeys.KEY_TYPESET_CONTEXT_PATH;
 import static java.lang.ProcessBuilder.Redirect.DISCARD;
 import static java.lang.String.format;
 import static java.lang.System.currentTimeMillis;
+import static java.nio.file.Files.newDirectoryStream;
 import static java.util.concurrent.TimeUnit.*;
 
 /**
@@ -42,9 +47,11 @@ public class Typesetter {
    *
    * @param in  The input document to typeset.
    * @param out Path to the finished typeset document.
+   * @throws IOException          If the process could not be started.
+   * @throws InterruptedException If the process was killed.
    */
   public void typeset( final Path in, final Path out )
-    throws Exception {
+    throws IOException, InterruptedException {
     if( TYPESETTER.canRun() ) {
       clue( get( "Main.status.typeset.began", out ) );
       final var task = new TypesetTask( in, out );
@@ -56,6 +63,42 @@ public class Typesetter {
         out, since( time ) )
       );
     }
+  }
+
+  private String getProperty( final Key key ) {
+    return mWorkspace.stringProperty( key ).get();
+  }
+
+  /**
+   * Calculates the time that has elapsed from the current time to the
+   * given moment in time.
+   *
+   * @param start The starting time, which should be before the current time.
+   * @return A human-readable formatted time.
+   * @see #asElapsed(long)
+   */
+  private static String since( final long start ) {
+    return asElapsed( currentTimeMillis() - start );
+  }
+
+  /**
+   * Converts an elapsed time to a human-readable format (hours, minutes,
+   * seconds, and milliseconds).
+   *
+   * @param elapsed An elapsed time, in milliseconds.
+   * @return Human-readable elapsed time.
+   */
+  private static String asElapsed( final long elapsed ) {
+    final var hours = MILLISECONDS.toHours( elapsed );
+    final var eHours = elapsed - HOURS.toMillis( hours );
+    final var minutes = MILLISECONDS.toMinutes( eHours );
+    final var eMinutes = eHours - MINUTES.toMillis( minutes );
+    final var seconds = MILLISECONDS.toSeconds( eMinutes );
+    final var eSeconds = eMinutes - SECONDS.toMillis( seconds );
+    final var milliseconds = MILLISECONDS.toMillis( eSeconds );
+
+    return format( "%02d:%02d:%02d.%03d",
+                   hours, minutes, seconds, milliseconds );
   }
 
   /**
@@ -92,7 +135,7 @@ public class Typesetter {
       final var filename = mOutput.getFileName();
       final var paths = getProperty( KEY_TYPESET_CONTEXT_PATH );
       final var envs = getProperty( KEY_TYPESET_CONTEXT_ENV );
-      final var exists = getCacheDir().exists();
+      final var exists = !empty( getCacheDir().toPath() );
 
       // Ensure invoking multiple times will load the correct arguments.
       mArgs.clear();
@@ -119,30 +162,34 @@ public class Typesetter {
     /**
      * Setting {@code TEXMFCACHE} when run on a fresh system fails on first
      * run. If the cache directory doesn't exist, attempt to create it, then
-     * call ConTeXt to generate the PDF.
+     * call ConTeXt to generate the PDF. This is brittle because if the
+     * directory is empty, or not populated with cached data, a false positive
+     * will be returned, resulting in no PDF being created.
      *
      * @return {@code true} if the document was typeset successfully.
-     * @throws Exception If the typesetter could not be invoked.
+     * @throws IOException          If the process could not be started.
+     * @throws InterruptedException If the process was killed.
      */
-    private boolean typeset() throws Exception {
+    private boolean typeset() throws IOException, InterruptedException {
       return reinitialize() ? call() : call() && reinitialize() && call();
     }
 
     @Override
-    public Boolean call() throws Exception {
+    public Boolean call() throws IOException, InterruptedException {
       final var builder = new ProcessBuilder( mArgs );
       builder.directory( mDirectory.toFile() );
+      builder.environment().put( "TEXMFCACHE", getCacheDir().toString() );
 
-      final var cacheDir = getCacheDir();
-      final var env = builder.environment();
-      env.put( "TEXMFCACHE", cacheDir.toString() );
-
-      // Without redirecting (or draining) the output, the command will not
+      // Without redirecting (or draining) the stderr, the command may not
       // terminate successfully.
-      builder.redirectOutput( DISCARD );
       builder.redirectError( DISCARD );
 
       final var process = builder.start();
+
+      // Reading from stdout allows slurping page numbers while generating.
+      final var listener = new PaginationListener( process.getInputStream() );
+      listener.start();
+
       process.waitFor();
       final var exit = process.exitValue();
       process.destroy();
@@ -165,42 +212,88 @@ public class Typesetter {
       final var cache = Path.of( temp, "luatex-cache" );
       return cache.toFile();
     }
-  }
 
-  private String getProperty( final Key key ) {
-    return mWorkspace.stringProperty( key ).get();
+    /**
+     * Answers whether the given directory is empty.
+     *
+     * @param path The directory to check for emptiness.
+     * @return {@code true} if the directory is empty.
+     */
+    private boolean empty( final Path path ) {
+      try( final var stream = newDirectoryStream( path ) ) {
+        return !stream.iterator().hasNext();
+      } catch( final NoSuchFileException | FileNotFoundException ex ) {
+        // A missing directory means it doesn't exist, ergo is empty.
+        return true;
+      } catch( final IOException ex ) {
+        throw new RuntimeException( ex );
+      }
+    }
   }
 
   /**
-   * Calculates the time that has elapsed from the current time to the
-   * given moment in time.
+   * Responsible for parsing the output from the typesetting engine and
+   * updating the status bar to provide assurance that typesetting is
+   * executing.
    *
-   * @param start The starting time, which really should be before the
-   *              current time.
-   * @return A human-readable formatted time.
-   * @see #asElapsed(long)
+   * <p>
+   * Example output:
+   * </p>
+   * <pre>{@code
+   * pages           > flushing realpage 15, userpage 15, subpage 15
+   * pages           > flushing realpage 16, userpage 16, subpage 16
+   * pages           > flushing realpage 1, userpage 1, subpage 1
+   * pages           > flushing realpage 2, userpage 2, subpage 2
+   * }</pre>
    */
-  private static String since( final long start ) {
-    return asElapsed( currentTimeMillis() - start );
-  }
+  private static class PaginationListener extends Thread {
+    private static final Pattern DIGITS = Pattern.compile( "[^\\d]+" );
 
-  /**
-   * Converts an elapsed time to a human-readable format (hours, minutes,
-   * seconds, and milliseconds).
-   *
-   * @param elapsed An elapsed time, in milliseconds.
-   * @return Human-readable elapsed time.
-   */
-  private static String asElapsed( final long elapsed ) {
-    final var hours = MILLISECONDS.toHours( elapsed );
-    final var eHours = elapsed - HOURS.toMillis( hours );
-    final var minutes = MILLISECONDS.toMinutes( eHours );
-    final var eMinutes = eHours - MINUTES.toMillis( minutes );
-    final var seconds = MILLISECONDS.toSeconds( eMinutes );
-    final var eSeconds = eMinutes - SECONDS.toMillis( seconds );
-    final var milliseconds = MILLISECONDS.toMillis( eSeconds );
+    private final InputStream mInputStream;
 
-    return format( "%02d:%02d:%02d.%03d",
-                   hours, minutes, seconds, milliseconds );
+    public PaginationListener( final InputStream in ) {
+      mInputStream = in;
+    }
+
+    @Override
+    public void run() {
+      try( final var reader = createReader() ) {
+        int pageCount = 1;
+        int passCount = 1;
+        int pageTotal = 0;
+        String line;
+
+        while( (line = reader.readLine()) != null ) {
+          if( line.startsWith( "pages" ) ) {
+            // The bottleneck will be the typesetting engine writing to stdout,
+            // not the parsing of stdout.
+            final var scanner = new Scanner( line ).useDelimiter( DIGITS );
+            final var digits = scanner.next();
+            final var page = Integer.parseInt( digits );
+
+            // If the page number is suddenly less than the previous page count,
+            // it means the typesetting engine is performing another pass.
+            if( page < pageCount ) {
+              passCount++;
+              pageTotal = pageCount;
+            }
+
+            pageCount = page;
+
+            // Let the user know that something is happening in the background.
+            clue( get(
+              "Main.status.typeset.page",
+              pageCount, pageTotal == 0 ? "?" : pageTotal, passCount
+            ) );
+          }
+        }
+      } catch( final IOException ex ) {
+        throw new RuntimeException( ex );
+      }
+    }
+
+    private BufferedReader createReader() {
+      return new BufferedReader( new InputStreamReader( mInputStream ) );
+    }
   }
 }

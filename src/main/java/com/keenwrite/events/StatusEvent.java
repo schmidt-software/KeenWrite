@@ -8,6 +8,8 @@ import java.util.stream.Collectors;
 import static com.keenwrite.Messages.get;
 import static com.keenwrite.constants.Constants.NEWLINE;
 import static com.keenwrite.constants.Constants.STATUS_BAR_OK;
+import static java.lang.String.format;
+import static java.lang.String.join;
 import static java.util.Arrays.stream;
 
 /**
@@ -16,6 +18,9 @@ import static java.util.Arrays.stream;
  */
 public class StatusEvent implements AppEvent {
   private static final String PACKAGE_NAME = MainApp.class.getPackageName();
+
+  private static final String ENGLISHIFY =
+    "(?<=[a-z])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])";
 
   /**
    * Detailed information about a problem.
@@ -72,6 +77,10 @@ public class StatusEvent implements AppEvent {
     return sb.toString();
   }
 
+  public String getException() {
+    return mProblem == null ? "" : toEnglish( mProblem );
+  }
+
   private static boolean filter( final StackTraceElement e ) {
     final var clazz = e.getClassName();
     return clazz.contains( PACKAGE_NAME ) ||
@@ -79,6 +88,27 @@ public class StatusEvent implements AppEvent {
       clazz.contains( "sun." ) ||
       clazz.contains( "flexmark." ) ||
       clazz.contains( "java." );
+  }
+
+  /**
+   * Separates the exception class name from TitleCase into lowercase,
+   * space-separated words. This makes the exception look a little more like
+   * English. Any {@link RuntimeException} instances passed into this method
+   * will have the cause extracted, if possible.
+   *
+   * @param problem The exception that triggered the status event change.
+   * @return A human-readable message with the exception name and the
+   * exception's message.
+   */
+  private static String toEnglish( Throwable problem ) {
+    if( problem instanceof RuntimeException &&
+      (problem = problem.getCause()) == null ) {
+      return "";
+    }
+
+    final var className = problem.getClass().getSimpleName();
+    final var words = join( " ", className.split( ENGLISHIFY ) );
+    return format( " (%s: %s)", words.toLowerCase(), problem.getMessage() );
   }
 
   /**
