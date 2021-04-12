@@ -42,16 +42,23 @@ public class Typesetter {
     mWorkspace = workspace;
   }
 
+  public static boolean canRun() {
+    return TYPESETTER.canRun();
+  }
+
   /**
-   * This will typeset the document using a new process.
+   * This will typeset the document using a new process. The return value only
+   * indicates whether the typesetter exists, not whether the typesetting was
+   * successful.
    *
    * @param in  The input document to typeset.
    * @param out Path to the finished typeset document.
-   * @throws IOException          If the process could not be started.
-   * @throws InterruptedException If the process was killed.
+   * @throws IOException                 If the process could not be started.
+   * @throws InterruptedException        If the process was killed.
+   * @throws TypesetterNotFoundException When no typesetter is along the PATH.
    */
   public void typeset( final Path in, final Path out )
-    throws IOException, InterruptedException {
+    throws IOException, InterruptedException, TypesetterNotFoundException {
     if( TYPESETTER.canRun() ) {
       clue( get( "Main.status.typeset.began", out ) );
       final var task = new TypesetTask( in, out );
@@ -62,6 +69,9 @@ public class Typesetter {
         "Main.status.typeset.ended." + (success ? "success" : "failure"),
         out, since( time ) )
       );
+    }
+    else {
+      throw new TypesetterNotFoundException( TYPESETTER.toString() );
     }
   }
 
@@ -135,13 +145,13 @@ public class Typesetter {
       final var filename = mOutput.getFileName();
       final var paths = getProperty( KEY_TYPESET_CONTEXT_PATH );
       final var envs = getProperty( KEY_TYPESET_CONTEXT_ENV );
-      final var exists = !empty( getCacheDir().toPath() );
+      final var cacheExists = !isEmpty( getCacheDir().toPath() );
 
       // Ensure invoking multiple times will load the correct arguments.
       mArgs.clear();
       mArgs.add( TYPESETTER.getName() );
 
-      if( exists ) {
+      if( cacheExists ) {
         mArgs.add( "--autogenerate" );
         mArgs.add( "--script" );
         mArgs.add( "mtx-context" );
@@ -156,7 +166,7 @@ public class Typesetter {
         mArgs.add( "--generate" );
       }
 
-      return exists;
+      return cacheExists;
     }
 
     /**
@@ -219,7 +229,7 @@ public class Typesetter {
      * @param path The directory to check for emptiness.
      * @return {@code true} if the directory is empty.
      */
-    private boolean empty( final Path path ) {
+    private boolean isEmpty( final Path path ) {
       try( final var stream = newDirectoryStream( path ) ) {
         return !stream.iterator().hasNext();
       } catch( final NoSuchFileException | FileNotFoundException ex ) {
@@ -287,7 +297,7 @@ public class Typesetter {
             // Let the user know that something is happening in the background.
             clue( get(
               "Main.status.typeset.page",
-              pageCount, pageTotal == 0 ? "?" : pageTotal, passCount
+              pageCount, pageTotal < 1 ? "?" : pageTotal, passCount
             ) );
           }
         }

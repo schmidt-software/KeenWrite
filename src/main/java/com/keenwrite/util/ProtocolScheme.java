@@ -2,6 +2,7 @@
 package com.keenwrite.util;
 
 import java.io.File;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 
@@ -39,23 +40,31 @@ public enum ProtocolScheme {
   /**
    * Returns the protocol for a given URI or file name.
    *
-   * @param resource Determine the protocol for this URI or file name.
+   * @param uri Determine the protocol for this URI or file name.
    * @return The protocol for the given resource.
    */
-  public static ProtocolScheme getProtocol( final String resource ) {
+  public static ProtocolScheme getProtocol( final String uri ) {
     try {
-      final var uri = new URI( resource );
-      return uri.isAbsolute()
-        ? valueFrom( uri )
-        : valueFrom( new URL( resource ) );
+      return getProtocol( new URI( uri ) );
     } catch( final Exception ex ) {
       // Using double-slashes is a short-hand to instruct the browser to
       // reference a resource using the parent URL's security model. This
       // is known as a protocol-relative URL.
-      return resource.startsWith( "//" )
-        ? HTTP
-        : valueFrom( new File( resource ) );
+      return uri.startsWith( "//" ) ? HTTP : valueFrom( new File( uri ) );
     }
+  }
+
+  /**
+   * Returns the protocol for a given URI or file name.
+   *
+   * @param uri Determine the protocol for this URI or file name.
+   * @return The protocol for the given resource.
+   */
+  public static ProtocolScheme getProtocol( final URI uri )
+    throws MalformedURLException {
+    return uri.isAbsolute()
+      ? valueFrom( uri )
+      : valueFrom( uri.toURL() );
   }
 
   /**

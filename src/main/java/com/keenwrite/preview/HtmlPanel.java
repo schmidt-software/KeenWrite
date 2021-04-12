@@ -17,12 +17,11 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.net.URI;
 
-import static com.keenwrite.events.FileOpenEvent.fireFileOpenEvent;
 import static com.keenwrite.events.DocumentChangedEvent.fireDocumentChangedEvent;
+import static com.keenwrite.events.FileOpenEvent.fireFileOpenEvent;
+import static com.keenwrite.events.HyperlinkOpenEvent.fireHyperlinkOpenEvent;
 import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.util.ProtocolScheme.getProtocol;
-import static java.awt.Desktop.Action.BROWSE;
-import static java.awt.Desktop.getDesktop;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static javax.swing.SwingUtilities.invokeLater;
@@ -70,17 +69,13 @@ public final class HtmlPanel extends XHTMLPanel {
    */
   private static final class HyperlinkListener extends LinkListener {
     @Override
-    public void linkClicked( final BasicPanel panel, final String uri ) {
+    public void linkClicked( final BasicPanel panel, final String link ) {
       try {
-        switch( getProtocol( uri ) ) {
-          case HTTP -> {
-            final var desktop = getDesktop();
+        final var uri = new URI( link );
 
-            if( desktop.isSupported( BROWSE ) ) {
-              desktop.browse( new URI( uri ) );
-            }
-          }
-          case FILE -> fireFileOpenEvent( new URI( uri ) );
+        switch( getProtocol( uri ) ) {
+          case HTTP -> fireHyperlinkOpenEvent( uri );
+          case FILE -> fireFileOpenEvent( uri );
         }
       } catch( final Exception ex ) {
         clue( ex );

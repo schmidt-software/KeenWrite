@@ -3,6 +3,8 @@ package com.keenwrite.processors;
 
 import com.keenwrite.typesetting.Typesetter;
 
+import java.io.IOException;
+
 import static com.keenwrite.Bootstrap.APP_TITLE_LOWERCASE;
 import static com.keenwrite.Messages.get;
 import static com.keenwrite.events.StatusEvent.clue;
@@ -38,7 +40,8 @@ public final class PdfProcessor extends ExecutorProcessor<String> {
       final var typesetter = new Typesetter( mContext.getWorkspace() );
 
       typesetter.typeset( pathInput, pathOutput );
-    } catch( final Exception ex ) {
+    } catch( final IOException | InterruptedException ex ) {
+      // Typesetter runtime exceptions will pass up the call stack.
       clue( get( "Main.status.typeset.failed" ), ex );
     }
 

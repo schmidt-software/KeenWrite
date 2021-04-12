@@ -1,6 +1,7 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite;
 
+import com.keenwrite.events.HyperlinkOpenEvent;
 import com.keenwrite.preferences.Workspace;
 import javafx.application.Application;
 import javafx.event.Event;
@@ -8,12 +9,14 @@ import javafx.event.EventType;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
+import org.greenrobot.eventbus.Subscribe;
 
 import java.util.function.BooleanSupplier;
 import java.util.logging.LogManager;
 
 import static com.keenwrite.Bootstrap.APP_TITLE;
 import static com.keenwrite.constants.GraphicsConstants.LOGOS;
+import static com.keenwrite.events.Bus.register;
 import static com.keenwrite.preferences.WorkspaceKeys.*;
 import static com.keenwrite.util.FontLoader.initFonts;
 import static javafx.scene.input.KeyCode.ALT;
@@ -66,6 +69,7 @@ public final class MainApp extends Application {
     initScene( stage );
 
     stage.show();
+    register( this );
   }
 
   private void initState( final Stage stage ) {
@@ -119,6 +123,17 @@ public final class MainApp extends Application {
   private void initScene( final Stage stage ) {
     mMainScene = new MainScene( mWorkspace );
     stage.setScene( mMainScene.getScene() );
+  }
+
+  /**
+   * When a hyperlink website URL is clicked, this method is called to launch
+   * the default browser to the event's location.
+   *
+   * @param event The event called when a hyperlink was clicked.
+   */
+  @Subscribe
+  public void handle( final HyperlinkOpenEvent event ) {
+    getHostServices().showDocument( event.getUri().toString() );
   }
 
   /**

@@ -1,13 +1,18 @@
-## Documents
+# Documentation
 
-See the following documents for more information:
+The following documents have additional details about using the editor:
 
-* [i18n.md](i18n.md) -- Using internationalization features
-* [div.md](div.md) -- Extended syntax for fenced divs
+* [div.md](div.md) -- Syntax for annotated text (fenced divs)
+* [i18n.md](i18n.md) -- Internationalization features
+* [r.md](r.md) -- R functions within R Markdown documents
+* [samples](samples) -- Example documents
+* [skins.md](skins.md) -- User interface customization
+* [svg.md](svg.md) -- Resolve issues with some SVG files
+* [typesetting.md](typesetting.md) -- Document typesetting
 * [variables.md](variables.md) -- Variable definitions and interpolation
-* [r.md](r.md) -- Call R functions within R Markdown documents
-* [svg.md](svg.md) -- Fix known issues with displaying SVG files
-* [skins.md](skins.md) -- Describes how to customize the user interface
+
+# Contributions
+
 * [credits.md](credits.md) -- Thanks to authors of contributing projects
-* [samples](samples) -- Contains example documents
+* [licenses](licenses) -- Third-party licenses
 

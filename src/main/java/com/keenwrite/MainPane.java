@@ -8,10 +8,7 @@ import com.keenwrite.editors.definition.DefinitionEditor;
 import com.keenwrite.editors.definition.TreeTransformer;
 import com.keenwrite.editors.definition.yaml.YamlTreeTransformer;
 import com.keenwrite.editors.markdown.MarkdownEditor;
-import com.keenwrite.events.CaretNavigationEvent;
-import com.keenwrite.events.FileOpenEvent;
-import com.keenwrite.events.TextDefinitionFocusEvent;
-import com.keenwrite.events.TextEditorFocusEvent;
+import com.keenwrite.events.*;
 import com.keenwrite.io.MediaType;
 import com.keenwrite.preferences.Key;
 import com.keenwrite.preferences.Workspace;
@@ -31,6 +28,7 @@ import com.keenwrite.ui.heuristics.DocumentStatistics;
 import com.keenwrite.ui.outline.DocumentOutline;
 import com.panemu.tiwulfx.control.dock.DetachableTab;
 import com.panemu.tiwulfx.control.dock.DetachableTabPane;
+import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.property.*;
 import javafx.collections.ListChangeListener;
@@ -40,12 +38,10 @@ import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.SplitPane;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TabPane;
-import javafx.scene.control.Tooltip;
+import javafx.scene.control.*;
 import javafx.scene.control.TreeItem.TreeModificationEvent;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.FlowPane;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import org.greenrobot.eventbus.Subscribe;
@@ -62,17 +58,23 @@ import java.util.stream.Collectors;
 import static com.keenwrite.ExportFormat.NONE;
 import static com.keenwrite.Messages.get;
 import static com.keenwrite.constants.Constants.*;
+import static com.keenwrite.constants.GraphicsConstants.ICON_DIALOG_NODE;
 import static com.keenwrite.events.Bus.register;
+import static com.keenwrite.events.HyperlinkOpenEvent.fireHyperlinkOpenEvent;
 import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.io.MediaType.*;
 import static com.keenwrite.preferences.WorkspaceKeys.*;
 import static com.keenwrite.processors.IdentityProcessor.IDENTITY;
 import static com.keenwrite.processors.ProcessorFactory.createProcessors;
+import static java.awt.Desktop.Action.BROWSE;
+import static java.awt.Desktop.getDesktop;
+import static java.lang.String.format;
+import static java.lang.System.getProperty;
 import static java.util.concurrent.Executors.newFixedThreadPool;
 import static java.util.stream.Collectors.groupingBy;
 import static javafx.application.Platform.runLater;
-import static javafx.scene.control.ButtonType.NO;
-import static javafx.scene.control.ButtonType.YES;
+import static javafx.scene.control.Alert.AlertType.ERROR;
+import static javafx.scene.control.ButtonType.*;
 import static javafx.scene.control.TabPane.TabClosingPolicy.ALL_TABS;
 import static javafx.scene.input.KeyCode.SPACE;
 import static javafx.scene.input.KeyCombination.CONTROL_DOWN;
@@ -249,6 +251,47 @@ public final class MainPane extends SplitPane {
       textArea.requestFollowCaret();
       textArea.requestFocus();
     } );
+  }
+
+  @Subscribe
+  @SuppressWarnings( "unused" )
+  public void handle( final ExportFailedEvent event ) {
+    final var os = getProperty( "os.name" );
+    final var arch = getProperty( "os.arch" ).toLowerCase();
+    final var bits = getProperty( "sun.arch.data.model" );
+
+    final var title = Messages.get( "Alert.typesetter.missing.title" );
+    final var header = Messages.get( "Alert.typesetter.missing.header" );
+    final var version = Messages.get(
+      "Alert.typesetter.missing.version",
+      os,
+      arch
+        .replaceAll( "amd.*|i.*|x86.*", "X86" )
+        .replaceAll( "mips.*", "MIPS" )
+        .replaceAll( "armv.*", "ARM" ),
+      bits );
+    final var text = Messages.get( "Alert.typesetter.missing.installer.text" );
+
+    // Download and install ConTeXt for {0} {1} {2}-bit
+    final var content = format( "%s %s", text, version );
+    final var flowPane = new FlowPane();
+    final var link = new Hyperlink( text );
+    final var label = new Label( version );
+    flowPane.getChildren().addAll( link, label );
+
+    final var alert = new Alert( ERROR, content, OK );
+    alert.setTitle( title );
+    alert.setHeaderText( header );
+    alert.getDialogPane().contentProperty().set( flowPane );
+    alert.setGraphic( ICON_DIALOG_NODE );
+
+    link.setOnAction( ( e ) -> {
+      alert.close();
+      final var url = Messages.get( "Alert.typesetter.missing.installer.url" );
+      runLater( () -> fireHyperlinkOpenEvent( url ) );
+    } );
+
+    alert.showAndWait();
   }
 
   /**
@@ -699,8 +742,13 @@ public final class MainPane extends SplitPane {
     final var task = new Task<Void>() {
       @Override
       public Void call() {
-        final var processor = mProcessors.getOrDefault( editor, IDENTITY );
-        processor.apply( editor == null ? "" : editor.getText() );
+        try {
+          final var p = mProcessors.getOrDefault( editor, IDENTITY );
+          p.apply( editor == null ? "" : editor.getText() );
+        } catch( final Exception ex ) {
+          clue( ex );
+        }
+
         return null;
       }
     };

@@ -8,10 +8,12 @@ import com.keenwrite.editors.TextDefinition;
 import com.keenwrite.editors.TextEditor;
 import com.keenwrite.editors.markdown.HyperlinkModel;
 import com.keenwrite.editors.markdown.LinkVisitor;
+import com.keenwrite.events.ExportFailedEvent;
 import com.keenwrite.preferences.PreferencesController;
 import com.keenwrite.preferences.Workspace;
 import com.keenwrite.processors.markdown.MarkdownProcessor;
 import com.keenwrite.search.SearchModel;
+import com.keenwrite.typesetting.Typesetter;
 import com.keenwrite.ui.controls.SearchBar;
 import com.keenwrite.ui.dialogs.ImageDialog;
 import com.keenwrite.ui.dialogs.LinkDialog;
@@ -41,6 +43,7 @@ import static com.keenwrite.ui.explorer.FilePickerFactory.Options;
 import static com.keenwrite.ui.explorer.FilePickerFactory.Options.*;
 import static java.nio.file.Files.writeString;
 import static java.util.concurrent.Executors.newFixedThreadPool;
+import static javafx.application.Platform.runLater;
 import static javafx.event.Event.fireEvent;
 import static javafx.scene.control.Alert.AlertType.INFORMATION;
 import static javafx.stage.WindowEvent.WINDOW_CLOSE_REQUEST;
@@ -159,14 +162,22 @@ public final class ApplicationActions {
         }
       );
 
-      task.setOnFailed( e -> clue( task.getException() ) );
+      task.setOnFailed( e -> {
+        clue( task.getException() );
+        fireExportFailedEvent();
+      } );
 
       sExecutor.execute( task );
     } );
   }
 
   public void file‿export‿pdf() {
-    file‿export( APPLICATION_PDF );
+    if( Typesetter.canRun() ) {
+      file‿export( APPLICATION_PDF );
+    }
+    else {
+      fireExportFailedEvent();
+    }
   }
 
   public void file‿export‿html_svg() {
@@ -183,6 +194,10 @@ public final class ApplicationActions {
 
   public void file‿export‿markdown() {
     file‿export( MARKDOWN_PLAIN );
+  }
+
+  private void fireExportFailedEvent() {
+    runLater( ExportFailedEvent::fireExportFailedEvent );
   }
 
   public void file‿exit() {

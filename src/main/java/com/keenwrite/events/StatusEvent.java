@@ -101,7 +101,10 @@ public class StatusEvent implements AppEvent {
    * exception's message.
    */
   private static String toEnglish( Throwable problem ) {
-    if( problem instanceof RuntimeException &&
+    assert problem != null;
+
+    // Subclasses of RuntimeException must be subject to Englishification.
+    if( problem.getClass().equals( RuntimeException.class ) &&
       (problem = problem.getCause()) == null ) {
       return "";
     }
@@ -154,7 +157,7 @@ public class StatusEvent implements AppEvent {
    * @param problem The exception with a message to display to the user.
    */
   public static void clue( final Throwable problem ) {
-    fireStatusEvent( problem.getMessage(), problem );
+    fireStatusEvent( "", problem );
   }
 
   private static void fireStatusEvent( final String message ) {
