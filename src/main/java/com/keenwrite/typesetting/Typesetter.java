@@ -237,7 +237,7 @@ public class Typesetter {
    * executing.
    *
    * <p>
-   * Example output:
+   * Example lines written to stdout:
    * </p>
    * <pre>{@code
    * pages           > flushing realpage 15, userpage 15, subpage 15
@@ -245,6 +245,10 @@ public class Typesetter {
    * pages           > flushing realpage 1, userpage 1, subpage 1
    * pages           > flushing realpage 2, userpage 2, subpage 2
    * }</pre>
+   * <p>
+   * The lines are parsed; the first number is displayed in a status bar
+   * message.
+   * </p>
    */
   private static class PaginationListener extends Thread {
     private static final Pattern DIGITS = Pattern.compile( "[^\\d]+" );
