@@ -275,8 +275,8 @@ public class Typesetter {
             final var digits = scanner.next();
             final var page = Integer.parseInt( digits );
 
-            // If the page number is suddenly less than the previous page count,
-            // it means the typesetting engine is performing another pass.
+            // If the page number is less than the previous page count, it
+            // means that the typesetting engine has started another pass.
             if( page < pageCount ) {
               passCount++;
               pageTotal = pageCount;
