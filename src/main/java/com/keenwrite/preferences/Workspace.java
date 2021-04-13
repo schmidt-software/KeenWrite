@@ -100,7 +100,7 @@ public final class Workspace {
 
     entry( KEY_LANGUAGE_LOCALE, asLocaleProperty( LOCALE_DEFAULT ) ),
 
-    entry( KEY_TYPESET_CONTEXT_PATH, asStringProperty( USER_DIRECTORY.toString() ) ),
+    entry( KEY_TYPESET_CONTEXT_PATH, asFileProperty( USER_DIRECTORY ) ),
     entry( KEY_TYPESET_CONTEXT_ENV, asStringProperty( "" ) )
   );
   //@formatter:on
