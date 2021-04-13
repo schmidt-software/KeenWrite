@@ -4,9 +4,9 @@ This document describes how to typeset from within the text editor.
 
 # Background 
 
-This editor helps keep content separated from presentation. Plain text documents will remain readable long after proprietary formats have become obsolete. However, we've come to expect much more in what we read than mere text: from hyperlinked tables of contents to indexes, from footers to footnotes, from mathematical expressions to complex graphics, modern documents are nuanced and multifaceted.
+This text editor helps keep content separated from presentation. Plain text documents will remain readable long after proprietary formats have become obsolete. However, we've come to expect much more in what we read than mere text: from hyperlinked tables of contents to indexes, from footers to footnotes, from mathematical expressions to complex graphics, modern documents are nuanced and multifaceted.
 
-Programming computers to typeset internationalized text automatically at the level we've become accustomed takes decades of development effort. Many free and open source software solutions can typeset text, including: ConTeXt, LaTeX, Sile, and others. ConTeXt is ideal for typesetting plain text into beautiful documents because it is developed with a notion of *setups*. These setups wholly describe how text is to be typeset and---by being external to the text itself---configuring setups provides ample control over the document's final appearance without changing the prose.
+Programming computers to typeset internationalized text automatically at the level we've become accustomed takes decades of development effort. Many free and open source software solutions can typeset text, including: ConTeXt, LaTeX, Sile, and others. ConTeXt is ideal for typesetting plain text into beautiful documents because it is developed with a notion of *setups*. These setups can wholly describe how text is to be typeset and---by being external to the text itself---configuring setups provides ample control over the document's final appearance without changing the prose.
 
 # Installation
 
@@ -14,7 +14,7 @@ Install ConTeXt as follows:
 
 1. Start the text editor.
 1. Click **File → Export As → PDF** (or type `Ctrl+p`).
-1. Note the operating system name, instruction set, and architecture (e.g., Windows x86 64-bit).
+1. Note the operating system name, instruction set, and architecture (e.g., Windows X86 64-bit).
 1. Click the [link](https://wiki.contextgarden.net/Installation) in the dialog.
 1. Download the ConTeXt version for your computer's operating system.
 1. Follow the step-by-step instructions on the ConTeXt installation web page.
