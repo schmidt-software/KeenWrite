@@ -1,0 +1,44 @@
+\startxmlsetups xml:img
+  \starttexcode
+    \placefigure{}{%
+      \externalfigure[\xmlatt{#1}{src}][conversion=mp]
+    }
+  \stoptexcode
+\stopxmlsetups
+
+% Requires the \href macro.
+\startxmlsetups xml:a
+  \href{\xmlflush{#1}}{\xmlatt{#1}{href}}
+\stopxmlsetups
+
+\startxmlsetups xml:code
+  \dontleavehmode{\tt\xmlflush{#1}}
+\stopxmlsetups
+
+% Strong text is bolded, typically.
+\startxmlsetups xml:strong
+  \dontleavehmode{\bf\xmlflush{#1}}
+\stopxmlsetups
+\startxmlsetups xml:b
+  \dontleavehmode{\bf\xmlflush{#1}}
+\stopxmlsetups
+
+% Emphasized text is italicized, typically.
+\startxmlsetups xml:em
+  \dontleavehmode{\em\xmlflush{#1}}
+\stopxmlsetups
+\startxmlsetups xml:i
+  \dontleavehmode{\em\xmlflush{#1}}
+\stopxmlsetups
+
+\startxmlsetups xml:q
+  \quote{\xmlflush{#1}}
+\stopxmlsetups
+
+\startxmlsetups xml:sub
+  \low{\xmlflush{#1}}
+\stopxmlsetups
+
+\startxmlsetups xml:sup
+  \high{\xmlflush{#1}}
+\stopxmlsetups

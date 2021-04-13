@@ -1,0 +1,15 @@
+\startxmlsetups xml:ol
+  \startitemize[n]
+    \xmlflush{#1}
+  \stopitemize
+\stopxmlsetups
+
+\startxmlsetups xml:ul
+  \startitemize
+    \xmlflush{#1}
+  \stopitemize
+\stopxmlsetups
+
+\startxmlsetups xml:li
+  \startitem \xmlflush{#1} \stopitem
+\stopxmlsetups

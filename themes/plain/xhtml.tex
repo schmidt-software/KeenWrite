@@ -12,145 +12,37 @@
   \xmlsetsetup{\xmldocument}{html|body}{xml:*}
 
   % Header elements
-  \xmlsetsetup{\xmldocument}{h1|h2|h3|h4|h5|h6}{xml:*}
+  \xmlsetsetup{\xmldocument}{h1|h2|h3}{xml:*}
 
   % Block elements
-  \xmlsetsetup{\xmldocument}{p|q|blockquote|div}{xml:*}
+  \xmlsetsetup{\xmldocument}{p|blockquote|div}{xml:*}
 
   % List elements
   \xmlsetsetup{\xmldocument}{ul|ol|li|dl|dt|dd}{xml:*}
-
-  % Table elements
-  \xmlsetsetup{\xmldocument}{table|thead|tbody|tfoot|tr|th|td|caption}{xml:*}
 
   % Break elements
   \xmlsetsetup{\xmldocument}{hr|br}{xml:*}
 
   % Inline elements
-  \xmlsetsetup{\xmldocument}{span|em|b|strong|a|sup|sub|code|img}{xml:*}
+  \xmlsetsetup{\xmldocument}{img|a|code|b|strong|em|q|sub|sup}{xml:*}
+
+  % Table elements
+	\xmlsetsetup{\xmldocument}{table|thead|tbody|tfoot|th|td|caption}{xml:*}
+  \xmlsetsetup{\xmldocument}{tr[position()!=last()]}{xml:tr}
+  \xmlsetsetup{\xmldocument}{tr[position()=last()]}{xml:tr:last}
 
   % TeX elements
   \xmlsetsetup{\xmldocument}{tex}{xml:*}
 \stopxmlsetups
 
-\startxmlsetups xml:html
-  \xmlflush{#1}
-\stopxmlsetups
-
-\startxmlsetups xml:body
-  \xmlflush{#1}
-\stopxmlsetups
-
-\startxmlsetups xml:h1
-  \chapter{\xmlflush{#1}}
-\stopxmlsetups
-
-\startxmlsetups xml:h2
-  \section{\xmlflush{#1}}
-\stopxmlsetups
-
-\startxmlsetups xml:h3
-  \subsection{\xmlflush{#1}}
-\stopxmlsetups
-
-% Paragraphs are followed by a paragraph break.
-\startxmlsetups xml:p
-  \xmlflush{#1}\par
-\stopxmlsetups
-
-\startxmlsetups xml:ul
-  \startitemize
-    \xmlflush{#1}
-  \stopitemize
-\stopxmlsetups
-
-\startxmlsetups xml:li
-  \startitem \xmlflush{#1} \stopitem
-\stopxmlsetups
-
-% Requires the \href macro.
-\startxmlsetups xml:a
-  \href{\xmlflush{#1}}{\xmlatt{#1}{href}}
-\stopxmlsetups
-
-\startxmlsetups xml:tex
-  \xmlflushcontext{#1}
-\stopxmlsetups
-
-% Emphasized text is italicized, typically.
-\startxmlsetups xml:em
-  \dontleavehmode{\em\xmlflush{#1}}
-\stopxmlsetups
-
-% Strong text is bolded, typically.
-\startxmlsetups xml:strong
-  \dontleavehmode{\bf\xmlflush{#1}}
-\stopxmlsetups
-
-\startxmlsetups xml:img
-  \starttexcode
-    \placefigure{}{%
-      \externalfigure[\xmlatt{#1}{src}][conversion=mp]
-    }
-  \stoptexcode
-\stopxmlsetups
-
-\startxmlsetups xml:q
-  \quotation{\xmlflush{#1}}
-\stopxmlsetups
-
-\startxmlsetups xml:b
-  \bold{\xmlflush{#1}}
-\stopxmlsetups
-
-\startxmlsetups xml:table
-  \blank[medium]
-  \startembeddedxtable
-    \xmlflush{#1}
-  \stopembeddedxtable
-  \blank[medium]
-\stopxmlsetups
-
-\startxmlsetups xml:thead
-	\startxtablebody[head]
-    \xmlflush{#1}
-	\stopxtablebody
-\stopxmlsetups
-
-\startxmlsetups xml:tbody
-	\startxtablebody[body]
-		\xmlflush{#1}
-	\stopxtablebody
-\stopxmlsetups
-
-\startxmlsetups xml:tfoot
-	\startxtablebody[foot]
-		\xmlflush{#1}
-	\stopxtablebody
-\stopxmlsetups
-
-\startxmlsetups xml:tr
-  \startxrow
-    \xmlflush{#1}
-  \stopxrow
-\stopxmlsetups
-
-\startxmlsetups xml:th
-  \startxcell
-    \bold{\xmlflush{#1}}
-  \stopxcell
-\stopxmlsetups
-
-\startxmlsetups xml:td
-  \startxcell
-    \xmlflush{#1}
-  \stopxcell
-\stopxmlsetups
-
-% Map arbitrary div classes, defined by fenced divs.
-\startxmlsetups xml:div
-  \start[\xmlatt{#1}{class}]\xmlflush{#1}\stop
-\stopxmlsetups
+\input xml-document
+\input xml-headings
+\input xml-blocks
+\input xml-lists
+\input xml-breaks
+\input xml-inline
+\input xml-table
+\input xml-tex
 
 \xmlregistersetup{xml:xhtml}
 

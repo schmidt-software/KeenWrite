@@ -1,0 +1,14 @@
+% Paragraphs are followed by a paragraph break.
+\startxmlsetups xml:p
+  \xmlflush{#1}\par
+\stopxmlsetups
+
+% Indented quotations.
+\startxmlsetups xml:blockquote
+  \quotation{\xmlflush{#1}}
+\stopxmlsetups
+
+% Map arbitrary div classes, defined by fenced divs.
+\startxmlsetups xml:div
+  \start[\xmlatt{#1}{class}]\xmlflush{#1}\stop
+\stopxmlsetups
