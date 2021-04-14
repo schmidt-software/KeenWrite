@@ -163,8 +163,12 @@ public final class ApplicationActions {
       );
 
       task.setOnFailed( e -> {
-        clue( task.getException() );
-        fireExportFailedEvent();
+        final var ex = task.getException();
+        clue( ex );
+
+        if( ex instanceof TypeNotPresentException ) {
+          fireExportFailedEvent();
+        }
       } );
 
       sExecutor.execute( task );

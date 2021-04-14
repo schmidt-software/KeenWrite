@@ -11,7 +11,7 @@ import static java.util.regex.Pattern.quote;
 /**
  * Responsible for file-related functionality.
  */
-public class File extends java.io.File {
+public class SysFile extends java.io.File {
   /**
    * For finding executable programs.
    */
@@ -23,7 +23,7 @@ public class File extends java.io.File {
    *
    * @param pathname File name to represent for subsequent operations.
    */
-  public File( final String pathname ) {
+  public SysFile( final String pathname ) {
     super( pathname );
   }
 

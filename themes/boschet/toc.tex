@@ -1,0 +1,29 @@
+% Set up Roman numerals for the TOC
+\definestructureconversionset[frontpart:pagenumber][][romannumerals]
+
+\setuplist[chapter][pageconversionset=pagenumber]
+
+% Set up the ToC so that the page numbers are the internal link colour.
+\setuplist[chapter, section, subsection][
+  pagecolor=WPinternal,
+  color=WPtocheading,
+  before={\setupheader[state=stop]},
+]
+
+% Clickable table of contents and leader dots.
+\setupcombinedlist[content][
+  alternative=c,
+  interaction=all,
+  list={chapter},
+]
+
+\startsectionblockenvironment[frontpart]
+  % Ensure the ToC starts at iii to match PDF page number.
+  \setcounter [userpage] [2]
+\stopsectionblockenvironment
+
+\startsectionblockenvironment [bodypart]
+  % Ensure the first chapter starts at 1 to match PDF page number.
+  \setcounter [userpage] [1]
+\stopsectionblockenvironment
+

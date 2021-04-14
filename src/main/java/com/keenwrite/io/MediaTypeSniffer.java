@@ -1,9 +1,6 @@
 package com.keenwrite.io;
 
-import java.io.BufferedInputStream;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.nio.file.Path;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -115,7 +112,7 @@ public class MediaTypeSniffer {
    * @param path Path to ascertain the {@link MediaType}.
    * @return The IANA-defined {@link MediaType}, or
    * {@link MediaType#UNDEFINED} if indeterminate.
-   * @throws IOException Could not read from the {@link File}.
+   * @throws IOException Could not read from the {@link SysFile}.
    */
   public static MediaType getMediaType( final Path path ) throws IOException {
     return getMediaType( path.toFile() );
@@ -123,14 +120,15 @@ public class MediaTypeSniffer {
 
   /**
    * Convenience method to return the probed media type for the given
-   * {@link File} instance by delegating to {@link #getMediaType(InputStream)}.
+   * {@link SysFile} instance by delegating to
+   * {@link #getMediaType(InputStream)}.
    *
    * @param file File to ascertain the {@link MediaType}.
    * @return The IANA-defined {@link MediaType}, or
    * {@link MediaType#UNDEFINED} if indeterminate.
-   * @throws IOException Could not read from the {@link File}.
+   * @throws IOException Could not read from the {@link SysFile}.
    */
-  public static MediaType getMediaType( final java.io.File file )
+  public static MediaType getMediaType( final File file )
     throws IOException {
     try( final var fis = new FileInputStream( file ) ) {
       return getMediaType( fis );
@@ -147,7 +145,7 @@ public class MediaTypeSniffer {
    * @param bis Data source to ascertain the {@link MediaType}.
    * @return The IANA-defined {@link MediaType}, or
    * {@link MediaType#UNDEFINED} if indeterminate.
-   * @throws IOException Could not read from the {@link File}.
+   * @throws IOException Could not read from the {@link SysFile}.
    */
   public static MediaType getMediaType( final BufferedInputStream bis )
     throws IOException {

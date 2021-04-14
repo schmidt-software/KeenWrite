@@ -1,7 +1,7 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.typesetting;
 
-import com.keenwrite.io.File;
+import com.keenwrite.io.SysFile;
 import com.keenwrite.preferences.Key;
 import com.keenwrite.preferences.Workspace;
 
@@ -30,7 +30,7 @@ import static java.util.concurrent.TimeUnit.*;
  * construct suitable command-line arguments to invoke the typesetting engine.
  */
 public class Typesetter {
-  private static final File TYPESETTER = new File( "mtxrun" );
+  private static final SysFile TYPESETTER = new SysFile( "mtxrun" );
 
   private final Workspace mWorkspace;
 
@@ -75,8 +75,14 @@ public class Typesetter {
     }
   }
 
-  private String getProperty( final Key key ) {
+  @SuppressWarnings( "SameParameterValue" )
+  private String stringProperty( final Key key ) {
     return mWorkspace.stringProperty( key ).get();
+  }
+
+  @SuppressWarnings( "SameParameterValue" )
+  private File fileProperty( final Key key ) {
+    return mWorkspace.fileProperty( key ).get();
   }
 
   /**
@@ -143,8 +149,8 @@ public class Typesetter {
      */
     private boolean reinitialize() {
       final var filename = mOutput.getFileName();
-      final var paths = getProperty( KEY_TYPESET_CONTEXT_PATH );
-      final var envs = getProperty( KEY_TYPESET_CONTEXT_ENV );
+      final var paths = fileProperty( KEY_TYPESET_CONTEXT_PATH );
+      final var envs = stringProperty( KEY_TYPESET_CONTEXT_ENV );
       final var cacheExists = !isEmpty( getCacheDir().toPath() );
 
       // Ensure invoking multiple times will load the correct arguments.
@@ -161,6 +167,10 @@ public class Typesetter {
         mArgs.add( "--environment='" + envs + "'" );
         mArgs.add( "--result='" + filename + "'" );
         mArgs.add( mInput.toString() );
+
+        final var sb = new StringBuilder( 128 );
+        mArgs.forEach( arg -> sb.append( arg ).append( " " ) );
+        clue( sb.toString() );
       }
       else {
         mArgs.add( "--generate" );

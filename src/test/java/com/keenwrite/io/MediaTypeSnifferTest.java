@@ -2,6 +2,8 @@ package com.keenwrite.io;
 
 import org.junit.jupiter.api.Test;
 
+import java.io.File;
+
 import static com.keenwrite.io.MediaTypeExtension.valueFrom;
 import static org.apache.commons.io.FilenameUtils.getExtension;
 import static org.junit.jupiter.api.Assertions.assertEquals;

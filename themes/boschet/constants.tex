@@ -1,0 +1,77 @@
+\define\WPui{User Interface}
+\define\WPintro{Overview}
+\define\WPname{\Liberum{} \Consilium{}}
+\define\WPnavigation{Navigation}
+\define\WPproposal{proposal}
+\define\WPproposals{\WPproposal{}s}
+\define\WPProposal{\Word{\WPproposal{}}}
+\define\WPProposals{\WPProposal{}s}
+
+\define\WPdeliberation{deliberation}
+\define\WPdeliberations{\WPdeliberation{}s}
+\define\WPDeliberation{\Word{\WPdeliberation{}}}
+\define\WPDeliberations{\WPdeliberation{}s}
+
+% Separator for contiguous citations.
+\define\WPcitesep{\high{\,}}
+
+% Links to the web site for demonstration purposes.
+\def\WPhomepagebase{http://djarvis.bitbucket.org/xml/}
+\edef\WPpageaccount{\WPhomepagebase account.xml}
+\edef\WPpagediscuss{\WPhomepagebase discuss.xml}
+\edef\WPpagehome{\WPhomepagebase index.xml}
+\edef\WPpagehypothesis{\WPhomepagebase hypothesis.xml}
+\edef\WPpageproposal{\WPhomepagebase proposal.xml}
+\edef\WPpagesummary{\WPhomepagebase summary.xml}
+\edef\WPpagesupport{\WPhomepagebase support.xml}
+\edef\WPpageresources{\WPhomepagebase resources.xml}
+
+% Since the TOC suppresses a chapter title, conditionally set the
+% page heading.
+\define\WPheaderchapter{%
+    \doiftextelse{\getmarking[chapter]}%
+    {\vl{} \ss{\getmarking[chapter]}%
+    {}}%
+}
+
+\define\WPheadertitle{%
+  \doiftextelse{\getmarking[chapter]}%
+  {\ss{\WPname} \vl{}}%
+  {}%
+}
+
+\define[1]\WPcode{The #1 page source:\\}
+
+\define[3]\WPquote{%
+  \quotation{#1}
+  \par
+  \startalignment[flushright]
+    \textasciitilde{} #2, \it{#3}
+  \stopalignment
+}
+
+\define[1]\WPpage{%
+  \placefigure[force][fig:page-#1]{\Word{#1 Page}}{%
+    \externalfigure[#1.svg]
+  }
+}
+
+\define[1]\WPxref{%
+  \in{Figure}[fig:#1] illustrates%
+}
+
+\define[1]\WPrefpage{%
+  (see page \at[cha:#1])%
+}
+
+\define[1]\WPrefchapter{%
+  \about[cha:#1] \WPrefpage{#1}%
+}
+
+\define[1]\WPreffigure{%
+  illustrated in \in{Figure}[fig:#1] (on page \at[fig:#1])%
+}
+
+\define[1]\WPregistered{%
+  #1\fontchar{registered}%
+}
