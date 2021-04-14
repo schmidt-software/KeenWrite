@@ -1,0 +1,10 @@
+\definehspace[TextRuleSpace][2 em]
+
+\define\thinrule{%
+  \startalignment[middle]
+  \blank 
+  \dorecurse{3}{\hspace[TextRuleSpace]\symbol[star]\hspace[TextRuleSpace]}
+  \blank
+  \stopalignment
+}
+

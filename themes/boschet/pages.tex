@@ -1,0 +1,34 @@
+\setupmakeup[standard][
+  doublesided=no
+]
+
+\setuppagenumbering[
+  alternative=singlesided,
+  location={footer,right},
+]
+
+\setupcolors[
+  state=start,
+  rgb=yes,
+  spot=no,
+]
+
+\setupcolors[pagecolormodel=auto]
+
+\setuplayout[
+  setups=*lessstrict,
+  location=singlesided,
+]
+
+% Strongly suggest avoiding orphaned headings.
+\startsetups[*lessstrict]
+  \setup[*reset]
+  \widowpenalty=10000
+  \clubpenalty=1000
+  \brokenpenalty=100
+\stopsetups
+
+\setupwhitespace[medium]
+
+\setupheadertexts[\WPheaderchapter][\WPheadertitle][\WPheadertitle][\WPheaderchapter]
+

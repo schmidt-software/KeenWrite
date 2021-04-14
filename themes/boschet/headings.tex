@@ -1,0 +1,59 @@
+\setupmakeup[standard][
+  pagestate=start,
+]
+
+\startMPinclusions
+  numeric ChapterPageDone[];
+\stopMPinclusions
+
+% Draw a thick bar along the side of each chapter page.
+\startuseMPgraphic{WPchapter}
+  StartPage;
+  n := \somenamedheadnumber{chapter}{current};
+  width := BackSpace;
+
+  if n > 0 :
+    if unknown ChapterPageDone[n] :
+          fill (0,0) -- (width,0) -- (width, PaperHeight) -- (0, PaperHeight) -- cycle
+               withcolor \MPcolor{black};
+        ChapterPageDone[n] := 1 ;
+    fi;
+  fi;
+  StopPage;
+\stopuseMPgraphic
+
+%\definecolor[ChapterNumberColour][h=A1C436]
+\definecolor[ChapterNumberColour][white]
+
+\defineoverlay[WPchapter][\useMPgraphic{WPchapter}]
+\setupbackgrounds[page][background=WPchapter]
+
+\define[1]\WPchapternumber{\inmargin{\ss{\bfd{\color[ChapterNumberColour]{#1}}}}}
+
+\define[1]\WPChapterFont{\ss{\bfe{#1}}}
+
+\define[1]\WPchaptertitle{%
+  \framed[
+    frame=off,
+    width=\makeupwidth,
+    height=\textheight,
+    align=flushright,
+  ]{\WPChapterFont{#1}\vfill{}}
+}
+
+\setuphead[chapter][
+  style=ChapterNumberFont,
+  after=\pagebreak,
+  header=empty,
+  footer=empty,
+  deeptextcommand=\WPchaptertitle,
+  deepnumbercommand=\WPchapternumber,
+]
+
+\setuphead[section][
+  style=SectionFont,
+]
+
+\setuphead[subsection][
+  style=SubSectionFont,
+]

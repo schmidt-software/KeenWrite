@@ -1,0 +1,28 @@
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+%
+% Configures how tables are presented
+%
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+
+\setupcaption[table][number=no]
+
+\setupxtable[
+  frame=off,
+  framecolor=TextColourTertiaryLt,
+  option={stretch,width},
+  split=yes,
+  header=repeat,
+  footer=repeat,
+]
+
+\setupxtable[head][
+  topframe=on,
+  bottomframe=on,
+  rulethickness=1pt,
+]
+\setupxtable[body][]
+\setupxtable[foot][
+  bottomframe=on,
+  rulethickness=1pt,
+]
+

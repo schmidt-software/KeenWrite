@@ -1,0 +1,28 @@
+\unprotect
+\appendtoks
+  \setupbackgrounds[\v!page][\c!background=\makeupparameter\c!background]
+\to \t_page_makeup_every_setup
+\protect
+
+\setupexternalfigures[
+  order={svg,pdf,png},
+  location={local,default,global},
+  directory={screens,graphs},
+  frame=on,
+  framecolor=WPframe,
+  rulethickness=1pt,
+  frameoffset=.5em,
+  maxwidth=\makeupwidth,
+  width=\makeupwidth,
+]
+
+\setupcaptions[
+  %inbetween={\blank[big]},
+]
+
+\defineoverlay[cover][{
+  \externalfigure[cover.jpg][
+    scale=2000,
+    maxwidth=\paperwidth,
+  ]
+}]
