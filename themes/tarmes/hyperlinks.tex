@@ -4,13 +4,8 @@
 %
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
 
+% Create hyperlink references within the document.
 \define[2]\href{%
-  \begingroup
-    \setupinteraction[
-      style=normal,
-      color=TextColourHyperlink,
-    ]%
-    \goto{\color[TextColourHyperlink]{#1}}[url(#2)]%
-  \endgroup%
+  \goto{\color[TextColourHyperlink]{#1}}[url(#2)]%
 }
 

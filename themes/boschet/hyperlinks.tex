@@ -1,19 +1,11 @@
-\setupinteraction[
-  state=start,
-  color=WPinternal,
-  contrastcolor=WPinternal,
-  title={Liberum Consilium},
-  author={White Magic Software, Ltd.},
-  subtitle={A system design for moderated deliberation},
-  keyword={proposal, policy, democracy, software, discussion, deliberation},
-]
-    
-\placebookmarks[title, chapter][
-  force=yes,
-]
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+%
+% Command to simplify hyperlink syntax
+%
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
 
 % Create hyperlink references within the document.
 \define[2]\href{%
-  \goto{\color[WPexternal]{#1}}[url(#2)]%
+  \goto{\color[TextColourHyperlink]{#1}}[url(#2)]%
 }
 
