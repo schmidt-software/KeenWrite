@@ -11,8 +11,9 @@
   % Document elements
   \xmlsetsetup{\xmldocument}{html|body}{xml:*}
 
-  % Meta information (author, title, date, copyright, keywords)
+  % Meta information (title, author, keywords, copyright, date)
   \xmlsetsetup{\xmldocument}{head}{xml:meta}
+  \xmlsetsetup{\xmldocument}{title}{xml:title}
 
   % Header elements
   \xmlsetsetup{\xmldocument}{h1|h2|h3}{xml:*}
@@ -47,6 +48,7 @@
 
 \input xml-entities
 \input xml-document
+\input xml-meta
 \input xml-headings
 \input xml-blocks
 \input xml-lists

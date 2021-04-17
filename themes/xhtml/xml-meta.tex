@@ -6,7 +6,14 @@
 
 \startxmlsetups xml:meta
   \startfrontmatter
+    \xmlflush{#1}
     \placecontent
   \stopfrontmatter
+\stopxmlsetups
+
+\startxmlsetups xml:title
+  \startstandardmakeup
+    \title{\xmlflush{#1}}
+  \stopstandardmakeup
 \stopxmlsetups
 

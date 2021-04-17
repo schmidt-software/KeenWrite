@@ -1,7 +1,10 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.processors;
 
+import com.keenwrite.preferences.Key;
 import com.keenwrite.preferences.Workspace;
+import javafx.beans.property.StringProperty;
+import org.jsoup.nodes.Document;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.TransformerFactory;
@@ -9,14 +12,15 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.FileNotFoundException;
 import java.nio.file.Path;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.regex.Pattern;
 
 import static com.keenwrite.Bootstrap.APP_TITLE_LOWERCASE;
 import static com.keenwrite.Messages.get;
 import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.io.HttpFacade.httpGet;
-import static com.keenwrite.preferences.WorkspaceKeys.KEY_IMAGES_DIR;
-import static com.keenwrite.preferences.WorkspaceKeys.KEY_IMAGES_ORDER;
+import static com.keenwrite.preferences.WorkspaceKeys.*;
 import static com.keenwrite.util.ProtocolScheme.getProtocol;
 import static java.lang.String.format;
 import static java.nio.file.Files.copy;
@@ -29,9 +33,9 @@ import static org.jsoup.Jsoup.parse;
 import static org.jsoup.nodes.Document.OutputSettings.Syntax;
 
 /**
- * Responsible for making the body of an HTML document complete by wrapping
- * it with html and body elements. This doesn't have to be super-efficient
- * because it's not run in real-time.
+ * Responsible for making an HTML document complete by wrapping it with html
+ * and body elements. This doesn't have to be super-efficient because it's
+ * not run in real-time.
  */
 public final class XhtmlProcessor extends ExecutorProcessor<String> {
   private final static Pattern BLANK =
@@ -47,11 +51,19 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
     mContext = context;
   }
 
+  /**
+   * Responsible for producing a well-formed XML document complete with
+   * metadata (title, author, keywords, copyright, and date).
+   *
+   * @param html The HTML document to transform into an XHTML document.
+   * @return The transformed HTML document.
+   */
   @Override
   public String apply( final String html ) {
     clue( get( "Main.status.typeset.xhtml" ) );
 
     final var doc = parse( html );
+    setMetaData( doc );
     doc.outputSettings().syntax( Syntax.xml );
 
     for( final var img : doc.getElementsByTag( "img" ) ) {
@@ -65,6 +77,41 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
     }
 
     return doc.html();
+  }
+
+  /**
+   * Applies the metadata fields to the document.
+   *
+   * @param doc The document to adorn with metadata.
+   */
+  private void setMetaData( final Document doc ) {
+    doc.title( getTitle() );
+
+    final var metadata = createMetaData();
+    final var head = doc.head();
+    metadata.entrySet().forEach( entry -> head.append( createMeta( entry ) ) );
+  }
+
+  /**
+   * <p>
+   * TODO: Convert the workspace fields using variables (processor context).
+   * </p>
+   *
+   * @return A map of metadata key/value pairs.
+   */
+  private Map<String, String> createMetaData() {
+    return Map.of(
+      "author", getAuthor(),
+      "keywords", getKeywords(),
+      "copyright", getCopyright(),
+      "date", getDate()
+    );
+  }
+
+  private String createMeta( final Entry<String, String> entry ) {
+    return format(
+      "<meta name='%s' content='%s'>", entry.getKey(), entry.getValue()
+    );
   }
 
   /**
@@ -83,7 +130,7 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
 
     // Download remote resources into temporary files.
     if( protocol.isRemote() ) {
-      final var response = httpGet( src);
+      final var response = httpGet( src );
       final var mediaType = response.getMediaType();
 
       imageFile = mediaType.createTemporaryFile( APP_TITLE_LOWERCASE );
@@ -178,5 +225,34 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
 
   private Workspace getWorkspace() {
     return mContext.getWorkspace();
+  }
+
+  private String getTitle() {
+    return asString( KEY_DOC_TITLE );
+  }
+
+  private String getAuthor() {
+    return asString( KEY_DOC_AUTHOR );
+  }
+
+  private String getKeywords() {
+    return asString( KEY_DOC_KEYWORDS );
+  }
+
+  private String getCopyright() {
+    return asString( KEY_DOC_COPYRIGHT );
+  }
+
+  private String getDate() {
+    return asString( KEY_DOC_DATE );
+  }
+
+  private String asString( final Key key ) {
+    return stringProperty( key ).get();
+  }
+
+
+  private StringProperty stringProperty( final Key key ) {
+    return getWorkspace().stringProperty( key );
   }
 }

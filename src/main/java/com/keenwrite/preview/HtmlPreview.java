@@ -2,7 +2,6 @@
 package com.keenwrite.preview;
 
 import com.keenwrite.events.ScrollLockEvent;
-import com.keenwrite.preferences.Key;
 import com.keenwrite.preferences.LocaleProperty;
 import com.keenwrite.preferences.Workspace;
 import javafx.beans.property.DoubleProperty;
@@ -67,11 +66,6 @@ public final class HtmlPreview extends SwingNode {
    * the document. In order, the placeholders are as follows:
    * <ol>
    * <li>%s --- language</li>
-   * <li>%s --- title</li>
-   * <li>%s --- author</li>
-   * <li>%s --- keywords</li>
-   * <li>%s --- copyright</li>
-   * <li>%s --- publish date</li>
    * <li>%s --- default stylesheet</li>
    * <li>%s --- language-specific stylesheet</li>
    * <li>%s --- font family</li>
@@ -82,12 +76,7 @@ public final class HtmlPreview extends SwingNode {
   private static final String HTML_HEAD =
     """
       <!doctype html>
-      <html lang='%s'><head><title>%s</title>
-      <meta name="author" content="%s">
-      <meta name="keywords" content="%s">
-      <meta name="copyright" content="%s">
-      <meta name="date" content="%s">
-      <meta charset='utf-8'>
+      <html lang='%s'><head><title> </title><meta charset='utf-8'>
       %s%s<style>body{font-family:'%s';font-size: %dpx;}</style>%s</head><body>
       """;
 
@@ -213,11 +202,6 @@ public final class HtmlPreview extends SwingNode {
    * @return A new doctype and HTML {@code head} element.
    */
   private String generateHead() {
-    final var title = getTitle();
-    final var author = getAuthor();
-    final var keywords = getKeywords();
-    final var copyright = getCopyright();
-    final var date = getDate();
     final var locale = getLocale();
     final var url = toUrl( locale );
     final var base = getBaseUri();
@@ -225,11 +209,6 @@ public final class HtmlPreview extends SwingNode {
     // Point sizes are converted to pixels because of a rendering bug.
     return format(
       HTML_HEAD,
-      title,
-      author,
-      keywords,
-      copyright,
-      date,
       locale.getLanguage(),
       format( HTML_STYLESHEET, HTML_STYLE_PREVIEW ),
       url == null ? "" : format( HTML_STYLESHEET, url ),
@@ -369,26 +348,6 @@ public final class HtmlPreview extends SwingNode {
     return HtmlPreview.class.getResource( path );
   }
 
-  private String getTitle() {
-    return asString( KEY_DOC_TITLE );
-  }
-
-  private String getAuthor() {
-    return asString( KEY_DOC_AUTHOR );
-  }
-
-  private String getKeywords() {
-    return asString( KEY_DOC_KEYWORDS );
-  }
-
-  private String getCopyright() {
-    return asString( KEY_DOC_COPYRIGHT );
-  }
-
-  private String getDate() {
-    return asString( KEY_DOC_DATE );
-  }
-
   private Locale getLocale() {
     return localeProperty().toLocale();
   }
@@ -402,7 +361,7 @@ public final class HtmlPreview extends SwingNode {
   }
 
   private StringProperty fontFamilyProperty() {
-    return stringProperty( KEY_UI_FONT_PREVIEW_NAME );
+    return mWorkspace.stringProperty( KEY_UI_FONT_PREVIEW_NAME );
   }
 
   private double getFontSize() {
@@ -420,13 +379,5 @@ public final class HtmlPreview extends SwingNode {
 
   private String getLockText( final boolean locked ) {
     return Character.toString( (locked ? LOCK : UNLOCK_ALT).getChar() );
-  }
-
-  private StringProperty stringProperty( final Key key ) {
-    return mWorkspace.stringProperty( key );
-  }
-
-  private String asString( final Key key ) {
-    return stringProperty( key ).get();
   }
 }
