@@ -121,6 +121,24 @@ public final class PreferencesController {
           Setting.of( label( KEY_DOC_AUTHOR ) ),
           Setting.of( title( KEY_DOC_AUTHOR ),
                       stringProperty( KEY_DOC_AUTHOR ) )
+        ),
+        Group.of(
+          get( KEY_DOC_KEYWORDS ),
+          Setting.of( label( KEY_DOC_KEYWORDS ) ),
+          Setting.of( title( KEY_DOC_KEYWORDS ),
+                      stringProperty( KEY_DOC_KEYWORDS ) )
+        ),
+        Group.of(
+          get( KEY_DOC_COPYRIGHT ),
+          Setting.of( label( KEY_DOC_COPYRIGHT ) ),
+          Setting.of( title( KEY_DOC_COPYRIGHT ),
+                      stringProperty( KEY_DOC_COPYRIGHT ) )
+        ),
+        Group.of(
+          get( KEY_DOC_DATE ),
+          Setting.of( label( KEY_DOC_DATE ) ),
+          Setting.of( title( KEY_DOC_DATE ),
+                      stringProperty( KEY_DOC_DATE ) )
         )
       ),
       Category.of(

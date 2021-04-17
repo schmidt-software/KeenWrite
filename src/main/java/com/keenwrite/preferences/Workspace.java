@@ -11,6 +11,8 @@ import org.apache.commons.configuration2.builder.fluent.Configurations;
 import org.apache.commons.configuration2.io.FileHandler;
 
 import java.io.File;
+import java.time.Year;
+import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.BooleanSupplier;
@@ -22,7 +24,9 @@ import static com.keenwrite.Launcher.getVersion;
 import static com.keenwrite.constants.Constants.*;
 import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.preferences.WorkspaceKeys.*;
+import static java.lang.String.valueOf;
 import static java.lang.System.getProperty;
+import static java.time.format.DateTimeFormatter.RFC_1123_DATE_TIME;
 import static java.util.Map.entry;
 import static javafx.application.Platform.runLater;
 import static javafx.collections.FXCollections.observableArrayList;
@@ -68,6 +72,9 @@ public final class Workspace {
 
     entry( KEY_DOC_TITLE, asStringProperty( "title" ) ),
     entry( KEY_DOC_AUTHOR, asStringProperty( getProperty( "user.name" ) ) ),
+    entry( KEY_DOC_KEYWORDS, asStringProperty( "science, nature" ) ),
+    entry( KEY_DOC_COPYRIGHT, asStringProperty( getYear() ) ),
+    entry( KEY_DOC_DATE, asStringProperty( getDate() ) ),
 
     entry( KEY_R_SCRIPT, asStringProperty( "" ) ),
     entry( KEY_R_DIR, asFileProperty( USER_DIRECTORY ) ),
@@ -437,5 +444,13 @@ public final class Workspace {
       : MARSHALL
       .getOrDefault( property.getClass(), ( __ ) -> property.getValue() )
       .apply( property.getValue().toString() );
+  }
+
+  private String getYear() {
+    return valueOf( Year.now().getValue() );
+  }
+
+  private String getDate() {
+    return ZonedDateTime.now().format( RFC_1123_DATE_TIME );
   }
 }

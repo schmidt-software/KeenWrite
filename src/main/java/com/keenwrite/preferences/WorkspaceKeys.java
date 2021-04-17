@@ -18,6 +18,9 @@ public final class WorkspaceKeys {
   public static final Key KEY_DOC = key( KEY_ROOT, "document" );
   public static final Key KEY_DOC_TITLE = key( KEY_DOC, "title" );
   public static final Key KEY_DOC_AUTHOR = key( KEY_DOC, "author" );
+  public static final Key KEY_DOC_KEYWORDS = key( KEY_DOC, "keywords" );
+  public static final Key KEY_DOC_DATE = key( KEY_DOC, "date" );
+  public static final Key KEY_DOC_COPYRIGHT = key( KEY_DOC, "copyright" );
 
   public static final Key KEY_R = key( KEY_ROOT, "r" );
   public static final Key KEY_R_SCRIPT = key( KEY_R, "script" );
