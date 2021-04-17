@@ -97,5 +97,7 @@ The [documentation library](https://wiki.contextgarden.net/Documentation) includ
 * [ConTeXt command reference](https://www.pragma-ade.nl/general/qrcs/setup-en.pdf)
 * [METAFUN Manual](https://www.pragma-ade.nl/general/manuals/metafun-p.pdf)
 * [It's in the Details](https://www.pragma-ade.nl/general/manuals/details.pdf)
+* [Fonts out of ConTeXt](https://www.pragma-ade.com/general/manuals/fonts-mkiv.pdf)
 
 Expert-level documentation includes the [LuaTeX Reference Manual](https://www.pragma-ade.nl/general/manuals/luatex.pdf).
+
