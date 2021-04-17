@@ -92,6 +92,12 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
     metadata.entrySet().forEach( entry -> head.append( createMeta( entry ) ) );
   }
 
+  private String createMeta( final Entry<String, String> entry ) {
+    return format(
+      "<meta name='%s' content='%s'>", entry.getKey(), entry.getValue()
+    );
+  }
+
   /**
    * <p>
    * TODO: Convert the workspace fields using variables (processor context).
@@ -105,12 +111,6 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
       "keywords", getKeywords(),
       "copyright", getCopyright(),
       "date", getDate()
-    );
-  }
-
-  private String createMeta( final Entry<String, String> entry ) {
-    return format(
-      "<meta name='%s' content='%s'>", entry.getKey(), entry.getValue()
     );
   }
 

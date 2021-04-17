@@ -21,6 +21,9 @@ import com.vladsch.flexmark.util.misc.Extension;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.keenwrite.ExportFormat.APPLICATION_PDF;
+import static com.vladsch.flexmark.ext.typographic.TypographicExtension.ENABLE_SMARTS;
+
 /**
  * Responsible for parsing and rendering Markdown into HTML. This is required
  * to break a circular dependency between the {@link MarkdownProcessor} and
@@ -35,9 +38,14 @@ public class BaseMarkdownProcessor extends ExecutorProcessor<String> {
     final Processor<String> successor, final ProcessorContext context ) {
     super( successor );
 
-    final var extensions = createExtensions( context );
+    // Disable emdash, endash, and ellipses conversion for PDF exports. The
+    // typesetting software will perform the appropriate styling. This allows
+    // manuscripts to include verbatim hyphens, for example.
+    final var builder = Parser.builder();
+    builder.set( ENABLE_SMARTS, !context.isExportFormat( APPLICATION_PDF ) );
 
-    mParser = Parser.builder().extensions( extensions ).build();
+    final var extensions = createExtensions( context );
+    mParser = builder.extensions( extensions ).build();
     mRenderer = HtmlRenderer.builder().extensions( extensions ).build();
   }
 

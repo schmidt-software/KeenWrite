@@ -26,10 +26,6 @@ execute() {
   $log "Build Java archive"
   gradle clean jar
   mv "build/libs/${application_title}.jar" .
-
-  $log "Create theme packs"
-  rm -f theme-packs.zip
-  zip -9 -r theme-packs.zip themes/
 }
 
 preprocess() {
