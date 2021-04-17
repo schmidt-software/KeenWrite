@@ -5,11 +5,14 @@
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
 
 \startxmlsetups xml:xhtml
-  % Do not typeset the HTML document's header title element
+  % Prevent typsetting elements not declared in this file.
   \xmlsetsetup{\xmldocument}{*}{-}
 
   % Document elements
   \xmlsetsetup{\xmldocument}{html|body}{xml:*}
+
+  % Meta information (author, title, date, copyright, keywords)
+  \xmlsetsetup{\xmldocument}{head}{xml:meta}
 
   % Header elements
   \xmlsetsetup{\xmldocument}{h1|h2|h3}{xml:*}

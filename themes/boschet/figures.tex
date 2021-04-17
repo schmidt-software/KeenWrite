@@ -1,8 +1,8 @@
-\unprotect
-\appendtoks
-  \setupbackgrounds[\v!page][\c!background=\makeupparameter\c!background]
-\to \t_page_makeup_every_setup
-\protect
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+%
+% Configure how images are presented
+%
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
 
 \setupexternalfigures[
   order={svg,pdf,png},
@@ -10,14 +10,14 @@
   directory={screens,graphs},
   frame=on,
   framecolor=TextColourTertiaryLt,
-  rulethickness=1pt,
+  rulethickness=.5pt,
   frameoffset=.5em,
   maxwidth=\makeupwidth,
   width=\makeupwidth,
 ]
 
 \setupcaptions[
-  %inbetween={\blank[big]},
+  location=none,
 ]
 
 \defineoverlay[cover][{

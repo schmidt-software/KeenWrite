@@ -18,10 +18,11 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 import static com.keenwrite.Bootstrap.APP_TITLE_LOWERCASE;
-import static com.keenwrite.constants.Constants.*;
 import static com.keenwrite.Launcher.getVersion;
+import static com.keenwrite.constants.Constants.*;
 import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.preferences.WorkspaceKeys.*;
+import static java.lang.System.getProperty;
 import static java.util.Map.entry;
 import static javafx.application.Platform.runLater;
 import static javafx.collections.FXCollections.observableArrayList;
@@ -64,7 +65,10 @@ public final class Workspace {
   private final Map<Key, Property<?>> VALUES = Map.ofEntries(
     entry( KEY_META_VERSION, asStringProperty( getVersion() ) ),
     entry( KEY_META_NAME, asStringProperty( "default" ) ),
-    
+
+    entry( KEY_DOC_TITLE, asStringProperty( "title" ) ),
+    entry( KEY_DOC_AUTHOR, asStringProperty( getProperty( "user.name" ) ) ),
+
     entry( KEY_R_SCRIPT, asStringProperty( "" ) ),
     entry( KEY_R_DIR, asFileProperty( USER_DIRECTORY ) ),
     entry( KEY_R_DELIM_BEGAN, asStringProperty( R_DELIM_BEGAN_DEFAULT ) ),

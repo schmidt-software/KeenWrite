@@ -15,6 +15,10 @@ public final class WorkspaceKeys {
   public static final Key KEY_META_NAME = key( KEY_META, "name" );
   public static final Key KEY_META_VERSION = key( KEY_META, "version" );
 
+  public static final Key KEY_DOC = key( KEY_ROOT, "document" );
+  public static final Key KEY_DOC_TITLE = key( KEY_DOC, "title" );
+  public static final Key KEY_DOC_AUTHOR = key( KEY_DOC, "author" );
+
   public static final Key KEY_R = key( KEY_ROOT, "r" );
   public static final Key KEY_R_SCRIPT = key( KEY_R, "script" );
   public static final Key KEY_R_DIR = key( KEY_R, "dir" );

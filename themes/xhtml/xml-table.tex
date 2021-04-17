@@ -1,9 +1,15 @@
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+%
+% Map table elements to extreme table (xtable) macros
+%
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+
 \startxmlsetups xml:table
-  \blank[medium]
+  \blank
   \startembeddedxtable
     \xmlflush{#1}
   \stopembeddedxtable
-  \blank[medium]
+  \blank
 \stopxmlsetups
 
 \startxmlsetups xml:thead
@@ -29,6 +35,8 @@
   \stopxrow
 \stopxmlsetups
 
+% When the XHTML table lacks a tfoot element, treat the last table row
+% in the body as part of the footer, which may be styled independently.
 \startxmlsetups xml:tr:last
   \stopxtablebody
   \startxtablebody[foot]

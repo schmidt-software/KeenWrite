@@ -107,34 +107,62 @@ public final class PreferencesController {
   }
 
   private Category[] createCategories() {
-    return new Category[]{Category.of(
-      get( KEY_R ),
-      Group.of(
-        get( KEY_R_DIR ),
-        Setting.of( label( KEY_R_DIR,
-                           stringProperty( KEY_DEF_DELIM_BEGAN ).get(),
-                           stringProperty( KEY_DEF_DELIM_ENDED ).get() ) ),
-        Setting.of( title( KEY_R_DIR ),
-                    fileProperty( KEY_R_DIR ), true )
+    return new Category[]{
+      Category.of(
+        get( KEY_DOC ),
+        Group.of(
+          get( KEY_DOC_TITLE ),
+          Setting.of( label( KEY_DOC_TITLE ) ),
+          Setting.of( title( KEY_DOC_TITLE ),
+                      stringProperty( KEY_DOC_TITLE ) )
+        ),
+        Group.of(
+          get( KEY_DOC_AUTHOR ),
+          Setting.of( label( KEY_DOC_AUTHOR ) ),
+          Setting.of( title( KEY_DOC_AUTHOR ),
+                      stringProperty( KEY_DOC_AUTHOR ) )
+        )
       ),
-      Group.of(
-        get( KEY_R_SCRIPT ),
-        Setting.of( label( KEY_R_SCRIPT ) ),
-        createScriptSetting()
+      Category.of(
+        get( KEY_TYPESET ),
+        Group.of(
+          get( KEY_TYPESET_CONTEXT ),
+          Setting.of( label( KEY_TYPESET_CONTEXT_PATH ) ),
+          Setting.of( title( KEY_TYPESET_CONTEXT_PATH ),
+                      fileProperty( KEY_TYPESET_CONTEXT_PATH ), true ),
+          Setting.of( label( KEY_TYPESET_CONTEXT_ENV ) ),
+          Setting.of( title( KEY_TYPESET_CONTEXT_ENV ),
+                      stringProperty( KEY_TYPESET_CONTEXT_ENV ) )
+        )
       ),
-      Group.of(
-        get( KEY_R_DELIM_BEGAN ),
-        Setting.of( label( KEY_R_DELIM_BEGAN ) ),
-        Setting.of( title( KEY_R_DELIM_BEGAN ),
-                    stringProperty( KEY_R_DELIM_BEGAN ) )
+      Category.of(
+        get( KEY_R ),
+        Group.of(
+          get( KEY_R_DIR ),
+          Setting.of( label( KEY_R_DIR,
+                             stringProperty( KEY_DEF_DELIM_BEGAN ).get(),
+                             stringProperty( KEY_DEF_DELIM_ENDED ).get() ) ),
+          Setting.of( title( KEY_R_DIR ),
+                      fileProperty( KEY_R_DIR ), true )
+        ),
+        Group.of(
+          get( KEY_R_SCRIPT ),
+          Setting.of( label( KEY_R_SCRIPT ) ),
+          createScriptSetting()
+        ),
+        Group.of(
+          get( KEY_R_DELIM_BEGAN ),
+          Setting.of( label( KEY_R_DELIM_BEGAN ) ),
+          Setting.of( title( KEY_R_DELIM_BEGAN ),
+                      stringProperty( KEY_R_DELIM_BEGAN ) )
+        ),
+        Group.of(
+          get( KEY_R_DELIM_ENDED ),
+          Setting.of( label( KEY_R_DELIM_ENDED ) ),
+          Setting.of( title( KEY_R_DELIM_ENDED ),
+                      stringProperty( KEY_R_DELIM_ENDED ) )
+        )
       ),
-      Group.of(
-        get( KEY_R_DELIM_ENDED ),
-        Setting.of( label( KEY_R_DELIM_ENDED ) ),
-        Setting.of( title( KEY_R_DELIM_ENDED ),
-                    stringProperty( KEY_R_DELIM_ENDED ) )
-      )
-    ),
       Category.of(
         get( KEY_IMAGES ),
         Group.of(
@@ -231,18 +259,6 @@ public final class PreferencesController {
           Setting.of( title( KEY_LANGUAGE_LOCALE ),
                       localeListProperty(),
                       localeProperty( KEY_LANGUAGE_LOCALE ) )
-        )
-      ),
-      Category.of(
-        get( KEY_TYPESET ),
-        Group.of(
-          get( KEY_TYPESET_CONTEXT ),
-          Setting.of( label( KEY_TYPESET_CONTEXT_PATH ) ),
-          Setting.of( title( KEY_TYPESET_CONTEXT_PATH ),
-                      fileProperty( KEY_TYPESET_CONTEXT_PATH ), true ),
-          Setting.of( label( KEY_TYPESET_CONTEXT_ENV ) ),
-          Setting.of( title( KEY_TYPESET_CONTEXT_ENV ),
-                      stringProperty( KEY_TYPESET_CONTEXT_ENV ) )
         )
       )};
   }
