@@ -123,8 +123,9 @@ dependencies {
     }
   }
 
-  testImplementation "org.junit.jupiter:junit-jupiter-engine:${v_junit}"
   testImplementation "org.junit.jupiter:junit-jupiter-api:${v_junit}"
+  testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+
   testImplementation "org.testfx:testfx-junit5:4.0.16-alpha"
 }
 
@@ -195,8 +196,7 @@ test {
     jvmArgs = [
         '--add-exports', "javafx.base/com.sun.javafx.event=ALL-UNNAMED",
     ]
-
-    classpath = files()
+    //classpath = files()
   }
 
   testLogging {

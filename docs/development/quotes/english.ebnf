@@ -1,0 +1,65 @@
+(* Extended Backus--Naur form definition for English quotes and quotations *)
+
+(* Word characters, not including straight quotes *)
+(* #, $, %, &, *, +, -, /, 0-9, <, =, >, @, A-Z, \, a-z, |, ~, unicode *)
+c ::= [#x23-#x26]   | #x2A | #x2B | #x2D | 
+      [#x2F-#x39]   | [#x3C-#x3E] | [#x40-#x5A] | #x5C | #x5E | #x5F |
+      [#x61-#x7A]   | #x7C |
+      [#x7E-#xD7FF] | [#xE000-#xFFFD] | [#x10000-#x10FFFF] ;
+
+(* Word separator characters *)
+s ::= (#x20 | #x9)+ ;
+
+(* Quotation mark and apostrphe characters *)
+single_quote ::= '\'' ;
+double_quote ::= '"' ;
+backtick     ::= '`' ;
+op_quote     ::= backtick backtick ;
+cl_quote     ::= single_quote single_quote ;
+
+(* Line breaks, used as paragraph terminators *)
+cr  ::= #xA ;
+lf  ::= #xD ;
+eol ::= cr | lf | (cr  lf) ;
+
+(* Terminal punctuation marks *)
+period      ::= '.' ;
+colon       ::= ':' ;
+comma       ::= ',' ;
+semicolon   ::= ';' ;
+exclamation ::= '!' ;
+question    ::= '?' ;
+aposiopesis ::= s* ('-' '-' '-'? | period period period) s*;
+
+(* Phrase and sentence terminators *)
+terminator ::= period | exclamation | question | aposiopesis |
+               comma | colon | semicolon ;
+
+(* A word is one or more consecutive characters *)
+word ::= { c }+ ;
+
+(* TODO: DEFINE WORDS IN TERMS OF CONTRACTION CLASSES (inner, outer, etc.) *)
+began ::= single_quote word ;
+ended ::= word single_quote ;
+inner ::= word (single_quote word)+ ;
+outer ::= single_quote word single_quote ;
+
+(* Ensure quotes can be found in the parse tree *)
+quote ::= '"' words '"' ;
+words ::= '(' words ')' | '[' words ']' | '{' words '}' | quote | words ;
+words ::= word (s word)* ;
+
+(* Stixi is Greek, meaning punctuation *)
+stixi         ::= words terminator ;
+stixi_d_quote ::= '"' stixi '"' ;
+sentence      ::= '(' stixi ')'
+                | '[' stixi ']'
+                | '{' stixi '}'
+                | stixi_d_quote
+                | stixi ;
+sentences     ::= sentence (s sentence)* ;
+paragraph     ::= sentences eol eol+ ;
+
+(* Multiline quotation *)
+quotation ::= sentences* ('"' paragraph)+ '"'
+
