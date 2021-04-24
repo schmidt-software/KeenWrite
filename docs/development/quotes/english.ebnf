@@ -1,65 +1,77 @@
-(* Extended Backus--Naur form definition for English quotes and quotations *)
+/* Extended Backus--Naur form definition for English quotes and quotations */
 
-(* Word characters, not including straight quotes *)
-(* #, $, %, &, *, +, -, /, 0-9, <, =, >, @, A-Z, \, a-z, |, ~, unicode *)
-c ::= [#x23-#x26]   | #x2A | #x2B | #x2D | 
-      [#x2F-#x39]   | [#x3C-#x3E] | [#x40-#x5A] | #x5C | #x5E | #x5F |
-      [#x61-#x7A]   | #x7C |
-      [#x7E-#xD7FF] | [#xE000-#xFFFD] | [#x10000-#x10FFFF] ;
+/* Word characters, not including straight quotes */
+/* #, $, %, &, *, +, -, /, 0-9, <, =, >, @, A-Z, \, a-z, |, ~, unicode */
+c = [#x23-#x26]   | #x2A | #x2B | #x2D | 
+    [#x2F-#x39]   | [#x3C-#x3E] | [#x40-#x5A] | #x5C | #x5E | #x5F |
+    [#x61-#x7A]   | #x7C |
+    [#x7E-#xD7FF] | [#xE000-#xFFFD] | [#x10000-#x10FFFF] ;
 
-(* Word separator characters *)
-s ::= (#x20 | #x9)+ ;
+/* Line breaks */
+cr  = #xA ;
+lf  = #xD ;
+eol = cr | lf | (cr  lf) ;
 
-(* Quotation mark and apostrphe characters *)
-single_quote ::= '\'' ;
-double_quote ::= '"' ;
-backtick     ::= '`' ;
-op_quote     ::= backtick backtick ;
-cl_quote     ::= single_quote single_quote ;
+/* End of paragraph marker */
+eop = eol eol+ ;
 
-(* Line breaks, used as paragraph terminators *)
-cr  ::= #xA ;
-lf  ::= #xD ;
-eol ::= cr | lf | (cr  lf) ;
+/* Word separators */
+s = (#x20 | #x9)+ ;
 
-(* Terminal punctuation marks *)
-period      ::= '.' ;
-colon       ::= ':' ;
-comma       ::= ',' ;
-semicolon   ::= ';' ;
-exclamation ::= '!' ;
-question    ::= '?' ;
-aposiopesis ::= s* ('-' '-' '-'? | period period period) s*;
+/* Open and close quotes */
+qop = '"' ;
+qcl = '"' ;
 
-(* Phrase and sentence terminators *)
-terminator ::= period | exclamation | question | aposiopesis |
-               comma | colon | semicolon ;
+/* Apostrophes */
+apos = '\'' ;
+tick = '`' ;
 
-(* A word is one or more consecutive characters *)
-word ::= { c }+ ;
+/* TODO: PRIMES */
 
-(* TODO: DEFINE WORDS IN TERMS OF CONTRACTION CLASSES (inner, outer, etc.) *)
-began ::= single_quote word ;
-ended ::= word single_quote ;
-inner ::= word (single_quote word)+ ;
-outer ::= single_quote word single_quote ;
+/* Terminal punctuation marks */
+period      = '.' ;
+colon       = ':' ;
+comma       = ',' ;
+semicolon   = ';' ;
+exclamation = '!' ;
+question    = '?' ;
+aposiopesis = s* ('-' '-' '-'? | period period period) s*;
 
-(* Ensure quotes can be found in the parse tree *)
-quote ::= '"' words '"' ;
-words ::= '(' words ')' | '[' words ']' | '{' words '}' | quote | words ;
-words ::= word (s word)* ;
+/* Phrase and sentence terminators */
+terminator = period | exclamation | question | aposiopesis
+           | comma | colon | semicolon ;
 
-(* Stixi is Greek, meaning punctuation *)
-stixi         ::= words terminator ;
-stixi_d_quote ::= '"' stixi '"' ;
-sentence      ::= '(' stixi ')'
-                | '[' stixi ']'
-                | '{' stixi '}'
-                | stixi_d_quote
-                | stixi ;
-sentences     ::= sentence (s sentence)* ;
-paragraph     ::= sentences eol eol+ ;
+/* A word is one or more consecutive characters */
+word = { c }+ ;
 
-(* Multiline quotation *)
-quotation ::= sentences* ('"' paragraph)+ '"'
+/* TODO: DEFINE WORDS IN TERMS OF CONTRACTION CLASSES (inner, outer, etc.) */
+began = apos word ;
+ended = word apos ;
+inner = word (apos word)+ ;
+outer = apos word apos ;
+
+/* Ensure quotes can be found in the parse tree */
+quote = qop words qcl ;
+words = '(' words ')' | '[' words ']' | '{' words '}' | quote | words ;
+words = word (s word)* ;
+
+/* Stixi is Greek, meaning punctuation */
+stixi         = words terminator ;
+stixi_d_quote = qop stixi qcl ;
+sentence      = '(' stixi ')'
+              | '[' stixi ']'
+              | '{' stixi '}'
+              | stixi_d_quote
+              | stixi ;
+sentences     = sentence (s sentence)* ;
+
+/* Multiline quotation */
+multiline = (qop sentences eop)+ ;
+quotation = sentences* multiline qop sentences qcl sentences* eop ;
+
+/*
+"Quotations," the professor said, "always begin with an open quote.⁋
+"If the speech crosses paragraphs, re-open the quote at the start of each.⁋
+"But at some point," she continued, "quotations must close."⁋
+*/
 
