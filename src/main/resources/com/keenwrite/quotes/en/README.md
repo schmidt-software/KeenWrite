@@ -6,5 +6,5 @@ Listing English contractions helps converting straight apostrophes into curly ap
 * outer.txt -- Contractions that start and end with an apostrophe.
 * verbs.txt -- Contractions that form suffixes for a variety of words.
 
-The contractions for verbs must be detected dynamically.
+The contractions for verbs must be detected dynamically, all other contractions can be hard-coded into either regular expressions or EBNF grammars.
 
