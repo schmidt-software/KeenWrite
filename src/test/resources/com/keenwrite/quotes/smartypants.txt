@@ -182,10 +182,5 @@ Sam&apos;s Sams&apos; and the Ross&apos;s roses&apos; thorns were prickly.
 "'Janes' said, ''E'll be spooky, Sam's son with the jack-o'-lantern!'" said the O'Mally twins'---y'know---ghosts in unison.
 &ldquo;&lsquo;Janes&apos; said, &lsquo;&apos;E&apos;ll be spooky, Sam&apos;s son with the jack-o&apos;-lantern!&rsquo;&rdquo; said the O&apos;Mally twins&apos;---y&apos;know---ghosts in unison.
 
-
-He said, 'Hello, Ross' friend who likes saying to Ross' cat, 'That's Ross' and then pretends to sleep.
-
 'He's at Sams'
-'Oh crud, the cat just jumped out the window!'
-
-Open quote always preceded by whitespace or quote.
+&lsquo;He&apos; at Sams&rsquo;
