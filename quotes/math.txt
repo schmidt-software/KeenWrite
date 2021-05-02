@@ -1,0 +1,2 @@
+Pythagora’s theorem (530 BC), <tex>c^2 = a^2 + b^2</tex>, is considered one of the founding pillars of geometry.
+
