@@ -25,10 +25,13 @@ import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.preferences.WorkspaceKeys.*;
 import static com.keenwrite.ui.fonts.IconFactory.getIconFont;
 import static java.awt.BorderLayout.*;
+import static java.awt.event.KeyEvent.*;
 import static java.lang.Math.max;
 import static java.lang.String.format;
 import static java.lang.Thread.sleep;
 import static javafx.scene.CacheHint.SPEED;
+import static javax.swing.JComponent.WHEN_IN_FOCUSED_WINDOW;
+import static javax.swing.KeyStroke.getKeyStroke;
 import static javax.swing.SwingUtilities.invokeLater;
 import static org.controlsfx.glyphfont.FontAwesome.Glyph.LOCK;
 import static org.controlsfx.glyphfont.FontAwesome.Glyph.UNLOCK_ALT;
@@ -118,6 +121,9 @@ public final class HtmlPreview extends SwingNode {
       final var verticalBar = mScrollPane.getVerticalScrollBar();
       final var verticalPanel = new JPanel( new BorderLayout() );
 
+      final var map = verticalBar.getInputMap( WHEN_IN_FOCUSED_WINDOW );
+      addKeyboardEvents( map );
+
       mScrollLockButton.setFont( getIconFont( 14 ) );
       mScrollLockButton.setText( getLockText( mLocked ) );
       mScrollLockButton.setMargin( new Insets( 1, 0, 0, 0 ) );
@@ -191,7 +197,7 @@ public final class HtmlPreview extends SwingNode {
     mDocument.append( html );
 
     // Head and tail must be separate from document due to re-rendering.
-    return mHead + mDocument.toString() + HTML_TAIL;
+    return mHead + mDocument + HTML_TAIL;
   }
 
   /**
@@ -379,5 +385,20 @@ public final class HtmlPreview extends SwingNode {
 
   private String getLockText( final boolean locked ) {
     return Character.toString( (locked ? LOCK : UNLOCK_ALT).getChar() );
+  }
+
+  /**
+   * Maps keyboard events to scrollbar commands so that users may control
+   * the {@link HtmlPreview} panel using the keyboard.
+   *
+   * @param map The map to update with keyboard events.
+   */
+  private void addKeyboardEvents( final InputMap map ) {
+    map.put( getKeyStroke( VK_DOWN, 0 ), "positiveUnitIncrement" );
+    map.put( getKeyStroke( VK_UP, 0 ), "negativeUnitIncrement" );
+    map.put( getKeyStroke( VK_PAGE_DOWN, 0 ), "positiveBlockIncrement" );
+    map.put( getKeyStroke( VK_PAGE_UP, 0 ), "negativeBlockIncrement" );
+    map.put( getKeyStroke( VK_HOME, 0 ), "minScroll" );
+    map.put( getKeyStroke( VK_END, 0 ), "maxScroll" );
   }
 }

@@ -29,7 +29,7 @@ if (project.hasProperty('targetOs')) {
 }
 
 javafx {
-  version = "15"
+  version = "16"
   modules = ['javafx.controls', 'javafx.swing']
   configuration = 'compileOnly'
 }
@@ -46,9 +46,7 @@ dependencies {
   implementation 'org.fxmisc.richtext:richtextfx:0.10.6'
   implementation 'org.fxmisc.wellbehaved:wellbehavedfx:0.3.3'
   implementation 'com.miglayout:miglayout-javafx:5.2'
-  implementation('com.dlsc.preferencesfx:preferencesfx-core:11.7.0') {
-    exclude group: 'org.openjfx'
-  }
+  implementation 'com.dlsc.preferencesfx:preferencesfx-core:11.8.0'
 
   // Pure JavaFX File Chooser
   implementation "com.io7m.jwheatsheaf:com.io7m.jwheatsheaf:${v_wheatsheaf}"
@@ -73,7 +71,6 @@ dependencies {
   // XML and XSL
   implementation 'com.ximpleware:vtd-xml:2.13.4'
   implementation 'net.sf.saxon:Saxon-HE:10.3'
-  //implementation 'xalan:xalan:2.7.2'
 
   // HTML parsing and rendering
   implementation 'org.jsoup:jsoup:1.13.1'
@@ -145,10 +142,16 @@ application {
   mainClass.set("com.${applicationName}.Main")
 
   applicationDefaultJvmArgs = [
-      "--add-opens=javafx.controls/javafx.scene.control=ALL-UNNAMED",
-      "--add-opens=javafx.controls/javafx.scene.control.skin=ALL-UNNAMED",
-      "--add-opens=javafx.graphics/com.sun.javafx.css=ALL-UNNAMED",
-      "--add-exports=javafx.graphics/com.sun.javafx.application=ALL-UNNAMED",
+    "--add-opens=javafx.controls/javafx.scene.control=ALL-UNNAMED",
+    "--add-opens=javafx.controls/javafx.scene.control.skin=ALL-UNNAMED",
+    "--add-opens=javafx.graphics/javafx.scene.text=ALL-UNNAMED",
+    "--add-opens=javafx.graphics/com.sun.javafx.css=ALL-UNNAMED",
+    "--add-opens=javafx.graphics/com.sun.javafx.text=ALL-UNNAMED",
+    "--add-exports=javafx.graphics/com.sun.javafx.application=ALL-UNNAMED",
+    "--add-exports=javafx.graphics/com.sun.javafx.geom=ALL-UNNAMED",
+    "--add-exports=javafx.graphics/com.sun.javafx.scene.traversal=ALL-UNNAMED",
+    "--add-exports=javafx.graphics/com.sun.javafx.scene.traversal=ALL-UNNAMED",
+    "--add-exports=javafx.graphics/com.sun.javafx.text=ALL-UNNAMED",
   ]
 }
 
@@ -194,9 +197,18 @@ test {
 
   doFirst {
     jvmArgs = [
-        '--add-exports', "javafx.base/com.sun.javafx.event=ALL-UNNAMED",
+      "--add-opens=javafx.controls/javafx.scene.control=ALL-UNNAMED",
+      "--add-opens=javafx.controls/javafx.scene.control.skin=ALL-UNNAMED",
+      "--add-opens=javafx.graphics/javafx.scene.text=ALL-UNNAMED",
+      "--add-opens=javafx.graphics/com.sun.javafx.css=ALL-UNNAMED",
+      "--add-opens=javafx.graphics/com.sun.javafx.text=ALL-UNNAMED",
+      "--add-exports=javafx.base/com.sun.javafx.event=ALL-UNNAMED",
+      "--add-exports=javafx.graphics/com.sun.javafx.application=ALL-UNNAMED",
+      "--add-exports=javafx.graphics/com.sun.javafx.geom=ALL-UNNAMED",
+      "--add-exports=javafx.graphics/com.sun.javafx.scene.traversal=ALL-UNNAMED",
+      "--add-exports=javafx.graphics/com.sun.javafx.scene.traversal=ALL-UNNAMED",
+      "--add-exports=javafx.graphics/com.sun.javafx.text=ALL-UNNAMED",
     ]
-    //classpath = files()
   }
 
   testLogging {

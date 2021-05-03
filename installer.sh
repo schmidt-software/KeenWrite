@@ -12,6 +12,10 @@ source $HOME/bin/build-template
 readonly APP_NAME=$(find "${SCRIPT_DIR}/src" -type f -name "settings.properties" -exec cat {} \; | grep "application.title=" | cut -d'=' -f2)
 readonly FILE_APP_JAR="${APP_NAME}.jar"
 
+# JDK 16 work-around until RichTextFX is fixed.
+# See: https://github.com/FXMisc/RichTextFX/issues/1013
+readonly OPT_JAVA="--illegal-access=permit"
+
 ARG_JAVA_OS="linux"
 ARG_JAVA_ARCH="amd64"
 ARG_JAVA_VERSION="15.0.2"
@@ -138,7 +142,7 @@ utile_create_launch_script_linux() {
 
 readonly SCRIPT_SRC="\$(dirname "\${BASH_SOURCE[\${#BASH_SOURCE[@]} - 1]}")"
 
-"\${SCRIPT_SRC}/${ARG_JAVA_DIR}/bin/java" -jar "\${SCRIPT_SRC}/${FILE_APP_JAR}" "\$@" 2>&1 >/dev/null &
+"\${SCRIPT_SRC}/${ARG_JAVA_DIR}/bin/java" ${OPT_JAVA} -jar "\${SCRIPT_SRC}/${FILE_APP_JAR}" "\$@" 2>&1 >/dev/null &
 __EOT
 
   chmod +x "${FILE_DIST_EXEC}"
@@ -154,7 +158,7 @@ utile_create_launch_script_windows() {
 @echo off
 
 set SCRIPT_DIR=%~dp0
-"%SCRIPT_DIR%\\${ARG_JAVA_DIR}\\bin\\java" -jar "%SCRIPT_DIR%\\${APP_NAME}.jar" %*
+"%SCRIPT_DIR%\\${ARG_JAVA_DIR}\\bin\\java" ${OPT_JAVA} -jar "%SCRIPT_DIR%\\${APP_NAME}.jar" %*
 __EOT
 
   # Convert Unix end of line characters (\n) to Windows format (\r\n).

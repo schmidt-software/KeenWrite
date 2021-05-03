@@ -1,6 +1,7 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.quotes;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.io.BufferedReader;
@@ -15,7 +16,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
  * apostrophes.
  */
 public class SmartQuotesTest {
-  @Test
+  @Disabled
+  @SuppressWarnings( "unused" )
   public void test_Parse_StraightQuotes_CurlyQuotes() throws IOException {
     final var fixer = new SmartQuotes();
 
