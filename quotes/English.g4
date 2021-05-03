@@ -1,4 +1,4 @@
-/* Extended Backus--Naur form definition for English quotes and quotations */
+/* Extended Backus-Naur form definition for Canadian English quotes */
 grammar English;
 
 /* **************************************************************************
