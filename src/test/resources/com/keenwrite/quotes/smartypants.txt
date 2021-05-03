@@ -188,9 +188,6 @@ Sam&apos;s Sams&apos; and the Ross&apos;s roses&apos; thorns were prickly.
 \"Hello!\"
 &ldquo;Hello!&rdquo;
 
-ain't
-ain&apos;t
-
 ma'am
 ma&apos;am
 
@@ -207,7 +204,7 @@ ma&apos;am
 &lsquo;Oak,&rsquo; &lsquo;elm,&rsquo; and &lsquo;beech&rsquo; are names of trees. So is &lsquo;pine.&rsquo;
 
 'He said, \"I want to go.\"' Were you alive in the 70's?
-&lsquo;He said, &ldquo;I want to go.&rdquo;’ Were you alive in the 70&apos;s?
+&lsquo;He said, &ldquo;I want to go.&rdquo;&rsquo; Were you alive in the 70&apos;s?
 
 \"That's a 'magic' sock.\"
 &ldquo;That&apos;s a &lsquo;magic&rsquo; sock.&rdquo;
