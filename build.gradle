@@ -28,6 +28,20 @@ if (project.hasProperty('targetOs')) {
   }
 }
 
+def moduleSecurity = [
+  "--add-opens=javafx.controls/javafx.scene.control=ALL-UNNAMED",
+  "--add-opens=javafx.controls/javafx.scene.control.skin=ALL-UNNAMED",
+  "--add-opens=javafx.graphics/javafx.scene.text=ALL-UNNAMED",
+  "--add-opens=javafx.graphics/com.sun.javafx.css=ALL-UNNAMED",
+  "--add-opens=javafx.graphics/com.sun.javafx.text=ALL-UNNAMED",
+  "--add-exports=javafx.base/com.sun.javafx.event=ALL-UNNAMED",
+  "--add-exports=javafx.graphics/com.sun.javafx.application=ALL-UNNAMED",
+  "--add-exports=javafx.graphics/com.sun.javafx.geom=ALL-UNNAMED",
+  "--add-exports=javafx.graphics/com.sun.javafx.scene.traversal=ALL-UNNAMED",
+  "--add-exports=javafx.graphics/com.sun.javafx.scene.traversal=ALL-UNNAMED",
+  "--add-exports=javafx.graphics/com.sun.javafx.text=ALL-UNNAMED",
+]
+
 javafx {
   version = "16"
   modules = ['javafx.controls', 'javafx.swing']
@@ -132,41 +146,30 @@ compileJava {
 
 def resourceDir = sourceSets.main.resources.srcDirs[0]
 
-def config = new Properties()
+Properties config = new Properties()
 file("${resourceDir}/bootstrap.properties").withInputStream {
   config.load(it)
 }
 
 application {
-  applicationName = config["application.title"].toLowerCase()
+  applicationName = config.get("application.title").toString().toLowerCase()
   mainClass.set("com.${applicationName}.Main")
-
-  applicationDefaultJvmArgs = [
-    "--add-opens=javafx.controls/javafx.scene.control=ALL-UNNAMED",
-    "--add-opens=javafx.controls/javafx.scene.control.skin=ALL-UNNAMED",
-    "--add-opens=javafx.graphics/javafx.scene.text=ALL-UNNAMED",
-    "--add-opens=javafx.graphics/com.sun.javafx.css=ALL-UNNAMED",
-    "--add-opens=javafx.graphics/com.sun.javafx.text=ALL-UNNAMED",
-    "--add-exports=javafx.graphics/com.sun.javafx.application=ALL-UNNAMED",
-    "--add-exports=javafx.graphics/com.sun.javafx.geom=ALL-UNNAMED",
-    "--add-exports=javafx.graphics/com.sun.javafx.scene.traversal=ALL-UNNAMED",
-    "--add-exports=javafx.graphics/com.sun.javafx.scene.traversal=ALL-UNNAMED",
-    "--add-exports=javafx.graphics/com.sun.javafx.text=ALL-UNNAMED",
-  ]
+  applicationDefaultJvmArgs = moduleSecurity
 }
 
 version = gitVersion()
 
-def launcherClassName = "com.${applicationName}.Launcher"
-
-def propertiesFile = new File("${resourceDir}/com/${applicationName}/app.properties")
+String launcherClassName = "com.${applicationName}.Launcher"
+File propertiesFile = new File("${resourceDir}/com/${applicationName}/app.properties")
 propertiesFile.write("application.version=${version}")
 
 jar {
   duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 
-  manifest {
-    attributes 'Main-Class': launcherClassName
+  doFirst {
+    manifest {
+      attributes 'Main-Class': launcherClassName
+    }
   }
 
   from {
@@ -196,22 +199,11 @@ test {
   useJUnitPlatform()
 
   doFirst {
-    jvmArgs = [
-      "--add-opens=javafx.controls/javafx.scene.control=ALL-UNNAMED",
-      "--add-opens=javafx.controls/javafx.scene.control.skin=ALL-UNNAMED",
-      "--add-opens=javafx.graphics/javafx.scene.text=ALL-UNNAMED",
-      "--add-opens=javafx.graphics/com.sun.javafx.css=ALL-UNNAMED",
-      "--add-opens=javafx.graphics/com.sun.javafx.text=ALL-UNNAMED",
-      "--add-exports=javafx.base/com.sun.javafx.event=ALL-UNNAMED",
-      "--add-exports=javafx.graphics/com.sun.javafx.application=ALL-UNNAMED",
-      "--add-exports=javafx.graphics/com.sun.javafx.geom=ALL-UNNAMED",
-      "--add-exports=javafx.graphics/com.sun.javafx.scene.traversal=ALL-UNNAMED",
-      "--add-exports=javafx.graphics/com.sun.javafx.scene.traversal=ALL-UNNAMED",
-      "--add-exports=javafx.graphics/com.sun.javafx.text=ALL-UNNAMED",
-    ]
+    jvmArgs = moduleSecurity
   }
 
   testLogging {
     exceptionFormat = 'full'
   }
 }
+
