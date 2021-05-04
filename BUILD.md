@@ -71,7 +71,7 @@ Configure the IDE to run the application as follows:
 
 The changes should resemble:
 
-![Run Configuration](docs/images/app-title.png)
+![Run Configuration](docs/images/app-ide.png)
 
 ### Run
 
