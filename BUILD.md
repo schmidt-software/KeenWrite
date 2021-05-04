@@ -75,14 +75,7 @@ The changes should resemble:
 
 ### Run
 
-Run the application as follows:
-
-1. Ensure the **Project** is open.
-1. Expand **src → main → java → com.keenwrite**.
-1. Open **Launcher**.
-1. Run **main**.
-
-The application is launched.
+Click **Run → KeenWrite** to launch the application.
 
 # Installers
 
