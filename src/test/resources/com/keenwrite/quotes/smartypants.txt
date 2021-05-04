@@ -177,10 +177,65 @@ Sam&apos;s Sams&apos; and the Ross&apos;s roses&apos; thorns were prickly.
 # Mixed
 # ########################################################################
 "I heard she said, 'That's Sam's'," said the Sams' cat.
-&ldquo;I heard she said, &lsquo;That&apos;s Sam&apos;s&rsquo;," said the Sams&apos; cat.
+&ldquo;I heard she said, &lsquo;That&apos;s Sam&apos;s&rsquo;,&rdquo; said the Sams&apos; cat.
 
 "'Janes' said, ''E'll be spooky, Sam's son with the jack-o'-lantern!'" said the O'Mally twins'---y'know---ghosts in unison.
 &ldquo;&lsquo;Janes&apos; said, &lsquo;&apos;E&apos;ll be spooky, Sam&apos;s son with the jack-o&apos;-lantern!&rsquo;&rdquo; said the O&apos;Mally twins&apos;---y&apos;know---ghosts in unison.
 
 'He's at Sams'
 &lsquo;He&apos; at Sams&rsquo;
+
+\"Hello!\"
+&ldquo;Hello!&rdquo;
+
+ma'am
+ma&apos;am
+
+'Twas midnight
+&apos;Twas midnight
+
+\"Hello,\" said the spider. \"'Shelob' is my name.\"
+&ldquo;Hello,&rdquo; said the spider. &ldquo;&lsquo;Shelob&rsquo; is my name.&rdquo;
+
+'A', 'B', and 'C' are letters.
+&lsquo;A&rsquo; &lsquo;B&rsquo; and &lsquo;C&rsquo; are letters.
+
+'Oak,' 'elm,' and 'beech' are names of trees. So is 'pine.'
+&lsquo;Oak,&rsquo; &lsquo;elm,&rsquo; and &lsquo;beech&rsquo; are names of trees. So is &lsquo;pine.&rsquo;
+
+'He said, \"I want to go.\"' Were you alive in the 70's?
+&lsquo;He said, &ldquo;I want to go.&rdquo;&rsquo; Were you alive in the 70&apos;s?
+
+\"That's a 'magic' sock.\"
+&ldquo;That&apos;s a &lsquo;magic&rsquo; sock.&rdquo;
+
+Website! Company Name, Inc. (\"Company Name\" or \"Company\") recommends reading the following terms and conditions, carefully:
+Website! Company Name, Inc. (&ldquo;Company Name&rdquo; or &ldquo;Company&rdquo;) recommends reading the following terms and conditions, carefully:
+
+Website! Company Name, Inc. ('Company Name' or 'Company') recommends reading the following terms and conditions, carefully:
+Website! Company Name, Inc. (&lsquo;Company Name&rsquo; or &lsquo;Company&rsquo;) recommends reading the following terms and conditions, carefully:
+
+Workin' hard
+Workin&apos; hard
+
+'70s are my favorite numbers,' she said.
+&lsquo;70s are my favorite numbers,&rsquo; she said.
+
+'70s fashion was weird.
+&apos;70s fashion was weird.
+
+12\" record, 5'10\" height
+12&Prime; record, 5&prime;10&Prime; height
+
+Model \"T2000\"
+Model &ldquo;T2000&rdquo;
+
+iPad 3's battery life is not great.
+iPad 3&apos;s battery life is not great.
+
+Book 'em, Danno. Rock 'n' roll. 'Cause 'twas the season.
+Book &apos;em, Danno. Rock &apos;n&apos; roll. &apos;Cause &apos;twas the season.
+
+'85 was a good year. (The entire '80s were.)
+&apos;85 was a good year. (The entire &apos;80s were.)
+
