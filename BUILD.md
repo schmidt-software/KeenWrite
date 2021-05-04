@@ -58,6 +58,21 @@ Complete the following steps to import the application:
 
 The project is imported into the IDE.
 
+### Configure
+
+Configure the IDE to run the application as follows:
+
+1. Click **Run → Edit Configurations**.
+1. Click **+** to add a new configuration.
+1. Set **Name** to: KeenWrite
+1. Click **Modify Options → Add VM options**.
+1. Set **VM options** field to: `--illegal-access=permit`
+1. Click **OK** close the dialog.
+
+The changes should resemble:
+
+![Run Configuration](docs/images/app-title.png)
+
 ### Run
 
 Run the application as follows:
