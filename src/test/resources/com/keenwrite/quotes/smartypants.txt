@@ -177,7 +177,7 @@ Sam&apos;s Sams&apos; and the Ross&apos;s roses&apos; thorns were prickly.
 # Mixed
 # ########################################################################
 "I heard she said, 'That's Sam's'," said the Sams' cat.
-&ldquo;I heard she said, &lsquo;That&apos;s Sam&apos;s&rsquo;," said the Sams&apos; cat.
+&ldquo;I heard she said, &lsquo;That&apos;s Sam&apos;s&rsquo;,&rdquo; said the Sams&apos; cat.
 
 "'Janes' said, ''E'll be spooky, Sam's son with the jack-o'-lantern!'" said the O'Mally twins'---y'know---ghosts in unison.
 &ldquo;&lsquo;Janes&apos; said, &lsquo;&apos;E&apos;ll be spooky, Sam&apos;s son with the jack-o&apos;-lantern!&rsquo;&rdquo; said the O&apos;Mally twins&apos;---y&apos;know---ghosts in unison.
