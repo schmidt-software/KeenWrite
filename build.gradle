@@ -1,6 +1,6 @@
 plugins {
   id 'application'
-  id 'org.openjfx.javafxplugin' version '0.0.9'
+  id 'org.openjfx.javafxplugin' version '0.0.10'
   id 'com.palantir.git-version' version '0.12.3'
 }
 
@@ -128,8 +128,6 @@ dependencies {
 
   fx.each { fxitem ->
     os.each { ositem ->
-      println "org.openjfx:javafx-${fxitem}:${javafx.version}:${ositem}"
-
       runtimeOnly "org.openjfx:javafx-${fxitem}:${javafx.version}:${ositem}"
     }
   }
@@ -146,21 +144,23 @@ compileJava {
 
 def resourceDir = sourceSets.main.resources.srcDirs[0]
 
-Properties config = new Properties()
-file("${resourceDir}/bootstrap.properties").withInputStream {
-  config.load(it)
-}
+final Properties config = new Properties()
+final File configFile = file("${resourceDir}/bootstrap.properties")
+final FileInputStream configStream = new FileInputStream(configFile)
+config.load(configStream)
+configStream.close()
+
+final String applicationName = config.get("application.title").toString().toLowerCase()
+final String applicationClass = "com.${applicationName}.Launcher"
 
 application {
-  applicationName = config.get("application.title").toString().toLowerCase()
-  mainClass.set("com.${applicationName}.Main")
+  mainClass.set(applicationClass)
   applicationDefaultJvmArgs = moduleSecurity
 }
 
 version = gitVersion()
 
-String launcherClassName = "com.${applicationName}.Launcher"
-File propertiesFile = new File("${resourceDir}/com/${applicationName}/app.properties")
+final File propertiesFile = new File("${resourceDir}/com/${applicationName}/app.properties")
 propertiesFile.write("application.version=${version}")
 
 jar {
@@ -168,7 +168,7 @@ jar {
 
   doFirst {
     manifest {
-      attributes 'Main-Class': launcherClassName
+      attributes 'Main-Class': applicationClass
     }
   }
 
@@ -206,4 +206,3 @@ test {
     exceptionFormat = 'full'
   }
 }
-

@@ -6,7 +6,7 @@ This document describes how to build the application and platform binaries.
 
 Download and install the following software packages:
 
-* [JDK 15](https://bell-sw.com/pages/downloads/?version=java-15) (Full JDK + JavaFX)
+* [JDK 16](https://bell-sw.com/pages/downloads/?version=java-16) (Full JDK + JavaFX)
 * [Gradle 7.0](https://services.gradle.org/distributions)
 * [Git 2.28.0](https://git-scm.com/downloads)
 
@@ -31,11 +31,11 @@ The application is built.
 
 After the application is compiled, run it as follows:
 
-    java -jar build/libs/keenwrite.jar
+    java --illegal-access=permit -jar build/libs/keenwrite.jar
 
 On Windows:
 
-    java -jar build\libs\keenwrite.jar
+    java --illegal-access=permit -jar build\libs\keenwrite.jar
 
 # Integrated development environments
 
