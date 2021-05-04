@@ -6,8 +6,7 @@ import java.io.File;
 
 import static com.keenwrite.io.MediaTypeExtension.valueFrom;
 import static org.apache.commons.io.FilenameUtils.getExtension;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Responsible for testing that {@link MediaTypeSniffer} can return the
@@ -28,8 +27,10 @@ class MediaTypeSnifferTest {
     while( urls.hasMoreElements() ) {
       final var url = urls.nextElement();
       final var path = new File( url.toURI().getPath() );
+      final var files = path.listFiles();
+      assertNotNull( files );
 
-      for( final var image : path.listFiles() ) {
+      for( final var image : files ) {
         final var media = MediaTypeSniffer.getMediaType( image );
         final var actualExtension = valueFrom( media ).getExtension();
         final var expectedExtension = getExtension( image.toString() );
