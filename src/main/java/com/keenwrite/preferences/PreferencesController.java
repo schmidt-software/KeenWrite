@@ -123,6 +123,12 @@ public final class PreferencesController {
                       stringProperty( KEY_DOC_AUTHOR ) )
         ),
         Group.of(
+          get( KEY_DOC_PSEUDONYM ),
+          Setting.of( label( KEY_DOC_PSEUDONYM ) ),
+          Setting.of( title( KEY_DOC_PSEUDONYM ),
+                      stringProperty( KEY_DOC_PSEUDONYM ) )
+        ),
+        Group.of(
           get( KEY_DOC_KEYWORDS ),
           Setting.of( label( KEY_DOC_KEYWORDS ) ),
           Setting.of( title( KEY_DOC_KEYWORDS ),

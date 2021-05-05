@@ -3,6 +3,7 @@ package com.keenwrite.processors;
 
 import com.keenwrite.preferences.Key;
 import com.keenwrite.preferences.Workspace;
+import com.keenwrite.ui.heuristics.WordCounter;
 import javafx.beans.property.StringProperty;
 import org.jsoup.nodes.Document;
 
@@ -12,6 +13,7 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.FileNotFoundException;
 import java.nio.file.Path;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.regex.Pattern;
@@ -21,8 +23,10 @@ import static com.keenwrite.Messages.get;
 import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.io.HttpFacade.httpGet;
 import static com.keenwrite.preferences.WorkspaceKeys.*;
+import static com.keenwrite.processors.text.TextReplacementFactory.replace;
 import static com.keenwrite.util.ProtocolScheme.getProtocol;
 import static java.lang.String.format;
+import static java.lang.String.valueOf;
 import static java.nio.file.Files.copy;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import static java.util.regex.Pattern.UNICODE_CHARACTER_CLASS;
@@ -87,7 +91,7 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
   private void setMetaData( final Document doc ) {
     doc.title( getTitle() );
 
-    final var metadata = createMetaData();
+    final var metadata = createMetaData( doc );
     final var head = doc.head();
     metadata.entrySet().forEach( entry -> head.append( createMeta( entry ) ) );
   }
@@ -99,15 +103,15 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
   }
 
   /**
-   * <p>
-   * TODO: Convert the workspace fields using variables (processor context).
-   * </p>
+   * Generates document metadata, including word count.
    *
+   * @param doc The document containing the text to tally.
    * @return A map of metadata key/value pairs.
    */
-  private Map<String, String> createMetaData() {
+  private Map<String, String> createMetaData( final Document doc ) {
     return Map.of(
       "author", getAuthor(),
+      "count", getWordCount( doc ),
       "keywords", getKeywords(),
       "copyright", getCopyright(),
       "date", getDate()
@@ -227,30 +231,41 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
     return mContext.getWorkspace();
   }
 
+  private Locale getLocale() { return getWorkspace().getLocale(); }
+
   private String getTitle() {
-    return asString( KEY_DOC_TITLE );
+    return resolve( KEY_DOC_TITLE );
   }
 
   private String getAuthor() {
-    return asString( KEY_DOC_AUTHOR );
+    return resolve( KEY_DOC_AUTHOR );
+  }
+
+  private String getWordCount( final Document doc ) {
+    final var text = doc.wholeText();
+    final var wordCounter = WordCounter.create( getLocale() );
+    return valueOf( wordCounter.countWords( text ) );
   }
 
   private String getKeywords() {
-    return asString( KEY_DOC_KEYWORDS );
+    return resolve( KEY_DOC_KEYWORDS );
   }
 
   private String getCopyright() {
-    return asString( KEY_DOC_COPYRIGHT );
+    return resolve( KEY_DOC_COPYRIGHT );
   }
 
   private String getDate() {
-    return asString( KEY_DOC_DATE );
+    return resolve( KEY_DOC_DATE );
+  }
+
+  private String resolve( final Key key ) {
+    return replace( asString( key ), mContext.getResolvedMap() );
   }
 
   private String asString( final Key key ) {
     return stringProperty( key ).get();
   }
-
 
   private StringProperty stringProperty( final Key key ) {
     return getWorkspace().stringProperty( key );

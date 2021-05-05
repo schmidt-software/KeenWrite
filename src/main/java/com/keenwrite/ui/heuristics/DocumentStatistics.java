@@ -5,9 +5,7 @@ import com.keenwrite.events.DocumentChangedEvent;
 import com.keenwrite.preferences.Workspace;
 import com.keenwrite.preview.HtmlPanel;
 import com.keenwrite.util.MurmurHash;
-import com.whitemagicsoftware.wordcount.Tokenizer;
 import com.whitemagicsoftware.wordcount.TokenizerException;
-import com.whitemagicsoftware.wordcount.TokenizerFactory;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -19,15 +17,13 @@ import javafx.scene.control.TableView;
 import org.greenrobot.eventbus.Subscribe;
 import org.jsoup.Jsoup;
 
-import java.util.Locale;
-
 import static com.keenwrite.events.Bus.register;
 import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.events.WordCountEvent.fireWordCountEvent;
 import static com.keenwrite.preferences.WorkspaceKeys.KEY_LANGUAGE_LOCALE;
 import static com.keenwrite.preferences.WorkspaceKeys.KEY_UI_FONT_EDITOR_NAME;
+import static com.keenwrite.ui.heuristics.DocumentStatistics.StatEntry;
 import static java.lang.String.format;
-import static java.util.Locale.ENGLISH;
 import static javafx.application.Platform.runLater;
 import static javafx.collections.FXCollections.observableArrayList;
 
@@ -35,13 +31,9 @@ import static javafx.collections.FXCollections.observableArrayList;
  * Responsible for displaying document statistics, such as word count and
  * word frequency.
  */
-public final class DocumentStatistics
-  extends TableView<DocumentStatistics.StatEntry> {
-  /**
-   * Parses documents into word counts.
-   */
-  private static Tokenizer sTokenizer = createTokenizer( ENGLISH );
+public final class DocumentStatistics extends TableView<StatEntry> {
 
+  private WordCounter mWordCounter;
   private final ObservableList<StatEntry> mItems = observableArrayList();
 
   /**
@@ -51,6 +43,8 @@ public final class DocumentStatistics
    * @param workspace Settings used to configure the statistics engine.
    */
   public DocumentStatistics( final Workspace workspace ) {
+    mWordCounter = WordCounter.create( workspace.getLocale() );
+
     final var sortedItems = new SortedList<>( mItems );
     sortedItems.comparatorProperty().bind( comparatorProperty() );
     setItems( sortedItems );
@@ -87,22 +81,20 @@ public final class DocumentStatistics
   @Subscribe
   public void handle( final DocumentChangedEvent event ) {
     try {
-      final var tokens = sTokenizer.tokenize( event.getDocument() );
-      final var sum = new int[]{0};
-
       runLater( () -> {
         mItems.clear();
-        tokens.forEach( ( k, v ) -> {
-          final var count = v[ 0 ];
-          if( count > 2 ) {
-            mItems.add( new StatEntry( k, count ) );
+        final var document = event.getDocument();
+        final var wordCount = mWordCounter.countWords(
+          document, ( k, count ) -> {
+            // Generate statistics for words that occur thrice or more.
+            if( count > 2 ) {
+              mItems.add( new StatEntry( k, count ) );
+            }
           }
-          sum[ 0 ] += count;
-        } );
+        );
 
-        fireWordCountEvent( sum[ 0 ] );
+        fireWordCountEvent( wordCount );
       } );
-
     } catch( final TokenizerException ex ) {
       clue( ex );
     }
@@ -132,17 +124,8 @@ public final class DocumentStatistics
   private void initListeners( final Workspace workspace ) {
     final var property = workspace.localeProperty( KEY_LANGUAGE_LOCALE );
     property.addListener(
-      ( c, o, n ) -> sTokenizer = createTokenizer( property.toLocale() )
+      ( c, o, n ) -> mWordCounter = WordCounter.create( property.toLocale() )
     );
-  }
-
-  /**
-   * Creates a tokenizer for English text (can handle most Latin languages).
-   *
-   * @return An English-based tokenizer for counting words.
-   */
-  private static Tokenizer createTokenizer( final Locale language ) {
-    return TokenizerFactory.create( language );
   }
 
   private <E, T> TableColumn<E, T> createColumn( final String key ) {

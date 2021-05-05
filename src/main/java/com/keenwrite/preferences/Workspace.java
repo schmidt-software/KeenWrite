@@ -72,6 +72,7 @@ public final class Workspace {
 
     entry( KEY_DOC_TITLE, asStringProperty( "title" ) ),
     entry( KEY_DOC_AUTHOR, asStringProperty( getProperty( "user.name" ) ) ),
+    entry( KEY_DOC_PSEUDONYM, asStringProperty( getProperty( "user.name" ) ) ),
     entry( KEY_DOC_KEYWORDS, asStringProperty( "science, nature" ) ),
     entry( KEY_DOC_COPYRIGHT, asStringProperty( getYear() ) ),
     entry( KEY_DOC_DATE, asStringProperty( getDate() ) ),
