@@ -111,6 +111,7 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
   private Map<String, String> createMetaData( final Document doc ) {
     return Map.of(
       "author", getAuthor(),
+      "pseudonym", getPseudonym(),
       "count", getWordCount( doc ),
       "keywords", getKeywords(),
       "copyright", getCopyright(),
@@ -239,6 +240,10 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
 
   private String getAuthor() {
     return resolve( KEY_DOC_AUTHOR );
+  }
+
+  private String getPseudonym() {
+    return resolve( KEY_DOC_PSEUDONYM );
   }
 
   private String getWordCount( final Document doc ) {
