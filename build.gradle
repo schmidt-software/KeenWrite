@@ -1,4 +1,5 @@
 plugins {
+  id 'antlr'
   id 'application'
   id 'org.openjfx.javafxplugin' version '0.0.9'
   id 'com.palantir.git-version' version '0.12.3'
@@ -127,6 +128,13 @@ dependencies {
   testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
 
   testImplementation "org.testfx:testfx-junit5:4.0.16-alpha"
+
+  antlr "org.antlr:antlr4:4.9.2"
+}
+
+generateGrammarSource {
+  maxHeapSize = "128m"
+  arguments += ["-visitor", "-package", "com.keenwrite.quotes"]
 }
 
 compileJava {
