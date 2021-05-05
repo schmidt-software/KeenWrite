@@ -67,7 +67,10 @@ public class BaseMarkdownProcessor extends ExecutorProcessor<String> {
     extensions.add( SuperscriptExtension.create() );
     extensions.add( TablesExtension.create() );
     extensions.add( FencedDivExtension.create() );
-    extensions.add( TypographicExtension.create() );
+
+    if( !context.isExportFormat( APPLICATION_PDF ) ) {
+      extensions.add( TypographicExtension.create() );
+    }
 
     return extensions;
   }
