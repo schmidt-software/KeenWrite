@@ -123,10 +123,27 @@ public final class PreferencesController {
                       stringProperty( KEY_DOC_AUTHOR ) )
         ),
         Group.of(
-          get( KEY_DOC_PSEUDONYM ),
-          Setting.of( label( KEY_DOC_PSEUDONYM ) ),
-          Setting.of( title( KEY_DOC_PSEUDONYM ),
-                      stringProperty( KEY_DOC_PSEUDONYM ) )
+          get( KEY_DOC_BYLINE ),
+          Setting.of( label( KEY_DOC_BYLINE ) ),
+          Setting.of( title( KEY_DOC_BYLINE ),
+                      stringProperty( KEY_DOC_BYLINE ) )
+        ),
+        Group.of(
+          get( KEY_DOC_ADDRESS ),
+          Setting.of( label( KEY_DOC_ADDRESS ) ),
+          createMultilineSetting( "Address", KEY_DOC_ADDRESS )
+        ),
+        Group.of(
+          get( KEY_DOC_PHONE ),
+          Setting.of( label( KEY_DOC_PHONE ) ),
+          Setting.of( title( KEY_DOC_PHONE ),
+                      stringProperty( KEY_DOC_PHONE ) )
+        ),
+        Group.of(
+          get( KEY_DOC_EMAIL ),
+          Setting.of( label( KEY_DOC_EMAIL ) ),
+          Setting.of( title( KEY_DOC_EMAIL ),
+                      stringProperty( KEY_DOC_EMAIL ) )
         ),
         Group.of(
           get( KEY_DOC_KEYWORDS ),
@@ -172,7 +189,7 @@ public final class PreferencesController {
         Group.of(
           get( KEY_R_SCRIPT ),
           Setting.of( label( KEY_R_SCRIPT ) ),
-          createScriptSetting()
+          createMultilineSetting( "Script", KEY_R_SCRIPT )
         ),
         Group.of(
           get( KEY_R_DELIM_BEGAN ),
@@ -288,13 +305,14 @@ public final class PreferencesController {
   }
 
   @SuppressWarnings( "unchecked" )
-  private Setting<StringField, StringProperty> createScriptSetting() {
-    final Setting<StringField, StringProperty> scriptSetting =
-      Setting.of( "Script", stringProperty( KEY_R_SCRIPT ) );
-    final var field = scriptSetting.getElement();
+  private Setting<StringField, StringProperty> createMultilineSetting(
+    final String description, final Key property ) {
+    final Setting<StringField, StringProperty> setting =
+      Setting.of( description, stringProperty( property ) );
+    final var field = setting.getElement();
     field.multiline( true );
 
-    return scriptSetting;
+    return setting;
   }
 
   private void initKeyEventHandler( final PreferencesFx preferences ) {

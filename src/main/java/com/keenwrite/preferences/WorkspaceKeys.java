@@ -18,7 +18,10 @@ public final class WorkspaceKeys {
   public static final Key KEY_DOC = key( KEY_ROOT, "document" );
   public static final Key KEY_DOC_TITLE = key( KEY_DOC, "title" );
   public static final Key KEY_DOC_AUTHOR = key( KEY_DOC, "author" );
-  public static final Key KEY_DOC_PSEUDONYM = key( KEY_DOC, "pseudonym" );
+  public static final Key KEY_DOC_BYLINE = key( KEY_DOC, "byline" );
+  public static final Key KEY_DOC_ADDRESS = key( KEY_DOC, "address" );
+  public static final Key KEY_DOC_PHONE = key( KEY_DOC, "phone" );
+  public static final Key KEY_DOC_EMAIL = key( KEY_DOC, "email" );
   public static final Key KEY_DOC_KEYWORDS = key( KEY_DOC, "keywords" );
   public static final Key KEY_DOC_DATE = key( KEY_DOC, "date" );
   public static final Key KEY_DOC_COPYRIGHT = key( KEY_DOC, "copyright" );
