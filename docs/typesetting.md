@@ -26,7 +26,7 @@ ConTeXt is installed.
 
 A theme defines how documents appear when typeset. A theme pack is a collection of themes in a zip file. Each theme has its own requirements, described in a separate section, below. Install and configure a theme as follows:
 
-1. Download the [https://gitreleases.dev/gh/DaveJarvis/keenwrite/latest/theme-packs.zip](theme-packs.zip) archive.
+1. Download the [https://gitreleases.dev/gh/DaveJarvis/keenwrite-themes/latest/theme-packs.zip](theme-packs.zip) archive.
 1. Extract archive into a known location.
 1. Start the text editor.
 1. Click **Edit → Preferences**.
