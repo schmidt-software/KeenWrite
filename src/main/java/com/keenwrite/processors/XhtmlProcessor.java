@@ -250,7 +250,7 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
   }
 
   private String getAddress() {
-    return resolve( KEY_DOC_ADDRESS );
+    return resolve( KEY_DOC_ADDRESS ).replaceAll( "\n", "\\\\\\break{}" );
   }
 
   private String getPhone() {
