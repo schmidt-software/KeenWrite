@@ -39,8 +39,8 @@ import static com.keenwrite.ExportFormat.*;
 import static com.keenwrite.Messages.get;
 import static com.keenwrite.constants.GraphicsConstants.ICON_DIALOG_NODE;
 import static com.keenwrite.events.StatusEvent.clue;
-import static com.keenwrite.preferences.WorkspaceKeys.KEY_TYPESET_CONTEXT_PATH;
-import static com.keenwrite.preferences.WorkspaceKeys.KEY_TYPESET_CONTEXT_THEME;
+import static com.keenwrite.preferences.WorkspaceKeys.KEY_TYPESET_CONTEXT_THEMES_PATH;
+import static com.keenwrite.preferences.WorkspaceKeys.KEY_TYPESET_CONTEXT_THEME_SELECTION;
 import static com.keenwrite.processors.ProcessorFactory.createProcessors;
 import static com.keenwrite.ui.explorer.FilePickerFactory.Options;
 import static com.keenwrite.ui.explorer.FilePickerFactory.Options.*;
@@ -180,11 +180,14 @@ public final class ApplicationActions {
 
   public void file‿export‿pdf() {
     final var workspace = getWorkspace();
-    final var themes = workspace.toFile( KEY_TYPESET_CONTEXT_PATH );
-    final var theme = workspace.stringProperty( KEY_TYPESET_CONTEXT_THEME );
+    final var themes = workspace.toFile( KEY_TYPESET_CONTEXT_THEMES_PATH );
+    final var theme = workspace.stringProperty(
+      KEY_TYPESET_CONTEXT_THEME_SELECTION );
 
-    if( Typesetter.canRun() && ThemePicker.choose( themes, theme ) ) {
-      file‿export( APPLICATION_PDF );
+    if( Typesetter.canRun() ) {
+      if( ThemePicker.choose( themes, theme ) ) {
+        file‿export( APPLICATION_PDF );
+      }
     }
     else {
       fireExportFailedEvent();

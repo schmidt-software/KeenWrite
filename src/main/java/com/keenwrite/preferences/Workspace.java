@@ -83,10 +83,10 @@ public final class Workspace {
     entry( KEY_R_DIR, asFileProperty( USER_DIRECTORY ) ),
     entry( KEY_R_DELIM_BEGAN, asStringProperty( R_DELIM_BEGAN_DEFAULT ) ),
     entry( KEY_R_DELIM_ENDED, asStringProperty( R_DELIM_ENDED_DEFAULT ) ),
-    
+
     entry( KEY_IMAGES_DIR, asFileProperty( USER_DIRECTORY ) ),
     entry( KEY_IMAGES_ORDER, asStringProperty( PERSIST_IMAGES_DEFAULT ) ),
-    
+
     entry( KEY_DEF_PATH, asFileProperty( DEFINITION_DEFAULT ) ),
     entry( KEY_DEF_DELIM_BEGAN, asStringProperty( DEF_DELIM_BEGAN_DEFAULT ) ),
     entry( KEY_DEF_DELIM_ENDED, asStringProperty( DEF_DELIM_ENDED_DEFAULT ) ),
@@ -102,7 +102,6 @@ public final class Workspace {
     entry( KEY_UI_FONT_PREVIEW_SIZE, asDoubleProperty( FONT_SIZE_PREVIEW_DEFAULT ) ),
     entry( KEY_UI_FONT_PREVIEW_MONO_NAME, asStringProperty( FONT_NAME_PREVIEW_MONO_NAME_DEFAULT ) ),
     entry( KEY_UI_FONT_PREVIEW_MONO_SIZE, asDoubleProperty( FONT_SIZE_PREVIEW_MONO_SIZE_DEFAULT ) ),
-    //@formatter:on
 
     entry( KEY_UI_WINDOW_X, asDoubleProperty( WINDOW_X_DEFAULT ) ),
     entry( KEY_UI_WINDOW_Y, asDoubleProperty( WINDOW_Y_DEFAULT ) ),
@@ -116,8 +115,9 @@ public final class Workspace {
 
     entry( KEY_LANGUAGE_LOCALE, asLocaleProperty( LOCALE_DEFAULT ) ),
 
-    entry( KEY_TYPESET_CONTEXT_PATH, asFileProperty( USER_DIRECTORY ) ),
-    entry( KEY_TYPESET_CONTEXT_THEME, asStringProperty( "boschet" ) )
+    entry( KEY_TYPESET_CONTEXT_THEMES_PATH, asFileProperty( USER_DIRECTORY ) ),
+    entry( KEY_TYPESET_CONTEXT_THEME_SELECTION, asStringProperty( "boschet" ) )
+    //@formatter:on
   );
 
   private StringProperty asStringProperty( final String defaultValue ) {
@@ -317,18 +317,6 @@ public final class Workspace {
   public StringProperty stringProperty( final Key key ) {
     assert key != null;
     return valuesProperty( key );
-  }
-
-  /**
-   * Delegates setting the property for a workspace {@link Key} to the
-   * inner property instance.
-   *
-   * @param key   The name of the property value to change.
-   * @param value The new property value.
-   */
-  public void setStringProperty( final Key key, final String value ) {
-    assert value != null;
-    stringProperty( key ).set( value );
   }
 
   public void loadValueKeys( final Consumer<Key> consumer ) {

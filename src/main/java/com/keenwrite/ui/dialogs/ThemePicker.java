@@ -19,6 +19,7 @@ import static com.keenwrite.Messages.get;
 import static com.keenwrite.constants.GraphicsConstants.ICON_DIALOG_NODE;
 import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.util.FileWalker.walk;
+import static java.lang.Math.max;
 
 /**
  * Responsible for allowing the user to pick from the available themes found
@@ -72,15 +73,20 @@ public class ThemePicker extends ChoiceDialog<String> {
    * @see #choose(File, StringProperty)
    */
   private boolean pick() {
-
     try {
-      // Use a sorted map.
-      final var choices = new TreeMap<String, File>();
+      // List themes in alphabetical order (human readable by directory name).
+      final var choices = new TreeMap<String, String>();
+      final String[] selection = new String[]{""};
 
       // Populate the choices with themes detected on the system.
       walk( mThemes.toPath(), "**/theme.properties", ( path ) -> {
         try {
-          choices.put( readThemeName( path ), path.getParent().toFile() );
+          final var themeName = path.getParent().toFile().getName();
+          final var themeDisplay = readThemeName( path );
+          choices.put( themeDisplay, themeName );
+          if( themeName.equals( mTheme.get() ) ) {
+            selection[ 0 ] = themeDisplay;
+          }
         } catch( final Exception ex ) {
           clue( get( "Main.status.error.theme.name", path ) );
         }
@@ -88,17 +94,16 @@ public class ThemePicker extends ChoiceDialog<String> {
 
       final var items = getItems();
       items.addAll( choices.keySet() );
-      setSelectedItem( items.get( 0 ) );
+      setSelectedItem( items.get( max( items.indexOf( selection[ 0 ] ), 0 ) ) );
 
       final var result = showAndWait();
-      final var themeName = result.orElseThrow();
-      final var themeDir = choices.get( themeName );
 
-      mTheme.set( themeDir.getName() );
-
-      return true;
-    } catch( final IOException ex ) {
-      clue( ex );
+      if( result.isPresent() ) {
+        mTheme.set( choices.get( result.get() ) );
+        return true;
+      }
+    } catch( final Exception ex ) {
+      clue( get( "Main.status.error.theme.missing", mThemes ), ex );
     }
 
     return false;

@@ -168,9 +168,9 @@ public final class PreferencesController {
         get( KEY_TYPESET ),
         Group.of(
           get( KEY_TYPESET_CONTEXT ),
-          Setting.of( label( KEY_TYPESET_CONTEXT_PATH ) ),
-          Setting.of( title( KEY_TYPESET_CONTEXT_PATH ),
-                      fileProperty( KEY_TYPESET_CONTEXT_PATH ), true )
+          Setting.of( label( KEY_TYPESET_CONTEXT_THEMES_PATH ) ),
+          Setting.of( title( KEY_TYPESET_CONTEXT_THEMES_PATH ),
+                      fileProperty( KEY_TYPESET_CONTEXT_THEMES_PATH ), true )
         )
       ),
       Category.of(

@@ -16,8 +16,8 @@ import java.util.regex.Pattern;
 import static com.keenwrite.Messages.get;
 import static com.keenwrite.constants.Constants.DEFAULT_DIRECTORY;
 import static com.keenwrite.events.StatusEvent.clue;
-import static com.keenwrite.preferences.WorkspaceKeys.KEY_TYPESET_CONTEXT_PATH;
-import static com.keenwrite.preferences.WorkspaceKeys.KEY_TYPESET_CONTEXT_THEME;
+import static com.keenwrite.preferences.WorkspaceKeys.KEY_TYPESET_CONTEXT_THEMES_PATH;
+import static com.keenwrite.preferences.WorkspaceKeys.KEY_TYPESET_CONTEXT_THEME_SELECTION;
 import static java.lang.ProcessBuilder.Redirect.DISCARD;
 import static java.lang.String.format;
 import static java.lang.System.currentTimeMillis;
@@ -138,8 +138,8 @@ public class Typesetter {
      */
     private boolean reinitialize() {
       final var filename = mOutput.getFileName();
-      final var themes = mWorkspace.toFile( KEY_TYPESET_CONTEXT_PATH );
-      final var theme = mWorkspace.toString( KEY_TYPESET_CONTEXT_THEME );
+      final var themes = getThemesPath();
+      final var theme = getThemesSelection();
       final var cacheExists = !isEmpty( getCacheDir().toPath() );
 
       // Ensure invoking multiple times will load the correct arguments.
@@ -308,5 +308,13 @@ public class Typesetter {
     private BufferedReader createReader() {
       return new BufferedReader( new InputStreamReader( mInputStream ) );
     }
+  }
+
+  private File getThemesPath() {
+    return mWorkspace.toFile( KEY_TYPESET_CONTEXT_THEMES_PATH );
+  }
+
+  private String getThemesSelection() {
+    return mWorkspace.toString( KEY_TYPESET_CONTEXT_THEME_SELECTION );
   }
 }
