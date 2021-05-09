@@ -185,6 +185,8 @@ public final class ApplicationActions {
       KEY_TYPESET_CONTEXT_THEME_SELECTION );
 
     if( Typesetter.canRun() ) {
+      // If the typesetter is installed, allow the user to select a theme. If
+      // the themes aren't installed, a status message will appear.
       if( ThemePicker.choose( themes, theme ) ) {
         file‿export( APPLICATION_PDF );
       }
