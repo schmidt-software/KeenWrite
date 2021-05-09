@@ -21,8 +21,10 @@ import static com.keenwrite.preferences.WorkspaceKeys.KEY_TYPESET_CONTEXT_THEME_
 import static java.lang.ProcessBuilder.Redirect.DISCARD;
 import static java.lang.String.format;
 import static java.lang.System.currentTimeMillis;
+import static java.nio.file.Files.deleteIfExists;
 import static java.nio.file.Files.newDirectoryStream;
 import static java.util.concurrent.TimeUnit.*;
+import static org.apache.commons.io.FilenameUtils.removeExtension;
 
 /**
  * Responsible for invoking an executable to typeset text. This will
@@ -151,6 +153,7 @@ public class Typesetter {
         mArgs.add( "--script" );
         mArgs.add( "mtx-context" );
         mArgs.add( "--batchmode" );
+        mArgs.add( "--nonstopmode" );
         mArgs.add( "--purgeall" );
         mArgs.add( "--path='" + Path.of( themes.toString(), theme ) + "'" );
         mArgs.add( "--environment='main'" );
@@ -203,11 +206,31 @@ public class Typesetter {
       final var exit = process.exitValue();
       process.destroy();
 
+      // If there was an error, the typesetter will leave behind log, pdf, and
+      // error files.
+      if( exit != 0 ) {
+        final var xmlName = mInput.getFileName().toString();
+        final var srcName = mOutput.getFileName().toString();
+        final var logName = newExtension( xmlName, ".log" );
+        final var errName = newExtension( xmlName, "-error.log" );
+        final var pdfName = newExtension( xmlName, ".pdf" );
+        final var badName = newExtension( srcName, ".log" );
+
+        deleteIfExists( badName );
+        deleteIfExists( logName );
+        deleteIfExists( errName );
+        deleteIfExists( pdfName );
+      }
+
       // Exit value for a successful invocation of the typesetter. This value
       // value is returned when creating the cache on the first run as well as
       // creating PDFs on subsequent runs (after the cache has been created).
       // Users don't care about exit codes, only whether the PDF was generated.
       return exit == 0;
+    }
+
+    private Path newExtension( final String baseName, final String ext ) {
+      return mOutput.resolveSibling( removeExtension( baseName ) + ext );
     }
 
     /**
@@ -223,7 +246,10 @@ public class Typesetter {
     }
 
     /**
-     * Answers whether the given directory is empty.
+     * Answers whether the given directory is empty. The typesetting software
+     * creates a non-empty directory by default. The return value from this
+     * method is a proxy to answering whether the typesetter has been run for
+     * the first time or not.
      *
      * @param path The directory to check for emptiness.
      * @return {@code true} if the directory is empty.
