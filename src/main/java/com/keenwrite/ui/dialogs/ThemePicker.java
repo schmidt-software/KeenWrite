@@ -37,6 +37,9 @@ public class ThemePicker extends ChoiceDialog<String> {
    */
   @SuppressWarnings( "rawtypes" )
   private ThemePicker( final File themes, final StringProperty theme ) {
+    assert themes != null;
+    assert theme != null;
+
     mThemes = themes;
     mTheme = theme;
     setGraphic( ICON_DIALOG_NODE );
@@ -65,6 +68,9 @@ public class ThemePicker extends ChoiceDialog<String> {
    */
   public static boolean choose(
     final File themes, final StringProperty theme ) {
+    assert themes != null;
+    assert theme != null;
+
     return new ThemePicker( themes, theme ).pick();
   }
 
