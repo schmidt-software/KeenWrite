@@ -65,7 +65,6 @@ import static javafx.collections.FXCollections.observableSet;
  * </dl>
  */
 public final class Workspace {
-  //@formatter:off
   private final Map<Key, Property<?>> VALUES = Map.ofEntries(
     entry( KEY_META_VERSION, asStringProperty( getVersion() ) ),
     entry( KEY_META_NAME, asStringProperty( "default" ) ),
@@ -95,13 +94,15 @@ public final class Workspace {
     entry( KEY_UI_RECENT_DIR, asFileProperty( USER_DIRECTORY ) ),
     entry( KEY_UI_RECENT_DOCUMENT, asFileProperty( DOCUMENT_DEFAULT ) ),
     entry( KEY_UI_RECENT_DEFINITION, asFileProperty( DEFINITION_DEFAULT ) ),
-    
+
+    //@formatter:off
     entry( KEY_UI_FONT_EDITOR_NAME, asStringProperty( FONT_NAME_EDITOR_DEFAULT ) ),
     entry( KEY_UI_FONT_EDITOR_SIZE, asDoubleProperty( FONT_SIZE_EDITOR_DEFAULT ) ),
     entry( KEY_UI_FONT_PREVIEW_NAME, asStringProperty( FONT_NAME_PREVIEW_DEFAULT ) ),
     entry( KEY_UI_FONT_PREVIEW_SIZE, asDoubleProperty( FONT_SIZE_PREVIEW_DEFAULT ) ),
     entry( KEY_UI_FONT_PREVIEW_MONO_NAME, asStringProperty( FONT_NAME_PREVIEW_MONO_NAME_DEFAULT ) ),
     entry( KEY_UI_FONT_PREVIEW_MONO_SIZE, asDoubleProperty( FONT_SIZE_PREVIEW_MONO_SIZE_DEFAULT ) ),
+    //@formatter:on
 
     entry( KEY_UI_WINDOW_X, asDoubleProperty( WINDOW_X_DEFAULT ) ),
     entry( KEY_UI_WINDOW_Y, asDoubleProperty( WINDOW_Y_DEFAULT ) ),
@@ -116,9 +117,8 @@ public final class Workspace {
     entry( KEY_LANGUAGE_LOCALE, asLocaleProperty( LOCALE_DEFAULT ) ),
 
     entry( KEY_TYPESET_CONTEXT_PATH, asFileProperty( USER_DIRECTORY ) ),
-    entry( KEY_TYPESET_CONTEXT_ENV, asStringProperty( "" ) )
+    entry( KEY_TYPESET_CONTEXT_THEME, asStringProperty( "boschet" ) )
   );
-  //@formatter:on
 
   private StringProperty asStringProperty( final String defaultValue ) {
     return new SimpleStringProperty( defaultValue );
@@ -212,6 +212,7 @@ public final class Workspace {
    */
   @SuppressWarnings( "unchecked" )
   public <T, U extends Property<T>> U valuesProperty( final Key key ) {
+    assert key != null;
     // The type that goes into the map must come out.
     return (U) VALUES.get( key );
   }
@@ -226,6 +227,7 @@ public final class Workspace {
    */
   @SuppressWarnings( "unchecked" )
   public <T> SetProperty<T> setsProperty( final Key key ) {
+    assert key != null;
     // The type that goes into the map must come out.
     return (SetProperty<T>) SETS.get( key );
   }
@@ -239,6 +241,7 @@ public final class Workspace {
    * @return The value associated with the given {@link Key}.
    */
   public boolean toBoolean( final Key key ) {
+    assert key != null;
     return (Boolean) valuesProperty( key ).getValue();
   }
 
@@ -251,23 +254,29 @@ public final class Workspace {
    * @return The value associated with the given {@link Key}.
    */
   public double toDouble( final Key key ) {
+    assert key != null;
     return (Double) valuesProperty( key ).getValue();
   }
 
   public File toFile( final Key key ) {
+    assert key != null;
     return fileProperty( key ).get();
   }
 
   public String toString( final Key key ) {
+    assert key != null;
     return stringProperty( key ).get();
   }
 
   public Tokens toTokens( final Key began, final Key ended ) {
+    assert began != null;
+    assert ended != null;
     return new Tokens( stringProperty( began ), stringProperty( ended ) );
   }
 
   @SuppressWarnings( "SameParameterValue" )
   public DoubleProperty doubleProperty( final Key key ) {
+    assert key != null;
     return valuesProperty( key );
   }
 
@@ -281,14 +290,17 @@ public final class Workspace {
    * @return The value associated with the given {@link Key}.
    */
   public ObjectProperty<File> fileProperty( final Key key ) {
+    assert key != null;
     return valuesProperty( key );
   }
 
   public ObjectProperty<String> skinProperty( final Key key ) {
+    assert key != null;
     return valuesProperty( key );
   }
 
   public LocaleProperty localeProperty( final Key key ) {
+    assert key != null;
     return valuesProperty( key );
   }
 
@@ -303,7 +315,20 @@ public final class Workspace {
   }
 
   public StringProperty stringProperty( final Key key ) {
+    assert key != null;
     return valuesProperty( key );
+  }
+
+  /**
+   * Delegates setting the property for a workspace {@link Key} to the
+   * inner property instance.
+   *
+   * @param key   The name of the property value to change.
+   * @param value The new property value.
+   */
+  public void setStringProperty( final Key key, final String value ) {
+    assert value != null;
+    stringProperty( key ).set( value );
   }
 
   public void loadValueKeys( final Consumer<Key> consumer ) {

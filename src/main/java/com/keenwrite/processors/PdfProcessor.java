@@ -9,6 +9,7 @@ import static com.keenwrite.Bootstrap.APP_TITLE_LOWERCASE;
 import static com.keenwrite.Messages.get;
 import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.io.MediaType.TEXT_XML;
+import static java.nio.file.Files.deleteIfExists;
 import static java.nio.file.Files.writeString;
 
 /**
@@ -40,6 +41,9 @@ public final class PdfProcessor extends ExecutorProcessor<String> {
       final var typesetter = new Typesetter( mContext.getWorkspace() );
 
       typesetter.typeset( pathInput, pathOutput );
+
+      // Smote the temporary file after typesetting the document.
+      deleteIfExists( document );
     } catch( final IOException | InterruptedException ex ) {
       // Typesetter runtime exceptions will pass up the call stack.
       clue( get( "Main.status.typeset.failed" ), ex );

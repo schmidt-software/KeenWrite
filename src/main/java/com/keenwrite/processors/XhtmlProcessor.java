@@ -214,11 +214,11 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
   }
 
   private String getImagePath() {
-    return getWorkspace().fileProperty( KEY_IMAGES_DIR ).get().toString();
+    return getWorkspace().toFile( KEY_IMAGES_DIR ).toString();
   }
 
   private String getImageOrder() {
-    return getWorkspace().stringProperty( KEY_IMAGES_ORDER ).get();
+    return getWorkspace().toString( KEY_IMAGES_ORDER );
   }
 
   /**

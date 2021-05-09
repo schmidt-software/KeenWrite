@@ -82,7 +82,7 @@ public final class WorkspaceKeys {
   public static final Key KEY_TYPESET = key( KEY_ROOT, "typeset" );
   public static final Key KEY_TYPESET_CONTEXT = key( KEY_TYPESET, "context" );
   public static final Key KEY_TYPESET_CONTEXT_PATH = key( KEY_TYPESET_CONTEXT, "path" );
-  public static final Key KEY_TYPESET_CONTEXT_ENV = key( KEY_TYPESET_CONTEXT, "environment" );
+  public static final Key KEY_TYPESET_CONTEXT_THEME = key( KEY_TYPESET_CONTEXT, "theme" );
   //@formatter:on
 
   /**

@@ -2,7 +2,6 @@
 package com.keenwrite.typesetting;
 
 import com.keenwrite.io.SysFile;
-import com.keenwrite.preferences.Key;
 import com.keenwrite.preferences.Workspace;
 
 import java.io.*;
@@ -17,8 +16,8 @@ import java.util.regex.Pattern;
 import static com.keenwrite.Messages.get;
 import static com.keenwrite.constants.Constants.DEFAULT_DIRECTORY;
 import static com.keenwrite.events.StatusEvent.clue;
-import static com.keenwrite.preferences.WorkspaceKeys.KEY_TYPESET_CONTEXT_ENV;
 import static com.keenwrite.preferences.WorkspaceKeys.KEY_TYPESET_CONTEXT_PATH;
+import static com.keenwrite.preferences.WorkspaceKeys.KEY_TYPESET_CONTEXT_THEME;
 import static java.lang.ProcessBuilder.Redirect.DISCARD;
 import static java.lang.String.format;
 import static java.lang.System.currentTimeMillis;
@@ -75,16 +74,6 @@ public class Typesetter {
     }
   }
 
-  @SuppressWarnings( "SameParameterValue" )
-  private String stringProperty( final Key key ) {
-    return mWorkspace.stringProperty( key ).get();
-  }
-
-  @SuppressWarnings( "SameParameterValue" )
-  private File fileProperty( final Key key ) {
-    return mWorkspace.fileProperty( key ).get();
-  }
-
   /**
    * Calculates the time that has elapsed from the current time to the
    * given moment in time.
@@ -138,19 +127,19 @@ public class Typesetter {
       final var parentDir = output.getParent();
       mInput = input;
       mOutput = output;
-      mDirectory = (parentDir == null ? DEFAULT_DIRECTORY : parentDir);
+      mDirectory = parentDir == null ? DEFAULT_DIRECTORY : parentDir;
     }
 
     /**
      * Initializes ConTeXt, which means creating the cache directory if it
-     * doesn't already exist.
+     * doesn't already exist. The theme entry point must be named 'main.tex'.
      *
      * @return {@code true} if the cache directory exists.
      */
     private boolean reinitialize() {
       final var filename = mOutput.getFileName();
-      final var paths = fileProperty( KEY_TYPESET_CONTEXT_PATH );
-      final var envs = stringProperty( KEY_TYPESET_CONTEXT_ENV );
+      final var themes = mWorkspace.toFile( KEY_TYPESET_CONTEXT_PATH );
+      final var theme = mWorkspace.toString( KEY_TYPESET_CONTEXT_THEME );
       final var cacheExists = !isEmpty( getCacheDir().toPath() );
 
       // Ensure invoking multiple times will load the correct arguments.
@@ -163,8 +152,8 @@ public class Typesetter {
         mArgs.add( "mtx-context" );
         mArgs.add( "--batchmode" );
         mArgs.add( "--purgeall" );
-        mArgs.add( "--path='" + paths + "'" );
-        mArgs.add( "--environment='" + envs + "'" );
+        mArgs.add( "--path='" + Path.of( themes.toString(), theme ) + "'" );
+        mArgs.add( "--environment='main'" );
         mArgs.add( "--result='" + filename + "'" );
         mArgs.add( mInput.toString() );
 
@@ -200,7 +189,7 @@ public class Typesetter {
       builder.directory( mDirectory.toFile() );
       builder.environment().put( "TEXMFCACHE", getCacheDir().toString() );
 
-      // Without redirecting (or draining) the stderr, the command may not
+      // Without redirecting (or draining) stderr, the command may not
       // terminate successfully.
       builder.redirectError( DISCARD );
 
@@ -257,7 +246,7 @@ public class Typesetter {
    * executing.
    *
    * <p>
-   * Example lines written to stdout:
+   * Example lines written to standard output:
    * </p>
    * <pre>{@code
    * pages           > flushing realpage 15, userpage 15, subpage 15

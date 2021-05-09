@@ -17,6 +17,7 @@ import com.keenwrite.typesetting.Typesetter;
 import com.keenwrite.ui.controls.SearchBar;
 import com.keenwrite.ui.dialogs.ImageDialog;
 import com.keenwrite.ui.dialogs.LinkDialog;
+import com.keenwrite.ui.dialogs.ThemePicker;
 import com.keenwrite.ui.explorer.FilePicker;
 import com.keenwrite.ui.explorer.FilePickerFactory;
 import com.keenwrite.ui.logging.LogView;
@@ -38,6 +39,8 @@ import static com.keenwrite.ExportFormat.*;
 import static com.keenwrite.Messages.get;
 import static com.keenwrite.constants.GraphicsConstants.ICON_DIALOG_NODE;
 import static com.keenwrite.events.StatusEvent.clue;
+import static com.keenwrite.preferences.WorkspaceKeys.KEY_TYPESET_CONTEXT_PATH;
+import static com.keenwrite.preferences.WorkspaceKeys.KEY_TYPESET_CONTEXT_THEME;
 import static com.keenwrite.processors.ProcessorFactory.createProcessors;
 import static com.keenwrite.ui.explorer.FilePickerFactory.Options;
 import static com.keenwrite.ui.explorer.FilePickerFactory.Options.*;
@@ -176,7 +179,11 @@ public final class ApplicationActions {
   }
 
   public void file‿export‿pdf() {
-    if( Typesetter.canRun() ) {
+    final var workspace = getWorkspace();
+    final var themes = workspace.toFile( KEY_TYPESET_CONTEXT_PATH );
+    final var theme = workspace.stringProperty( KEY_TYPESET_CONTEXT_THEME );
+
+    if( Typesetter.canRun() && ThemePicker.choose( themes, theme ) ) {
       file‿export( APPLICATION_PDF );
     }
     else {
