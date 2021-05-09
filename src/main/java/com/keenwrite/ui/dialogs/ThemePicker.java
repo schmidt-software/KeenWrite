@@ -87,9 +87,11 @@ public class ThemePicker extends ChoiceDialog<String> {
       // Populate the choices with themes detected on the system.
       walk( mThemes.toPath(), "**/theme.properties", ( path ) -> {
         try {
-          final var themeName = path.getParent().toFile().getName();
           final var themeDisplay = readThemeName( path );
+          final var themeName = path.getParent().toFile().getName();
           choices.put( themeDisplay, themeName );
+
+          // Used to set the selected item to value from user's settings.
           if( themeName.equals( mTheme.get() ) ) {
             selection[ 0 ] = themeDisplay;
           }
