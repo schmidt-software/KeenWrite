@@ -24,7 +24,7 @@ Download the typesetting software as follows:
 
 This section describes the installation steps for various platforms. Follow the steps that apply to the computer's operating system:
 
-* [Windows](#window) (includes Windows 7, Windows 10, and similar)
+* [Windows](#windows) (includes Windows 7, Windows 10, and similar)
 * [Unix](#unix) (includes MacOS, FreeBSD, Linux, and similar)
 
 ## Windows
