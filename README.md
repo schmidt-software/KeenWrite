@@ -74,23 +74,7 @@ the user interface appearance.
 
 ## Screenshots
 
-Diagrams that include variables:
-
-![GraphViz diagram screenshot](docs/images/screenshots/01.png)
-
-![Family tree diagram screenshot](docs/images/screenshots/05.png)
-
-Poem with locale settings:
-
-![Korean poem screenshot](docs/images/screenshots/02.png)
-
-TeX equations with detached preview:
-
-![TeX equations screenshot](docs/images/screenshots/03.png)
-
-Document outline opened and docked in bottom-left corner:
-
-![Document outline](docs/images/screenshots/04.png)
+See [screenshots](docs/screenshots.md) for visuals.
 
 ## License
 
