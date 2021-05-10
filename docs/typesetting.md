@@ -7,9 +7,9 @@ Typesetting PDF files entails the following:
 
 These are described in the subsequent sections. Once the requirements have been met, continue reading to learn how to typeset a document.
 
-# Install typesetter
+# Download typesetter
 
-Install the typesetting software as follows:
+Download the typesetting software as follows:
 
 1. Start the text editor.
 1. Click **File → Export As → PDF**.
@@ -20,7 +20,12 @@ Install the typesetting software as follows:
 1. Click the [link](https://wiki.contextgarden.net/Installation) in the dialog.
 1. Download the appropriate archive file.
 
-The install script is downloaded.
+# Install typesetter
+
+This section describes the installation steps for various platforms. Follow the steps that apply to the computer's operating system:
+
+* [Windows](#window) (includes Windows 7, Windows 10, and similar)
+* [Unix](#unix) (includes MacOS, FreeBSD, Linux, and similar)
 
 ## Windows
 
