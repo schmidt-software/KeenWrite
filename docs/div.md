@@ -1,9 +1,9 @@
-# Fenced Divs
+# Fenced divs
 
 This section describes the syntax to generate HTML `div` elements. The
 syntax is known as a _fenced div_.
 
-# Basic Syntax
+# Basic syntax
 
 A fenced div has the following basic syntax:
 
@@ -27,7 +27,7 @@ The HTML that is generated from the above fenced div will resemble:
 </div>
 ```
 
-# Extended Syntax
+# Extended syntax
 
 A fenced div may use an extended syntax. The extended syntax can provide
 a unique identifier, multiple class names, and key/value data pairs. For
@@ -56,7 +56,7 @@ And Immortality.</p>
 Note that when using the extended syntax, class styles must be prefixed with
 a period (e.g., `.stanza` in the example).
 
-# Nested Syntax
+# Nested syntax
 
 Fenced divs may be nested, such as in the following example:
 

@@ -29,8 +29,8 @@ Proceed with a Windows installation as follows:
 1. Extract the `.zip` file into `C:\Users\%USERNAME%\AppData\Local\context`
 1. Run **install.bat** to download and install ConTeXt.
     * If prompted, click **Run anyway** (or click **More Info** first).
-1. Download [../scripts/localpath.bat](localpath.bat) into the same directory.
-1. Run `localpath.bat` (to update the `PATH` environment variable).
+1. Download [localpath.bat](../scripts/localpath.bat) into the same directory.
+1. Run `localpath.bat` (to set and save the `PATH` environment variable).
 
 Installation is complete. Verify the installation as follows:
 
@@ -38,6 +38,27 @@ Installation is complete. Verify the installation as follows:
 1. Press `Enter`.
 
 If version information is displayed then the software is installed correctly.
+
+Continue by installing a [theme pack](#theme-pack).
+
+## Unix
+
+For Linux, MacOS, FreeBSD, and similar operating systems, proceed as follows:
+
+1. Create `$HOME/.local/bin/context`
+1. Extract the `.zip` file within `$HOME/.local/bin/context`
+1. Run `sh install.sh`
+1. Add `export PATH=$PATH:$HOME/.local/bin/context/tex/texmf-linux-64/bin` to the login script.
+
+Installation is complete. Verify the installation as follows:
+
+1. Open a new terminal (to export the new PATH setting).
+1. Type: `context --version`
+1. Press `Enter`.
+
+If version information is displayed then the software is installed correctly.
+
+Continue by installing a [theme pack](#theme-pack).
 
 # Theme pack
 
