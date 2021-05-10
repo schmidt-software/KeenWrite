@@ -35,11 +35,13 @@ chmod +x keenwrite.bin
 
 ### Other
 
-Download and install a full version of [JDK 15](https://bell-sw.com/pages/downloads/?version=java-15) that includes JavaFX module support, then run:
+Download and install a full version of [JDK 16](https://bell-sw.com/pages/downloads/?version=java-16) that includes JavaFX module support, then run:
 
 ``` bash
-java -jar keenwrite.jar
+java --illegal-access=permit -jar build/libs/keenwrite.jar 2> /dev/null
 ```
+
+The `--illegal-access=permit` is a temporary option until third-party libraries used by the text editor are updated or replaced.
 
 ## Features
 
