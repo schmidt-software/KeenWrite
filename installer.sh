@@ -18,8 +18,8 @@ readonly OPT_JAVA="--illegal-access=permit"
 
 ARG_JAVA_OS="linux"
 ARG_JAVA_ARCH="amd64"
-ARG_JAVA_VERSION="15.0.2"
-ARG_JAVA_UPDATE="10"
+ARG_JAVA_VERSION="16.0.1"
+ARG_JAVA_UPDATE="9"
 ARG_JAVA_DIR="java"
 
 ARG_DIR_DIST="dist"
@@ -158,7 +158,7 @@ utile_create_launch_script_windows() {
 @echo off
 
 set SCRIPT_DIR=%~dp0
-"%SCRIPT_DIR%\\${ARG_JAVA_DIR}\\bin\\java" ${OPT_JAVA} -jar "%SCRIPT_DIR%\\${APP_NAME}.jar" %* 2> nul
+"%SCRIPT_DIR%\\${ARG_JAVA_DIR}\\bin\\java" ${OPT_JAVA} -jar "%SCRIPT_DIR%\\${APP_NAME}.jar" %*
 __EOT
 
   # Convert Unix end of line characters (\n) to Windows format (\r\n).

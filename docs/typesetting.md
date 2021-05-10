@@ -1,6 +1,6 @@
 # Overview
 
-This document describes how to typeset from within the text editor. The requirements include:
+Typesetting PDF files entails the following:
 
 * Download and install typesetting software
 * Download a theme pack
@@ -9,51 +9,70 @@ These are described in the subsequent sections. Once the requirements have been 
 
 # Install typesetter
 
-Install ConTeXt as follows:
+Install the typesetting software as follows:
 
 1. Start the text editor.
-1. Click **File → Export As → PDF** (or type `Ctrl+p`).
-1. Note the operating system name, instruction set, and architecture (e.g., Windows X86 64-bit).
+1. Click **File → Export As → PDF**.
+    * Note the following details (e.g., Windows X86 64-bit):
+        * operating system name;
+        * instruction set; and
+        * architecture.
 1. Click the [link](https://wiki.contextgarden.net/Installation) in the dialog.
-1. Download the ConTeXt version for your computer's operating system.
-1. Follow the step-by-step instructions on the ConTeXt installation web page.
+1. Download the appropriate archive file.
 
-ConTeXt is installed.
+The install script is downloaded.
 
-**Note:** The `PATH` environment variable must include the ConTeXt `bin` directory, otherwise the text editor will not be able to generate PDF files.
+## Windows
 
-# Install theme packs
+Proceed with a Windows installation as follows:
 
-A theme defines how documents appear when typeset. A theme pack is a collection of themes in a zip file. Each theme has its own requirements, described in a separate section, below. Install and configure a theme as follows:
+1. Extract the `.zip` file into `C:\Users\%USERNAME%\AppData\Local\context`
+1. Run **install.bat** to download and install ConTeXt.
+    * If prompted, click **Run anyway** (or click **More Info** first).
+1. Download [../scripts/localpath.bat](localpath.bat) into the same directory.
+1. Run `localpath.bat` (to update the `PATH` environment variable).
 
-1. Download the <a href="https://github.com/DaveJarvis/keenwrite-themes/raw/main/theme-packs.zip">theme-packs.zip</a> archive.
+Installation is complete. Verify the installation as follows:
+
+1. Type: `context --version`
+1. Press `Enter`.
+
+If version information is displayed then the software is installed correctly.
+
+# Theme pack
+
+A theme pack is a set of themes that define how documents appear when typeset. Broadly, themes are applied as follows:
+
+* Install a theme pack
+* Configure individual themes
+
+## Install theme pack
+
+Install and configure the default theme pack as follows:
+
+1. Download the <a href="https://github.com/DaveJarvis/keenwrite-themes/raw/main/theme-pack.zip">theme-pack.zip</a> archive.
 1. Extract archive into a known location.
 1. Start the text editor.
 1. Click **Edit → Preferences**.
 1. Click **Typesetting**.
-1. Click **Browse** beside **Directories**.
-1. Navigate to the location where the themes are extracted.
-1. Select the **tarmes** directory.
+1. Click **Browse** beside **Themes**.
+1. Navigate to the `themes` directory.
 1. Click **Open**.
 1. Click **OK**.
 
-The "tarmes" theme is applied.
+The theme pack is installed.
 
-## Tarmes theme
+Each theme has its own requirements, described below. 
 
-Typesets using a pre-packaged TeX Gyre Termes font.
+## Configure Boschet theme
 
-## Handrit theme
-
-Typesets a manuscript using the pre-packaged TeX Gyre Cursor font.
-
-## Boschet theme
-
-To use this theme, download and install the following font families:
+Download and install the following font families:
 
 * [Libre Baskerville](https://fonts.google.com/specimen/Libre+Baskerville)
 * [Archivo Narrow](https://fonts.google.com/specimen/Archivo+Narrow)
 * [Inconsolata](https://fonts.google.com/specimen/Inconsolata)
+
+The theme is configured.
 
 # Typeset document
 
@@ -63,10 +82,12 @@ Typeset a document as follows:
 1. Click **File → New** (or type `Ctrl+n`).
 1. Type in some text.
 1. Click **File → Export As → PDF** (or type `Ctrl+p`).
+1. Select a theme from the drop-down list.
+1. Click **OK** (or press `Enter`).
 1. Set the **File name** to the PDF file name.
 1. Click **Save**.
 
-The document is typeset; open the PDF file in any PDF reader to view the result.
+The document is typeset; open the PDF file in a PDF reader to view the result.
 
 # Background 
 
