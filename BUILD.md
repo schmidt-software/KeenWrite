@@ -105,6 +105,16 @@ The `installer` script:
 
 Run `./installer -h` to see all command-line options.
 
+# Releases
+
+After installing `scripts/build-template`, build release binaries as follows:
+
+    git tag -a 2.0.0 -m "Release name"
+    git push origin --tags
+    ./release.sh
+
+When finished, browse to the project releases page to draft a new release.
+
 # Versioning
 
 Version numbers are read directly from Git using a plugin. The version number is written to `app.properties` in the `resources` directory. The application reads that file to display version information upon start.
