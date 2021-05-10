@@ -30,7 +30,7 @@ Proceed with a Windows installation of typesetting software as follows:
 1. Run **install.bat** to download and install the software.
     * If prompted, click **Run anyway** (or click **More info** first).
 1. Right-click <a href="https://github.com/DaveJarvis/keenwrite/raw/master/scripts/localpath.bat">localpath.bat</a>.
-1. Select **Save As**.
+1. Select **Save Link As** (or similar).
 1. Save `localpath.bat` in the typesetting software's "root" directory.
 1. Run `localpath.bat` (to set and save the `PATH` environment variable).
 
