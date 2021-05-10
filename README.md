@@ -49,6 +49,7 @@ The application offers:
 
 * User-defined interpolated strings
 * Auto-complete variable names based on variable values
+* High-quality PDF exports
 * Real-time spell check
 * Real-time rendering of math using TeX notation
 * Real-time document statistics (with CJK word separation)
