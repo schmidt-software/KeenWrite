@@ -29,7 +29,7 @@ This section describes the installation steps for various platforms. Follow the 
 
 ## Windows
 
-Proceed with a Windows installation of typesetting software as follows:
+Proceed with a Windows installation of the typesetting software as follows:
 
 1. Extract the `.zip` file into `C:\Users\%USERNAME%\AppData\Local\context` (the "root" directory)
 1. Run **install.bat** to download and install the software.
