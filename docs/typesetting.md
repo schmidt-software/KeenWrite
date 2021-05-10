@@ -28,8 +28,8 @@ Proceed with a Windows installation as follows:
 
 1. Extract the `.zip` file into `C:\Users\%USERNAME%\AppData\Local\context`
 1. Run **install.bat** to download and install ConTeXt.
-    * If prompted, click **Run anyway** (or click **More Info** first).
-1. Download [localpath.bat](../scripts/localpath.bat) into the same directory.
+    * If prompted, click **Run anyway** (or click **More info** first).
+1. Download <a href="https://github.com/DaveJarvis/keenwrite/raw/master/scripts/localpath.bat">localpath.bat</a> into the same directory.
 1. Run `localpath.bat` (to set and save the `PATH` environment variable).
 
 Installation is complete. Verify the installation as follows:
