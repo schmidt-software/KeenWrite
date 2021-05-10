@@ -24,12 +24,14 @@ The install script is downloaded.
 
 ## Windows
 
-Proceed with a Windows installation as follows:
+Proceed with a Windows installation of typesetting software as follows:
 
-1. Extract the `.zip` file into `C:\Users\%USERNAME%\AppData\Local\context`
-1. Run **install.bat** to download and install ConTeXt.
+1. Extract the `.zip` file into `C:\Users\%USERNAME%\AppData\Local\context` (the "root" directory)
+1. Run **install.bat** to download and install the software.
     * If prompted, click **Run anyway** (or click **More info** first).
-1. Download <a href="https://github.com/DaveJarvis/keenwrite/raw/master/scripts/localpath.bat">localpath.bat</a> into the same directory.
+1. Right-click <a href="https://github.com/DaveJarvis/keenwrite/raw/master/scripts/localpath.bat">localpath.bat</a>.
+1. Select **Save As**.
+1. Save `localpath.bat` in the typesetting software's "root" directory.
 1. Run `localpath.bat` (to set and save the `PATH` environment variable).
 
 Installation is complete. Verify the installation as follows:
