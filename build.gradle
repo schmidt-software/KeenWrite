@@ -158,7 +158,7 @@ application {
   applicationDefaultJvmArgs = moduleSecurity
 }
 
-version = gitVersion().replaceAll( ".dirty", "" )
+version = gitVersion()
 
 final File propertiesFile = new File("${resourceDir}/com/${applicationName}/app.properties")
 propertiesFile.write("application.version=${version}")

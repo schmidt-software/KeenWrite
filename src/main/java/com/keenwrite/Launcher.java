@@ -23,11 +23,15 @@ public final class Launcher {
    * @param args Command-line arguments.
    */
   public static void main( final String[] args ) {
-    showAppInfo();
-    MainApp.main( args );
+    try {
+      showAppInfo();
+      MainApp.main( args );
+    } catch( final Error e ) {
+      log( e );
+    }
   }
 
-  @SuppressWarnings("RedundantStringFormatCall")
+  @SuppressWarnings( "RedundantStringFormatCall" )
   private static void showAppInfo() {
     out( format( "%s version %s", APP_TITLE, APP_VERSION ) );
     out( format( "Copyright 2016-%s White Magic Software, Ltd.", APP_YEAR ) );
@@ -55,7 +59,7 @@ public final class Launcher {
     }
   }
 
-  @SuppressWarnings("SameParameterValue")
+  @SuppressWarnings( "SameParameterValue" )
   private static Properties loadProperties( final String resource )
     throws IOException {
     final var properties = new Properties();
@@ -73,5 +77,20 @@ public final class Launcher {
 
   private static InputStream getResourceAsStream( final String resource ) {
     return Launcher.class.getClassLoader().getResourceAsStream( resource );
+  }
+
+  /**
+   * Logs the message of an error to the console.
+   *
+   * @param error The fatal error that could not be handled.
+   */
+  private static void log( final Error error ) {
+    var message = error.getMessage();
+
+    if( message != null && message.toLowerCase().contains( "javafx" ) ) {
+      message = "Re-run using a Java Runtime Environment that includes JavaFX.";
+    }
+
+    out( format( "ERROR: %s", message ) );
   }
 }

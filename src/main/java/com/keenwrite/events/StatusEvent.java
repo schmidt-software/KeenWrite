@@ -104,9 +104,9 @@ public class StatusEvent implements AppEvent {
     assert problem != null;
 
     // Subclasses of RuntimeException must be subject to Englishification.
-    if( problem.getClass().equals( RuntimeException.class ) &&
-      (problem = problem.getCause()) == null ) {
-      return "";
+    if( problem.getClass().equals( RuntimeException.class ) ) {
+      final var cause = problem.getCause();
+      return cause == null ? problem.getMessage() : cause.getMessage();
     }
 
     final var className = problem.getClass().getSimpleName();
@@ -157,7 +157,7 @@ public class StatusEvent implements AppEvent {
    * @param problem The exception with a message to display to the user.
    */
   public static void clue( final Throwable problem ) {
-    fireStatusEvent( "", problem );
+    fireStatusEvent( problem.getMessage(), problem );
   }
 
   private static void fireStatusEvent( final String message ) {
