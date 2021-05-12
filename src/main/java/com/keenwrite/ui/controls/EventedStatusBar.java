@@ -27,7 +27,7 @@ public class EventedStatusBar extends StatusBar {
    */
   @Subscribe
   public void handle( final StatusEvent event ) {
-    final var m = event.getMessage() + event.getException();
+    final var m = event.toString();
 
     // Don't burden the repaint thread if there's no status bar change.
     if( !getText().equals( m ) ) {

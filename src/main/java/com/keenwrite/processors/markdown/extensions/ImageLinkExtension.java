@@ -2,7 +2,6 @@
 package com.keenwrite.processors.markdown.extensions;
 
 import com.keenwrite.ExportFormat;
-import com.keenwrite.exceptions.MissingFileException;
 import com.keenwrite.preferences.Workspace;
 import com.keenwrite.processors.ProcessorContext;
 import com.vladsch.flexmark.ast.Image;
@@ -17,6 +16,7 @@ import java.io.File;
 import java.nio.file.Path;
 
 import static com.keenwrite.ExportFormat.NONE;
+import static com.keenwrite.Messages.get;
 import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.preferences.WorkspaceKeys.KEY_IMAGES_DIR;
 import static com.keenwrite.preferences.WorkspaceKeys.KEY_IMAGES_ORDER;
@@ -77,7 +77,7 @@ public class ImageLinkExtension extends HtmlRendererAdapter {
       @NotNull final Node node,
       @NotNull final LinkResolverBasicContext context,
       @NotNull final ResolvedLink link ) {
-      return node instanceof Image ? forImage( link ) : link;
+      return node instanceof Image ? forImage( link, node ) : link;
     }
 
     /**
@@ -91,9 +91,10 @@ public class ImageLinkExtension extends HtmlRendererAdapter {
      * </ol>
      *
      * @param link The link URL to resolve.
+     * @param node The document node containing the URL.
      * @return The {@link ResolvedLink} instance used to render the link.
      */
-    private ResolvedLink forImage( final ResolvedLink link ) {
+    private ResolvedLink forImage( final ResolvedLink link, final Node node ) {
       var uri = link.getUrl();
       final var protocol = getProtocol( uri );
 
@@ -132,7 +133,10 @@ public class ImageLinkExtension extends HtmlRendererAdapter {
           }
         }
 
-        throw new MissingFileException( imageFile + ".*" );
+        clue( get(
+          "Main.status.error.file.missing.near",
+          imageFile + ".*", node.getLineNumber()
+        ) );
       } catch( final Exception ex ) {
         clue( ex );
       }

@@ -16,7 +16,7 @@ import static java.util.Arrays.stream;
  * Collates information about an application issue. The issues can be
  * exceptions, state problems, parsing errors, and so forth.
  */
-public class StatusEvent implements AppEvent {
+public final class StatusEvent implements AppEvent {
   private static final String PACKAGE_NAME = MainApp.class.getPackageName();
 
   private static final String ENGLISHIFY =
@@ -39,20 +39,15 @@ public class StatusEvent implements AppEvent {
    * @param message The human-readable message, typically displayed on-screen.
    */
   public StatusEvent( final String message ) {
-    this( message, null );
-  }
-
-  /**
-   * Constructs a new event that contains a problem description to help the
-   * user resolve an issue encountered while using the application.
-   *
-   * @param message The human-readable message, typically displayed on-screen.
-   * @param problem Stack trace to pin-point the problem, may be {@code null}.
-   */
-  public StatusEvent( final String message, final Throwable problem ) {
     assert message != null;
     mMessage = message;
+    mProblem = null;
+  }
+
+  public StatusEvent( final Throwable problem ) {
+    assert problem != null;
     mProblem = problem;
+    mMessage = "";
   }
 
   /**
@@ -77,8 +72,9 @@ public class StatusEvent implements AppEvent {
     return sb.toString();
   }
 
-  public String getException() {
-    return mProblem == null ? "" : toEnglish( mProblem );
+  @Override
+  public String toString() {
+    return mProblem == null ? mMessage : toEnglish( mProblem );
   }
 
   private static boolean filter( final StackTraceElement e ) {
@@ -142,30 +138,19 @@ public class StatusEvent implements AppEvent {
   }
 
   /**
-   * Update the status bar with a pre-parsed message and exception.
-   *
-   * @param message The custom message to log.
-   * @param problem The exception that triggered the status update.
-   */
-  public static void clue( final String message, final Throwable problem ) {
-    fireStatusEvent( message, problem );
-  }
-
-  /**
    * Called when an exception occurs that warrants the user's attention.
    *
    * @param problem The exception with a message to display to the user.
    */
   public static void clue( final Throwable problem ) {
-    fireStatusEvent( problem.getMessage(), problem );
+    fireStatusEvent( problem );
   }
 
   private static void fireStatusEvent( final String message ) {
     new StatusEvent( message ).fire();
   }
 
-  private static void fireStatusEvent(
-    final String message, final Throwable problem ) {
-    new StatusEvent( message, problem ).fire();
+  private static void fireStatusEvent( final Throwable problem ) {
+    new StatusEvent( problem ).fire();
   }
 }
