@@ -36,6 +36,7 @@ public final class WorkspaceKeys {
   public static final Key KEY_IMAGES = key( KEY_ROOT, "images" );
   public static final Key KEY_IMAGES_DIR = key( KEY_IMAGES, "dir" );
   public static final Key KEY_IMAGES_ORDER = key( KEY_IMAGES, "order" );
+  public static final Key KEY_IMAGES_RESIZE = key( KEY_IMAGES, "resize" );
 
   public static final Key KEY_DEF = key( KEY_ROOT, "definition" );
   public static final Key KEY_DEF_PATH = key( KEY_DEF, "path" );

@@ -86,6 +86,7 @@ public final class Workspace {
 
     entry( KEY_IMAGES_DIR, asFileProperty( USER_DIRECTORY ) ),
     entry( KEY_IMAGES_ORDER, asStringProperty( PERSIST_IMAGES_DEFAULT ) ),
+    entry( KEY_IMAGES_RESIZE, asBooleanProperty( true ) ),
 
     entry( KEY_DEF_PATH, asFileProperty( DEFINITION_DEFAULT ) ),
     entry( KEY_DEF_DELIM_BEGAN, asStringProperty( DEF_DELIM_BEGAN_DEFAULT ) ),
@@ -130,6 +131,11 @@ public final class Workspace {
 
   private BooleanProperty asBooleanProperty() {
     return new SimpleBooleanProperty();
+  }
+
+  @SuppressWarnings( "SameParameterValue" )
+  private BooleanProperty asBooleanProperty( final boolean defaultValue ) {
+    return new SimpleBooleanProperty( defaultValue );
   }
 
   private FileProperty asFileProperty( final File defaultValue ) {
@@ -315,6 +321,11 @@ public final class Workspace {
   }
 
   public StringProperty stringProperty( final Key key ) {
+    assert key != null;
+    return valuesProperty( key );
+  }
+
+  public BooleanProperty booleanProperty(final Key key) {
     assert key != null;
     return valuesProperty( key );
   }

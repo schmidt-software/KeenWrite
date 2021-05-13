@@ -1,6 +1,7 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.preview;
 
+import com.keenwrite.preferences.Workspace;
 import com.keenwrite.ui.adapters.ReplacedElementAdapter;
 import com.keenwrite.util.BoundedCache;
 import org.w3c.dom.Element;
@@ -17,6 +18,7 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
+import static com.keenwrite.preferences.WorkspaceKeys.KEY_IMAGES_RESIZE;
 import static com.keenwrite.preview.SvgReplacedElementFactory.HTML_IMAGE;
 import static com.keenwrite.preview.SvgReplacedElementFactory.HTML_IMAGE_SRC;
 import static com.keenwrite.processors.markdown.extensions.tex.TexNode.HTML_TEX;
@@ -41,8 +43,14 @@ public final class ChainedReplacedElementFactory
    */
   private final Map<String, ReplacedElement> mCache = new BoundedCache<>( 150 );
 
+  private final Workspace mWorkspace;
+
   public ChainedReplacedElementFactory(
-    final ReplacedElementFactory... factories ) {
+    final Workspace workspace, final ReplacedElementFactory... factories ) {
+    assert workspace != null;
+    assert factories != null;
+    assert factories.length > 0;
+    mWorkspace = workspace;
     mFactories.addAll( asList( factories ) );
   }
 
@@ -79,7 +87,8 @@ public final class ChainedReplacedElementFactory
         source, k -> {
           final var r = f.createReplacedElement( c, box, uac, width, height );
           return r instanceof final ImageReplacedElement ire
-            ? new SmoothImageReplacedElement( ire.getImage(), box.getWidth(), -1 )
+            ? new SmoothImageReplacedElement(
+            ire.getImage(), box.getWidth(), -1 )
             : r;
         }
       );
@@ -116,7 +125,9 @@ public final class ChainedReplacedElementFactory
 
   @Override
   public void componentResized( final ComponentEvent e ) {
-    clearCache();
+    if( mWorkspace.toBoolean( KEY_IMAGES_RESIZE ) ) {
+      clearCache();
+    }
   }
 
   @Override

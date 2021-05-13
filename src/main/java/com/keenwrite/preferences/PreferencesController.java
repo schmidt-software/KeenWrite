@@ -9,6 +9,7 @@ import com.dlsc.preferencesfx.model.Group;
 import com.dlsc.preferencesfx.model.Setting;
 import com.dlsc.preferencesfx.util.StorageHandler;
 import com.dlsc.preferencesfx.view.NavigationView;
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.StringProperty;
@@ -214,6 +215,12 @@ public final class PreferencesController {
           Setting.of( label( KEY_IMAGES_ORDER ) ),
           Setting.of( title( KEY_IMAGES_ORDER ),
                       stringProperty( KEY_IMAGES_ORDER ) )
+        ),
+        Group.of(
+          get( KEY_IMAGES_RESIZE ),
+          Setting.of( label( KEY_IMAGES_RESIZE ) ),
+          Setting.of( title( KEY_IMAGES_RESIZE ),
+                      booleanProperty( KEY_IMAGES_RESIZE ) )
         )
       ),
       Category.of(
@@ -351,6 +358,10 @@ public final class PreferencesController {
 
   private StringProperty stringProperty( final Key key ) {
     return mWorkspace.stringProperty( key );
+  }
+
+  private BooleanProperty booleanProperty( final Key key ) {
+    return mWorkspace.booleanProperty( key );
   }
 
   @SuppressWarnings( "SameParameterValue" )

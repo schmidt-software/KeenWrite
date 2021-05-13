@@ -42,18 +42,6 @@ import static org.controlsfx.glyphfont.FontAwesome.Glyph.UNLOCK_ALT;
 public final class HtmlPreview extends SwingNode {
 
   /**
-   * The order is important: Swing factory will replace SVG images with
-   * a blank image, which will cause the chained factory to cache the image
-   * and exit. Instead, the SVG must execute first to rasterize the content.
-   * Consequently, the chained factory must maintain insertion order.
-   */
-  private static final ChainedReplacedElementFactory sFactory
-    = new ChainedReplacedElementFactory(
-    new SvgReplacedElementFactory(),
-    new SwingReplacedElementFactory()
-  );
-
-  /**
    * Used to populate the {@link #HTML_HEAD} with stylesheet file references.
    */
   private static final String HTML_STYLESHEET =
@@ -88,6 +76,14 @@ public final class HtmlPreview extends SwingNode {
   private static final URL HTML_STYLE_PREVIEW = toUrl( STYLESHEET_PREVIEW );
 
   /**
+   * The order is important: Swing factory will replace SVG images with
+   * a blank image, which will cause the chained factory to cache the image
+   * and exit. Instead, the SVG must execute first to rasterize the content.
+   * Consequently, the chained factory must maintain insertion order.
+   */
+  private final ChainedReplacedElementFactory mFactory;
+
+  /**
    * Reusing this buffer prevents repetitious memory re-allocations.
    */
   private final StringBuilder mDocument = new StringBuilder( 65536 );
@@ -110,6 +106,11 @@ public final class HtmlPreview extends SwingNode {
    */
   public HtmlPreview( final Workspace workspace ) {
     mWorkspace = workspace;
+    mFactory  = new ChainedReplacedElementFactory(
+      mWorkspace,
+      new SvgReplacedElementFactory(),
+      new SwingReplacedElementFactory()
+    );
 
     // Attempts to prevent a flash of black un-styled content upon load.
     setStyle( "-fx-background-color: white;" );
@@ -140,11 +141,11 @@ public final class HtmlPreview extends SwingNode {
       setCache( true );
       setCacheHint( SPEED );
       setContent( wrapper );
-      wrapper.addComponentListener( sFactory );
+      wrapper.addComponentListener( mFactory );
 
       final var context = mView.getSharedContext();
       final var textRenderer = context.getTextRenderer();
-      context.setReplacedElementFactory( sFactory );
+      context.setReplacedElementFactory( mFactory );
       textRenderer.setSmoothingThreshold( 0 );
 
       localeProperty().addListener( ( c, o, n ) -> rerender() );
@@ -174,7 +175,7 @@ public final class HtmlPreview extends SwingNode {
    * Clears the caches then re-renders the content.
    */
   public void refresh() {
-    sFactory.clearCache();
+    mFactory.clearCache();
     rerender();
   }
 
