@@ -3,6 +3,7 @@ package com.keenwrite.events;
 
 import com.keenwrite.MainApp;
 
+import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.keenwrite.Messages.get;
@@ -125,6 +126,16 @@ public final class StatusEvent implements AppEvent {
    */
   public static void clue() {
     fireStatusEvent( get( STATUS_BAR_OK, "OK" ) );
+  }
+
+  /**
+   * Notifies listeners of a series of messages. This is useful when providing
+   * users feedback of how third-party executables have failed.
+   *
+   * @param messages The lines of text to display.
+   */
+  public static void clue( final List<String> messages ) {
+    messages.forEach( StatusEvent::fireStatusEvent );
   }
 
   /**

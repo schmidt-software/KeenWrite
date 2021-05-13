@@ -21,8 +21,9 @@ import static com.keenwrite.preferences.WorkspaceKeys.KEY_TYPESET_CONTEXT_THEME_
 import static java.lang.ProcessBuilder.Redirect.DISCARD;
 import static java.lang.String.format;
 import static java.lang.System.currentTimeMillis;
-import static java.nio.file.Files.deleteIfExists;
-import static java.nio.file.Files.newDirectoryStream;
+import static java.lang.System.getProperty;
+import static java.nio.file.Files.*;
+import static java.util.Arrays.asList;
 import static java.util.concurrent.TimeUnit.*;
 import static org.apache.commons.io.FilenameUtils.removeExtension;
 
@@ -216,6 +217,8 @@ public class Typesetter {
         final var pdfName = newExtension( xmlName, ".pdf" );
         final var badName = newExtension( srcName, ".log" );
 
+        log( errName );
+
         deleteIfExists( badName );
         deleteIfExists( logName );
         deleteIfExists( errName );
@@ -234,13 +237,31 @@ public class Typesetter {
     }
 
     /**
+     * Fires a status message for each line in the given file. The file format
+     * is somewhat machine-readable, but no effort beyond line splitting is
+     * made to parse the text.
+     *
+     * @param path Path to the file containing error messages.
+     */
+    private void log( final Path path ) throws IOException {
+      final var lines = readAllLines( path );
+      final var splits = new ArrayList<String>( lines.size() * 2 );
+
+      for( final var line : lines ) {
+        splits.addAll( asList( line.split( "\\\\n" ) ) );
+      }
+
+      clue( splits );
+    }
+
+    /**
      * Returns the location of the cache directory.
      *
      * @return A fully qualified path to the location to store temporary
      * files between typesetting runs.
      */
     private java.io.File getCacheDir() {
-      final var temp = System.getProperty( "java.io.tmpdir" );
+      final var temp = getProperty( "java.io.tmpdir" );
       final var cache = Path.of( temp, "luatex-cache" );
       return cache.toFile();
     }
