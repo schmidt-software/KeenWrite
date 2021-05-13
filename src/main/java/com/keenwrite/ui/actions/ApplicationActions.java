@@ -458,7 +458,7 @@ public final class ApplicationActions {
     getMainScene().toggleStatusBar();
   }
 
-  public void view‿issues() {
+  public void view‿log() {
     mLogView.view();
   }
 

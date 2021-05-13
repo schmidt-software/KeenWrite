@@ -15,16 +15,11 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.TreeSet;
 
-import static com.keenwrite.Bootstrap.APP_TITLE_LOWERCASE;
+import static com.keenwrite.Messages.get;
 import static com.keenwrite.constants.Constants.ACTION_PREFIX;
 import static com.keenwrite.constants.GraphicsConstants.ICON_DIALOG;
-import static com.keenwrite.Messages.get;
 import static com.keenwrite.events.Bus.register;
 import static com.keenwrite.events.StatusEvent.clue;
-import static java.nio.file.Files.createTempFile;
-import static java.nio.file.Files.write;
-import static java.nio.file.StandardOpenOption.APPEND;
-import static java.nio.file.StandardOpenOption.CREATE;
 import static java.time.LocalDateTime.now;
 import static java.time.format.DateTimeFormatter.ofPattern;
 import static javafx.application.Platform.runLater;
@@ -54,7 +49,7 @@ public final class LogView extends Alert {
 
   public LogView() {
     super( INFORMATION );
-    setTitle( get( ACTION_PREFIX + "view.issues.text" ) );
+    setTitle( get( ACTION_PREFIX + "view.log.text" ) );
     initModality( NONE );
     initTableView();
     setResizable( true );
@@ -149,8 +144,7 @@ public final class LogView extends Alert {
   }
 
   private void initIcon() {
-    final var stage = getStage();
-    stage.getIcons().add( ICON_DIALOG );
+    getStage().getIcons().add( ICON_DIALOG );
   }
 
   private void initActions() {
@@ -186,19 +180,6 @@ public final class LogView extends Alert {
 
     private StringProperty traceProperty() {
       return mTrace;
-    }
-
-    /**
-     * Call from constructor to save log message for debugging purposes.
-     */
-    @SuppressWarnings( "unused" )
-    private void persist() {
-      try {
-        final var file = createTempFile( APP_TITLE_LOWERCASE, ".log" );
-        write( file, toString().getBytes(), CREATE, APPEND );
-      } catch( final Exception ignored ) {
-        System.out.println( toString() );
-      }
     }
 
     @Override

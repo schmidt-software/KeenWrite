@@ -47,7 +47,7 @@ public final class HtmlPreview extends SwingNode {
    * and exit. Instead, the SVG must execute first to rasterize the content.
    * Consequently, the chained factory must maintain insertion order.
    */
-  private static final ChainedReplacedElementFactory FACTORY
+  private static final ChainedReplacedElementFactory sFactory
     = new ChainedReplacedElementFactory(
     new SvgReplacedElementFactory(),
     new SwingReplacedElementFactory()
@@ -140,10 +140,11 @@ public final class HtmlPreview extends SwingNode {
       setCache( true );
       setCacheHint( SPEED );
       setContent( wrapper );
+      wrapper.addComponentListener( sFactory );
 
       final var context = mView.getSharedContext();
       final var textRenderer = context.getTextRenderer();
-      context.setReplacedElementFactory( FACTORY );
+      context.setReplacedElementFactory( sFactory );
       textRenderer.setSmoothingThreshold( 0 );
 
       localeProperty().addListener( ( c, o, n ) -> rerender() );
@@ -173,7 +174,7 @@ public final class HtmlPreview extends SwingNode {
    * Clears the caches then re-renders the content.
    */
   public void refresh() {
-    FACTORY.clearCache();
+    sFactory.clearCache();
     rerender();
   }
 

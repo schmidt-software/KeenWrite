@@ -7,6 +7,7 @@ import javafx.beans.property.StringProperty;
 import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.ComboBox;
 import javafx.scene.input.KeyCode;
+import javafx.stage.Stage;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -16,6 +17,7 @@ import java.util.Properties;
 import java.util.TreeMap;
 
 import static com.keenwrite.Messages.get;
+import static com.keenwrite.constants.GraphicsConstants.ICON_DIALOG;
 import static com.keenwrite.constants.GraphicsConstants.ICON_DIALOG_NODE;
 import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.util.FileWalker.walk;
@@ -42,7 +44,7 @@ public class ThemePicker extends ChoiceDialog<String> {
 
     mThemes = themes;
     mTheme = theme;
-    setGraphic( ICON_DIALOG_NODE );
+    initIcon();
     setTitle( get( "Dialog.theme.title" ) );
     setHeaderText( get( "Dialog.theme.header" ) );
 
@@ -55,6 +57,15 @@ public class ThemePicker extends ChoiceDialog<String> {
         event.consume();
       }
     } );
+  }
+
+  private void initIcon() {
+    setGraphic( ICON_DIALOG_NODE );
+
+    final var window = getDialogPane().getScene().getWindow();
+    if( window instanceof Stage ) {
+      ((Stage) window).getIcons().add( ICON_DIALOG );
+    }
   }
 
   /**

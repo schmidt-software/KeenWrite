@@ -9,7 +9,10 @@ import org.xhtmlrenderer.extend.ReplacedElementFactory;
 import org.xhtmlrenderer.extend.UserAgentCallback;
 import org.xhtmlrenderer.layout.LayoutContext;
 import org.xhtmlrenderer.render.BlockBox;
+import org.xhtmlrenderer.swing.ImageReplacedElement;
 
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
@@ -23,7 +26,8 @@ import static java.util.Arrays.asList;
  * Responsible for running one or more factories to perform post-processing on
  * the HTML document prior to displaying it.
  */
-public final class ChainedReplacedElementFactory extends ReplacedElementAdapter {
+public final class ChainedReplacedElementFactory
+  extends ReplacedElementAdapter implements ComponentListener {
   /**
    * Retain insertion order so that client classes can control the order that
    * factories are used to resolve images.
@@ -72,7 +76,12 @@ public final class ChainedReplacedElementFactory extends ReplacedElementAdapter 
       }
 
       final var replaced = mCache.computeIfAbsent(
-        source, k -> f.createReplacedElement( c, box, uac, width, height )
+        source, k -> {
+          final var r = f.createReplacedElement( c, box, uac, width, height );
+          return r instanceof final ImageReplacedElement ire
+            ? new SmoothImageReplacedElement( ire.getImage(), box.getWidth(), -1 )
+            : r;
+        }
       );
 
       if( replaced != null ) {
@@ -104,4 +113,18 @@ public final class ChainedReplacedElementFactory extends ReplacedElementAdapter 
   public void clearCache() {
     mCache.clear();
   }
+
+  @Override
+  public void componentResized( final ComponentEvent e ) {
+    clearCache();
+  }
+
+  @Override
+  public void componentMoved( final ComponentEvent e ) { }
+
+  @Override
+  public void componentShown( final ComponentEvent e ) { }
+
+  @Override
+  public void componentHidden( final ComponentEvent e ) { }
 }

@@ -82,6 +82,10 @@ public class FencedBlockExtension extends HtmlRendererAdapter {
     return text.toString().toLowerCase();
   }
 
+  /**
+   * Responsible for generating images from a fenced block that contains a
+   * diagram reference.
+   */
   private class CustomRenderer implements NodeRenderer {
 
     @Override
@@ -99,7 +103,6 @@ public class FencedBlockExtension extends HtmlRendererAdapter {
           final var encoded = encode( text );
           final var source = format(
             "https://%s/%s/svg/%s", DIAGRAM_SERVER_NAME, type, encoded );
-
           final var link = context.resolveLink( LINK, source, false );
 
           html.attr( "src", source );

@@ -172,9 +172,8 @@ public final class MainPane extends SplitPane {
     mWorkspace = workspace;
     mPreview = new HtmlPreview( workspace );
     mStatistics = new DocumentStatistics( workspace );
+    mActiveTextEditor.set( new MarkdownEditor( workspace ) );
 
-    open( bin( getRecentFiles() ) );
-    viewPreview();
     setDividerPositions( calculateDividerPositions() );
 
     // Once the main scene's window regains focus, update the active definition
@@ -198,6 +197,8 @@ public final class MainPane extends SplitPane {
     );
 
     register( this );
+    open( bin( getRecentFiles() ) );
+    viewPreview();
   }
 
   @Subscribe
