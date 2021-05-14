@@ -6,7 +6,6 @@ import com.keenwrite.typesetting.Typesetter;
 import java.io.IOException;
 
 import static com.keenwrite.Bootstrap.APP_TITLE_LOWERCASE;
-import static com.keenwrite.Messages.get;
 import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.io.MediaType.TEXT_XML;
 import static java.nio.file.Files.deleteIfExists;
@@ -34,7 +33,7 @@ public final class PdfProcessor extends ExecutorProcessor<String> {
    */
   public String apply( final String xhtml ) {
     try {
-      clue( get( "Main.status.typeset.create" ) );
+      clue( "Main.status.typeset.create" );
       final var document = TEXT_XML.createTemporaryFile( APP_TITLE_LOWERCASE );
       final var pathInput = writeString( document, xhtml );
       final var pathOutput = mContext.getExportPath();
@@ -46,7 +45,7 @@ public final class PdfProcessor extends ExecutorProcessor<String> {
       deleteIfExists( document );
     } catch( final IOException | InterruptedException ex ) {
       // Typesetter runtime exceptions will pass up the call stack.
-      clue( get( "Main.status.typeset.failed" ), ex );
+      clue( "Main.status.typeset.failed", ex );
     }
 
     // Do not continue processing (the document was typeset into a binary).

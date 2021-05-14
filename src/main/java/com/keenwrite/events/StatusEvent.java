@@ -46,9 +46,14 @@ public final class StatusEvent implements AppEvent {
   }
 
   public StatusEvent( final Throwable problem ) {
+    this( "", problem );
+  }
+
+  public StatusEvent( final String message, final Throwable problem ) {
+    assert message != null;
     assert problem != null;
+    mMessage = message;
     mProblem = problem;
-    mMessage = "";
   }
 
   /**
@@ -75,7 +80,10 @@ public final class StatusEvent implements AppEvent {
 
   @Override
   public String toString() {
-    return mProblem == null ? mMessage : toEnglish( mProblem );
+    return format( "%s%s%s",
+                   mMessage,
+                   mMessage.isBlank() ? "" : " ",
+                   mProblem == null ? "" : toEnglish( mProblem ) );
   }
 
   private static boolean filter( final StackTraceElement e ) {
@@ -108,7 +116,7 @@ public final class StatusEvent implements AppEvent {
 
     final var className = problem.getClass().getSimpleName();
     final var words = join( " ", className.split( ENGLISHIFY ) );
-    return format( " (%s: %s)", words.toLowerCase(), problem.getMessage() );
+    return format( "(%s: %s)", words.toLowerCase(), problem.getMessage() );
   }
 
   /**
@@ -139,7 +147,17 @@ public final class StatusEvent implements AppEvent {
   }
 
   /**
-   * Updates the status bar with a custom message.
+   * Notifies listeners of an error.
+   *
+   * @param key The message bundle key to look up.
+   * @param t   The exception that caused the error.
+   */
+  public static void clue( final String key, final Throwable t ) {
+    fireStatusEvent( get( key ), t );
+  }
+
+  /**
+   * Notifies listeners of a custom message.
    *
    * @param key  The property key having a value to populate with arguments.
    * @param args The placeholder values to substitute into the key's value.
@@ -149,7 +167,8 @@ public final class StatusEvent implements AppEvent {
   }
 
   /**
-   * Called when an exception occurs that warrants the user's attention.
+   * Notifies listeners of an exception occurs that warrants the user's
+   * attention.
    *
    * @param problem The exception with a message to display to the user.
    */
@@ -163,5 +182,10 @@ public final class StatusEvent implements AppEvent {
 
   private static void fireStatusEvent( final Throwable problem ) {
     new StatusEvent( problem ).fire();
+  }
+
+  private static void fireStatusEvent(
+    final String message, final Throwable problem ) {
+    new StatusEvent( message, problem ).fire();
   }
 }

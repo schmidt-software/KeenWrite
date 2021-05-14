@@ -16,7 +16,6 @@ import java.io.File;
 import java.nio.file.Path;
 
 import static com.keenwrite.ExportFormat.NONE;
-import static com.keenwrite.Messages.get;
 import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.preferences.WorkspaceKeys.KEY_IMAGES_DIR;
 import static com.keenwrite.preferences.WorkspaceKeys.KEY_IMAGES_ORDER;
@@ -133,10 +132,9 @@ public class ImageLinkExtension extends HtmlRendererAdapter {
           }
         }
 
-        clue( get(
-          "Main.status.error.file.missing.near",
-          imageFile + ".*", node.getLineNumber()
-        ) );
+        clue( "Main.status.error.file.missing.near",
+              imageFile + ".*", node.getLineNumber()
+        );
       } catch( final Exception ex ) {
         clue( ex );
       }

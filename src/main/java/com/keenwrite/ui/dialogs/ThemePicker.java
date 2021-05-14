@@ -107,7 +107,7 @@ public class ThemePicker extends ChoiceDialog<String> {
             selection[ 0 ] = themeDisplay;
           }
         } catch( final Exception ex ) {
-          clue( get( "Main.status.error.theme.name", path ) );
+          clue( "Main.status.error.theme.name", path );
         }
       } );
 

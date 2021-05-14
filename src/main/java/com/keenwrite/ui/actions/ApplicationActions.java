@@ -160,7 +160,7 @@ public final class ApplicationActions {
 
           // Binary formats must notify users of success independently.
           if( result != null ) {
-            clue( get( "Main.status.export.success", result ) );
+            clue( "Main.status.export.success", result );
           }
         }
       );

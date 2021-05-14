@@ -174,31 +174,29 @@ public final class MainPane extends SplitPane {
     mStatistics = new DocumentStatistics( workspace );
     mActiveTextEditor.set( new MarkdownEditor( workspace ) );
 
+    open( bin( getRecentFiles() ) );
+    viewPreview();
     setDividerPositions( calculateDividerPositions() );
 
     // Once the main scene's window regains focus, update the active definition
     // editor to the currently selected tab.
-    runLater(
-      () -> getWindow().setOnCloseRequest( ( event ) -> {
-        // Order matters here. We want to close all the tabs to ensure each
-        // is saved, but after they are closed, the workspace should still
-        // retain the list of files that were open. If this line came after
-        // closing, then restarting the application would list no files.
-        mWorkspace.save();
+    runLater( () -> getWindow().setOnCloseRequest( ( event ) -> {
+      // Order matters here. We want to close all the tabs to ensure each
+      // is saved, but after they are closed, the workspace should still
+      // retain the list of files that were open. If this line came after
+      // closing, then restarting the application would list no files.
+      mWorkspace.save();
 
-        if( closeAll() ) {
-          Platform.exit();
-          System.exit( 0 );
-        }
-        else {
-          event.consume();
-        }
-      } )
-    );
+      if( closeAll() ) {
+        Platform.exit();
+        System.exit( 0 );
+      }
+      else {
+        event.consume();
+      }
+    } ) );
 
     register( this );
-    open( bin( getRecentFiles() ) );
-    viewPreview();
   }
 
   @Subscribe

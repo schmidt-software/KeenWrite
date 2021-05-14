@@ -3,17 +3,18 @@ package com.keenwrite.typesetting;
 
 import com.keenwrite.io.SysFile;
 import com.keenwrite.preferences.Workspace;
+import com.keenwrite.util.BoundedCache;
 
 import java.io.*;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 import java.util.concurrent.Callable;
 import java.util.regex.Pattern;
 
-import static com.keenwrite.Messages.get;
 import static com.keenwrite.constants.Constants.DEFAULT_DIRECTORY;
 import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.preferences.WorkspaceKeys.KEY_TYPESET_CONTEXT_THEMES_PATH;
@@ -62,14 +63,13 @@ public class Typesetter {
   public void typeset( final Path in, final Path out )
     throws IOException, InterruptedException, TypesetterNotFoundException {
     if( TYPESETTER.canRun() ) {
-      clue( get( "Main.status.typeset.began", out ) );
+      clue( "Main.status.typeset.began", out );
       final var task = new TypesetTask( in, out );
       final var time = currentTimeMillis();
       final var success = task.typeset();
 
-      clue( get(
-        "Main.status.typeset.ended." + (success ? "success" : "failure"),
-        out, since( time ) )
+      clue( "Main.status.typeset.ended." + (success ? "success" : "failure"),
+            out, since( time )
       );
     }
     else {
@@ -189,6 +189,7 @@ public class Typesetter {
 
     @Override
     public Boolean call() throws IOException, InterruptedException {
+      final var stdout = new BoundedCache<String, String>( 150 );
       final var builder = new ProcessBuilder( mArgs );
       builder.directory( mDirectory.toFile() );
       builder.environment().put( "TEXMFCACHE", getCacheDir().toString() );
@@ -200,7 +201,8 @@ public class Typesetter {
       final var process = builder.start();
 
       // Reading from stdout allows slurping page numbers while generating.
-      final var listener = new PaginationListener( process.getInputStream() );
+      final var listener = new PaginationListener(
+        process.getInputStream(), stdout );
       listener.start();
 
       process.waitFor();
@@ -209,20 +211,25 @@ public class Typesetter {
 
       // If there was an error, the typesetter will leave behind log, pdf, and
       // error files.
-      if( exit != 0 ) {
+      if( exit > 0 ) {
         final var xmlName = mInput.getFileName().toString();
         final var srcName = mOutput.getFileName().toString();
         final var logName = newExtension( xmlName, ".log" );
         final var errName = newExtension( xmlName, "-error.log" );
         final var pdfName = newExtension( xmlName, ".pdf" );
+        final var tuaName = newExtension( xmlName, ".tua" );
         final var badName = newExtension( srcName, ".log" );
 
+        log( badName );
+        log( logName );
         log( errName );
+        log( stdout.keySet().stream().toList() );
 
-        deleteIfExists( badName );
         deleteIfExists( logName );
         deleteIfExists( errName );
         deleteIfExists( pdfName );
+        deleteIfExists( badName );
+        deleteIfExists( tuaName );
       }
 
       // Exit value for a successful invocation of the typesetter. This value
@@ -244,7 +251,12 @@ public class Typesetter {
      * @param path Path to the file containing error messages.
      */
     private void log( final Path path ) throws IOException {
-      final var lines = readAllLines( path );
+      if( exists( path ) ) {
+        log( readAllLines( path ) );
+      }
+    }
+
+    private void log( final List<String> lines ) {
       final var splits = new ArrayList<String>( lines.size() * 2 );
 
       for( final var line : lines ) {
@@ -311,8 +323,12 @@ public class Typesetter {
 
     private final InputStream mInputStream;
 
-    public PaginationListener( final InputStream in ) {
+    private final Map<String, String> mCache;
+
+    public PaginationListener(
+      final InputStream in, final Map<String, String> cache ) {
       mInputStream = in;
+      mCache = cache;
     }
 
     @Override
@@ -324,6 +340,8 @@ public class Typesetter {
         String line;
 
         while( (line = reader.readLine()) != null ) {
+          mCache.put( line, "" );
+
           if( line.startsWith( "pages" ) ) {
             // The bottleneck will be the typesetting engine writing to stdout,
             // not the parsing of stdout.
@@ -341,10 +359,9 @@ public class Typesetter {
             pageCount = page;
 
             // Let the user know that something is happening in the background.
-            clue( get(
-              "Main.status.typeset.page",
-              pageCount, pageTotal < 1 ? "?" : pageTotal, passCount
-            ) );
+            clue( "Main.status.typeset.page",
+                  pageCount, pageTotal < 1 ? "?" : pageTotal, passCount
+            );
           }
         }
       } catch( final IOException ex ) {

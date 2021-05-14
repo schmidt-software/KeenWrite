@@ -19,7 +19,6 @@ import java.util.Map.Entry;
 import java.util.regex.Pattern;
 
 import static com.keenwrite.Bootstrap.APP_TITLE_LOWERCASE;
-import static com.keenwrite.Messages.get;
 import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.io.HttpFacade.httpGet;
 import static com.keenwrite.preferences.WorkspaceKeys.*;
@@ -64,7 +63,7 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
    */
   @Override
   public String apply( final String html ) {
-    clue( get( "Main.status.typeset.xhtml" ) );
+    clue( "Main.status.typeset.xhtml" );
 
     final var doc = parse( html );
     setMetaData( doc );
