@@ -59,7 +59,8 @@ public final class MainApp extends Application {
    */
   @Override
   public void start( final Stage stage ) {
-    // Must be instantiated after the UI is initialized (i.e., not in main).
+    // Must be instantiated after the UI is initialized (i.e., not in main)
+    // because it interacts with GUI properties.
     mWorkspace = new Workspace();
 
     initFonts();

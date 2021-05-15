@@ -171,7 +171,10 @@ public final class PreferencesController {
           get( KEY_TYPESET_CONTEXT ),
           Setting.of( label( KEY_TYPESET_CONTEXT_THEMES_PATH ) ),
           Setting.of( title( KEY_TYPESET_CONTEXT_THEMES_PATH ),
-                      fileProperty( KEY_TYPESET_CONTEXT_THEMES_PATH ), true )
+                      fileProperty( KEY_TYPESET_CONTEXT_THEMES_PATH ), true ),
+          Setting.of( label( KEY_TYPESET_CONTEXT_CLEAN ) ),
+          Setting.of( title( KEY_TYPESET_CONTEXT_CLEAN ),
+                      booleanProperty( KEY_TYPESET_CONTEXT_CLEAN ) )
         )
       ),
       Category.of(

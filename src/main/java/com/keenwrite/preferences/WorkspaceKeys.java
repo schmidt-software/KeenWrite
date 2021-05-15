@@ -85,6 +85,7 @@ public final class WorkspaceKeys {
   public static final Key KEY_TYPESET_CONTEXT_THEMES = key( KEY_TYPESET_CONTEXT, "themes" );
   public static final Key KEY_TYPESET_CONTEXT_THEMES_PATH = key( KEY_TYPESET_CONTEXT_THEMES, "path" );
   public static final Key KEY_TYPESET_CONTEXT_THEME_SELECTION = key( KEY_TYPESET_CONTEXT_THEMES, "selection" );
+  public static final Key KEY_TYPESET_CONTEXT_CLEAN = key( KEY_TYPESET_CONTEXT, "clean" );
   //@formatter:on
 
   /**

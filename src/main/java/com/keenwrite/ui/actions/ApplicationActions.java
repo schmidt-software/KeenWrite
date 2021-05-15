@@ -21,6 +21,8 @@ import com.keenwrite.ui.dialogs.ThemePicker;
 import com.keenwrite.ui.explorer.FilePicker;
 import com.keenwrite.ui.explorer.FilePickerFactory;
 import com.keenwrite.ui.logging.LogView;
+import com.keenwrite.util.AlphanumComparator;
+import com.keenwrite.util.FileWalker;
 import com.vladsch.flexmark.ast.Link;
 import javafx.concurrent.Task;
 import javafx.scene.control.Alert;
@@ -29,7 +31,10 @@ import javafx.stage.Window;
 import javafx.stage.WindowEvent;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
@@ -44,12 +49,14 @@ import static com.keenwrite.preferences.WorkspaceKeys.KEY_TYPESET_CONTEXT_THEME_
 import static com.keenwrite.processors.ProcessorFactory.createProcessors;
 import static com.keenwrite.ui.explorer.FilePickerFactory.Options;
 import static com.keenwrite.ui.explorer.FilePickerFactory.Options.*;
+import static java.nio.file.Files.*;
 import static java.nio.file.Files.writeString;
 import static java.util.concurrent.Executors.newFixedThreadPool;
 import static javafx.application.Platform.runLater;
 import static javafx.event.Event.fireEvent;
 import static javafx.scene.control.Alert.AlertType.INFORMATION;
 import static javafx.stage.WindowEvent.WINDOW_CLOSE_REQUEST;
+import static org.apache.commons.io.FilenameUtils.getExtension;
 
 /**
  * Responsible for abstracting how functionality is mapped to the application.
@@ -62,6 +69,9 @@ public final class ApplicationActions {
   private static final ExecutorService sExecutor = newFixedThreadPool( 1 );
 
   private static final String STYLE_SEARCH = "search";
+
+  // Sci-fi genres typically fall below 150,000 words at 6 chars per word.
+  private static final int AVERAGE_NOVEL_LENGTH = 150_000 * 6;
 
   /**
    * When an action is executed, this is one of the recipients.
@@ -130,7 +140,24 @@ public final class ApplicationActions {
     getMainPane().saveAll();
   }
 
+  /**
+   * Converts the actively edited file in the given file format.
+   *
+   * @param format The destination file format.
+   */
   private void file‿export( final ExportFormat format ) {
+    file‿export( format, false );
+  }
+
+  /**
+   * Converts one or more files into the given file format. If {@code dir}
+   * is set to true, this will first append all files in the same directory
+   * as the actively edited file.
+   *
+   * @param format The destination file format.
+   * @param dir    Export all files in the actively edited file's directory.
+   */
+  private void file‿export( final ExportFormat format, final boolean dir ) {
     final var main = getMainPane();
     final var editor = main.getActiveTextEditor();
     final var filename = format.toExportFilename( editor.getPath() );
@@ -139,7 +166,7 @@ public final class ApplicationActions {
     selection.ifPresent( ( files ) -> {
       final var file = files.get( 0 );
       final var path = file.toPath();
-      final var document = editor.getText();
+      final var document = dir ? append( editor ) : editor.getText();
       final var context = main.createProcessorContext( path, format );
 
       final var task = new Task<Path>() {
@@ -178,7 +205,12 @@ public final class ApplicationActions {
     } );
   }
 
-  public void file‿export‿pdf() {
+  /**
+   * @param dir {@code true} means to export all files in the active file
+   *            editor's directory; {@code false} means to export only the
+   *            actively edited file.
+   */
+  private void file‿export‿pdf( final boolean dir ) {
     final var workspace = getWorkspace();
     final var themes = workspace.toFile( KEY_TYPESET_CONTEXT_THEMES_PATH );
     final var theme = workspace.stringProperty(
@@ -188,12 +220,20 @@ public final class ApplicationActions {
       // If the typesetter is installed, allow the user to select a theme. If
       // the themes aren't installed, a status message will appear.
       if( ThemePicker.choose( themes, theme ) ) {
-        file‿export( APPLICATION_PDF );
+        file‿export( APPLICATION_PDF, dir );
       }
     }
     else {
       fireExportFailedEvent();
     }
+  }
+
+  public void file‿export‿pdf() {
+    file‿export‿pdf( false );
+  }
+
+  public void file‿export‿pdf‿dir() {
+    file‿export‿pdf( true );
   }
 
   public void file‿export‿html_svg() {
@@ -471,6 +511,66 @@ public final class ApplicationActions {
     alert.setGraphic( ICON_DIALOG_NODE );
     alert.initOwner( getWindow() );
     alert.showAndWait();
+  }
+
+  /**
+   * Concatenates all the files in the same directory as the given file into
+   * a string. The extension is determined by the given file name pattern; the
+   * order files are concatenated is based on their numeric sort order (this
+   * avoids lexicographic sorting).
+   * <p>
+   * If the parent path to the file being edited in the text editor cannot
+   * be found then this will return the editor's text, without iterating through
+   * the parent directory. (Should never happen, but who knows?)
+   * </p>
+   * <p>
+   * New lines are automatically appended to separate each file.
+   * </p>
+   *
+   * @param editor The text editor containing
+   * @return All files in the same directory as the file being edited
+   * concatenated into a single string.
+   */
+  private String append( final TextEditor editor ) {
+    final var pattern = editor.getPath();
+    final var parent = pattern.getParent();
+
+    // Short-circuit because nothing else can be done.
+    if( parent == null ) {
+      clue( "Main.status.export.concat.parent", pattern );
+      return editor.getText();
+    }
+
+    final var filename = pattern.getFileName().toString();
+    final var extension = getExtension( filename );
+
+    if( extension == null || extension.isBlank() ) {
+      clue( "Main.status.export.concat.extension", filename );
+      return editor.getText();
+    }
+
+    try {
+      final var glob = "**." + extension;
+      final ArrayList<Path> files = new ArrayList<>();
+      FileWalker.walk( parent, glob, files::add );
+      files.sort( new AlphanumComparator<>() );
+
+      final var text = new StringBuilder( AVERAGE_NOVEL_LENGTH );
+
+      files.forEach( ( file ) -> {
+        try {
+          clue( "Main.status.export.concat", file );
+          text.append( readString( file ) );
+        } catch( final IOException ex ) {
+          clue( "Main.status.export.concat.io", file );
+        }
+      } );
+
+      return text.toString();
+    } catch( final Throwable t ) {
+      clue( t );
+      return editor.getText();
+    }
   }
 
   private Optional<List<File>> pickFiles( final Options... options ) {

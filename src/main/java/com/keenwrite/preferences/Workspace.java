@@ -116,6 +116,7 @@ public final class Workspace {
 
     entry( KEY_LANGUAGE_LOCALE, asLocaleProperty( LOCALE_DEFAULT ) ),
 
+    entry( KEY_TYPESET_CONTEXT_CLEAN, asBooleanProperty(true) ),
     entry( KEY_TYPESET_CONTEXT_THEMES_PATH, asFileProperty( USER_DIRECTORY ) ),
     entry( KEY_TYPESET_CONTEXT_THEME_SELECTION, asStringProperty( "boschet" ) )
     //@formatter:on
@@ -325,7 +326,7 @@ public final class Workspace {
     return valuesProperty( key );
   }
 
-  public BooleanProperty booleanProperty(final Key key) {
+  public BooleanProperty booleanProperty( final Key key ) {
     assert key != null;
     return valuesProperty( key );
   }

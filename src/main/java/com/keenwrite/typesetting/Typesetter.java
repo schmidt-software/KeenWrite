@@ -17,8 +17,7 @@ import java.util.regex.Pattern;
 
 import static com.keenwrite.constants.Constants.DEFAULT_DIRECTORY;
 import static com.keenwrite.events.StatusEvent.clue;
-import static com.keenwrite.preferences.WorkspaceKeys.KEY_TYPESET_CONTEXT_THEMES_PATH;
-import static com.keenwrite.preferences.WorkspaceKeys.KEY_TYPESET_CONTEXT_THEME_SELECTION;
+import static com.keenwrite.preferences.WorkspaceKeys.*;
 import static java.lang.ProcessBuilder.Redirect.DISCARD;
 import static java.lang.String.format;
 import static java.lang.System.currentTimeMillis;
@@ -225,11 +224,14 @@ public class Typesetter {
         log( errName );
         log( stdout.keySet().stream().toList() );
 
-        deleteIfExists( logName );
-        deleteIfExists( errName );
-        deleteIfExists( pdfName );
-        deleteIfExists( badName );
-        deleteIfExists( tuaName );
+        // Users may opt to keep these files around for debugging purposes.
+        if( autoclean() ) {
+          deleteIfExists( logName );
+          deleteIfExists( errName );
+          deleteIfExists( pdfName );
+          deleteIfExists( badName );
+          deleteIfExists( tuaName );
+        }
       }
 
       // Exit value for a successful invocation of the typesetter. This value
@@ -380,5 +382,15 @@ public class Typesetter {
 
   private String getThemesSelection() {
     return mWorkspace.toString( KEY_TYPESET_CONTEXT_THEME_SELECTION );
+  }
+
+  /**
+   * Answers whether logs and other files should be deleted upon error. The
+   * log files are useful for debugging.
+   *
+   * @return {@code true} to delete generated files.
+   */
+  private boolean autoclean() {
+    return mWorkspace.toBoolean( KEY_TYPESET_CONTEXT_CLEAN );
   }
 }
