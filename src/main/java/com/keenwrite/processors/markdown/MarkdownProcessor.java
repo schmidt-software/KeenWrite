@@ -72,7 +72,7 @@ public final class MarkdownProcessor extends BaseMarkdownProcessor {
 
     extensions.add( ImageLinkExtension.create( context ) );
     extensions.add( TeXExtension.create( processor, context ) );
-    extensions.add( FencedBlockExtension.create( processor ) );
+    extensions.add( FencedBlockExtension.create( processor, context ) );
     extensions.add( CaretExtension.create( context ) );
     extensions.add( DocumentOutlineExtension.create( processor ) );
     return extensions;

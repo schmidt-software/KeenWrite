@@ -1,8 +1,10 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.processors.markdown.extensions.fences;
 
+import com.keenwrite.preferences.Workspace;
 import com.keenwrite.processors.DefinitionProcessor;
 import com.keenwrite.processors.Processor;
+import com.keenwrite.processors.ProcessorContext;
 import com.keenwrite.processors.markdown.MarkdownProcessor;
 import com.keenwrite.processors.markdown.extensions.HtmlRendererAdapter;
 import com.vladsch.flexmark.ast.FencedCodeBlock;
@@ -18,8 +20,8 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.zip.Deflater;
 
-import static com.keenwrite.constants.Constants.DIAGRAM_SERVER_NAME;
 import static com.keenwrite.events.StatusEvent.clue;
+import static com.keenwrite.preferences.WorkspaceKeys.KEY_IMAGES_SERVER;
 import static com.vladsch.flexmark.html.HtmlRenderer.Builder;
 import static com.vladsch.flexmark.html.renderer.LinkType.LINK;
 import static java.lang.String.format;
@@ -36,10 +38,14 @@ public class FencedBlockExtension extends HtmlRendererAdapter {
   private final static int DIAGRAM_STYLE_LEN = DIAGRAM_STYLE.length();
 
   private final Processor<String> mProcessor;
+  private final ProcessorContext mContext;
 
-  public FencedBlockExtension( final Processor<String> processor ) {
+  public FencedBlockExtension(
+    final Processor<String> processor, final ProcessorContext context ) {
     assert processor != null;
+    assert context != null;
     mProcessor = processor;
+    mContext = context;
   }
 
   /**
@@ -61,8 +67,8 @@ public class FencedBlockExtension extends HtmlRendererAdapter {
    * diagrams to a service for conversion to SVG.
    */
   public static FencedBlockExtension create(
-    final Processor<String> processor ) {
-    return new FencedBlockExtension( processor );
+    final Processor<String> processor, final ProcessorContext context ) {
+    return new FencedBlockExtension( processor, context );
   }
 
   @Override
@@ -101,8 +107,7 @@ public class FencedBlockExtension extends HtmlRendererAdapter {
           final var content = node.getContentChars().normalizeEOL();
           final var text = mProcessor.apply( content );
           final var encoded = encode( text );
-          final var source = format(
-            "https://%s/%s/svg/%s", DIAGRAM_SERVER_NAME, type, encoded );
+          final var source = getSourceUrl( type, encoded );
           final var link = context.resolveLink( LINK, source, false );
 
           html.attr( "src", source );
@@ -138,6 +143,19 @@ public class FencedBlockExtension extends HtmlRendererAdapter {
 
     private String encode( final String decoded ) {
       return getUrlEncoder().encodeToString( compress( decoded.getBytes() ) );
+    }
+
+    private String getSourceUrl( final String type, final String encoded ) {
+      return
+        format( "https://%s/%s/svg/%s", getDiagramServerName(), type, encoded );
+    }
+
+    private Workspace getWorkspace() {
+      return mContext.getWorkspace();
+    }
+
+    private String getDiagramServerName() {
+      return getWorkspace().toString( KEY_IMAGES_SERVER );
     }
   }
 

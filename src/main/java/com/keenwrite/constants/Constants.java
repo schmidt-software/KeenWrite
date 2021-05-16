@@ -209,8 +209,6 @@ public final class Constants {
 
   /**
    * Default server name for rendering diagrams.
-   * <p>
-   * TODO: Make this a preference so that local installs are possible.
    */
   public static final String DIAGRAM_SERVER_NAME = "kroki.io";
 

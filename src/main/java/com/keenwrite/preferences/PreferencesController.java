@@ -224,6 +224,12 @@ public final class PreferencesController {
           Setting.of( label( KEY_IMAGES_RESIZE ) ),
           Setting.of( title( KEY_IMAGES_RESIZE ),
                       booleanProperty( KEY_IMAGES_RESIZE ) )
+        ),
+        Group.of(
+          get( KEY_IMAGES_SERVER ),
+          Setting.of( label( KEY_IMAGES_SERVER ) ),
+          Setting.of( title( KEY_IMAGES_SERVER ),
+                      stringProperty( KEY_IMAGES_SERVER ) )
         )
       ),
       Category.of(
