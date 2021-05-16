@@ -22,7 +22,6 @@ import com.keenwrite.ui.explorer.FilePicker;
 import com.keenwrite.ui.explorer.FilePickerFactory;
 import com.keenwrite.ui.logging.LogView;
 import com.keenwrite.util.AlphanumComparator;
-import com.keenwrite.util.FileWalker;
 import com.vladsch.flexmark.ast.Link;
 import javafx.concurrent.Task;
 import javafx.scene.control.Alert;
@@ -48,6 +47,7 @@ import static com.keenwrite.preferences.WorkspaceKeys.KEY_TYPESET_CONTEXT_THEME_
 import static com.keenwrite.processors.ProcessorFactory.createProcessors;
 import static com.keenwrite.ui.explorer.FilePickerFactory.Options;
 import static com.keenwrite.ui.explorer.FilePickerFactory.Options.*;
+import static com.keenwrite.util.FileWalker.walk;
 import static java.nio.file.Files.readString;
 import static java.nio.file.Files.writeString;
 import static java.util.concurrent.Executors.newFixedThreadPool;
@@ -69,10 +69,12 @@ public final class ApplicationActions {
 
   private static final String STYLE_SEARCH = "search";
 
-  // Sci-fi genres, which are can be longer than other genres, typically fall
-  // below 150,000 words at 6 chars per word. This reduces re-allocations of
-  // memory when concatenating files together when exporting novels.
-  private static final int AVERAGE_NOVEL_LENGTH = 150_000 * 6;
+  /**
+   * Sci-fi genres, which are can be longer than other genres, typically fall
+   * below 150,000 words at 6 chars per word. This reduces re-allocations of
+   * memory when concatenating files together when exporting novels.
+   */
+  private static final int DOCUMENT_LENGTH = 150_000 * 6;
 
   /**
    * When an action is executed, this is one of the recipients.
@@ -557,10 +559,10 @@ public final class ApplicationActions {
     try {
       final var glob = "**/*." + extension;
       final ArrayList<Path> files = new ArrayList<>();
-      FileWalker.walk( parent, glob, files::add );
+      walk( parent, glob, files::add );
       files.sort( new AlphanumComparator<>() );
 
-      final var text = new StringBuilder( AVERAGE_NOVEL_LENGTH );
+      final var text = new StringBuilder( DOCUMENT_LENGTH );
 
       files.forEach( ( file ) -> {
         try {
