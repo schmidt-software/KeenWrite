@@ -220,6 +220,11 @@ public final class Constants {
   public static final String ACTION_PREFIX = "Action.";
 
   /**
+   * Restrict theme names when displaying.
+   */
+  public static final byte THEME_NAME_LENGTH = 30;
+
+  /**
    * Prevent instantiation.
    */
   private Constants() {

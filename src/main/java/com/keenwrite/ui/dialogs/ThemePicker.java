@@ -17,11 +17,13 @@ import java.util.Properties;
 import java.util.TreeMap;
 
 import static com.keenwrite.Messages.get;
+import static com.keenwrite.constants.Constants.THEME_NAME_LENGTH;
 import static com.keenwrite.constants.GraphicsConstants.ICON_DIALOG;
 import static com.keenwrite.constants.GraphicsConstants.ICON_DIALOG_NODE;
 import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.util.FileWalker.walk;
 import static java.lang.Math.max;
+import static org.codehaus.plexus.util.StringUtils.abbreviate;
 
 /**
  * Responsible for allowing the user to pick from the available themes found
@@ -98,13 +100,13 @@ public class ThemePicker extends ChoiceDialog<String> {
       // Populate the choices with themes detected on the system.
       walk( mThemes.toPath(), "**/theme.properties", ( path ) -> {
         try {
-          final var themeDisplay = readThemeName( path );
+          final var displayed = readThemeName( path );
           final var themeName = path.getParent().toFile().getName();
-          choices.put( themeDisplay, themeName );
+          choices.put( abbreviate( displayed, THEME_NAME_LENGTH ), themeName );
 
-          // Used to set the selected item to value from user's settings.
+          // Set the selected item to user's settings value.
           if( themeName.equals( mTheme.get() ) ) {
-            selection[ 0 ] = themeDisplay;
+            selection[ 0 ] = displayed;
           }
         } catch( final Exception ex ) {
           clue( "Main.status.error.theme.name", path );
