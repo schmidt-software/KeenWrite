@@ -95,7 +95,6 @@ public final class HtmlPreview extends SwingNode {
 
   private volatile boolean mLocked;
   private final JButton mScrollLockButton = new JButton();
-
   private final Workspace mWorkspace;
 
   /**
@@ -106,7 +105,7 @@ public final class HtmlPreview extends SwingNode {
    */
   public HtmlPreview( final Workspace workspace ) {
     mWorkspace = workspace;
-    mFactory  = new ChainedReplacedElementFactory(
+    mFactory = new ChainedReplacedElementFactory(
       mWorkspace,
       new SvgReplacedElementFactory(),
       new SwingReplacedElementFactory()

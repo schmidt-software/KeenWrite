@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.util.Properties;
 
 import static com.keenwrite.Bootstrap.*;
+import static com.keenwrite.PermissiveCertificate.installTrustManager;
 import static java.lang.String.format;
 
 /**
@@ -24,10 +25,11 @@ public final class Launcher {
    */
   public static void main( final String[] args ) {
     try {
+      installTrustManager();
       showAppInfo();
       MainApp.main( args );
-    } catch( final Error e ) {
-      log( e );
+    } catch( final Throwable t ) {
+      log( t );
     }
   }
 
@@ -84,7 +86,7 @@ public final class Launcher {
    *
    * @param error The fatal error that could not be handled.
    */
-  private static void log( final Error error ) {
+  private static void log( final Throwable error ) {
     var message = error.getMessage();
 
     if( message != null && message.toLowerCase().contains( "javafx" ) ) {

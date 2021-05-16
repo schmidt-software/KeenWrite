@@ -37,7 +37,7 @@ public class HttpFacade {
    * @return The server response.
    */
   public static Response httpGet( final URL url ) throws Exception {
-    return new Response(url);
+    return new Response( url );
   }
 
   /**
@@ -73,28 +73,28 @@ public class HttpFacade {
       assert url != null;
 
       clue( "Main.status.image.request.init" );
-      final var connection = url.openConnection();
 
-      if( connection instanceof HttpURLConnection ) {
-        mConn = (HttpURLConnection) connection;
-        mConn.setUseCaches( false );
-        mConn.setInstanceFollowRedirects( true );
-        mConn.setRequestProperty( "Accept-Encoding", "gzip" );
-        mConn.setRequestProperty( "User-Agent", getProperty( "http.agent" ) );
-        mConn.setRequestMethod( "GET" );
-        mConn.setConnectTimeout( 15000 );
-        mConn.setRequestProperty( "connection", "close" );
-        mConn.connect();
+      if( url.openConnection() instanceof HttpURLConnection conn ) {
+        conn.setUseCaches( false );
+        conn.setInstanceFollowRedirects( true );
+        conn.setRequestProperty( "Accept-Encoding", "gzip" );
+        conn.setRequestProperty( "User-Agent", getProperty( "http.agent" ) );
+        conn.setRequestMethod( "GET" );
+        conn.setConnectTimeout( 15000 );
+        conn.setRequestProperty( "connection", "close" );
+        conn.connect();
+
         clue( "Main.status.image.request.fetch", url.getHost() );
 
-        final var code = mConn.getResponseCode();
+        final var code = conn.getResponseCode();
 
         // Even though there are other "okay" error codes, tell the user when
         // a resource has changed in any unexpected way.
         if( code != HTTP_OK ) {
-          throw new IOException( url.toString() + " [HTTP " + code + "]" );
+          throw new IOException( url + " [HTTP " + code + "]" );
         }
 
+        mConn = conn;
         mStream = openBufferedInputStream();
       }
       else {

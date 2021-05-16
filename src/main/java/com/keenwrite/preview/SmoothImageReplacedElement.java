@@ -17,7 +17,7 @@ public final class SmoothImageReplacedElement extends ImageReplacedElement {
 
   /**
    * Creates a high-quality rescaled version of the given image. The
-   * aspect ratio is preserved if either width or height is less than 1.
+   * aspect ratio is maintained if either width or height is less than 1.
    *
    * @param source An instance of {@link BufferedImage} to rescale.
    * @param width  Rescale the given image to this width (px).
@@ -39,18 +39,18 @@ public final class SmoothImageReplacedElement extends ImageReplacedElement {
 
   private Dimension rescaleDimensions(
     final BufferedImage bi, final int width, final int height ) {
-    final var w = bi.getWidth();
-    final var h = bi.getHeight();
+    final var oldW = bi.getWidth();
+    final var oldH = bi.getHeight();
 
     int newW = width;
     int newH = height;
 
     if( newW <= 0 ) {
-      newW = (int) (w * ((double) newH / h));
+      newW = (int) (oldW * ((double) newH / oldH));
     }
 
     if( newH <= 0 ) {
-      newH = (int) (h * ((double) newW / w));
+      newH = (int) (oldH * ((double) newW / oldW));
     }
 
     return new Dimension( newW, newH );
