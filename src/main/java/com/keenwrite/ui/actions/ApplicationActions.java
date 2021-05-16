@@ -32,7 +32,6 @@ import javafx.stage.WindowEvent;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -49,7 +48,7 @@ import static com.keenwrite.preferences.WorkspaceKeys.KEY_TYPESET_CONTEXT_THEME_
 import static com.keenwrite.processors.ProcessorFactory.createProcessors;
 import static com.keenwrite.ui.explorer.FilePickerFactory.Options;
 import static com.keenwrite.ui.explorer.FilePickerFactory.Options.*;
-import static java.nio.file.Files.*;
+import static java.nio.file.Files.readString;
 import static java.nio.file.Files.writeString;
 import static java.util.concurrent.Executors.newFixedThreadPool;
 import static javafx.application.Platform.runLater;
@@ -70,7 +69,9 @@ public final class ApplicationActions {
 
   private static final String STYLE_SEARCH = "search";
 
-  // Sci-fi genres typically fall below 150,000 words at 6 chars per word.
+  // Sci-fi genres, which are can be longer than other genres, typically fall
+  // below 150,000 words at 6 chars per word. This reduces re-allocations of
+  // memory when concatenating files together when exporting novels.
   private static final int AVERAGE_NOVEL_LENGTH = 150_000 * 6;
 
   /**
@@ -550,7 +551,7 @@ public final class ApplicationActions {
     }
 
     try {
-      final var glob = "**." + extension;
+      final var glob = "**/*." + extension;
       final ArrayList<Path> files = new ArrayList<>();
       FileWalker.walk( parent, glob, files::add );
       files.sort( new AlphanumComparator<>() );

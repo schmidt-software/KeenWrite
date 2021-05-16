@@ -103,7 +103,7 @@ Download and install the following font families:
 
 The theme is configured.
 
-# Typeset document
+# Typeset single document
 
 Typeset a document as follows:
 
@@ -117,6 +117,29 @@ Typeset a document as follows:
 1. Click **Save**.
 
 The document is typeset; open the PDF file in a PDF reader to view the result.
+
+# Typeset multiple documents
+
+Typeset multiple documents similar to single documents, with one difference:
+
+* Click **File → Export As → Joined PDF** (or type `Ctrl+Shift+p`).
+
+All documents having the same file name extension in the same directory
+(or sub-directories) as the actively edited file are first concatenated then
+typeset into a single PDF document. The order that files are concatenated
+is numeric and alphabetic.
+
+For example, if `1.Rmd` is a sibling of the following files in the same
+directory, then all the files will be included in the PDF, as expected:
+
+    chapter_1.Rmd
+    chapter_2.Rmd
+    chapter_2a.Rmd
+    chapter_2b.Rmd
+    chapter_3.Rmd
+    chapter_10.Rmd
+
+Basically, sorting honours numbers and letters in file names.
 
 # Background 
 
