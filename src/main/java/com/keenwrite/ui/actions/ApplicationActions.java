@@ -343,6 +343,10 @@ public final class ApplicationActions {
     getActiveTextEditor().italic();
   }
 
+  public void format‿monospace() {
+    getActiveTextEditor().monospace();
+  }
+
   public void format‿superscript() {
     getActiveTextEditor().superscript();
   }

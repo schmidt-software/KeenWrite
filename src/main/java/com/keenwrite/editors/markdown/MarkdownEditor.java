@@ -314,6 +314,11 @@ public final class MarkdownEditor extends BorderPane implements TextEditor {
   }
 
   @Override
+  public void monospace() {
+    enwrap( "`" );
+  }
+
+  @Override
   public void superscript() {
     enwrap( "^" );
   }

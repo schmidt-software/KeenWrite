@@ -156,6 +156,11 @@ public interface TextEditor extends TextResource {
   default void italic() { }
 
   /**
+   * Requests making the selected text, or word at caret, monospace.
+   */
+  default void monospace() { }
+
+  /**
    * Requests making the selected text, or word at caret, a superscript.
    */
   default void superscript() { }

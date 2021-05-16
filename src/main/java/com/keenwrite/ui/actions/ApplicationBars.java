@@ -87,6 +87,7 @@ public final class ApplicationBars {
       get( "Main.menu.format" ),
       addAction( "format.bold", e -> actions.format‿bold() ),
       addAction( "format.italic", e -> actions.format‿italic() ),
+      addAction( "format.monospace", e -> actions.format‿monospace() ),
       addAction( "format.superscript", e -> actions.format‿superscript() ),
       addAction( "format.subscript", e -> actions.format‿subscript() ),
       addAction( "format.strikethrough", e -> actions.format‿strikethrough() )
