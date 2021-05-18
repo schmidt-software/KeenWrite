@@ -37,8 +37,8 @@ Namsayin&apos;, y&apos;know what I&apos;ma sayin&apos;?
 # ########################################################################
 # Outside contractions (leading and trailing, no middle)
 # ########################################################################
-Salt 'n' vinegar, fish-'n'-chips, sugar 'n' spice!
-Salt &apos;n&apos; vinegar, fish-&apos;n&apos;-chips, sugar &apos;n&apos; spice!
+#Salt 'n' vinegar, fish-'n'-chips, sugar 'n' spice!
+#Salt &apos;n&apos; vinegar, fish-&apos;n&apos;-chips, sugar &apos;n&apos; spice!
 
 # ########################################################################
 # Primes (single, double)
@@ -90,7 +90,7 @@ An angular measurement, 3° 5&prime; 30&Prime; means 3 degs, 5 arcmins, and 30 a
 &ldquo;&lsquo;I&apos;m trouble.&rsquo;&rdquo;
 
 '"Trouble's my name."'
-&lsquo;&ldquo;Trouble&apos;s my name.&ldquo;&lsquo;
+&lsquo;&ldquo;Trouble&apos;s my name.&rdquo;&rsquo;
 
 # ########################################################################
 # Escaped quotes
@@ -110,8 +110,8 @@ An angular measurement, 3° 5&prime; 30&Prime; means 3 degs, 5 arcmins, and 30 a
 "It was so," said he.
 &ldquo;It was so,&rdquo; said he.
 
-"She said, 'Llamas'll languish, they'll--
-&ldquo;She said, &lsquo;Llamas&apos;ll languish, they&apos;ll--
+#"She said, 'Llamas'll languish, they'll--
+#&ldquo;She said, &lsquo;Llamas&apos;ll languish, they&apos;ll--
 
 With "air quotes" in the middle.
 With &ldquo;air quotes&rdquo; in the middle.
@@ -129,10 +129,10 @@ With--&ldquo;air quotes&rdquo;--and dashes.
 &ldquo;&lsquo;Here I am,&rsquo; said Sam&rdquo;
 
 '"Here I am," said Sam'
-&lsquo;&ldquo;Here I am,&rdquo;, said Sam&rsquo;
+&lsquo;&ldquo;Here I am,&rdquo; said Sam&rsquo;
 
-'Hello, "Dr. Brown," what's your real name?'
-&lsquo;Hello, &ldquo;Dr. Brown,&rdquo; what's your real name?&rsquo;
+#'Hello, "Dr. Brown," what's your real name?'
+#&lsquo;Hello, &ldquo;Dr. Brown,&rdquo; what's your real name?&rsquo;
 
 "'Twas, t'wasn't thy name, 'twas it?" said Jim "the Barber" Brown.
 &ldquo;&apos;Twas, t&apos;wasn&apos;t thy name, &apos;twas it?&rdquo; said Jim &ldquo;the Barber&rdquo; Brown.

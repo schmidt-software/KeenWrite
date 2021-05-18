@@ -13,15 +13,15 @@ paragraph
  ;
 
 sentence
- : atom ( separator+ atom )*
+ : atom+ ( separator+ atom+ )*
  ;
 
 atom
- : word
- | height       // Match a height before a contraction, otherwise 5' would become a contraction
+ : height       // Match a height before a contraction, otherwise 5' would become a contraction
  | contraction  // Match a contraction before a quotation, otherwise 'n' would become a quotation
  | quotation
- | orphanedOpeningDQuote atom
+ | orphanedOpeningQuote atom
+ | word
  | ~( Apostrophe | QuotationMark | BackQuote )
  ;
 
@@ -33,11 +33,6 @@ contraction
  | apostrophe character apostrophe  // fish 'n' chips
  ;
 
-// FIXME: can this only occur with back-quotes? If any double quote is supposed to be supported, simple use `openingDQuote`
-orphanedOpeningDQuote
- : BackQuote BackQuote
- ;
-
 quotation
  : openingSQuote innerQuotation closingSQuote    // '...'
  | openingDQuote1 innerQuotation closingDQuote1  // "..."
@@ -45,16 +40,18 @@ quotation
  | openingDQuote3 innerQuotation closingDQuote2  // ``...''
  ;
 
-// Important that there is both a non-space to the right of the start-quote and one to the left end-quote
 innerQuotation
- : non_space ( atom* non_space )?
+ :  restricted_atom ( atom* restricted_atom )?
  ;
 
-non_space
+restricted_atom
  : height
- | contraction
- | quotation
- | ~( Space | NewLine )
+// | contraction  //   ,---> fails: "'I'm trouble.'"
+// | quotation    //  /
+ | quotation      //  \
+ | contraction    //   '---> fails: "'Twas, t'wasn't thy name, 'twas it?" said Jim "the Barber" Brown.
+ | word
+ | ~( Space | NewLine | Apostrophe | QuotationMark | BackQuote | Backslash )
  ;
 
 height
@@ -62,24 +59,30 @@ height
  | number dPrime
  ;
 
+orphanedOpeningQuote
+ : openingDQuote1
+ | openingDQuote2
+ | openingDQuote3
+ ;
+
 apostrophe
- : Apostrophe
+ : Backslash? Apostrophe
  ;
 
 openingSQuote
- : Apostrophe
+ : Backslash? Apostrophe
  ;
 
 closingSQuote
- : Apostrophe
+ : Backslash? Apostrophe
  ;
 
 openingDQuote1
- : QuotationMark
+ : Backslash? QuotationMark
  ;
 
 closingDQuote1
- : QuotationMark
+ : Backslash? QuotationMark
  ;
 
 openingDQuote2
