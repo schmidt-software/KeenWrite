@@ -407,6 +407,10 @@ public final class HtmlPreview extends SwingNode implements ComponentListener {
     if( mWorkspace.toBoolean( KEY_IMAGES_RESIZE ) ) {
       mFactory.clearCache();
     }
+
+    // Force update on the Swing EDT, otherwise the scrollbar and content
+    // will not be updated correctly on some platforms.
+    invokeLater( () -> getContent().repaint() );
   }
 
   @Override
