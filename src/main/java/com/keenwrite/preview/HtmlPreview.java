@@ -13,6 +13,8 @@ import org.xhtmlrenderer.swing.SwingReplacedElementFactory;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.net.URL;
 import java.nio.file.Path;
 import java.util.Locale;
@@ -39,8 +41,7 @@ import static org.controlsfx.glyphfont.FontAwesome.Glyph.UNLOCK_ALT;
 /**
  * Responsible for parsing an HTML document.
  */
-public final class HtmlPreview extends SwingNode {
-
+public final class HtmlPreview extends SwingNode implements ComponentListener {
   /**
    * Used to populate the {@link #HTML_HEAD} with stylesheet file references.
    */
@@ -75,12 +76,6 @@ public final class HtmlPreview extends SwingNode {
 
   private static final URL HTML_STYLE_PREVIEW = toUrl( STYLESHEET_PREVIEW );
 
-  /**
-   * The order is important: Swing factory will replace SVG images with
-   * a blank image, which will cause the chained factory to cache the image
-   * and exit. Instead, the SVG must execute first to rasterize the content.
-   * Consequently, the chained factory must maintain insertion order.
-   */
   private final ChainedReplacedElementFactory mFactory;
 
   /**
@@ -105,8 +100,12 @@ public final class HtmlPreview extends SwingNode {
    */
   public HtmlPreview( final Workspace workspace ) {
     mWorkspace = workspace;
+
+    // The order is important: SwingReplacedElementFactory replaces SVG images
+    // with a blank image, which will cause the chained factory to cache the
+    // image and exit. Instead, the SVG must execute first to rasterize the
+    // content. Consequently, the chained factory must maintain insertion order.
     mFactory = new ChainedReplacedElementFactory(
-      mWorkspace,
       new SvgReplacedElementFactory(),
       new SwingReplacedElementFactory()
     );
@@ -140,7 +139,7 @@ public final class HtmlPreview extends SwingNode {
       setCache( true );
       setCacheHint( SPEED );
       setContent( wrapper );
-      wrapper.addComponentListener( mFactory );
+      wrapper.addComponentListener( this );
 
       final var context = mView.getSharedContext();
       final var textRenderer = context.getTextRenderer();
@@ -402,4 +401,20 @@ public final class HtmlPreview extends SwingNode {
     map.put( getKeyStroke( VK_HOME, 0 ), "minScroll" );
     map.put( getKeyStroke( VK_END, 0 ), "maxScroll" );
   }
+
+  @Override
+  public void componentResized( final ComponentEvent e ) {
+    if( mWorkspace.toBoolean( KEY_IMAGES_RESIZE ) ) {
+      mFactory.clearCache();
+    }
+  }
+
+  @Override
+  public void componentMoved( final ComponentEvent e ) { }
+
+  @Override
+  public void componentShown( final ComponentEvent e ) { }
+
+  @Override
+  public void componentHidden( final ComponentEvent e ) { }
 }

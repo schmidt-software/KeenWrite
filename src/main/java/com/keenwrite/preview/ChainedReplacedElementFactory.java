@@ -1,7 +1,6 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.preview;
 
-import com.keenwrite.preferences.Workspace;
 import com.keenwrite.ui.adapters.ReplacedElementAdapter;
 import com.keenwrite.util.BoundedCache;
 import org.w3c.dom.Element;
@@ -12,13 +11,10 @@ import org.xhtmlrenderer.layout.LayoutContext;
 import org.xhtmlrenderer.render.BlockBox;
 import org.xhtmlrenderer.swing.ImageReplacedElement;
 
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
-import static com.keenwrite.preferences.WorkspaceKeys.KEY_IMAGES_RESIZE;
 import static com.keenwrite.preview.SvgReplacedElementFactory.HTML_IMAGE;
 import static com.keenwrite.preview.SvgReplacedElementFactory.HTML_IMAGE_SRC;
 import static com.keenwrite.processors.markdown.extensions.tex.TexNode.HTML_TEX;
@@ -29,7 +25,7 @@ import static java.util.Arrays.asList;
  * the HTML document prior to displaying it.
  */
 public final class ChainedReplacedElementFactory
-  extends ReplacedElementAdapter implements ComponentListener {
+  extends ReplacedElementAdapter {
   /**
    * Retain insertion order so that client classes can control the order that
    * factories are used to resolve images.
@@ -43,14 +39,10 @@ public final class ChainedReplacedElementFactory
    */
   private final Map<String, ReplacedElement> mCache = new BoundedCache<>( 150 );
 
-  private final Workspace mWorkspace;
-
   public ChainedReplacedElementFactory(
-    final Workspace workspace, final ReplacedElementFactory... factories ) {
-    assert workspace != null;
+    final ReplacedElementFactory... factories ) {
     assert factories != null;
     assert factories.length > 0;
-    mWorkspace = workspace;
     mFactories.addAll( asList( factories ) );
   }
 
@@ -122,20 +114,4 @@ public final class ChainedReplacedElementFactory
   public void clearCache() {
     mCache.clear();
   }
-
-  @Override
-  public void componentResized( final ComponentEvent e ) {
-    if( mWorkspace.toBoolean( KEY_IMAGES_RESIZE ) ) {
-      clearCache();
-    }
-  }
-
-  @Override
-  public void componentMoved( final ComponentEvent e ) { }
-
-  @Override
-  public void componentShown( final ComponentEvent e ) { }
-
-  @Override
-  public void componentHidden( final ComponentEvent e ) { }
 }

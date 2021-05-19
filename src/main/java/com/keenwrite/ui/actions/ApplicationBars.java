@@ -44,97 +44,97 @@ public final class ApplicationBars {
     return new MenuBar(
     createMenu(
       get( "Main.menu.file" ),
-      addAction( "file.new", e -> actions.file‿new() ),
-      addAction( "file.open", e -> actions.file‿open() ),
+      addAction( "file.new", e -> actions.file_new() ),
+      addAction( "file.open", e -> actions.file_open() ),
       SEPARATOR_ACTION,
-      addAction( "file.close", e -> actions.file‿close() ),
-      addAction( "file.close_all", e -> actions.file‿close_all() ),
+      addAction( "file.close", e -> actions.file_close() ),
+      addAction( "file.close_all", e -> actions.file_close_all() ),
       SEPARATOR_ACTION,
-      addAction( "file.save", e -> actions.file‿save() ),
-      addAction( "file.save_as", e -> actions.file‿save_as() ),
-      addAction( "file.save_all", e -> actions.file‿save_all() ),
+      addAction( "file.save", e -> actions.file_save() ),
+      addAction( "file.save_as", e -> actions.file_save_as() ),
+      addAction( "file.save_all", e -> actions.file_save_all() ),
       SEPARATOR_ACTION,
       addAction( "file.export", e -> {} )
         .addSubActions(
-          addAction( "file.export.pdf", e -> actions.file‿export‿pdf() ),
-          addAction( "file.export.pdf.dir", e -> actions.file‿export‿pdf‿dir() ),
-          addAction( "file.export.html_svg", e -> actions.file‿export‿html_svg() ),
-          addAction( "file.export.html_tex", e -> actions.file‿export‿html_tex() ),
-          addAction( "file.export.xhtml_tex", e -> actions.file‿export‿xhtml_tex() ),
-          addAction( "file.export.markdown", e -> actions.file‿export‿markdown() )
+          addAction( "file.export.pdf", e -> actions.file_export_pdf() ),
+          addAction( "file.export.pdf.dir", e -> actions.file_export_pdf_dir() ),
+          addAction( "file.export.html_svg", e -> actions.file_export_html_svg() ),
+          addAction( "file.export.html_tex", e -> actions.file_export_html_tex() ),
+          addAction( "file.export.xhtml_tex", e -> actions.file_export_xhtml_tex() ),
+          addAction( "file.export.markdown", e -> actions.file_export_markdown() )
         ),
       SEPARATOR_ACTION,
-      addAction( "file.exit", e -> actions.file‿exit() )
+      addAction( "file.exit", e -> actions.file_exit() )
     ),
     createMenu(
       get( "Main.menu.edit" ),
       SEPARATOR_ACTION,
-      addAction( "edit.undo", e -> actions.edit‿undo() ),
-      addAction( "edit.redo", e -> actions.edit‿redo() ),
+      addAction( "edit.undo", e -> actions.edit_undo() ),
+      addAction( "edit.redo", e -> actions.edit_redo() ),
       SEPARATOR_ACTION,
-      addAction( "edit.cut", e -> actions.edit‿cut() ),
-      addAction( "edit.copy", e -> actions.edit‿copy() ),
-      addAction( "edit.paste", e -> actions.edit‿paste() ),
-      addAction( "edit.select_all", e -> actions.edit‿select_all() ),
+      addAction( "edit.cut", e -> actions.edit_cut() ),
+      addAction( "edit.copy", e -> actions.edit_copy() ),
+      addAction( "edit.paste", e -> actions.edit_paste() ),
+      addAction( "edit.select_all", e -> actions.edit_select_all() ),
       SEPARATOR_ACTION,
-      addAction( "edit.find", e -> actions.edit‿find() ),
-      addAction( "edit.find_next", e -> actions.edit‿find_next() ),
-      addAction( "edit.find_prev", e -> actions.edit‿find_prev() ),
+      addAction( "edit.find", e -> actions.edit_find() ),
+      addAction( "edit.find_next", e -> actions.edit_find_next() ),
+      addAction( "edit.find_prev", e -> actions.edit_find_prev() ),
       SEPARATOR_ACTION,
-      addAction( "edit.preferences", e -> actions.edit‿preferences() )
+      addAction( "edit.preferences", e -> actions.edit_preferences() )
     ),
     createMenu(
       get( "Main.menu.format" ),
-      addAction( "format.bold", e -> actions.format‿bold() ),
-      addAction( "format.italic", e -> actions.format‿italic() ),
-      addAction( "format.monospace", e -> actions.format‿monospace() ),
-      addAction( "format.superscript", e -> actions.format‿superscript() ),
-      addAction( "format.subscript", e -> actions.format‿subscript() ),
-      addAction( "format.strikethrough", e -> actions.format‿strikethrough() )
+      addAction( "format.bold", e -> actions.format_bold() ),
+      addAction( "format.italic", e -> actions.format_italic() ),
+      addAction( "format.monospace", e -> actions.format_monospace() ),
+      addAction( "format.superscript", e -> actions.format_superscript() ),
+      addAction( "format.subscript", e -> actions.format_subscript() ),
+      addAction( "format.strikethrough", e -> actions.format_strikethrough() )
     ),
     createMenu(
       get( "Main.menu.insert" ),
-      addAction( "insert.blockquote", e -> actions.insert‿blockquote() ),
-      addAction( "insert.code", e -> actions.insert‿code() ),
-      addAction( "insert.fenced_code_block", e -> actions.insert‿fenced_code_block() ),
+      addAction( "insert.blockquote", e -> actions.insert_blockquote() ),
+      addAction( "insert.code", e -> actions.insert_code() ),
+      addAction( "insert.fenced_code_block", e -> actions.insert_fenced_code_block() ),
       SEPARATOR_ACTION,
-      addAction( "insert.link", e -> actions.insert‿link() ),
-      addAction( "insert.image", e -> actions.insert‿image() ),
+      addAction( "insert.link", e -> actions.insert_link() ),
+      addAction( "insert.image", e -> actions.insert_image() ),
       SEPARATOR_ACTION,
-      addAction( "insert.heading_1", e -> actions.insert‿heading_1() ),
-      addAction( "insert.heading_2", e -> actions.insert‿heading_2() ),
-      addAction( "insert.heading_3", e -> actions.insert‿heading_3() ),
+      addAction( "insert.heading_1", e -> actions.insert_heading_1() ),
+      addAction( "insert.heading_2", e -> actions.insert_heading_2() ),
+      addAction( "insert.heading_3", e -> actions.insert_heading_3() ),
       SEPARATOR_ACTION,
-      addAction( "insert.unordered_list", e -> actions.insert‿unordered_list() ),
-      addAction( "insert.ordered_list", e -> actions.insert‿ordered_list() ),
-      addAction( "insert.horizontal_rule", e -> actions.insert‿horizontal_rule() )
+      addAction( "insert.unordered_list", e -> actions.insert_unordered_list() ),
+      addAction( "insert.ordered_list", e -> actions.insert_ordered_list() ),
+      addAction( "insert.horizontal_rule", e -> actions.insert_horizontal_rule() )
     ),
     createMenu(
       get( "Main.menu.definition" ),
-      addAction( "definition.insert", e -> actions.definition‿autoinsert() ),
+      addAction( "definition.insert", e -> actions.definition_autoinsert() ),
       SEPARATOR_ACTION,
-      addAction( "definition.create", e -> actions.definition‿create() ),
-      addAction( "definition.rename", e -> actions.definition‿rename() ),
-      addAction( "definition.delete", e -> actions.definition‿delete() )
+      addAction( "definition.create", e -> actions.definition_create() ),
+      addAction( "definition.rename", e -> actions.definition_rename() ),
+      addAction( "definition.delete", e -> actions.definition_delete() )
     ),
     createMenu(
       get( "Main.menu.view" ),
-      addAction( "view.refresh", e -> actions.view‿refresh() ),
+      addAction( "view.refresh", e -> actions.view_refresh() ),
       SEPARATOR_ACTION,
-      addAction( "view.preview", e -> actions.view‿preview() ),
-      addAction( "view.outline", e -> actions.view‿outline() ),
-      addAction( "view.statistics", e-> actions.view‿statistics() ),
-      addAction( "view.files", e-> actions.view‿files() ),
+      addAction( "view.preview", e -> actions.view_preview() ),
+      addAction( "view.outline", e -> actions.view_outline() ),
+      addAction( "view.statistics", e-> actions.view_statistics() ),
+      addAction( "view.files", e-> actions.view_files() ),
       SEPARATOR_ACTION,
-      addAction( "view.menubar", e -> actions.view‿menubar() ),
-      addAction( "view.toolbar", e -> actions.view‿toolbar() ),
-      addAction( "view.statusbar", e -> actions.view‿statusbar() ),
+      addAction( "view.menubar", e -> actions.view_menubar() ),
+      addAction( "view.toolbar", e -> actions.view_toolbar() ),
+      addAction( "view.statusbar", e -> actions.view_statusbar() ),
       SEPARATOR_ACTION,
-      addAction( "view.log", e -> actions.view‿log() )
+      addAction( "view.log", e -> actions.view_log() )
     ),
     createMenu(
       get( "Main.menu.help" ),
-      addAction( "help.about", e -> actions.help‿about() )
+      addAction( "help.about", e -> actions.help_about() )
     ) );
     //@formatter:on
   }

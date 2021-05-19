@@ -63,7 +63,6 @@ import static org.apache.commons.io.FilenameUtils.getExtension;
  * functionality so that different text markup languages can change documents
  * using their respective syntax.
  */
-@SuppressWarnings( "NonAsciiCharacters" )
 public final class ApplicationActions {
   private static final ExecutorService sExecutor = newFixedThreadPool( 1 );
 
@@ -115,31 +114,31 @@ public final class ApplicationActions {
     );
   }
 
-  public void file‿new() {
+  public void file_new() {
     getMainPane().newTextEditor();
   }
 
-  public void file‿open() {
+  public void file_open() {
     pickFiles( FILE_OPEN_MULTIPLE ).ifPresent( l -> getMainPane().open( l ) );
   }
 
-  public void file‿close() {
+  public void file_close() {
     getMainPane().close();
   }
 
-  public void file‿close_all() {
+  public void file_close_all() {
     getMainPane().closeAll();
   }
 
-  public void file‿save() {
+  public void file_save() {
     getMainPane().save();
   }
 
-  public void file‿save_as() {
+  public void file_save_as() {
     pickFiles( FILE_SAVE_AS ).ifPresent( l -> getMainPane().saveAs( l ) );
   }
 
-  public void file‿save_all() {
+  public void file_save_all() {
     getMainPane().saveAll();
   }
 
@@ -148,8 +147,8 @@ public final class ApplicationActions {
    *
    * @param format The destination file format.
    */
-  private void file‿export( final ExportFormat format ) {
-    file‿export( format, false );
+  private void file_export( final ExportFormat format ) {
+    file_export( format, false );
   }
 
   /**
@@ -160,7 +159,7 @@ public final class ApplicationActions {
    * @param format The destination file format.
    * @param dir    Export all files in the actively edited file's directory.
    */
-  private void file‿export( final ExportFormat format, final boolean dir ) {
+  private void file_export( final ExportFormat format, final boolean dir ) {
     final var main = getMainPane();
     final var editor = main.getActiveTextEditor();
     final var filename = format.toExportFilename( editor.getPath() );
@@ -213,7 +212,7 @@ public final class ApplicationActions {
    *            editor's directory; {@code false} means to export only the
    *            actively edited file.
    */
-  private void file‿export‿pdf( final boolean dir ) {
+  private void file_export_pdf( final boolean dir ) {
     final var workspace = getWorkspace();
     final var themes = workspace.toFile( KEY_TYPESET_CONTEXT_THEMES_PATH );
     final var theme = workspace.stringProperty(
@@ -223,7 +222,7 @@ public final class ApplicationActions {
       // If the typesetter is installed, allow the user to select a theme. If
       // the themes aren't installed, a status message will appear.
       if( ThemePicker.choose( themes, theme ) ) {
-        file‿export( APPLICATION_PDF, dir );
+        file_export( APPLICATION_PDF, dir );
       }
     }
     else {
@@ -231,64 +230,64 @@ public final class ApplicationActions {
     }
   }
 
-  public void file‿export‿pdf() {
-    file‿export‿pdf( false );
+  public void file_export_pdf() {
+    file_export_pdf( false );
   }
 
-  public void file‿export‿pdf‿dir() {
-    file‿export‿pdf( true );
+  public void file_export_pdf_dir() {
+    file_export_pdf( true );
   }
 
-  public void file‿export‿html_svg() {
-    file‿export( HTML_TEX_SVG );
+  public void file_export_html_svg() {
+    file_export( HTML_TEX_SVG );
   }
 
-  public void file‿export‿html_tex() {
-    file‿export( HTML_TEX_DELIMITED );
+  public void file_export_html_tex() {
+    file_export( HTML_TEX_DELIMITED );
   }
 
-  public void file‿export‿xhtml_tex() {
-    file‿export( XHTML_TEX );
+  public void file_export_xhtml_tex() {
+    file_export( XHTML_TEX );
   }
 
-  public void file‿export‿markdown() {
-    file‿export( MARKDOWN_PLAIN );
+  public void file_export_markdown() {
+    file_export( MARKDOWN_PLAIN );
   }
 
   private void fireExportFailedEvent() {
     runLater( ExportFailedEvent::fireExportFailedEvent );
   }
 
-  public void file‿exit() {
+  public void file_exit() {
     final var window = getWindow();
     fireEvent( window, new WindowEvent( window, WINDOW_CLOSE_REQUEST ) );
   }
 
-  public void edit‿undo() {
+  public void edit_undo() {
     getActiveTextEditor().undo();
   }
 
-  public void edit‿redo() {
+  public void edit_redo() {
     getActiveTextEditor().redo();
   }
 
-  public void edit‿cut() {
+  public void edit_cut() {
     getActiveTextEditor().cut();
   }
 
-  public void edit‿copy() {
+  public void edit_copy() {
     getActiveTextEditor().copy();
   }
 
-  public void edit‿paste() {
+  public void edit_paste() {
     getActiveTextEditor().paste();
   }
 
-  public void edit‿select_all() {
+  public void edit_select_all() {
     getActiveTextEditor().selectAll();
   }
 
-  public void edit‿find() {
+  public void edit_find() {
     final var nodes = getMainScene().getStatusBar().getLeftItems();
 
     if( nodes.isEmpty() ) {
@@ -310,8 +309,8 @@ public final class ApplicationActions {
         }
       } );
 
-      searchBar.setOnNextAction( ( event ) -> edit‿find_next() );
-      searchBar.setOnPrevAction( ( event ) -> edit‿find_prev() );
+      searchBar.setOnNextAction( ( event ) -> edit_find_next() );
+      searchBar.setOnPrevAction( ( event ) -> edit_find_prev() );
 
       nodes.add( searchBar );
       searchBar.requestFocus();
@@ -321,15 +320,15 @@ public final class ApplicationActions {
     }
   }
 
-  public void edit‿find_next() {
+  public void edit_find_next() {
     mSearchModel.advance();
   }
 
-  public void edit‿find_prev() {
+  public void edit_find_prev() {
     mSearchModel.retreat();
   }
 
-  public void edit‿preferences() {
+  public void edit_preferences() {
     try {
       new PreferencesController( getWorkspace() ).show();
     } catch( final Exception ex ) {
@@ -337,47 +336,47 @@ public final class ApplicationActions {
     }
   }
 
-  public void format‿bold() {
+  public void format_bold() {
     getActiveTextEditor().bold();
   }
 
-  public void format‿italic() {
+  public void format_italic() {
     getActiveTextEditor().italic();
   }
 
-  public void format‿monospace() {
+  public void format_monospace() {
     getActiveTextEditor().monospace();
   }
 
-  public void format‿superscript() {
+  public void format_superscript() {
     getActiveTextEditor().superscript();
   }
 
-  public void format‿subscript() {
+  public void format_subscript() {
     getActiveTextEditor().subscript();
   }
 
-  public void format‿strikethrough() {
+  public void format_strikethrough() {
     getActiveTextEditor().strikethrough();
   }
 
-  public void insert‿blockquote() {
+  public void insert_blockquote() {
     getActiveTextEditor().blockquote();
   }
 
-  public void insert‿code() {
+  public void insert_code() {
     getActiveTextEditor().code();
   }
 
-  public void insert‿fenced_code_block() {
+  public void insert_fenced_code_block() {
     getActiveTextEditor().fencedCodeBlock();
   }
 
-  public void insert‿link() {
+  public void insert_link() {
     insertObject( createLinkDialog() );
   }
 
-  public void insert‿image() {
+  public void insert_image() {
     insertObject( createImageDialog() );
   }
 
@@ -431,85 +430,85 @@ public final class ApplicationActions {
       : new HyperlinkModel( link );
   }
 
-  public void insert‿heading_1() {
-    insert‿heading( 1 );
+  public void insert_heading_1() {
+    insert_heading( 1 );
   }
 
-  public void insert‿heading_2() {
-    insert‿heading( 2 );
+  public void insert_heading_2() {
+    insert_heading( 2 );
   }
 
-  public void insert‿heading_3() {
-    insert‿heading( 3 );
+  public void insert_heading_3() {
+    insert_heading( 3 );
   }
 
-  private void insert‿heading( final int level ) {
+  private void insert_heading( final int level ) {
     getActiveTextEditor().heading( level );
   }
 
-  public void insert‿unordered_list() {
+  public void insert_unordered_list() {
     getActiveTextEditor().unorderedList();
   }
 
-  public void insert‿ordered_list() {
+  public void insert_ordered_list() {
     getActiveTextEditor().orderedList();
   }
 
-  public void insert‿horizontal_rule() {
+  public void insert_horizontal_rule() {
     getActiveTextEditor().horizontalRule();
   }
 
-  public void definition‿create() {
+  public void definition_create() {
     getActiveTextDefinition().createDefinition();
   }
 
-  public void definition‿rename() {
+  public void definition_rename() {
     getActiveTextDefinition().renameDefinition();
   }
 
-  public void definition‿delete() {
+  public void definition_delete() {
     getActiveTextDefinition().deleteDefinitions();
   }
 
-  public void definition‿autoinsert() {
+  public void definition_autoinsert() {
     getMainPane().autoinsert();
   }
 
-  public void view‿refresh() {
+  public void view_refresh() {
     getMainPane().viewRefresh();
   }
 
-  public void view‿preview() {
+  public void view_preview() {
     getMainPane().viewPreview();
   }
 
-  public void view‿outline() {
+  public void view_outline() {
     getMainPane().viewOutline();
   }
 
-  public void view‿files() { getMainPane().viewFiles(); }
+  public void view_files() { getMainPane().viewFiles(); }
 
-  public void view‿statistics() {
+  public void view_statistics() {
     getMainPane().viewStatistics();
   }
 
-  public void view‿menubar() {
+  public void view_menubar() {
     getMainScene().toggleMenuBar();
   }
 
-  public void view‿toolbar() {
+  public void view_toolbar() {
     getMainScene().toggleToolBar();
   }
 
-  public void view‿statusbar() {
+  public void view_statusbar() {
     getMainScene().toggleStatusBar();
   }
 
-  public void view‿log() {
+  public void view_log() {
     mLogView.view();
   }
 
-  public void help‿about() {
+  public void help_about() {
     final var alert = new Alert( INFORMATION );
     final var prefix = "Dialog.about.";
     alert.setTitle( get( prefix + "title", APP_TITLE ) );
