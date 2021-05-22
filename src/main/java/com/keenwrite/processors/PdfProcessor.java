@@ -42,7 +42,12 @@ public final class PdfProcessor extends ExecutorProcessor<String> {
       typesetter.typeset( pathInput, pathOutput );
 
       // Smote the temporary file after typesetting the document.
-      deleteIfExists( document );
+      if( typesetter.autoclean() ) {
+        deleteIfExists( document );
+      }
+      else {
+        document.toFile().deleteOnExit();
+      }
     } catch( final IOException | InterruptedException ex ) {
       // Typesetter runtime exceptions will pass up the call stack.
       clue( "Main.status.typeset.failed", ex );

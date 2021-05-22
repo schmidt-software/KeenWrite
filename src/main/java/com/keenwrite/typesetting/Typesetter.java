@@ -390,7 +390,7 @@ public class Typesetter {
    *
    * @return {@code true} to delete generated files.
    */
-  private boolean autoclean() {
+  public boolean autoclean() {
     return mWorkspace.toBoolean( KEY_TYPESET_CONTEXT_CLEAN );
   }
 }

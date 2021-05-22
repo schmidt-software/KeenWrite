@@ -18,6 +18,7 @@ import java.util.Set;
 import static com.keenwrite.preview.SvgReplacedElementFactory.HTML_IMAGE;
 import static com.keenwrite.preview.SvgReplacedElementFactory.HTML_IMAGE_SRC;
 import static com.keenwrite.processors.markdown.extensions.tex.TexNode.HTML_TEX;
+import static java.lang.Math.min;
 import static java.util.Arrays.asList;
 
 /**
@@ -79,8 +80,7 @@ public final class ChainedReplacedElementFactory
         source, k -> {
           final var r = f.createReplacedElement( c, box, uac, width, height );
           return r instanceof final ImageReplacedElement ire
-            ? new SmoothImageReplacedElement(
-            ire.getImage(), box.getWidth(), -1 )
+            ? createImageElement( box, ire )
             : r;
         }
       );
@@ -113,5 +113,19 @@ public final class ChainedReplacedElementFactory
 
   public void clearCache() {
     mCache.clear();
+  }
+
+  /**
+   * Creates a new image that maintains its aspect ratio while fitting into
+   * the given {@link BlockBox}. If the image is too big, it is scaled down.
+   *
+   * @param box The bounding region the image must fit into.
+   * @param ire The image to resize.
+   * @return An image that is scaled down to fit, if needed.
+   */
+  private SmoothImageReplacedElement createImageElement(
+    final BlockBox box, final ImageReplacedElement ire ) {
+    return new SmoothImageReplacedElement(
+      ire.getImage(), min( ire.getIntrinsicWidth(), box.getWidth() ), -1 );
   }
 }

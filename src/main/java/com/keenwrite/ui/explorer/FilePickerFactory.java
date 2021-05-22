@@ -95,7 +95,7 @@ public class FilePickerFactory {
         }
       }
 
-      //mBuilder.setTitle( get(title) );
+      //mBuilder.setTitle( get( title ) );
       mBuilder.setAction( action );
     }
 
@@ -103,6 +103,15 @@ public class FilePickerFactory {
     public void setInitialDirectory( final Path path ) {
       mBuilder.setInitialDirectory( path );
     }
+
+//    private JWFileChooserFilterType createFileFilters() {
+//      final var filters = new JWFilterGlobFactory();
+//
+//      return filters.create( "PDF Files" )
+//                    .addRule( INCLUDE, "**/*.pdf" )
+//                    .addRule( EXCLUDE_AND_HALT, "**/.*" )
+//                    .build();
+//    }
 
     @Override
     public Optional<List<File>> choose() {
