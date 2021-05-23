@@ -40,9 +40,8 @@ public class AltTreeCell<T> extends TextFieldTreeCell<T> {
         o.focusedProperty().removeListener( mFocusListener );
       }
 
-      if( n instanceof TextField ) {
+      if( n instanceof final TextField input ) {
         n.addEventFilter( KEY_RELEASED, mKeyHandler );
-        final var input = (TextField) n;
         mInputText.bind( input.textProperty() );
         mFocusListener = new FocusListener( input );
         n.focusedProperty().addListener( mFocusListener );

@@ -121,7 +121,7 @@ public final class ChainedReplacedElementFactory
    *
    * @param box The bounding region the image must fit into.
    * @param ire The image to resize.
-   * @return An image that is scaled down to fit, if needed.
+   * @return An image that is scaled down to fit, but only if necessary.
    */
   private SmoothImageReplacedElement createImageElement(
     final BlockBox box, final ImageReplacedElement ire ) {

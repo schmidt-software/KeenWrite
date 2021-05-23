@@ -227,3 +227,14 @@ hr {
   background: transparent;
   border-bottom: .125em solid #ccc;
 }
+
+/* EMAIL ***/
+div.email {
+  padding: 0 1.5em;
+  text-align: left;
+  text-indent: 0;
+  border-style: solid;
+  border-width: 0.05em;
+  border-radius: .25em;
+  background-color: #f8f8f8;
+}

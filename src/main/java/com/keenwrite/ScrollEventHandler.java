@@ -169,12 +169,9 @@ public final class ScrollEventHandler implements EventHandler<Event> {
     final VirtualizedScrollPane<StyleClassedTextArea> pane ) {
 
     for( final var node : pane.getChildrenUnmodifiable() ) {
-      if( node instanceof ScrollBar ) {
-        final var scrollBar = (ScrollBar) node;
-
-        if( scrollBar.getOrientation() == VERTICAL ) {
-          return scrollBar;
-        }
+      if( node instanceof final ScrollBar scrollBar &&
+        scrollBar.getOrientation() == VERTICAL ) {
+        return scrollBar;
       }
     }
 

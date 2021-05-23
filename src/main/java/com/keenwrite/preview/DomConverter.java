@@ -42,7 +42,7 @@ final class DomConverter extends W3CDom {
   private static final NodeVisitor LIGATURE_VISITOR = new NodeVisitor() {
     @Override
     public void head( final Node node, final int depth ) {
-      if( node instanceof TextNode ) {
+      if( node instanceof final TextNode textNode ) {
         final var parent = node.parentNode();
         final var name = parent == null ? "root" : parent.nodeName();
 
@@ -51,7 +51,6 @@ final class DomConverter extends W3CDom {
           "tt".equalsIgnoreCase( name )) ) {
           // Calling getWholeText() will return newlines, which must be kept
           // to ensure that preformatted text maintains its formatting.
-          final var textNode = (TextNode) node;
           textNode.text( replace( textNode.getWholeText(), LIGATURES ) );
         }
       }

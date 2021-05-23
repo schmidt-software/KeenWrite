@@ -365,8 +365,8 @@ public final class MainPane extends SplitPane {
     mTabPanes.forEach(
       ( mt, tp ) -> tp.getTabs().forEach( ( tab ) -> {
         final var node = tab.getContent();
-        if( node instanceof TextEditor ) {
-          save( ((TextEditor) node) );
+        if( node instanceof final TextEditor editor ) {
+          save( editor );
         }
       } )
     );

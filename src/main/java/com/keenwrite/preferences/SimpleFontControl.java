@@ -125,8 +125,7 @@ public class SimpleFontControl extends SimpleControl<StringField, StackPane> {
 
     final var frontPanel = (Region) pane.getContent();
     for( final var node : frontPanel.getChildrenUnmodifiable() ) {
-      if( node instanceof ListView ) {
-        final var listView = (ListView<?>) node;
+      if( node instanceof final ListView<?> listView ) {
         final var handler = new ListViewHandler<>( listView );
         listView.setOnKeyPressed( handler::handle );
       }

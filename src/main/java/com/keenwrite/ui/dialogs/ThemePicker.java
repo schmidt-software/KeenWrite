@@ -6,6 +6,7 @@ import com.keenwrite.util.ResourceWalker;
 import javafx.beans.property.StringProperty;
 import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.ComboBox;
+import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.stage.Stage;
 
@@ -63,10 +64,13 @@ public class ThemePicker extends ChoiceDialog<String> {
 
   private void initIcon() {
     setGraphic( ICON_DIALOG_NODE );
+    setStageGraphic( ICON_DIALOG );
+  }
 
-    final var window = getDialogPane().getScene().getWindow();
-    if( window instanceof Stage ) {
-      ((Stage) window).getIcons().add( ICON_DIALOG );
+  @SuppressWarnings( "SameParameterValue" )
+  private void setStageGraphic( final Image icon ) {
+    if( getDialogPane().getScene().getWindow() instanceof final Stage stage ) {
+      stage.getIcons().add( icon );
     }
   }
 
