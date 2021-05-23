@@ -4,6 +4,7 @@ package com.keenwrite.editors.markdown;
 import com.keenwrite.Caret;
 import com.keenwrite.constants.Constants;
 import com.keenwrite.editors.TextEditor;
+import com.keenwrite.io.MediaType;
 import com.keenwrite.preferences.LocaleProperty;
 import com.keenwrite.preferences.Workspace;
 import com.keenwrite.spelling.impl.TextEditorSpeller;
@@ -30,11 +31,12 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
-import static com.keenwrite.constants.Constants.*;
 import static com.keenwrite.MainApp.keyDown;
 import static com.keenwrite.Messages.get;
+import static com.keenwrite.constants.Constants.*;
 import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.events.TextEditorFocusEvent.fireTextEditorFocus;
+import static com.keenwrite.io.MediaType.*;
 import static com.keenwrite.preferences.WorkspaceKeys.*;
 import static java.lang.Character.isWhitespace;
 import static java.lang.String.format;
@@ -727,8 +729,8 @@ public final class MarkdownEditor extends BorderPane implements TextEditor {
    * workspace is loaded, the default font values are changed, which results
    * in this method being called.
    *
-   * @param area Change the font settings for this text area.
-   * @param name New font family name to apply.
+   * @param area   Change the font settings for this text area.
+   * @param name   New font family name to apply.
    * @param points New font size to apply (in points, not pixels).
    */
   private void setFont(
@@ -754,5 +756,20 @@ public final class MarkdownEditor extends BorderPane implements TextEditor {
 
   private DoubleProperty fontSizeProperty() {
     return mWorkspace.doubleProperty( KEY_UI_FONT_EDITOR_SIZE );
+  }
+
+  /**
+   * Answers whether the given resource is of compatible {@link MediaType}s.
+   *
+   * @param mediaType The {@link MediaType} to compare.
+   * @return {@code true} if the given {@link MediaType} is suitable for
+   * editing with this type of editor.
+   */
+  @Override
+  public boolean supports( final MediaType mediaType ) {
+    return isMediaType( mediaType ) ||
+      mediaType == TEXT_MARKDOWN ||
+      mediaType == TEXT_R_MARKDOWN ||
+      mediaType == TEXT_R_XML;
   }
 }

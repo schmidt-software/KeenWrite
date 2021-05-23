@@ -227,4 +227,16 @@ public interface TextResource {
       ? DEFAULT_CHARSET
       : forName( charset.toUpperCase( ENGLISH ) );
   }
+
+  /**
+   * Answers whether the given resource are of the same conceptual type. This
+   * method is intended to be overridden by subclasses.
+   *
+   * @param mediaType The type to compare.
+   * @return {@code true} if the {@link TextResource} is compatible with the
+   * given {@link MediaType}.
+   */
+  default boolean supports( final MediaType mediaType ) {
+    return isMediaType( mediaType );
+  }
 }

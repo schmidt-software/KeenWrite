@@ -108,7 +108,7 @@ public final class MainPane extends SplitPane {
   /**
    * Groups similar file type tabs together.
    */
-  private final Map<MediaType, TabPane> mTabPanes = new HashMap<>();
+  private final List<TabPane> mTabPanes = new ArrayList<>();
 
   /**
    * Stores definition names and values.
@@ -363,7 +363,7 @@ public final class MainPane extends SplitPane {
    */
   public void saveAll() {
     mTabPanes.forEach(
-      ( mt, tp ) -> tp.getTabs().forEach( ( tab ) -> {
+      ( tp ) -> tp.getTabs().forEach( ( tab ) -> {
         final var node = tab.getContent();
         if( node instanceof final TextEditor editor ) {
           save( editor );
@@ -431,8 +431,7 @@ public final class MainPane extends SplitPane {
   public boolean closeAll() {
     var closable = true;
 
-    for( final var entry : mTabPanes.entrySet() ) {
-      final var tabPane = entry.getValue();
+    for( final var tabPane : mTabPanes ) {
       final var tabIterator = tabPane.getTabs().iterator();
 
       while( tabIterator.hasNext() ) {
@@ -598,8 +597,7 @@ public final class MainPane extends SplitPane {
    * @return The first tab having content that matches the given tab.
    */
   private Optional<Tab> getTab( final TextResource editor ) {
-    return mTabPanes.values()
-                    .stream()
+    return mTabPanes.stream()
                     .flatMap( pane -> pane.getTabs().stream() )
                     .filter( tab -> editor.equals( tab.getContent() ) )
                     .findFirst();
@@ -767,9 +765,19 @@ public final class MainPane extends SplitPane {
    * @return An instance of {@link TabPane} that will handle tab docking.
    */
   private TabPane obtainTabPane( final MediaType mediaType ) {
-    return mTabPanes.computeIfAbsent(
-      mediaType, ( mt ) -> createTabPane()
-    );
+    for( final var pane : mTabPanes ) {
+      for( final var tab : pane.getTabs() ) {
+        final var node = tab.getContent();
+
+        if( node instanceof TextResource r && r.supports( mediaType ) ) {
+          return pane;
+        }
+      }
+    }
+
+    final var pane = createTabPane();
+    mTabPanes.add( pane );
+    return pane;
   }
 
   /**
