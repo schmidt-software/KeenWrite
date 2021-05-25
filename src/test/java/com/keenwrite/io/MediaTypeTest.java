@@ -36,7 +36,6 @@ public class MediaTypeTest {
       "svg", IMAGE_SVG_XML,
       "md", TEXT_MARKDOWN,
       "Rmd", TEXT_R_MARKDOWN,
-      "Rxml", TEXT_R_XML,
       "txt", TEXT_PLAIN,
       "yml", TEXT_YAML
     );

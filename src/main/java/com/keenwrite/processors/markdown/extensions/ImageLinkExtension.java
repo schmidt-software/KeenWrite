@@ -53,8 +53,8 @@ public class ImageLinkExtension extends HtmlRendererAdapter {
   }
 
   @Override
-  public void extend(
-    @NotNull final Builder builder, @NotNull final String rendererType ) {
+  public void extend( @NotNull final Builder builder,
+                      @NotNull final String rendererType ) {
     builder.linkResolverFactory( new ResolverFactory() );
   }
 

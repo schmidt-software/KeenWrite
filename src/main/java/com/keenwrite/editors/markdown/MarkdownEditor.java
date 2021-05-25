@@ -36,7 +36,8 @@ import static com.keenwrite.Messages.get;
 import static com.keenwrite.constants.Constants.*;
 import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.events.TextEditorFocusEvent.fireTextEditorFocus;
-import static com.keenwrite.io.MediaType.*;
+import static com.keenwrite.io.MediaType.TEXT_MARKDOWN;
+import static com.keenwrite.io.MediaType.TEXT_R_MARKDOWN;
 import static com.keenwrite.preferences.WorkspaceKeys.*;
 import static java.lang.Character.isWhitespace;
 import static java.lang.String.format;
@@ -769,7 +770,6 @@ public final class MarkdownEditor extends BorderPane implements TextEditor {
   public boolean supports( final MediaType mediaType ) {
     return isMediaType( mediaType ) ||
       mediaType == TEXT_MARKDOWN ||
-      mediaType == TEXT_R_MARKDOWN ||
-      mediaType == TEXT_R_XML;
+      mediaType == TEXT_R_MARKDOWN;
   }
 }

@@ -2,8 +2,8 @@
 package com.keenwrite.processors;
 
 import com.keenwrite.Caret;
-import com.keenwrite.constants.Constants;
 import com.keenwrite.ExportFormat;
+import com.keenwrite.constants.Constants;
 import com.keenwrite.io.FileType;
 import com.keenwrite.preferences.Workspace;
 import com.keenwrite.preview.HtmlPreview;

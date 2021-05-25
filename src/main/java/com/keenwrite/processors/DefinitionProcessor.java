@@ -2,6 +2,7 @@
 package com.keenwrite.processors;
 
 import java.util.Map;
+import java.util.function.Function;
 
 import static com.keenwrite.processors.text.TextReplacementFactory.replace;
 
@@ -10,7 +11,8 @@ import static com.keenwrite.processors.text.TextReplacementFactory.replace;
  * their values into the post-processed text. The default variable syntax is
  * {@code $variable$}.
  */
-public class DefinitionProcessor extends ExecutorProcessor<String> {
+public class DefinitionProcessor
+  extends ExecutorProcessor<String> implements Function<String, String> {
 
   private final Map<String, String> mDefinitions;
 

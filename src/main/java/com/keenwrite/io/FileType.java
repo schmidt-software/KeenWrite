@@ -13,7 +13,6 @@ public enum FileType {
   RXML( "rxml" ),
   SOURCE( "source" ),
   DEFINITION( "definition" ),
-  XML( "xml" ),
   CSV( "csv" ),
   JSON( "json" ),
   TOML( "toml" ),

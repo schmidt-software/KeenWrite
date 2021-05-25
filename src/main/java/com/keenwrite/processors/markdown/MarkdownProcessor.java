@@ -16,7 +16,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.keenwrite.io.MediaType.TEXT_R_MARKDOWN;
-import static com.keenwrite.io.MediaType.TEXT_R_XML;
 import static com.keenwrite.processors.IdentityProcessor.IDENTITY;
 
 /**
@@ -58,7 +57,7 @@ public final class MarkdownProcessor extends BaseMarkdownProcessor {
     final Processor<String> processor;
     final List<Extension> extensions = new ArrayList<>();
 
-    if( mediaType == TEXT_R_MARKDOWN || mediaType == TEXT_R_XML ) {
+    if( mediaType == TEXT_R_MARKDOWN ) {
       final var rProcessor = new RProcessor( context );
       extensions.add( RExtension.create( rProcessor, context ) );
       processor = rProcessor;

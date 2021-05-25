@@ -9,6 +9,5 @@
 * David Croft, [File Preferences](http://www.davidc.net/programming/java/java-preferences-using-file-backing-store)
 * Alex Bertram, [Renjin](https://www.renjin.org/)
 * Vladimir Schneider: [flexmark](https://github.com/vsch/flexmark-java)
-* Michael Kay, [XSLT Processor](http://www.saxonica.com/)
 * Shy Shalom, Kohei Taketa: [juniversalchardet](https://github.com/takscape/juniversalchardet)
 

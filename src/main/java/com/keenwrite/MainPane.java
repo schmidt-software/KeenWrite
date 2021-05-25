@@ -94,7 +94,7 @@ public final class MainPane extends SplitPane {
    * therefore what tab pane to be opened within.
    */
   private static final Set<MediaType> PLAIN_TEXT_FORMAT = Set.of(
-    TEXT_MARKDOWN, TEXT_R_MARKDOWN, TEXT_R_XML, UNDEFINED
+    TEXT_MARKDOWN, TEXT_R_MARKDOWN, UNDEFINED
   );
 
   /**
@@ -1038,11 +1038,9 @@ public final class MainPane extends SplitPane {
   private SigilOperator getSigilOperator( final MediaType mediaType ) {
     final var operator = new YamlSigilOperator( createDefinitionTokens() );
 
-    return switch( mediaType ) {
-      case TEXT_R_MARKDOWN, TEXT_R_XML -> new RSigilOperator(
-        createRTokens(), operator );
-      default -> operator;
-    };
+    return mediaType == TEXT_R_MARKDOWN
+      ? new RSigilOperator( createRTokens(), operator )
+      : operator;
   }
 
   /**

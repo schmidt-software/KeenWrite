@@ -36,8 +36,8 @@ public class CaretExtension extends HtmlRendererAdapter {
   }
 
   @Override
-  public void extend(
-    final Builder builder, @NotNull final String rendererType ) {
+  public void extend( @NotNull final Builder builder,
+                      @NotNull final String rendererType ) {
     builder.attributeProviderFactory(
       IdAttributeProvider.createFactory( mCaret ) );
   }

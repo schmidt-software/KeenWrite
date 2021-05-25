@@ -37,6 +37,9 @@ public final class SmoothImageReplacedElement extends ImageReplacedElement {
     return resampleOp.filter( bi, null );
   }
 
+  /**
+   * Calculates scaled dimensions while maintaining the image aspect ratio.
+   */
   private Dimension rescaleDimensions(
     final BufferedImage bi, final int width, final int height ) {
     final var oldW = bi.getWidth();

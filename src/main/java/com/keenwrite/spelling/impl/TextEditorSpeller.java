@@ -26,7 +26,10 @@ public final class TextEditorSpeller {
    */
   private static final SpellChecker sSpellChecker = forLexicon( "en.txt" );
 
+  private final Parser mParser;
+
   public TextEditorSpeller() {
+     mParser = Parser.builder().build();
   }
 
   /**
@@ -117,12 +120,6 @@ public final class TextEditorSpeller {
       }
     }
   }
-
-  /**
-   * TODO: #59 -- Replace using Markdown processor instantiated for Markdown
-   * files.
-   */
-  private final Parser mParser = Parser.builder().build();
 
   /**
    * TODO: #59 -- Replace with generic interface; provide Markdown/XML

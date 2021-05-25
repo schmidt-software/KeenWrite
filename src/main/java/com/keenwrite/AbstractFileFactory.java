@@ -20,7 +20,7 @@ public abstract class AbstractFileFactory {
    * Determines the file type from the path extension. This should only be
    * called when it is known that the file type won't be a definition file
    * (e.g., YAML or other definition source), but rather an editable file
-   * (e.g., Markdown, XML, etc.).
+   * (e.g., Markdown, R Markdown, etc.).
    *
    * @param path The path with a file name extension.
    * @return The FileType for the given path.

@@ -5,12 +5,15 @@ import com.keenwrite.processors.ExecutorProcessor;
 import com.keenwrite.processors.Processor;
 import com.keenwrite.processors.ProcessorContext;
 
+import java.util.function.Function;
+
 import static com.keenwrite.processors.IdentityProcessor.IDENTITY;
 
 /**
  * Responsible for processing R statements within a text block.
  */
-public final class RProcessor extends ExecutorProcessor<String> {
+public final class RProcessor
+  extends ExecutorProcessor<String> implements Function<String, String> {
   private final Processor<String> mProcessor;
   private final InlineRProcessor mInlineRProcessor;
 

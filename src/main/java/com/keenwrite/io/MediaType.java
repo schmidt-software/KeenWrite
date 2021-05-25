@@ -103,7 +103,6 @@ public enum MediaType {
   TEXT_MARKDOWN( TEXT, "markdown" ),
   TEXT_PLAIN( TEXT, "plain" ),
   TEXT_R_MARKDOWN( TEXT, "R+markdown" ),
-  TEXT_R_XML( TEXT, "R+xml" ),
   TEXT_XHTML( TEXT, "xhtml+xml" ),
   TEXT_XML( TEXT, "xml" ),
   TEXT_YAML( TEXT, "yaml" ),

@@ -82,9 +82,8 @@ dependencies {
   implementation "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:${v_jackson}"
   implementation 'org.yaml:snakeyaml:1.27'
 
-  // XML and XSL
+  // XML
   implementation 'com.ximpleware:vtd-xml:2.13.4'
-  implementation 'net.sf.saxon:Saxon-HE:10.3'
 
   // HTML parsing and rendering
   implementation 'org.jsoup:jsoup:1.13.1'
