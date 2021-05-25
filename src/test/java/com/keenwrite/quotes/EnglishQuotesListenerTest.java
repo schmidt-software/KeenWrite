@@ -10,18 +10,18 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 public class EnglishQuotesListenerTest {
 
-//  @Test
-//  public void test() {
-//    // "'I'm trouble.'"
-//    // &ldquo;&lsquo;I&apos;m trouble.&rsquo;&rdquo;
-//    // &ldquo;&apos;I&lsquo;m trouble.&rsquo;&rdquo;
-//
-//    EnglishParser parser = EnglishParserTest.parser("\"'I\\'m trouble.'\"");
-//    EnglishQuotesListener listener = new EnglishQuotesListener();
-//    ParseTreeWalker.DEFAULT.walk(listener, parser.document());
-//
-//    System.out.println(listener.rewrittenText());
-//  }
+  @Test
+  public void test() {
+    // "'I'm trouble.'"
+    // &ldquo;&lsquo;I&apos;m trouble.&rsquo;&rdquo;
+    // &ldquo;&apos;I&lsquo;m trouble.&rsquo;&rdquo;
+
+    EnglishParser parser = EnglishParserTest.parser("\"'I\\'m trouble.'\"");
+    EnglishQuotesListener listener = new EnglishQuotesListener();
+    ParseTreeWalker.DEFAULT.walk(listener, parser.document());
+
+    System.out.println(listener.rewrittenText());
+  }
 
   @Test
   public void testRewrittenText() throws IOException {
