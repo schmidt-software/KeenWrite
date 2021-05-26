@@ -79,7 +79,7 @@ A theme pack is a set of themes that define how documents appear when typeset. B
 
 Install and configure the default theme pack as follows:
 
-1. Download the <a href="https://github.com/DaveJarvis/keenwrite-themes/raw/main/theme-pack.zip">theme-pack.zip</a> archive.
+1. Download the <a href="https://gitreleases.dev/gh/DaveJarvis/keenwrite-themes/latest/theme-pack.zip">theme-pack.zip</a> archive.
 1. Extract archive into a known location.
 1. Start the text editor, if not already running.
 1. Click **Edit → Preferences**.
