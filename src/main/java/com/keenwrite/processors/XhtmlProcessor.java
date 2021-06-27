@@ -15,8 +15,7 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 import static com.keenwrite.Bootstrap.APP_TITLE_LOWERCASE;
-import static com.keenwrite.dom.DocumentParser.createMeta;
-import static com.keenwrite.dom.DocumentParser.walk;
+import static com.keenwrite.dom.DocumentParser.*;
 import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.io.HttpFacade.httpGet;
 import static com.keenwrite.preferences.WorkspaceKeys.*;
@@ -60,11 +59,7 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
   public String apply( final String html ) {
     clue( "Main.status.typeset.xhtml" );
 
-    final var decorated =
-      "<html><head><title>untitled</title></head><body>" +
-        html +
-        "</body></html>";
-    final var doc = DocumentParser.parse( decorated );
+    final var doc = DocumentParser.parse( decorate( html ) );
     setMetaData( doc );
 
     walk( doc, "img", node -> {

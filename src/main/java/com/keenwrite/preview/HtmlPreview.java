@@ -46,10 +46,10 @@ public final class HtmlPreview extends SwingNode implements ComponentListener {
    * Used to populate the {@link #HTML_HEAD} with stylesheet file references.
    */
   private static final String HTML_STYLESHEET =
-    "<link rel='stylesheet' href='%s'>";
+    "<link rel='stylesheet' href='%s'/>";
 
   private static final String HTML_BASE =
-    "<base href='%s'>";
+    "<base href='%s'/>";
 
   /**
    * Render CSS using points (pt) not pixels (px) to reduce the chance of
@@ -68,7 +68,7 @@ public final class HtmlPreview extends SwingNode implements ComponentListener {
   private static final String HTML_HEAD =
     """
       <!doctype html>
-      <html lang='%s'><head><title> </title><meta charset='utf-8'>
+      <html lang='%s'><head><title> </title><meta charset='utf-8'/>
       %s%s<style>body{font-family:'%s';font-size: %dpx;}</style>%s</head><body>
       """;
 

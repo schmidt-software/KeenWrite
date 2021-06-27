@@ -24,6 +24,9 @@ import static javax.xml.transform.OutputKeys.*;
  * Responsible for initializing an XML parser.
  */
 public class DocumentParser {
+  private static final String LOAD_EXTERNAL_DTD =
+    "http://apache.org/xml/features/nonvalidating/load-external-dtd";
+
   private static final DocumentBuilderFactory sDocumentFactory;
   private static DocumentBuilder sDocumentBuilder;
   public static DOMImplementation sDomImplementation;
@@ -38,6 +41,8 @@ public class DocumentParser {
     sDocumentFactory.setNamespaceAware( true );
     sDocumentFactory.setIgnoringComments( true );
     sDocumentFactory.setIgnoringElementContentWhitespace( true );
+    sDocumentFactory.setValidating( false );
+    sDocumentFactory.setAttribute( LOAD_EXTERNAL_DTD, false );
 
     try {
       sDocumentBuilder = sDocumentFactory.newDocumentBuilder();
@@ -140,5 +145,17 @@ public class DocumentParser {
     sTransformer.transform(
       new DOMSource( sDocumentBuilder.parse( file ) ), new StreamResult( file )
     );
+  }
+
+  /**
+   * Adorns the given document with {@code html}, {@code head}, and
+   * {@code body} elements.
+   *
+   * @param html The document to decorate.
+   * @return A document with a typical HTML structure.
+   */
+  public static String decorate( final String html ) {
+    return
+      "<html><head><title> </title></head><body>" + html + "</body></html>";
   }
 }
