@@ -1,24 +1,22 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.processors;
 
+import com.keenwrite.dom.DocumentParser;
 import com.keenwrite.preferences.Key;
 import com.keenwrite.preferences.Workspace;
 import com.keenwrite.ui.heuristics.WordCounter;
 import javafx.beans.property.StringProperty;
-import org.jsoup.nodes.Document;
+import org.w3c.dom.Document;
 
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 import java.io.FileNotFoundException;
 import java.nio.file.Path;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.regex.Pattern;
 
 import static com.keenwrite.Bootstrap.APP_TITLE_LOWERCASE;
+import static com.keenwrite.dom.DocumentParser.createMeta;
+import static com.keenwrite.dom.DocumentParser.walk;
 import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.io.HttpFacade.httpGet;
 import static com.keenwrite.preferences.WorkspaceKeys.*;
@@ -30,13 +28,10 @@ import static java.nio.file.Files.copy;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import static java.util.regex.Pattern.UNICODE_CHARACTER_CLASS;
 import static java.util.regex.Pattern.compile;
-import static javax.xml.transform.OutputKeys.INDENT;
-import static javax.xml.transform.OutputKeys.OMIT_XML_DECLARATION;
-import static org.jsoup.Jsoup.parse;
-import static org.jsoup.nodes.Document.OutputSettings.Syntax;
+import static org.w3c.dom.Node.TEXT_NODE;
 
 /**
- * Responsible for making an HTML document complete by wrapping it with html
+ * Responsible for making an XHTML document complete by wrapping it with html
  * and body elements. This doesn't have to be super-efficient because it's
  * not run in real-time.
  */
@@ -65,21 +60,34 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
   public String apply( final String html ) {
     clue( "Main.status.typeset.xhtml" );
 
-    final var doc = parse( html );
+    final var decorated =
+      "<html><head><title>untitled</title></head><body>" +
+        html +
+        "</body></html>";
+    final var doc = DocumentParser.parse( decorated );
     setMetaData( doc );
-    doc.outputSettings().syntax( Syntax.xml );
 
-    for( final var img : doc.getElementsByTag( "img" ) ) {
+    walk( doc, "img", node -> {
       try {
-        final var imageFile = exportImage( img.attr( "src" ) );
+        final var attrs = node.getAttributes();
 
-        img.attr( "src", imageFile.toString() );
+        if( attrs != null ) {
+          final var attr = attrs.getNamedItem( "src" );
+
+          if( attr != null ) {
+            final var imageFile = exportImage( attr.getTextContent() );
+
+            attr.setTextContent( imageFile.toString() );
+          }
+        }
       } catch( final Exception ex ) {
         clue( ex );
       }
-    }
+    } );
 
-    return doc.html();
+    //Typographer.curl( doc );
+
+    return DocumentParser.toString( doc );
   }
 
   /**
@@ -88,16 +96,12 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
    * @param doc The document to adorn with metadata.
    */
   private void setMetaData( final Document doc ) {
-    doc.title( getTitle() );
-
     final var metadata = createMetaData( doc );
-    final var head = doc.head();
-    metadata.entrySet().forEach( entry -> head.append( createMeta( entry ) ) );
-  }
 
-  private String createMeta( final Entry<String, String> entry ) {
-    return format(
-      "<meta name='%s' content='%s'>", entry.getKey(), entry.getValue()
+    walk( doc, "title", node -> node.setTextContent( getTitle() ) );
+    walk( doc, "head", node ->
+      metadata.entrySet()
+              .forEach( entry -> node.appendChild( createMeta( doc, entry ) ) )
     );
   }
 
@@ -148,7 +152,7 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
 
       // Strip comments, superfluous whitespace, DOCTYPE, and XML declarations.
       if( mediaType.isSvg() ) {
-        sanitize( imageFile );
+        DocumentParser.sanitize( imageFile );
       }
     }
     else {
@@ -182,34 +186,6 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
     }
 
     return imageFile;
-  }
-
-  /**
-   * Remove whitespace, comments, and XML/DOCTYPE declarations to make
-   * processing work with ConTeXt.
-   *
-   * @param path The SVG file to process.
-   * @throws Exception The file could not be processed.
-   */
-  private void sanitize( final Path path )
-    throws Exception {
-    final var file = path.toFile();
-
-    final var dbf = DocumentBuilderFactory.newInstance();
-    dbf.setIgnoringComments( true );
-    dbf.setIgnoringElementContentWhitespace( true );
-
-    final var db = dbf.newDocumentBuilder();
-    final var document = db.parse( file );
-
-    final var tf = TransformerFactory.newInstance();
-    final var transformer = tf.newTransformer();
-
-    final var source = new DOMSource( document );
-    final var result = new StreamResult( file );
-    transformer.setOutputProperty( OMIT_XML_DECLARATION, "yes" );
-    transformer.setOutputProperty( INDENT, "no" );
-    transformer.transform( source, result );
   }
 
   private String getImagePath() {
@@ -261,9 +237,15 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
   }
 
   private String getWordCount( final Document doc ) {
-    final var text = doc.wholeText();
-    final var wordCounter = WordCounter.create( getLocale() );
-    return valueOf( wordCounter.countWords( text ) );
+    final var sb = new StringBuilder( 65536 * 10 );
+
+    walk( doc, "*", node -> {
+      if( node.getNodeType() == TEXT_NODE && node.getTextContent() != null ) {
+        sb.append( node.getTextContent() );
+      }
+    } );
+
+    return valueOf( WordCounter.create( getLocale() ).count( sb.toString() ) );
   }
 
   private String getKeywords() {

@@ -1,19 +1,16 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
-package com.keenwrite.preview;
+package com.keenwrite.dom;
 
 import org.jsoup.helper.W3CDom;
 import org.jsoup.nodes.Node;
 import org.jsoup.nodes.TextNode;
 import org.jsoup.select.NodeVisitor;
-import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import static com.keenwrite.events.StatusEvent.clue;
+import static com.keenwrite.dom.DocumentParser.sDomImplementation;
 import static com.keenwrite.processors.text.TextReplacementFactory.replace;
 
 /**
@@ -22,7 +19,7 @@ import static com.keenwrite.processors.text.TextReplacementFactory.replace;
  * {@link #fromJsoup(org.jsoup.nodes.Document)} method to reuse factories,
  * builders, and implementations.
  */
-final class DomConverter extends W3CDom {
+public final class DocumentConverter extends W3CDom {
   /**
    * Retain insertion order using an instance of {@link LinkedHashMap} so
    * that ligature substitution uses longer ligatures ahead of shorter
@@ -48,6 +45,8 @@ final class DomConverter extends W3CDom {
 
         if( !("pre".equalsIgnoreCase( name ) ||
           "code".equalsIgnoreCase( name ) ||
+          "kbd".equalsIgnoreCase( name ) ||
+          "var".equalsIgnoreCase( name ) ||
           "tt".equalsIgnoreCase( name )) ) {
           // Calling getWholeText() will return newlines, which must be kept
           // to ensure that preformatted text maintains its formatting.
@@ -61,34 +60,16 @@ final class DomConverter extends W3CDom {
     }
   };
 
-  private static final DocumentBuilderFactory DOCUMENT_FACTORY;
-  private static DocumentBuilder DOCUMENT_BUILDER;
-  private static DOMImplementation DOM_IMPL;
-
-  static {
-    DOCUMENT_FACTORY = DocumentBuilderFactory.newInstance();
-    DOCUMENT_FACTORY.setNamespaceAware( true );
-
-    try {
-      DOCUMENT_BUILDER = DOCUMENT_FACTORY.newDocumentBuilder();
-      DOM_IMPL = DOCUMENT_BUILDER.getDOMImplementation();
-    } catch( final Exception ex ) {
-      clue( ex );
-    }
-  }
-
   @Override
   public Document fromJsoup( final org.jsoup.nodes.Document in ) {
     assert in != null;
-    assert DOCUMENT_BUILDER != null;
-    assert DOM_IMPL != null;
 
-    final var out = DOCUMENT_BUILDER.newDocument();
+    final var out = DocumentParser.newDocument();
     final org.jsoup.nodes.DocumentType doctype = in.documentType();
 
     if( doctype != null ) {
       out.appendChild(
-        DOM_IMPL.createDocumentType(
+        sDomImplementation.createDocumentType(
           doctype.name(),
           doctype.publicId(),
           doctype.systemId()

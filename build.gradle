@@ -116,11 +116,11 @@ dependencies {
   implementation 'javax.validation:validation-api:2.0.1.Final'
   implementation 'org.greenrobot:eventbus:3.2.0'
 
-  // Configuration: Update Workspace to use Jackson, instead could shave ~800kb
+  // TODO: Update Workspace config to use Jackson to shave ~800kb
   implementation 'org.apache.commons:commons-configuration2:2.7'
   implementation 'commons-beanutils:commons-beanutils:1.9.4'
 
-  // Spelling, TeX, Docking
+  // Spelling, TeX, Docking, KeenQuotes
   implementation fileTree(include: ['**/*.jar'], dir: 'libs')
 
   def fx = ['controls', 'graphics', 'fxml', 'swing']

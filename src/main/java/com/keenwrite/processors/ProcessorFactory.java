@@ -33,19 +33,19 @@ public final class ProcessorFactory extends AbstractFileFactory {
     // is one that parses Markdown into HTML and passes the string to the
     // HTML preview pane.
     //
-    // Otherwise, bolt on a processor that--after the interpolation and
+    // Otherwise, bolt on a processor that---after the interpolation and
     // substitution phase, which includes text strings or R code---will
     // generate HTML or plain Markdown. HTML has a few output formats:
     // with embedded SVG representing formulas, or without any conversion
     // to SVG. Without conversion would require client-side rendering of
     // math (such as using the JavaScript-based KaTeX engine).
     final var successor = context.isExportFormat( NONE )
-      ? createHtmlPreviewProcessor()
+      ? createHtmlPreviewProcessor( context )
       : context.isExportFormat( XHTML_TEX )
       ? createXhtmlProcessor( context )
       : context.isExportFormat( APPLICATION_PDF )
       ? createPdfProcessor( context )
-      : createIdentityProcessor();
+      : createIdentityProcessor( context );
 
     final var processor = switch( context.getFileType() ) {
       case SOURCE, RMARKDOWN -> createMarkdownProcessor( successor );
@@ -73,7 +73,8 @@ public final class ProcessorFactory extends AbstractFileFactory {
    *
    * @return An instance of {@link Processor} that performs no processing.
    */
-  private Processor<String> createIdentityProcessor() {
+  private Processor<String> createIdentityProcessor(
+    final ProcessorContext ignored ) {
     return IDENTITY;
   }
 
@@ -83,7 +84,8 @@ public final class ProcessorFactory extends AbstractFileFactory {
    *
    * @return An instance of {@link Processor} that forwards HTML for display.
    */
-  private Processor<String> createHtmlPreviewProcessor() {
+  private Processor<String> createHtmlPreviewProcessor(
+    final ProcessorContext ignored ) {
     return new HtmlPreviewProcessor( getPreviewPane() );
   }
 

@@ -32,8 +32,8 @@ public class WordCounter {
    * @param document The document to tally.
    * @return The total number of words in the document.
    */
-  public int countWords( final String document ) {
-    return countWords( document, ( k, count ) -> {} );
+  public int count( final String document ) {
+    return count( document, ( k, count ) -> {} );
   }
 
   /**
@@ -43,7 +43,7 @@ public class WordCounter {
    * @param consumer The action to take for each unique word/count pair.
    * @return The total number of words in the document.
    */
-  public int countWords(
+  public int count(
     final String document, final BiConsumer<String, Integer> consumer ) {
     final var tokens = mTokenizer.tokenize( document );
     final var sum = new int[]{0};

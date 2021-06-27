@@ -10,7 +10,6 @@ import com.vladsch.flexmark.ext.definition.DefinitionExtension;
 import com.vladsch.flexmark.ext.gfm.strikethrough.StrikethroughSubscriptExtension;
 import com.vladsch.flexmark.ext.superscript.SuperscriptExtension;
 import com.vladsch.flexmark.ext.tables.TablesExtension;
-import com.vladsch.flexmark.ext.typographic.TypographicExtension;
 import com.vladsch.flexmark.html.HtmlRenderer;
 import com.vladsch.flexmark.parser.Parser;
 import com.vladsch.flexmark.util.ast.IParse;
@@ -20,9 +19,6 @@ import com.vladsch.flexmark.util.misc.Extension;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.keenwrite.ExportFormat.APPLICATION_PDF;
-import static com.vladsch.flexmark.ext.typographic.TypographicExtension.ENABLE_SMARTS;
 
 /**
  * Responsible for parsing and rendering Markdown into HTML. This is required
@@ -38,21 +34,14 @@ public class BaseMarkdownProcessor extends ExecutorProcessor<String> {
     final Processor<String> successor, final ProcessorContext context ) {
     super( successor );
 
-    // Disable emdash, endash, and ellipses conversion for PDF exports. The
-    // typesetting software will perform the appropriate styling. This allows
-    // manuscripts to include verbatim hyphens, for example.
     final var builder = Parser.builder();
-    builder.set( ENABLE_SMARTS, !context.isExportFormat( APPLICATION_PDF ) );
-
     final var extensions = createExtensions( context );
     mParser = builder.extensions( extensions ).build();
     mRenderer = HtmlRenderer.builder().extensions( extensions ).build();
   }
 
   /**
-   * Instantiates a number of extensions to be applied when parsing. These
-   * are typically typographic extensions that convert characters into
-   * HTML entities.
+   * Instantiates a number of extensions to be applied when parsing.
    *
    * @param context The context that subclasses use to configure custom
    *                extension behaviour.
@@ -67,10 +56,6 @@ public class BaseMarkdownProcessor extends ExecutorProcessor<String> {
     extensions.add( SuperscriptExtension.create() );
     extensions.add( TablesExtension.create() );
     extensions.add( FencedDivExtension.create() );
-
-    if( !context.isExportFormat( APPLICATION_PDF ) ) {
-      extensions.add( TypographicExtension.create() );
-    }
 
     return extensions;
   }

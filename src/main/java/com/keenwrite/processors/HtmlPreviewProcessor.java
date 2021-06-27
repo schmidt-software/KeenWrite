@@ -11,7 +11,6 @@ import com.keenwrite.preview.HtmlPreview;
  * processor chain.
  */
 public final class HtmlPreviewProcessor extends ExecutorProcessor<String> {
-
   /**
    * There is only one preview panel.
    */

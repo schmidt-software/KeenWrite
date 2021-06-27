@@ -1,6 +1,7 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.preview;
 
+import com.keenwrite.dom.DocumentConverter;
 import com.keenwrite.ui.adapters.DocumentAdapter;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -83,7 +84,7 @@ public final class HtmlPanel extends XHTMLPanel {
     }
   }
 
-  private static final DomConverter CONVERTER = new DomConverter();
+  private static final DocumentConverter CONVERTER = new DocumentConverter();
   private static final XhtmlNamespaceHandler XNH = new XhtmlNamespaceHandler();
 
   public HtmlPanel() {
