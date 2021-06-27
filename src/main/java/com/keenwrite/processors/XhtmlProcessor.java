@@ -27,7 +27,6 @@ import static java.nio.file.Files.copy;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import static java.util.regex.Pattern.UNICODE_CHARACTER_CLASS;
 import static java.util.regex.Pattern.compile;
-import static org.w3c.dom.Node.TEXT_NODE;
 
 /**
  * Responsible for making an XHTML document complete by wrapping it with html
@@ -62,7 +61,7 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
     final var doc = DocumentParser.parse( decorate( html ) );
     setMetaData( doc );
 
-    walk( doc, "img", node -> {
+    walk( doc, "//img", node -> {
       try {
         final var attrs = node.getAttributes();
 
@@ -93,11 +92,11 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
   private void setMetaData( final Document doc ) {
     final var metadata = createMetaData( doc );
 
-    walk( doc, "title", node -> node.setTextContent( getTitle() ) );
-    walk( doc, "head", node ->
+    walk( doc, "/html/head", node ->
       metadata.entrySet()
               .forEach( entry -> node.appendChild( createMeta( doc, entry ) ) )
     );
+    walk( doc, "/html/head/title", node -> node.setTextContent( getTitle() ) );
   }
 
   /**
@@ -234,11 +233,11 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
   private String getWordCount( final Document doc ) {
     final var sb = new StringBuilder( 65536 * 10 );
 
-    walk( doc, "*", node -> {
-      if( node.getNodeType() == TEXT_NODE && node.getTextContent() != null ) {
-        sb.append( node.getTextContent() );
-      }
-    } );
+    walk(
+      doc,
+      "//*[normalize-space( text() ) != '']",
+      node -> sb.append( node.getTextContent() )
+    );
 
     return valueOf( WordCounter.create( getLocale() ).count( sb.toString() ) );
   }

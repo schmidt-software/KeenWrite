@@ -1,10 +1,7 @@
 /* Copyright 2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.quotes;
 
-import com.whitemagicsoftware.keenquotes.Converter;
 import org.w3c.dom.Document;
-
-import static java.lang.System.out;
 
 /**
  * Responsible for curling straight quotes. This class will curl as many
@@ -40,7 +37,8 @@ public class Typographer {
 //    replace( preformat, '\uFFFF', '\"' );
   }
 
-//  private static void replace( final Elements el, final char src, final char dst ) {
+//  private static void replace( final Elements el, final char src, final
+//  char dst ) {
 //    for( final var e : el ) {
 //      for( final var node : e.textNodes() ) {
 //        node.text( node.text().replace( src, dst ) );

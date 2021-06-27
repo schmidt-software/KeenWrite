@@ -3,19 +3,14 @@ package com.keenwrite.events;
 
 import org.jsoup.nodes.Document;
 
-import static com.keenwrite.util.MurmurHash.hash32;
-import static java.lang.System.currentTimeMillis;
-
 /**
  * Collates information about an HTML document that has changed.
  */
 public class DocumentChangedEvent implements AppEvent {
-  private static final int SEED = (int) currentTimeMillis();
-
   private final String mText;
 
   /**
-   * Hash the document so subscribers are only informed upon changes.
+   * Hash document (as plain text) so subscribers are notified upon changes.
    */
   private static int sHash;
 
@@ -39,8 +34,9 @@ public class DocumentChangedEvent implements AppEvent {
    * @param html The document that may have changed.
    */
   public static void fireDocumentChangedEvent( final Document html ) {
+    // Hashing the document text ignores caret position changes.
     final var text = html.wholeText();
-    final var hash = hash32( text, 0, text.length(), SEED );
+    final var hash = text.hashCode();
 
     if( hash != sHash ) {
       sHash = hash;

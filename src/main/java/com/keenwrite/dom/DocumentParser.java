@@ -3,6 +3,7 @@ package com.keenwrite.dom;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -11,14 +12,20 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathExpression;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 
 import static com.keenwrite.events.StatusEvent.clue;
 import static javax.xml.transform.OutputKeys.*;
+import static javax.xml.xpath.XPathConstants.NODESET;
 
 /**
  * Responsible for initializing an XML parser.
@@ -27,13 +34,16 @@ public class DocumentParser {
   private static final String LOAD_EXTERNAL_DTD =
     "http://apache.org/xml/features/nonvalidating/load-external-dtd";
 
+  /**
+   * Caches {@link XPathExpression}s to avoid re-compiling.
+   */
+  private static final Map<String, XPathExpression> sXpaths = new HashMap<>();
+
   private static final DocumentBuilderFactory sDocumentFactory;
   private static DocumentBuilder sDocumentBuilder;
   public static DOMImplementation sDomImplementation;
-
-  private static final TransformerFactory sTransformerFactory =
-    TransformerFactory.newInstance();
   private static Transformer sTransformer;
+  private static final XPath sXpath = XPathFactory.newInstance().newXPath();
 
   static {
     sDocumentFactory = DocumentBuilderFactory.newInstance();
@@ -47,7 +57,7 @@ public class DocumentParser {
     try {
       sDocumentBuilder = sDocumentFactory.newDocumentBuilder();
       sDomImplementation = sDocumentBuilder.getDOMImplementation();
-      sTransformer = sTransformerFactory.newTransformer();
+      sTransformer = TransformerFactory.newInstance().newTransformer();
 
       sTransformer.setOutputProperty( OMIT_XML_DECLARATION, "yes" );
       sTransformer.setOutputProperty( INDENT, "no" );
@@ -91,21 +101,27 @@ public class DocumentParser {
    * Allows an operation to be applied for every node in the document that
    * matches a given tag name pattern.
    *
-   * @param document The document to traverse.
-   * @param tag      The elements in the document to find (e.g., {@code *}).
+   * @param document Document to traverse.
+   * @param xpath    Document elements to find via {@link XPath} expression.
    * @param consumer The consumer to call for each matching document node.
    */
   public static void walk(
-    final Document document, final String tag, final Consumer<Node> consumer ) {
+    final Document document, final String xpath,
+    final Consumer<Node> consumer ) {
     assert document != null;
     assert consumer != null;
 
-    final var nodes = document.getElementsByTagName( tag );
+    try {
+      final var expr = lookupXPathExpression( xpath );
+      final var nodes = (NodeList) expr.evaluate( document, NODESET );
 
-    if( nodes != null ) {
-      for( int i = 0, len = nodes.getLength(); i < len; i++ ) {
-        consumer.accept( nodes.item( i ) );
+      if( nodes != null ) {
+        for( int i = 0, len = nodes.getLength(); i < len; i++ ) {
+          consumer.accept( nodes.item( i ) );
+        }
       }
+    } catch( final Exception ex ) {
+      clue( ex );
     }
   }
 
@@ -157,5 +173,16 @@ public class DocumentParser {
   public static String decorate( final String html ) {
     return
       "<html><head><title> </title></head><body>" + html + "</body></html>";
+  }
+
+  private static XPathExpression lookupXPathExpression( final String xpath ) {
+    return sXpaths.computeIfAbsent( xpath, k -> {
+      try {
+        return sXpath.compile( xpath );
+      } catch( final XPathExpressionException ex ) {
+        clue( ex );
+        return null;
+      }
+    } );
   }
 }
