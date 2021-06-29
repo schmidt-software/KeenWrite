@@ -13,24 +13,22 @@ import org.w3c.css.sac.CSSException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringReader;
 import java.net.URI;
 import java.nio.file.Path;
 import java.text.NumberFormat;
 import java.text.ParseException;
 
+import static com.keenwrite.dom.DocumentParser.transform;
 import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.preview.HighQualityRenderingHints.RENDERING_HINTS;
 import static java.awt.image.BufferedImage.TYPE_INT_RGB;
-import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.text.NumberFormat.getIntegerInstance;
-import static javax.xml.transform.OutputKeys.*;
 import static org.apache.batik.transcoder.SVGAbstractTranscoder.KEY_WIDTH;
 import static org.apache.batik.transcoder.image.ImageTranscoder.KEY_PIXEL_UNIT_TO_MILLIMETER;
 import static org.apache.batik.util.XMLResourceDescriptor.getXMLParserClassName;
@@ -59,27 +57,6 @@ public final class SvgRasterizer {
 
   private static final SAXSVGDocumentFactory FACTORY_DOM =
     new SAXSVGDocumentFactory( getXMLParserClassName() );
-
-  private static final TransformerFactory FACTORY_TRANSFORM =
-    TransformerFactory.newInstance();
-
-  private static final Transformer sTransformer;
-
-  static {
-    Transformer t;
-
-    try {
-      t = FACTORY_TRANSFORM.newTransformer();
-      t.setOutputProperty( OMIT_XML_DECLARATION, "yes" );
-      t.setOutputProperty( METHOD, "xml" );
-      t.setOutputProperty( INDENT, "no" );
-      t.setOutputProperty( ENCODING, UTF_8.name() );
-    } catch( final Exception ignored ) {
-      t = null;
-    }
-
-    sTransformer = t;
-  }
 
   private static final NumberFormat INT_FORMAT = getIntegerInstance();
 
@@ -314,13 +291,12 @@ public final class SvgRasterizer {
    * Given a document object model (DOM) {@link Element}, this will convert that
    * element to a string.
    *
-   * @param e The DOM node to convert to a string.
+   * @param root The DOM node to convert to a string.
    * @return The DOM node as an escaped, plain text string.
    */
-  public static String toSvg( final Element e ) {
-    try( final var writer = new StringWriter() ) {
-      sTransformer.transform( new DOMSource( e ), new StreamResult( writer ) );
-      return writer.toString().replaceAll( "xmlns=\"\" ", "" );
+  public static String toSvg( final Element root ) {
+    try {
+      return transform( root ).replaceAll( "xmlns=\"\" ", "" );
     } catch( final Exception ex ) {
       clue( ex );
     }

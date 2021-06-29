@@ -6,10 +6,10 @@ import org.junit.jupiter.api.Test;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 
 import static java.lang.System.lineSeparator;
-import static java.lang.System.out;
 import static java.util.stream.Collectors.joining;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -18,7 +18,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
  * without affecting preformatted HTML text elements.
  */
 class TypographerTest {
-
   private static final String LINE_SEP = lineSeparator();
 
   @Test
@@ -27,8 +26,13 @@ class TypographerTest {
     final var doc = DocumentParser.parse( xhtml );
 
     Typographer.curl( doc );
+  }
 
-    out.println( doc );
+  @SuppressWarnings( "SameParameterValue" )
+  private String read( final String filename ) throws IOException {
+    try( final var reader = openReader( filename ) ) {
+      return reader.lines().collect( joining( LINE_SEP ) );
+    }
   }
 
   /**
@@ -38,17 +42,14 @@ class TypographerTest {
    * @return An instance of {@link BufferedReader} that can be used to
    * read all the lines in the file.
    */
-  private BufferedReader open( final String filename ) {
+  private BufferedReader openReader( final String filename ) {
+    return new BufferedReader( new InputStreamReader( openStream( filename ) ) );
+  }
+
+  private InputStream openStream( final String filename ) {
     final var is = getClass().getResourceAsStream( filename );
     assertNotNull( is );
 
-    return new BufferedReader( new InputStreamReader( is ) );
-  }
-
-  @SuppressWarnings( "SameParameterValue" )
-  private String read( final String filename ) throws IOException {
-    try( final var reader = open( filename ) ) {
-      return reader.lines().collect( joining( LINE_SEP ) );
-    }
+    return is;
   }
 }

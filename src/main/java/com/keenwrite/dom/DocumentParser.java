@@ -1,14 +1,13 @@
 package com.keenwrite.dom;
 
-import org.w3c.dom.DOMImplementation;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
+import org.w3c.dom.*;
 import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
@@ -16,6 +15,8 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.nio.file.Path;
@@ -24,6 +25,7 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 import static com.keenwrite.events.StatusEvent.clue;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static javax.xml.transform.OutputKeys.*;
 import static javax.xml.xpath.XPathConstants.NODESET;
 
@@ -42,17 +44,17 @@ public class DocumentParser {
   private static final DocumentBuilderFactory sDocumentFactory;
   private static DocumentBuilder sDocumentBuilder;
   public static DOMImplementation sDomImplementation;
-  private static Transformer sTransformer;
+  public static Transformer sTransformer;
   private static final XPath sXpath = XPathFactory.newInstance().newXPath();
 
   static {
     sDocumentFactory = DocumentBuilderFactory.newInstance();
 
+    sDocumentFactory.setValidating( false );
+    sDocumentFactory.setAttribute( LOAD_EXTERNAL_DTD, false );
     sDocumentFactory.setNamespaceAware( true );
     sDocumentFactory.setIgnoringComments( true );
     sDocumentFactory.setIgnoringElementContentWhitespace( true );
-    sDocumentFactory.setValidating( false );
-    sDocumentFactory.setAttribute( LOAD_EXTERNAL_DTD, false );
 
     try {
       sDocumentBuilder = sDocumentFactory.newDocumentBuilder();
@@ -60,8 +62,9 @@ public class DocumentParser {
       sTransformer = TransformerFactory.newInstance().newTransformer();
 
       sTransformer.setOutputProperty( OMIT_XML_DECLARATION, "yes" );
-      sTransformer.setOutputProperty( INDENT, "no" );
       sTransformer.setOutputProperty( METHOD, "xml" );
+      sTransformer.setOutputProperty( INDENT, "no" );
+      sTransformer.setOutputProperty( ENCODING, UTF_8.toString() );
     } catch( final Exception ex ) {
       clue( ex );
     }
@@ -89,12 +92,18 @@ public class DocumentParser {
     final var input = new InputSource();
 
     try( final var reader = new StringReader( xml ) ) {
+      input.setEncoding( UTF_8.toString() );
       input.setCharacterStream( reader );
       return sDocumentBuilder.parse( input );
     } catch( final Exception ex ) {
       clue( ex );
       return sDocumentBuilder.newDocument();
     }
+  }
+
+  public static Document parse( final InputStream doc )
+    throws IOException, SAXException {
+    return sDocumentBuilder.parse( doc );
   }
 
   /**
@@ -134,9 +143,9 @@ public class DocumentParser {
     return node;
   }
 
-  public static String toString( final Document document ) {
+  public static String toString( final Document xhtml ) {
     try( final var writer = new StringWriter() ) {
-      final var domSource = new DOMSource( document );
+      final var domSource = new DOMSource( xhtml );
       final var result = new StreamResult( writer );
 
       sTransformer.transform( domSource, result );
@@ -144,6 +153,15 @@ public class DocumentParser {
     } catch( final Exception ex ) {
       clue( ex );
       return "";
+    }
+  }
+
+  public static String transform( final Element root )
+    throws IOException, TransformerException {
+    try( final var writer = new StringWriter() ) {
+      sTransformer.transform(
+        new DOMSource( root ), new StreamResult( writer ) );
+      return writer.toString();
     }
   }
 

@@ -39,8 +39,6 @@ import org.junit.jupiter.api.Test;
 import org.xml.sax.SAXException;
 
 import javax.imageio.ImageIO;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -48,6 +46,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.text.ParseException;
 
+import static com.keenwrite.dom.DocumentParser.parse;
 import static com.keenwrite.preview.SvgRasterizer.*;
 import static java.lang.System.getProperty;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -55,12 +54,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 /**
  * Test that TeX rasterization produces a readable image.
  */
-public class TeXRasterization {
-  private static final String LOAD_EXTERNAL_DTD =
-      "http://apache.org/xml/features/nonvalidating/load-external-dtd";
-
+public class TeXRasterizationTest {
   private static final String EQUATION =
-      "G_{\\mu \\nu} = \\frac{8 \\pi G}{c^4} T_{{\\mu \\nu}}";
+    "G_{\\mu \\nu} = \\frac{8 \\pi G}{c^4} T_{{\\mu \\nu}}";
 
   private static final String DIR_TEMP = getProperty( "java.io.tmpdir" );
 
@@ -88,20 +84,13 @@ public class TeXRasterization {
    */
   @Test
   public void getTest_SvgDomGraphics2D_InputElement_OutputRasterizedImage()
-    throws ParserConfigurationException, IOException, SAXException,
-    ParseException, TranscoderException {
+    throws IOException, SAXException, ParseException, TranscoderException {
     final var g = new SvgGraphics2D();
     drawGraphics( g );
 
     final var expectedSvg = g.toString();
     final var bytes = expectedSvg.getBytes();
-
-    final var dbf = DocumentBuilderFactory.newInstance();
-    dbf.setFeature( LOAD_EXTERNAL_DTD, false );
-    dbf.setNamespaceAware( false );
-    final var builder = dbf.newDocumentBuilder();
-
-    final var doc = builder.parse( new ByteArrayInputStream( bytes ) );
+    final var doc = parse( new ByteArrayInputStream( bytes ) );
     final var actualSvg = toSvg( doc.getDocumentElement() );
 
     verifyImage( rasterizeString( actualSvg ) );
@@ -151,9 +140,9 @@ public class TeXRasterization {
     box.draw( g, layout.getX(), layout.getY() );
   }
 
-  @SuppressWarnings("SameParameterValue")
+  @SuppressWarnings( "SameParameterValue" )
   private File export( final BufferedImage image, final String filename )
-      throws IOException {
+    throws IOException {
     final var path = Path.of( DIR_TEMP, filename );
     final var file = path.toFile();
     ImageIO.write( image, "png", file );

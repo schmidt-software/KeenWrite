@@ -4,6 +4,7 @@ package com.keenwrite.processors;
 import com.keenwrite.dom.DocumentParser;
 import com.keenwrite.preferences.Key;
 import com.keenwrite.preferences.Workspace;
+import com.keenwrite.quotes.Typographer;
 import com.keenwrite.ui.heuristics.WordCounter;
 import javafx.beans.property.StringProperty;
 import org.w3c.dom.Document;
@@ -79,7 +80,7 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
       }
     } );
 
-    //Typographer.curl( doc );
+    Typographer.curl( doc );
 
     return DocumentParser.toString( doc );
   }
