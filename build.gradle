@@ -49,9 +49,9 @@ javafx {
 }
 
 dependencies {
-  def v_junit = '5.7.1'
+  def v_junit = '5.7.2'
   def v_flexmark = '0.62.2'
-  def v_jackson = '2.12.2'
+  def v_jackson = '2.12.3'
   def v_batik = '1.14'
   def v_wheatsheaf = '2.0.1'
 
@@ -59,7 +59,7 @@ dependencies {
   implementation 'org.controlsfx:controlsfx:11.1.0'
   implementation 'org.fxmisc.richtext:richtextfx:0.10.6'
   implementation 'org.fxmisc.wellbehaved:wellbehavedfx:0.3.3'
-  implementation 'com.miglayout:miglayout-javafx:5.2'
+  implementation 'com.miglayout:miglayout-javafx:11.0'
   implementation 'com.dlsc.preferencesfx:preferencesfx-core:11.8.0'
 
   // Pure JavaFX File Chooser
@@ -80,7 +80,7 @@ dependencies {
   implementation "com.fasterxml.jackson.core:jackson-databind:${v_jackson}"
   implementation "com.fasterxml.jackson.core:jackson-annotations:${v_jackson}"
   implementation "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:${v_jackson}"
-  implementation 'org.yaml:snakeyaml:1.27'
+  implementation 'org.yaml:snakeyaml:1.29'
 
   // XML
   implementation 'com.ximpleware:vtd-xml:2.13.4'

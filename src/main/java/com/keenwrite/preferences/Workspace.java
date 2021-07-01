@@ -117,9 +117,10 @@ public final class Workspace {
 
     entry( KEY_LANGUAGE_LOCALE, asLocaleProperty( LOCALE_DEFAULT ) ),
 
-    entry( KEY_TYPESET_CONTEXT_CLEAN, asBooleanProperty(true) ),
+    entry( KEY_TYPESET_CONTEXT_CLEAN, asBooleanProperty( true ) ),
     entry( KEY_TYPESET_CONTEXT_THEMES_PATH, asFileProperty( USER_DIRECTORY ) ),
-    entry( KEY_TYPESET_CONTEXT_THEME_SELECTION, asStringProperty( "boschet" ) )
+    entry( KEY_TYPESET_CONTEXT_THEME_SELECTION, asStringProperty( "boschet" ) ),
+    entry( KEY_TYPESET_TYPOGRAPHY_QUOTES, asBooleanProperty( true ) )
     //@formatter:on
   );
 

@@ -175,6 +175,12 @@ public final class PreferencesController {
           Setting.of( label( KEY_TYPESET_CONTEXT_CLEAN ) ),
           Setting.of( title( KEY_TYPESET_CONTEXT_CLEAN ),
                       booleanProperty( KEY_TYPESET_CONTEXT_CLEAN ) )
+        ),
+        Group.of(
+          get( KEY_TYPESET_TYPOGRAPHY ),
+          Setting.of( label( KEY_TYPESET_TYPOGRAPHY_QUOTES ) ),
+          Setting.of( title( KEY_TYPESET_TYPOGRAPHY_QUOTES ),
+                      booleanProperty( KEY_TYPESET_TYPOGRAPHY_QUOTES ) )
         )
       ),
       Category.of(

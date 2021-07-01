@@ -59,30 +59,38 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
   public String apply( final String html ) {
     clue( "Main.status.typeset.xhtml" );
 
-    final var doc = DocumentParser.parse( decorate( html ) );
-    setMetaData( doc );
+    try {
+      final var doc = DocumentParser.parse( decorate( html ) );
+      setMetaData( doc );
 
-    walk( doc, "//img", node -> {
-      try {
-        final var attrs = node.getAttributes();
+      walk( doc, "//img", node -> {
+        try {
+          final var attrs = node.getAttributes();
 
-        if( attrs != null ) {
-          final var attr = attrs.getNamedItem( "src" );
+          if( attrs != null ) {
+            final var attr = attrs.getNamedItem( "src" );
 
-          if( attr != null ) {
-            final var imageFile = exportImage( attr.getTextContent() );
+            if( attr != null ) {
+              final var imageFile = exportImage( attr.getTextContent() );
 
-            attr.setTextContent( imageFile.toString() );
+              attr.setTextContent( imageFile.toString() );
+            }
           }
+        } catch( final Exception ex ) {
+          clue( ex );
         }
-      } catch( final Exception ex ) {
-        clue( ex );
+      } );
+
+      if( curl() ) {
+        Typographer.curl( doc );
       }
-    } );
 
-    Typographer.curl( doc );
+      return DocumentParser.toString( doc );
+    } catch( final Exception ex ) {
+      clue( ex );
+    }
 
-    return DocumentParser.toString( doc );
+    return html;
   }
 
   /**
@@ -97,7 +105,7 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
       metadata.entrySet()
               .forEach( entry -> node.appendChild( createMeta( doc, entry ) ) )
     );
-    walk( doc, "/html/head/title", node -> node.setTextContent( getTitle() ) );
+    walk( doc, "/html/head/title", node -> node.setTextContent( title() ) );
   }
 
   /**
@@ -108,15 +116,15 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
    */
   private Map<String, String> createMetaData( final Document doc ) {
     return Map.of(
-      "author", getAuthor(),
-      "byline", getByline(),
-      "address", getAddress(),
-      "phone", getPhone(),
-      "email", getEmail(),
-      "count", getWordCount( doc ),
-      "keywords", getKeywords(),
-      "copyright", getCopyright(),
-      "date", getDate()
+      "author", author(),
+      "byline", byLine(),
+      "address", address(),
+      "phone", phone(),
+      "email", email(),
+      "count", wordCount( doc ),
+      "keywords", keywords(),
+      "copyright", copyright(),
+      "date", date()
     );
   }
 
@@ -205,33 +213,33 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
     return mContext.getWorkspace();
   }
 
-  private Locale getLocale() { return getWorkspace().getLocale(); }
+  private Locale locale() { return getWorkspace().getLocale(); }
 
-  private String getTitle() {
+  private String title() {
     return resolve( KEY_DOC_TITLE );
   }
 
-  private String getAuthor() {
+  private String author() {
     return resolve( KEY_DOC_AUTHOR );
   }
 
-  private String getByline() {
+  private String byLine() {
     return resolve( KEY_DOC_BYLINE );
   }
 
-  private String getAddress() {
+  private String address() {
     return resolve( KEY_DOC_ADDRESS ).replaceAll( "\n", "\\\\\\break{}" );
   }
 
-  private String getPhone() {
+  private String phone() {
     return resolve( KEY_DOC_PHONE );
   }
 
-  private String getEmail() {
+  private String email() {
     return resolve( KEY_DOC_EMAIL );
   }
 
-  private String getWordCount( final Document doc ) {
+  private String wordCount( final Document doc ) {
     final var sb = new StringBuilder( 65536 * 10 );
 
     walk(
@@ -240,19 +248,28 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
       node -> sb.append( node.getTextContent() )
     );
 
-    return valueOf( WordCounter.create( getLocale() ).count( sb.toString() ) );
+    return valueOf( WordCounter.create( locale() ).count( sb.toString() ) );
   }
 
-  private String getKeywords() {
+  private String keywords() {
     return resolve( KEY_DOC_KEYWORDS );
   }
 
-  private String getCopyright() {
+  private String copyright() {
     return resolve( KEY_DOC_COPYRIGHT );
   }
 
-  private String getDate() {
+  private String date() {
     return resolve( KEY_DOC_DATE );
+  }
+
+  /**
+   * Answers whether straight quotation marks should be curled.
+   *
+   * @return {@code false} to prevent curling straight quotes.
+   */
+  private boolean curl() {
+    return getWorkspace().toBoolean( KEY_TYPESET_TYPOGRAPHY_QUOTES );
   }
 
   private String resolve( final Key key ) {

@@ -74,6 +74,7 @@ public class TeXRasterizationTest {
   public void test_Rasterize_SimpleFormula_CorrectImageSize()
     throws IOException, ParseException, TranscoderException {
     final var g = new SvgGraphics2D();
+
     drawGraphics( g );
     verifyImage( rasterizeString( g.toString() ) );
   }
@@ -105,11 +106,9 @@ public class TeXRasterizationTest {
   public void test_SvgDomGraphics2D_InputDom_OutputRasterizedImage()
     throws IOException, ParseException, TranscoderException {
     final var g = new SvgDomGraphics2D();
+
     drawGraphics( g );
-
-    final var dom = g.toDom();
-
-    verifyImage( rasterize( dom ) );
+    verifyImage( rasterize( g.toDom() ) );
   }
 
   /**
