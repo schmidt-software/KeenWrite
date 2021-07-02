@@ -13,6 +13,8 @@ import javafx.stage.Stage;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.Properties;
 import java.util.TreeMap;
@@ -150,7 +152,8 @@ public class ThemePicker extends ChoiceDialog<String> {
   private Properties read( final Path file ) throws IOException {
     final var properties = new Properties();
 
-    try( final var in = new FileInputStream( file.toFile() ) ) {
+    try( final var in = new InputStreamReader(
+      new FileInputStream( file.toFile() ), StandardCharsets.UTF_8 ) ) {
       properties.load( in );
     }
 
