@@ -26,6 +26,7 @@ import static com.keenwrite.constants.GraphicsConstants.ICON_DIALOG_NODE;
 import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.util.FileWalker.walk;
 import static java.lang.Math.max;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.codehaus.plexus.util.StringUtils.abbreviate;
 
 /**
@@ -149,11 +150,19 @@ public class ThemePicker extends ChoiceDialog<String> {
     return read( file ).get( "name" ).toString();
   }
 
-  private Properties read( final Path file ) throws IOException {
+  /**
+   * Reads an instance of {@link Properties} from the given {@link Path} using
+   * {@link StandardCharsets#UTF_8} encoding.
+   *
+   * @param path The fully qualified path to the file.
+   * @return The path to the file to read.
+   * @throws IOException Could not open the file for reading.
+   */
+  private Properties read( final Path path ) throws IOException {
     final var properties = new Properties();
 
     try( final var in = new InputStreamReader(
-      new FileInputStream( file.toFile() ), StandardCharsets.UTF_8 ) ) {
+      new FileInputStream( path.toFile() ), UTF_8 ) ) {
       properties.load( in );
     }
 

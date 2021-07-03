@@ -81,11 +81,9 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
         }
       } );
 
-      if( curl() ) {
-        Typographer.curl( doc );
-      }
+      final var document = DocumentParser.toString( doc );
 
-      return DocumentParser.toString( doc );
+      return curl() ? Typographer.curl( document ) : document;
     } catch( final Exception ex ) {
       clue( ex );
     }

@@ -2,7 +2,7 @@
 
 # ![Logo](docs/images/app-title.png)
 
-A text editor that uses [interpolated strings](https://en.wikipedia.org/wiki/String_interpolation) to reference externally defined values.
+A text editor that uses [interpolated strings](https://en.wikipedia.org/wiki/String_interpolation) to reference values defined externally.
 
 ## Download
 

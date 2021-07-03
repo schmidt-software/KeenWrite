@@ -1,7 +1,6 @@
 /* Copyright 2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.quotes;
 
-import com.keenwrite.dom.DocumentParser;
 import org.junit.jupiter.api.Test;
 
 import java.io.BufferedReader;
@@ -22,10 +21,7 @@ class TypographerTest {
 
   @Test
   void test_Quotes_Straight_Curly() throws IOException {
-    final var xhtml = read( "17165.html" );
-    final var doc = DocumentParser.parse( xhtml );
-
-    Typographer.curl( doc );
+    Typographer.curl( read( "17165.html" ) );
   }
 
   @SuppressWarnings( "SameParameterValue" )

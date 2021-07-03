@@ -73,6 +73,7 @@ public final class ProcessorFactory extends AbstractFileFactory {
    *
    * @return An instance of {@link Processor} that performs no processing.
    */
+  @SuppressWarnings( "unused" )
   private Processor<String> createIdentityProcessor(
     final ProcessorContext ignored ) {
     return IDENTITY;
@@ -84,6 +85,7 @@ public final class ProcessorFactory extends AbstractFileFactory {
    *
    * @return An instance of {@link Processor} that forwards HTML for display.
    */
+  @SuppressWarnings( "unused" )
   private Processor<String> createHtmlPreviewProcessor(
     final ProcessorContext ignored ) {
     return new HtmlPreviewProcessor( getPreviewPane() );
