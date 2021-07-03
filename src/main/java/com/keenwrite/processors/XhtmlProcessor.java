@@ -4,8 +4,8 @@ package com.keenwrite.processors;
 import com.keenwrite.dom.DocumentParser;
 import com.keenwrite.preferences.Key;
 import com.keenwrite.preferences.Workspace;
-import com.keenwrite.quotes.Typographer;
 import com.keenwrite.ui.heuristics.WordCounter;
+import com.whitemagicsoftware.keenquotes.Converter;
 import javafx.beans.property.StringProperty;
 import org.w3c.dom.Document;
 
@@ -22,6 +22,8 @@ import static com.keenwrite.io.HttpFacade.httpGet;
 import static com.keenwrite.preferences.WorkspaceKeys.*;
 import static com.keenwrite.processors.text.TextReplacementFactory.replace;
 import static com.keenwrite.util.ProtocolScheme.getProtocol;
+import static com.whitemagicsoftware.keenquotes.Converter.CHARS;
+import static com.whitemagicsoftware.keenquotes.ParserFactory.ParserType.PARSER_XML;
 import static java.lang.String.format;
 import static java.lang.String.valueOf;
 import static java.nio.file.Files.copy;
@@ -37,6 +39,9 @@ import static java.util.regex.Pattern.compile;
 public final class XhtmlProcessor extends ExecutorProcessor<String> {
   private final static Pattern BLANK =
     compile( "\\p{Blank}", UNICODE_CHARACTER_CLASS );
+
+  private final static Converter sTypographer =
+    new Converter( lex -> clue( lex.toString() ), CHARS, PARSER_XML );
 
   private final ProcessorContext mContext;
 
@@ -83,7 +88,7 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
 
       final var document = DocumentParser.toString( doc );
 
-      return curl() ? Typographer.curl( document ) : document;
+      return curl() ? sTypographer.apply( document ) : document;
     } catch( final Exception ex ) {
       clue( ex );
     }
