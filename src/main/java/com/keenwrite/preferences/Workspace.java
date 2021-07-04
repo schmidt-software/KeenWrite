@@ -115,6 +115,8 @@ public final class Workspace {
     entry( KEY_UI_SKIN_SELECTION, asSkinProperty( SKIN_DEFAULT ) ),
     entry( KEY_UI_SKIN_CUSTOM, asFileProperty( SKIN_CUSTOM_DEFAULT ) ),
 
+    entry( KEY_UI_PREVIEW_STYLESHEET, asFileProperty( PREVIEW_CUSTOM_DEFAULT ) ),
+
     entry( KEY_LANGUAGE_LOCALE, asLocaleProperty( LOCALE_DEFAULT ) ),
 
     entry( KEY_TYPESET_CONTEXT_CLEAN, asBooleanProperty( true ) ),

@@ -60,6 +60,7 @@ public final class HtmlPreview extends SwingNode implements ComponentListener {
    * <li>%s --- language</li>
    * <li>%s --- default stylesheet</li>
    * <li>%s --- language-specific stylesheet</li>
+   * <li>%s --- user-customized stylesheet</li>
    * <li>%s --- font family</li>
    * <li>%d --- font size (must be pixels, not points due to bug)</li>
    * <li>%s --- base href</li>
@@ -69,7 +70,7 @@ public final class HtmlPreview extends SwingNode implements ComponentListener {
     """
       <!doctype html>
       <html lang='%s'><head><title> </title><meta charset='utf-8'/>
-      %s%s<style>body{font-family:'%s';font-size: %dpx;}</style>%s</head><body>
+      %s%s%s<style>body{font-family:'%s';font-size: %dpx;}</style>%s</head><body>
       """;
 
   private static final String HTML_TAIL = "</body></html>";
@@ -209,15 +210,16 @@ public final class HtmlPreview extends SwingNode implements ComponentListener {
    */
   private String generateHead() {
     final var locale = getLocale();
-    final var url = toUrl( locale );
     final var base = getBaseUri();
+    final var custom = getCustomStylesheetUrl();
 
     // Point sizes are converted to pixels because of a rendering bug.
     return format(
       HTML_HEAD,
       locale.getLanguage(),
-      format( HTML_STYLESHEET, HTML_STYLE_PREVIEW ),
-      url == null ? "" : format( HTML_STYLESHEET, url ),
+      toStylesheetString( HTML_STYLE_PREVIEW ),
+      toStylesheetString( toUrl( locale ) ),
+      toStylesheetString( custom ),
       getFontFamily(),
       toPixels( getFontSize() ),
       base.isBlank() ? "" : format( HTML_BASE, base )
@@ -387,6 +389,15 @@ public final class HtmlPreview extends SwingNode implements ComponentListener {
     return Character.toString( (locked ? LOCK : UNLOCK_ALT).getChar() );
   }
 
+  private URL getCustomStylesheetUrl() {
+    try {
+      return mWorkspace.toFile( KEY_UI_PREVIEW_STYLESHEET ).toURI().toURL();
+    } catch( final Exception ex ) {
+      clue( ex );
+      return null;
+    }
+  }
+
   /**
    * Maps keyboard events to scrollbar commands so that users may control
    * the {@link HtmlPreview} panel using the keyboard.
@@ -421,4 +432,8 @@ public final class HtmlPreview extends SwingNode implements ComponentListener {
 
   @Override
   public void componentHidden( final ComponentEvent e ) { }
+
+  private static String toStylesheetString( final URL url ) {
+    return url == null ? "" : format( HTML_STYLESHEET, url );
+  }
 }

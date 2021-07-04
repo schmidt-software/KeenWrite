@@ -312,6 +312,15 @@ public final class PreferencesController {
         )
       ),
       Category.of(
+        get( KEY_UI_PREVIEW ),
+        Group.of(
+          get( KEY_UI_PREVIEW_STYLESHEET ),
+          Setting.of( label( KEY_UI_PREVIEW_STYLESHEET ) ),
+          Setting.of( title( KEY_UI_PREVIEW_STYLESHEET ),
+                      fileProperty( KEY_UI_PREVIEW_STYLESHEET ), false )
+        )
+      ),
+      Category.of(
         get( KEY_LANGUAGE ),
         Group.of(
           get( KEY_LANGUAGE_LOCALE ),

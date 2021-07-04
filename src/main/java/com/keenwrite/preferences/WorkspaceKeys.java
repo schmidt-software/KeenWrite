@@ -78,6 +78,9 @@ public final class WorkspaceKeys {
   public static final Key KEY_UI_SKIN_SELECTION = key( KEY_UI_SKIN, "selection" );
   public static final Key KEY_UI_SKIN_CUSTOM = key( KEY_UI_SKIN, "custom" );
 
+  public static final Key KEY_UI_PREVIEW = key( KEY_UI, "preview" );
+  public static final Key KEY_UI_PREVIEW_STYLESHEET = key( KEY_UI_PREVIEW, "stylesheet" );
+
   public static final Key KEY_LANGUAGE = key( KEY_ROOT, "language" );
   public static final Key KEY_LANGUAGE_LOCALE = key( KEY_LANGUAGE, "locale" );
 

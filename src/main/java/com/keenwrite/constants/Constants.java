@@ -193,9 +193,14 @@ public final class Constants {
   public static final String SKIN_DEFAULT = "Modena Light";
 
   /**
-   * Custom CSS to apply.
+   * Custom JavaFX CSS to apply to user interface.
    */
   public static final File SKIN_CUSTOM_DEFAULT = null;
+
+  /**
+   * Custom HTML CSS to apply to HTML preview panel.
+   */
+  public static final File PREVIEW_CUSTOM_DEFAULT = null;
 
   /**
    * Default identifier to use for synchronized scrolling.
