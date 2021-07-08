@@ -709,6 +709,7 @@ pay	54643348
 today	54480409
 decision	54473599
 labor	54364364
+labour	54364364
 page	54156131
 v	54006911
 published	53988744
@@ -1197,6 +1198,7 @@ growing	34693019
 facts	34680784
 develop	34671105
 color	34665495
+colour	34665495
 begin	34655431
 someone	34653591
 event	34645500
@@ -3680,6 +3682,7 @@ pressed	10353284
 weakness	10352473
 unemployment	10349192
 colors	10348752
+colours	10348752
 warning	10347081
 id	10340997
 tail	10337023
@@ -3771,6 +3774,7 @@ stephen	10009251
 conclude	10007572
 voluntary	9991635
 colored	9991523
+coloured	9991523
 solve	9988932
 females	9988693
 affection	9987157
@@ -5158,6 +5162,7 @@ ore	6839675
 judged	6838945
 cooking	6836249
 harbor	6835908
+harbour	6835908
 com	6833796
 settlements	6833452
 paths	6833427
@@ -6425,6 +6430,7 @@ corners	5109627
 incapable	5107810
 chin	5106949
 amid	5106873
+amidst	5106800
 fierce	5106253
 avoiding	5105860
 invest	5105244
@@ -8100,6 +8106,7 @@ damp	3632138
 bells	3632080
 interpreting	3631875
 abruptly	3631087
+bruskly	3631000
 wonders	3630688
 bless	3630576
 unusually	3630442
@@ -8593,6 +8600,7 @@ hunters	3324130
 fixation	3323080
 impacts	3322290
 endeavor	3322050
+endeavour	3322050
 colon	3322004
 underneath	3321501
 vectors	3321500
@@ -10379,6 +10387,7 @@ extremities	2516663
 intricate	2516648
 rejoice	2516260
 abrupt	2516176
+brusk	2516000
 mystic	2515950
 bury	2515764
 diminishing	2515698
@@ -12178,6 +12187,7 @@ manifesto	1964208
 influx	1963916
 locating	1963288
 colorful	1962876
+colourful	1962876
 photon	1962373
 carriages	1961744
 genome	1961596
@@ -12621,6 +12631,7 @@ dodge	1862180
 unbroken	1861276
 narrowed	1860881
 scar	1860778
+scathe	1860500
 alpine	1860466
 allegations	1860398
 gal	1860034
@@ -14187,6 +14198,7 @@ explores	1539792
 issuance	1539734
 incessant	1539434
 endeavors	1539374
+endeavours	1539374
 foreseen	1539291
 liter	1539044
 correspondents	1539004
@@ -14572,6 +14584,7 @@ accuse	1477568
 transports	1477467
 calhoun	1477371
 coloring	1476724
+colouring	1476724
 chords	1476602
 permanence	1476564
 brink	1476211
@@ -15069,6 +15082,7 @@ bonn	1397152
 sustainability	1397037
 roared	1396582
 endeavored	1396523
+endeavoured	1396523
 breakthrough	1396439
 conquerors	1396390
 uncontrolled	1396382
@@ -17290,6 +17304,7 @@ calamities	1111148
 mined	1111127
 artifact	1110903
 laboring	1110825
+labouring	1110825
 devotional	1110802
 gauze	1110771
 applauded	1110753
@@ -17444,6 +17459,7 @@ facsimile	1092237
 extraneous	1091875
 violates	1091801
 colorless	1091777
+colourless	1091777
 legislator	1091742
 dillon	1091705
 aching	1091693
@@ -21612,6 +21628,7 @@ clasp	748917
 facilitation	748764
 tripartite	748759
 coloration	748740
+colouration	748740
 outbursts	748740
 manifesting	748728
 radcliffe	748674
@@ -21721,6 +21738,7 @@ vicarious	740971
 simplifying	740895
 prerequisites	740869
 endeavoring	740854
+endeavouring	740854
 vega	740695
 unsigned	740659
 deported	740589
@@ -22812,6 +22830,7 @@ parapet	676408
 unquestionable	676264
 toned	676109
 scarred	676016
+scathed	676000
 plankton	675953
 galactic	675945
 iterations	675882
@@ -27016,6 +27035,7 @@ natchez	484409
 cusp	484407
 contravention	484397
 discoloration	484395
+discolouration	484395
 fatherhood	484384
 implore	484344
 amish	484343
@@ -28087,6 +28107,7 @@ disarm	446990
 bugle	446946
 rfc	446941
 watercolor	446894
+watercolour	446894
 pei	446848
 deletions	446824
 contestants	446815
@@ -34151,6 +34172,7 @@ demeaning	289889
 francophone	289884
 schoolboys	289864
 harboring	289845
+harboring	289845
 skylight	289830
 hibernation	289804
 fords	289788
@@ -36038,6 +36060,7 @@ turmeric	252505
 perquisites	252503
 daydreaming	252492
 discolored	252487
+discoloured	252487
 jewishness	252485
 combated	252471
 competitively	252460
@@ -38990,6 +39013,7 @@ carina	206266
 gatekeepers	206265
 romanians	206258
 multicolored	206255
+multicoloured	206255
 raga	206241
 electioneering	206231
 unexceptionable	206228
@@ -39598,6 +39622,7 @@ sulfates	197661
 newspaperman	197653
 frontiersmen	197636
 watercolors	197620
+watercolours	197620
 chaparral	197614
 asperity	197582
 mailings	197577
@@ -42946,6 +42971,7 @@ aral	157251
 obsessively	157249
 dueling	157239
 tricolor	157236
+tricolour	157236
 isfahan	157220
 foamy	157216
 tahitian	157202
@@ -44392,6 +44418,7 @@ idealizing	141737
 compiles	141700
 onscreen	141683
 technicolor	141666
+technicolour	141666
 seaborne	141656
 threateningly	141652
 spiky	141651
@@ -50709,6 +50736,7 @@ loincloth	89912
 streetlights	89911
 lithographed	89898
 discolor	89892
+discolour	89892
 disposals	89892
 molders	89892
 wildfowl	89891
@@ -53252,6 +53280,7 @@ ladoga	74241
 undesirability	74233
 persuader	74233
 colorfully	74226
+colourfully	74226
 fundraiser	74222
 regularize	74217
 sweepings	74210
@@ -55479,6 +55508,7 @@ tankards	62473
 moorlands	62466
 fluorocarbon	62458
 colorants	62448
+colourants	62448
 bangle	62438
 tortuga	62436
 impasto	62428
@@ -56136,6 +56166,7 @@ infirmaries	59390
 aggrandize	59387
 dieters	59386
 ingenue	59385
+hasn't	59385
 mayn't	59385
 kishinev	59378
 squawked	59378
@@ -57088,6 +57119,7 @@ faultlessly	55185
 davits	55184
 untraceable	55183
 sapient	55176
+sophont	55173
 jejune	55171
 ransoms	55168
 cheaters	55166
@@ -57959,6 +57991,7 @@ pliancy	51523
 dogmatist	51519
 undulant	51515
 colorist	51513
+colourist	51513
 backcloth	51508
 nattering	51501
 buzzes	51495
@@ -58012,6 +58045,7 @@ shiploads	51294
 encase	51293
 politicize	51289
 uncolored	51285
+uncoloured	51285
 imperturbably	51281
 molester	51273
 decals	51269
@@ -61199,6 +61233,7 @@ shavers	39398
 superstores	39398
 polymath	39396
 discolorations	39395
+discolourations	39395
 shrikes	39390
 pascagoula	39388
 amputating	39387
@@ -61599,6 +61634,7 @@ serialize	38229
 armlet	38225
 tartans	38225
 colorblind	38222
+colourblind	38222
 gusher	38220
 salesgirl	38219
 bouncers	38218
@@ -64036,6 +64072,7 @@ headwind	30465
 curtailments	30461
 avitaminosis	30458
 colorists	30456
+colourists	30456
 retributions	30456
 angolans	30455
 darvon	30453
@@ -64457,6 +64494,7 @@ hobos	29296
 schoolmarm	29295
 katakana	29294
 varicolored	29294
+varicoloured	29294
 advil	29293
 adventurousness	29293
 flatfoot	29292
@@ -68741,6 +68779,7 @@ drainpipes	19105
 hematologist	19103
 raggedness	19103
 colorblindness	19101
+colourblindness	19101
 anapestic	19100
 outsold	19100
 shinning	19094
@@ -68925,6 +68964,7 @@ mandrakes	18740
 screenshots	18737
 roadsters	18734
 discoloring	18731
+discolouring	18731
 redrew	18723
 walloped	18723
 regrading	18722
@@ -71259,6 +71299,7 @@ propitiously	14397
 gunfights	14396
 groundhogs	14390
 discolors	14389
+discolours	14389
 combiners	14387
 footrests	14387
 lifebelt	14387
@@ -73178,6 +73219,7 @@ cyclamens	11402
 coypu	11400
 washstands	11398
 colorized	11397
+colourised	11397
 exterminates	11397
 frizzly	11397
 saltcellar	11396
@@ -73887,6 +73929,7 @@ exasperatedly	10459
 fizzling	10458
 bermudan	10457
 colorization	10456
+colourisation	10456
 jeremiahs	10454
 bigotries	10453
 pardoners	10452
@@ -74424,6 +74467,7 @@ knicker	9774
 airlifting	9772
 matzot	9772
 colorize	9770
+colourise	9770
 foreknowing	9770
 botches	9766
 taklamakan	9765
@@ -74609,6 +74653,7 @@ puzzlers	9524
 weenies	9524
 spiels	9519
 colorfast	9518
+colourfast	9518
 gigabits	9518
 soundscapes	9518
 bastardization	9517
@@ -75088,6 +75133,7 @@ umbriel	8956
 tamaracks	8950
 hamhung	8949
 colorfulness	8949
+colourfulness	8949
 stanching	8948
 boysenberry	8947
 blitheness	8946
@@ -75535,6 +75581,7 @@ noneffective	8370
 abseiling	8369
 carsick	8367
 recolor	8367
+recolour	8367
 obsoleted	8366
 womenfolks	8365
 angelia	8362
@@ -75715,6 +75762,7 @@ haughtier	8162
 swagged	8161
 arbitragers	8160
 colorfastness	8160
+colourfastness	8160
 entrancingly	8160
 umiaks	8158
 inhospitably	8156
@@ -77010,6 +77058,7 @@ chlorinate	6639
 civilizes	6639
 canonizations	6638
 colorlessness	6638
+colourlessness	6638
 concavely	6637
 crapping	6637
 swellest	6636
@@ -77267,6 +77316,7 @@ miscalculates	6357
 maltreats	6354
 manifolded	6354
 colorizing	6353
+colourising	6353
 trisected	6353
 pissaro	6352
 interlinks	6352
@@ -78437,6 +78487,7 @@ emceed	5195
 redevelopments	5194
 salesladies	5194
 ram's	5193
+she'll	5193
 he'll	5193
 intermixes	5193
 spiffed	5193
@@ -78842,6 +78893,7 @@ overstays	4806
 piccalilli	4806
 zucchinis	4806
 recoloring	4805
+recolouring	4805
 piggybacks	4805
 rehabbing	4805
 ultralights	4803
@@ -79294,6 +79346,7 @@ gangstas	4419
 mislabel	4419
 silkscreens	4418
 tricolors	4418
+tricolours	4418
 faves	4417
 unreel	4417
 imprinter	4416
