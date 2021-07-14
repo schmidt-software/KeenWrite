@@ -94,9 +94,11 @@ public class DocumentParser {
     try( final var reader = new StringReader( xml ) ) {
       input.setEncoding( UTF_8.toString() );
       input.setCharacterStream( reader );
+
       return sDocumentBuilder.parse( input );
     } catch( final Exception ex ) {
       clue( ex );
+
       return sDocumentBuilder.newDocument();
     }
   }
@@ -115,7 +117,8 @@ public class DocumentParser {
    * @param consumer The consumer to call for each matching document node.
    */
   public static void walk(
-    final Document document, final String xpath,
+    final Document document,
+    final String xpath,
     final Consumer<Node> consumer ) {
     assert document != null;
     assert consumer != null;
@@ -137,6 +140,7 @@ public class DocumentParser {
   public static Node createMeta(
     final Document document, final Map.Entry<String, String> entry ) {
     final var node = document.createElement( "meta" );
+
     node.setAttribute( "name", entry.getKey() );
     node.setAttribute( "content", entry.getValue() );
 
@@ -149,6 +153,7 @@ public class DocumentParser {
       final var result = new StreamResult( writer );
 
       sTransformer.transform( domSource, result );
+
       return writer.toString();
     } catch( final Exception ex ) {
       clue( ex );
@@ -160,7 +165,9 @@ public class DocumentParser {
     throws IOException, TransformerException {
     try( final var writer = new StringWriter() ) {
       sTransformer.transform(
-        new DOMSource( root ), new StreamResult( writer ) );
+        new DOMSource( root ), new StreamResult( writer )
+      );
+
       return writer.toString();
     }
   }

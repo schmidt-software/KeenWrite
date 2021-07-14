@@ -59,3 +59,46 @@ pos <- function( s ) {
   s
 }
 
+pro.sub <- function( s ) {
+  if( s == 'm' ) {
+    s <- 'he'
+  }
+  else if( s == 'f' ) {
+    s <- 'she'
+  }
+  else {
+    s <- 'their'
+  }
+
+  s
+}
+
+pro.obj <- function( s ) {
+  if( s == 'm' ) {
+    s <- 'him'
+  }
+  else if( s == 'f' ) {
+    s <- 'her'
+  }
+  else {
+    s <- 'their'
+  }
+
+  s
+}
+
+
+pro.pos <- function( s ) {
+  if( s == 'm' ) {
+    s = 'his'
+  }
+  else if( s == 'f' ) {
+    s <- 'her'
+  }
+  else {
+    s <- 'theirs'
+  }
+
+  s
+}
+

@@ -172,8 +172,8 @@ public class Typesetter {
     }
 
     /**
-     * Setting {@code TEXMFCACHE} when run on a fresh system fails on first
-     * run. If the cache directory doesn't exist, attempt to create it, then
+     * Setting {@code TEXMFCACHE} when run on a fresh system fails on the first
+     * try. If the cache directory doesn't exist, attempt to create it, then
      * call ConTeXt to generate the PDF. This is brittle because if the
      * directory is empty, or not populated with cached data, a false positive
      * will be returned, resulting in no PDF being created.
@@ -198,13 +198,18 @@ public class Typesetter {
       builder.redirectError( DISCARD );
 
       final var process = builder.start();
+      final var stream = process.getInputStream();
 
       // Reading from stdout allows slurping page numbers while generating.
-      final var listener = new PaginationListener(
-        process.getInputStream(), stdout );
+      final var listener = new PaginationListener( stream, stdout );
       listener.start();
 
+      // Even though the process has completed, there may be incomplete I/O.
       process.waitFor();
+
+      // Allow time for any incomplete I/O to take place.
+      process.waitFor( 1, SECONDS );
+
       final var exit = process.exitValue();
       process.destroy();
 
@@ -335,7 +340,7 @@ public class Typesetter {
 
     @Override
     public void run() {
-      try( final var reader = createReader() ) {
+      try( final var reader = createReader( mInputStream ) ) {
         int pageCount = 1;
         int passCount = 1;
         int pageTotal = 0;
@@ -360,19 +365,20 @@ public class Typesetter {
 
             pageCount = page;
 
-            // Let the user know that something is happening in the background.
+            // Inform the user of pages being typeset.
             clue( "Main.status.typeset.page",
                   pageCount, pageTotal < 1 ? "?" : pageTotal, passCount
             );
           }
         }
       } catch( final IOException ex ) {
+        clue( ex );
         throw new RuntimeException( ex );
       }
     }
 
-    private BufferedReader createReader() {
-      return new BufferedReader( new InputStreamReader( mInputStream ) );
+    private BufferedReader createReader( final InputStream inputStream ) {
+      return new BufferedReader( new InputStreamReader( inputStream ) );
     }
   }
 

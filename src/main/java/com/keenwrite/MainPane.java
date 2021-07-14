@@ -50,7 +50,10 @@ import java.io.FileNotFoundException;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -68,6 +71,8 @@ import static com.keenwrite.processors.ProcessorFactory.createProcessors;
 import static java.lang.String.format;
 import static java.lang.System.getProperty;
 import static java.util.concurrent.Executors.newFixedThreadPool;
+import static java.util.concurrent.Executors.newScheduledThreadPool;
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static java.util.stream.Collectors.groupingBy;
 import static javafx.application.Platform.runLater;
 import static javafx.scene.control.Alert.AlertType.ERROR;
@@ -86,6 +91,10 @@ import static org.fxmisc.wellbehaved.event.EventPattern.keyPressed;
  */
 public final class MainPane extends SplitPane {
   private static final ExecutorService sExecutor = newFixedThreadPool( 1 );
+
+  private final ScheduledExecutorService mSaver = newScheduledThreadPool( 1 );
+  private final AtomicReference<ScheduledFuture<?>> mSaveTask =
+    new AtomicReference<>();
 
   private static final Notifier sNotifier = Services.load( Notifier.class );
 
@@ -197,6 +206,7 @@ public final class MainPane extends SplitPane {
     } ) );
 
     register( this );
+    initAutosave( workspace );
   }
 
   @Subscribe
@@ -288,6 +298,39 @@ public final class MainPane extends SplitPane {
     } );
 
     alert.showAndWait();
+  }
+
+  private void initAutosave( final Workspace workspace ) {
+    final var rate = workspace.integerProperty( KEY_EDITOR_AUTOSAVE );
+
+    rate.addListener(
+      ( c, o, n ) -> {
+        final var taskRef = mSaveTask.get();
+
+        // Prevent multiple autosaves from running.
+        if( taskRef != null ) {
+          taskRef.cancel( false );
+        }
+
+        initAutosave( rate );
+      }
+    );
+
+    // Start the save listener (avoids duplicating some code).
+    initAutosave( rate );
+  }
+
+  private void initAutosave( final IntegerProperty rate ) {
+    mSaveTask.set(
+      mSaver.scheduleAtFixedRate(
+        () -> {
+          if( getActiveTextEditor().isModified() ) {
+            // Ensure the modified indicator is cleared by running on EDT.
+            runLater( this::save );
+          }
+        }, 0, rate.intValue(), SECONDS
+      )
+    );
   }
 
   /**
@@ -970,6 +1013,7 @@ public final class MainPane extends SplitPane {
    *
    * @param event Ignored.
    */
+  @SuppressWarnings( "unused" )
   private void autoinsert( final KeyEvent event ) {
     autoinsert();
   }

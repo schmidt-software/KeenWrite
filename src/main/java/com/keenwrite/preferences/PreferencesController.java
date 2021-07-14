@@ -9,10 +9,7 @@ import com.dlsc.preferencesfx.model.Group;
 import com.dlsc.preferencesfx.model.Setting;
 import com.dlsc.preferencesfx.util.StorageHandler;
 import com.dlsc.preferencesfx.view.NavigationView;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.DoubleProperty;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.StringProperty;
+import javafx.beans.property.*;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
@@ -181,6 +178,15 @@ public final class PreferencesController {
           Setting.of( label( KEY_TYPESET_TYPOGRAPHY_QUOTES ) ),
           Setting.of( title( KEY_TYPESET_TYPOGRAPHY_QUOTES ),
                       booleanProperty( KEY_TYPESET_TYPOGRAPHY_QUOTES ) )
+        )
+      ),
+      Category.of(
+        get( KEY_EDITOR ),
+        Group.of(
+          get( KEY_EDITOR_AUTOSAVE ),
+          Setting.of( label( KEY_EDITOR_AUTOSAVE ) ),
+          Setting.of( title( KEY_EDITOR_AUTOSAVE ),
+                      integerProperty( KEY_EDITOR_AUTOSAVE ) )
         )
       ),
       Category.of(
@@ -386,6 +392,11 @@ public final class PreferencesController {
 
   private BooleanProperty booleanProperty( final Key key ) {
     return mWorkspace.booleanProperty( key );
+  }
+
+  @SuppressWarnings( "SameParameterValue" )
+  private IntegerProperty integerProperty( final Key key ) {
+    return mWorkspace.integerProperty( key );
   }
 
   @SuppressWarnings( "SameParameterValue" )

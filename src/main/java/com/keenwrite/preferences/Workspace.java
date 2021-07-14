@@ -79,6 +79,8 @@ public final class Workspace {
     entry( KEY_DOC_COPYRIGHT, asStringProperty( getYear() ) ),
     entry( KEY_DOC_DATE, asStringProperty( getDate() ) ),
 
+    entry( KEY_EDITOR_AUTOSAVE, asIntegerProperty( 30 ) ),
+
     entry( KEY_R_SCRIPT, asStringProperty( "" ) ),
     entry( KEY_R_DIR, asFileProperty( USER_DIRECTORY ) ),
     entry( KEY_R_DELIM_BEGAN, asStringProperty( R_DELIM_BEGAN_DEFAULT ) ),
@@ -130,6 +132,11 @@ public final class Workspace {
     return new SimpleStringProperty( defaultValue );
   }
 
+  @SuppressWarnings( "SameParameterValue" )
+  private IntegerProperty asIntegerProperty( final int defaultValue ) {
+    return new SimpleIntegerProperty( defaultValue );
+  }
+
   private DoubleProperty asDoubleProperty( final double defaultValue ) {
     return new SimpleDoubleProperty( defaultValue );
   }
@@ -164,6 +171,7 @@ public final class Workspace {
     Map.of(
       LocaleProperty.class, LocaleProperty::parseLocale,
       SimpleBooleanProperty.class, Boolean::parseBoolean,
+      SimpleIntegerProperty.class, Integer::parseInt,
       SimpleDoubleProperty.class, Double::parseDouble,
       SimpleFloatProperty.class, Float::parseFloat,
       FileProperty.class, File::new
@@ -257,6 +265,19 @@ public final class Workspace {
   }
 
   /**
+   * Returns the {@link Integer} preference value associated with the given
+   * {@link Key}. The caller must be sure that the given {@link Key} is
+   * associated with a value that matches the return type.
+   *
+   * @param key The {@link Key} associated with a preference value.
+   * @return The value associated with the given {@link Key}.
+   */
+  public int toInteger( final Key key ) {
+    assert key != null;
+    return (Integer) valuesProperty( key ).getValue();
+  }
+
+  /**
    * Returns the {@link Double} preference value associated with the given
    * {@link Key}. The caller must be sure that the given {@link Key} is
    * associated with a value that matches the return type.
@@ -283,6 +304,12 @@ public final class Workspace {
     assert began != null;
     assert ended != null;
     return new Tokens( stringProperty( began ), stringProperty( ended ) );
+  }
+
+  @SuppressWarnings( "SameParameterValue" )
+  public IntegerProperty integerProperty( final Key key ) {
+    assert key != null;
+    return valuesProperty( key );
   }
 
   @SuppressWarnings( "SameParameterValue" )

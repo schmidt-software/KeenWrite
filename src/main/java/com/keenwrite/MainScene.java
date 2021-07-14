@@ -55,9 +55,9 @@ public final class MainScene {
     appPane.setCenter( mainPane );
     appPane.setBottom( mStatusBar );
 
-    final var watchThread = new Thread( mFileWatchService );
-    watchThread.setDaemon( true );
-    watchThread.start();
+    final var fileWatcher = new Thread( mFileWatchService );
+    fileWatcher.setDaemon( true );
+    fileWatcher.start();
 
     mScene = createScene( appPane );
     initStylesheets( mScene, workspace );
