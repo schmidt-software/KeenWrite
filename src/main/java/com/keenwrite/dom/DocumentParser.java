@@ -197,7 +197,9 @@ public class DocumentParser {
    */
   public static String decorate( final String html ) {
     return
-      "<html><head><title> </title></head><body>" + html + "</body></html>";
+      "<html><head><title> </title><meta charset='utf8'/></head><body>"
+        + html
+        + "</body></html>";
   }
 
   private static XPathExpression lookupXPathExpression( final String xpath ) {

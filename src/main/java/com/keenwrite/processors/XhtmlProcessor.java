@@ -5,12 +5,14 @@ import com.keenwrite.dom.DocumentParser;
 import com.keenwrite.preferences.Key;
 import com.keenwrite.preferences.Workspace;
 import com.keenwrite.ui.heuristics.WordCounter;
+import com.whitemagicsoftware.keenquotes.Contractions;
 import com.whitemagicsoftware.keenquotes.Converter;
 import javafx.beans.property.StringProperty;
 import org.w3c.dom.Document;
 
 import java.io.FileNotFoundException;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -40,8 +42,8 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
   private final static Pattern BLANK =
     compile( "\\p{Blank}", UNICODE_CHARACTER_CLASS );
 
-  private final static Converter sTypographer =
-    new Converter( lex -> clue( lex.toString() ), CHARS, PARSER_XML );
+  private final static Converter sTypographer = new Converter(
+    lex -> clue( lex.toString() ), contractions(), CHARS, PARSER_XML );
 
   private final ProcessorContext mContext;
 
@@ -216,7 +218,7 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
     return mContext.getWorkspace();
   }
 
-  private Locale locale() { return getWorkspace().getLocale(); }
+  private Locale locale() {return getWorkspace().getLocale();}
 
   private String title() {
     return resolve( KEY_DOC_TITLE );
@@ -285,5 +287,15 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
 
   private StringProperty stringProperty( final Key key ) {
     return getWorkspace().stringProperty( key );
+  }
+
+  /**
+   * Creates contracts with a custom set of unambiguous strings.
+   *
+   * @return List of contractions to use for curling straight quotes.
+   */
+  private static Contractions contractions() {
+    final var builder = new Contractions.Builder();
+    return builder.withBeganUnambiguous( List.of( "bout" ) ).build();
   }
 }

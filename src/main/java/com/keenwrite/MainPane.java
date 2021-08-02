@@ -508,6 +508,8 @@ public final class MainPane extends SplitPane {
    * @param tab The {@link Tab} that was closed.
    */
   private void close( final Tab tab ) {
+    assert tab != null;
+
     final var handler = tab.getOnClosed();
 
     if( handler != null ) {
@@ -537,8 +539,8 @@ public final class MainPane extends SplitPane {
   private void close( final TextResource resource ) {
     getTab( resource ).ifPresent(
       ( tab ) -> {
-        tab.getTabPane().getTabs().remove( tab );
         close( tab );
+        tab.getTabPane().getTabs().remove( tab );
       }
     );
   }
