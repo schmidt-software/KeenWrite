@@ -221,6 +221,7 @@ pl.irregular.pl <- function( s ) {
     "mythos" = "mythoi",
     "octopus" = "octopuses",
     "ox" = "oxen",
+    "passerby" = "passersby",
     "soliloquy" = "soliloquies",
     "trilby" = "trilbys"
   )

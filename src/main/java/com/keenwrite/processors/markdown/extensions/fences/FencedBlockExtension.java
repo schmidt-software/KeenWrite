@@ -2,6 +2,7 @@
 package com.keenwrite.processors.markdown.extensions.fences;
 
 import com.keenwrite.preferences.Workspace;
+import com.keenwrite.preview.DiagramUrlGenerator;
 import com.keenwrite.processors.DefinitionProcessor;
 import com.keenwrite.processors.Processor;
 import com.keenwrite.processors.ProcessorContext;
@@ -15,19 +16,12 @@ import com.vladsch.flexmark.util.data.DataHolder;
 import com.vladsch.flexmark.util.sequence.BasedSequence;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.ByteArrayOutputStream;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.zip.Deflater;
 
-import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.preferences.WorkspaceKeys.KEY_IMAGES_SERVER;
 import static com.vladsch.flexmark.html.HtmlRenderer.Builder;
 import static com.vladsch.flexmark.html.renderer.LinkType.LINK;
-import static java.lang.String.format;
-import static java.util.Base64.getUrlEncoder;
-import static java.util.zip.Deflater.BEST_COMPRESSION;
-import static java.util.zip.Deflater.FULL_FLUSH;
 
 /**
  * Responsible for converting textual diagram descriptions into HTML image
@@ -38,14 +32,14 @@ public class FencedBlockExtension extends HtmlRendererAdapter {
   private final static int DIAGRAM_STYLE_LEN = DIAGRAM_STYLE.length();
 
   private final Processor<String> mProcessor;
-  private final ProcessorContext mContext;
+  private final Workspace mWorkspace;
 
   public FencedBlockExtension(
-    final Processor<String> processor, final ProcessorContext context ) {
+    final Processor<String> processor, final Workspace workspace ) {
     assert processor != null;
-    assert context != null;
+    assert workspace != null;
     mProcessor = processor;
-    mContext = context;
+    mWorkspace = workspace;
   }
 
   /**
@@ -68,7 +62,9 @@ public class FencedBlockExtension extends HtmlRendererAdapter {
    */
   public static FencedBlockExtension create(
     final Processor<String> processor, final ProcessorContext context ) {
-    return new FencedBlockExtension( processor, context );
+    assert processor != null;
+    assert context != null;
+    return new FencedBlockExtension( processor, context.getWorkspace() );
   }
 
   @Override
@@ -106,8 +102,8 @@ public class FencedBlockExtension extends HtmlRendererAdapter {
           final var type = style.substring( DIAGRAM_STYLE_LEN );
           final var content = node.getContentChars().normalizeEOL();
           final var text = mProcessor.apply( content );
-          final var encoded = encode( text );
-          final var source = getSourceUrl( type, encoded );
+          final var server = mWorkspace.toString( KEY_IMAGES_SERVER );
+          final var source = DiagramUrlGenerator.toUrl( server, type, text );
           final var link = context.resolveLink( LINK, source, false );
 
           html.attr( "src", source );
@@ -120,42 +116,6 @@ public class FencedBlockExtension extends HtmlRendererAdapter {
       } ) );
 
       return set;
-    }
-
-    private byte[] compress( byte[] source ) {
-      final var inLen = source.length;
-      final var result = new byte[ inLen ];
-      final var compressor = new Deflater( BEST_COMPRESSION );
-
-      compressor.setInput( source, 0, inLen );
-      compressor.finish();
-      final var outLen = compressor.deflate( result, 0, inLen, FULL_FLUSH );
-      compressor.end();
-
-      try( final var out = new ByteArrayOutputStream() ) {
-        out.write( result, 0, outLen );
-        return out.toByteArray();
-      } catch( final Exception ex ) {
-        clue( ex );
-        throw new RuntimeException( ex );
-      }
-    }
-
-    private String encode( final String decoded ) {
-      return getUrlEncoder().encodeToString( compress( decoded.getBytes() ) );
-    }
-
-    private String getSourceUrl( final String type, final String encoded ) {
-      return
-        format( "https://%s/%s/svg/%s", getDiagramServerName(), type, encoded );
-    }
-
-    private Workspace getWorkspace() {
-      return mContext.getWorkspace();
-    }
-
-    private String getDiagramServerName() {
-      return getWorkspace().toString( KEY_IMAGES_SERVER );
     }
   }
 

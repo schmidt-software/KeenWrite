@@ -38,7 +38,6 @@ def moduleSecurity = [
     "--add-exports=javafx.graphics/com.sun.javafx.application=ALL-UNNAMED",
     "--add-exports=javafx.graphics/com.sun.javafx.geom=ALL-UNNAMED",
     "--add-exports=javafx.graphics/com.sun.javafx.scene.traversal=ALL-UNNAMED",
-    "--add-exports=javafx.graphics/com.sun.javafx.scene.traversal=ALL-UNNAMED",
     "--add-exports=javafx.graphics/com.sun.javafx.text=ALL-UNNAMED",
 ]
 
@@ -51,7 +50,7 @@ javafx {
 dependencies {
   def v_junit = '5.7.2'
   def v_flexmark = '0.62.2'
-  def v_jackson = '2.12.3'
+  def v_jackson = '2.12.5'
   def v_batik = '1.14'
   def v_wheatsheaf = '2.0.1'
 
@@ -86,8 +85,8 @@ dependencies {
   implementation 'com.ximpleware:vtd-xml:2.13.4'
 
   // HTML parsing and rendering
-  implementation 'org.jsoup:jsoup:1.13.1'
-  implementation 'org.xhtmlrenderer:flying-saucer-core:9.1.20'
+  implementation 'org.jsoup:jsoup:1.14.2'
+  implementation 'org.xhtmlrenderer:flying-saucer-core:9.1.22'
 
   // R
   implementation 'org.renjin:renjin-script-engine:3.5-beta76'

@@ -22,7 +22,6 @@ import org.testfx.framework.junit5.Start;
 
 import static com.keenwrite.util.FontLoader.initFonts;
 
-//@ExtendWith(ApplicationExtension.class)
 public class TreeViewTest extends Application {
   private final SimpleObjectProperty<Node> mTextEditor =
     new SimpleObjectProperty<>();
