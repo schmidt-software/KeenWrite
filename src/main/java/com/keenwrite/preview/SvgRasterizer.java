@@ -36,6 +36,7 @@ import static java.text.NumberFormat.getIntegerInstance;
 import static org.apache.batik.bridge.UnitProcessor.createContext;
 import static org.apache.batik.bridge.UnitProcessor.svgHorizontalLengthToUserSpace;
 import static org.apache.batik.transcoder.SVGAbstractTranscoder.KEY_WIDTH;
+import static org.apache.batik.transcoder.TranscodingHints.Key;
 import static org.apache.batik.transcoder.image.ImageTranscoder.KEY_PIXEL_UNIT_TO_MILLIMETER;
 import static org.apache.batik.util.SVGConstants.SVG_WIDTH_ATTRIBUTE;
 import static org.apache.batik.util.XMLResourceDescriptor.getXMLParserClassName;
@@ -187,11 +188,11 @@ public final class SvgRasterizer {
    */
   public static BufferedImage rasterize(
     final InputStream svg, final float dpi ) throws TranscoderException {
-    final var transcoder = new BufferedImageTranscoder();
-    transcoder.addTranscodingHint(
-      KEY_PIXEL_UNIT_TO_MILLIMETER, 1f / dpi * 25.4f );
-    transcoder.transcode( new TranscoderInput( svg ), null );
-    return transcoder.getImage();
+    return rasterize(
+      new TranscoderInput( svg ),
+      KEY_PIXEL_UNIT_TO_MILLIMETER,
+      1f / dpi * 25.4f
+    );
   }
 
   /**
@@ -201,47 +202,13 @@ public final class SvgRasterizer {
    * @param width The rasterized image's width (in pixels).
    * @return The rasterized image.
    */
-  public static BufferedImage rasterize( final Document svg, final int width )
-    throws TranscoderException {
-    final var transcoder = new BufferedImageTranscoder();
-    transcoder.addTranscodingHint(
-      KEY_WIDTH, fit( svg.getDocumentElement(), width )
+  public static BufferedImage rasterize(
+    final Document svg, final int width ) throws TranscoderException {
+    return rasterize(
+      new TranscoderInput( svg ),
+      KEY_WIDTH,
+      fit( svg.getDocumentElement(), width )
     );
-    transcoder.transcode( new TranscoderInput( svg ), null );
-    return transcoder.getImage();
-  }
-
-  /**
-   * Returns either the given element's SVG document width, or the display
-   * width, whichever is smaller.
-   *
-   * @param root  The SVG document's root node.
-   * @param width The display width (e.g., rendering canvas width).
-   * @return The lower value of the document's width or the display width.
-   */
-  private static float fit( final Element root, final int width ) {
-    final String w = root.getAttribute( SVG_WIDTH_ATTRIBUTE );
-
-    return w == null || w.isBlank() ? width : fit( root, w, width );
-  }
-
-  /**
-   * Returns the width in user space units (pixels?).
-   *
-   * @param root  The element containing the width attribute.
-   * @param w     The element's width attribute value.
-   * @param width The rendering canvas width.
-   * @return Either the rendering canvas width or SVG document width,
-   * whichever is smaller.
-   */
-  private static float fit(
-    final Element root, final String w, final int width ) {
-    final float usWidth = svgHorizontalLengthToUserSpace(
-      w, SVG_WIDTH_ATTRIBUTE, createContext( BRIDGE_CONTEXT, root )
-    );
-
-    // If the image is too small, scale it to 1/4 the canvas width.
-    return Math.min( usWidth < 5 ? width / 4.0f : usWidth, (float) width );
   }
 
   /**
@@ -255,7 +222,7 @@ public final class SvgRasterizer {
   public static BufferedImage rasterize( final Document document )
     throws ParseException, TranscoderException {
     final var root = document.getDocumentElement();
-    final var width = root.getAttribute( "width" );
+    final var width = root.getAttribute( SVG_WIDTH_ATTRIBUTE );
     return rasterize( document, INT_FORMAT.parse( width ).intValue() );
   }
 
@@ -316,7 +283,7 @@ public final class SvgRasterizer {
     throws ParseException, TranscoderException {
     final var document = toDocument( xml );
     final var root = document.getDocumentElement();
-    final var width = root.getAttribute( "width" );
+    final var width = root.getAttribute( SVG_WIDTH_ATTRIBUTE );
     return rasterizeString( xml, INT_FORMAT.parse( width ).intValue() );
   }
 
@@ -364,5 +331,58 @@ public final class SvgRasterizer {
     } catch( final Exception ex ) {
       throw new IllegalArgumentException( ex );
     }
+  }
+
+  /**
+   * Creates a rasterized image of the given source document.
+   *
+   * @param input The source document to transcode.
+   * @param key   Transcoding hint key.
+   * @param width Transcoding hint value.
+   * @return A new {@link BufferedImageTranscoder} instance with the given
+   * transcoding hint applied.
+   */
+  private static BufferedImage rasterize(
+    final TranscoderInput input, final Key key, final float width )
+    throws TranscoderException {
+    final var transcoder = new BufferedImageTranscoder();
+
+    transcoder.addTranscodingHint( key, width );
+    transcoder.transcode( input, null );
+
+    return transcoder.getImage();
+  }
+
+  /**
+   * Returns either the given element's SVG document width, or the display
+   * width, whichever is smaller.
+   *
+   * @param root  The SVG document's root node.
+   * @param width The display width (e.g., rendering canvas width).
+   * @return The lower value of the document's width or the display width.
+   */
+  private static float fit( final Element root, final int width ) {
+    final var w = root.getAttribute( SVG_WIDTH_ATTRIBUTE );
+
+    return w == null || w.isBlank() ? width : fit( root, w, width );
+  }
+
+  /**
+   * Returns the width in user space units (pixels?).
+   *
+   * @param root  The element containing the width attribute.
+   * @param w     The element's width attribute value.
+   * @param width The rendering canvas width.
+   * @return Either the rendering canvas width or SVG document width,
+   * whichever is smaller.
+   */
+  private static float fit(
+    final Element root, final String w, final int width ) {
+    final var usWidth = svgHorizontalLengthToUserSpace(
+      w, SVG_WIDTH_ATTRIBUTE, createContext( BRIDGE_CONTEXT, root )
+    );
+
+    // If the image is too small, scale it to 1/4 the canvas width.
+    return Math.min( usWidth < 5 ? width / 4.0f : usWidth, (float) width );
   }
 }
