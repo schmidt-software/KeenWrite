@@ -2,6 +2,10 @@
 package com.keenwrite.preview;
 
 import org.apache.batik.anim.dom.SAXSVGDocumentFactory;
+import org.apache.batik.bridge.BridgeContext;
+import org.apache.batik.bridge.DocumentLoader;
+import org.apache.batik.bridge.UserAgent;
+import org.apache.batik.bridge.UserAgentAdapter;
 import org.apache.batik.css.parser.Parser;
 import org.apache.batik.gvt.renderer.ImageRenderer;
 import org.apache.batik.transcoder.TranscoderException;
@@ -29,8 +33,11 @@ import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.preview.HighQualityRenderingHints.RENDERING_HINTS;
 import static java.awt.image.BufferedImage.TYPE_INT_RGB;
 import static java.text.NumberFormat.getIntegerInstance;
+import static org.apache.batik.bridge.UnitProcessor.createContext;
+import static org.apache.batik.bridge.UnitProcessor.svgHorizontalLengthToUserSpace;
 import static org.apache.batik.transcoder.SVGAbstractTranscoder.KEY_WIDTH;
 import static org.apache.batik.transcoder.image.ImageTranscoder.KEY_PIXEL_UNIT_TO_MILLIMETER;
+import static org.apache.batik.util.SVGConstants.SVG_WIDTH_ATTRIBUTE;
 import static org.apache.batik.util.XMLResourceDescriptor.getXMLParserClassName;
 
 /**
@@ -54,6 +61,11 @@ public final class SvgRasterizer {
       InkscapeCssParser.class.getName()
     );
   }
+
+  private static final UserAgent USER_AGENT = new UserAgentAdapter();
+  private static final BridgeContext BRIDGE_CONTEXT = new BridgeContext(
+    USER_AGENT, new DocumentLoader( USER_AGENT )
+  );
 
   private static final SAXSVGDocumentFactory FACTORY_DOM =
     new SAXSVGDocumentFactory( getXMLParserClassName() );
@@ -192,9 +204,44 @@ public final class SvgRasterizer {
   public static BufferedImage rasterize( final Document svg, final int width )
     throws TranscoderException {
     final var transcoder = new BufferedImageTranscoder();
-    transcoder.addTranscodingHint( KEY_WIDTH, (float) width );
+    transcoder.addTranscodingHint(
+      KEY_WIDTH, fit( svg.getDocumentElement(), width )
+    );
     transcoder.transcode( new TranscoderInput( svg ), null );
     return transcoder.getImage();
+  }
+
+  /**
+   * Returns either the given element's SVG document width, or the display
+   * width, whichever is smaller.
+   *
+   * @param root  The SVG document's root node.
+   * @param width The display width (e.g., rendering canvas width).
+   * @return The lower value of the document's width or the display width.
+   */
+  private static float fit( final Element root, final int width ) {
+    final String w = root.getAttribute( SVG_WIDTH_ATTRIBUTE );
+
+    return w == null || w.isBlank() ? width : fit( root, w, width );
+  }
+
+  /**
+   * Returns the width in user space units (pixels?).
+   *
+   * @param root  The element containing the width attribute.
+   * @param w     The element's width attribute value.
+   * @param width The rendering canvas width.
+   * @return Either the rendering canvas width or SVG document width,
+   * whichever is smaller.
+   */
+  private static float fit(
+    final Element root, final String w, final int width ) {
+    final float usWidth = svgHorizontalLengthToUserSpace(
+      w, SVG_WIDTH_ATTRIBUTE, createContext( BRIDGE_CONTEXT, root )
+    );
+
+    // If the image is too small, scale it to 1/4 the canvas width.
+    return Math.min( usWidth < 5 ? width / 4.0f : usWidth, (float) width );
   }
 
   /**
