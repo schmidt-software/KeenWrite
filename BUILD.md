@@ -29,13 +29,7 @@ The application is built.
 
 # Run
 
-After the application is compiled, run it as follows:
-
-    java --illegal-access=permit -jar build/libs/keenwrite.jar
-
-On Windows:
-
-    java --illegal-access=permit -jar build\libs\keenwrite.jar
+After the application is compiled, run it using `keenwrite.sh`.
 
 # Integrated development environments
 
