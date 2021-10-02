@@ -6,9 +6,9 @@ This document describes how to build the application and platform binaries.
 
 Download and install the following software packages:
 
-* [JDK 16](https://bell-sw.com/pages/downloads/?version=java-16) (Full JDK + JavaFX)
-* [Gradle 7.0](https://services.gradle.org/distributions)
-* [Git 2.28.0](https://git-scm.com/downloads)
+* [JDK 17](https://bell-sw.com/pages/downloads/?version=java-17-lts&package=jdk-full) (Full JDK + JavaFX)
+* [Gradle 7.2](https://gradle.org/releases)
+* [Git 2.33](https://git-scm.com/downloads)
 
 ## Repository
 
@@ -58,24 +58,14 @@ Complete the following steps to import the application:
 
 The project is imported into the IDE.
 
-### Configure
-
-Configure the IDE to run the application as follows:
-
-1. Click **Run → Edit Configurations**.
-1. Click **+** to add a new configuration.
-1. Set **Name** to: KeenWrite
-1. Click **Modify Options → Add VM options**.
-1. Set **VM options** field to: `--illegal-access=permit`
-1. Click **OK** close the dialog.
-
-The changes should resemble:
-
-![Run Configuration](docs/images/app-ide.png)
-
 ### Run
 
-Click **Run → KeenWrite** to launch the application.
+Run the application within the IDE as follows:
+
+1. Open **Launcher.java**.
+1. Click **Run → Launcher**.
+
+The application is started.
 
 # Installers
 

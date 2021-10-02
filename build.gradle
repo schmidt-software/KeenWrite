@@ -29,20 +29,32 @@ if (project.hasProperty('targetOs')) {
 }
 
 def moduleSecurity = [
+    "--add-modules javafx.swing,javafx.controls,javafx.fxml,javafx.media,javafx.web,javafx.base,javafx.graphics",
     "--add-opens=javafx.controls/javafx.scene.control=ALL-UNNAMED",
     "--add-opens=javafx.controls/javafx.scene.control.skin=ALL-UNNAMED",
     "--add-opens=javafx.graphics/javafx.scene.text=ALL-UNNAMED",
     "--add-opens=javafx.graphics/com.sun.javafx.css=ALL-UNNAMED",
     "--add-opens=javafx.graphics/com.sun.javafx.text=ALL-UNNAMED",
+    "--add-opens=javafx.controls/javafx.scene.control.skin=org.controlsfx.controls",
+    "--add-opens=javafx.graphics/javafx.scene=org.controlsfx.controls",
     "--add-exports=javafx.base/com.sun.javafx.event=ALL-UNNAMED",
     "--add-exports=javafx.graphics/com.sun.javafx.application=ALL-UNNAMED",
     "--add-exports=javafx.graphics/com.sun.javafx.geom=ALL-UNNAMED",
-    "--add-exports=javafx.graphics/com.sun.javafx.scene.traversal=ALL-UNNAMED",
     "--add-exports=javafx.graphics/com.sun.javafx.text=ALL-UNNAMED",
+    "--add-exports=javafx.graphics/com.sun.javafx.scene=ALL-UNNAMED",
+    "--add-exports=javafx.graphics/com.sun.javafx.scene=org.controlsfx.controls",
+    "--add-exports=javafx.controls/com.sun.javafx.scene.control=org.controlsfx.controls",
+    "--add-exports=javafx.controls/com.sun.javafx.scene.control.behavior=org.controlsfx.controls",
+    "--add-exports=javafx.controls/com.sun.javafx.scene.control.inputmap=org.controlsfx.controls",
+    "--add-exports=javafx.graphics/com.sun.javafx.scene.traversal=ALL-UNNAMED",
+    "--add-exports=javafx.graphics/com.sun.javafx.scene.traversal=org.controlsfx.controls",
+    "--add-exports=javafx.base/com.sun.javafx.event=org.controlsfx.controls",
+    "--add-exports=javafx.base/com.sun.javafx.collections=org.controlsfx.controls",
+    "--add-exports=javafx.base/com.sun.javafx.runtime=org.controlsfx.controls"
 ]
 
 javafx {
-  version = "16"
+  version = "17"
   modules = ['javafx.controls', 'javafx.swing']
   configuration = 'compileOnly'
 }
@@ -50,7 +62,7 @@ javafx {
 dependencies {
   def v_junit = '5.7.2'
   def v_flexmark = '0.62.2'
-  def v_jackson = '2.12.5'
+  def v_jackson = '2.13.0'
   def v_batik = '1.14'
   def v_wheatsheaf = '2.0.1'
 
@@ -115,7 +127,6 @@ dependencies {
   implementation 'javax.validation:validation-api:2.0.1.Final'
   implementation 'org.greenrobot:eventbus:3.2.0'
 
-  // TODO: Update Workspace config to use Jackson to shave ~800kb
   implementation 'org.apache.commons:commons-configuration2:2.7'
   implementation 'commons-beanutils:commons-beanutils:1.9.4'
 

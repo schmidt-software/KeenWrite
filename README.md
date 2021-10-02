@@ -35,13 +35,16 @@ chmod +x keenwrite.bin
 
 ### Other
 
-Download and install a full version of [JRE 16](https://bell-sw.com/pages/downloads/?version=java-16&package=jre-full) that includes JavaFX module support, then run:
+On other platforms, start the application as follows:
 
-``` bash
-java --illegal-access=permit -jar build/libs/keenwrite.jar 2> /dev/null
-```
+1. Download the *full version* of the Java Runtime Environment, [JRE 17](https://bell-sw.com/pages/downloads/?version=java-17-lts&package=jre-full#mn).
+1. Install the JRE.
+1. Open a terminal window.
+1. Verify the installation: `java -version`
+1. Make `keenwrite.sh` executable.
+1. Run: `./keenwrite.sh`
 
-The `--illegal-access=permit` is a temporary option until third-party libraries used by the text editor are updated or replaced.
+The application is started.
 
 ## Features
 

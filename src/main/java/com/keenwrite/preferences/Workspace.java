@@ -60,8 +60,7 @@ import static javafx.collections.FXCollections.observableSet;
  *   <dt>Path</dt>
  *   <dd>Fully qualified file name, which includes all parent directories.</dd>
  *   <dt>Dir</dt>
- *   <dd>Directory without a file name ({@link File#isDirectory()} is true)
- *   .</dd>
+ *   <dd>Directory without file name ({@link File#isDirectory()} is true).</dd>
  * </dl>
  */
 public final class Workspace {
