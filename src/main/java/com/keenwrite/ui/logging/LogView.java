@@ -40,9 +40,10 @@ import static javafx.stage.Modality.NONE;
 public final class LogView extends Alert {
   /**
    * Number of error messages to retain in the {@link TableView}; must be
-   * greater than zero.
+   * greater than zero. Typesetting the document can cause many page number
+   * messages to be logged.
    */
-  private static final int CACHE_SIZE = 150;
+  private static final int CACHE_SIZE = 500;
 
   private final ObservableList<LogEntry> mItems = observableArrayList();
   private final TableView<LogEntry> mTable = new TableView<>( mItems );

@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
 
 java \
-  --illegal-access=permit \
-  --add-modules javafx.swing,javafx.controls,javafx.fxml,javafx.media,javafx.web,javafx.base,javafx.graphics \
   --add-opens=javafx.controls/javafx.scene.control=ALL-UNNAMED \
   --add-opens=javafx.controls/javafx.scene.control.skin=ALL-UNNAMED \
   --add-opens=javafx.graphics/javafx.scene.text=ALL-UNNAMED \

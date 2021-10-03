@@ -29,32 +29,21 @@ if (project.hasProperty('targetOs')) {
 }
 
 def moduleSecurity = [
-    "--add-modules=javafx.base,javafx.graphics,javafx.swing,javafx.controls,javafx.media,javafx.fxml",
     "--add-opens=javafx.controls/javafx.scene.control=ALL-UNNAMED",
     "--add-opens=javafx.controls/javafx.scene.control.skin=ALL-UNNAMED",
     "--add-opens=javafx.graphics/javafx.scene.text=ALL-UNNAMED",
     "--add-opens=javafx.graphics/com.sun.javafx.css=ALL-UNNAMED",
     "--add-opens=javafx.graphics/com.sun.javafx.text=ALL-UNNAMED",
-    "--add-opens=javafx.controls/javafx.scene.control.skin=org.controlsfx.controls",
-    "--add-opens=javafx.graphics/javafx.scene=org.controlsfx.controls",
     "--add-exports=javafx.base/com.sun.javafx.event=ALL-UNNAMED",
     "--add-exports=javafx.graphics/com.sun.javafx.application=ALL-UNNAMED",
     "--add-exports=javafx.graphics/com.sun.javafx.geom=ALL-UNNAMED",
     "--add-exports=javafx.graphics/com.sun.javafx.text=ALL-UNNAMED",
     "--add-exports=javafx.graphics/com.sun.javafx.scene=ALL-UNNAMED",
-    "--add-exports=javafx.graphics/com.sun.javafx.scene=org.controlsfx.controls",
-    "--add-exports=javafx.controls/com.sun.javafx.scene.control=org.controlsfx.controls",
-    "--add-exports=javafx.controls/com.sun.javafx.scene.control.behavior=org.controlsfx.controls",
-    "--add-exports=javafx.controls/com.sun.javafx.scene.control.inputmap=org.controlsfx.controls",
     "--add-exports=javafx.graphics/com.sun.javafx.scene.traversal=ALL-UNNAMED",
-    "--add-exports=javafx.graphics/com.sun.javafx.scene.traversal=org.controlsfx.controls",
-    "--add-exports=javafx.base/com.sun.javafx.event=org.controlsfx.controls",
-    "--add-exports=javafx.base/com.sun.javafx.collections=org.controlsfx.controls",
-    "--add-exports=javafx.base/com.sun.javafx.runtime=org.controlsfx.controls"
 ]
 
 javafx {
-  version = "16"
+  version = "17"
   modules = ['javafx.controls', 'javafx.swing']
   configuration = 'compileOnly'
 }
@@ -67,7 +56,7 @@ dependencies {
   def v_wheatsheaf = '2.0.1'
 
   // JavaFX
-  implementation 'org.controlsfx:controlsfx:11.1.0'
+  //implementation 'org.controlsfx:controlsfx:11.1.0'
   implementation 'org.fxmisc.richtext:richtextfx:0.10.6'
   implementation 'org.fxmisc.wellbehaved:wellbehavedfx:0.3.3'
   implementation 'com.miglayout:miglayout-javafx:11.0'
@@ -142,8 +131,8 @@ dependencies {
     }
   }
 
-  testImplementation "org.junit.jupiter:junit-jupiter-api:5.8.1"
-  testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
+  testImplementation "org.junit.jupiter:junit-jupiter-api:${v_junit}"
+  testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
 
   testImplementation "org.testfx:testfx-junit5:4.0.16-alpha"
 }
