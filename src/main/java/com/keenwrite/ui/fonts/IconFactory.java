@@ -22,7 +22,7 @@ import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.io.MediaTypeExtension.MEDIA_UNDEFINED;
 import static com.keenwrite.preview.SvgRasterizer.BROKEN_IMAGE_PLACEHOLDER;
 import static com.keenwrite.preview.SvgRasterizer.rasterize;
-import static java.awt.Font.BOLD;
+import static java.awt.Font.*;
 import static java.nio.file.Files.readAttributes;
 import static javafx.embed.swing.SwingFXUtils.toFXImage;
 import static org.apache.commons.io.FilenameUtils.getExtension;
@@ -111,7 +111,7 @@ public class IconFactory {
         : mte.getExtension();
     }
 
-    if(extension == null) {
+    if( extension == null ) {
       extension = "";
     }
     else {
@@ -157,8 +157,33 @@ public class IconFactory {
     return IconFactory.class.getResourceAsStream( resource );
   }
 
+  /**
+   * Returns the font to use when adding icons to the UI.
+   *
+   * @param size The font size to use when drawing the icon.
+   * @return A font containing numerous icons.
+   */
   public static Font getIconFont( final int size ) {
-    return new Font( FONT_AWESOME.getName(), BOLD, size );
+    try( final var fontStream = openFont() ) {
+      final var font = createFont( TRUETYPE_FONT, fontStream );
+      return font.deriveFont( PLAIN, size );
+    } catch( final Exception e ) {
+      // This doesn't actually work, seemingly after an upgrade to ControlsFX.
+      // As such, creating the font and deriving it will work.
+      return new Font( FONT_AWESOME.getName(), PLAIN, size );
+    }
+  }
+
+  /**
+   * This re-reads the {@link FontAwesome} font TTF resource. For a reason
+   * not yet investigated, the font doesn't appear to be accessible to the
+   * application. This may have happened during an upgrade to ControlsFX.
+   * Callers are responsible for closing the stream.
+   *
+   * @return A stream containing font TrueType glyph information.
+   */
+  private static InputStream openFont() {
+    return FontAwesome.class.getResourceAsStream( "fontawesome-webfont.ttf" );
   }
 
   private static Node createGlyph( final String icon ) {

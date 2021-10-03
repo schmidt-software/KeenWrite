@@ -687,6 +687,13 @@ public final class MainPane extends SplitPane {
       ( __ ) -> getRecentFiles().remove( file.getAbsolutePath() )
     );
 
+    // When closing a tab, give focus to the newly selected tab.
+    tab.selectedProperty().addListener( ( c, o, n ) -> {
+      if( n != null && n ) {
+        tab.getTabPane().requestFocus();
+      }
+    } );
+
     tab.tabPaneProperty().addListener( ( cPane, oPane, nPane ) -> {
       if( nPane != null ) {
         nPane.focusedProperty().addListener( ( c, o, n ) -> {
