@@ -52,6 +52,20 @@ Complete the following steps to import the application:
 
 The project is imported into the IDE.
 
+### Configure
+
+Before running the application, add the permissive access option as follows:
+
+1. Open **Launcher.java**.
+1. Click the arrow beside the `Launcher` class.
+1. Click **Modify Run Configuration**.
+1. Click **Modify options**.
+1. Click **Add VM options**.
+1. Set **VM options** to: `--illegal-access=permit`
+1. Click **OK**.
+
+The run settings are configured.
+
 ### Run
 
 Run the application within the IDE as follows:
