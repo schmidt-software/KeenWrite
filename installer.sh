@@ -11,15 +11,25 @@ source $HOME/bin/build-template
 
 readonly APP_NAME=$(find "${SCRIPT_DIR}/src" -type f -name "settings.properties" -exec cat {} \; | grep "application.title=" | cut -d'=' -f2)
 readonly FILE_APP_JAR="${APP_NAME}.jar"
-
-# JDK 16 work-around until RichTextFX is fixed.
-# See: https://github.com/FXMisc/RichTextFX/issues/1013
-readonly OPT_JAVA="--illegal-access=permit"
+readonly OPT_JAVA=$(cat << END_OF_ARGS
+--add-opens=javafx.controls/javafx.scene.control=ALL-UNNAMED \
+--add-opens=javafx.controls/javafx.scene.control.skin=ALL-UNNAMED \
+--add-opens=javafx.graphics/javafx.scene.text=ALL-UNNAMED \
+--add-opens=javafx.graphics/com.sun.javafx.css=ALL-UNNAMED \
+--add-opens=javafx.graphics/com.sun.javafx.text=ALL-UNNAMED \
+--add-exports=javafx.base/com.sun.javafx.event=ALL-UNNAMED \
+--add-exports=javafx.graphics/com.sun.javafx.application=ALL-UNNAMED \
+--add-exports=javafx.graphics/com.sun.javafx.geom=ALL-UNNAMED \
+--add-exports=javafx.graphics/com.sun.javafx.text=ALL-UNNAMED \
+--add-exports=javafx.graphics/com.sun.javafx.scene=ALL-UNNAMED \
+--add-exports=javafx.graphics/com.sun.javafx.scene.traversal=ALL-UNNAMED
+END_OF_ARGS
+)
 
 ARG_JAVA_OS="linux"
 ARG_JAVA_ARCH="amd64"
-ARG_JAVA_VERSION="16.0.1"
-ARG_JAVA_UPDATE="9"
+ARG_JAVA_VERSION="17"
+ARG_JAVA_UPDATE="35"
 ARG_JAVA_DIR="java"
 
 ARG_DIR_DIST="dist"
