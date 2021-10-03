@@ -29,7 +29,7 @@ if (project.hasProperty('targetOs')) {
 }
 
 def moduleSecurity = [
-    "--add-modules javafx.swing,javafx.controls,javafx.fxml,javafx.media,javafx.web,javafx.base,javafx.graphics",
+    "--add-modules=javafx.base,javafx.graphics,javafx.swing,javafx.controls,javafx.media,javafx.fxml",
     "--add-opens=javafx.controls/javafx.scene.control=ALL-UNNAMED",
     "--add-opens=javafx.controls/javafx.scene.control.skin=ALL-UNNAMED",
     "--add-opens=javafx.graphics/javafx.scene.text=ALL-UNNAMED",
@@ -60,7 +60,7 @@ javafx {
 }
 
 dependencies {
-  def v_junit = '5.7.2'
+  def v_junit = '5.8.1'
   def v_flexmark = '0.62.2'
   def v_jackson = '2.13.0'
   def v_batik = '1.14'
@@ -128,6 +128,7 @@ dependencies {
   implementation 'org.greenrobot:eventbus:3.2.0'
 
   implementation 'org.apache.commons:commons-configuration2:2.7'
+  //noinspection GradlePackageUpdate
   implementation 'commons-beanutils:commons-beanutils:1.9.4'
 
   // Spelling, TeX, Docking, KeenQuotes
@@ -141,8 +142,8 @@ dependencies {
     }
   }
 
-  testImplementation "org.junit.jupiter:junit-jupiter-api:${v_junit}"
-  testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+  testImplementation "org.junit.jupiter:junit-jupiter-api:5.8.1"
+  testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
 
   testImplementation "org.testfx:testfx-junit5:4.0.16-alpha"
 }
