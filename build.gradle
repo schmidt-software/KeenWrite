@@ -6,7 +6,6 @@ plugins {
 
 repositories {
   mavenCentral()
-  jcenter()
 
   maven {
     url 'https://oss.sonatype.org/content/repositories/snapshots/'
@@ -58,7 +57,8 @@ dependencies {
   // JavaFX
   // TODO: Reinstate when JDK 17-compatible release is published
   //implementation 'org.controlsfx:controlsfx:11.1.0'
-  implementation 'org.fxmisc.richtext:richtextfx:0.10.6'
+  implementation 'org.fxmisc.richtext:richtextfx:0.10.7'
+  implementation 'org.fxmisc.flowless:flowless:0.6.7'
   implementation 'org.fxmisc.wellbehaved:wellbehavedfx:0.3.3'
   implementation 'com.miglayout:miglayout-javafx:11.0'
   implementation 'com.dlsc.preferencesfx:preferencesfx-core:11.8.0'
@@ -87,7 +87,7 @@ dependencies {
   implementation 'com.ximpleware:vtd-xml:2.13.4'
 
   // HTML parsing and rendering
-  implementation 'org.jsoup:jsoup:1.14.2'
+  implementation 'org.jsoup:jsoup:1.14.3'
   // TODO: Wait for https://github.com/flyingsaucerproject/flyingsaucer/pull/170
   //implementation 'org.xhtmlrenderer:flying-saucer-core:9.1.22'
 
@@ -133,10 +133,9 @@ dependencies {
     }
   }
 
+  testImplementation "org.testfx:testfx-junit5:4.0.16-alpha"
   testImplementation "org.junit.jupiter:junit-jupiter-api:${v_junit}"
   testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
-
-  testImplementation "org.testfx:testfx-junit5:4.0.16-alpha"
 }
 
 compileJava {

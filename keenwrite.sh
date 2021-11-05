@@ -11,6 +11,7 @@ java \
   --add-exports=javafx.graphics/com.sun.javafx.geom=ALL-UNNAMED \
   --add-exports=javafx.graphics/com.sun.javafx.text=ALL-UNNAMED \
   --add-exports=javafx.graphics/com.sun.javafx.scene=ALL-UNNAMED \
+  --add-exports=javafx.graphics/com.sun.javafx.scene.text=ALL-UNNAMED \
   --add-exports=javafx.graphics/com.sun.javafx.scene.traversal=ALL-UNNAMED \
   -jar build/libs/keenwrite.jar
 

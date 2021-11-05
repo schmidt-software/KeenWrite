@@ -334,7 +334,8 @@ public final class MainPane extends SplitPane {
   }
 
   /**
-   * TODO: Load divider positions from exported settings, see bin() comment.
+   * TODO: Load divider positions from exported settings, see
+   *   {@link #bin(SetProperty)} comment.
    */
   private double[] calculateDividerPositions() {
     final var ratio = 100f / getItems().size() / 100;
@@ -687,7 +688,7 @@ public final class MainPane extends SplitPane {
       ( __ ) -> getRecentFiles().remove( file.getAbsolutePath() )
     );
 
-    // When closing a tab, give focus to the newly selected tab.
+    // When closing a tab, give focus to the newly revealed tab.
     tab.selectedProperty().addListener( ( c, o, n ) -> {
       if( n != null && n ) {
         tab.getTabPane().requestFocus();
