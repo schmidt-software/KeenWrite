@@ -1,6 +1,7 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.preview;
 
+import com.keenwrite.dom.DocumentConverter;
 import com.keenwrite.events.ScrollLockEvent;
 import com.keenwrite.preferences.LocaleProperty;
 import com.keenwrite.preferences.Workspace;
@@ -21,6 +22,7 @@ import java.util.Locale;
 import static com.keenwrite.Messages.get;
 import static com.keenwrite.constants.Constants.*;
 import static com.keenwrite.events.Bus.register;
+import static com.keenwrite.events.DocumentChangedEvent.fireDocumentChangedEvent;
 import static com.keenwrite.events.ScrollLockEvent.fireScrollLockEvent;
 import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.preferences.WorkspaceKeys.*;
@@ -36,11 +38,17 @@ import static javax.swing.KeyStroke.getKeyStroke;
 import static javax.swing.SwingUtilities.invokeLater;
 import static org.controlsfx.glyphfont.FontAwesome.Glyph.LOCK;
 import static org.controlsfx.glyphfont.FontAwesome.Glyph.UNLOCK_ALT;
+import static org.jsoup.Jsoup.parse;
 
 /**
  * Responsible for parsing an HTML document.
  */
 public final class HtmlPreview extends SwingNode implements ComponentListener {
+  /**
+   * Converts a text string to a structured HTML document.
+   */
+  private static final DocumentConverter CONVERTER = new DocumentConverter();
+
   /**
    * Used to populate the {@link #HTML_HEAD} with stylesheet file references.
    */
@@ -150,7 +158,13 @@ public final class HtmlPreview extends SwingNode implements ComponentListener {
    * @param html The new HTML document to display.
    */
   public void render( final String html ) {
-    mPreview.render( decorate( html ), getBaseUri() );
+    final var soup = parse( decorate( html ) );
+    final var doc = CONVERTER.fromJsoup( soup );
+    doc.setDocumentURI( getBaseUri() );
+
+    invokeLater( () -> mPreview.render( doc, getBaseUri() ) );
+
+    fireDocumentChangedEvent(html);
   }
 
   /**

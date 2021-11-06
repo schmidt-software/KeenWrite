@@ -1,8 +1,6 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.events;
 
-import org.jsoup.nodes.Document;
-
 /**
  * Collates information about an HTML document that has changed.
  */
@@ -33,14 +31,13 @@ public class DocumentChangedEvent implements AppEvent {
    *
    * @param html The document that may have changed.
    */
-  public static void fireDocumentChangedEvent( final Document html ) {
+  public static void fireDocumentChangedEvent( final String html ) {
     // Hashing the document text ignores caret position changes.
-    final var text = html.wholeText();
-    final var hash = text.hashCode();
+    final var hash = html.hashCode();
 
     if( hash != sHash ) {
       sHash = hash;
-      new DocumentChangedEvent( text ).fire();
+      new DocumentChangedEvent( html ).fire();
     }
   }
 

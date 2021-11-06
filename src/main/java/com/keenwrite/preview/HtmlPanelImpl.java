@@ -1,7 +1,6 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.preview;
 
-import com.keenwrite.dom.DocumentConverter;
 import com.keenwrite.ui.adapters.DocumentAdapter;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -15,7 +14,6 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.net.URI;
 
-import static com.keenwrite.events.DocumentChangedEvent.fireDocumentChangedEvent;
 import static com.keenwrite.events.FileOpenEvent.fireFileOpenEvent;
 import static com.keenwrite.events.HyperlinkOpenEvent.fireHyperlinkOpenEvent;
 import static com.keenwrite.events.StatusEvent.clue;
@@ -23,8 +21,6 @@ import static com.keenwrite.util.ProtocolScheme.getProtocol;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static javax.swing.SwingUtilities.invokeLater;
-import static javax.swing.SwingUtilities.isEventDispatchThread;
-import static org.jsoup.Jsoup.parse;
 
 /**
  * Responsible for configuring FlyingSaucer's {@link XHTMLPanel}.
@@ -81,7 +77,6 @@ public final class HtmlPanelImpl extends XHTMLPanel implements HtmlPanel {
     }
   }
 
-  private static final DocumentConverter CONVERTER = new DocumentConverter();
   private static final XhtmlNamespaceHandler XNH = new XhtmlNamespaceHandler();
   private final ChainedReplacedElementFactory mFactory;
 
@@ -110,28 +105,11 @@ public final class HtmlPanelImpl extends XHTMLPanel implements HtmlPanel {
    * Updates the document model displayed by the renderer. Effectively, this
    * updates the HTML document to provide new content.
    *
-   * @param html    A complete HTML5 document, including doctype.
+   * @param doc     A complete HTML5 document, including doctype.
    * @param baseUri URI to use for finding relative files, such as images.
    */
-  void render( final String html, final String baseUri ) {
-    final var soup = parse( html );
-    final var doc = CONVERTER.fromJsoup( soup );
-    final Runnable renderDocument = () -> setDocument( doc, baseUri, XNH );
-    doc.setDocumentURI( baseUri );
-
-    // Access to a Swing component must occur from the Event Dispatch
-    // Thread (EDT) according to Swing threading restrictions. Setting a new
-    // document invokes a Swing repaint operation.
-    if( isEventDispatchThread() ) {
-      renderDocument.run();
-    }
-    else {
-      invokeLater( renderDocument );
-    }
-
-    // When the text changes, let subscribers know. This allows for text
-    // analysis to occur on a separate thread.
-    fireDocumentChangedEvent( soup );
+  void render( final org.w3c.dom.Document doc, final String baseUri ) {
+    invokeLater( () -> setDocument( doc, baseUri, XNH ) );
   }
 
   @Override
