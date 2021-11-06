@@ -4,6 +4,7 @@ package com.keenwrite.preview;
 import com.keenwrite.ui.adapters.DocumentAdapter;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import org.w3c.dom.Document;
 import org.xhtmlrenderer.layout.SharedContext;
 import org.xhtmlrenderer.render.Box;
 import org.xhtmlrenderer.simple.XHTMLPanel;
@@ -20,7 +21,6 @@ import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.util.ProtocolScheme.getProtocol;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
-import static javax.swing.SwingUtilities.invokeLater;
 
 /**
  * Responsible for configuring FlyingSaucer's {@link XHTMLPanel}.
@@ -108,8 +108,8 @@ public final class HtmlPanelImpl extends XHTMLPanel implements HtmlPanel {
    * @param doc     A complete HTML5 document, including doctype.
    * @param baseUri URI to use for finding relative files, such as images.
    */
-  void render( final org.w3c.dom.Document doc, final String baseUri ) {
-    invokeLater( () -> setDocument( doc, baseUri, XNH ) );
+  void render( final Document doc, final String baseUri ) {
+    setDocument( doc, baseUri, XNH );
   }
 
   @Override

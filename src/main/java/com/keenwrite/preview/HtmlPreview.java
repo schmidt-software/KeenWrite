@@ -158,13 +158,12 @@ public final class HtmlPreview extends SwingNode implements ComponentListener {
    * @param html The new HTML document to display.
    */
   public void render( final String html ) {
-    final var soup = parse( decorate( html ) );
-    final var doc = CONVERTER.fromJsoup( soup );
+    final var doc = CONVERTER.fromJsoup( parse( decorate( html ) ) );
     doc.setDocumentURI( getBaseUri() );
 
     invokeLater( () -> mPreview.render( doc, getBaseUri() ) );
 
-    fireDocumentChangedEvent(html);
+    fireDocumentChangedEvent( html );
   }
 
   /**
@@ -422,13 +421,13 @@ public final class HtmlPreview extends SwingNode implements ComponentListener {
   }
 
   @Override
-  public void componentMoved( final ComponentEvent e ) { }
+  public void componentMoved( final ComponentEvent e ) {}
 
   @Override
-  public void componentShown( final ComponentEvent e ) { }
+  public void componentShown( final ComponentEvent e ) {}
 
   @Override
-  public void componentHidden( final ComponentEvent e ) { }
+  public void componentHidden( final ComponentEvent e ) {}
 
   private static String toStylesheetString( final URL url ) {
     return url == null ? "" : format( HTML_STYLESHEET, url );
