@@ -1,8 +1,6 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.util;
 
-import com.keenwrite.preview.HtmlPreview;
-
 import java.awt.*;
 import java.awt.font.TextAttribute;
 import java.io.FileInputStream;
@@ -21,9 +19,8 @@ import static java.awt.GraphicsEnvironment.getLocalGraphicsEnvironment;
 import static java.awt.font.TextAttribute.*;
 
 /**
- * Responsible for loading fonts into the application's
- * {@link GraphicsEnvironment} so that the {@link HtmlPreview} can display
- * the text using a non-system font.
+ * Loads fonts into the application's {@link GraphicsEnvironment} so that
+ * preview can display text using non-system fonts.
  */
 public final class FontLoader {
   /**

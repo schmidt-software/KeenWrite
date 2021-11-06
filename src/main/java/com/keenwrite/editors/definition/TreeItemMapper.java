@@ -2,7 +2,6 @@
 package com.keenwrite.editors.definition;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.keenwrite.preview.HtmlPreview;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 
@@ -26,9 +25,9 @@ import static com.keenwrite.constants.Constants.MAP_SIZE_DEFAULT;
  *
  * <p>
  * This class is responsible for producing the interpolated flat map. This
- * allows dynamic edits of the {@link TreeView} to be displayed in the
- * {@link HtmlPreview} without having to reload the definition file.
- * Reloading the definition file would work, but has a number of drawbacks.
+ * allows dynamic edits of the {@link TreeView} to be displayed without
+ * having to reload the definition file. Reloading the definition file would
+ * work, but has a number of drawbacks.
  * </p>
  */
 public final class TreeItemMapper {
