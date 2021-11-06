@@ -1,13 +1,13 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.events;
 
-import com.keenwrite.preview.HtmlPanel;
+import com.keenwrite.preview.HtmlPanelImpl;
 
 import java.net.URI;
 
 /**
  * Collates information about a file requested to be opened. This can be called
- * when the user clicks a hyperlink in the {@link HtmlPanel}.
+ * when the user clicks a hyperlink in the {@link HtmlPanelImpl}.
  */
 public class FileOpenEvent implements AppEvent {
   private final URI mUri;

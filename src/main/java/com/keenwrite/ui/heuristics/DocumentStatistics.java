@@ -3,7 +3,7 @@ package com.keenwrite.ui.heuristics;
 
 import com.keenwrite.events.DocumentChangedEvent;
 import com.keenwrite.preferences.Workspace;
-import com.keenwrite.preview.HtmlPanel;
+import com.keenwrite.preview.HtmlPanelImpl;
 import com.whitemagicsoftware.wordcount.TokenizerException;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
@@ -67,7 +67,7 @@ public final class DocumentStatistics extends TableView<StatEntry> {
   /**
    * Called when the hash code for the current document changes. This happens
    * when non-collapsable-whitespace is added to the document. When the
-   * document is sent to {@link HtmlPanel} for rendering, the parsed document
+   * document is sent to {@link HtmlPanelImpl} for rendering, the parsed document
    * is converted to text. If that text differs in its hash code, then this
    * method is called. The implication is that all variables and executable
    * statements have been replaced. An event bus subscriber is used so that

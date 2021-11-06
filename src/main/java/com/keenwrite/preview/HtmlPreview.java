@@ -9,7 +9,6 @@ import javafx.beans.property.StringProperty;
 import javafx.embed.swing.SwingNode;
 import org.greenrobot.eventbus.Subscribe;
 import org.xhtmlrenderer.render.Box;
-import org.xhtmlrenderer.swing.SwingReplacedElementFactory;
 
 import javax.swing.*;
 import java.awt.*;
@@ -77,14 +76,12 @@ public final class HtmlPreview extends SwingNode implements ComponentListener {
 
   private static final URL HTML_STYLE_PREVIEW = toUrl( STYLESHEET_PREVIEW );
 
-  private final ChainedReplacedElementFactory mFactory;
-
   /**
    * Reusing this buffer prevents repetitious memory re-allocations.
    */
   private final StringBuilder mDocument = new StringBuilder( 65536 );
 
-  private HtmlPanel mView;
+  private HtmlPanelImpl mPreview;
   private JScrollPane mScrollPane;
   private String mBaseUriPath = "";
   private String mHead = "";
@@ -102,22 +99,13 @@ public final class HtmlPreview extends SwingNode implements ComponentListener {
   public HtmlPreview( final Workspace workspace ) {
     mWorkspace = workspace;
 
-    // The order is important: SwingReplacedElementFactory replaces SVG images
-    // with a blank image, which will cause the chained factory to cache the
-    // image and exit. Instead, the SVG must execute first to rasterize the
-    // content. Consequently, the chained factory must maintain insertion order.
-    mFactory = new ChainedReplacedElementFactory(
-      new SvgReplacedElementFactory(),
-      new SwingReplacedElementFactory()
-    );
-
     // Attempts to prevent a flash of black un-styled content upon load.
     setStyle( "-fx-background-color: white;" );
 
     invokeLater( () -> {
       mHead = generateHead();
-      mView = new HtmlPanel();
-      mScrollPane = new JScrollPane( mView );
+      mPreview = new HtmlPanelImpl();
+      mScrollPane = new JScrollPane( mPreview );
       final var verticalBar = mScrollPane.getVerticalScrollBar();
       final var verticalPanel = new JPanel( new BorderLayout() );
 
@@ -142,11 +130,6 @@ public final class HtmlPreview extends SwingNode implements ComponentListener {
       setContent( wrapper );
       wrapper.addComponentListener( this );
 
-      final var context = mView.getSharedContext();
-      final var textRenderer = context.getTextRenderer();
-      context.setReplacedElementFactory( mFactory );
-      textRenderer.setSmoothingThreshold( 0 );
-
       localeProperty().addListener( ( c, o, n ) -> rerender() );
       fontFamilyProperty().addListener( ( c, o, n ) -> rerender() );
       fontSizeProperty().addListener( ( c, o, n ) -> rerender() );
@@ -167,14 +150,14 @@ public final class HtmlPreview extends SwingNode implements ComponentListener {
    * @param html The new HTML document to display.
    */
   public void render( final String html ) {
-    mView.render( decorate( html ), getBaseUri() );
+    mPreview.render( decorate( html ), getBaseUri() );
   }
 
   /**
    * Clears the caches then re-renders the content.
    */
   public void refresh() {
-    mFactory.clearCache();
+    mPreview.clearCache();
     rerender();
   }
 
@@ -258,7 +241,7 @@ public final class HtmlPreview extends SwingNode implements ComponentListener {
       int iter = 0;
       Box box = null;
 
-      while( iter++ < 3 && ((box = mView.getBoxById( id )) == null) ) {
+      while( iter++ < 3 && ((box = mPreview.getBoxById( id )) == null) ) {
         try {
           sleep( 10 );
         } catch( final Exception ex ) {
@@ -283,7 +266,7 @@ public final class HtmlPreview extends SwingNode implements ComponentListener {
   private void scrollTo( final Box box ) {
     if( box != null ) {
       invokeLater( () -> {
-        mView.scrollTo( createPoint( box ) );
+        mPreview.scrollTo( createPoint( box ) );
         getScrollPane().repaint();
       } );
     }
@@ -308,7 +291,7 @@ public final class HtmlPreview extends SwingNode implements ComponentListener {
     int x = box.getAbsX();
 
     if( !box.getStyle().isInline() ) {
-      final var margin = box.getMargin( mView.getLayoutContext() );
+      final var margin = box.getMargin( mPreview.getLayoutContext() );
       y += margin.top();
       x += margin.left();
     }
@@ -416,7 +399,7 @@ public final class HtmlPreview extends SwingNode implements ComponentListener {
   @Override
   public void componentResized( final ComponentEvent e ) {
     if( mWorkspace.toBoolean( KEY_IMAGES_RESIZE ) ) {
-      mFactory.clearCache();
+      mPreview.clearCache();
     }
 
     // Force update on the Swing EDT, otherwise the scrollbar and content
