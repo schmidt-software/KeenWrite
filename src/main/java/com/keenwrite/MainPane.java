@@ -12,7 +12,6 @@ import com.keenwrite.events.*;
 import com.keenwrite.io.MediaType;
 import com.keenwrite.preferences.Key;
 import com.keenwrite.preferences.Workspace;
-import com.keenwrite.preview.HtmlPanelImpl;
 import com.keenwrite.preview.HtmlPreview;
 import com.keenwrite.processors.Processor;
 import com.keenwrite.processors.ProcessorContext;
@@ -220,7 +219,7 @@ public final class MainPane extends SplitPane {
   }
 
   /**
-   * Typically called when a file name is clicked in the {@link HtmlPanelImpl}.
+   * Typically called when a file name is clicked in the preview panel.
    *
    * @param event The event to process, must contain a valid file reference.
    */
