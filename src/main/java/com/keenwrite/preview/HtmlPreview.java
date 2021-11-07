@@ -9,7 +9,6 @@ import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.StringProperty;
 import javafx.embed.swing.SwingNode;
 import org.greenrobot.eventbus.Subscribe;
-import org.xhtmlrenderer.render.Box;
 
 import javax.swing.*;
 import java.awt.*;
@@ -29,9 +28,7 @@ import static com.keenwrite.preferences.WorkspaceKeys.*;
 import static com.keenwrite.ui.fonts.IconFactory.getIconFont;
 import static java.awt.BorderLayout.*;
 import static java.awt.event.KeyEvent.*;
-import static java.lang.Math.max;
 import static java.lang.String.format;
-import static java.lang.Thread.sleep;
 import static javafx.scene.CacheHint.SPEED;
 import static javax.swing.JComponent.WHEN_IN_FOCUSED_WINDOW;
 import static javax.swing.KeyStroke.getKeyStroke;
@@ -89,7 +86,7 @@ public final class HtmlPreview extends SwingNode implements ComponentListener {
    */
   private final StringBuilder mDocument = new StringBuilder( 65536 );
 
-  private HtmlPanelImpl mPreview;
+  private HtmlPanel mPreview;
   private JScrollPane mScrollPane;
   private String mBaseUriPath = "";
   private String mHead;
@@ -112,8 +109,8 @@ public final class HtmlPreview extends SwingNode implements ComponentListener {
     setStyle( "-fx-background-color: white;" );
 
     invokeLater( () -> {
-      mPreview = new HtmlPanelImpl();
-      mScrollPane = new JScrollPane( mPreview );
+      mPreview = new FlyingSaucerPanel();
+      mScrollPane = new JScrollPane( (Component) mPreview );
       final var verticalBar = mScrollPane.getVerticalScrollBar();
       final var verticalPanel = new JPanel( new BorderLayout() );
 
@@ -246,70 +243,12 @@ public final class HtmlPreview extends SwingNode implements ComponentListener {
    * @param id Scroll the preview pane to this unique paragraph identifier.
    */
   public void scrollTo( final String id ) {
-    if( mLocked ) {
-      return;
-    }
-
-    invokeLater( () -> {
-      int iter = 0;
-      Box box = null;
-
-      while( iter++ < 3 && ((box = mPreview.getBoxById( id )) == null) ) {
-        try {
-          sleep( 10 );
-        } catch( final Exception ex ) {
-          clue( ex );
-        }
-      }
-
-      scrollTo( box );
-    } );
-  }
-
-  /**
-   * Scrolls to the location specified by the {@link Box} that corresponds
-   * to a point somewhere in the preview pane. If there is no caret, then
-   * this will not change the scroll position. Changing the scroll position
-   * to the top if the {@link Box} instance is {@code null} will result in
-   * jumping around a lot and inconsistent synchronization issues.
-   *
-   * @param box The rectangular region containing the caret, or {@code null}
-   *            if the HTML does not have a caret.
-   */
-  private void scrollTo( final Box box ) {
-    if( box != null ) {
+    if( !mLocked ) {
       invokeLater( () -> {
-        mPreview.scrollTo( createPoint( box ) );
-        getScrollPane().repaint();
+        mPreview.scrollTo( id, mScrollPane );
+        mScrollPane.repaint();
       } );
     }
-  }
-
-  /**
-   * Creates a {@link Point} to use as a reference for scrolling to the area
-   * described by the given {@link Box}. The {@link Box} coordinates are used
-   * to populate the {@link Point}'s location, with minor adjustments for
-   * vertical centering.
-   *
-   * @param box The {@link Box} that represents a scrolling anchor reference.
-   * @return A coordinate suitable for scrolling to.
-   */
-  private Point createPoint( final Box box ) {
-    assert box != null;
-
-    // Scroll back up by half the height of the scroll bar to keep the typing
-    // area within the view port. Otherwise the view port will have jumped too
-    // high up and the most recently typed letters won't be visible.
-    int y = max( box.getAbsY() - getVerticalScrollBarHeight() / 2, 0 );
-    int x = box.getAbsX();
-
-    if( !box.getStyle().isInline() ) {
-      final var margin = box.getMargin( mPreview.getLayoutContext() );
-      y += margin.top();
-      x += margin.left();
-    }
-
-    return new Point( x, y );
   }
 
   private String getBaseUri() {
@@ -322,10 +261,6 @@ public final class HtmlPreview extends SwingNode implements ComponentListener {
 
   public JScrollBar getVerticalScrollBar() {
     return getScrollPane().getVerticalScrollBar();
-  }
-
-  private int getVerticalScrollBarHeight() {
-    return getVerticalScrollBar().getHeight();
   }
 
   /**

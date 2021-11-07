@@ -11,6 +11,8 @@ import org.xhtmlrenderer.simple.XHTMLPanel;
 import org.xhtmlrenderer.simple.extend.XhtmlNamespaceHandler;
 import org.xhtmlrenderer.swing.*;
 
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.net.URI;
@@ -21,11 +23,14 @@ import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.util.ProtocolScheme.getProtocol;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
+import static java.lang.Math.max;
+import static java.lang.Thread.sleep;
+import static javax.swing.SwingUtilities.invokeLater;
 
 /**
  * Responsible for configuring FlyingSaucer's {@link XHTMLPanel}.
  */
-public final class HtmlPanelImpl extends XHTMLPanel implements HtmlPanel {
+public final class FlyingSaucerPanel extends XHTMLPanel implements HtmlPanel {
 
   /**
    * Suppresses scroll attempts until after the document has loaded.
@@ -80,7 +85,7 @@ public final class HtmlPanelImpl extends XHTMLPanel implements HtmlPanel {
   private static final XhtmlNamespaceHandler XNH = new XhtmlNamespaceHandler();
   private final ChainedReplacedElementFactory mFactory;
 
-  HtmlPanelImpl() {
+  FlyingSaucerPanel() {
     // The order is important: SwingReplacedElementFactory replaces SVG images
     // with a blank image, which will cause the chained factory to cache the
     // image and exit. Instead, the SVG must execute first to rasterize the
@@ -108,13 +113,76 @@ public final class HtmlPanelImpl extends XHTMLPanel implements HtmlPanel {
    * @param doc     A complete HTML5 document, including doctype.
    * @param baseUri URI to use for finding relative files, such as images.
    */
-  void render( final Document doc, final String baseUri ) {
+  @Override
+  public void render( final Document doc, final String baseUri ) {
     setDocument( doc, baseUri, XNH );
   }
 
   @Override
   public void clearCache() {
     mFactory.clearCache();
+  }
+
+  @Override
+  public void scrollTo(final String id, final JScrollPane scrollPane) {
+    int iter = 0;
+    Box box = null;
+
+    while( iter++ < 3 && ((box = getBoxById( id )) == null) ) {
+      try {
+        sleep( 10 );
+      } catch( final Exception ex ) {
+        clue( ex );
+      }
+    }
+
+    scrollTo( box, scrollPane );
+  }
+
+  /**
+   * Scrolls to the location specified by the {@link Box} that corresponds
+   * to a point somewhere in the preview pane. If there is no caret, then
+   * this will not change the scroll position. Changing the scroll position
+   * to the top if the {@link Box} instance is {@code null} will result in
+   * jumping around a lot and inconsistent synchronization issues.
+   *
+   * @param box The rectangular region containing the caret, or {@code null}
+   *            if the HTML does not have a caret.
+   */
+  private void scrollTo( final Box box, final JScrollPane scrollPane ) {
+    if( box != null ) {
+      invokeLater( () -> {
+        scrollTo( createPoint( box, scrollPane ) );
+        scrollPane.repaint();
+      } );
+    }
+  }
+
+  /**
+   * Creates a {@link Point} to use as a reference for scrolling to the area
+   * described by the given {@link Box}. The {@link Box} coordinates are used
+   * to populate the {@link Point}'s location, with minor adjustments for
+   * vertical centering.
+   *
+   * @param box The {@link Box} that represents a scrolling anchor reference.
+   * @return A coordinate suitable for scrolling to.
+   */
+  private Point createPoint( final Box box, final JScrollPane scrollPane ) {
+    assert box != null;
+
+    // Scroll back up by half the height of the scroll bar to keep the typing
+    // area within the view port. Otherwise the view port will have jumped too
+    // high up and the most recently typed letters won't be visible.
+    int y = max( box.getAbsY() - scrollPane.getVerticalScrollBar().getHeight() / 2, 0 );
+    int x = box.getAbsX();
+
+    if( !box.getStyle().isInline() ) {
+      final var margin = box.getMargin( getLayoutContext() );
+      y += margin.top();
+      x += margin.left();
+    }
+
+    return new Point( x, y );
   }
 
   /**
