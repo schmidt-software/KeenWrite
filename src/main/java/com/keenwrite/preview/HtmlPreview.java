@@ -92,7 +92,7 @@ public final class HtmlPreview extends SwingNode implements ComponentListener {
   private HtmlPanelImpl mPreview;
   private JScrollPane mScrollPane;
   private String mBaseUriPath = "";
-  private String mHead = "";
+  private String mHead;
 
   private volatile boolean mLocked;
   private final JButton mScrollLockButton = new JButton();
@@ -106,12 +106,12 @@ public final class HtmlPreview extends SwingNode implements ComponentListener {
    */
   public HtmlPreview( final Workspace workspace ) {
     mWorkspace = workspace;
+    mHead = generateHead();
 
     // Attempts to prevent a flash of black un-styled content upon load.
     setStyle( "-fx-background-color: white;" );
 
     invokeLater( () -> {
-      mHead = generateHead();
       mPreview = new HtmlPanelImpl();
       mScrollPane = new JScrollPane( mPreview );
       final var verticalBar = mScrollPane.getVerticalScrollBar();
@@ -137,11 +137,11 @@ public final class HtmlPreview extends SwingNode implements ComponentListener {
       setCacheHint( SPEED );
       setContent( wrapper );
       wrapper.addComponentListener( this );
-
-      localeProperty().addListener( ( c, o, n ) -> rerender() );
-      fontFamilyProperty().addListener( ( c, o, n ) -> rerender() );
-      fontSizeProperty().addListener( ( c, o, n ) -> rerender() );
     } );
+
+    localeProperty().addListener( ( c, o, n ) -> rerender() );
+    fontFamilyProperty().addListener( ( c, o, n ) -> rerender() );
+    fontSizeProperty().addListener( ( c, o, n ) -> rerender() );
 
     register( this );
   }

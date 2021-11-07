@@ -7,6 +7,4 @@ public interface HtmlPanel {
    * dimensions).
    */
   void clearCache();
-
-
 }
