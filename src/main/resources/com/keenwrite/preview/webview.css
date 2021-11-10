@@ -121,9 +121,8 @@ dl dd {
 
 /* PREFORMATTED CODE ***/
 pre, code, tt {
-  /* Must be bundled in JAR file. */
   font-family: 'Source Code Pro';
-  font-size: 10pt;
+  font-size: 13px;
   background-color: #f8f8f8;
   text-decoration: none;
   white-space: pre-wrap;
