@@ -3,6 +3,7 @@ package com.keenwrite;
 
 import com.keenwrite.events.HyperlinkOpenEvent;
 import com.keenwrite.preferences.Workspace;
+import com.keenwrite.util.ArrayScanner;
 import javafx.application.Application;
 import javafx.event.Event;
 import javafx.event.EventType;
@@ -40,7 +41,10 @@ public final class MainApp extends Application {
    * @param args Command-line arguments.
    */
   public static void main( final String[] args ) {
-    //disableLogging();
+    if( !ArrayScanner.contains( args, "--debug" ) ) {
+      disableLogging();
+    }
+
     launch( args );
   }
 
