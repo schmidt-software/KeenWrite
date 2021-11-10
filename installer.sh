@@ -22,6 +22,7 @@ readonly OPT_JAVA=$(cat << END_OF_ARGS
 --add-exports=javafx.graphics/com.sun.javafx.geom=ALL-UNNAMED \
 --add-exports=javafx.graphics/com.sun.javafx.text=ALL-UNNAMED \
 --add-exports=javafx.graphics/com.sun.javafx.scene=ALL-UNNAMED \
+--add-exports=javafx.graphics/com.sun.javafx.scene.text=ALL-UNNAMED \
 --add-exports=javafx.graphics/com.sun.javafx.scene.traversal=ALL-UNNAMED
 END_OF_ARGS
 )
