@@ -86,7 +86,7 @@ public final class HtmlPreview extends SwingNode implements ComponentListener {
    */
   private final StringBuilder mDocument = new StringBuilder( 65536 );
 
-  private HtmlPanel mPreview;
+  private HtmlRenderer mPreview;
   private JScrollPane mScrollPane;
   private String mBaseUriPath = "";
   private String mHead;
@@ -156,9 +156,10 @@ public final class HtmlPreview extends SwingNode implements ComponentListener {
    */
   public void render( final String html ) {
     final var doc = CONVERTER.fromJsoup( parse( decorate( html ) ) );
-    doc.setDocumentURI( getBaseUri() );
+    final var uri = getBaseUri();
+    doc.setDocumentURI( uri );
 
-    invokeLater( () -> mPreview.render( doc, getBaseUri() ) );
+    invokeLater( () -> mPreview.render( doc, uri ) );
 
     fireDocumentChangedEvent( html );
   }

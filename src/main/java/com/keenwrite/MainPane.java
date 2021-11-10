@@ -690,7 +690,11 @@ public final class MainPane extends SplitPane {
     // When closing a tab, give focus to the newly revealed tab.
     tab.selectedProperty().addListener( ( c, o, n ) -> {
       if( n != null && n ) {
-        tab.getTabPane().requestFocus();
+        final var pane = tab.getTabPane();
+
+        if( pane != null ) {
+          pane.requestFocus();
+        }
       }
     } );
 

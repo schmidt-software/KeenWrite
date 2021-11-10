@@ -43,7 +43,7 @@ class FencedDivRenderer implements NodeRenderer {
     node.export( html );
   }
 
-  static class Factory implements @NotNull NodeRendererFactory {
+  static class Factory implements NodeRendererFactory {
     @Override
     public @NotNull NodeRenderer apply( @NotNull final DataHolder options ) {
       return new FencedDivRenderer();

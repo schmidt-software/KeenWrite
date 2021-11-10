@@ -30,7 +30,8 @@ import static javax.swing.SwingUtilities.invokeLater;
 /**
  * Responsible for configuring FlyingSaucer's {@link XHTMLPanel}.
  */
-public final class FlyingSaucerPanel extends XHTMLPanel implements HtmlPanel {
+public final class FlyingSaucerPanel extends XHTMLPanel implements
+  HtmlRenderer {
 
   /**
    * Suppresses scroll attempts until after the document has loaded.

@@ -92,8 +92,6 @@ dependencies {
   // TODO: Wait for https://github.com/flyingsaucerproject/flyingsaucer/pull/170
   //implementation 'org.xhtmlrenderer:flying-saucer-core:9.1.22'
 
-  implementation 'net.sf.cssbox:cssbox:5.0.0'
-
   // R
   implementation 'org.renjin:renjin-script-engine:3.5-beta76'
 

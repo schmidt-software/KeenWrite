@@ -4,7 +4,10 @@ import org.w3c.dom.Document;
 
 import javax.swing.*;
 
-public interface HtmlPanel {
+/**
+ * Denotes the ability to render an HTML document onto a Swing component.
+ */
+public interface HtmlRenderer {
 
   /**
    * Renders an HTML document with respect to a base location.
