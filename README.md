@@ -41,6 +41,7 @@ On other platforms, start the application as follows:
 1. Install the JRE.
 1. Open a terminal window.
 1. Verify the installation: `java -version`
+1. Download [keenwrite.sh](https://raw.githubusercontent.com/DaveJarvis/keenwrite/master/keenwrite.sh).
 1. Make `keenwrite.sh` executable.
 1. Run: `./keenwrite.sh`
 
