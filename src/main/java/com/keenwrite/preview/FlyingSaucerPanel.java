@@ -30,8 +30,8 @@ import static javax.swing.SwingUtilities.invokeLater;
 /**
  * Responsible for configuring FlyingSaucer's {@link XHTMLPanel}.
  */
-public final class FlyingSaucerPanel extends XHTMLPanel implements
-  HtmlRenderer {
+public final class FlyingSaucerPanel extends XHTMLPanel
+  implements HtmlRenderer {
 
   /**
    * Suppresses scroll attempts until after the document has loaded.
@@ -125,7 +125,7 @@ public final class FlyingSaucerPanel extends XHTMLPanel implements
   }
 
   @Override
-  public void scrollTo(final String id, final JScrollPane scrollPane) {
+  public void scrollTo( final String id, final JScrollPane scrollPane ) {
     int iter = 0;
     Box box = null;
 
@@ -174,7 +174,8 @@ public final class FlyingSaucerPanel extends XHTMLPanel implements
     // Scroll back up by half the height of the scroll bar to keep the typing
     // area within the view port. Otherwise the view port will have jumped too
     // high up and the most recently typed letters won't be visible.
-    int y = max( box.getAbsY() - scrollPane.getVerticalScrollBar().getHeight() / 2, 0 );
+    int y = max( box.getAbsY() - scrollPane.getVerticalScrollBar()
+                                           .getHeight() / 2, 0 );
     int x = box.getAbsX();
 
     if( !box.getStyle().isInline() ) {

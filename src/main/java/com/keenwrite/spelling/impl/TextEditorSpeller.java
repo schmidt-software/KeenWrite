@@ -10,6 +10,7 @@ import org.fxmisc.richtext.StyleClassedTextArea;
 import org.fxmisc.richtext.model.StyleSpansBuilder;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.keenwrite.spelling.impl.SymSpellSpeller.forLexicon;
@@ -29,7 +30,7 @@ public final class TextEditorSpeller {
   private final Parser mParser;
 
   public TextEditorSpeller() {
-     mParser = Parser.builder().build();
+    mParser = Parser.builder().build();
   }
 
   /**
@@ -56,18 +57,19 @@ public final class TextEditorSpeller {
     editor.plainTextChanges()
           .filter( p -> !p.isIdentity() ).subscribe( change -> {
 
-      // Check current paragraph; the whole document was checked upon opening.
-      final var offset = change.getPosition();
-      final var position = editor.offsetToPosition( offset, Forward );
-      final var paraId = position.getMajor();
-      final var paragraph = editor.getParagraph( paraId );
-      final var text = paragraph.getText();
+            // Check current paragraph; the whole document was checked upon
+            // opening.
+            final var offset = change.getPosition();
+            final var position = editor.offsetToPosition( offset, Forward );
+            final var paraId = position.getMajor();
+            final var paragraph = editor.getParagraph( paraId );
+            final var text = paragraph.getText();
 
-      // Prevent doubling-up styles.
-      editor.clearStyle( paraId );
+            // Prevent doubling-up styles.
+            editor.clearStyle( paraId );
 
-      spellcheck( editor, text, paraId );
-    } );
+            spellcheck( editor, text, paraId );
+          } );
   }
 
   /**
@@ -119,6 +121,18 @@ public final class TextEditorSpeller {
         editor.setStyleSpans( 0, spans );
       }
     }
+  }
+
+  /**
+   * Returns a list of suggests for the given word. This is typically used to
+   * check for suitable replacements of the word at the caret position.
+   *
+   * @param word  The word to spellcheck.
+   * @param count The maximum number of suggested alternatives to return.
+   * @return A list of recommended spellings for the given word.
+   */
+  public List<String> checkWord( final String word, final int count ) {
+    return sSpellChecker.suggestions( word, count );
   }
 
   /**

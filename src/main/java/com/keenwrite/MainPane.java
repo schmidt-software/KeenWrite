@@ -1026,7 +1026,6 @@ public final class MainPane extends SplitPane {
    *
    * @param event Ignored.
    */
-  @SuppressWarnings( "unused" )
   private void autoinsert( final KeyEvent event ) {
     autoinsert();
   }
