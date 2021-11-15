@@ -1,9 +1,9 @@
 # Building
 
-The lexicon files are retrieved from SymSpell in the parent directory:
+The lexicon files are retrieved from:
 
-svn export \
-  https://github.com/wolfgarbe/SymSpell/trunk/SymSpell.FrequencyDictionary/ lexicons
+https://github.com/wolfgarbe/SymSpell/tree/master/SymSpell
 
-The lexicons and bigrams are both space-separated, but parsing a
+The lexicons and bigrams are space-separated by default, but parsing a
 tab-delimited file is easier, so change them to tab-separated files.
+
