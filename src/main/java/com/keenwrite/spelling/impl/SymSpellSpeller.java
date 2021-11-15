@@ -4,24 +4,22 @@ package com.keenwrite.spelling.impl;
 import com.keenwrite.exceptions.MissingFileException;
 import com.keenwrite.spelling.api.SpellCheckListener;
 import com.keenwrite.spelling.api.SpellChecker;
-import io.gitlab.rxp90.jsymspell.SuggestItem;
 import io.gitlab.rxp90.jsymspell.SymSpell;
 import io.gitlab.rxp90.jsymspell.SymSpellBuilder;
+import io.gitlab.rxp90.jsymspell.Verbosity;
+import io.gitlab.rxp90.jsymspell.api.SuggestItem;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.text.BreakIterator;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.*;
 
 import static com.keenwrite.constants.Constants.LEXICONS_DIRECTORY;
 import static com.keenwrite.events.StatusEvent.clue;
-import static io.gitlab.rxp90.jsymspell.SymSpell.Verbosity;
-import static io.gitlab.rxp90.jsymspell.SymSpell.Verbosity.ALL;
-import static io.gitlab.rxp90.jsymspell.SymSpell.Verbosity.CLOSEST;
+import static io.gitlab.rxp90.jsymspell.Verbosity.ALL;
+import static io.gitlab.rxp90.jsymspell.Verbosity.CLOSEST;
 import static java.lang.Character.isLetter;
+import static java.lang.Long.parseLong;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
@@ -32,8 +30,7 @@ public class SymSpellSpeller implements SpellChecker {
   private final SymSpell mSymSpell;
 
   /**
-   * Creates a new spellchecker for a lexicon of words found in the specified
-   * file.
+   * Creates a new spellchecker for a lexicon of words in the specified file.
    *
    * @param filename Lexicon language file (e.g., "en.txt").
    * @return An instance of {@link SpellChecker} that can check if a word
@@ -50,14 +47,19 @@ public class SymSpellSpeller implements SpellChecker {
     }
   }
 
-  private static SpellChecker forLexicon(
-    final Collection<String> lexiconWords ) {
-    assert lexiconWords != null && !lexiconWords.isEmpty();
+  private static SpellChecker forLexicon( final Map<String, Long> lexicon ) {
+    assert lexicon != null && !lexicon.isEmpty();
 
-    final var builder = new SymSpellBuilder()
-      .setLexiconWords( lexiconWords );
-
-    return new SymSpellSpeller( builder.build() );
+    try {
+      return new SymSpellSpeller(
+        new SymSpellBuilder()
+          .setUnigramLexicon( lexicon )
+          .build()
+      );
+    } catch( final Exception ex ) {
+      clue( ex );
+      return new PermissiveSpeller();
+    }
   }
 
   /**
@@ -121,9 +123,10 @@ public class SymSpellSpeller implements SpellChecker {
   }
 
   @SuppressWarnings( "SameParameterValue" )
-  private static Collection<String> readLexicon( final String filename )
+  private static Map<String, Long> readLexicon( final String filename )
     throws Exception {
     final var path = '/' + LEXICONS_DIRECTORY + '/' + filename;
+    final var map = new HashMap<String, Long>();
 
     try( final var resource =
            SymSpellSpeller.class.getResourceAsStream( path ) ) {
@@ -133,9 +136,16 @@ public class SymSpellSpeller implements SpellChecker {
 
       try( final var isr = new InputStreamReader( resource, UTF_8 );
            final var reader = new BufferedReader( isr ) ) {
-        return reader.lines().collect( Collectors.toList() );
+        String line;
+
+        while( (line = reader.readLine()) != null ) {
+          final String[] tokens = line.split( "\\t" );
+          map.put( tokens[ 0 ], parseLong( tokens[ 1 ] ) );
+        }
       }
     }
+
+    return map;
   }
 
   /**

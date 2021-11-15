@@ -213,6 +213,7 @@ public final class MarkdownEditor extends BorderPane implements TextEditor {
   @Override
   public void moveTo( final int offset ) {
     assert 0 <= offset && offset <= mTextArea.getLength();
+
     mTextArea.moveTo( offset );
     mTextArea.requestFollowCaret();
   }
@@ -550,9 +551,6 @@ public final class MarkdownEditor extends BorderPane implements TextEditor {
       for( final var correction : suggestions ) {
         items.add( createSuggestedItem( caretWord, correction ) );
       }
-
-//      items.add( new SeparatorMenuItem() );
-//      items.add( new MenuItem( "Add to dictionary" ) );
 
       textArea.getCaretBounds().ifPresent(
         bounds -> menu.show(
