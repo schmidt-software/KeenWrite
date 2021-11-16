@@ -197,7 +197,6 @@ public final class MarkdownEditor extends BorderPane implements TextEditor {
     addEventListener( keyPressed( X, CONTROL_DOWN ), this::cut );
     addEventListener( keyPressed( TAB ), this::tab );
     addEventListener( keyPressed( TAB, SHIFT_DOWN ), this::untab );
-    //addEventListener( keyPressed( INSERT ), this::onInsertPressed );
     addEventListener( keyPressed( ENTER, ALT_DOWN ), this::autofix );
   }
 
@@ -515,14 +514,6 @@ public final class MarkdownEditor extends BorderPane implements TextEditor {
     }
 
     mTextArea.replaceSelection( newText );
-  }
-
-  /**
-   * TODO: 105 - Insert key toggle overwrite (typeover) mode
-   *
-   * @param ignored Unused.
-   */
-  private void onInsertPressed( final KeyEvent ignored ) {
   }
 
   /**
