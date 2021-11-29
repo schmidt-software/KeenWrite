@@ -12,7 +12,10 @@ import io.gitlab.rxp90.jsymspell.api.SuggestItem;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.text.BreakIterator;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static com.keenwrite.constants.Constants.LEXICONS_DIRECTORY;
 import static com.keenwrite.events.StatusEvent.clue;
@@ -64,8 +67,7 @@ public class SymSpellSpeller implements SpellChecker {
 
   /**
    * Prevent direct instantiation so that only the {@link SpellChecker}
-   * interface
-   * is available.
+   * interface is available.
    *
    * @param symSpell The implementation-specific spell checker.
    */
@@ -73,9 +75,20 @@ public class SymSpellSpeller implements SpellChecker {
     mSymSpell = symSpell;
   }
 
+  /**
+   * This expensive operation is only called for viable words, not for
+   * single punctuation characters or whitespace.
+   *
+   * @param lexeme The word to check for correctness.
+   * @return {@code false} if the word is not in the lexicon.
+   */
   @Override
   public boolean inLexicon( final String lexeme ) {
-    return lookup( lexeme, CLOSEST ).size() == 1;
+    assert lexeme != null;
+    assert !lexeme.isBlank();
+
+    final var words = lookup( lexeme, CLOSEST );
+    return !words.isEmpty() && lexeme.equals( words.get( 0 ).getSuggestion() );
   }
 
   @Override
@@ -96,7 +109,8 @@ public class SymSpellSpeller implements SpellChecker {
 
   @Override
   public void proofread(
-    final String text, final SpellCheckListener consumer ) {
+    final String text,
+    final SpellCheckListener consumer ) {
     assert text != null;
     assert consumer != null;
 
@@ -156,7 +170,7 @@ public class SymSpellSpeller implements SpellChecker {
    * @return {@code true} if the word begins with a letter.
    */
   private boolean isWord( final String word ) {
-    return !word.isEmpty() && isLetter( word.charAt( 0 ) );
+    return !word.isBlank() && isLetter( word.charAt( 0 ) );
   }
 
   /**
