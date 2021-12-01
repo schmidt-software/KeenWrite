@@ -83,5 +83,5 @@ See [screenshots](docs/screenshots.md) for visuals.
 ## License
 
 This software is licensed under the [BSD 2-Clause License](LICENSE.md) and
-based on [Markdown-Writer-FX](licenses/MARKDOWN-WRITER-FX.md).
+based on [Markdown-Writer-FX](https://github.com/JFormDesigner/markdown-writer-fx/blob/main/LICENSE).
 
