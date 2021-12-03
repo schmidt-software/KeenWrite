@@ -123,6 +123,9 @@ dependencies {
   //noinspection GradlePackageUpdate
   implementation 'commons-beanutils:commons-beanutils:1.9.4'
 
+  // Command-line parsing
+  implementation 'info.picocli:picocli:4.6.2'
+
   // Spelling, TeX, Docking, KeenQuotes
   implementation fileTree(include: ['**/*.jar'], dir: 'libs')
 

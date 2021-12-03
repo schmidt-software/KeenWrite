@@ -13,5 +13,5 @@ java \
   --add-exports=javafx.graphics/com.sun.javafx.scene=ALL-UNNAMED \
   --add-exports=javafx.graphics/com.sun.javafx.scene.text=ALL-UNNAMED \
   --add-exports=javafx.graphics/com.sun.javafx.scene.traversal=ALL-UNNAMED \
-  -jar keenwrite.jar
+  -jar keenwrite.jar $@
 

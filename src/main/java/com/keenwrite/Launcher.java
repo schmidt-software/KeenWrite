@@ -1,6 +1,10 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite;
 
+import com.keenwrite.cmdline.Arguments;
+import com.keenwrite.cmdline.ColourScheme;
+import picocli.CommandLine;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
@@ -27,21 +31,40 @@ public final class Launcher {
     try {
       installTrustManager();
       showAppInfo();
-      MainApp.main( args );
+      parse( args );
     } catch( final Throwable t ) {
       log( t );
     }
   }
 
-  @SuppressWarnings( "RedundantStringFormatCall" )
-  private static void showAppInfo() {
-    out( format( "%s version %s", APP_TITLE, APP_VERSION ) );
-    out( format( "Copyright 2016-%s White Magic Software, Ltd.", APP_YEAR ) );
-    out( format( "Portions copyright 2015-2020 Karl Tauber." ) );
+  private static void parse( final String[] args ) {
+    final var arguments = new Arguments( args );
+    final var parser = new CommandLine( arguments );
+    parser.setColorScheme( ColourScheme.create() );
+
+    final var exitCode = parser.execute( args );
+    final var parseResult = parser.getParseResult();
+
+    if( parseResult.isUsageHelpRequested() ) {
+      System.exit( exitCode );
+    }
   }
 
-  private static void out( final String s ) {
-    System.out.println( s );
+  private static void showAppInfo() {
+    out( "%n%s version %s", APP_TITLE, APP_VERSION );
+    out( "Copyright 2016-%s White Magic Software, Ltd.", APP_YEAR );
+    out( "Portions copyright 2015-2020 Karl Tauber.%n" );
+  }
+
+  /**
+   * Writes the given placeholder text to standard output with a new line
+   * appended.
+   *
+   * @param message The format string specifier.
+   * @param args    The arguments to substitute into the format string.
+   */
+  private static void out( final String message, final Object... args ) {
+    System.out.printf( format( "%s%n", message ), args );
   }
 
   /**
@@ -93,6 +116,6 @@ public final class Launcher {
       message = "Re-run using a Java Runtime Environment that includes JavaFX.";
     }
 
-    out( format( "ERROR: %s", message ) );
+    out( "ERROR: %s", message );
   }
 }

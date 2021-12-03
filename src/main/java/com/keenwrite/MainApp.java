@@ -3,7 +3,6 @@ package com.keenwrite;
 
 import com.keenwrite.events.HyperlinkOpenEvent;
 import com.keenwrite.preferences.Workspace;
-import com.keenwrite.util.ArrayScanner;
 import javafx.application.Application;
 import javafx.event.Event;
 import javafx.event.EventType;
@@ -13,7 +12,6 @@ import javafx.stage.Stage;
 import org.greenrobot.eventbus.Subscribe;
 
 import java.util.function.BooleanSupplier;
-import java.util.logging.LogManager;
 
 import static com.keenwrite.Bootstrap.APP_TITLE;
 import static com.keenwrite.constants.GraphicsConstants.LOGOS;
@@ -41,19 +39,7 @@ public final class MainApp extends Application {
    * @param args Command-line arguments.
    */
   public static void main( final String[] args ) {
-    if( !ArrayScanner.contains( args, "--debug" ) ) {
-      disableLogging();
-    }
-
     launch( args );
-  }
-
-  /**
-   * Suppress logging to standard output and standard error.
-   */
-  private static void disableLogging() {
-    LogManager.getLogManager().reset();
-    System.err.close();
   }
 
   /**
