@@ -1,6 +1,7 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.dom;
 
+import org.jetbrains.annotations.NotNull;
 import org.jsoup.helper.W3CDom;
 import org.jsoup.nodes.Node;
 import org.jsoup.nodes.TextNode;
@@ -38,7 +39,7 @@ public final class DocumentConverter extends W3CDom {
 
   private static final NodeVisitor LIGATURE_VISITOR = new NodeVisitor() {
     @Override
-    public void head( final Node node, final int depth ) {
+    public void head( final @NotNull Node node, final int depth ) {
       if( node instanceof final TextNode textNode ) {
         final var parent = node.parentNode();
         final var name = parent == null ? "root" : parent.nodeName();
@@ -56,12 +57,12 @@ public final class DocumentConverter extends W3CDom {
     }
 
     @Override
-    public void tail( final Node node, final int depth ) {
+    public void tail( final @NotNull Node node, final int depth ) {
     }
   };
 
   @Override
-  public Document fromJsoup( final org.jsoup.nodes.Document in ) {
+  public @NotNull Document fromJsoup( final org.jsoup.nodes.Document in ) {
     assert in != null;
 
     final var out = DocumentParser.newDocument();

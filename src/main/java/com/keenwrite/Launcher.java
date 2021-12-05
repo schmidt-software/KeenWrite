@@ -3,11 +3,14 @@ package com.keenwrite;
 
 import com.keenwrite.cmdline.Arguments;
 import com.keenwrite.cmdline.ColourScheme;
+import com.keenwrite.cmdline.HeadlessApp;
 import picocli.CommandLine;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
+import java.util.function.Consumer;
+import java.util.logging.LogManager;
 
 import static com.keenwrite.Bootstrap.*;
 import static com.keenwrite.PermissiveCertificate.installTrustManager;
@@ -21,25 +24,77 @@ import static java.lang.String.format;
  * because the application should be ported away from Java and JavaFX.
  * </p>
  */
-public final class Launcher {
+public final class Launcher implements Consumer<Arguments> {
+
   /**
-   * Delegates to the application entry point.
+   * Needed for the GUI.
+   */
+  private final String[] mArgs;
+
+  /**
+   * Delegates running the application via the command-line argument parser.
+   * This is the main entry point for the application, regardless of whether
+   * run from the command-line or as a GUI.
    *
    * @param args Command-line arguments.
    */
   public static void main( final String[] args ) {
+    installTrustManager();
+    parse( args );
+  }
+
+  /**
+   * @param args Command-line arguments (passed into the GUI).
+   */
+  public Launcher( final String[] args ) {
+    mArgs = args;
+  }
+
+  /**
+   * Called after the arguments have been parsed.
+   *
+   * @param args The parsed command-line arguments.
+   */
+  @Override
+  public void accept( final Arguments args ) {
+    assert args != null;
+
     try {
-      installTrustManager();
-      showAppInfo();
-      parse( args );
+      int argCount = mArgs.length;
+
+      if( args.quiet() ) {
+        argCount--;
+      }
+      else {
+        showAppInfo();
+      }
+
+      if( args.debug() ) {
+        argCount--;
+      }
+      else {
+        disableLogging();
+      }
+
+      if( argCount <= 0 ) {
+        // When no command-line arguments are provided, launch the GUI.
+        MainApp.main( mArgs );
+      }
+      else {
+        // When command-line arguments are supplied, run in headless mode.
+        HeadlessApp.main( args );
+      }
     } catch( final Throwable t ) {
       log( t );
     }
   }
 
   private static void parse( final String[] args ) {
-    final var arguments = new Arguments( args );
+    assert args != null;
+
+    final var arguments = new Arguments( new Launcher( args ) );
     final var parser = new CommandLine( arguments );
+
     parser.setColorScheme( ColourScheme.create() );
 
     final var exitCode = parser.execute( args );
@@ -50,21 +105,18 @@ public final class Launcher {
     }
   }
 
+  /**
+   * Suppress writing to standard error, suppresses writing log messages.
+   */
+  private static void disableLogging() {
+    LogManager.getLogManager().reset();
+    System.err.close();
+  }
+
   private static void showAppInfo() {
     out( "%n%s version %s", APP_TITLE, APP_VERSION );
     out( "Copyright 2016-%s White Magic Software, Ltd.", APP_YEAR );
     out( "Portions copyright 2015-2020 Karl Tauber.%n" );
-  }
-
-  /**
-   * Writes the given placeholder text to standard output with a new line
-   * appended.
-   *
-   * @param message The format string specifier.
-   * @param args    The arguments to substitute into the format string.
-   */
-  private static void out( final String message, final Object... args ) {
-    System.out.printf( format( "%s%n", message ), args );
   }
 
   /**
@@ -113,9 +165,20 @@ public final class Launcher {
     var message = error.getMessage();
 
     if( message != null && message.toLowerCase().contains( "javafx" ) ) {
-      message = "Re-run using a Java Runtime Environment that includes JavaFX.";
+      message = "Run using a Java Runtime Environment that includes JavaFX.";
     }
 
     out( "ERROR: %s", message );
+  }
+
+  /**
+   * Writes the given placeholder text to standard output with a new line
+   * appended.
+   *
+   * @param message The format string specifier.
+   * @param args    The arguments to substitute into the format string.
+   */
+  private static void out( final String message, final Object... args ) {
+    System.out.printf( format( "%s%n", message ), args );
   }
 }

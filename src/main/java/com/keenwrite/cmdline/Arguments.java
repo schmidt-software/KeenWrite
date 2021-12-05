@@ -1,15 +1,15 @@
 package com.keenwrite.cmdline;
 
-import com.keenwrite.MainApp;
 import picocli.CommandLine;
 
+import java.util.Map;
 import java.util.concurrent.Callable;
-import java.util.logging.LogManager;
+import java.util.function.Consumer;
 
 @CommandLine.Command(
   name = "KeenWrite",
   mixinStandardHelpOptions = true,
-  description = "Plain text editor that offers interpolated variables."
+  description = "Plain text editor for editing with variables."
 )
 @SuppressWarnings( "unused" )
 public final class Arguments implements Callable<Integer> {
@@ -17,8 +17,6 @@ public final class Arguments implements Callable<Integer> {
     names = {"-d", "--debug"},
     description =
       "Enable logging to the console (${DEFAULT-VALUE}).",
-    arity = "1",
-    paramLabel = "Boolean",
     defaultValue = "false"
   )
   private boolean mDebug;
@@ -42,12 +40,20 @@ public final class Arguments implements Callable<Integer> {
   private String mFileOutput;
 
   @CommandLine.Option(
-    names = {"-m", "--meta-data"},
+    names = {"-m", "--metadata"},
     description =
-      "Set a meta-data value.",
-    paramLabel = "Pair"
+      "Map metadata keys to values.",
+    paramLabel = "key=value"
   )
-  private String mMetaData;
+  private Map<String, String> mMetadata;
+
+  @CommandLine.Option(
+    names = {"-q", "--quiet"},
+    description =
+      "Suppress all status messages (${DEFAULT-VALUE}).",
+    defaultValue = "false"
+  )
+  private boolean mQuiet;
 
   @CommandLine.Option(
     names = {"-v", "--variables"},
@@ -58,10 +64,18 @@ public final class Arguments implements Callable<Integer> {
   )
   private String mFileVariables;
 
-  private final String[] mArgs;
+  private final Consumer<Arguments> mLauncher;
 
-  public Arguments( final String[] args ) {
-    mArgs = args;
+  public Arguments( final Consumer<Arguments> launcher ) {
+    mLauncher = launcher;
+  }
+
+  public boolean quiet() {
+    return mQuiet;
+  }
+
+  public boolean debug() {
+    return mDebug;
   }
 
   /**
@@ -73,19 +87,7 @@ public final class Arguments implements Callable<Integer> {
    */
   @Override
   public Integer call() throws Exception {
-    if( !mDebug ) {
-      disableLogging();
-    }
-
-    MainApp.main( mArgs );
+    mLauncher.accept( this );
     return 0;
-  }
-
-  /**
-   * Suppress logging to standard output and standard error.
-   */
-  private static void disableLogging() {
-    LogManager.getLogManager().reset();
-    System.err.close();
   }
 }
