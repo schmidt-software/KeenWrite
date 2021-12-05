@@ -2,7 +2,7 @@
 package com.keenwrite.preferences;
 
 import com.keenwrite.constants.Constants;
-import com.keenwrite.sigils.Tokens;
+import com.keenwrite.sigils.Sigils;
 import javafx.application.Platform;
 import javafx.beans.property.*;
 import javafx.collections.ObservableList;
@@ -299,10 +299,10 @@ public final class Workspace {
     return stringProperty( key ).get();
   }
 
-  public Tokens toTokens( final Key began, final Key ended ) {
+  public Sigils toTokens( final Key began, final Key ended ) {
     assert began != null;
     assert ended != null;
-    return new Tokens( stringProperty( began ), stringProperty( ended ) );
+    return new Sigils( stringProperty( began ), stringProperty( ended ) );
   }
 
   @SuppressWarnings( "SameParameterValue" )

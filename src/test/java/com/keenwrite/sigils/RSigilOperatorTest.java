@@ -38,16 +38,16 @@ class RSigilOperatorTest {
     return new SimpleStringProperty( token );
   }
 
-  private Tokens createRTokens() {
+  private Sigils createRTokens() {
     return createTokens( "x(", ")" );
   }
 
-  private Tokens createYamlTokens() {
+  private Sigils createYamlTokens() {
     return createTokens( "{{", "}}" );
   }
 
-  private Tokens createTokens( final String began, final String ended ) {
-    return new Tokens( createToken( began ), createToken( ended ) );
+  private Sigils createTokens( final String began, final String ended ) {
+    return new Sigils( createToken( began ), createToken( ended ) );
   }
 
   private YamlSigilOperator createYamlSigilOperator() {

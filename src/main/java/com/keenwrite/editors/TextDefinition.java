@@ -4,7 +4,7 @@ package com.keenwrite.editors;
 import com.keenwrite.editors.definition.DefinitionEditor;
 import com.keenwrite.editors.definition.DefinitionTreeItem;
 import com.keenwrite.editors.markdown.MarkdownEditor;
-import com.keenwrite.sigils.Tokens;
+import com.keenwrite.sigils.Sigils;
 import javafx.scene.control.TreeItem;
 
 import java.util.Map;
@@ -24,12 +24,12 @@ public interface TextDefinition extends TextResource {
   /**
    * Performs string interpolation on the values in the given map. This will
    * change any value in the map that contains a variable that matches
-   * the definition regex pattern against the given {@link Tokens}.
+   * the definition regex pattern against the given {@link Sigils}.
    *
    * @param map Contains values that represent references to keys.
-   * @param tokens The beginning and ending tokens that delimit variables.
+   * @param sigils The beginning and ending tokens that delimit variables.
    */
-  Map<String, String> interpolate( Map<String, String> map, Tokens tokens );
+  Map<String, String> interpolate( Map<String, String> map, Sigils sigils );
 
   /**
    * Requests that the visual representation be expanded to the given

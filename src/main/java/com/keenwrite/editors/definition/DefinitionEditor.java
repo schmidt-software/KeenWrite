@@ -3,7 +3,7 @@ package com.keenwrite.editors.definition;
 
 import com.keenwrite.constants.Constants;
 import com.keenwrite.editors.TextDefinition;
-import com.keenwrite.sigils.Tokens;
+import com.keenwrite.sigils.Sigils;
 import com.keenwrite.ui.tree.AltTreeView;
 import com.keenwrite.ui.tree.TreeItemConverter;
 import javafx.beans.property.BooleanProperty;
@@ -222,13 +222,13 @@ public final class DefinitionEditor extends BorderPane
 
   @Override
   public Map<String, String> interpolate(
-    final Map<String, String> map, final Tokens tokens ) {
+    final Map<String, String> map, final Sigils sigils ) {
 
     // Non-greedy match of key names delimited by definition tokens.
     final var pattern = compile(
       format( "(%s.*?%s)",
-              quote( tokens.getBegan() ),
-              quote( tokens.getEnded() )
+              quote( sigils.getBegan() ),
+              quote( sigils.getEnded() )
       )
     );
 

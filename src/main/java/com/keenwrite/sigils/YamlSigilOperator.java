@@ -7,8 +7,8 @@ package com.keenwrite.sigils;
 public final class YamlSigilOperator extends SigilOperator {
   public static final char KEY_SEPARATOR_DEF = '.';
 
-  public YamlSigilOperator( final Tokens tokens ) {
-    super( tokens );
+  public YamlSigilOperator( final Sigils sigils ) {
+    super( sigils );
   }
 
   /**

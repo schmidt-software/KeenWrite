@@ -22,11 +22,11 @@ public final class RSigilOperator extends SigilOperator {
    * Constructs a new {@link RSigilOperator} capable of wrapping tokens around
    * variable names (keys).
    *
-   * @param tokens     The starting and ending tokens.
+   * @param sigils     The starting and ending tokens.
    * @param antecedent The operator to use to undo any previous entokenizing.
    */
-  public RSigilOperator( final Tokens tokens, final SigilOperator antecedent ) {
-    super( tokens );
+  public RSigilOperator( final Sigils sigils, final SigilOperator antecedent ) {
+    super( sigils );
 
     mAntecedent = antecedent;
   }

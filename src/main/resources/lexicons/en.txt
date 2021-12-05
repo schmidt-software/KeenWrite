@@ -13603,7 +13603,9 @@ ruler	2615554
 signifies	2615219
 henri	2615040
 stochastic	2614305
-tokens	2613416
+sigil	2613416
+sigils	2613415
+tokens	2613410
 santana	2613405
 kidding	2613375
 piping	2612878

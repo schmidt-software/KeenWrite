@@ -10,10 +10,10 @@ import java.util.function.UnaryOperator;
  * implementations of this interface.
  */
 public abstract class SigilOperator implements UnaryOperator<String> {
-  private final Tokens mTokens;
+  private final Sigils mSigils;
 
-  SigilOperator( final Tokens tokens ) {
-    mTokens = tokens;
+  SigilOperator( final Sigils sigils ) {
+    mSigils = sigils;
   }
 
   /**
@@ -29,11 +29,11 @@ public abstract class SigilOperator implements UnaryOperator<String> {
   }
 
   String getBegan() {
-    return mTokens.getBegan();
+    return mSigils.getBegan();
   }
 
   String getEnded() {
-    return mTokens.getEnded();
+    return mSigils.getEnded();
   }
 
   /**

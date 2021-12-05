@@ -153,8 +153,8 @@ public class SymSpellSpeller implements SpellChecker {
         String line;
 
         while( (line = reader.readLine()) != null ) {
-          final String[] tokens = line.split( "\\t" );
-          map.put( tokens[ 0 ], parseLong( tokens[ 1 ] ) );
+          final String[] sigils = line.split( "\\t" );
+          map.put( sigils[ 0 ], parseLong( sigils[ 1 ] ) );
         }
       }
     }

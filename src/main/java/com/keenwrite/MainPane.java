@@ -20,7 +20,7 @@ import com.keenwrite.processors.markdown.extensions.CaretExtension;
 import com.keenwrite.service.events.Notifier;
 import com.keenwrite.sigils.RSigilOperator;
 import com.keenwrite.sigils.SigilOperator;
-import com.keenwrite.sigils.Tokens;
+import com.keenwrite.sigils.Sigils;
 import com.keenwrite.sigils.YamlSigilOperator;
 import com.keenwrite.ui.explorer.FilePickerFactory;
 import com.keenwrite.ui.heuristics.DocumentStatistics;
@@ -1113,15 +1113,15 @@ public final class MainPane extends SplitPane {
     return getWorkspace().stringProperty( key );
   }
 
-  private Tokens createRTokens() {
+  private Sigils createRTokens() {
     return createTokens( KEY_R_DELIM_BEGAN, KEY_R_DELIM_ENDED );
   }
 
-  private Tokens createDefinitionTokens() {
+  private Sigils createDefinitionTokens() {
     return createTokens( KEY_DEF_DELIM_BEGAN, KEY_DEF_DELIM_ENDED );
   }
 
-  private Tokens createTokens( final Key began, final Key ended ) {
-    return new Tokens( stringProperty( began ), stringProperty( ended ) );
+  private Sigils createTokens( final Key began, final Key ended ) {
+    return new Sigils( stringProperty( began ), stringProperty( ended ) );
   }
 }
