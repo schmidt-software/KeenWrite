@@ -21,9 +21,9 @@ public class HyperlinkOpenEvent implements AppEvent {
    *
    * @param uri The location to open.
    */
-  public static void fireHyperlinkOpenEvent( final URI uri )
+  public static void fire( final URI uri )
     throws IOException {
-    new HyperlinkOpenEvent( uri ).fire();
+    new HyperlinkOpenEvent( uri ).publish();
   }
 
   /**
@@ -31,9 +31,9 @@ public class HyperlinkOpenEvent implements AppEvent {
    *
    * @param uri The location to open.
    */
-  public static void fireHyperlinkOpenEvent( final String uri ) {
+  public static void fire( final String uri ) {
     try {
-      fireHyperlinkOpenEvent( new URI( uri ) );
+      fire( new URI( uri ) );
     } catch( final Exception ex ) {
       clue( ex );
     }

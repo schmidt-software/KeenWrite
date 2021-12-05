@@ -31,13 +31,13 @@ public class DocumentChangedEvent implements AppEvent {
    *
    * @param html The document that may have changed.
    */
-  public static void fireDocumentChangedEvent( final String html ) {
+  public static void fire( final String html ) {
     // Hashing the document text ignores caret position changes.
     final var hash = html.hashCode();
 
     if( hash != sHash ) {
       sHash = hash;
-      new DocumentChangedEvent( html ).fire();
+      new DocumentChangedEvent( html ).publish();
     }
   }
 

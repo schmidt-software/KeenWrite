@@ -3,7 +3,8 @@ package com.keenwrite.editors.definition;
 
 import com.keenwrite.constants.Constants;
 import com.keenwrite.editors.TextDefinition;
-import com.keenwrite.sigils.Sigils;
+import com.keenwrite.events.TextDefinitionFocusEvent;
+import com.keenwrite.sigils.SigilOperator;
 import com.keenwrite.ui.tree.AltTreeView;
 import com.keenwrite.ui.tree.TreeItemConverter;
 import javafx.beans.property.BooleanProperty;
@@ -23,16 +24,11 @@ import javafx.scene.layout.HBox;
 import java.io.File;
 import java.nio.charset.Charset;
 import java.util.*;
-import java.util.regex.Pattern;
 
-import static com.keenwrite.constants.Constants.*;
 import static com.keenwrite.Messages.get;
+import static com.keenwrite.constants.Constants.*;
 import static com.keenwrite.events.StatusEvent.clue;
-import static com.keenwrite.events.TextDefinitionFocusEvent.fireTextDefinitionFocus;
 import static com.keenwrite.ui.fonts.IconFactory.createGraphic;
-import static java.lang.String.format;
-import static java.util.regex.Pattern.compile;
-import static java.util.regex.Pattern.quote;
 import static javafx.geometry.Pos.CENTER;
 import static javafx.geometry.Pos.TOP_CENTER;
 import static javafx.scene.control.SelectionMode.MULTIPLE;
@@ -47,7 +43,6 @@ import static javafx.scene.input.KeyEvent.KEY_PRESSED;
  */
 public final class DefinitionEditor extends BorderPane
   implements TextDefinition {
-  private static final int GROUP_DELIMITED = 1;
 
   /**
    * Contains the root that is added to the view.
@@ -140,6 +135,12 @@ public final class DefinitionEditor extends BorderPane
   }
 
   @Override
+  public Map<String, String> interpolate( final SigilOperator operator ) {
+    final var map = TreeItemMapper.convert( getTreeView().getRoot() );
+    return map.interpolate( operator );
+  }
+
+  @Override
   public void setText( final String document ) {
     final var foster = mTreeTransformer.transform( document );
     final var biological = getTreeRoot();
@@ -214,55 +215,6 @@ public final class DefinitionEditor extends BorderPane
 
     return button;
   }
-
-  @Override
-  public Map<String, String> toMap() {
-    return new TreeItemMapper().toMap( getTreeView().getRoot() );
-  }
-
-  @Override
-  public Map<String, String> interpolate(
-    final Map<String, String> map, final Sigils sigils ) {
-
-    // Non-greedy match of key names delimited by definition tokens.
-    final var pattern = compile(
-      format( "(%s.*?%s)",
-              quote( sigils.getBegan() ),
-              quote( sigils.getEnded() )
-      )
-    );
-
-    map.replaceAll( ( k, v ) -> resolve( map, v, pattern ) );
-    return map;
-  }
-
-  /**
-   * Given a value with zero or more key references, this will resolve all
-   * the values, recursively. If a key cannot be de-referenced, the value will
-   * contain the key name.
-   *
-   * @param map     Map to search for keys when resolving key references.
-   * @param value   Value containing zero or more key references.
-   * @param pattern The regular expression pattern to match variable key names.
-   * @return The given value with all embedded key references interpolated.
-   */
-  private String resolve(
-    final Map<String, String> map, String value, final Pattern pattern ) {
-    final var matcher = pattern.matcher( value );
-
-    while( matcher.find() ) {
-      final var keyName = matcher.group( GROUP_DELIMITED );
-      final var mapValue = map.get( keyName );
-      final var keyValue = mapValue == null
-        ? keyName
-        : resolve( map, mapValue, pattern );
-
-      value = value.replace( keyName, keyValue );
-    }
-
-    return value;
-  }
-
 
   /**
    * Informs the caller of whenever any {@link TreeItem} in the {@link TreeView}
@@ -493,7 +445,7 @@ public final class DefinitionEditor extends BorderPane
     final Boolean o,
     final Boolean n ) {
     if( n != null && n ) {
-      fireTextDefinitionFocus( this );
+      TextDefinitionFocusEvent.fire( this );
     }
   }
 

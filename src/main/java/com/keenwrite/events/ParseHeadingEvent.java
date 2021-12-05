@@ -37,7 +37,7 @@ public class ParseHeadingEvent implements AppEvent {
    * Call to indicate a new outline is to be created.
    */
   public static void fireNewOutlineEvent() {
-    new ParseHeadingEvent( NEW_OUTLINE_LEVEL, "Document", 0 ).fire();
+    new ParseHeadingEvent( NEW_OUTLINE_LEVEL, "Document", 0 ).publish();
   }
 
   /**
@@ -47,12 +47,12 @@ public class ParseHeadingEvent implements AppEvent {
    * @param level  A value between 1 and 6.
    * @param offset Absolute offset into document where heading is found.
    */
-  public static void fireNewHeadingEvent(
+  public static void fire(
     final int level, final String text, final int offset ) {
     assert text != null;
     assert 1 <= level && level <= 6;
     assert 0 <= offset;
-    new ParseHeadingEvent( level, text, offset ).fire();
+    new ParseHeadingEvent( level, text, offset ).publish();
   }
 
   public boolean isNewOutline() {

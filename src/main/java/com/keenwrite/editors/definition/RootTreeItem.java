@@ -22,7 +22,7 @@ public final class RootTreeItem<T> extends DefinitionTreeItem<T> {
    * Default constructor, calls the superclass, no other behaviour.
    *
    * @param value The {@link TreeItem} node name to construct the superclass.
-   * @see TreeItemMapper#toMap(TreeItem) for details on how this
+   * @see TreeItemMapper#convert(TreeItem) for details on how this
    * class is used.
    */
   public RootTreeItem( final T value ) {

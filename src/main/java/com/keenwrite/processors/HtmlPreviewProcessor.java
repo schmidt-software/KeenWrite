@@ -36,11 +36,7 @@ public final class HtmlPreviewProcessor extends ExecutorProcessor<String> {
   public String apply( final String html ) {
     assert html != null;
 
-    getHtmlPreviewPane().render( html );
+    sHtmlPreviewPane.render( html );
     return html;
-  }
-
-  private HtmlPreview getHtmlPreviewPane() {
-    return sHtmlPreviewPane;
   }
 }

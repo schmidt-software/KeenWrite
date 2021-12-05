@@ -91,11 +91,6 @@ public final class Constants {
     "Main.status.error.def.missing";
 
   /**
-   * Used when creating flat maps relating to resolved variables.
-   */
-  public static final int MAP_SIZE_DEFAULT = 128;
-
-  /**
    * Default image extension order to use when scanning.
    */
   public static final String PERSIST_IMAGES_DEFAULT =

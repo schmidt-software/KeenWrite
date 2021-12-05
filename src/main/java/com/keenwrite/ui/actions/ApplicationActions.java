@@ -255,7 +255,7 @@ public final class ApplicationActions {
   }
 
   private void fireExportFailedEvent() {
-    runLater( ExportFailedEvent::fireExportFailedEvent );
+    runLater( ExportFailedEvent::fire );
   }
 
   public void file_exit() {

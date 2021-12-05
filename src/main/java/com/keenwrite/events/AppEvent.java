@@ -11,7 +11,7 @@ public interface AppEvent {
   /**
    * Submits this event to the {@link Bus}.
    */
-  default void fire() {
+  default void publish() {
     post( this );
   }
 }

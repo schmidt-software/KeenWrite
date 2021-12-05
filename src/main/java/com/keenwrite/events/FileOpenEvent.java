@@ -20,8 +20,8 @@ public class FileOpenEvent implements AppEvent {
    *
    * @param uri The instance of {@link URI} to open as a file in a text editor.
    */
-  public static void fireFileOpenEvent( final URI uri ) {
-    new FileOpenEvent( uri ).fire();
+  public static void fire( final URI uri ) {
+    new FileOpenEvent( uri ).publish();
   }
 
   /**

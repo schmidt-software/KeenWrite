@@ -1,6 +1,7 @@
 package com.keenwrite.ui.outline;
 
 import com.keenwrite.events.Bus;
+import com.keenwrite.events.CaretNavigationEvent;
 import com.keenwrite.events.ParseHeadingEvent;
 import javafx.scene.Node;
 import javafx.scene.control.TreeCell;
@@ -10,7 +11,6 @@ import javafx.util.Callback;
 import org.greenrobot.eventbus.Subscribe;
 
 import static com.keenwrite.events.Bus.register;
-import static com.keenwrite.events.CaretNavigationEvent.fireCaretNavigationEvent;
 import static com.keenwrite.ui.fonts.IconFactory.createGraphic;
 import static javafx.application.Platform.runLater;
 import static javafx.scene.input.MouseButton.PRIMARY;
@@ -45,7 +45,7 @@ public class DocumentOutline extends TreeView<ParseHeadingEvent> {
 
         cell.addEventFilter( MOUSE_PRESSED, event -> {
           if( event.getButton() == PRIMARY && event.getClickCount() % 2 == 0 ) {
-            fireCaretNavigationEvent( cell.getItem().getOffset() );
+            CaretNavigationEvent.fire( cell.getItem().getOffset() );
             event.consume();
           }
         } );

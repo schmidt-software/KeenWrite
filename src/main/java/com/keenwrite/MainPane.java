@@ -61,7 +61,6 @@ import static com.keenwrite.Messages.get;
 import static com.keenwrite.constants.Constants.*;
 import static com.keenwrite.constants.GraphicsConstants.ICON_DIALOG_NODE;
 import static com.keenwrite.events.Bus.register;
-import static com.keenwrite.events.HyperlinkOpenEvent.fireHyperlinkOpenEvent;
 import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.io.MediaType.*;
 import static com.keenwrite.preferences.WorkspaceKeys.*;
@@ -85,7 +84,7 @@ import static org.fxmisc.wellbehaved.event.EventPattern.keyPressed;
 
 /**
  * Responsible for wiring together the main application components for a
- * particular workspace (project). These include the definition views,
+ * particular {@link Workspace} (project). These include the definition views,
  * text editors, and preview pane along with any corresponding controllers.
  */
 public final class MainPane extends SplitPane {
@@ -119,12 +118,6 @@ public final class MainPane extends SplitPane {
   private final List<TabPane> mTabPanes = new ArrayList<>();
 
   /**
-   * Stores definition names and values.
-   */
-  private final Map<String, String> mResolvedMap =
-    new HashMap<>( MAP_SIZE_DEFAULT );
-
-  /**
    * Renders the actively selected plain text editor tab.
    */
   private final HtmlPreview mPreview;
@@ -143,6 +136,15 @@ public final class MainPane extends SplitPane {
     createActiveTextEditor();
 
   /**
+   * Called when the definition data is changed.
+   */
+  private final EventHandler<TreeModificationEvent<Event>> mTreeHandler =
+    event -> {
+      process( getActiveTextEditor() );
+      save( getActiveTextDefinition() );
+    };
+
+  /**
    * Changing the active definition editor fires the value changed event. This
    * allows refreshes to happen when external definitions are modified and need
    * to trigger the processing chain.
@@ -156,18 +158,6 @@ public final class MainPane extends SplitPane {
    * It is doubtful more than 128 windows, much less 256, will be created.
    */
   private byte mWindowCount;
-
-  /**
-   * Called when the definition data is changed.
-   */
-  private final EventHandler<TreeModificationEvent<Event>> mTreeHandler =
-    event -> {
-      final var editor = mActiveDefinitionEditor.get();
-
-      resolve( editor );
-      process( getActiveTextEditor() );
-      save( editor );
-    };
 
   private final DocumentStatistics mStatistics;
 
@@ -293,7 +283,7 @@ public final class MainPane extends SplitPane {
     link.setOnAction( ( e ) -> {
       alert.close();
       final var url = Messages.get( "Alert.typesetter.missing.installer.url" );
-      runLater( () -> fireHyperlinkOpenEvent( url ) );
+      runLater( () -> HyperlinkOpenEvent.fire( url ) );
     } );
 
     alert.showAndWait();
@@ -651,22 +641,24 @@ public final class MainPane extends SplitPane {
   /**
    * Creates a new {@link DefinitionEditor} wrapped in a listener that
    * is used to detect when the active {@link DefinitionEditor} has changed.
-   * Upon changing, the {@link #mResolvedMap} is updated and the active
-   * text editor is refreshed.
+   * Upon changing, the variables are interpolated and the active text editor
+   * is refreshed.
    *
-   * @param editor Text editor to update with the revised resolved map.
+   * @param textEditor Text editor to update with the revised resolved map.
    * @return A newly configured property that represents the active
    * {@link DefinitionEditor}, never null.
    */
   private ObjectProperty<TextDefinition> createActiveDefinitionEditor(
-    final ObjectProperty<TextEditor> editor ) {
-    final var definitions = new SimpleObjectProperty<TextDefinition>();
-    definitions.addListener( ( c, o, n ) -> {
-      resolve( n == null ? createDefinitionEditor() : n );
-      process( editor.get() );
-    } );
+    final ObjectProperty<TextEditor> textEditor ) {
+    final var defEditor = new SimpleObjectProperty<>(
+      createDefinitionEditor()
+    );
 
-    return definitions;
+    defEditor.addListener( ( c, o, n ) -> {
+      process( textEditor.get() );
+    });
+
+    return defEditor;
   }
 
   private Tab createTab( final String filename, final Node node ) {
@@ -757,25 +749,6 @@ public final class MainPane extends SplitPane {
     );
 
     return result;
-  }
-
-  /**
-   * Uses the given {@link TextDefinition} instance to update the
-   * {@link #mResolvedMap}.
-   *
-   * @param editor A non-null, possibly empty definition editor.
-   */
-  private void resolve( final TextDefinition editor ) {
-    assert editor != null;
-
-    final var tokens = createDefinitionTokens();
-    final var operator = new YamlSigilOperator( tokens );
-    final var map = new HashMap<String, String>();
-
-    editor.toMap().forEach( ( k, v ) -> map.put( operator.entoken( k ), v ) );
-
-    mResolvedMap.clear();
-    mResolvedMap.putAll( editor.interpolate( map, tokens ) );
   }
 
   /**
@@ -949,9 +922,9 @@ public final class MainPane extends SplitPane {
 
   public ProcessorContext createProcessorContext(
     final Path exportPath, final ExportFormat format ) {
-    final var editor = getActiveTextEditor();
+    final var textEditor = getActiveTextEditor();
     return createProcessorContext(
-      editor.getPath(), exportPath, format, editor.getCaret() );
+      textEditor.getPath(), exportPath, format, textEditor.getCaret() );
   }
 
   private ProcessorContext createProcessorContext(
@@ -970,10 +943,19 @@ public final class MainPane extends SplitPane {
    * {@link Processor}.
    */
   private ProcessorContext createProcessorContext(
-    final Path path, final Path exportPath, final ExportFormat format,
+    final Path path,
+    final Path exportPath,
+    final ExportFormat format,
     final Caret caret ) {
+
     return new ProcessorContext(
-      mPreview, mResolvedMap, path, exportPath, format, mWorkspace, caret
+      mPreview,
+      mActiveDefinitionEditor,
+      path,
+      exportPath,
+      format,
+      mWorkspace,
+      caret
     );
   }
 
@@ -1092,10 +1074,10 @@ public final class MainPane extends SplitPane {
    * @param mediaType The type of file being edited.
    */
   private SigilOperator getSigilOperator( final MediaType mediaType ) {
-    final var operator = new YamlSigilOperator( createDefinitionTokens() );
+    final var operator = new YamlSigilOperator( createDefinitionSigils() );
 
     return mediaType == TEXT_R_MARKDOWN
-      ? new RSigilOperator( createRTokens(), operator )
+      ? new RSigilOperator( createRSigils(), operator )
       : operator;
   }
 
@@ -1113,15 +1095,15 @@ public final class MainPane extends SplitPane {
     return getWorkspace().stringProperty( key );
   }
 
-  private Sigils createRTokens() {
-    return createTokens( KEY_R_DELIM_BEGAN, KEY_R_DELIM_ENDED );
+  private Sigils createRSigils() {
+    return createSigils( KEY_R_DELIM_BEGAN, KEY_R_DELIM_ENDED );
   }
 
-  private Sigils createDefinitionTokens() {
-    return createTokens( KEY_DEF_DELIM_BEGAN, KEY_DEF_DELIM_ENDED );
+  private Sigils createDefinitionSigils() {
+    return createSigils( KEY_DEF_DELIM_BEGAN, KEY_DEF_DELIM_ENDED );
   }
 
-  private Sigils createTokens( final Key began, final Key ended ) {
+  private Sigils createSigils( final Key began, final Key ended ) {
     return new Sigils( stringProperty( began ), stringProperty( ended ) );
   }
 }

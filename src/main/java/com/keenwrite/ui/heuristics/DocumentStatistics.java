@@ -2,6 +2,7 @@
 package com.keenwrite.ui.heuristics;
 
 import com.keenwrite.events.DocumentChangedEvent;
+import com.keenwrite.events.WordCountEvent;
 import com.keenwrite.preferences.Workspace;
 import com.whitemagicsoftware.wordcount.TokenizerException;
 import javafx.beans.property.IntegerProperty;
@@ -16,7 +17,6 @@ import org.greenrobot.eventbus.Subscribe;
 
 import static com.keenwrite.events.Bus.register;
 import static com.keenwrite.events.StatusEvent.clue;
-import static com.keenwrite.events.WordCountEvent.fireWordCountEvent;
 import static com.keenwrite.preferences.WorkspaceKeys.KEY_LANGUAGE_LOCALE;
 import static com.keenwrite.preferences.WorkspaceKeys.KEY_UI_FONT_EDITOR_NAME;
 import static com.keenwrite.ui.heuristics.DocumentStatistics.StatEntry;
@@ -89,7 +89,7 @@ public final class DocumentStatistics extends TableView<StatEntry> {
           }
         );
 
-        fireWordCountEvent( wordCount );
+        WordCountEvent.fire( wordCount );
       } );
     } catch( final TokenizerException ex ) {
       clue( ex );

@@ -133,7 +133,7 @@ public final class StatusEvent implements AppEvent {
    * issues to bring to the user's attention.
    */
   public static void clue() {
-    fireStatusEvent( get( STATUS_BAR_OK, "OK" ) );
+    fire( get( STATUS_BAR_OK, "OK" ) );
   }
 
   /**
@@ -143,7 +143,7 @@ public final class StatusEvent implements AppEvent {
    * @param messages The lines of text to display.
    */
   public static void clue( final List<String> messages ) {
-    messages.forEach( StatusEvent::fireStatusEvent );
+    messages.forEach( StatusEvent::fire );
   }
 
   /**
@@ -153,7 +153,7 @@ public final class StatusEvent implements AppEvent {
    * @param t   The exception that caused the error.
    */
   public static void clue( final String key, final Throwable t ) {
-    fireStatusEvent( get( key ), t );
+    fire( get( key ), t );
   }
 
   /**
@@ -163,7 +163,7 @@ public final class StatusEvent implements AppEvent {
    * @param args The placeholder values to substitute into the key's value.
    */
   public static void clue( final String key, final Object... args ) {
-    fireStatusEvent( get( key, args ) );
+    fire( get( key, args ) );
   }
 
   /**
@@ -173,19 +173,19 @@ public final class StatusEvent implements AppEvent {
    * @param problem The exception with a message to display to the user.
    */
   public static void clue( final Throwable problem ) {
-    fireStatusEvent( problem );
+    fire( problem );
   }
 
-  private static void fireStatusEvent( final String message ) {
-    new StatusEvent( message ).fire();
+  private static void fire( final String message ) {
+    new StatusEvent( message ).publish();
   }
 
-  private static void fireStatusEvent( final Throwable problem ) {
-    new StatusEvent( problem ).fire();
+  private static void fire( final Throwable problem ) {
+    new StatusEvent( problem ).publish();
   }
 
-  private static void fireStatusEvent(
+  private static void fire(
     final String message, final Throwable problem ) {
-    new StatusEvent( message, problem ).fire();
+    new StatusEvent( message, problem ).publish();
   }
 }

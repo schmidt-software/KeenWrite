@@ -19,8 +19,8 @@ public class WordCountEvent implements AppEvent {
    *
    * @param count The approximate number of words in the document.
    */
-  public static void fireWordCountEvent( final int count ) {
-    new WordCountEvent( count ).fire();
+  public static void fire( final int count ) {
+    new WordCountEvent( count ).publish();
   }
 
   public int getCount() {

@@ -1,6 +1,8 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.preview;
 
+import com.keenwrite.events.FileOpenEvent;
+import com.keenwrite.events.HyperlinkOpenEvent;
 import com.keenwrite.ui.adapters.DocumentAdapter;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -17,8 +19,7 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.net.URI;
 
-import static com.keenwrite.events.FileOpenEvent.fireFileOpenEvent;
-import static com.keenwrite.events.HyperlinkOpenEvent.fireHyperlinkOpenEvent;
+import static com.keenwrite.events.HyperlinkOpenEvent.fire;
 import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.util.ProtocolScheme.getProtocol;
 import static java.lang.Boolean.FALSE;
@@ -74,8 +75,8 @@ public final class FlyingSaucerPanel extends XHTMLPanel
         final var uri = new URI( link );
 
         switch( getProtocol( uri ) ) {
-          case HTTP -> fireHyperlinkOpenEvent( uri );
-          case FILE -> fireFileOpenEvent( uri );
+          case HTTP -> HyperlinkOpenEvent.fire( uri );
+          case FILE -> FileOpenEvent.fire( uri );
         }
       } catch( final Exception ex ) {
         clue( ex );

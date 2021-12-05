@@ -7,7 +7,7 @@ package com.keenwrite.events;
  * be found.
  */
 public class ExportFailedEvent implements AppEvent {
-  public static void fireExportFailedEvent() {
-    new ExportFailedEvent().fire();
+  public static void fire() {
+    new ExportFailedEvent().publish();
   }
 }

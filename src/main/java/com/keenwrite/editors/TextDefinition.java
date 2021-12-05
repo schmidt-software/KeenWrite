@@ -4,7 +4,7 @@ package com.keenwrite.editors;
 import com.keenwrite.editors.definition.DefinitionEditor;
 import com.keenwrite.editors.definition.DefinitionTreeItem;
 import com.keenwrite.editors.markdown.MarkdownEditor;
-import com.keenwrite.sigils.Sigils;
+import com.keenwrite.sigils.SigilOperator;
 import javafx.scene.control.TreeItem;
 
 import java.util.Map;
@@ -14,22 +14,15 @@ import java.util.Map;
  * {@link DefinitionEditor} or {@link MarkdownEditor}.
  */
 public interface TextDefinition extends TextResource {
-  /**
-   * Converts the definitions into a map, ready for interpolation.
-   *
-   * @return The list of key value pairs delimited with tokens.
-   */
-  Map<String, String> toMap();
 
   /**
-   * Performs string interpolation on the values in the given map. This will
-   * change any value in the map that contains a variable that matches
-   * the definition regex pattern against the given {@link Sigils}.
+   * Requests that the definitions be interpolated.
    *
-   * @param map Contains values that represent references to keys.
-   * @param sigils The beginning and ending tokens that delimit variables.
+   * @param sigilOperator Encapsulates how to encode variable names with
+   *                      sigils.
+   * @return The definition map with all variables interpolated.
    */
-  Map<String, String> interpolate( Map<String, String> map, Sigils sigils );
+  Map<String, String> interpolate( SigilOperator sigilOperator );
 
   /**
    * Requests that the visual representation be expanded to the given

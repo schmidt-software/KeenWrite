@@ -22,7 +22,7 @@ import java.util.Locale;
 import java.util.Optional;
 
 import static com.keenwrite.constants.Constants.UI_CONTROL_SPACING;
-import static com.keenwrite.events.FileOpenEvent.fireFileOpenEvent;
+import static com.keenwrite.events.FileOpenEvent.fire;
 import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.ui.fonts.IconFactory.createFileIcon;
 import static java.nio.file.Files.size;
@@ -164,7 +164,7 @@ public class FilesView extends BorderPane implements FilePicker {
           final var file = path.toFile();
 
           if( file.isFile() ) {
-            fireFileOpenEvent( path.toUri() );
+            fire( path.toUri() );
           }
           else if( file.isDirectory() ) {
             mDirectory.set( path.normalize().toFile() );

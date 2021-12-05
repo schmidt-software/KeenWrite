@@ -2,6 +2,7 @@
 package com.keenwrite.preview;
 
 import com.keenwrite.dom.DocumentConverter;
+import com.keenwrite.events.DocumentChangedEvent;
 import com.keenwrite.events.ScrollLockEvent;
 import com.keenwrite.preferences.LocaleProperty;
 import com.keenwrite.preferences.Workspace;
@@ -21,7 +22,6 @@ import java.util.Locale;
 import static com.keenwrite.Messages.get;
 import static com.keenwrite.constants.Constants.*;
 import static com.keenwrite.events.Bus.register;
-import static com.keenwrite.events.DocumentChangedEvent.fireDocumentChangedEvent;
 import static com.keenwrite.events.ScrollLockEvent.fireScrollLockEvent;
 import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.preferences.WorkspaceKeys.*;
@@ -161,7 +161,7 @@ public final class HtmlPreview extends SwingNode implements ComponentListener {
 
     invokeLater( () -> mPreview.render( doc, uri ) );
 
-    fireDocumentChangedEvent( html );
+    DocumentChangedEvent.fire( html );
   }
 
   /**

@@ -14,7 +14,7 @@ import static com.keenwrite.processors.text.TextReplacementFactory.replace;
 public class DefinitionProcessor
   extends ExecutorProcessor<String> implements Function<String, String> {
 
-  private final Map<String, String> mDefinitions;
+  private final ProcessorContext mContext;
 
   /**
    * Constructs a processor capable of interpolating string definitions.
@@ -26,7 +26,7 @@ public class DefinitionProcessor
       final Processor<String> successor,
       final ProcessorContext context ) {
     super( successor );
-    mDefinitions = context.getResolvedMap();
+    mContext = context;
   }
 
   /**
@@ -47,6 +47,6 @@ public class DefinitionProcessor
    * @return A map of variable names to values.
    */
   protected Map<String, String> getDefinitions() {
-    return mDefinitions;
+    return mContext.getResolvedMap();
   }
 }

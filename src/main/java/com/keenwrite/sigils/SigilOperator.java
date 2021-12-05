@@ -36,6 +36,10 @@ public abstract class SigilOperator implements UnaryOperator<String> {
     return mSigils.getEnded();
   }
 
+  public Sigils getSigils() {
+    return mSigils;
+  }
+
   /**
    * Wraps the given key in the began and ended tokens. This may perform any
    * preprocessing necessary to ensure the transformation happens.

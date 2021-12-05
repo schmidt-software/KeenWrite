@@ -22,8 +22,8 @@ public class CaretNavigationEvent implements AppEvent {
    *
    * @param offset Move the caret to this document offset.
    */
-  public static void fireCaretNavigationEvent( final int offset ) {
-    new CaretNavigationEvent( offset ).fire();
+  public static void fire( final int offset ) {
+    new CaretNavigationEvent( offset ).publish();
   }
 
   public int getOffset() {

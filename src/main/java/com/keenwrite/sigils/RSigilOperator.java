@@ -1,16 +1,15 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.sigils;
 
-import static com.keenwrite.sigils.YamlSigilOperator.KEY_SEPARATOR_DEF;
-
 /**
  * Brackets variable names between {@link #PREFIX} and {@link #SUFFIX} sigils.
  */
 public final class RSigilOperator extends SigilOperator {
-  private static final char KEY_SEPARATOR_R = '$';
-
   public static final String PREFIX = "`r#";
   public static final char SUFFIX = '`';
+
+  private static final char KEY_SEPARATOR_DEF = '.';
+  private static final char KEY_SEPARATOR_R = '$';
 
   /**
    * Definition variables are inserted into the document before R variables,

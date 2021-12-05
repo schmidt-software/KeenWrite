@@ -46,7 +46,7 @@ public class ScrollLockEvent implements AppEvent {
   }
 
   private static void fire( final boolean locked ) {
-    new ScrollLockEvent( locked ).fire();
+    new ScrollLockEvent( locked ).publish();
   }
 
   /**

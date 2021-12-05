@@ -4,22 +4,31 @@ package com.keenwrite.processors;
 import com.keenwrite.Caret;
 import com.keenwrite.ExportFormat;
 import com.keenwrite.constants.Constants;
+import com.keenwrite.editors.TextDefinition;
 import com.keenwrite.io.FileType;
+import com.keenwrite.preferences.Key;
 import com.keenwrite.preferences.Workspace;
 import com.keenwrite.preview.HtmlPreview;
+import com.keenwrite.sigils.SigilOperator;
+import com.keenwrite.sigils.Sigils;
+import com.keenwrite.sigils.YamlSigilOperator;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.StringProperty;
 
 import java.nio.file.Path;
 import java.util.Map;
 
 import static com.keenwrite.AbstractFileFactory.lookup;
 import static com.keenwrite.constants.Constants.DEFAULT_DIRECTORY;
+import static com.keenwrite.preferences.WorkspaceKeys.KEY_DEF_DELIM_BEGAN;
+import static com.keenwrite.preferences.WorkspaceKeys.KEY_DEF_DELIM_ENDED;
 
 /**
  * Provides a context for configuring a chain of {@link Processor} instances.
  */
 public final class ProcessorContext {
   private final HtmlPreview mHtmlPreview;
-  private final Map<String, String> mResolvedMap;
+  private final ObjectProperty<TextDefinition> mTextDefinition;
   private final Path mDocumentPath;
   private final Path mExportPath;
   private final Caret mCaret;
@@ -32,32 +41,33 @@ public final class ProcessorContext {
    * parameters are required, not all {@link Processor} instances will use
    * all parameters.
    *
-   * @param htmlPreview  Where to display the final (HTML) output.
-   * @param resolvedMap  Fully expanded interpolated strings.
-   * @param documentPath Path to the document to process.
-   * @param exportPath   Fully qualified filename to use when exporting.
-   * @param exportFormat Indicate configuration options for export format.
-   * @param workspace    Persistent user preferences settings.
-   * @param caret        Location of the caret in the edited document, which is
-   *                     used to synchronize the scrollbars.
+   * @param htmlPreview    Where to display the final (HTML) output.
+   * @param textDefinition Fully expanded interpolated strings.
+   * @param documentPath   Path to the document to process.
+   * @param exportPath     Fully qualified filename to use when exporting.
+   * @param exportFormat   Indicate configuration options for export format.
+   * @param workspace      Persistent user preferences settings.
+   * @param caret          Location of the caret in the edited document,
+   *                       which is
+   *                       used to synchronize the scrollbars.
    */
   public ProcessorContext(
     final HtmlPreview htmlPreview,
-    final Map<String, String> resolvedMap,
+    final ObjectProperty<TextDefinition> textDefinition,
     final Path documentPath,
     final Path exportPath,
     final ExportFormat exportFormat,
     final Workspace workspace,
     final Caret caret ) {
     assert htmlPreview != null;
-    assert resolvedMap != null;
+    assert textDefinition != null;
     assert documentPath != null;
     assert exportFormat != null;
     assert workspace != null;
     assert caret != null;
 
     mHtmlPreview = htmlPreview;
-    mResolvedMap = resolvedMap;
+    mTextDefinition = textDefinition;
     mDocumentPath = documentPath;
     mCaret = caret;
     mExportPath = exportPath;
@@ -79,7 +89,22 @@ public final class ProcessorContext {
    * @return A map to help dereference variables.
    */
   Map<String, String> getResolvedMap() {
-    return mResolvedMap;
+    return mTextDefinition.get().interpolate( createYamlSigilOperator() );
+  }
+
+  private SigilOperator createYamlSigilOperator() {
+    return new YamlSigilOperator( createDefinitionSigils() );
+  }
+
+  private Sigils createDefinitionSigils() {
+    return new Sigils(
+      stringProperty( KEY_DEF_DELIM_BEGAN ),
+      stringProperty( KEY_DEF_DELIM_ENDED )
+    );
+  }
+
+  private StringProperty stringProperty( final Key key ) {
+    return getWorkspace().stringProperty( key );
   }
 
   /**

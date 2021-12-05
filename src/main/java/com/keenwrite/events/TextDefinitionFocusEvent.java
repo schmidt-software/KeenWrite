@@ -14,7 +14,7 @@ public class TextDefinitionFocusEvent extends FocusEvent<TextDefinition> {
    *
    * @param editor The instance of editor that has gained input focus.
    */
-  public static void fireTextDefinitionFocus( final TextDefinition editor ) {
-    new TextDefinitionFocusEvent( editor ).fire();
+  public static void fire( final TextDefinition editor ) {
+    new TextDefinitionFocusEvent( editor ).publish();
   }
 }

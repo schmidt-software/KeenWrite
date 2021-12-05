@@ -1,5 +1,6 @@
 package com.keenwrite.processors.markdown.extensions;
 
+import com.keenwrite.events.ParseHeadingEvent;
 import com.keenwrite.processors.Processor;
 import com.vladsch.flexmark.ast.Heading;
 import com.vladsch.flexmark.parser.Parser.Builder;
@@ -14,7 +15,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.regex.Pattern;
 
-import static com.keenwrite.events.ParseHeadingEvent.fireNewHeadingEvent;
 import static com.keenwrite.events.ParseHeadingEvent.fireNewOutlineEvent;
 
 public final class DocumentOutlineExtension implements ParserExtension {
@@ -50,7 +50,7 @@ public final class DocumentOutlineExtension implements ParserExtension {
         final var level = matcher.group().length();
         final var text = heading.substring( level );
         final var offset = node.getStartOffset();
-        fireNewHeadingEvent( level, text, offset );
+        ParseHeadingEvent.fire( level, text, offset );
       }
     }
   }
