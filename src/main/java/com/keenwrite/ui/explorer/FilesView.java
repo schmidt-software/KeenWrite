@@ -1,6 +1,7 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.ui.explorer;
 
+import com.keenwrite.events.FileOpenEvent;
 import com.keenwrite.ui.controls.BrowseButton;
 import javafx.beans.property.*;
 import javafx.collections.ObservableList;
@@ -19,10 +20,10 @@ import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Optional;
 
 import static com.keenwrite.constants.Constants.UI_CONTROL_SPACING;
-import static com.keenwrite.events.FileOpenEvent.fire;
 import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.ui.fonts.IconFactory.createFileIcon;
 import static java.nio.file.Files.size;
@@ -103,7 +104,7 @@ public class FilesView extends BorderPane implements FilePicker {
           mItems.add( pathEntry( Paths.get( ".." ) ) );
         }
 
-        for( final var f : directory.list() ) {
+        for( final var f : Objects.requireNonNull( directory.list() ) ) {
           if( !f.startsWith( "." ) ) {
             mItems.add( pathEntry( Paths.get( directory.toString(), f ) ) );
           }
@@ -127,7 +128,7 @@ public class FilesView extends BorderPane implements FilePicker {
     final var field = new TextField();
 
     mDirectory.addListener( ( c, o, n ) -> {
-      if( n != null ) { field.setText( n.getAbsolutePath() ); }
+      if( n != null ) {field.setText( n.getAbsolutePath() );}
     } );
 
     field.setOnKeyPressed( event -> {
@@ -164,7 +165,7 @@ public class FilesView extends BorderPane implements FilePicker {
           final var file = path.toFile();
 
           if( file.isFile() ) {
-            fire( path.toUri() );
+            FileOpenEvent.fire( path.toUri() );
           }
           else if( file.isDirectory() ) {
             mDirectory.set( path.normalize().toFile() );
@@ -257,7 +258,7 @@ public class FilesView extends BorderPane implements FilePicker {
     private final StringProperty mDate;
     private final StringProperty mTime;
 
-    protected PathEntry( final Path path ) throws IOException {
+    private PathEntry( final Path path ) throws IOException {
       this(
         path,
         path.getFileName().toString(),

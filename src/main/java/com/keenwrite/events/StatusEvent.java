@@ -81,7 +81,7 @@ public final class StatusEvent implements AppEvent {
 
   @Override
   public String toString() {
-    // Not exactly sure how the message can be null.
+    // Not exactly sure how the message can be null, but it happened once!
     final var message = mMessage == null ? "UNKNOWN" : mMessage;
 
     return format( "%s%s%s",
