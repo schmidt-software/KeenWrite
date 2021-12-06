@@ -145,6 +145,15 @@ public final class DefinitionEditor extends BorderPane
     interpolate( operator );
   }
 
+  /**
+   * Returns the variable definitions. This is called in critical parts of the
+   * application, necessitating a cache. The cache is updated by calling
+   * {@link #interpolate(SigilOperator)}, which happens upon tree modifications
+   * via the editor or immediately after the definition file is loaded.
+   *
+   * @return The definition map with all variable references fully interpolated
+   * and replaced.
+   */
   @Override
   public Map<String, String> getDefinitions() {
     return mDefinitions;
