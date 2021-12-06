@@ -166,9 +166,11 @@ public final class Launcher implements Consumer<Arguments> {
 
     if( message != null && message.toLowerCase().contains( "javafx" ) ) {
       message = "Run using a Java Runtime Environment that includes JavaFX.";
+      out( "ERROR: %s", message );
     }
-
-    out( "ERROR: %s", message );
+    else {
+      error.printStackTrace( System.err );
+    }
   }
 
   /**

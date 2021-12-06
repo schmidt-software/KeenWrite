@@ -6,22 +6,15 @@ import com.keenwrite.ExportFormat;
 import com.keenwrite.constants.Constants;
 import com.keenwrite.editors.TextDefinition;
 import com.keenwrite.io.FileType;
-import com.keenwrite.preferences.Key;
 import com.keenwrite.preferences.Workspace;
 import com.keenwrite.preview.HtmlPreview;
-import com.keenwrite.sigils.SigilOperator;
-import com.keenwrite.sigils.Sigils;
-import com.keenwrite.sigils.YamlSigilOperator;
 import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.StringProperty;
 
 import java.nio.file.Path;
 import java.util.Map;
 
 import static com.keenwrite.AbstractFileFactory.lookup;
 import static com.keenwrite.constants.Constants.DEFAULT_DIRECTORY;
-import static com.keenwrite.preferences.WorkspaceKeys.KEY_DEF_DELIM_BEGAN;
-import static com.keenwrite.preferences.WorkspaceKeys.KEY_DEF_DELIM_ENDED;
 
 /**
  * Provides a context for configuring a chain of {@link Processor} instances.
@@ -89,22 +82,7 @@ public final class ProcessorContext {
    * @return A map to help dereference variables.
    */
   Map<String, String> getResolvedMap() {
-    return mTextDefinition.get().interpolate( createYamlSigilOperator() );
-  }
-
-  private SigilOperator createYamlSigilOperator() {
-    return new YamlSigilOperator( createDefinitionSigils() );
-  }
-
-  private Sigils createDefinitionSigils() {
-    return new Sigils(
-      stringProperty( KEY_DEF_DELIM_BEGAN ),
-      stringProperty( KEY_DEF_DELIM_ENDED )
-    );
-  }
-
-  private StringProperty stringProperty( final Key key ) {
-    return getWorkspace().stringProperty( key );
+    return mTextDefinition.get().getDefinitions();
   }
 
   /**
@@ -131,8 +109,8 @@ public final class ProcessorContext {
   }
 
   /**
-   * Returns the directory that contains the file being edited.
-   * When {@link Constants#DOCUMENT_DEFAULT} is created, the parent path is
+   * Returns the directory that contains the file being edited. When
+   * {@link Constants#DOCUMENT_DEFAULT} is created, the parent path is
    * {@code null}. This will get absolute path to the file before trying to
    * get te parent path, which should always be a valid path. In the unlikely
    * event that the base path cannot be determined by the path alone, the

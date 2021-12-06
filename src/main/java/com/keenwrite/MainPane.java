@@ -136,6 +136,13 @@ public final class MainPane extends SplitPane {
     createActiveTextEditor();
 
   /**
+   * Changing the active definition editor fires the value changed event. This
+   * allows refreshes to happen when external definitions are modified and need
+   * to trigger the processing chain.
+   */
+  private final ObjectProperty<TextDefinition> mActiveDefinitionEditor;
+
+  /**
    * Called when the definition data is changed.
    */
   private final EventHandler<TreeModificationEvent<Event>> mTreeHandler =
@@ -143,14 +150,6 @@ public final class MainPane extends SplitPane {
       process( getActiveTextEditor() );
       save( getActiveTextDefinition() );
     };
-
-  /**
-   * Changing the active definition editor fires the value changed event. This
-   * allows refreshes to happen when external definitions are modified and need
-   * to trigger the processing chain.
-   */
-  private final ObjectProperty<TextDefinition> mActiveDefinitionEditor =
-    createActiveDefinitionEditor( mActiveTextEditor );
 
   /**
    * Tracks the number of detached tab panels opened into their own windows,
@@ -171,8 +170,9 @@ public final class MainPane extends SplitPane {
     mPreview = new HtmlPreview( workspace );
     mStatistics = new DocumentStatistics( workspace );
     mActiveTextEditor.set( new MarkdownEditor( workspace ) );
+    mActiveDefinitionEditor = createActiveDefinitionEditor( mActiveTextEditor );
 
-    open( bin( getRecentFiles() ) );
+    open( collect( getRecentFiles() ) );
     viewPreview();
     setDividerPositions( calculateDividerPositions() );
 
@@ -324,7 +324,7 @@ public final class MainPane extends SplitPane {
 
   /**
    * TODO: Load divider positions from exported settings, see
-   *   {@link #bin(SetProperty)} comment.
+   *   {@link #collect(SetProperty)} comment.
    */
   private double[] calculateDividerPositions() {
     final var ratio = 100f / getItems().size() / 100;
@@ -654,9 +654,7 @@ public final class MainPane extends SplitPane {
       createDefinitionEditor()
     );
 
-    defEditor.addListener( ( c, o, n ) -> {
-      process( textEditor.get() );
-    });
+    defEditor.addListener( ( c, o, n ) -> process( textEditor.get() ) );
 
     return defEditor;
   }
@@ -724,7 +722,7 @@ public final class MainPane extends SplitPane {
    * @return An in-order list of files, first by structured definition files,
    * then by plain text documents.
    */
-  private List<File> bin( final SetProperty<String> paths ) {
+  private List<File> collect( final SetProperty<String> paths ) {
     // Treat all files destined for the text editor as plain text documents
     // so that they are added to the same pane. Grouping by TEXT_PLAIN is a
     // bit arbitrary, but means explicitly capturing TEXT_PLAIN isn't needed.
@@ -1031,7 +1029,8 @@ public final class MainPane extends SplitPane {
   }
 
   private TextDefinition createDefinitionEditor( final File file ) {
-    final var editor = new DefinitionEditor( file, createTreeTransformer() );
+    final var editor = new DefinitionEditor(
+      file, createTreeTransformer(), createYamlSigilOperator() );
     editor.addTreeChangeHandler( mTreeHandler );
     return editor;
   }
@@ -1093,6 +1092,10 @@ public final class MainPane extends SplitPane {
 
   private StringProperty stringProperty( final Key key ) {
     return getWorkspace().stringProperty( key );
+  }
+
+  private SigilOperator createYamlSigilOperator() {
+    return new YamlSigilOperator( createDefinitionSigils() );
   }
 
   private Sigils createRSigils() {

@@ -4,7 +4,6 @@ package com.keenwrite.editors;
 import com.keenwrite.editors.definition.DefinitionEditor;
 import com.keenwrite.editors.definition.DefinitionTreeItem;
 import com.keenwrite.editors.markdown.MarkdownEditor;
-import com.keenwrite.sigils.SigilOperator;
 import javafx.scene.control.TreeItem;
 
 import java.util.Map;
@@ -16,13 +15,11 @@ import java.util.Map;
 public interface TextDefinition extends TextResource {
 
   /**
-   * Requests that the definitions be interpolated.
+   * Requests the interpolated version of the variable definitions.
    *
-   * @param sigilOperator Encapsulates how to encode variable names with
-   *                      sigils.
    * @return The definition map with all variables interpolated.
    */
-  Map<String, String> interpolate( SigilOperator sigilOperator );
+  Map<String, String> getDefinitions();
 
   /**
    * Requests that the visual representation be expanded to the given

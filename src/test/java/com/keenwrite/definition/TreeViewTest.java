@@ -6,9 +6,12 @@ import com.keenwrite.editors.definition.yaml.YamlTreeTransformer;
 import com.keenwrite.editors.markdown.MarkdownEditor;
 import com.keenwrite.preferences.Workspace;
 import com.keenwrite.preview.HtmlPreview;
+import com.keenwrite.sigils.Sigils;
+import com.keenwrite.sigils.YamlSigilOperator;
 import com.panemu.tiwulfx.control.dock.DetachableTabPane;
 import javafx.application.Application;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
@@ -20,6 +23,8 @@ import javafx.scene.control.TreeItem;
 import javafx.stage.Stage;
 import org.testfx.framework.junit5.Start;
 
+import static com.keenwrite.constants.Constants.DEF_DELIM_BEGAN_DEFAULT;
+import static com.keenwrite.constants.Constants.DEF_DELIM_ENDED_DEFAULT;
 import static com.keenwrite.util.FontLoader.initFonts;
 
 public class TreeViewTest extends Application {
@@ -47,8 +52,12 @@ public class TreeViewTest extends Application {
     final var workspace = new Workspace();
     final var mainPane = new SplitPane();
 
+    final var began = new SimpleStringProperty( DEF_DELIM_BEGAN_DEFAULT );
+    final var ended = new SimpleStringProperty( DEF_DELIM_ENDED_DEFAULT );
+    final var sigils = new Sigils( began, ended );
+    final var operator = new YamlSigilOperator( sigils );
     final var transformer = new YamlTreeTransformer();
-    final var editor = new DefinitionEditor( transformer );
+    final var editor = new DefinitionEditor( transformer, operator );
 
     final var tabPane1 = new DetachableTabPane();
     tabPane1.addTab( "Editor", editor );

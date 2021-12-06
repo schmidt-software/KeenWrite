@@ -71,6 +71,8 @@ public final class DefinitionEditor extends BorderPane
    */
   private File mFile;
 
+  private final Map<String, String> mDefinitions = new HashMap<>();
+
   /**
    * Opened file's character encoding, or {@link Constants#DEFAULT_CHARSET} if
    * either no encoding could be determined or this is a new (empty) file.
@@ -88,10 +90,14 @@ public final class DefinitionEditor extends BorderPane
    *
    * @param treeTransformer Responsible for transforming the definitions into
    *                        {@link TreeItem} instances.
+   * @param operator        Defines how detect variables within values so
+   *                        that they are interpolated when returning the
+   *                        definitions, as per {@link #getDefinitions()}.
    */
   public DefinitionEditor(
-    final TreeTransformer treeTransformer ) {
-    this( DEFINITION_DEFAULT, treeTransformer );
+    final TreeTransformer treeTransformer,
+    final SigilOperator operator ) {
+    this( DEFINITION_DEFAULT, treeTransformer, operator );
   }
 
   /**
@@ -101,14 +107,14 @@ public final class DefinitionEditor extends BorderPane
    */
   public DefinitionEditor(
     final File file,
-    final TreeTransformer treeTransformer ) {
+    final TreeTransformer treeTransformer,
+    final SigilOperator operator ) {
     assert file != null;
     assert treeTransformer != null;
 
     mFile = file;
     mTreeTransformer = treeTransformer;
 
-    //mTreeView.setCellFactory( new TreeCellFactory() );
     mTreeView.setContextMenu( createContextMenu() );
     mTreeView.addEventFilter( KEY_PRESSED, this::keyEventFilter );
     mTreeView.focusedProperty().addListener( this::focused );
@@ -131,13 +137,17 @@ public final class DefinitionEditor extends BorderPane
     // After the file is opened, watch for changes, not before. Otherwise,
     // upon saving, users will be prompted to save a file that hasn't had
     // any modifications (from their perspective).
-    addTreeChangeHandler( event -> mModified.set( true ) );
+    addTreeChangeHandler( event -> {
+      interpolate( operator );
+      mModified.set( true );
+    } );
+
+    interpolate( operator );
   }
 
   @Override
-  public Map<String, String> interpolate( final SigilOperator operator ) {
-    final var map = TreeItemMapper.convert( getTreeView().getRoot() );
-    return map.interpolate( operator );
+  public Map<String, String> getDefinitions() {
+    return mDefinitions;
   }
 
   @Override
@@ -201,6 +211,13 @@ public final class DefinitionEditor extends BorderPane
   @Override
   public void clearModifiedProperty() {
     mModified.setValue( false );
+  }
+
+  private void interpolate( final SigilOperator operator ) {
+    final var map = TreeItemMapper.convert( getTreeView().getRoot() );
+
+    mDefinitions.clear();
+    mDefinitions.putAll( map.interpolate( operator ) );
   }
 
   private Button createButton(
@@ -485,7 +502,6 @@ public final class DefinitionEditor extends BorderPane
 
   @Override
   public void requestFocus() {
-    //super.requestFocus();
     getTreeView().requestFocus();
   }
 
