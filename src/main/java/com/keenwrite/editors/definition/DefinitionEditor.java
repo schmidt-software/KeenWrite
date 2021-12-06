@@ -92,7 +92,7 @@ public final class DefinitionEditor extends BorderPane
    *                        {@link TreeItem} instances.
    * @param operator        Defines how detect variables within values so
    *                        that they are interpolated when returning the
-   *                        definitions, as per {@link #getDefinitions()}.
+   *                        definitions.
    */
   public DefinitionEditor(
     final TreeTransformer treeTransformer,

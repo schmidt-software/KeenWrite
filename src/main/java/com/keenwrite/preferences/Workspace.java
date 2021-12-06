@@ -299,7 +299,7 @@ public final class Workspace {
     return stringProperty( key ).get();
   }
 
-  public Sigils toTokens( final Key began, final Key ended ) {
+  public Sigils toSigils( final Key began, final Key ended ) {
     assert began != null;
     assert ended != null;
     return new Sigils( stringProperty( began ), stringProperty( ended ) );

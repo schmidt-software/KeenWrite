@@ -40,18 +40,19 @@ public final class StatusEvent implements AppEvent {
    * @param message The human-readable message, typically displayed on-screen.
    */
   public StatusEvent( final String message ) {
-    assert message != null;
-    mMessage = message;
-    mProblem = null;
+    this( message, null );
   }
 
   public StatusEvent( final Throwable problem ) {
     this( "", problem );
   }
 
+  /**
+   * @param message The human-readable message text.
+   * @param problem May be {@code null} if no exception was thrown.
+   */
   public StatusEvent( final String message, final Throwable problem ) {
     assert message != null;
-    assert problem != null;
     mMessage = message;
     mProblem = problem;
   }
@@ -80,9 +81,12 @@ public final class StatusEvent implements AppEvent {
 
   @Override
   public String toString() {
+    // Not exactly sure how the message can be null.
+    final var message = mMessage == null ? "UNKNOWN" : mMessage;
+
     return format( "%s%s%s",
-                   mMessage,
-                   mMessage.isBlank() ? "" : " ",
+                   message,
+                   message.isBlank() ? "" : " ",
                    mProblem == null ? "" : toEnglish( mProblem ) );
   }
 

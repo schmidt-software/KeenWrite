@@ -28,13 +28,13 @@ import org.fxmisc.wellbehaved.event.Nodes;
 import java.io.File;
 import java.nio.charset.Charset;
 import java.text.BreakIterator;
+import java.text.MessageFormat;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
 import static com.keenwrite.MainApp.keyDown;
-import static com.keenwrite.Messages.get;
 import static com.keenwrite.constants.Constants.*;
 import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.events.TextEditorFocusEvent.fireTextEditorFocus;
@@ -773,7 +773,7 @@ public final class MarkdownEditor extends BorderPane implements TextEditor {
    * @return A non-null string to inject into the HTML document head.
    */
   private static String getStylesheetPath( final Locale locale ) {
-    return get(
+    return MessageFormat.format(
       sSettings.getSetting( STYLESHEET_MARKDOWN_LOCALE, "" ),
       locale.getLanguage(),
       locale.getScript(),

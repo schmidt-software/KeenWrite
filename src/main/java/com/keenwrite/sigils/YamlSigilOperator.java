@@ -2,34 +2,11 @@
 package com.keenwrite.sigils;
 
 /**
- * Brackets definition keys with token delimiters.
+ * Responsible for bracketing definition keys with token delimiters.
  */
 public final class YamlSigilOperator extends SigilOperator {
   public YamlSigilOperator( final Sigils sigils ) {
     super( sigils );
-  }
-
-  /**
-   * Returns the given {@link String} verbatim because variables in YAML
-   * documents and plain Markdown documents already have the appropriate
-   * tokenizable syntax wrapped around the text.
-   *
-   * @param key Returned verbatim.
-   */
-  @Override
-  public String apply( final String key ) {
-    return key;
-  }
-
-  /**
-   * Adds delimiters to the given key.
-   *
-   * @param key The key to adorn with start and stop definition tokens.
-   * @return The given key bracketed by definition token symbols.
-   */
-  public String entoken( final String key ) {
-    assert key != null;
-    return getBegan() + key + getEnded();
   }
 
   /**

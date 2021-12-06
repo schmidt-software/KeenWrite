@@ -79,7 +79,7 @@ public final class RVariableProcessor extends DefinitionProcessor {
     final int length = haystack.length();
     int start = 0;
 
-    // Replace up to 32 occurrences before the string reallocates its buffer.
+    // Replace up to 32 occurrences before reallocating the internal buffer.
     final var sb = new StringBuilder( length + 32 );
 
     while( end >= 0 ) {
@@ -92,15 +92,15 @@ public final class RVariableProcessor extends DefinitionProcessor {
   }
 
   private SigilOperator createSigilOperator( final Workspace workspace ) {
-    final var tokens = workspace.toTokens(
+    final var tokens = workspace.toSigils(
       KEY_R_DELIM_BEGAN, KEY_R_DELIM_ENDED );
     final var antecedent = createDefinitionOperator( workspace );
     return new RSigilOperator( tokens, antecedent );
   }
 
   private SigilOperator createDefinitionOperator( final Workspace workspace ) {
-    final var tokens = workspace.toTokens(
+    final var sigils = workspace.toSigils(
       KEY_DEF_DELIM_BEGAN, KEY_DEF_DELIM_ENDED );
-    return new YamlSigilOperator( tokens );
+    return new YamlSigilOperator( sigils );
   }
 }

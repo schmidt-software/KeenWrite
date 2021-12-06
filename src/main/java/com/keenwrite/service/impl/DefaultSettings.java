@@ -21,7 +21,7 @@ public final class DefaultSettings implements Settings {
 
   private static final char VALUE_SEPARATOR = ',';
 
-  private final PropertiesConfiguration mProperties = createProperties();
+  private final PropertiesConfiguration mProperties = loadProperties();
 
   public DefaultSettings() {
   }
@@ -85,7 +85,7 @@ public final class DefaultSettings implements Settings {
     return getSettings().getKeys( prefix );
   }
 
-  private PropertiesConfiguration createProperties() {
+  private PropertiesConfiguration loadProperties() {
     final var url = getPropertySource();
     final var configuration = new PropertiesConfiguration();
 
@@ -102,11 +102,11 @@ public final class DefaultSettings implements Settings {
     return configuration;
   }
 
-  protected Charset getDefaultEncoding() {
+  private Charset getDefaultEncoding() {
     return Charset.defaultCharset();
   }
 
-  protected ListDelimiterHandler createListDelimiterHandler() {
+  private ListDelimiterHandler createListDelimiterHandler() {
     return new DefaultListDelimiterHandler( VALUE_SEPARATOR );
   }
 

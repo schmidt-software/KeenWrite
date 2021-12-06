@@ -15,8 +15,8 @@ import javafx.scene.layout.VBox;
 import org.controlsfx.control.StatusBar;
 
 import java.io.File;
+import java.text.MessageFormat;
 
-import static com.keenwrite.Messages.get;
 import static com.keenwrite.constants.Constants.*;
 import static com.keenwrite.events.ScrollLockEvent.fireScrollLockEvent;
 import static com.keenwrite.events.StatusEvent.clue;
@@ -133,7 +133,7 @@ public final class MainScene {
   }
 
   private String getStylesheet( final String filename ) {
-    return get( STYLESHEET_APPLICATION_SKIN, filename );
+    return MessageFormat.format( STYLESHEET_APPLICATION_SKIN, filename );
   }
 
   /**
