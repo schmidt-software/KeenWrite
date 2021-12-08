@@ -54,6 +54,7 @@ public final class WorkspaceKeys {
   public static final Key KEY_UI_RECENT_DIR = key( KEY_UI_RECENT, "dir" );
   public static final Key KEY_UI_RECENT_DOCUMENT = key( KEY_UI_RECENT, "document" );
   public static final Key KEY_UI_RECENT_DEFINITION = key( KEY_UI_RECENT, "definition" );
+  public static final Key KEY_UI_RECENT_EXPORT = key( KEY_UI_RECENT, "export" );
 
   public static final Key KEY_UI_FILES = key( KEY_UI, "files" );
   public static final Key KEY_UI_FILES_PATH = key( KEY_UI_FILES, "path" );

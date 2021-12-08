@@ -599,7 +599,7 @@ public final class MainPane extends SplitPane {
 
   public void viewFiles() {
     try {
-      final var factory = new FilePickerFactory( mWorkspace );
+      final var factory = new FilePickerFactory( getWorkspace() );
       final var fileManager = factory.createModeless();
       viewTab( fileManager, APP_FILE_MANAGER, "Pane.files.title" );
     } catch( final Exception ex ) {

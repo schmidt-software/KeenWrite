@@ -90,6 +90,10 @@ public class FilesView extends BorderPane implements FilePicker {
   }
 
   @Override
+  public void setInitialFilename( final File file ) {
+  }
+
+  @Override
   public Optional<List<File>> choose() {
     return Optional.empty();
   }

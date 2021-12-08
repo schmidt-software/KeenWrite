@@ -18,7 +18,7 @@ public interface FilePicker {
    * @param file The initial {@link File} to choose when prompting the user
    *             to select a file.
    */
-  default void setInitialFilename( File file ) {}
+  void setInitialFilename( File file );
 
   /**
    * Establishes the directory to browse when the UI is displayed.

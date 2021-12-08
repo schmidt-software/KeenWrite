@@ -44,6 +44,7 @@ public final class Constants {
 
   public static final File DOCUMENT_DEFAULT = getFile( "document" );
   public static final File DEFINITION_DEFAULT = getFile( "definition" );
+  public static final File PDF_DEFAULT = getFile( "pdf" );
 
   public static final String APP_BUNDLE_NAME = get( "application.messages" );
 

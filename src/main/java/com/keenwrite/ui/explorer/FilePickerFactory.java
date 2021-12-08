@@ -2,6 +2,7 @@
 package com.keenwrite.ui.explorer;
 
 import com.io7m.jwheatsheaf.ui.JWFileChoosers;
+import com.keenwrite.Messages;
 import com.keenwrite.preferences.Workspace;
 import javafx.beans.property.ObjectProperty;
 import javafx.scene.Node;
@@ -95,8 +96,13 @@ public class FilePickerFactory {
         }
       }
 
-      //mBuilder.setTitle( get( title ) );
+      mBuilder.setTitle( Messages.get( title ) );
       mBuilder.setAction( action );
+    }
+
+    @Override
+    public void setInitialFilename( final File file ) {
+      mBuilder.setInitialFileName( file.getName() );
     }
 
     @Override

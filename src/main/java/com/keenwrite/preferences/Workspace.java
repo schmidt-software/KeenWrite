@@ -97,6 +97,7 @@ public final class Workspace {
     entry( KEY_UI_RECENT_DIR, asFileProperty( USER_DIRECTORY ) ),
     entry( KEY_UI_RECENT_DOCUMENT, asFileProperty( DOCUMENT_DEFAULT ) ),
     entry( KEY_UI_RECENT_DEFINITION, asFileProperty( DEFINITION_DEFAULT ) ),
+    entry( KEY_UI_RECENT_EXPORT, asFileProperty( PDF_DEFAULT ) ),
 
     //@formatter:off
     entry( KEY_UI_FONT_EDITOR_NAME, asStringProperty( FONT_NAME_EDITOR_DEFAULT ) ),

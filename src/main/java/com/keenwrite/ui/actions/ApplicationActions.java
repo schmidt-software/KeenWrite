@@ -4,6 +4,7 @@ package com.keenwrite.ui.actions;
 import com.keenwrite.ExportFormat;
 import com.keenwrite.MainPane;
 import com.keenwrite.MainScene;
+import com.keenwrite.constants.Constants;
 import com.keenwrite.editors.TextDefinition;
 import com.keenwrite.editors.TextEditor;
 import com.keenwrite.editors.markdown.HyperlinkModel;
@@ -42,8 +43,7 @@ import static com.keenwrite.ExportFormat.*;
 import static com.keenwrite.Messages.get;
 import static com.keenwrite.constants.GraphicsConstants.ICON_DIALOG_NODE;
 import static com.keenwrite.events.StatusEvent.clue;
-import static com.keenwrite.preferences.WorkspaceKeys.KEY_TYPESET_CONTEXT_THEMES_PATH;
-import static com.keenwrite.preferences.WorkspaceKeys.KEY_TYPESET_CONTEXT_THEME_SELECTION;
+import static com.keenwrite.preferences.WorkspaceKeys.*;
 import static com.keenwrite.processors.ProcessorFactory.createProcessors;
 import static com.keenwrite.ui.explorer.FilePickerFactory.Options;
 import static com.keenwrite.ui.explorer.FilePickerFactory.Options.*;
@@ -162,8 +162,13 @@ public final class ApplicationActions {
   private void file_export( final ExportFormat format, final boolean dir ) {
     final var main = getMainPane();
     final var editor = main.getActiveTextEditor();
+    final var exported = getWorkspace().fileProperty( KEY_UI_RECENT_EXPORT );
     final var filename = format.toExportFilename( editor.getPath() );
-    final var selection = pickFiles( filename, FILE_EXPORT );
+    final var selection = pickFiles(
+      Constants.PDF_DEFAULT.getName().equals( exported.get().getName() )
+        ? filename
+        : exported.get(), FILE_EXPORT
+    );
 
     selection.ifPresent( ( files ) -> {
       final var file = files.get( 0 );
@@ -185,6 +190,9 @@ public final class ApplicationActions {
 
       task.setOnSucceeded(
         e -> {
+          // Remember the exported file name for next time.
+          exported.setValue( file );
+
           final var result = task.getValue();
 
           // Binary formats must notify users of success independently.
@@ -486,7 +494,7 @@ public final class ApplicationActions {
     getMainPane().viewOutline();
   }
 
-  public void view_files() { getMainPane().viewFiles(); }
+  public void view_files() {getMainPane().viewFiles();}
 
   public void view_statistics() {
     getMainPane().viewStatistics();
@@ -550,7 +558,7 @@ public final class ApplicationActions {
     final var filename = pattern.getFileName().toString();
     final var extension = getExtension( filename );
 
-    if( extension == null || extension.isBlank() ) {
+    if( extension.isBlank() ) {
       clue( "Main.status.export.concat.extension", filename );
       return editor.getText();
     }
