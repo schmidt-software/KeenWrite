@@ -10,6 +10,7 @@ import com.keenwrite.processors.ProcessorContext;
 import com.keenwrite.processors.markdown.extensions.ImageLinkExtension;
 import com.vladsch.flexmark.html.HtmlRenderer;
 import com.vladsch.flexmark.parser.Parser;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.stage.Stage;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -25,8 +26,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.keenwrite.constants.Constants.DOCUMENT_DEFAULT;
 import static com.keenwrite.ExportFormat.NONE;
+import static com.keenwrite.constants.Constants.DOCUMENT_DEFAULT;
 import static java.lang.String.format;
 import static javafx.application.Platform.runLater;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -148,7 +149,7 @@ public class ImageLinkExtensionTest {
   private ProcessorContext createProcessorContext( final Path documentPath ) {
     return new ProcessorContext(
       mPreview,
-      new HashMap<>(),
+      new SimpleObjectProperty<>(),
       documentPath,
       null,
       NONE,

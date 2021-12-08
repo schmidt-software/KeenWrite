@@ -33,13 +33,15 @@ public final class Messages {
   }
 
   /**
-   * Returns the value for a key from the message bundle.
+   * Returns the value for a key from the message bundle. If the value cannot
+   * be found, this returns the key.
    *
    * @param key Retrieve the value for this key.
-   * @return The value for the key.
+   * @return The value for the key, or the key itself if not found.
    */
   public static String get( final String key ) {
-    return MAP.get( OPERATOR.entoken( key ) );
+    final var v = MAP.get( OPERATOR.entoken( key ) );
+    return v == null ? key : v;
   }
 
   /**

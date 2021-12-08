@@ -34,27 +34,27 @@ class RSigilOperatorTest {
     assertEquals( expected, actual );
   }
 
-  private StringProperty createToken( final String token ) {
+  private StringProperty createSigil( final String token ) {
     return new SimpleStringProperty( token );
   }
 
-  private Sigils createRTokens() {
-    return createTokens( "x(", ")" );
+  private Sigils createRSigils() {
+    return createSigils( "x(", ")" );
   }
 
-  private Sigils createYamlTokens() {
-    return createTokens( "{{", "}}" );
+  private Sigils createYamlSigils() {
+    return createSigils( "{{", "}}" );
   }
 
-  private Sigils createTokens( final String began, final String ended ) {
-    return new Sigils( createToken( began ), createToken( ended ) );
+  private Sigils createSigils( final String began, final String ended ) {
+    return new Sigils( createSigil( began ), createSigil( ended ) );
   }
 
   private YamlSigilOperator createYamlSigilOperator() {
-    return new YamlSigilOperator( createYamlTokens() );
+    return new YamlSigilOperator( createYamlSigils() );
   }
 
   private RSigilOperator createRSigilOperator() {
-    return new RSigilOperator( createRTokens(), createYamlSigilOperator() );
+    return new RSigilOperator( createRSigils(), createYamlSigilOperator() );
   }
 }

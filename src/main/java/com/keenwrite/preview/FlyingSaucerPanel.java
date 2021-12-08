@@ -19,7 +19,6 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.net.URI;
 
-import static com.keenwrite.events.HyperlinkOpenEvent.fire;
 import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.util.ProtocolScheme.getProtocol;
 import static java.lang.Boolean.FALSE;

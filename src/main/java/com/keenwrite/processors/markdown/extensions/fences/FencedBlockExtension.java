@@ -9,8 +9,10 @@ import com.keenwrite.processors.ProcessorContext;
 import com.keenwrite.processors.markdown.MarkdownProcessor;
 import com.keenwrite.processors.markdown.extensions.HtmlRendererAdapter;
 import com.vladsch.flexmark.ast.FencedCodeBlock;
+import com.vladsch.flexmark.html.HtmlWriter;
 import com.vladsch.flexmark.html.renderer.DelegatingNodeRendererFactory;
 import com.vladsch.flexmark.html.renderer.NodeRenderer;
+import com.vladsch.flexmark.html.renderer.NodeRendererContext;
 import com.vladsch.flexmark.html.renderer.NodeRenderingHandler;
 import com.vladsch.flexmark.util.data.DataHolder;
 import com.vladsch.flexmark.util.sequence.BasedSequence;
@@ -21,6 +23,7 @@ import java.util.Set;
 
 import static com.keenwrite.preferences.WorkspaceKeys.KEY_IMAGES_SERVER;
 import static com.vladsch.flexmark.html.HtmlRenderer.Builder;
+import static com.vladsch.flexmark.html.renderer.CoreNodeRenderer.CODE_CONTENT;
 import static com.vladsch.flexmark.html.renderer.LinkType.LINK;
 
 /**
@@ -111,11 +114,84 @@ public class FencedBlockExtension extends HtmlRendererAdapter {
           html.tagVoid( "img" );
         }
         else {
-          context.delegateRender();
+          // TODO: Revert to using context.delegateRender() after flexmark
+          //   is updated to no longer trim blank lines up to the EOL.
+          render( node, context, html );
         }
       } ) );
 
       return set;
+    }
+
+    /**
+     * This method is a stop-gap because blank lines that contain only
+     * whitespace are collapsed into lines without any spaces. Consequently
+     * the typesetting software does not honour the blank lines, which
+     * then discards the blank lines entirely.
+     * <p>
+     * Given the following:
+     *
+     * <pre>
+     *   if( bool ) {
+     *
+     *
+     *   }
+     * </pre>
+     * <p>
+     * The typesetter would otherwise render this incorrectly as:
+     *
+     * <pre>
+     *   if( bool ) {
+     *   }
+     * </pre>
+     * <p>
+     */
+    private void render(
+      final FencedCodeBlock node,
+      final NodeRendererContext context,
+      final HtmlWriter html ) {
+      html.line();
+      html.srcPosWithTrailingEOL( node.getChars() )
+          .withAttr()
+          .tag( "pre" )
+          .openPre();
+
+      final var info = node.getInfo();
+      final var htmlOptions = context.getHtmlOptions();
+
+      if( info.isNotNull() && !info.isBlank() ) {
+        final var language = node
+          .getInfoDelimitedByAny( htmlOptions.languageDelimiterSet )
+          .unescape();
+        final var languageClass = htmlOptions.languageClassMap
+          .getOrDefault( language, htmlOptions.languageClassPrefix + language );
+        html.attr( "class", languageClass );
+      }
+      else {
+        final var noLanguageClass = htmlOptions.noLanguageClass.trim();
+
+        if( !noLanguageClass.isEmpty() ) {
+          html.attr( "class", noLanguageClass );
+        }
+      }
+
+      html.srcPosWithEOL( node.getContentChars() )
+          .withAttr( CODE_CONTENT )
+          .tag( "code" );
+
+      final var lines = node.getContentLines();
+      for( final var line : lines ) {
+        if( line.isBlank() ) {
+          html.text( "    " );
+        }
+
+        html.text( line );
+      }
+
+      html.tag( "/code" );
+      html.tag( "/pre" )
+          .closePre();
+      html.lineIf( htmlOptions.htmlBlockCloseTagEol );
     }
   }
 
