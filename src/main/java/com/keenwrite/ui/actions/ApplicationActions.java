@@ -171,6 +171,8 @@ public final class ApplicationActions {
     );
 
     selection.ifPresent( ( files ) -> {
+      editor.save();
+
       final var file = files.get( 0 );
       final var path = file.toPath();
       final var document = dir ? append( editor ) : editor.getText();
