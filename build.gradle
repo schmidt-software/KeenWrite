@@ -65,6 +65,7 @@ dependencies {
   implementation 'com.dlsc.preferencesfx:preferencesfx-core:11.8.0'
 
   // Pure JavaFX File Chooser
+  // TODO: Reinstate when file picker performance increases
 //  implementation "com.io7m.jwheatsheaf:com.io7m.jwheatsheaf:${v_wheatsheaf}"
 //  implementation "com.io7m.jwheatsheaf:com.io7m.jwheatsheaf.api:${v_wheatsheaf}"
 //  implementation "com.io7m.jwheatsheaf:com.io7m.jwheatsheaf.ui:${v_wheatsheaf}"
