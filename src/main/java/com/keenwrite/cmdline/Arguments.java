@@ -14,6 +14,14 @@ import java.util.function.Consumer;
 @SuppressWarnings( "unused" )
 public final class Arguments implements Callable<Integer> {
   @CommandLine.Option(
+    names = {"-a", "--all"},
+    description =
+      "Concatenate files in directory before processing (${DEFAULT-VALUE}).",
+    defaultValue = "false"
+  )
+  private boolean mAll;
+
+  @CommandLine.Option(
     names = {"-d", "--debug"},
     description =
       "Enable logging to the console (${DEFAULT-VALUE}).",
@@ -54,6 +62,15 @@ public final class Arguments implements Callable<Integer> {
     defaultValue = "false"
   )
   private boolean mQuiet;
+
+  @CommandLine.Option(
+    names = {"-t", "--theme"},
+    description =
+      "Theme to use when exporting (${DEFAULT-VALUE}).",
+    paramLabel = "FILE",
+    defaultValue = "tarmes"
+  )
+  private String mTheme;
 
   @CommandLine.Option(
     names = {"-v", "--variables"},

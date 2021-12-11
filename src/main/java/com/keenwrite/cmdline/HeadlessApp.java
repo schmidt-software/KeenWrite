@@ -11,5 +11,6 @@ public class HeadlessApp {
    * @param args The parsed command-line arguments.
    */
   public static void main( final Arguments args ) {
+    System.out.println( args );
   }
 }
