@@ -63,7 +63,7 @@ import static org.apache.commons.io.FilenameUtils.getExtension;
  * functionality so that different text markup languages can change documents
  * using their respective syntax.
  */
-public final class ApplicationActions {
+public final class GuiCommands {
   private static final ExecutorService sExecutor = newFixedThreadPool( 1 );
 
   private static final String STYLE_SEARCH = "search";
@@ -89,7 +89,7 @@ public final class ApplicationActions {
    */
   private final SearchModel mSearchModel;
 
-  public ApplicationActions( final MainScene scene, final MainPane pane ) {
+  public GuiCommands( final MainScene scene, final MainPane pane ) {
     mMainScene = scene;
     mMainPane = pane;
     mLogView = new LogView();

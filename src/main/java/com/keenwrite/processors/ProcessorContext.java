@@ -22,8 +22,8 @@ import static com.keenwrite.constants.Constants.DEFAULT_DIRECTORY;
 public final class ProcessorContext {
   private final HtmlPreview mHtmlPreview;
   private final ObjectProperty<TextDefinition> mTextDefinition;
-  private final Path mDocumentPath;
-  private final Path mExportPath;
+  private final Path mInputPath;
+  private final Path mOutputPath;
   private final Caret mCaret;
   private final ExportFormat mExportFormat;
   private final Workspace mWorkspace;
@@ -36,36 +36,44 @@ public final class ProcessorContext {
    *
    * @param htmlPreview    Where to display the final (HTML) output.
    * @param textDefinition Fully expanded interpolated strings.
-   * @param documentPath   Path to the document to process.
-   * @param exportPath     Fully qualified filename to use when exporting.
+   * @param inputPath      Path to the document to process.
+   * @param outputPath     Fully qualified filename to use when exporting.
    * @param exportFormat   Indicate configuration options for export format.
    * @param workspace      Persistent user preferences settings.
    * @param caret          Location of the caret in the edited document,
-   *                       which is
-   *                       used to synchronize the scrollbars.
+   *                       which is used to synchronize the scrollbars.
    */
   public ProcessorContext(
     final HtmlPreview htmlPreview,
     final ObjectProperty<TextDefinition> textDefinition,
-    final Path documentPath,
-    final Path exportPath,
+    final Path inputPath,
+    final Path outputPath,
     final ExportFormat exportFormat,
     final Workspace workspace,
     final Caret caret ) {
     assert htmlPreview != null;
     assert textDefinition != null;
-    assert documentPath != null;
+    assert inputPath != null;
     assert exportFormat != null;
     assert workspace != null;
     assert caret != null;
 
     mHtmlPreview = htmlPreview;
     mTextDefinition = textDefinition;
-    mDocumentPath = documentPath;
-    mCaret = caret;
-    mExportPath = exportPath;
+    mInputPath = inputPath;
+    mOutputPath = outputPath;
     mExportFormat = exportFormat;
     mWorkspace = workspace;
+    mCaret = caret;
+  }
+
+  public static ProcessorContext create( final Path inputPath, final ExportFormat format ) {
+    return new ProcessorContext( null, null, inputPath, null, format, null, null );
+  }
+
+  public static ProcessorContext create(
+    final Path inputPath, final Path outputPath, final ExportFormat format ) {
+    return new ProcessorContext( null, null, inputPath, outputPath, format, null, null );
   }
 
   public boolean isExportFormat( final ExportFormat format ) {
@@ -90,8 +98,8 @@ public final class ProcessorContext {
    *
    * @return Full path to a file name.
    */
-  public Path getExportPath() {
-    return mExportPath;
+  public Path getOutputPath() {
+    return mOutputPath;
   }
 
   public ExportFormat getExportFormat() {
@@ -126,7 +134,7 @@ public final class ProcessorContext {
   }
 
   public Path getDocumentPath() {
-    return mDocumentPath;
+    return mInputPath;
   }
 
   FileType getFileType() {

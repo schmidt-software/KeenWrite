@@ -352,15 +352,15 @@ public final class MainPane extends SplitPane {
    * This opens the given file. Since the preview pane is not a file that
    * can be opened, it is safe to add a listener to the detachable pane.
    *
-   * @param file The file to open.
+   * @param inputFile The file to open.
    */
-  private void open( final File file ) {
-    final var tab = createTab( file );
+  private void open( final File inputFile ) {
+    final var tab = createTab( inputFile );
     final var node = tab.getContent();
-    final var mediaType = MediaType.valueFrom( file );
+    final var mediaType = MediaType.valueFrom( inputFile );
     final var tabPane = obtainTabPane( mediaType );
 
-    tab.setTooltip( createTooltip( file ) );
+    tab.setTooltip( createTooltip( inputFile ) );
     tabPane.setFocusTraversable( false );
     tabPane.setTabClosingPolicy( ALL_TABS );
     tabPane.getTabs().add( tab );
@@ -372,7 +372,7 @@ public final class MainPane extends SplitPane {
       );
     }
 
-    getRecentFiles().add( file.getAbsolutePath() );
+    getRecentFiles().add( inputFile.getAbsolutePath() );
   }
 
   /**
@@ -926,14 +926,14 @@ public final class MainPane extends SplitPane {
   }
 
   private ProcessorContext createProcessorContext(
-    final Path path, final Caret caret ) {
-    return createProcessorContext( path, null, ExportFormat.NONE, caret );
+    final Path inputPath, final Caret caret ) {
+    return createProcessorContext( inputPath, null, NONE, caret );
   }
 
   /**
-   * @param path       Used by {@link ProcessorFactory} to determine
+   * @param inputPath  Used by {@link ProcessorFactory} to determine
    *                   {@link Processor} type to create based on file type.
-   * @param exportPath Used when exporting to a PDF file (binary).
+   * @param outputPath Used when exporting to a PDF file (binary).
    * @param format     Used when processors export to a new text format.
    * @param caret      Used by {@link CaretExtension} to add ID attribute into
    *                   preview document for scrollbar synchronization.
@@ -941,16 +941,16 @@ public final class MainPane extends SplitPane {
    * {@link Processor}.
    */
   private ProcessorContext createProcessorContext(
-    final Path path,
-    final Path exportPath,
+    final Path inputPath,
+    final Path outputPath,
     final ExportFormat format,
     final Caret caret ) {
 
     return new ProcessorContext(
       mPreview,
       mActiveDefinitionEditor,
-      path,
-      exportPath,
+      inputPath,
+      outputPath,
       format,
       mWorkspace,
       caret
@@ -970,14 +970,14 @@ public final class MainPane extends SplitPane {
    * take priority over caret change events because it's possible to change
    * the text without moving the caret (e.g., delete selected text).
    *
-   * @param file The file containing contents for the text editor.
+   * @param inputFile The file containing contents for the text editor.
    * @return A non-null text editor.
    */
-  private TextResource createMarkdownEditor( final File file ) {
-    final var path = file.toPath();
-    final var editor = new MarkdownEditor( file, getWorkspace() );
+  private TextResource createMarkdownEditor( final File inputFile ) {
+    final var inputPath = inputFile.toPath();
+    final var editor = new MarkdownEditor( inputFile, getWorkspace() );
     final var caret = editor.getCaret();
-    final var context = createProcessorContext( path, caret );
+    final var context = createProcessorContext( inputPath, caret );
 
     mProcessors.computeIfAbsent( editor, p -> createProcessors( context ) );
 

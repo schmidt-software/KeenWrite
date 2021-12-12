@@ -36,7 +36,7 @@ public final class PdfProcessor extends ExecutorProcessor<String> {
       clue( "Main.status.typeset.create" );
       final var document = TEXT_XML.createTemporaryFile( APP_TITLE_LOWERCASE );
       final var pathInput = writeString( document, xhtml );
-      final var pathOutput = mContext.getExportPath();
+      final var pathOutput = mContext.getOutputPath();
       final var typesetter = new Typesetter( mContext.getWorkspace() );
 
       typesetter.typeset( pathInput, pathOutput );

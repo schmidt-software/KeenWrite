@@ -33,11 +33,11 @@ public final class ApplicationBars {
   /**
    * Creates the main application affordances.
    *
-   * @param actions The {@link ApplicationActions} that map user interface
+   * @param actions The {@link GuiCommands} that map user interface
    *                selections to executable code.
    * @return An instance of {@link MenuBar} that contains the menu.
    */
-  public static MenuBar createMenuBar( final ApplicationActions actions ) {
+  public static MenuBar createMenuBar( final GuiCommands actions ) {
     final var SEPARATOR_ACTION = new SeparatorAction();
 
     //@formatter:off

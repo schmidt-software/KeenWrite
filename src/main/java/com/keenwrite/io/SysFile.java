@@ -46,7 +46,7 @@ public class SysFile extends java.io.File {
         final var p = path.resolve( exe );
 
         for( final var extension : EXTENSIONS ) {
-          if( isExecutable( Path.of( p.toString() + extension ) ) ) {
+          if( isExecutable( Path.of( p + extension ) ) ) {
             return true;
           }
         }

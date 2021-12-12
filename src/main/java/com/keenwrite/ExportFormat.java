@@ -4,6 +4,7 @@ package com.keenwrite;
 import java.io.File;
 import java.nio.file.Path;
 
+import static java.lang.String.format;
 import static org.apache.commons.io.FilenameUtils.removeExtension;
 
 /**
@@ -55,6 +56,35 @@ public enum ExportFormat {
   }
 
   /**
+   * Looks up the {@link ExportFormat} based on the given format type and
+   * subtype combination.
+   *
+   * @param type    The type to find.
+   * @param subtype The subtype to find (for HTML).
+   * @return An object that defines the export format according to the given
+   * parameters.
+   * @throws IllegalArgumentException Could not determine the type and
+   *                                  subtype combination.
+   */
+  public static ExportFormat valueFrom(
+    final String type,
+    final String subtype ) throws IllegalArgumentException {
+    assert type != null;
+    assert subtype != null;
+
+    return switch( type.trim().toLowerCase() ) {
+      case "html" -> "svg".equalsIgnoreCase( subtype.trim() )
+        ? HTML_TEX_SVG
+        : HTML_TEX_DELIMITED;
+      case "md" -> MARKDOWN_PLAIN;
+      case "pdf" -> APPLICATION_PDF;
+      default -> throw new IllegalArgumentException( format(
+        "Unrecognized format type and subtype: '%s' and '%s'", type, subtype
+      ) );
+    };
+  }
+
+  /**
    * Returns the given {@link File} with its extension replaced by one that
    * matches this {@link ExportFormat} extension.
    *
@@ -74,5 +104,9 @@ public enum ExportFormat {
    */
   public File toExportFilename( final Path path ) {
     return toExportFilename( path.toFile() );
+  }
+
+  public Path toExportPath( final Path path ) {
+    return toExportFilename( path ).toPath();
   }
 }

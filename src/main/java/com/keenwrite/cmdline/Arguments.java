@@ -1,8 +1,13 @@
 package com.keenwrite.cmdline;
 
+import com.keenwrite.ExportFormat;
+import com.keenwrite.processors.ProcessorContext;
 import picocli.CommandLine;
 
+import java.io.File;
+import java.nio.file.Path;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.function.Consumer;
 
@@ -34,26 +39,46 @@ public final class Arguments implements Callable<Integer> {
     description =
       "Set the file name to read.",
     paramLabel = "FILE",
-    defaultValue = "stdin"
+    defaultValue = "stdin",
+    required = true
   )
-  private String mFileInput;
+  private File mFileInput;
+
+  @CommandLine.Option(
+    names = {"-f", "--format-type"},
+    description =
+      "Export type: html, md, pdf, xml (${DEFAULT-VALUE})",
+    paramLabel = "String",
+    defaultValue = "pdf",
+    required = true
+  )
+  private String mFormatType;
+
+  @CommandLine.Option(
+    names = {"-m", "--metadata"},
+    description =
+      "Map metadata keys to values, variable names allowed.",
+    paramLabel = "key=value"
+  )
+  private Map<String, String> mMetadata;
 
   @CommandLine.Option(
     names = {"-o", "--output"},
     description =
       "Set the file name to write.",
     paramLabel = "FILE",
-    defaultValue = "stdout"
+    defaultValue = "stdout",
+    required = true
   )
-  private String mFileOutput;
+  private File mFileOutput;
 
   @CommandLine.Option(
-    names = {"-m", "--metadata"},
+    names = {"-p", "--images-path"},
     description =
-      "Map metadata keys to values.",
-    paramLabel = "key=value"
+      "Absolute path to images directory",
+    paramLabel = "PATH"
   )
-  private Map<String, String> mMetadata;
+  private Path mImages;
 
   @CommandLine.Option(
     names = {"-q", "--quiet"},
@@ -64,13 +89,29 @@ public final class Arguments implements Callable<Integer> {
   private boolean mQuiet;
 
   @CommandLine.Option(
+    names = {"-s", "--format-subtype-tex"},
+    description =
+      "Export subtype for HTML formats: svg, delimited",
+    paramLabel = "String"
+  )
+  private String mFormatSubtype;
+
+  @CommandLine.Option(
     names = {"-t", "--theme"},
     description =
-      "Theme to use when exporting (${DEFAULT-VALUE}).",
-    paramLabel = "FILE",
-    defaultValue = "tarmes"
+      "Full theme name file path to use when exporting as a PDF file.",
+    paramLabel = "PATH"
   )
-  private String mTheme;
+  private String mThemeName;
+
+  @CommandLine.Option(
+    names = {"-x", "--image-extensions"},
+    description =
+      "Space-separated image file name extensions (${DEFAULT-VALUE}).",
+    paramLabel = "String",
+    defaultValue = "svg pdf png jpg tiff"
+  )
+  private Set<String> mExtensions;
 
   @CommandLine.Option(
     names = {"-v", "--variables"},
@@ -85,6 +126,14 @@ public final class Arguments implements Callable<Integer> {
 
   public Arguments( final Consumer<Arguments> launcher ) {
     mLauncher = launcher;
+  }
+
+  public ProcessorContext createProcessorContext() {
+    return ProcessorContext.create(
+      mFileInput.toPath(),
+      mFileOutput.toPath(),
+      ExportFormat.valueFrom(mFormatType, mFormatSubtype)
+    );
   }
 
   public boolean quiet() {

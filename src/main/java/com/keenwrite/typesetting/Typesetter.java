@@ -53,22 +53,22 @@ public class Typesetter {
    * indicates whether the typesetter exists, not whether the typesetting was
    * successful.
    *
-   * @param in  The input document to typeset.
-   * @param out Path to the finished typeset document.
+   * @param inputPath  The input document to typeset.
+   * @param outputPath Path to the finished typeset document.
    * @throws IOException                 If the process could not be started.
    * @throws InterruptedException        If the process was killed.
    * @throws TypesetterNotFoundException When no typesetter is along the PATH.
    */
-  public void typeset( final Path in, final Path out )
+  public void typeset( final Path inputPath, final Path outputPath )
     throws IOException, InterruptedException, TypesetterNotFoundException {
     if( TYPESETTER.canRun() ) {
-      clue( "Main.status.typeset.began", out );
-      final var task = new TypesetTask( in, out );
+      clue( "Main.status.typeset.began", outputPath );
+      final var task = new TypesetTask( inputPath, outputPath );
       final var time = currentTimeMillis();
       final var success = task.typeset();
 
       clue( "Main.status.typeset.ended." + (success ? "success" : "failure"),
-            out, since( time )
+            outputPath, since( time )
       );
     }
     else {

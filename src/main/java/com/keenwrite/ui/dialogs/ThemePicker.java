@@ -100,7 +100,7 @@ public class ThemePicker extends ChoiceDialog<String> {
    */
   private boolean pick() {
     try {
-      // List themes in alphabetical order (human readable by directory name).
+      // List themes in alphabetical order (human-readable by directory name).
       final var choices = new TreeMap<String, String>();
       final String[] selection = new String[]{""};
 

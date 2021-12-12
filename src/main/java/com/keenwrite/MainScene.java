@@ -4,7 +4,7 @@ package com.keenwrite;
 import com.keenwrite.io.FileModifiedListener;
 import com.keenwrite.io.FileWatchService;
 import com.keenwrite.preferences.Workspace;
-import com.keenwrite.ui.actions.ApplicationActions;
+import com.keenwrite.ui.actions.GuiCommands;
 import com.keenwrite.ui.listeners.CaretListener;
 import javafx.scene.Node;
 import javafx.scene.Parent;
@@ -165,9 +165,9 @@ public final class MainScene {
     return new MainPane( workspace );
   }
 
-  private ApplicationActions createApplicationActions(
+  private GuiCommands createApplicationActions(
     final MainPane mainPane ) {
-    return new ApplicationActions( this, mainPane );
+    return new GuiCommands( this, mainPane );
   }
 
   /**
