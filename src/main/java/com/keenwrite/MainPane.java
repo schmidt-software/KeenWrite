@@ -945,16 +945,15 @@ public final class MainPane extends SplitPane {
     final Path outputPath,
     final ExportFormat format,
     final Caret caret ) {
-
-    return new ProcessorContext(
-      mPreview,
-      mActiveDefinitionEditor,
-      inputPath,
-      outputPath,
-      format,
-      mWorkspace,
-      caret
-    );
+    return ProcessorContext.builder()
+      .with( ProcessorContext.Mutator::setInputPath, inputPath )
+      .with( ProcessorContext.Mutator::setOutputPath, outputPath )
+      .with( ProcessorContext.Mutator::setExportFormat, format )
+      .with( ProcessorContext.Mutator::setHtmlPreview, mPreview )
+      .with( ProcessorContext.Mutator::setTextDefinition, mActiveDefinitionEditor )
+      .with( ProcessorContext.Mutator::setWorkspace, mWorkspace )
+      .with( ProcessorContext.Mutator::setCaret, caret )
+      .build();
   }
 
   private TextResource createTextResource( final File file ) {

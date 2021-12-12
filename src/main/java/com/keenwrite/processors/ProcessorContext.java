@@ -8,8 +8,10 @@ import com.keenwrite.editors.TextDefinition;
 import com.keenwrite.io.FileType;
 import com.keenwrite.preferences.Workspace;
 import com.keenwrite.preview.HtmlPreview;
+import com.keenwrite.util.GenericBuilder;
 import javafx.beans.property.ObjectProperty;
 
+import java.io.File;
 import java.nio.file.Path;
 import java.util.Map;
 
@@ -20,68 +22,138 @@ import static com.keenwrite.constants.Constants.DEFAULT_DIRECTORY;
  * Provides a context for configuring a chain of {@link Processor} instances.
  */
 public final class ProcessorContext {
-  private final HtmlPreview mHtmlPreview;
-  private final ObjectProperty<TextDefinition> mTextDefinition;
-  private final Path mInputPath;
-  private final Path mOutputPath;
-  private final Caret mCaret;
-  private final ExportFormat mExportFormat;
-  private final Workspace mWorkspace;
+
+  private final Mutator mMutator;
 
   /**
    * Creates a new context for use by the {@link ProcessorFactory} when
    * instantiating new {@link Processor} instances. Although all the
    * parameters are required, not all {@link Processor} instances will use
    * all parameters.
-   *
-   * @param htmlPreview    Where to display the final (HTML) output.
-   * @param textDefinition Fully expanded interpolated strings.
-   * @param inputPath      Path to the document to process.
-   * @param outputPath     Fully qualified filename to use when exporting.
-   * @param exportFormat   Indicate configuration options for export format.
+   */
+  private ProcessorContext( final Mutator mutator ) {
+    assert mutator != null;
+
+    mMutator = mutator;
+  }
+
+  public static class Mutator {
+    private HtmlPreview mHtmlPreview;
+    private ObjectProperty<TextDefinition> mTextDefinition;
+    private Path mInputPath;
+    private Path mOutputPath;
+    private Caret mCaret;
+    private ExportFormat mExportFormat;
+    private Workspace mWorkspace;
+
+    public void setHtmlPreview( final HtmlPreview htmlPreview ) {
+      mHtmlPreview = htmlPreview;
+    }
+
+    public void setTextDefinition( final ObjectProperty<TextDefinition> textDefinition ) {
+      mTextDefinition = textDefinition;
+    }
+
+    public void setInputPath( final Path inputPath ) {
+      mInputPath = inputPath;
+    }
+
+    public void setInputPath( final File inputPath ) {
+      setInputPath( inputPath.toPath() );
+    }
+
+    public void setOutputPath( final Path outputPath ) {
+      mOutputPath = outputPath;
+    }
+
+    public void setOutputPath( final File outputPath ) {
+      setOutputPath( outputPath.toPath() );
+    }
+
+    public void setCaret( final Caret caret ) {
+      mCaret = caret;
+    }
+
+    public void setExportFormat( final ExportFormat exportFormat ) {
+      mExportFormat = exportFormat;
+    }
+
+    public void setWorkspace( final Workspace workspace ) {
+      mWorkspace = workspace;
+    }
+  }
+
+  public static GenericBuilder<Mutator, ProcessorContext> builder() {
+    return GenericBuilder.of(
+      Mutator::new,
+      ProcessorContext::new
+    );
+  }
+
+  /**
+   * @param preview        Where to display the final (HTML) output.
+   * @param textDefinition Source for fully expanded interpolated strings.
    * @param workspace      Persistent user preferences settings.
    * @param caret          Location of the caret in the edited document,
    *                       which is used to synchronize the scrollbars.
+   * @param inputPath      Path to the document to process.
+   * @param format         Indicate configuration options for export format.
+   * @return A context that may be used for processing documents.
    */
-  public ProcessorContext(
-    final HtmlPreview htmlPreview,
+  public static ProcessorContext create(
+    final HtmlPreview preview,
     final ObjectProperty<TextDefinition> textDefinition,
     final Path inputPath,
     final Path outputPath,
-    final ExportFormat exportFormat,
+    final ExportFormat format,
     final Workspace workspace,
     final Caret caret ) {
-    assert htmlPreview != null;
-    assert textDefinition != null;
-    assert inputPath != null;
-    assert exportFormat != null;
-    assert workspace != null;
-    assert caret != null;
-
-    mHtmlPreview = htmlPreview;
-    mTextDefinition = textDefinition;
-    mInputPath = inputPath;
-    mOutputPath = outputPath;
-    mExportFormat = exportFormat;
-    mWorkspace = workspace;
-    mCaret = caret;
+    return builder()
+      .with( Mutator::setInputPath, inputPath )
+      .with( Mutator::setOutputPath, outputPath )
+      .with( Mutator::setExportFormat, format )
+      .with( Mutator::setHtmlPreview, preview )
+      .with( Mutator::setTextDefinition, textDefinition )
+      .with( Mutator::setWorkspace, workspace )
+      .with( Mutator::setCaret, caret )
+      .build();
   }
 
-  public static ProcessorContext create( final Path inputPath, final ExportFormat format ) {
-    return new ProcessorContext( null, null, inputPath, null, format, null, null );
+  /**
+   * @param inputPath Path to the document to process.
+   * @param format    Indicate configuration options for export format.
+   * @return A context that may be used for processing documents.
+   */
+  public static ProcessorContext create(
+    final Path inputPath,
+    final ExportFormat format ) {
+    return builder()
+      .with( Mutator::setInputPath, inputPath )
+      .with( Mutator::setExportFormat, format )
+      .build();
   }
 
+  /**
+   * @param inputPath  Path to the document to process.
+   * @param outputPath Fully qualified filename to use when exporting.
+   * @param format     Indicate configuration options for export format.
+   * @return A context that may be used for processing documents.
+   */
   public static ProcessorContext create(
     final Path inputPath, final Path outputPath, final ExportFormat format ) {
-    return new ProcessorContext( null, null, inputPath, outputPath, format, null, null );
+    return builder()
+      .with( Mutator::setInputPath, inputPath )
+      .with( Mutator::setOutputPath, outputPath )
+      .with( Mutator::setExportFormat, format )
+      .build();
   }
 
   public boolean isExportFormat( final ExportFormat format ) {
-    return mExportFormat == format;
+    return mMutator.mExportFormat == format;
   }
 
   HtmlPreview getPreview() {
-    return mHtmlPreview;
+    return mMutator.mHtmlPreview;
   }
 
   /**
@@ -90,7 +162,7 @@ public final class ProcessorContext {
    * @return A map to help dereference variables.
    */
   Map<String, String> getResolvedMap() {
-    return mTextDefinition.get().getDefinitions();
+    return mMutator.mTextDefinition.get().getDefinitions();
   }
 
   /**
@@ -99,11 +171,11 @@ public final class ProcessorContext {
    * @return Full path to a file name.
    */
   public Path getOutputPath() {
-    return mOutputPath;
+    return mMutator.mOutputPath;
   }
 
   public ExportFormat getExportFormat() {
-    return mExportFormat;
+    return mMutator.mExportFormat;
   }
 
   /**
@@ -113,7 +185,7 @@ public final class ProcessorContext {
    * @return Caret position in the document.
    */
   public Caret getCaret() {
-    return mCaret;
+    return mMutator.mCaret;
   }
 
   /**
@@ -134,7 +206,7 @@ public final class ProcessorContext {
   }
 
   public Path getDocumentPath() {
-    return mInputPath;
+    return mMutator.mInputPath;
   }
 
   FileType getFileType() {
@@ -142,6 +214,6 @@ public final class ProcessorContext {
   }
 
   public Workspace getWorkspace() {
-    return mWorkspace;
+    return mMutator.mWorkspace;
   }
 }

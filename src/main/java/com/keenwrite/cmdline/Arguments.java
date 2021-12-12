@@ -2,6 +2,7 @@ package com.keenwrite.cmdline;
 
 import com.keenwrite.ExportFormat;
 import com.keenwrite.processors.ProcessorContext;
+import com.keenwrite.processors.ProcessorContext.Mutator;
 import picocli.CommandLine;
 
 import java.io.File;
@@ -129,11 +130,13 @@ public final class Arguments implements Callable<Integer> {
   }
 
   public ProcessorContext createProcessorContext() {
-    return ProcessorContext.create(
-      mFileInput.toPath(),
-      mFileOutput.toPath(),
-      ExportFormat.valueFrom(mFormatType, mFormatSubtype)
-    );
+    final var format = ExportFormat.valueFrom( mFormatType, mFormatSubtype );
+    return ProcessorContext
+      .builder()
+      .with( Mutator::setInputPath, mFileInput )
+      .with( Mutator::setOutputPath, mFileOutput )
+      .with( Mutator::setExportFormat, format )
+      .build();
   }
 
   public boolean quiet() {
