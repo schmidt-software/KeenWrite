@@ -9,6 +9,7 @@ import com.keenwrite.processors.ProcessorContext;
 import com.keenwrite.processors.markdown.MarkdownProcessor;
 import com.keenwrite.processors.markdown.extensions.HtmlRendererAdapter;
 import com.vladsch.flexmark.ast.FencedCodeBlock;
+import com.vladsch.flexmark.html.HtmlRendererOptions;
 import com.vladsch.flexmark.html.HtmlWriter;
 import com.vladsch.flexmark.html.renderer.DelegatingNodeRendererFactory;
 import com.vladsch.flexmark.html.renderer.NodeRenderer;
@@ -125,9 +126,9 @@ public class FencedBlockExtension extends HtmlRendererAdapter {
 
     /**
      * This method is a stop-gap because blank lines that contain only
-     * whitespace are collapsed into lines without any spaces. Consequently
+     * whitespace are collapsed into lines without any spaces. Consequently,
      * the typesetting software does not honour the blank lines, which
-     * then discards the blank lines entirely.
+     * then would otherwise discard blank lines entirely.
      * <p>
      * Given the following:
      *
@@ -150,29 +151,21 @@ public class FencedBlockExtension extends HtmlRendererAdapter {
       final FencedCodeBlock node,
       final NodeRendererContext context,
       final HtmlWriter html ) {
+      assert node != null;
+      assert context != null;
+      assert html != null;
+
       html.line();
       html.srcPosWithTrailingEOL( node.getChars() )
           .withAttr()
           .tag( "pre" )
           .openPre();
 
-      final var info = node.getInfo();
-      final var htmlOptions = context.getHtmlOptions();
+      final var options = context.getHtmlOptions();
+      final var languageClass = lookupLanguageClass( node, options );
 
-      if( info.isNotNull() && !info.isBlank() ) {
-        final var language = node
-          .getInfoDelimitedByAny( htmlOptions.languageDelimiterSet )
-          .unescape();
-        final var languageClass = htmlOptions.languageClassMap
-          .getOrDefault( language, htmlOptions.languageClassPrefix + language );
+      if( !languageClass.isBlank() ) {
         html.attr( "class", languageClass );
-      }
-      else {
-        final var noLanguageClass = htmlOptions.noLanguageClass.trim();
-
-        if( !noLanguageClass.isEmpty() ) {
-          html.attr( "class", noLanguageClass );
-        }
       }
 
       html.srcPosWithEOL( node.getContentChars() )
@@ -180,6 +173,7 @@ public class FencedBlockExtension extends HtmlRendererAdapter {
           .tag( "code" );
 
       final var lines = node.getContentLines();
+
       for( final var line : lines ) {
         if( line.isBlank() ) {
           html.text( "    " );
@@ -191,7 +185,27 @@ public class FencedBlockExtension extends HtmlRendererAdapter {
       html.tag( "/code" );
       html.tag( "/pre" )
           .closePre();
-      html.lineIf( htmlOptions.htmlBlockCloseTagEol );
+      html.lineIf( options.htmlBlockCloseTagEol );
+    }
+
+    private String lookupLanguageClass(
+      final FencedCodeBlock node,
+      final HtmlRendererOptions options ) {
+      assert node != null;
+      assert options != null;
+
+      final var info = node.getInfo();
+
+      if( info.isNotNull() && !info.isBlank() ) {
+        final var lang = node
+          .getInfoDelimitedByAny( options.languageDelimiterSet )
+          .unescape();
+        return options
+          .languageClassMap
+          .getOrDefault( lang, options.languageClassPrefix + lang );
+      }
+
+      return options.noLanguageClass;
     }
   }
 

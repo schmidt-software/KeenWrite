@@ -50,7 +50,8 @@ public final class ProcessorContext {
       mHtmlPreview = htmlPreview;
     }
 
-    public void setTextDefinition( final ObjectProperty<TextDefinition> textDefinition ) {
+    public void setTextDefinition(
+      final ObjectProperty<TextDefinition> textDefinition ) {
       mTextDefinition = textDefinition;
     }
 
@@ -91,21 +92,22 @@ public final class ProcessorContext {
   }
 
   /**
+   * @param inputPath      Path to the document to process.
+   * @param outputPath     Fully qualified filename to use when exporting.
+   * @param format         Indicate configuration options for export format.
    * @param preview        Where to display the final (HTML) output.
    * @param textDefinition Source for fully expanded interpolated strings.
    * @param workspace      Persistent user preferences settings.
    * @param caret          Location of the caret in the edited document,
    *                       which is used to synchronize the scrollbars.
-   * @param inputPath      Path to the document to process.
-   * @param format         Indicate configuration options for export format.
    * @return A context that may be used for processing documents.
    */
   public static ProcessorContext create(
-    final HtmlPreview preview,
-    final ObjectProperty<TextDefinition> textDefinition,
     final Path inputPath,
     final Path outputPath,
     final ExportFormat format,
+    final HtmlPreview preview,
+    final ObjectProperty<TextDefinition> textDefinition,
     final Workspace workspace,
     final Caret caret ) {
     return builder()
