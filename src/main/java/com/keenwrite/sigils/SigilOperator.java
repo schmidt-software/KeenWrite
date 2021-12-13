@@ -1,8 +1,6 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.sigils;
 
-import javafx.beans.property.SimpleStringProperty;
-
 import java.util.function.UnaryOperator;
 
 /**
@@ -21,10 +19,7 @@ public class SigilOperator implements UnaryOperator<String> {
    * @param ended The sigil that denotes the end of a variable name.
    */
   public SigilOperator( final String began, final String ended ) {
-    this( new Sigils(
-      new SimpleStringProperty( began ),
-      new SimpleStringProperty( ended )
-    ) );
+    this( new Sigils( began, ended ) );
   }
 
   SigilOperator( final Sigils sigils ) {

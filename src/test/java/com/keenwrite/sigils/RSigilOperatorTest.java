@@ -1,8 +1,6 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.sigils;
 
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -34,10 +32,6 @@ class RSigilOperatorTest {
     assertEquals( expected, actual );
   }
 
-  private StringProperty createSigil( final String token ) {
-    return new SimpleStringProperty( token );
-  }
-
   private Sigils createRSigils() {
     return createSigils( "x(", ")" );
   }
@@ -47,7 +41,7 @@ class RSigilOperatorTest {
   }
 
   private Sigils createSigils( final String began, final String ended ) {
-    return new Sigils( createSigil( began ), createSigil( ended ) );
+    return new Sigils( began, ended );
   }
 
   private YamlSigilOperator createYamlSigilOperator() {

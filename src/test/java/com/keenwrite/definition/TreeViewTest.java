@@ -54,7 +54,7 @@ public class TreeViewTest extends Application {
 
     final var began = new SimpleStringProperty( DEF_DELIM_BEGAN_DEFAULT );
     final var ended = new SimpleStringProperty( DEF_DELIM_ENDED_DEFAULT );
-    final var sigils = new Sigils( began, ended );
+    final var sigils = new Sigils( began.get(), ended.get() );
     final var operator = new YamlSigilOperator( sigils );
     final var transformer = new YamlTreeTransformer();
     final var editor = new DefinitionEditor( transformer, operator );

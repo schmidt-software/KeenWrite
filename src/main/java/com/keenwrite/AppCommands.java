@@ -87,6 +87,7 @@ public class AppCommands {
    * @param concat {@code true} means to export all files in the active file
    *               editor's directory; {@code false} means to export only the
    *               actively edited file.
+   *
   private void file_export_pdf( final Path theme, final boolean concat ) {
     if( Typesetter.canRun() ) {
       // If the typesetter is installed, allow the user to select a theme. If
@@ -123,8 +124,7 @@ public class AppCommands {
   public void file_export_markdown() {
     file_export( MARKDOWN_PLAIN );
   }
-   */
-
+*/
   /**
    * Concatenates all the files in the same directory as the given file into
    * a string. The extension is determined by the given file name pattern; the

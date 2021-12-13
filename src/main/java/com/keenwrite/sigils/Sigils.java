@@ -8,8 +8,7 @@ import java.util.AbstractMap.SimpleImmutableEntry;
 /**
  * Convenience class for pairing a start and an end sigil together.
  */
-public final class Sigils
-  extends SimpleImmutableEntry<StringProperty, StringProperty> {
+public final class Sigils extends SimpleImmutableEntry<String, String> {
 
   /**
    * Associates a new key-value pair.
@@ -17,7 +16,7 @@ public final class Sigils
    * @param began The starting sigil.
    * @param ended The ending sigil.
    */
-  public Sigils( final StringProperty began, final StringProperty ended ) {
+  public Sigils( final String began, final String ended ) {
     super( began, ended );
   }
 
@@ -25,13 +24,13 @@ public final class Sigils
    * @return The opening sigil token.
    */
   public String getBegan() {
-    return getKey().get();
+    return getKey();
   }
 
   /**
    * @return The closing sigil token, or the empty string if none set.
    */
   public String getEnded() {
-    return getValue().get();
+    return getValue();
   }
 }

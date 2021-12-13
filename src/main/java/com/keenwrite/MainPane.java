@@ -1018,7 +1018,7 @@ public final class MainPane extends SplitPane {
     final var definitions = getActiveTextDefinition();
     final var editor = getActiveTextEditor();
     final var mediaType = editor.getMediaType();
-    final var operator = getSigilOperator( mediaType );
+    final var operator = createSigilOperator( mediaType );
 
     DefinitionNameInjector.autoinsert( editor, definitions, operator );
   }
@@ -1071,7 +1071,7 @@ public final class MainPane extends SplitPane {
    *
    * @param mediaType The type of file being edited.
    */
-  private SigilOperator getSigilOperator( final MediaType mediaType ) {
+  private SigilOperator createSigilOperator( final MediaType mediaType ) {
     final var operator = new YamlSigilOperator( createDefinitionSigils() );
 
     return mediaType == TEXT_R_MARKDOWN
@@ -1089,10 +1089,6 @@ public final class MainPane extends SplitPane {
     return getWorkspace().setsProperty( KEY_UI_FILES_PATH );
   }
 
-  private StringProperty stringProperty( final Key key ) {
-    return getWorkspace().stringProperty( key );
-  }
-
   private SigilOperator createYamlSigilOperator() {
     return new YamlSigilOperator( createDefinitionSigils() );
   }
@@ -1105,7 +1101,7 @@ public final class MainPane extends SplitPane {
     return createSigils( KEY_DEF_DELIM_BEGAN, KEY_DEF_DELIM_ENDED );
   }
 
-  private Sigils createSigils( final Key began, final Key ended ) {
-    return new Sigils( stringProperty( began ), stringProperty( ended ) );
+  private Sigils createSigils( final Key keyBegan, final Key keyEnded ) {
+    return getWorkspace().createSigils( keyBegan, keyEnded );
   }
 }

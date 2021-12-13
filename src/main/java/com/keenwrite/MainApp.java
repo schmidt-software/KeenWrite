@@ -1,6 +1,7 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite;
 
+import com.keenwrite.cmdline.HeadlessApp;
 import com.keenwrite.events.HyperlinkOpenEvent;
 import com.keenwrite.preferences.Workspace;
 import javafx.application.Application;
@@ -34,7 +35,8 @@ public final class MainApp extends Application {
   private MainScene mMainScene;
 
   /**
-   * Application entry point.
+   * GUI application entry point. See {@link HeadlessApp} for the entry
+   * point to the command-line application.
    *
    * @param args Command-line arguments.
    */

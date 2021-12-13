@@ -92,14 +92,14 @@ public final class RVariableProcessor extends DefinitionProcessor {
   }
 
   private SigilOperator createSigilOperator( final Workspace workspace ) {
-    final var tokens = workspace.toSigils(
+    final var tokens = workspace.createSigils(
       KEY_R_DELIM_BEGAN, KEY_R_DELIM_ENDED );
     final var antecedent = createDefinitionOperator( workspace );
     return new RSigilOperator( tokens, antecedent );
   }
 
   private SigilOperator createDefinitionOperator( final Workspace workspace ) {
-    final var sigils = workspace.toSigils(
+    final var sigils = workspace.createSigils(
       KEY_DEF_DELIM_BEGAN, KEY_DEF_DELIM_ENDED );
     return new YamlSigilOperator( sigils );
   }

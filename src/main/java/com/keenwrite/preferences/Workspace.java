@@ -300,10 +300,11 @@ public final class Workspace {
     return stringProperty( key ).get();
   }
 
-  public Sigils toSigils( final Key began, final Key ended ) {
-    assert began != null;
-    assert ended != null;
-    return new Sigils( stringProperty( began ), stringProperty( ended ) );
+  public Sigils createSigils( final Key keyBegan, final Key keyEnded ) {
+    assert keyBegan != null;
+    assert keyEnded != null;
+
+    return new Sigils( toString( keyBegan ), toString( keyEnded ) );
   }
 
   @SuppressWarnings( "SameParameterValue" )

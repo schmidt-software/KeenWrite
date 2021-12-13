@@ -1,7 +1,7 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.events;
 
-import com.keenwrite.MainApp;
+import com.keenwrite.AppCommands;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -18,7 +18,11 @@ import static java.util.Arrays.stream;
  * exceptions, state problems, parsing errors, and so forth.
  */
 public final class StatusEvent implements AppEvent {
-  private static final String PACKAGE_NAME = MainApp.class.getPackageName();
+  /**
+   * Reference a class in the top-level package that doesn't depend on any
+   * JavaFX APIs.
+   */
+  private static final String PACKAGE_NAME = AppCommands.class.getPackageName();
 
   private static final String ENGLISHIFY =
     "(?<=[a-z])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])";
