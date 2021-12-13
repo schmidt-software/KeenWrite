@@ -10,7 +10,6 @@ import com.keenwrite.editors.definition.yaml.YamlTreeTransformer;
 import com.keenwrite.editors.markdown.MarkdownEditor;
 import com.keenwrite.events.*;
 import com.keenwrite.io.MediaType;
-import com.keenwrite.preferences.Key;
 import com.keenwrite.preferences.Workspace;
 import com.keenwrite.preview.HtmlPreview;
 import com.keenwrite.processors.Processor;
@@ -18,10 +17,7 @@ import com.keenwrite.processors.ProcessorContext;
 import com.keenwrite.processors.ProcessorFactory;
 import com.keenwrite.processors.markdown.extensions.CaretExtension;
 import com.keenwrite.service.events.Notifier;
-import com.keenwrite.sigils.RSigilOperator;
 import com.keenwrite.sigils.SigilOperator;
-import com.keenwrite.sigils.Sigils;
-import com.keenwrite.sigils.YamlSigilOperator;
 import com.keenwrite.ui.explorer.FilePickerFactory;
 import com.keenwrite.ui.heuristics.DocumentStatistics;
 import com.keenwrite.ui.outline.DocumentOutline;
@@ -63,8 +59,11 @@ import static com.keenwrite.constants.GraphicsConstants.ICON_DIALOG_NODE;
 import static com.keenwrite.events.Bus.register;
 import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.io.MediaType.*;
-import static com.keenwrite.preferences.WorkspaceKeys.*;
+import static com.keenwrite.preferences.WorkspaceKeys.KEY_EDITOR_AUTOSAVE;
+import static com.keenwrite.preferences.WorkspaceKeys.KEY_UI_FILES_PATH;
 import static com.keenwrite.processors.IdentityProcessor.IDENTITY;
+import static com.keenwrite.processors.ProcessorContext.Mutator;
+import static com.keenwrite.processors.ProcessorContext.builder;
 import static com.keenwrite.processors.ProcessorFactory.createProcessors;
 import static java.lang.String.format;
 import static java.lang.System.getProperty;
@@ -945,14 +944,14 @@ public final class MainPane extends SplitPane {
     final Path outputPath,
     final ExportFormat format,
     final Caret caret ) {
-    return ProcessorContext.builder()
-      .with( ProcessorContext.Mutator::setInputPath, inputPath )
-      .with( ProcessorContext.Mutator::setOutputPath, outputPath )
-      .with( ProcessorContext.Mutator::setExportFormat, format )
-      .with( ProcessorContext.Mutator::setHtmlPreview, mPreview )
-      .with( ProcessorContext.Mutator::setTextDefinition, mActiveDefinitionEditor )
-      .with( ProcessorContext.Mutator::setWorkspace, mWorkspace )
-      .with( ProcessorContext.Mutator::setCaret, caret )
+    return builder()
+      .with( Mutator::setInputPath, inputPath )
+      .with( Mutator::setOutputPath, outputPath )
+      .with( Mutator::setExportFormat, format )
+      .with( Mutator::setHtmlPreview, mPreview )
+      .with( Mutator::setTextDefinition, mActiveDefinitionEditor )
+      .with( Mutator::setWorkspace, mWorkspace )
+      .with( Mutator::setCaret, caret )
       .build();
   }
 
@@ -1029,7 +1028,7 @@ public final class MainPane extends SplitPane {
 
   private TextDefinition createDefinitionEditor( final File file ) {
     final var editor = new DefinitionEditor(
-      file, createTreeTransformer(), createYamlSigilOperator() );
+      file, createTreeTransformer(), getWorkspace().createYamlSigilOperator() );
     editor.addTreeChangeHandler( mTreeHandler );
     return editor;
   }
@@ -1072,11 +1071,11 @@ public final class MainPane extends SplitPane {
    * @param mediaType The type of file being edited.
    */
   private SigilOperator createSigilOperator( final MediaType mediaType ) {
-    final var operator = new YamlSigilOperator( createDefinitionSigils() );
+    final var workspace = getWorkspace();
 
     return mediaType == TEXT_R_MARKDOWN
-      ? new RSigilOperator( createRSigils(), operator )
-      : operator;
+      ? workspace.createRSigilOperator()
+      : workspace.createYamlSigilOperator();
   }
 
   /**
@@ -1087,21 +1086,5 @@ public final class MainPane extends SplitPane {
    */
   private SetProperty<String> getRecentFiles() {
     return getWorkspace().setsProperty( KEY_UI_FILES_PATH );
-  }
-
-  private SigilOperator createYamlSigilOperator() {
-    return new YamlSigilOperator( createDefinitionSigils() );
-  }
-
-  private Sigils createRSigils() {
-    return createSigils( KEY_R_DELIM_BEGAN, KEY_R_DELIM_ENDED );
-  }
-
-  private Sigils createDefinitionSigils() {
-    return createSigils( KEY_DEF_DELIM_BEGAN, KEY_DEF_DELIM_ENDED );
-  }
-
-  private Sigils createSigils( final Key keyBegan, final Key keyEnded ) {
-    return getWorkspace().createSigils( keyBegan, keyEnded );
   }
 }

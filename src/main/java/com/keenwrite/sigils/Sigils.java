@@ -1,8 +1,6 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.sigils;
 
-import javafx.beans.property.StringProperty;
-
 import java.util.AbstractMap.SimpleImmutableEntry;
 
 /**

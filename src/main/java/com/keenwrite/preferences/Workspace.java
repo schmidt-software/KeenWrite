@@ -2,7 +2,10 @@
 package com.keenwrite.preferences;
 
 import com.keenwrite.constants.Constants;
+import com.keenwrite.sigils.RSigilOperator;
+import com.keenwrite.sigils.SigilOperator;
 import com.keenwrite.sigils.Sigils;
+import com.keenwrite.sigils.YamlSigilOperator;
 import javafx.application.Platform;
 import javafx.beans.property.*;
 import javafx.collections.ObservableList;
@@ -300,11 +303,25 @@ public final class Workspace {
     return stringProperty( key ).get();
   }
 
-  public Sigils createSigils( final Key keyBegan, final Key keyEnded ) {
+  private Sigils createSigils( final Key keyBegan, final Key keyEnded ) {
     assert keyBegan != null;
     assert keyEnded != null;
 
     return new Sigils( toString( keyBegan ), toString( keyEnded ) );
+  }
+
+  public SigilOperator createYamlSigilOperator() {
+    return new YamlSigilOperator(
+      createSigils( KEY_DEF_DELIM_BEGAN, KEY_DEF_DELIM_ENDED )
+    );
+  }
+
+  public SigilOperator createRSigilOperator() {
+    final var antecedent = createYamlSigilOperator();
+    return new RSigilOperator(
+      createSigils( KEY_R_DELIM_BEGAN, KEY_R_DELIM_ENDED ),
+      antecedent
+    );
   }
 
   @SuppressWarnings( "SameParameterValue" )

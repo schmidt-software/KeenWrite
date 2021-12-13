@@ -1,17 +1,12 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.processors.r;
 
-import com.keenwrite.preferences.Workspace;
 import com.keenwrite.processors.DefinitionProcessor;
 import com.keenwrite.processors.ProcessorContext;
-import com.keenwrite.sigils.RSigilOperator;
 import com.keenwrite.sigils.SigilOperator;
-import com.keenwrite.sigils.YamlSigilOperator;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import static com.keenwrite.preferences.WorkspaceKeys.*;
 
 /**
  * Converts the keys of the resolved map from default form to R form, then
@@ -25,7 +20,8 @@ public final class RVariableProcessor extends DefinitionProcessor {
   public RVariableProcessor(
     final InlineRProcessor irp, final ProcessorContext context ) {
     super( irp, context );
-    mSigilOperator = createSigilOperator( context.getWorkspace() );
+
+    mSigilOperator = context.getWorkspace().createRSigilOperator();
   }
 
   /**
@@ -89,18 +85,5 @@ public final class RVariableProcessor extends DefinitionProcessor {
     }
 
     return sb.append( haystack.substring( start ) ).toString();
-  }
-
-  private SigilOperator createSigilOperator( final Workspace workspace ) {
-    final var tokens = workspace.createSigils(
-      KEY_R_DELIM_BEGAN, KEY_R_DELIM_ENDED );
-    final var antecedent = createDefinitionOperator( workspace );
-    return new RSigilOperator( tokens, antecedent );
-  }
-
-  private SigilOperator createDefinitionOperator( final Workspace workspace ) {
-    final var sigils = workspace.createSigils(
-      KEY_DEF_DELIM_BEGAN, KEY_DEF_DELIM_ENDED );
-    return new YamlSigilOperator( sigils );
   }
 }
