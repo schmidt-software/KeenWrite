@@ -31,64 +31,6 @@ public final class Launcher implements Consumer<Arguments> {
    */
   private final String[] mArgs;
 
-  /**
-   * Delegates running the application via the command-line argument parser.
-   * This is the main entry point for the application, regardless of whether
-   * run from the command-line or as a GUI.
-   *
-   * @param args Command-line arguments.
-   */
-  public static void main( final String[] args ) {
-    installTrustManager();
-    parse( args );
-  }
-
-  /**
-   * @param args Command-line arguments (passed into the GUI).
-   */
-  public Launcher( final String[] args ) {
-    mArgs = args;
-  }
-
-  /**
-   * Called after the arguments have been parsed.
-   *
-   * @param args The parsed command-line arguments.
-   */
-  @Override
-  public void accept( final Arguments args ) {
-    assert args != null;
-
-    try {
-      int argCount = mArgs.length;
-
-      if( args.quiet() ) {
-        argCount--;
-      }
-      else {
-        showAppInfo();
-      }
-
-      if( args.debug() ) {
-        argCount--;
-      }
-      else {
-        disableLogging();
-      }
-
-      if( argCount <= 0 ) {
-        // When no command-line arguments are provided, launch the GUI.
-        MainApp.main( mArgs );
-      }
-      else {
-        // When command-line arguments are supplied, run in headless mode.
-        HeadlessApp.main( args );
-      }
-    } catch( final Throwable t ) {
-      log( t );
-    }
-  }
-
   private static void parse( final String[] args ) {
     assert args != null;
 
@@ -183,4 +125,63 @@ public final class Launcher implements Consumer<Arguments> {
   private static void out( final String message, final Object... args ) {
     System.out.printf( format( "%s%n", message ), args );
   }
+
+  /**
+   * Delegates running the application via the command-line argument parser.
+   * This is the main entry point for the application, regardless of whether
+   * run from the command-line or as a GUI.
+   *
+   * @param args Command-line arguments.
+   */
+  public static void main( final String[] args ) {
+    installTrustManager();
+    parse( args );
+  }
+
+  /**
+   * @param args Command-line arguments (passed into the GUI).
+   */
+  public Launcher( final String[] args ) {
+    mArgs = args;
+  }
+
+  /**
+   * Called after the arguments have been parsed.
+   *
+   * @param args The parsed command-line arguments.
+   */
+  @Override
+  public void accept( final Arguments args ) {
+    assert args != null;
+
+    try {
+      int argCount = mArgs.length;
+
+      if( args.quiet() ) {
+        argCount--;
+      }
+      else {
+        showAppInfo();
+      }
+
+      if( args.debug() ) {
+        argCount--;
+      }
+      else {
+        disableLogging();
+      }
+
+      if( argCount <= 0 ) {
+        // When no command-line arguments are provided, launch the GUI.
+        MainApp.main( mArgs );
+      }
+      else {
+        // When command-line arguments are supplied, run in headless mode.
+        HeadlessApp.main( args );
+      }
+    } catch( final Throwable t ) {
+      log( t );
+    }
+  }
+
 }

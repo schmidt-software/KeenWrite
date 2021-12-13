@@ -15,12 +15,6 @@ import static com.keenwrite.events.StatusEvent.clue;
 public final class DefinitionNameInjector {
 
   /**
-   * Prevent instantiation.
-   */
-  private DefinitionNameInjector() {
-  }
-
-  /**
    * Find a node that matches the current word and substitute the definition
    * reference.
    */
@@ -76,5 +70,11 @@ public final class DefinitionNameInjector {
     leaf = leaf == null ? definition.findLeafContainsNoCase( word ) : leaf;
 
     return leaf;
+  }
+
+  /**
+   * Prevent instantiation.
+   */
+  private DefinitionNameInjector() {
   }
 }

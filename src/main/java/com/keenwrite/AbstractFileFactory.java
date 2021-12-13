@@ -52,11 +52,12 @@ public abstract class AbstractFileFactory {
       final var patterns = sSettings.getStringSettingList( key );
       final var predicate = createFileTypePredicate( patterns );
 
-      if( found = predicate.test( path.toFile() ) ) {
+      if( predicate.test( path.toFile() ) ) {
         // Remove the EXTENSIONS_PREFIX to get the file name extension mapped
         // to a standard name (as defined in the settings.properties file).
         final String suffix = key.replace( prefix + '.', "" );
         fileType = FileType.from( suffix );
+        found = true;
       }
     }
 

@@ -133,7 +133,7 @@ public final class CyclicIterator<T> implements ListIterator<T> {
         : size == 0 ? 0 : i % size;
 
     // Ensure the invariant holds.
-    assert 0 <= result && result < size || size == 0 && result <= 0;
+    assert 0 <= result && result < size || size == 0;
 
     return result;
   }

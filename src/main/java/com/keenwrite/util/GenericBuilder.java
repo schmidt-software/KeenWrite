@@ -37,6 +37,19 @@ public class GenericBuilder<MT, IT> {
   private final List<Consumer<MT>> mModifiers = new ArrayList<>();
 
   /**
+   * Starting point for building an instance of a particular class.
+   *
+   * @param supplier Returns the instance to build.
+   * @param <MT>     The type of class to build.
+   * @return A new {@link GenericBuilder} capable of populating data for an
+   * instance of the class provided by the {@link Supplier}.
+   */
+  public static <MT, IT> GenericBuilder<MT, IT> of(
+    final Supplier<MT> supplier, final Function<MT, IT> immutable ) {
+    return new GenericBuilder<>( supplier, immutable );
+  }
+
+  /**
    * Constructs a new builder instance that is capable of populating values for
    * any type of object.
    *
@@ -49,19 +62,6 @@ public class GenericBuilder<MT, IT> {
 
     mMutable = mutator;
     mImmutable = immutable;
-  }
-
-  /**
-   * Starting point for building an instance of a particular class.
-   *
-   * @param supplier Returns the instance to build.
-   * @param <MT>     The type of class to build.
-   * @return A new {@link GenericBuilder} capable of populating data for an
-   * instance of the class provided by the {@link Supplier}.
-   */
-  public static <MT, IT> GenericBuilder<MT, IT> of(
-      final Supplier<MT> supplier, final Function<MT, IT> immutable ) {
-    return new GenericBuilder<>( supplier, immutable );
   }
 
   /**

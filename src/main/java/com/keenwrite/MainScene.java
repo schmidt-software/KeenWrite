@@ -33,6 +33,7 @@ import static javafx.scene.input.KeyEvent.KEY_RELEASED;
  * Responsible for creating the bar scene: menu bar, tool bar, and status bar.
  */
 public final class MainScene {
+
   private final Scene mScene;
   private final MenuBar mMenuBar;
   private final Node mToolBar;

@@ -2,8 +2,8 @@
 package com.keenwrite.typesetting;
 
 import com.keenwrite.io.SysFile;
-import com.keenwrite.preferences.Workspace;
 import com.keenwrite.util.BoundedCache;
+import com.keenwrite.util.GenericBuilder;
 
 import java.io.*;
 import java.nio.file.NoSuchFileException;
@@ -17,7 +17,6 @@ import java.util.regex.Pattern;
 
 import static com.keenwrite.constants.Constants.DEFAULT_DIRECTORY;
 import static com.keenwrite.events.StatusEvent.clue;
-import static com.keenwrite.preferences.WorkspaceKeys.*;
 import static java.lang.ProcessBuilder.Redirect.DISCARD;
 import static java.lang.String.format;
 import static java.lang.System.currentTimeMillis;
@@ -34,46 +33,65 @@ import static org.apache.commons.io.FilenameUtils.removeExtension;
 public class Typesetter {
   private static final SysFile TYPESETTER = new SysFile( "mtxrun" );
 
-  private final Workspace mWorkspace;
+  private final Mutator mMutator;
 
-  /**
-   * Creates a new {@link Typesetter} instance capable of configuring the
-   * typesetter used to generate a typeset document.
-   */
-  public Typesetter( final Workspace workspace ) {
-    mWorkspace = workspace;
+  public static GenericBuilder<Mutator, Typesetter> builder() {
+    return GenericBuilder.of( Mutator::new, Typesetter::new );
+  }
+
+  public static final class Mutator {
+    private Path mInputPath;
+    private Path mOutputPath;
+    private Path mThemePath;
+    private String mThemeName;
+    private boolean mAutoclean;
+
+    /**
+     * @param inputPath The input document to typeset.
+     */
+    public void setInputPath( final Path inputPath ) {
+      mInputPath = inputPath;
+    }
+
+    /**
+     * @param outputPath Path to the finished typeset document to create.
+     */
+    public void setOutputPath( final Path outputPath ) {
+      mOutputPath = outputPath;
+    }
+
+    /**
+     * @param themePath Fully qualified path to the theme directory.
+     */
+    public void setThemePath( final Path themePath ) {
+      mThemePath = themePath;
+    }
+
+    /**
+     * @param themePath Fully qualified path to the theme directory.
+     */
+    public void setThemePath( final File themePath ) {
+      setThemePath( themePath.toPath() );
+    }
+
+    /**
+     * @param themeName Name of theme to apply when generating the PDF file.
+     */
+    public void setThemeName( final String themeName ) {
+      mThemeName = themeName;
+    }
+
+    /**
+     * @param autoclean {@code true} to remove all temporary files after
+     *                  typesetter produces a PDF file.
+     */
+    public void setAutoclean( final boolean autoclean ) {
+      mAutoclean = autoclean;
+    }
   }
 
   public static boolean canRun() {
     return TYPESETTER.canRun();
-  }
-
-  /**
-   * This will typeset the document using a new process. The return value only
-   * indicates whether the typesetter exists, not whether the typesetting was
-   * successful.
-   *
-   * @param inputPath  The input document to typeset.
-   * @param outputPath Path to the finished typeset document.
-   * @throws IOException                 If the process could not be started.
-   * @throws InterruptedException        If the process was killed.
-   * @throws TypesetterNotFoundException When no typesetter is along the PATH.
-   */
-  public void typeset( final Path inputPath, final Path outputPath )
-    throws IOException, InterruptedException, TypesetterNotFoundException {
-    if( TYPESETTER.canRun() ) {
-      clue( "Main.status.typeset.began", outputPath );
-      final var task = new TypesetTask( inputPath, outputPath );
-      final var time = currentTimeMillis();
-      final var success = task.typeset();
-
-      clue( "Main.status.typeset.ended." + (success ? "success" : "failure"),
-            outputPath, since( time )
-      );
-    }
-    else {
-      throw new TypesetterNotFoundException( TYPESETTER.toString() );
-    }
   }
 
   /**
@@ -113,8 +131,6 @@ public class Typesetter {
    */
   private class TypesetTask implements Callable<Boolean> {
     private final List<String> mArgs = new ArrayList<>();
-    private final Path mInput;
-    private final Path mOutput;
 
     /**
      * Working directory must be set because ConTeXt cannot write the
@@ -122,13 +138,8 @@ public class Typesetter {
      */
     private final Path mDirectory;
 
-    private TypesetTask( final Path input, final Path output ) {
-      assert input != null;
-      assert output != null;
-
-      final var parentDir = output.getParent();
-      mInput = input;
-      mOutput = output;
+    private TypesetTask() {
+      final var parentDir = getOutputPath().getParent();
       mDirectory = parentDir == null ? DEFAULT_DIRECTORY : parentDir;
     }
 
@@ -139,9 +150,9 @@ public class Typesetter {
      * @return {@code true} if the cache directory exists.
      */
     private boolean reinitialize() {
-      final var filename = mOutput.getFileName();
-      final var themes = getThemesPath();
-      final var theme = getThemesSelection();
+      final var filename = getOutputPath().getFileName();
+      final var themes = getThemePath();
+      final var theme = getThemeName();
       final var cacheExists = !isEmpty( getCacheDir().toPath() );
 
       // Ensure invoking multiple times will load the correct arguments.
@@ -158,7 +169,7 @@ public class Typesetter {
         mArgs.add( "--path='" + Path.of( themes.toString(), theme ) + "'" );
         mArgs.add( "--environment='main'" );
         mArgs.add( "--result='" + filename + "'" );
-        mArgs.add( mInput.toString() );
+        mArgs.add( getInputPath().toString() );
 
         final var sb = new StringBuilder( 128 );
         mArgs.forEach( arg -> sb.append( arg ).append( " " ) );
@@ -216,8 +227,8 @@ public class Typesetter {
       // If there was an error, the typesetter will leave behind log, pdf, and
       // error files.
       if( exit > 0 ) {
-        final var xmlName = mInput.getFileName().toString();
-        final var srcName = mOutput.getFileName().toString();
+        final var xmlName = getInputPath().getFileName().toString();
+        final var srcName = getOutputPath().getFileName().toString();
         final var logName = newExtension( xmlName, ".log" );
         final var errName = newExtension( xmlName, "-error.log" );
         final var pdfName = newExtension( xmlName, ".pdf" );
@@ -247,7 +258,7 @@ public class Typesetter {
     }
 
     private Path newExtension( final String baseName, final String ext ) {
-      return mOutput.resolveSibling( removeExtension( baseName ) + ext );
+      return getOutputPath().resolveSibling( removeExtension( baseName ) + ext );
     }
 
     /**
@@ -382,12 +393,58 @@ public class Typesetter {
     }
   }
 
-  private File getThemesPath() {
-    return mWorkspace.toFile( KEY_TYPESET_CONTEXT_THEMES_PATH );
+  /**
+   * Creates a new {@link Typesetter} instance capable of configuring the
+   * typesetter used to generate a typeset document.
+   */
+  private Typesetter( final Mutator mutator ) {
+    assert mutator != null;
+
+    mMutator = mutator;
   }
 
-  private String getThemesSelection() {
-    return mWorkspace.toString( KEY_TYPESET_CONTEXT_THEME_SELECTION );
+  /**
+   * This will typeset the document using a new process. The return value only
+   * indicates whether the typesetter exists, not whether the typesetting was
+   * successful.
+   *
+   * @throws IOException                 If the process could not be started.
+   * @throws InterruptedException        If the process was killed.
+   * @throws TypesetterNotFoundException When no typesetter is along the PATH.
+   */
+  public void typeset()
+    throws IOException, InterruptedException, TypesetterNotFoundException {
+    if( TYPESETTER.canRun() ) {
+      final var outputPath = getOutputPath();
+
+      clue( "Main.status.typeset.began", outputPath );
+      final var task = new TypesetTask();
+      final var time = currentTimeMillis();
+      final var success = task.typeset();
+
+      clue( "Main.status.typeset.ended." + (success ? "success" : "failure"),
+            outputPath, since( time )
+      );
+    }
+    else {
+      throw new TypesetterNotFoundException( TYPESETTER.toString() );
+    }
+  }
+
+  private Path getInputPath() {
+    return mMutator.mInputPath;
+  }
+
+  private Path getOutputPath() {
+    return mMutator.mOutputPath;
+  }
+
+  private Path getThemePath() {
+    return mMutator.mThemePath;
+  }
+
+  private String getThemeName() {
+    return mMutator.mThemeName;
   }
 
   /**
@@ -397,6 +454,6 @@ public class Typesetter {
    * @return {@code true} to delete generated files.
    */
   public boolean autoclean() {
-    return mWorkspace.toBoolean( KEY_TYPESET_CONTEXT_CLEAN );
+    return mMutator.mAutoclean;
   }
 }

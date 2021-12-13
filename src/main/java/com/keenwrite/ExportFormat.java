@@ -51,10 +51,6 @@ public enum ExportFormat {
    */
   private final String mExtension;
 
-  ExportFormat( final String extension ) {
-    mExtension = extension;
-  }
-
   /**
    * Looks up the {@link ExportFormat} based on the given format type and
    * subtype combination.
@@ -82,6 +78,10 @@ public enum ExportFormat {
         "Unrecognized format type and subtype: '%s' and '%s'", type, subtype
       ) );
     };
+  }
+
+  ExportFormat( final String extension ) {
+    mExtension = extension;
   }
 
   /**

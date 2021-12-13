@@ -317,10 +317,9 @@ public final class Workspace {
   }
 
   public SigilOperator createRSigilOperator() {
-    final var antecedent = createYamlSigilOperator();
     return new RSigilOperator(
       createSigils( KEY_R_DELIM_BEGAN, KEY_R_DELIM_ENDED ),
-      antecedent
+      createYamlSigilOperator()
     );
   }
 

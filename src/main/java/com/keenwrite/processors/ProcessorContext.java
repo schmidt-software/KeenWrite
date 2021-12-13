@@ -25,18 +25,6 @@ public final class ProcessorContext {
 
   private final Mutator mMutator;
 
-  /**
-   * Creates a new context for use by the {@link ProcessorFactory} when
-   * instantiating new {@link Processor} instances. Although all the
-   * parameters are required, not all {@link Processor} instances will use
-   * all parameters.
-   */
-  private ProcessorContext( final Mutator mutator ) {
-    assert mutator != null;
-
-    mMutator = mutator;
-  }
-
   public static class Mutator {
     private HtmlPreview mHtmlPreview;
     private ObjectProperty<TextDefinition> mTextDefinition;
@@ -148,6 +136,18 @@ public final class ProcessorContext {
       .with( Mutator::setOutputPath, outputPath )
       .with( Mutator::setExportFormat, format )
       .build();
+  }
+
+  /**
+   * Creates a new context for use by the {@link ProcessorFactory} when
+   * instantiating new {@link Processor} instances. Although all the
+   * parameters are required, not all {@link Processor} instances will use
+   * all parameters.
+   */
+  private ProcessorContext( final Mutator mutator ) {
+    assert mutator != null;
+
+    mMutator = mutator;
   }
 
   public boolean isExportFormat( final ExportFormat format ) {

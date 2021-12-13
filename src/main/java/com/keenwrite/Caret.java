@@ -18,6 +18,8 @@ import static com.keenwrite.constants.Constants.STATUS_BAR_LINE;
  */
 public class Caret {
 
+  private final Mutator mMutator;
+
   public static GenericBuilder<Caret.Mutator, Caret> builder() {
     return GenericBuilder.of( Caret.Mutator::new, Caret::new );
   }
@@ -65,8 +67,6 @@ public class Caret {
       mTextLength = editor.lengthProperty();
     }
   }
-
-  private final Mutator mMutator;
 
   /**
    * Force using the builder pattern.

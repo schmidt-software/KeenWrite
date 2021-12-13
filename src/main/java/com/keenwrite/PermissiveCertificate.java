@@ -48,15 +48,9 @@ public final class PermissiveCertificate {
   }
 
   /**
-   * Use {@link #installTrustManager()}.
-   */
-  private PermissiveCertificate() {
-  }
-
-  /**
    * Install the all-trusting trust manager. If this fails it means that in
    * certain situations the HTML preview may fail to render diagrams. A way
-   * to work-around the issue is to install a local server for generating
+   * to work around the issue is to install a local server for generating
    * diagrams.
    */
   public static boolean installTrustManager() {
@@ -69,5 +63,11 @@ public final class PermissiveCertificate {
     } catch( final Exception ex ) {
       return false;
     }
+  }
+
+  /**
+   * Use {@link #installTrustManager()}.
+   */
+  private PermissiveCertificate() {
   }
 }

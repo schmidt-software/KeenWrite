@@ -87,12 +87,8 @@ import static org.fxmisc.wellbehaved.event.EventPattern.keyPressed;
  * text editors, and preview pane along with any corresponding controllers.
  */
 public final class MainPane extends SplitPane {
+
   private static final ExecutorService sExecutor = newFixedThreadPool( 1 );
-
-  private final ScheduledExecutorService mSaver = newScheduledThreadPool( 1 );
-  private final AtomicReference<ScheduledFuture<?>> mSaveTask =
-    new AtomicReference<>();
-
   private static final Notifier sNotifier = Services.load( Notifier.class );
 
   /**
@@ -102,6 +98,10 @@ public final class MainPane extends SplitPane {
   private static final Set<MediaType> PLAIN_TEXT_FORMAT = Set.of(
     TEXT_MARKDOWN, TEXT_R_MARKDOWN, UNDEFINED
   );
+
+  private final ScheduledExecutorService mSaver = newScheduledThreadPool( 1 );
+  private final AtomicReference<ScheduledFuture<?>> mSaveTask =
+    new AtomicReference<>();
 
   /**
    * Prevents re-instantiation of processing classes.

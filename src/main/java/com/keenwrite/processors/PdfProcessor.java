@@ -1,13 +1,14 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.processors;
 
-import com.keenwrite.typesetting.Typesetter;
-
 import java.io.IOException;
 
 import static com.keenwrite.Bootstrap.APP_TITLE_LOWERCASE;
 import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.io.MediaType.TEXT_XML;
+import static com.keenwrite.preferences.WorkspaceKeys.*;
+import static com.keenwrite.typesetting.Typesetter.Mutator;
+import static com.keenwrite.typesetting.Typesetter.builder;
 import static java.nio.file.Files.deleteIfExists;
 import static java.nio.file.Files.writeString;
 
@@ -34,12 +35,22 @@ public final class PdfProcessor extends ExecutorProcessor<String> {
   public String apply( final String xhtml ) {
     try {
       clue( "Main.status.typeset.create" );
+      final var workspace = mContext.getWorkspace();
       final var document = TEXT_XML.createTemporaryFile( APP_TITLE_LOWERCASE );
-      final var pathInput = writeString( document, xhtml );
-      final var pathOutput = mContext.getOutputPath();
-      final var typesetter = new Typesetter( mContext.getWorkspace() );
+      final var typesetter = builder()
+        .with( Mutator::setInputPath,
+               writeString( document, xhtml ) )
+        .with( Mutator::setOutputPath,
+               mContext.getOutputPath() )
+        .with( Mutator::setThemePath,
+               workspace.toFile( KEY_TYPESET_CONTEXT_THEMES_PATH ) )
+        .with( Mutator::setThemeName,
+               workspace.toString( KEY_TYPESET_CONTEXT_THEME_SELECTION ) )
+        .with( Mutator::setAutoclean,
+               workspace.toBoolean( KEY_TYPESET_CONTEXT_CLEAN ) )
+        .build();
 
-      typesetter.typeset( pathInput, pathOutput );
+      typesetter.typeset();
 
       // Smote the temporary file after typesetting the document.
       if( typesetter.autoclean() ) {

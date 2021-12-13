@@ -29,9 +29,6 @@ public final class Messages {
     MAP.interpolate( OPERATOR );
   }
 
-  private Messages() {
-  }
-
   /**
    * Returns the value for a key from the message bundle. If the value cannot
    * be found, this returns the key.
@@ -79,5 +76,8 @@ public final class Messages {
 
   private static SigilOperator createBundleSigilOperator() {
     return new SigilOperator( "${", "}" );
+  }
+
+  private Messages() {
   }
 }
