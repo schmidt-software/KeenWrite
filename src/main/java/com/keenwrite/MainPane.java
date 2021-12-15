@@ -15,12 +15,12 @@ import com.keenwrite.preview.HtmlPreview;
 import com.keenwrite.processors.Processor;
 import com.keenwrite.processors.ProcessorContext;
 import com.keenwrite.processors.ProcessorFactory;
-import com.keenwrite.processors.markdown.extensions.CaretExtension;
 import com.keenwrite.service.events.Notifier;
 import com.keenwrite.sigils.SigilOperator;
 import com.keenwrite.ui.explorer.FilePickerFactory;
 import com.keenwrite.ui.heuristics.DocumentStatistics;
 import com.keenwrite.ui.outline.DocumentOutline;
+import com.keenwrite.util.GenericBuilder;
 import com.panemu.tiwulfx.control.dock.DetachableTab;
 import com.panemu.tiwulfx.control.dock.DetachableTabPane;
 import javafx.application.Platform;
@@ -917,41 +917,41 @@ public final class MainPane extends SplitPane {
     return createProcessorContext( null, NONE );
   }
 
-  public ProcessorContext createProcessorContext(
-    final Path exportPath, final ExportFormat format ) {
-    final var textEditor = getTextEditor();
-    return createProcessorContext(
-      textEditor.getPath(), exportPath, format, textEditor.getCaret() );
-  }
-
-  private ProcessorContext createProcessorContext(
-    final Path inputPath, final Caret caret ) {
-    return createProcessorContext( inputPath, null, NONE, caret );
-  }
-
   /**
-   * @param inputPath  Used by {@link ProcessorFactory} to determine
-   *                   {@link Processor} type to create based on file type.
    * @param outputPath Used when exporting to a PDF file (binary).
    * @param format     Used when processors export to a new text format.
-   * @param caret      Used by {@link CaretExtension} to add ID attribute into
-   *                   preview document for scrollbar synchronization.
    * @return A new {@link ProcessorContext} to use when creating an instance of
    * {@link Processor}.
    */
-  private ProcessorContext createProcessorContext(
-    final Path inputPath,
-    final Path outputPath,
-    final ExportFormat format,
-    final Caret caret ) {
-    return builder()
+  public ProcessorContext createProcessorContext(
+    final Path outputPath, final ExportFormat format ) {
+    final var textEditor = getTextEditor();
+    final var inputPath = textEditor.getPath();
+
+    return createProcessorContextBuilder()
       .with( Mutator::setInputPath, inputPath )
       .with( Mutator::setOutputPath, outputPath )
       .with( Mutator::setExportFormat, format )
-      .with( Mutator::setHtmlPreview, mPreview )
+      .build();
+  }
+
+  private GenericBuilder<Mutator, ProcessorContext> createProcessorContextBuilder() {
+    return builder()
       .with( Mutator::setDefinitions, this::getDefinitions )
       .with( Mutator::setWorkspace, mWorkspace )
-      .with( Mutator::setCaret, caret )
+      .with( Mutator::setCaret, getTextEditor().getCaret() );
+  }
+
+  /**
+   * @param inputPath Used by {@link ProcessorFactory} to determine
+   *                  {@link Processor} type to create based on file type.
+   * @return A new {@link ProcessorContext} to use when creating an instance of
+   * {@link Processor}.
+   */
+  private ProcessorContext createProcessorContext( final Path inputPath ) {
+    return createProcessorContextBuilder()
+      .with( Mutator::setInputPath, inputPath )
+      .with( Mutator::setExportFormat, NONE )
       .build();
   }
 
@@ -974,10 +974,10 @@ public final class MainPane extends SplitPane {
   private TextResource createMarkdownEditor( final File inputFile ) {
     final var inputPath = inputFile.toPath();
     final var editor = new MarkdownEditor( inputFile, getWorkspace() );
-    final var caret = editor.getCaret();
-    final var context = createProcessorContext( inputPath, caret );
+    final var context = createProcessorContext( inputPath );
+    final var preview = getPreview();
 
-    mProcessors.computeIfAbsent( editor, p -> createProcessors( context ) );
+    mProcessors.computeIfAbsent( editor, p -> createProcessors( context, preview ) );
 
     editor.addDirtyListener( ( c, o, n ) -> {
       if( n ) {
@@ -1043,6 +1043,10 @@ public final class MainPane extends SplitPane {
 
     tooltip.setShowDelay( millis( 200 ) );
     return tooltip;
+  }
+
+  public HtmlPreview getPreview() {
+    return mPreview;
   }
 
   /**

@@ -6,7 +6,6 @@ import com.keenwrite.ExportFormat;
 import com.keenwrite.constants.Constants;
 import com.keenwrite.io.FileType;
 import com.keenwrite.preferences.Workspace;
-import com.keenwrite.preview.HtmlPreview;
 import com.keenwrite.util.GenericBuilder;
 
 import java.io.File;
@@ -29,17 +28,12 @@ public final class ProcessorContext {
    * context.
    */
   public static class Mutator {
-    private HtmlPreview mHtmlPreview;
     private Path mInputPath;
     private Path mOutputPath;
     private ExportFormat mExportFormat;
     private Callable<Map<String, String>> mDefinitions;
     private Caret mCaret;
     private Workspace mWorkspace;
-
-    public void setHtmlPreview( final HtmlPreview htmlPreview ) {
-      mHtmlPreview = htmlPreview;
-    }
 
     public void setInputPath( final Path inputPath ) {
       mInputPath = inputPath;
@@ -92,7 +86,6 @@ public final class ProcessorContext {
    * @param inputPath   Path to the document to process.
    * @param outputPath  Fully qualified filename to use when exporting.
    * @param format      Indicate configuration options for export format.
-   * @param preview     Where to display the final (HTML) output.
    * @param definitions Source for fully expanded interpolated strings.
    * @param workspace   Persistent user preferences settings.
    * @param caret       Location of the caret in the edited document,
@@ -103,7 +96,6 @@ public final class ProcessorContext {
     final Path inputPath,
     final Path outputPath,
     final ExportFormat format,
-    final HtmlPreview preview,
     final Callable<Map<String, String>> definitions,
     final Workspace workspace,
     final Caret caret ) {
@@ -112,7 +104,6 @@ public final class ProcessorContext {
       .with( Mutator::setInputPath, inputPath )
       .with( Mutator::setOutputPath, outputPath )
       .with( Mutator::setExportFormat, format )
-      .with( Mutator::setHtmlPreview, preview )
       .with( Mutator::setDefinitions, definitions )
       .with( Mutator::setWorkspace, workspace )
       .with( Mutator::setCaret, caret )
@@ -158,10 +149,6 @@ public final class ProcessorContext {
     assert mutator != null;
 
     mMutator = mutator;
-  }
-
-  HtmlPreview getPreview() {
-    return mMutator.mHtmlPreview;
   }
 
   /**

@@ -13,21 +13,29 @@ import static com.keenwrite.processors.IdentityProcessor.IDENTITY;
  */
 public final class ProcessorFactory extends AbstractFileFactory {
 
-  private final ProcessorContext mContext;
+  private ProcessorFactory() {
+  }
 
   /**
-   * Constructs a factory with the ability to create processors that can perform
-   * text and caret processing to generate a final preview.
+   * Creates a new {@link Processor} chain suitable for parsing and rendering
+   * the file opened at the given tab.
+   *
+   * @param context The tab containing a text editor, path, and caret position.
+   * @return A processor that can render the given tab's text.
+   */
+  public static Processor<String> createProcessors(
+    final ProcessorContext context, final HtmlPreview preview ) {
+    return ProcessorFactory.createProcessor( context, preview );
+  }
+
+  /**
+   * Constructs processors that chain various processing operations on a
+   * document to generate a transformed version of the source document.
    *
    * @param context Parameters needed to construct various processors.
    */
-  private ProcessorFactory( final ProcessorContext context ) {
-    mContext = context;
-  }
-
-  private Processor<String> createProcessor() {
-    final var context = getProcessorContext();
-
+  private static Processor<String> createProcessor(
+    final ProcessorContext context, final HtmlPreview preview ) {
     // If the content is not to be exported, then the successor processor
     // is one that parses Markdown into HTML and passes the string to the
     // HTML preview pane.
@@ -39,30 +47,18 @@ public final class ProcessorFactory extends AbstractFileFactory {
     // to SVG. Without conversion would require client-side rendering of
     // math (such as using the JavaScript-based KaTeX engine).
     final var successor = switch( context.getExportFormat() ) {
-      case NONE -> createHtmlPreviewProcessor( context );
+      case NONE -> createHtmlPreviewProcessor( preview );
       case XHTML_TEX -> createXhtmlProcessor( context );
       case APPLICATION_PDF -> createPdfProcessor( context );
       default -> createIdentityProcessor( context );
     };
 
     final var processor = switch( context.getFileType() ) {
-      case SOURCE, RMARKDOWN -> createMarkdownProcessor( successor );
+      case SOURCE, RMARKDOWN -> createMarkdownProcessor( successor, context );
       default -> createPreformattedProcessor( successor );
     };
 
     return new ExecutorProcessor<>( processor );
-  }
-
-  /**
-   * Creates a new {@link Processor} chain suitable for parsing and rendering
-   * the file opened at the given tab.
-   *
-   * @param context The tab containing a text editor, path, and caret position.
-   * @return A processor that can render the given tab's text.
-   */
-  public static Processor<String> createProcessors(
-    final ProcessorContext context ) {
-    return new ProcessorFactory( context ).createProcessor();
   }
 
   /**
@@ -72,7 +68,7 @@ public final class ProcessorFactory extends AbstractFileFactory {
    * @return An instance of {@link Processor} that performs no processing.
    */
   @SuppressWarnings( "unused" )
-  private Processor<String> createIdentityProcessor(
+  private static Processor<String> createIdentityProcessor(
     final ProcessorContext ignored ) {
     return IDENTITY;
   }
@@ -83,10 +79,9 @@ public final class ProcessorFactory extends AbstractFileFactory {
    *
    * @return An instance of {@link Processor} that forwards HTML for display.
    */
-  @SuppressWarnings( "unused" )
-  private Processor<String> createHtmlPreviewProcessor(
-    final ProcessorContext ignored ) {
-    return new HtmlPreviewProcessor( getPreviewPane() );
+  private static Processor<String> createHtmlPreviewProcessor(
+    final HtmlPreview preview ) {
+    return new HtmlPreviewProcessor( preview );
   }
 
   /**
@@ -96,15 +91,17 @@ public final class ProcessorFactory extends AbstractFileFactory {
    * @return A chain of {@link Processor}s for processing Markdown and
    * definitions.
    */
-  private Processor<String> createMarkdownProcessor(
-    final Processor<String> successor ) {
-    final var dp = createDefinitionProcessor( successor );
-    return MarkdownProcessor.create( dp, getProcessorContext() );
+  private static Processor<String> createMarkdownProcessor(
+    final Processor<String> successor,
+    final ProcessorContext context ) {
+    final var dp = createDefinitionProcessor( successor, context );
+    return MarkdownProcessor.create( dp, context );
   }
 
-  private Processor<String> createDefinitionProcessor(
-    final Processor<String> successor ) {
-    return new DefinitionProcessor( successor, getProcessorContext() );
+  private static Processor<String> createDefinitionProcessor(
+    final Processor<String> successor,
+    final ProcessorContext context ) {
+    return new DefinitionProcessor( successor, context );
   }
 
   /**
@@ -115,32 +112,24 @@ public final class ProcessorFactory extends AbstractFileFactory {
    *
    * @return An instance of {@link Processor} that completes an HTML document.
    */
-  private Processor<String> createXhtmlProcessor(
+  private static Processor<String> createXhtmlProcessor(
     final ProcessorContext context ) {
     return createXhtmlProcessor( IDENTITY, context );
   }
 
-  private Processor<String> createXhtmlProcessor(
+  private static Processor<String> createXhtmlProcessor(
     final Processor<String> successor, final ProcessorContext context ) {
     return new XhtmlProcessor( successor, context );
   }
 
-  private Processor<String> createPdfProcessor(
+  private static Processor<String> createPdfProcessor(
     final ProcessorContext context ) {
     final var pdfp = new PdfProcessor( context );
     return createXhtmlProcessor( pdfp, context );
   }
 
-  private Processor<String> createPreformattedProcessor(
+  private static Processor<String> createPreformattedProcessor(
     final Processor<String> successor ) {
     return new PreformattedProcessor( successor );
-  }
-
-  private ProcessorContext getProcessorContext() {
-    return mContext;
-  }
-
-  private HtmlPreview getPreviewPane() {
-    return getProcessorContext().getPreview();
   }
 }
