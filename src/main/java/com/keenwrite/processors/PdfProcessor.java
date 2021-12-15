@@ -1,6 +1,8 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.processors;
 
+import com.keenwrite.typesetting.Typesetter;
+
 import java.io.IOException;
 
 import static com.keenwrite.Bootstrap.APP_TITLE_LOWERCASE;
@@ -8,7 +10,6 @@ import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.io.MediaType.TEXT_XML;
 import static com.keenwrite.preferences.WorkspaceKeys.*;
 import static com.keenwrite.typesetting.Typesetter.Mutator;
-import static com.keenwrite.typesetting.Typesetter.builder;
 import static java.nio.file.Files.deleteIfExists;
 import static java.nio.file.Files.writeString;
 
@@ -37,7 +38,8 @@ public final class PdfProcessor extends ExecutorProcessor<String> {
       clue( "Main.status.typeset.create" );
       final var workspace = mContext.getWorkspace();
       final var document = TEXT_XML.createTemporaryFile( APP_TITLE_LOWERCASE );
-      final var typesetter = builder()
+      final var typesetter = Typesetter
+        .builder()
         .with( Mutator::setInputPath,
                writeString( document, xhtml ) )
         .with( Mutator::setOutputPath,

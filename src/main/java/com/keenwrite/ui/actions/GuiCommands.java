@@ -109,7 +109,7 @@ public final class GuiCommands {
     } );
 
     // When the active text editor changes, update the haystack.
-    mMainPane.activeTextEditorProperty().addListener(
+    mMainPane.textEditorProperty().addListener(
       ( c, o, n ) -> mSearchModel.search( getActiveTextEditor().getText() )
     );
   }
@@ -161,7 +161,7 @@ public final class GuiCommands {
    */
   private void file_export( final ExportFormat format, final boolean dir ) {
     final var main = getMainPane();
-    final var editor = main.getActiveTextEditor();
+    final var editor = main.getTextEditor();
     final var exported = getWorkspace().fileProperty( KEY_UI_RECENT_EXPORT );
     final var filename = format.toExportFilename( editor.getPath() );
     final var selection = pickFiles(
@@ -606,11 +606,11 @@ public final class GuiCommands {
   }
 
   private TextEditor getActiveTextEditor() {
-    return getMainPane().getActiveTextEditor();
+    return getMainPane().getTextEditor();
   }
 
   private TextDefinition getActiveTextDefinition() {
-    return getMainPane().getActiveTextDefinition();
+    return getMainPane().getTextDefinition();
   }
 
   private MainScene getMainScene() {

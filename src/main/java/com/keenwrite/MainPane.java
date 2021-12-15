@@ -131,7 +131,7 @@ public final class MainPane extends SplitPane {
    * refreshes to happen when external definitions are modified and need to
    * trigger the processing chain.
    */
-  private final ObjectProperty<TextEditor> mActiveTextEditor =
+  private final ObjectProperty<TextEditor> mTextEditor =
     createActiveTextEditor();
 
   /**
@@ -139,15 +139,15 @@ public final class MainPane extends SplitPane {
    * allows refreshes to happen when external definitions are modified and need
    * to trigger the processing chain.
    */
-  private final ObjectProperty<TextDefinition> mActiveDefinitionEditor;
+  private final ObjectProperty<TextDefinition> mDefinitionEditor;
 
   /**
    * Called when the definition data is changed.
    */
   private final EventHandler<TreeModificationEvent<Event>> mTreeHandler =
     event -> {
-      process( getActiveTextEditor() );
-      save( getActiveTextDefinition() );
+      process( getTextEditor() );
+      save( getTextDefinition() );
     };
 
   /**
@@ -168,8 +168,8 @@ public final class MainPane extends SplitPane {
     mWorkspace = workspace;
     mPreview = new HtmlPreview( workspace );
     mStatistics = new DocumentStatistics( workspace );
-    mActiveTextEditor.set( new MarkdownEditor( workspace ) );
-    mActiveDefinitionEditor = createActiveDefinitionEditor( mActiveTextEditor );
+    mTextEditor.set( new MarkdownEditor( workspace ) );
+    mDefinitionEditor = createActiveDefinitionEditor( mTextEditor );
 
     open( collect( getRecentFiles() ) );
     viewPreview();
@@ -199,12 +199,12 @@ public final class MainPane extends SplitPane {
 
   @Subscribe
   public void handle( final TextEditorFocusEvent event ) {
-    mActiveTextEditor.set( event.get() );
+    mTextEditor.set( event.get() );
   }
 
   @Subscribe
   public void handle( final TextDefinitionFocusEvent event ) {
-    mActiveDefinitionEditor.set( event.get() );
+    mDefinitionEditor.set( event.get() );
   }
 
   /**
@@ -221,7 +221,7 @@ public final class MainPane extends SplitPane {
       eventFile = new File( eventUri.getPath() );
     }
     else {
-      final var activeFile = getActiveTextEditor().getFile();
+      final var activeFile = getTextEditor().getFile();
       final var parent = activeFile.getParentFile();
 
       if( parent == null ) {
@@ -240,7 +240,7 @@ public final class MainPane extends SplitPane {
   @Subscribe
   public void handle( final CaretNavigationEvent event ) {
     runLater( () -> {
-      final var textArea = getActiveTextEditor().getTextArea();
+      final var textArea = getTextEditor().getTextArea();
       textArea.moveTo( event.getOffset() );
       textArea.requestFollowCaret();
       textArea.requestFocus();
@@ -312,7 +312,7 @@ public final class MainPane extends SplitPane {
     mSaveTask.set(
       mSaver.scheduleAtFixedRate(
         () -> {
-          if( getActiveTextEditor().isModified() ) {
+          if( getTextEditor().isModified() ) {
             // Ensure the modified indicator is cleared by running on EDT.
             runLater( this::save );
           }
@@ -411,7 +411,7 @@ public final class MainPane extends SplitPane {
    * the user: save always re-saves. Also, it's less code.
    */
   public void save() {
-    save( getActiveTextEditor() );
+    save( getTextEditor() );
   }
 
   /**
@@ -423,7 +423,7 @@ public final class MainPane extends SplitPane {
   public void saveAs( final List<File> files ) {
     assert files != null;
     assert !files.isEmpty();
-    final var editor = getActiveTextEditor();
+    final var editor = getTextEditor();
     final var tab = getTab( editor );
     final var file = files.get( 0 );
 
@@ -510,7 +510,7 @@ public final class MainPane extends SplitPane {
    * Closes the active tab; delegates to {@link #canClose(TextResource)}.
    */
   public void close() {
-    final var editor = getActiveTextEditor();
+    final var editor = getTextEditor();
 
     if( canClose( editor ) ) {
       close( editor );
@@ -919,7 +919,7 @@ public final class MainPane extends SplitPane {
 
   public ProcessorContext createProcessorContext(
     final Path exportPath, final ExportFormat format ) {
-    final var textEditor = getActiveTextEditor();
+    final var textEditor = getTextEditor();
     return createProcessorContext(
       textEditor.getPath(), exportPath, format, textEditor.getCaret() );
   }
@@ -949,7 +949,7 @@ public final class MainPane extends SplitPane {
       .with( Mutator::setOutputPath, outputPath )
       .with( Mutator::setExportFormat, format )
       .with( Mutator::setHtmlPreview, mPreview )
-      .with( Mutator::setTextDefinition, mActiveDefinitionEditor )
+      .with( Mutator::setDefinitions, this::getDefinitions )
       .with( Mutator::setWorkspace, mWorkspace )
       .with( Mutator::setCaret, caret )
       .build();
@@ -985,7 +985,7 @@ public final class MainPane extends SplitPane {
         clue();
 
         // Processing the text may update the status bar.
-        process( getActiveTextEditor() );
+        process( getTextEditor() );
       }
     } );
 
@@ -994,7 +994,7 @@ public final class MainPane extends SplitPane {
     );
 
     // Set the active editor, which refreshes the preview panel.
-    mActiveTextEditor.set( editor );
+    mTextEditor.set( editor );
 
     return editor;
   }
@@ -1014,8 +1014,8 @@ public final class MainPane extends SplitPane {
    * the type of file being edited.
    */
   public void autoinsert() {
-    final var definitions = getActiveTextDefinition();
-    final var editor = getActiveTextEditor();
+    final var definitions = getTextDefinition();
+    final var editor = getTextEditor();
     final var mediaType = editor.getMediaType();
     final var operator = createSigilOperator( mediaType );
 
@@ -1045,16 +1045,40 @@ public final class MainPane extends SplitPane {
     return tooltip;
   }
 
-  public TextEditor getActiveTextEditor() {
-    return mActiveTextEditor.get();
+  /**
+   * Returns the active text editor.
+   *
+   * @return The text editor that currently has focus.
+   */
+  public TextEditor getTextEditor() {
+    return mTextEditor.get();
   }
 
-  public ReadOnlyObjectProperty<TextEditor> activeTextEditorProperty() {
-    return mActiveTextEditor;
+  /**
+   * Returns the active text editor property.
+   *
+   * @return The property container for the active text editor.
+   */
+  public ReadOnlyObjectProperty<TextEditor> textEditorProperty() {
+    return mTextEditor;
   }
 
-  public TextDefinition getActiveTextDefinition() {
-    return mActiveDefinitionEditor.get();
+  /**
+   * Returns the active text definition editor.
+   *
+   * @return The property container for the active definition editor.
+   */
+  public TextDefinition getTextDefinition() {
+    return mDefinitionEditor.get();
+  }
+
+  /**
+   * Returns the interpolated variable definitions.
+   *
+   * @return The key-value pairs, fully interpolated.
+   */
+  private Map<String, String> getDefinitions() {
+    return getTextDefinition().getDefinitions();
   }
 
   public Window getWindow() {

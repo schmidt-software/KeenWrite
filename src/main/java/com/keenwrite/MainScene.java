@@ -179,7 +179,7 @@ public final class MainScene {
    * {@link StatusBar} whenever the caret changes position.
    */
   private CaretListener createCaretListener( final MainPane mainPane ) {
-    return new CaretListener( mainPane.activeTextEditorProperty() );
+    return new CaretListener( mainPane.textEditorProperty() );
   }
 
   /**

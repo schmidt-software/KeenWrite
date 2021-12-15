@@ -4,16 +4,15 @@ package com.keenwrite.processors;
 import com.keenwrite.Caret;
 import com.keenwrite.ExportFormat;
 import com.keenwrite.constants.Constants;
-import com.keenwrite.editors.TextDefinition;
 import com.keenwrite.io.FileType;
 import com.keenwrite.preferences.Workspace;
 import com.keenwrite.preview.HtmlPreview;
 import com.keenwrite.util.GenericBuilder;
-import javafx.beans.property.ObjectProperty;
 
 import java.io.File;
 import java.nio.file.Path;
 import java.util.Map;
+import java.util.concurrent.Callable;
 
 import static com.keenwrite.AbstractFileFactory.lookup;
 import static com.keenwrite.constants.Constants.DEFAULT_DIRECTORY;
@@ -25,22 +24,21 @@ public final class ProcessorContext {
 
   private final Mutator mMutator;
 
+  /**
+   * Responsible for populating the instance variables required by the
+   * context.
+   */
   public static class Mutator {
     private HtmlPreview mHtmlPreview;
-    private ObjectProperty<TextDefinition> mTextDefinition;
     private Path mInputPath;
     private Path mOutputPath;
-    private Caret mCaret;
     private ExportFormat mExportFormat;
+    private Callable<Map<String, String>> mDefinitions;
+    private Caret mCaret;
     private Workspace mWorkspace;
 
     public void setHtmlPreview( final HtmlPreview htmlPreview ) {
       mHtmlPreview = htmlPreview;
-    }
-
-    public void setTextDefinition(
-      final ObjectProperty<TextDefinition> textDefinition ) {
-      mTextDefinition = textDefinition;
     }
 
     public void setInputPath( final Path inputPath ) {
@@ -59,6 +57,20 @@ public final class ProcessorContext {
       setOutputPath( outputPath.toPath() );
     }
 
+    /**
+     * Sets the list of fully interpolated key-value pairs to use when
+     * substituting variable names back into the document as variable values.
+     * This uses a {@link Callable} reference so that GUI and command-line
+     * usage can insert their respective behaviours. That is, this method
+     * prevents coupling the GUI to the CLI.
+     *
+     * @param definitions Defines how to retrieve the definitions.
+     */
+    public void setDefinitions(
+      final Callable<Map<String, String>> definitions ) {
+      mDefinitions = definitions;
+    }
+
     public void setCaret( final Caret caret ) {
       mCaret = caret;
     }
@@ -73,21 +85,18 @@ public final class ProcessorContext {
   }
 
   public static GenericBuilder<Mutator, ProcessorContext> builder() {
-    return GenericBuilder.of(
-      Mutator::new,
-      ProcessorContext::new
-    );
+    return GenericBuilder.of( Mutator::new, ProcessorContext::new );
   }
 
   /**
-   * @param inputPath      Path to the document to process.
-   * @param outputPath     Fully qualified filename to use when exporting.
-   * @param format         Indicate configuration options for export format.
-   * @param preview        Where to display the final (HTML) output.
-   * @param textDefinition Source for fully expanded interpolated strings.
-   * @param workspace      Persistent user preferences settings.
-   * @param caret          Location of the caret in the edited document,
-   *                       which is used to synchronize the scrollbars.
+   * @param inputPath   Path to the document to process.
+   * @param outputPath  Fully qualified filename to use when exporting.
+   * @param format      Indicate configuration options for export format.
+   * @param preview     Where to display the final (HTML) output.
+   * @param definitions Source for fully expanded interpolated strings.
+   * @param workspace   Persistent user preferences settings.
+   * @param caret       Location of the caret in the edited document,
+   *                    which is used to synchronize the scrollbars.
    * @return A context that may be used for processing documents.
    */
   public static ProcessorContext create(
@@ -95,15 +104,16 @@ public final class ProcessorContext {
     final Path outputPath,
     final ExportFormat format,
     final HtmlPreview preview,
-    final ObjectProperty<TextDefinition> textDefinition,
+    final Callable<Map<String, String>> definitions,
     final Workspace workspace,
     final Caret caret ) {
-    return builder()
+    return ProcessorContext
+      .builder()
       .with( Mutator::setInputPath, inputPath )
       .with( Mutator::setOutputPath, outputPath )
       .with( Mutator::setExportFormat, format )
       .with( Mutator::setHtmlPreview, preview )
-      .with( Mutator::setTextDefinition, textDefinition )
+      .with( Mutator::setDefinitions, definitions )
       .with( Mutator::setWorkspace, workspace )
       .with( Mutator::setCaret, caret )
       .build();
@@ -164,7 +174,13 @@ public final class ProcessorContext {
    * @return A map to help dereference variables.
    */
   Map<String, String> getResolvedMap() {
-    return mMutator.mTextDefinition.get().getDefinitions();
+    try {
+      return mMutator.mDefinitions.call();
+    } catch( final Exception ex ) {
+      // If this happens, it is a programming error because the definitions
+      // list must always return a valid map of variable names to values.
+      throw new RuntimeException( ex );
+    }
   }
 
   /**

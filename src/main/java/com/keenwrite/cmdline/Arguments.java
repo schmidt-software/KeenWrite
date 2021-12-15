@@ -131,6 +131,7 @@ public final class Arguments implements Callable<Integer> {
 
   public ProcessorContext createProcessorContext() {
     final var format = ExportFormat.valueFrom( mFormatType, mFormatSubtype );
+
     return ProcessorContext
       .builder()
       .with( Mutator::setInputPath, mFileInput )
