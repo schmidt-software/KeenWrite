@@ -5,7 +5,6 @@ import com.keenwrite.AbstractFileFactory;
 import com.keenwrite.preview.HtmlPreview;
 import com.keenwrite.processors.markdown.MarkdownProcessor;
 
-import static com.keenwrite.ExportFormat.*;
 import static com.keenwrite.processors.IdentityProcessor.IDENTITY;
 
 /**
@@ -39,13 +38,12 @@ public final class ProcessorFactory extends AbstractFileFactory {
     // with embedded SVG representing formulas, or without any conversion
     // to SVG. Without conversion would require client-side rendering of
     // math (such as using the JavaScript-based KaTeX engine).
-    final var successor = context.isExportFormat( NONE )
-      ? createHtmlPreviewProcessor( context )
-      : context.isExportFormat( XHTML_TEX )
-      ? createXhtmlProcessor( context )
-      : context.isExportFormat( APPLICATION_PDF )
-      ? createPdfProcessor( context )
-      : createIdentityProcessor( context );
+    final var successor = switch( context.getExportFormat() ) {
+      case NONE -> createHtmlPreviewProcessor( context );
+      case XHTML_TEX -> createXhtmlProcessor( context );
+      case APPLICATION_PDF -> createPdfProcessor( context );
+      default -> createIdentityProcessor( context );
+    };
 
     final var processor = switch( context.getFileType() ) {
       case SOURCE, RMARKDOWN -> createMarkdownProcessor( successor );

@@ -160,10 +160,6 @@ public final class ProcessorContext {
     mMutator = mutator;
   }
 
-  public boolean isExportFormat( final ExportFormat format ) {
-    return mMutator.mExportFormat == format;
-  }
-
   HtmlPreview getPreview() {
     return mMutator.mHtmlPreview;
   }
