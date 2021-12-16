@@ -4,13 +4,11 @@ package com.keenwrite.processors.markdown;
 import com.keenwrite.AwaitFxExtension;
 import com.keenwrite.Caret;
 import com.keenwrite.preferences.Workspace;
-import com.keenwrite.preview.HtmlPreview;
 import com.keenwrite.processors.Processor;
 import com.keenwrite.processors.ProcessorContext;
 import com.keenwrite.processors.markdown.extensions.ImageLinkExtension;
 import com.vladsch.flexmark.html.HtmlRenderer;
 import com.vladsch.flexmark.parser.Parser;
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.stage.Stage;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,7 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.keenwrite.ExportFormat.NONE;
+import static com.keenwrite.ExportFormat.XHTML_TEX;
 import static com.keenwrite.constants.Constants.DOCUMENT_DEFAULT;
 import static java.lang.String.format;
 import static javafx.application.Platform.runLater;
@@ -76,12 +74,9 @@ public class ImageLinkExtensionTest {
     addUri( "https://" + URI_WEB );
   }
 
-  private HtmlPreview mPreview;
-
   @Start
   @SuppressWarnings( "unused" )
   private void start( final Stage stage ) {
-    mPreview = new HtmlPreview( sWorkspace );
   }
 
   private static void addUri( final String actualExpected ) {
@@ -143,19 +138,17 @@ public class ImageLinkExtensionTest {
   /**
    * Creates a new {@link ProcessorContext} for the given file name path.
    *
-   * @param documentPath Fully qualified path to the file name.
+   * @param inputPath Fully qualified path to the file name.
    * @return A context used for creating new {@link Processor} instances.
    */
-  private ProcessorContext createProcessorContext( final Path documentPath ) {
-    return new ProcessorContext(
-      mPreview,
-      new SimpleObjectProperty<>(),
-      documentPath,
-      null,
-      NONE,
-      sWorkspace,
-      Caret.builder().build()
-    );
+  private ProcessorContext createProcessorContext( final Path inputPath ) {
+    return ProcessorContext
+      .builder()
+      .with( ProcessorContext.Mutator::setInputPath, inputPath )
+      .with( ProcessorContext.Mutator::setExportFormat, XHTML_TEX )
+      .with( ProcessorContext.Mutator::setWorkspace, sWorkspace )
+      .with( ProcessorContext.Mutator::setCaret, () -> Caret.builder().build() )
+      .build();
   }
 
   private static URL toUrl( final String path ) {

@@ -65,6 +65,8 @@ public final class MarkdownEditor extends BorderPane implements TextEditor {
   private static final Pattern PATTERN_AUTO_INDENT = Pattern.compile(
     "(\\s*[*+-]\\s+|\\s*[0-9]+\\.\\s+|\\s+)(.*)" );
 
+  private final Workspace mWorkspace;
+
   /**
    * The text editor.
    */
@@ -78,17 +80,15 @@ public final class MarkdownEditor extends BorderPane implements TextEditor {
     new VirtualizedScrollPane<>( mTextArea );
 
   /**
-   *
-   */
-  private final TextEditorSpeller mSpeller = new TextEditorSpeller();
-
-  private final Workspace mWorkspace;
-
-  /**
    * Tracks where the caret is located in this document. This offers observable
    * properties for caret position changes.
    */
   private final Caret mCaret = createCaret( mTextArea );
+
+  /**
+   * For spell checking the document upon load and whenever it changes.
+   */
+  private final TextEditorSpeller mSpeller = new TextEditorSpeller();
 
   /**
    * File being edited by this editor instance.
@@ -138,7 +138,7 @@ public final class MarkdownEditor extends BorderPane implements TextEditor {
       // Fire, regardless of whether the caret position has changed.
       mDirty.set( false );
 
-      // Prevent a caret position change from raising the dirty bits.
+      // Prevent the subsequent caret position change from raising dirty bits.
       mDirty.set( true );
     } );
 

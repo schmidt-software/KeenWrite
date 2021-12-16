@@ -14,15 +14,15 @@ public final class HtmlPreviewProcessor extends ExecutorProcessor<String> {
   /**
    * There is only one preview panel.
    */
-  private static HtmlPreview sHtmlPreviewPane;
+  private static HtmlPreview sHtmlPreview;
 
   /**
    * Constructs the end of a processing chain.
    *
-   * @param htmlPreviewPane The pane to update with the post-processed document.
+   * @param htmlPreview The pane to update with the post-processed document.
    */
-  public HtmlPreviewProcessor( final HtmlPreview htmlPreviewPane ) {
-    sHtmlPreviewPane = htmlPreviewPane;
+  public HtmlPreviewProcessor( final HtmlPreview htmlPreview ) {
+    sHtmlPreview = htmlPreview;
   }
 
   /**
@@ -36,7 +36,7 @@ public final class HtmlPreviewProcessor extends ExecutorProcessor<String> {
   public String apply( final String html ) {
     assert html != null;
 
-    sHtmlPreviewPane.render( html );
+    sHtmlPreview.render( html );
     return html;
   }
 }

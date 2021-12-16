@@ -90,7 +90,7 @@ public final class HtmlPreview extends SwingNode implements ComponentListener {
   private String mBaseUriPath = "";
   private String mHead;
 
-  private volatile boolean mLocked;
+  private volatile boolean mScrollLocked;
   private final JButton mScrollLockButton = new JButton();
   private final Workspace mWorkspace;
 
@@ -117,9 +117,9 @@ public final class HtmlPreview extends SwingNode implements ComponentListener {
       addKeyboardEvents( map );
 
       mScrollLockButton.setFont( getIconFont( 14 ) );
-      mScrollLockButton.setText( getLockText( mLocked ) );
+      mScrollLockButton.setText( getLockText( mScrollLocked ) );
       mScrollLockButton.setMargin( new Insets( 1, 0, 0, 0 ) );
-      mScrollLockButton.addActionListener( e -> fireScrollLockEvent( !mLocked ) );
+      mScrollLockButton.addActionListener( e -> fireScrollLockEvent( !mScrollLocked ) );
 
       verticalPanel.add( verticalBar, CENTER );
       verticalPanel.add( mScrollLockButton, PAGE_END );
@@ -144,8 +144,8 @@ public final class HtmlPreview extends SwingNode implements ComponentListener {
 
   @Subscribe
   public void handle( final ScrollLockEvent event ) {
-    mLocked = event.isLocked();
-    invokeLater( () -> mScrollLockButton.setText( getLockText( mLocked ) ) );
+    mScrollLocked = event.isLocked();
+    invokeLater( () -> mScrollLockButton.setText( getLockText( mScrollLocked ) ) );
   }
 
   /**
@@ -243,11 +243,9 @@ public final class HtmlPreview extends SwingNode implements ComponentListener {
    * @param id Scroll the preview pane to this unique paragraph identifier.
    */
   public void scrollTo( final String id ) {
-    if( !mLocked ) {
-      invokeLater( () -> {
-        mPreview.scrollTo( id, mScrollPane );
-        mScrollPane.repaint();
-      } );
+    if( !mScrollLocked ) {
+      mPreview.scrollTo( id, mScrollPane );
+      mScrollPane.repaint();
     }
   }
 

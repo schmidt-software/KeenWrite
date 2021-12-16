@@ -2,7 +2,6 @@
 package com.keenwrite.processors;
 
 import com.keenwrite.AbstractFileFactory;
-import com.keenwrite.preview.HtmlPreview;
 import com.keenwrite.processors.markdown.MarkdownProcessor;
 
 import static com.keenwrite.processors.IdentityProcessor.IDENTITY;
@@ -16,6 +15,11 @@ public final class ProcessorFactory extends AbstractFileFactory {
   private ProcessorFactory() {
   }
 
+  public static Processor<String> createProcessors(
+    final ProcessorContext context ) {
+    return createProcessors( context, null );
+  }
+
   /**
    * Creates a new {@link Processor} chain suitable for parsing and rendering
    * the file opened at the given tab.
@@ -24,7 +28,7 @@ public final class ProcessorFactory extends AbstractFileFactory {
    * @return A processor that can render the given tab's text.
    */
   public static Processor<String> createProcessors(
-    final ProcessorContext context, final HtmlPreview preview ) {
+    final ProcessorContext context, final Processor<String> preview ) {
     return ProcessorFactory.createProcessor( context, preview );
   }
 
@@ -33,9 +37,10 @@ public final class ProcessorFactory extends AbstractFileFactory {
    * document to generate a transformed version of the source document.
    *
    * @param context Parameters needed to construct various processors.
+   * @param preview The processor to use when no export format is specified.
    */
   private static Processor<String> createProcessor(
-    final ProcessorContext context, final HtmlPreview preview ) {
+    final ProcessorContext context, final Processor<String> preview ) {
     // If the content is not to be exported, then the successor processor
     // is one that parses Markdown into HTML and passes the string to the
     // HTML preview pane.
@@ -47,7 +52,7 @@ public final class ProcessorFactory extends AbstractFileFactory {
     // to SVG. Without conversion would require client-side rendering of
     // math (such as using the JavaScript-based KaTeX engine).
     final var successor = switch( context.getExportFormat() ) {
-      case NONE -> createHtmlPreviewProcessor( preview );
+      case NONE -> preview;
       case XHTML_TEX -> createXhtmlProcessor( context );
       case APPLICATION_PDF -> createPdfProcessor( context );
       default -> createIdentityProcessor( context );
@@ -72,18 +77,6 @@ public final class ProcessorFactory extends AbstractFileFactory {
     final ProcessorContext ignored ) {
     return IDENTITY;
   }
-
-  /**
-   * Instantiates a new {@link Processor} that passes an incoming HTML
-   * string to a user interface widget that can render HTML as a web page.
-   *
-   * @return An instance of {@link Processor} that forwards HTML for display.
-   */
-  private static Processor<String> createHtmlPreviewProcessor(
-    final HtmlPreview preview ) {
-    return new HtmlPreviewProcessor( preview );
-  }
-
   /**
    * Instantiates a {@link Processor} responsible for parsing Markdown and
    * definitions.

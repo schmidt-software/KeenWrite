@@ -12,6 +12,7 @@ import com.keenwrite.events.*;
 import com.keenwrite.io.MediaType;
 import com.keenwrite.preferences.Workspace;
 import com.keenwrite.preview.HtmlPreview;
+import com.keenwrite.processors.HtmlPreviewProcessor;
 import com.keenwrite.processors.Processor;
 import com.keenwrite.processors.ProcessorContext;
 import com.keenwrite.processors.ProcessorFactory;
@@ -913,6 +914,13 @@ public final class MainPane extends SplitPane {
     addTabPane( getItems().size(), tabPane );
   }
 
+  private GenericBuilder<Mutator, ProcessorContext> createProcessorContextBuilder() {
+    return builder()
+      .with( Mutator::setDefinitions, this::getDefinitions )
+      .with( Mutator::setWorkspace, mWorkspace )
+      .with( Mutator::setCaret, () -> getTextEditor().getCaret() );
+  }
+
   public ProcessorContext createProcessorContext() {
     return createProcessorContext( null, NONE );
   }
@@ -933,13 +941,6 @@ public final class MainPane extends SplitPane {
       .with( Mutator::setOutputPath, outputPath )
       .with( Mutator::setExportFormat, format )
       .build();
-  }
-
-  private GenericBuilder<Mutator, ProcessorContext> createProcessorContextBuilder() {
-    return builder()
-      .with( Mutator::setDefinitions, this::getDefinitions )
-      .with( Mutator::setWorkspace, mWorkspace )
-      .with( Mutator::setCaret, getTextEditor().getCaret() );
   }
 
   /**
@@ -972,16 +973,18 @@ public final class MainPane extends SplitPane {
    * @return A non-null text editor.
    */
   private TextResource createMarkdownEditor( final File inputFile ) {
-    final var inputPath = inputFile.toPath();
     final var editor = new MarkdownEditor( inputFile, getWorkspace() );
-    final var context = createProcessorContext( inputPath );
-    final var preview = getPreview();
 
-    mProcessors.computeIfAbsent( editor, p -> createProcessors( context, preview ) );
+    mProcessors.computeIfAbsent(
+      editor, p -> createProcessors(
+        createProcessorContext( inputFile.toPath() ),
+        createHtmlPreviewProcessor()
+      )
+    );
 
     editor.addDirtyListener( ( c, o, n ) -> {
       if( n ) {
-        // Reset the status to OK after changing the text.
+        // Reset the status bar after changing the text.
         clue();
 
         // Processing the text may update the status bar.
@@ -997,6 +1000,16 @@ public final class MainPane extends SplitPane {
     mTextEditor.set( editor );
 
     return editor;
+  }
+
+  /**
+   * Creates a {@link Processor} capable of rendering an HTML document onto
+   * a GUI widget.
+   *
+   * @return The {@link Processor} for rendering an HTML document.
+   */
+  private Processor<String> createHtmlPreviewProcessor() {
+    return new HtmlPreviewProcessor( getPreview() );
   }
 
   /**

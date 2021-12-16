@@ -177,12 +177,11 @@ public final class GuiCommands {
       final var path = file.toPath();
       final var document = dir ? append( editor ) : editor.getText();
       final var context = main.createProcessorContext( path, format );
-      final var preview = getMainPane().getPreview();
 
       final var task = new Task<Path>() {
         @Override
         protected Path call() throws Exception {
-          final var chain = createProcessors( context, preview );
+          final var chain = createProcessors( context );
           final var export = chain.apply( document );
 
           // Processors can export binary files. In such cases, processors

@@ -52,7 +52,7 @@ public class AppCommands {
    * @param format    The destination file format.
    * @param concat    Export all files in the actively edited file's directory.
    * @param future    Indicates whether the export succeeded or failed.
-   *
+   */
   private void file_export(
     final Path inputPath,
     final ExportFormat format,

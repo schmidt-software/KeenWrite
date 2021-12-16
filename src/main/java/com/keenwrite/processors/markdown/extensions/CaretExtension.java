@@ -15,6 +15,8 @@ import com.vladsch.flexmark.util.html.AttributeImpl;
 import com.vladsch.flexmark.util.html.MutableAttributes;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.function.Supplier;
+
 import static com.keenwrite.constants.Constants.CARET_ID;
 import static com.keenwrite.processors.markdown.extensions.EmptyNode.EMPTY_NODE;
 import static com.vladsch.flexmark.html.HtmlRenderer.Builder;
@@ -25,7 +27,7 @@ import static com.vladsch.flexmark.html.HtmlRenderer.Builder;
  */
 public class CaretExtension extends HtmlRendererAdapter {
 
-  private final Caret mCaret;
+  private final Supplier<Caret> mCaret;
 
   private CaretExtension( final ProcessorContext context ) {
     mCaret = context.getCaret();
@@ -47,14 +49,15 @@ public class CaretExtension extends HtmlRendererAdapter {
    * once: for the HTML element containing the {@link Constants#CARET_ID}.
    */
   public static class IdAttributeProvider implements AttributeProvider {
-    private final Caret mCaret;
+    private final Supplier<Caret> mCaret;
     private boolean mAdded;
 
-    public IdAttributeProvider( final Caret caret ) {
+    public IdAttributeProvider( final Supplier<Caret> caret ) {
       mCaret = caret;
     }
 
-    private static AttributeProviderFactory createFactory( final Caret caret ) {
+    private static AttributeProviderFactory createFactory(
+      final Supplier<Caret> caret ) {
       return new IndependentAttributeProviderFactory() {
         @Override
         public @NotNull AttributeProvider apply(
@@ -72,6 +75,8 @@ public class CaretExtension extends HtmlRendererAdapter {
       if( mAdded ) {
         return;
       }
+
+      final var caret = mCaret.get();
 
       // If a table block has been earmarked with an empty node, it means
       // another extension has generated code from an external source. The
@@ -91,7 +96,7 @@ public class CaretExtension extends HtmlRendererAdapter {
         return;
       }
 
-      final var outside = mCaret.isAfterText() ? 1 : 0;
+      final var outside = caret.isAfterText() ? 1 : 0;
       final var began = curr.getStartOffset();
       final var ended = curr.getEndOffset() + outside;
       final var prev = curr.getPrevious();
@@ -100,8 +105,8 @@ public class CaretExtension extends HtmlRendererAdapter {
       // caret is within the bounds of the end of the previous node and
       // the start of the current node, then mark the current node with
       // a caret indicator.
-      if( mCaret.isBetweenText( began, ended ) ||
-        prev != null && mCaret.isBetweenText( prev.getEndOffset(), began ) ) {
+      if( caret.isBetweenText( began, ended ) ||
+        prev != null && caret.isBetweenText( prev.getEndOffset(), began ) ) {
         // This line empowers synchronizing the text editor with the preview.
         attributes.addValue( AttributeImpl.of( "id", CARET_ID ) );
 

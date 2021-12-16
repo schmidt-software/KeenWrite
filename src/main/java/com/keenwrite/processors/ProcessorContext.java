@@ -12,6 +12,7 @@ import java.io.File;
 import java.nio.file.Path;
 import java.util.Map;
 import java.util.concurrent.Callable;
+import java.util.function.Supplier;
 
 import static com.keenwrite.AbstractFileFactory.lookup;
 import static com.keenwrite.constants.Constants.DEFAULT_DIRECTORY;
@@ -31,8 +32,8 @@ public final class ProcessorContext {
     private Path mInputPath;
     private Path mOutputPath;
     private ExportFormat mExportFormat;
-    private Callable<Map<String, String>> mDefinitions;
-    private Caret mCaret;
+    private Supplier<Map<String, String>> mDefinitions;
+    private Supplier<Caret> mCaret;
     private Workspace mWorkspace;
 
     public void setInputPath( final Path inputPath ) {
@@ -61,11 +62,17 @@ public final class ProcessorContext {
      * @param definitions Defines how to retrieve the definitions.
      */
     public void setDefinitions(
-      final Callable<Map<String, String>> definitions ) {
+      final Supplier<Map<String, String>> definitions ) {
       mDefinitions = definitions;
     }
 
-    public void setCaret( final Caret caret ) {
+    /**
+     * Sets the source for deriving the {@link Caret}. Typically, this is
+     * the text editor that has focus.
+     *
+     * @param caret The source for the currently active caret.
+     */
+    public void setCaret( final Supplier<Caret> caret ) {
       mCaret = caret;
     }
 
@@ -83,34 +90,6 @@ public final class ProcessorContext {
   }
 
   /**
-   * @param inputPath   Path to the document to process.
-   * @param outputPath  Fully qualified filename to use when exporting.
-   * @param format      Indicate configuration options for export format.
-   * @param definitions Source for fully expanded interpolated strings.
-   * @param workspace   Persistent user preferences settings.
-   * @param caret       Location of the caret in the edited document,
-   *                    which is used to synchronize the scrollbars.
-   * @return A context that may be used for processing documents.
-   */
-  public static ProcessorContext create(
-    final Path inputPath,
-    final Path outputPath,
-    final ExportFormat format,
-    final Callable<Map<String, String>> definitions,
-    final Workspace workspace,
-    final Caret caret ) {
-    return ProcessorContext
-      .builder()
-      .with( Mutator::setInputPath, inputPath )
-      .with( Mutator::setOutputPath, outputPath )
-      .with( Mutator::setExportFormat, format )
-      .with( Mutator::setDefinitions, definitions )
-      .with( Mutator::setWorkspace, workspace )
-      .with( Mutator::setCaret, caret )
-      .build();
-  }
-
-  /**
    * @param inputPath Path to the document to process.
    * @param format    Indicate configuration options for export format.
    * @return A context that may be used for processing documents.
@@ -120,21 +99,6 @@ public final class ProcessorContext {
     final ExportFormat format ) {
     return builder()
       .with( Mutator::setInputPath, inputPath )
-      .with( Mutator::setExportFormat, format )
-      .build();
-  }
-
-  /**
-   * @param inputPath  Path to the document to process.
-   * @param outputPath Fully qualified filename to use when exporting.
-   * @param format     Indicate configuration options for export format.
-   * @return A context that may be used for processing documents.
-   */
-  public static ProcessorContext create(
-    final Path inputPath, final Path outputPath, final ExportFormat format ) {
-    return builder()
-      .with( Mutator::setInputPath, inputPath )
-      .with( Mutator::setOutputPath, outputPath )
       .with( Mutator::setExportFormat, format )
       .build();
   }
@@ -157,13 +121,7 @@ public final class ProcessorContext {
    * @return A map to help dereference variables.
    */
   Map<String, String> getResolvedMap() {
-    try {
-      return mMutator.mDefinitions.call();
-    } catch( final Exception ex ) {
-      // If this happens, it is a programming error because the definitions
-      // list must always return a valid map of variable names to values.
-      throw new RuntimeException( ex );
-    }
+    return mMutator.mDefinitions.get();
   }
 
   /**
@@ -185,7 +143,7 @@ public final class ProcessorContext {
    *
    * @return Caret position in the document.
    */
-  public Caret getCaret() {
+  public Supplier<Caret> getCaret() {
     return mMutator.mCaret;
   }
 
@@ -202,16 +160,16 @@ public final class ProcessorContext {
    * default user directory if the base path cannot be determined.
    */
   public Path getBaseDir() {
-    final var path = getDocumentPath().toAbsolutePath().getParent();
+    final var path = getInputPath().toAbsolutePath().getParent();
     return path == null ? DEFAULT_DIRECTORY : path;
   }
 
-  public Path getDocumentPath() {
+  public Path getInputPath() {
     return mMutator.mInputPath;
   }
 
   FileType getFileType() {
-    return lookup( getDocumentPath() );
+    return lookup( getInputPath() );
   }
 
   public Workspace getWorkspace() {
