@@ -147,7 +147,7 @@ public class ImageLinkExtension extends HtmlRendererAdapter {
     }
 
     private Path getUserImagesDir() {
-      return mWorkspace.asFile( KEY_IMAGES_DIR ).toPath();
+      return mWorkspace.getFile( KEY_IMAGES_DIR ).toPath();
     }
 
     private Iterable<String> getImageExtensions() {

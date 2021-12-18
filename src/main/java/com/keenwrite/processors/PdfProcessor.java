@@ -45,7 +45,7 @@ public final class PdfProcessor extends ExecutorProcessor<String> {
         .with( Mutator::setOutputPath,
                mContext.getOutputPath() )
         .with( Mutator::setThemePath,
-               workspace.asFile( KEY_TYPESET_CONTEXT_THEMES_PATH ) )
+               workspace.getFile( KEY_TYPESET_CONTEXT_THEMES_PATH ) )
         .with( Mutator::setThemeName,
                workspace.getString( KEY_TYPESET_CONTEXT_THEME_SELECTION ) )
         .with( Mutator::setAutoclean,

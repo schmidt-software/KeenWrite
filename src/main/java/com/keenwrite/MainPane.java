@@ -21,7 +21,6 @@ import com.keenwrite.sigils.SigilOperator;
 import com.keenwrite.ui.explorer.FilePickerFactory;
 import com.keenwrite.ui.heuristics.DocumentStatistics;
 import com.keenwrite.ui.outline.DocumentOutline;
-import com.keenwrite.util.CircularQueue;
 import com.keenwrite.util.GenericBuilder;
 import com.panemu.tiwulfx.control.dock.DetachableTab;
 import com.panemu.tiwulfx.control.dock.DetachableTabPane;
@@ -748,8 +747,6 @@ public final class MainPane extends SplitPane {
 
     return result;
   }
-
-  private CircularQueue<Long> mQueue = new CircularQueue<>( 5 );
 
   /**
    * Force the active editor to update, which will cause the processor

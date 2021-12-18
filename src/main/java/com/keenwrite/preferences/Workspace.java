@@ -400,7 +400,7 @@ public final class Workspace implements KeyConfiguration {
    * @return The value associated with the given {@link Key}.
    */
   @Override
-  public File asFile( final Key key ) {
+  public File getFile( final Key key ) {
     assert key != null;
     return fileProperty( key ).get();
   }

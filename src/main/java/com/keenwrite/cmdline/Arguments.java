@@ -202,7 +202,7 @@ public final class Arguments implements Callable<Integer>, KeyConfiguration {
   }
 
   @Override
-  public File asFile( final Key key ) {
+  public File getFile( final Key key ) {
     return null;
   }
 }

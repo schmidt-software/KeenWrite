@@ -197,7 +197,7 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
   }
 
   private String getImagePath() {
-    return getWorkspace().asFile( KEY_IMAGES_DIR ).toString();
+    return getWorkspace().getFile( KEY_IMAGES_DIR ).toString();
   }
 
   private String getImageOrder() {

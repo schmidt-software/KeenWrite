@@ -320,7 +320,7 @@ public final class HtmlPreview extends SwingNode implements ComponentListener {
 
   private URL getCustomStylesheetUrl() {
     try {
-      return mWorkspace.asFile( KEY_UI_PREVIEW_STYLESHEET ).toURI().toURL();
+      return mWorkspace.getFile( KEY_UI_PREVIEW_STYLESHEET ).toURI().toURL();
     } catch( final Exception ex ) {
       clue( ex );
       return null;

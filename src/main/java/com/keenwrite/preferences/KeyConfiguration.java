@@ -51,5 +51,5 @@ public interface KeyConfiguration {
    * @param key The {@link Key} associated with a value.
    * @return The value associated with the given {@link Key}.
    */
-  File asFile( final Key key );
+  File getFile( final Key key );
 }

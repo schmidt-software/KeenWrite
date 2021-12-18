@@ -224,7 +224,7 @@ public final class GuiCommands {
    */
   private void file_export_pdf( final boolean dir ) {
     final var workspace = getWorkspace();
-    final var themes = workspace.asFile( KEY_TYPESET_CONTEXT_THEMES_PATH );
+    final var themes = workspace.getFile( KEY_TYPESET_CONTEXT_THEMES_PATH );
     final var theme = workspace.stringProperty(
       KEY_TYPESET_CONTEXT_THEME_SELECTION );
 
