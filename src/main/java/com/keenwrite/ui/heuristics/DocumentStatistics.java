@@ -17,8 +17,8 @@ import org.greenrobot.eventbus.Subscribe;
 
 import static com.keenwrite.events.Bus.register;
 import static com.keenwrite.events.StatusEvent.clue;
-import static com.keenwrite.preferences.WorkspaceKeys.KEY_LANGUAGE_LOCALE;
-import static com.keenwrite.preferences.WorkspaceKeys.KEY_UI_FONT_EDITOR_NAME;
+import static com.keenwrite.preferences.AppKeys.KEY_LANGUAGE_LOCALE;
+import static com.keenwrite.preferences.AppKeys.KEY_UI_FONT_EDITOR_NAME;
 import static com.keenwrite.ui.heuristics.DocumentStatistics.StatEntry;
 import static java.lang.String.format;
 import static javafx.application.Platform.runLater;

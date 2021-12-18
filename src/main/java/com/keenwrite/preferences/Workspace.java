@@ -26,7 +26,7 @@ import static com.keenwrite.Bootstrap.APP_TITLE_LOWERCASE;
 import static com.keenwrite.Launcher.getVersion;
 import static com.keenwrite.constants.Constants.*;
 import static com.keenwrite.events.StatusEvent.clue;
-import static com.keenwrite.preferences.WorkspaceKeys.*;
+import static com.keenwrite.preferences.AppKeys.*;
 import static java.lang.String.valueOf;
 import static java.lang.System.getProperty;
 import static java.time.format.DateTimeFormatter.RFC_1123_DATE_TIME;
@@ -66,7 +66,7 @@ import static javafx.collections.FXCollections.observableSet;
  *   <dd>Directory without file name ({@link File#isDirectory()} is true).</dd>
  * </dl>
  */
-public final class Workspace {
+public final class Workspace implements KeyConfiguration {
   private final Map<Key, Property<?>> VALUES = Map.ofEntries(
     entry( KEY_META_VERSION, asStringProperty( getVersion() ) ),
     entry( KEY_META_NAME, asStringProperty( "default" ) ),
@@ -131,42 +131,6 @@ public final class Workspace {
     //@formatter:on
   );
 
-  private StringProperty asStringProperty( final String defaultValue ) {
-    return new SimpleStringProperty( defaultValue );
-  }
-
-  @SuppressWarnings( "SameParameterValue" )
-  private IntegerProperty asIntegerProperty( final int defaultValue ) {
-    return new SimpleIntegerProperty( defaultValue );
-  }
-
-  private DoubleProperty asDoubleProperty( final double defaultValue ) {
-    return new SimpleDoubleProperty( defaultValue );
-  }
-
-  private BooleanProperty asBooleanProperty() {
-    return new SimpleBooleanProperty();
-  }
-
-  @SuppressWarnings( "SameParameterValue" )
-  private BooleanProperty asBooleanProperty( final boolean defaultValue ) {
-    return new SimpleBooleanProperty( defaultValue );
-  }
-
-  private FileProperty asFileProperty( final File defaultValue ) {
-    return new FileProperty( defaultValue );
-  }
-
-  @SuppressWarnings( "SameParameterValue" )
-  private SkinProperty asSkinProperty( final String defaultValue ) {
-    return new SkinProperty( defaultValue );
-  }
-
-  @SuppressWarnings( "SameParameterValue" )
-  private LocaleProperty asLocaleProperty( final Locale defaultValue ) {
-    return new LocaleProperty( defaultValue );
-  }
-
   /**
    * Helps instantiate {@link Property} instances for XML configuration items.
    */
@@ -213,18 +177,6 @@ public final class Workspace {
   }
 
   /**
-   * Creates an instance of {@link ObservableList} that is based on a
-   * modifiable observable array list for the given items.
-   *
-   * @param items The items to wrap in an observable list.
-   * @param <E>   The type of items to add to the list.
-   * @return An observable property that can have its contents modified.
-   */
-  public static <E> ObservableList<E> listProperty( final Set<E> items ) {
-    return new SimpleListProperty<>( observableArrayList( items ) );
-  }
-
-  /**
    * Returns a value that represents a setting in the application that the user
    * may configure, either directly or indirectly.
    *
@@ -237,6 +189,18 @@ public final class Workspace {
     assert key != null;
     // The type that goes into the map must come out.
     return (U) VALUES.get( key );
+  }
+
+  /**
+   * Creates an instance of {@link ObservableList} that is based on a
+   * modifiable observable array list for the given items.
+   *
+   * @param items The items to wrap in an observable list.
+   * @param <E>   The type of items to add to the list.
+   * @return An observable property that can have its contents modified.
+   */
+  public static <E> ObservableList<E> listProperty( final Set<E> items ) {
+    return new SimpleListProperty<>( observableArrayList( items ) );
   }
 
   /**
@@ -254,82 +218,93 @@ public final class Workspace {
     return (SetProperty<T>) SETS.get( key );
   }
 
-  /**
-   * Returns the {@link Boolean} preference value associated with the given
-   * {@link Key}. The caller must be sure that the given {@link Key} is
-   * associated with a value that matches the return type.
-   *
-   * @param key The {@link Key} associated with a preference value.
-   * @return The value associated with the given {@link Key}.
-   */
-  public boolean toBoolean( final Key key ) {
-    assert key != null;
-    return (Boolean) valuesProperty( key ).getValue();
+  private StringProperty asStringProperty( final String defaultValue ) {
+    return new SimpleStringProperty( defaultValue );
   }
 
-  /**
-   * Returns the {@link Integer} preference value associated with the given
-   * {@link Key}. The caller must be sure that the given {@link Key} is
-   * associated with a value that matches the return type.
-   *
-   * @param key The {@link Key} associated with a preference value.
-   * @return The value associated with the given {@link Key}.
-   */
-  public int toInteger( final Key key ) {
-    assert key != null;
-    return (Integer) valuesProperty( key ).getValue();
-  }
-
-  /**
-   * Returns the {@link Double} preference value associated with the given
-   * {@link Key}. The caller must be sure that the given {@link Key} is
-   * associated with a value that matches the return type.
-   *
-   * @param key The {@link Key} associated with a preference value.
-   * @return The value associated with the given {@link Key}.
-   */
-  public double toDouble( final Key key ) {
-    assert key != null;
-    return (Double) valuesProperty( key ).getValue();
-  }
-
-  public File toFile( final Key key ) {
-    assert key != null;
-    return fileProperty( key ).get();
-  }
-
-  public String toString( final Key key ) {
-    assert key != null;
-    return stringProperty( key ).get();
-  }
-
-  private Sigils createSigils( final Key keyBegan, final Key keyEnded ) {
-    assert keyBegan != null;
-    assert keyEnded != null;
-
-    return new Sigils( toString( keyBegan ), toString( keyEnded ) );
-  }
-
-  public SigilOperator createYamlSigilOperator() {
-    return new YamlSigilOperator(
-      createSigils( KEY_DEF_DELIM_BEGAN, KEY_DEF_DELIM_ENDED )
-    );
-  }
-
-  public SigilOperator createRSigilOperator() {
-    return new RSigilOperator(
-      createSigils( KEY_R_DELIM_BEGAN, KEY_R_DELIM_ENDED ),
-      createYamlSigilOperator()
-    );
+  private BooleanProperty asBooleanProperty() {
+    return new SimpleBooleanProperty();
   }
 
   @SuppressWarnings( "SameParameterValue" )
+  private BooleanProperty asBooleanProperty( final boolean defaultValue ) {
+    return new SimpleBooleanProperty( defaultValue );
+  }
+
+  @SuppressWarnings( "SameParameterValue" )
+  private IntegerProperty asIntegerProperty( final int defaultValue ) {
+    return new SimpleIntegerProperty( defaultValue );
+  }
+
+  private DoubleProperty asDoubleProperty( final double defaultValue ) {
+    return new SimpleDoubleProperty( defaultValue );
+  }
+
+  private FileProperty asFileProperty( final File defaultValue ) {
+    return new FileProperty( defaultValue );
+  }
+
+  @SuppressWarnings( "SameParameterValue" )
+  private LocaleProperty asLocaleProperty( final Locale defaultValue ) {
+    return new LocaleProperty( defaultValue );
+  }
+
+  @SuppressWarnings( "SameParameterValue" )
+  private SkinProperty asSkinProperty( final String defaultValue ) {
+    return new SkinProperty( defaultValue );
+  }
+
+  /**
+   * Returns the {@link String} {@link Property} associated with the given
+   * {@link Key} from the internal list of preference values. The caller
+   * must be sure that the given {@link Key} is associated with a {@link File}
+   * {@link Property}.
+   *
+   * @param key The {@link Key} associated with a preference value.
+   * @return The value associated with the given {@link Key}.
+   */
+  public StringProperty stringProperty( final Key key ) {
+    assert key != null;
+    return valuesProperty( key );
+  }
+
+  /**
+   * Returns the {@link Boolean} {@link Property} associated with the given
+   * {@link Key} from the internal list of preference values. The caller
+   * must be sure that the given {@link Key} is associated with a {@link File}
+   * {@link Property}.
+   *
+   * @param key The {@link Key} associated with a preference value.
+   * @return The value associated with the given {@link Key}.
+   */
+  public BooleanProperty booleanProperty( final Key key ) {
+    assert key != null;
+    return valuesProperty( key );
+  }
+
+  /**
+   * Returns the {@link Integer} {@link Property} associated with the given
+   * {@link Key} from the internal list of preference values. The caller
+   * must be sure that the given {@link Key} is associated with a {@link File}
+   * {@link Property}.
+   *
+   * @param key The {@link Key} associated with a preference value.
+   * @return The value associated with the given {@link Key}.
+   */
   public IntegerProperty integerProperty( final Key key ) {
     assert key != null;
     return valuesProperty( key );
   }
 
-  @SuppressWarnings( "SameParameterValue" )
+  /**
+   * Returns the {@link Double} {@link Property} associated with the given
+   * {@link Key} from the internal list of preference values. The caller
+   * must be sure that the given {@link Key} is associated with a {@link File}
+   * {@link Property}.
+   *
+   * @param key The {@link Key} associated with a preference value.
+   * @return The value associated with the given {@link Key}.
+   */
   public DoubleProperty doubleProperty( final Key key ) {
     assert key != null;
     return valuesProperty( key );
@@ -349,19 +324,90 @@ public final class Workspace {
     return valuesProperty( key );
   }
 
-  public ObjectProperty<String> skinProperty( final Key key ) {
-    assert key != null;
-    return valuesProperty( key );
-  }
-
+  /**
+   * Returns the {@link Locale} {@link Property} associated with the given
+   * {@link Key} from the internal list of preference values. The caller
+   * must be sure that the given {@link Key} is associated with a {@link File}
+   * {@link Property}.
+   *
+   * @param key The {@link Key} associated with a preference value.
+   * @return The value associated with the given {@link Key}.
+   */
   public LocaleProperty localeProperty( final Key key ) {
     assert key != null;
     return valuesProperty( key );
   }
 
+  public ObjectProperty<String> skinProperty( final Key key ) {
+    assert key != null;
+    return valuesProperty( key );
+  }
+
+  @Override
+  public String getString( final Key key ) {
+    assert key != null;
+    return stringProperty( key ).get();
+  }
+
+  /**
+   * Returns the {@link Boolean} preference value associated with the given
+   * {@link Key}. The caller must be sure that the given {@link Key} is
+   * associated with a value that matches the return type.
+   *
+   * @param key The {@link Key} associated with a preference value.
+   * @return The value associated with the given {@link Key}.
+   */
+  @Override
+  public boolean getBoolean( final Key key ) {
+    assert key != null;
+    return booleanProperty( key ).get();
+  }
+
+  /**
+   * Returns the {@link Integer} preference value associated with the given
+   * {@link Key}. The caller must be sure that the given {@link Key} is
+   * associated with a value that matches the return type.
+   *
+   * @param key The {@link Key} associated with a preference value.
+   * @return The value associated with the given {@link Key}.
+   */
+  @Override
+  public int getInteger( final Key key ) {
+    assert key != null;
+    return integerProperty( key ).get();
+  }
+
+  /**
+   * Returns the {@link Double} preference value associated with the given
+   * {@link Key}. The caller must be sure that the given {@link Key} is
+   * associated with a value that matches the return type.
+   *
+   * @param key The {@link Key} associated with a preference value.
+   * @return The value associated with the given {@link Key}.
+   */
+  @Override
+  public double getDouble( final Key key ) {
+    assert key != null;
+    return doubleProperty( key ).get();
+  }
+
+  /**
+   * Returns the {@link File} preference value associated with the given
+   * {@link Key}. The caller must be sure that the given {@link Key} is
+   * associated with a value that matches the return type.
+   *
+   * @param key The {@link Key} associated with a preference value.
+   * @return The value associated with the given {@link Key}.
+   */
+  @Override
+  public File asFile( final Key key ) {
+    assert key != null;
+    return fileProperty( key ).get();
+  }
+
   /**
    * Returns the language locale setting for the
-   * {@link WorkspaceKeys#KEY_LANGUAGE_LOCALE} key.
+   * {@link AppKeys#KEY_LANGUAGE_LOCALE} key.
    *
    * @return The user's current locale setting.
    */
@@ -369,43 +415,24 @@ public final class Workspace {
     return localeProperty( KEY_LANGUAGE_LOCALE ).toLocale();
   }
 
-  public StringProperty stringProperty( final Key key ) {
-    assert key != null;
-    return valuesProperty( key );
+  private Sigils createSigils( final Key keyBegan, final Key keyEnded ) {
+    assert keyBegan != null;
+    assert keyEnded != null;
+
+    return new Sigils( getString( keyBegan ), getString( keyEnded ) );
   }
 
-  public BooleanProperty booleanProperty( final Key key ) {
-    assert key != null;
-    return valuesProperty( key );
+  public SigilOperator createYamlSigilOperator() {
+    return new YamlSigilOperator(
+      createSigils( KEY_DEF_DELIM_BEGAN, KEY_DEF_DELIM_ENDED )
+    );
   }
 
-  public void loadValueKeys( final Consumer<Key> consumer ) {
-    VALUES.keySet().forEach( consumer );
-  }
-
-  public void loadSetKeys( final Consumer<Key> consumer ) {
-    SETS.keySet().forEach( consumer );
-  }
-
-  /**
-   * Calls the given consumer for all single-value keys. For lists, see
-   * {@link #saveSets(BiConsumer)}.
-   *
-   * @param consumer Called to accept each preference key value.
-   */
-  public void saveValues( final BiConsumer<Key, Property<?>> consumer ) {
-    VALUES.forEach( consumer );
-  }
-
-  /**
-   * Calls the given consumer for all multi-value keys. For single items, see
-   * {@link #saveValues(BiConsumer)}. Callers are responsible for iterating
-   * over the list of items retrieved through this method.
-   *
-   * @param consumer Called to accept each preference key list.
-   */
-  public void saveSets( final BiConsumer<Key, SetProperty<?>> consumer ) {
-    SETS.forEach( consumer );
+  public SigilOperator createRSigilOperator() {
+    return new RSigilOperator(
+      createSigils( KEY_R_DELIM_BEGAN, KEY_R_DELIM_ENDED ),
+      createYamlSigilOperator()
+    );
   }
 
   /**
@@ -447,6 +474,35 @@ public final class Workspace {
         }
       } )
     );
+  }
+
+  public void loadValueKeys( final Consumer<Key> consumer ) {
+    VALUES.keySet().forEach( consumer );
+  }
+
+  public void loadSetKeys( final Consumer<Key> consumer ) {
+    SETS.keySet().forEach( consumer );
+  }
+
+  /**
+   * Calls the given consumer for all single-value keys. For lists, see
+   * {@link #saveSets(BiConsumer)}.
+   *
+   * @param consumer Called to accept each preference key value.
+   */
+  public void saveValues( final BiConsumer<Key, Property<?>> consumer ) {
+    VALUES.forEach( consumer );
+  }
+
+  /**
+   * Calls the given consumer for all multi-value keys. For single items, see
+   * {@link #saveValues(BiConsumer)}. Callers are responsible for iterating
+   * over the list of items retrieved through this method.
+   *
+   * @param consumer Called to accept each preference key list.
+   */
+  public void saveSets( final BiConsumer<Key, SetProperty<?>> consumer ) {
+    SETS.forEach( consumer );
   }
 
   /**
@@ -523,10 +579,22 @@ public final class Workspace {
       .apply( property.getValue().toString() );
   }
 
+  /**
+   * Returns the current year. This is used to populate the default year
+   * (e.g., for copyright notices).
+   *
+   * @return The current year.
+   */
   private String getYear() {
     return valueOf( Year.now().getValue() );
   }
 
+  /**
+   * Returns the current date. This is used to populate the default date
+   * (e.g., for document publication date).
+   *
+   * @return The current year.
+   */
   private String getDate() {
     return ZonedDateTime.now().format( RFC_1123_DATE_TIME );
   }

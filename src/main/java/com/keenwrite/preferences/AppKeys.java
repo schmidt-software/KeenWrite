@@ -7,7 +7,7 @@ import static com.keenwrite.preferences.Key.key;
  * Responsible for defining constants used throughout the application that
  * represent persisted preferences.
  */
-public final class WorkspaceKeys {
+public final class AppKeys {
   //@formatter:off
   private static final Key KEY_ROOT = key( "workspace" );
 
@@ -101,5 +101,5 @@ public final class WorkspaceKeys {
   /**
    * Only for constants, do not instantiate.
    */
-  private WorkspaceKeys() { }
+  private AppKeys() { }
 }

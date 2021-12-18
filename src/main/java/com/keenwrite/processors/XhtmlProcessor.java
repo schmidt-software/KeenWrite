@@ -21,7 +21,7 @@ import static com.keenwrite.Bootstrap.APP_TITLE_LOWERCASE;
 import static com.keenwrite.dom.DocumentParser.*;
 import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.io.HttpFacade.httpGet;
-import static com.keenwrite.preferences.WorkspaceKeys.*;
+import static com.keenwrite.preferences.AppKeys.*;
 import static com.keenwrite.processors.text.TextReplacementFactory.replace;
 import static com.keenwrite.util.ProtocolScheme.getProtocol;
 import static com.whitemagicsoftware.keenquotes.Converter.CHARS;
@@ -197,11 +197,11 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
   }
 
   private String getImagePath() {
-    return getWorkspace().toFile( KEY_IMAGES_DIR ).toString();
+    return getWorkspace().asFile( KEY_IMAGES_DIR ).toString();
   }
 
   private String getImageOrder() {
-    return getWorkspace().toString( KEY_IMAGES_ORDER );
+    return getWorkspace().getString( KEY_IMAGES_ORDER );
   }
 
   /**
@@ -274,7 +274,7 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
    * @return {@code false} to prevent curling straight quotes.
    */
   private boolean curl() {
-    return getWorkspace().toBoolean( KEY_TYPESET_TYPOGRAPHY_QUOTES );
+    return getWorkspace().getBoolean( KEY_TYPESET_TYPOGRAPHY_QUOTES );
   }
 
   private String resolve( final Key key ) {

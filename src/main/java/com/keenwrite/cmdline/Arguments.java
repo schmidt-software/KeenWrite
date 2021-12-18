@@ -1,24 +1,35 @@
 package com.keenwrite.cmdline;
 
 import com.keenwrite.ExportFormat;
+import com.keenwrite.preferences.Key;
+import com.keenwrite.preferences.KeyConfiguration;
 import com.keenwrite.processors.ProcessorContext;
 import com.keenwrite.processors.ProcessorContext.Mutator;
 import picocli.CommandLine;
 
 import java.io.File;
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.function.Consumer;
 
+import static com.keenwrite.preferences.AppKeys.*;
+
+/**
+ * Responsible for mapping command-line arguments to keys that are used by
+ * the application. This class implements the {@link KeyConfiguration} as
+ * an abstraction so that the CLI and GUI can reuse the same code, but without
+ * the CLI needing to instantiate or initialize JavaFX.
+ */
 @CommandLine.Command(
   name = "KeenWrite",
   mixinStandardHelpOptions = true,
   description = "Plain text editor for editing with variables."
 )
 @SuppressWarnings( "unused" )
-public final class Arguments implements Callable<Integer> {
+public final class Arguments implements Callable<Integer>, KeyConfiguration {
   @CommandLine.Option(
     names = {"-a", "--all"},
     description =
@@ -39,11 +50,11 @@ public final class Arguments implements Callable<Integer> {
     names = {"-i", "--input"},
     description =
       "Set the file name to read.",
-    paramLabel = "FILE",
+    paramLabel = "PATH",
     defaultValue = "stdin",
     required = true
   )
-  private File mFileInput;
+  private Path mPathInput;
 
   @CommandLine.Option(
     names = {"-f", "--format-type"},
@@ -67,11 +78,11 @@ public final class Arguments implements Callable<Integer> {
     names = {"-o", "--output"},
     description =
       "Set the file name to write.",
-    paramLabel = "FILE",
+    paramLabel = "PATH",
     defaultValue = "stdout",
     required = true
   )
-  private File mFileOutput;
+  private File mPathOutput;
 
   @CommandLine.Option(
     names = {"-p", "--images-path"},
@@ -79,7 +90,7 @@ public final class Arguments implements Callable<Integer> {
       "Absolute path to images directory",
     paramLabel = "PATH"
   )
-  private Path mImages;
+  private Path mPathImages;
 
   @CommandLine.Option(
     names = {"-q", "--quiet"},
@@ -103,7 +114,7 @@ public final class Arguments implements Callable<Integer> {
       "Full theme name file path to use when exporting as a PDF file.",
     paramLabel = "PATH"
   )
-  private String mThemeName;
+  private Path mThemeName;
 
   @CommandLine.Option(
     names = {"-x", "--image-extensions"},
@@ -112,7 +123,7 @@ public final class Arguments implements Callable<Integer> {
     paramLabel = "String",
     defaultValue = "svg pdf png jpg tiff"
   )
-  private Set<String> mExtensions;
+  private Set<String> mImageExtensions;
 
   @CommandLine.Option(
     names = {"-v", "--variables"},
@@ -121,21 +132,30 @@ public final class Arguments implements Callable<Integer> {
     paramLabel = "FILE",
     defaultValue = "variables.yaml"
   )
-  private String mFileVariables;
+  private Path mPathVariables;
 
   private final Consumer<Arguments> mLauncher;
+
+  private final Map<Key, Object> mValues = new HashMap<>();
 
   public Arguments( final Consumer<Arguments> launcher ) {
     mLauncher = launcher;
   }
 
   public ProcessorContext createProcessorContext() {
+    mValues.put( KEY_UI_RECENT_DOCUMENT, mPathInput );
+    mValues.put( KEY_UI_RECENT_DEFINITION, mPathVariables );
+    mValues.put( KEY_UI_RECENT_EXPORT, mPathOutput );
+    mValues.put( KEY_IMAGES_DIR, mPathImages );
+    mValues.put( KEY_TYPESET_CONTEXT_THEMES_PATH, mThemeName.getParent() );
+    mValues.put( KEY_TYPESET_CONTEXT_THEME_SELECTION, mThemeName.getFileName() );
+
     final var format = ExportFormat.valueFrom( mFormatType, mFormatSubtype );
 
     return ProcessorContext
       .builder()
-      .with( Mutator::setInputPath, mFileInput )
-      .with( Mutator::setOutputPath, mFileOutput )
+      .with( Mutator::setInputPath, mPathInput )
+      .with( Mutator::setOutputPath, mPathOutput )
       .with( Mutator::setExportFormat, format )
       .build();
   }
@@ -159,5 +179,30 @@ public final class Arguments implements Callable<Integer> {
   public Integer call() throws Exception {
     mLauncher.accept( this );
     return 0;
+  }
+
+  @Override
+  public String getString( final Key key ) {
+    return null;
+  }
+
+  @Override
+  public boolean getBoolean( final Key key ) {
+    return false;
+  }
+
+  @Override
+  public int getInteger( final Key key ) {
+    return 0;
+  }
+
+  @Override
+  public double getDouble( final Key key ) {
+    return 0;
+  }
+
+  @Override
+  public File asFile( final Key key ) {
+    return null;
   }
 }

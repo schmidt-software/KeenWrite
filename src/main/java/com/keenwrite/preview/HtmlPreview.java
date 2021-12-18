@@ -23,7 +23,7 @@ import static com.keenwrite.constants.Constants.*;
 import static com.keenwrite.events.Bus.register;
 import static com.keenwrite.events.ScrollLockEvent.fireScrollLockEvent;
 import static com.keenwrite.events.StatusEvent.clue;
-import static com.keenwrite.preferences.WorkspaceKeys.*;
+import static com.keenwrite.preferences.AppKeys.*;
 import static com.keenwrite.ui.fonts.IconFactory.getIconFont;
 import static java.awt.BorderLayout.*;
 import static java.awt.event.KeyEvent.*;
@@ -320,7 +320,7 @@ public final class HtmlPreview extends SwingNode implements ComponentListener {
 
   private URL getCustomStylesheetUrl() {
     try {
-      return mWorkspace.toFile( KEY_UI_PREVIEW_STYLESHEET ).toURI().toURL();
+      return mWorkspace.asFile( KEY_UI_PREVIEW_STYLESHEET ).toURI().toURL();
     } catch( final Exception ex ) {
       clue( ex );
       return null;
@@ -344,7 +344,7 @@ public final class HtmlPreview extends SwingNode implements ComponentListener {
 
   @Override
   public void componentResized( final ComponentEvent e ) {
-    if( mWorkspace.toBoolean( KEY_IMAGES_RESIZE ) ) {
+    if( mWorkspace.getBoolean( KEY_IMAGES_RESIZE ) ) {
       mPreview.clearCache();
     }
 

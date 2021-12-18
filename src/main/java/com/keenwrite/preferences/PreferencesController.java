@@ -25,7 +25,7 @@ import static com.keenwrite.Messages.get;
 import static com.keenwrite.constants.GraphicsConstants.ICON_DIALOG;
 import static com.keenwrite.preferences.LocaleProperty.localeListProperty;
 import static com.keenwrite.preferences.SkinProperty.skinListProperty;
-import static com.keenwrite.preferences.WorkspaceKeys.*;
+import static com.keenwrite.preferences.AppKeys.*;
 import static javafx.scene.control.ButtonType.CANCEL;
 import static javafx.scene.control.ButtonType.OK;
 

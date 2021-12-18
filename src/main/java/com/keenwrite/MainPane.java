@@ -21,6 +21,7 @@ import com.keenwrite.sigils.SigilOperator;
 import com.keenwrite.ui.explorer.FilePickerFactory;
 import com.keenwrite.ui.heuristics.DocumentStatistics;
 import com.keenwrite.ui.outline.DocumentOutline;
+import com.keenwrite.util.CircularQueue;
 import com.keenwrite.util.GenericBuilder;
 import com.panemu.tiwulfx.control.dock.DetachableTab;
 import com.panemu.tiwulfx.control.dock.DetachableTabPane;
@@ -51,7 +52,6 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import static com.keenwrite.ExportFormat.NONE;
 import static com.keenwrite.Messages.get;
@@ -60,8 +60,8 @@ import static com.keenwrite.constants.GraphicsConstants.ICON_DIALOG_NODE;
 import static com.keenwrite.events.Bus.register;
 import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.io.MediaType.*;
-import static com.keenwrite.preferences.WorkspaceKeys.KEY_EDITOR_AUTOSAVE;
-import static com.keenwrite.preferences.WorkspaceKeys.KEY_UI_FILES_PATH;
+import static com.keenwrite.preferences.AppKeys.KEY_EDITOR_AUTOSAVE;
+import static com.keenwrite.preferences.AppKeys.KEY_UI_FILES_PATH;
 import static com.keenwrite.processors.IdentityProcessor.IDENTITY;
 import static com.keenwrite.processors.ProcessorContext.Mutator;
 import static com.keenwrite.processors.ProcessorContext.builder;
@@ -743,11 +743,13 @@ public final class MainPane extends SplitPane {
 
     // Ensure that the same types are listed together (keep insertion order).
     bins.forEach( ( mediaType, files ) -> result.addAll(
-      files.stream().map( File::new ).collect( Collectors.toList() ) )
+      files.stream().map( File::new ).toList() )
     );
 
     return result;
   }
+
+  private CircularQueue<Long> mQueue = new CircularQueue<>( 5 );
 
   /**
    * Force the active editor to update, which will cause the processor
@@ -774,6 +776,15 @@ public final class MainPane extends SplitPane {
       }
     };
 
+    // TODO: Each time the editor successfully runs the processor the task is
+    //   considered successful. Due to the rapid-fire nature of processing
+    //   (e.g., keyboard navigation, fast typing), it isn't necessary to
+    //   scroll each time.
+    //   The algorithm:
+    //   1. Peek at the oldest time.
+    //   2. If the difference between the oldest time and current time exceeds
+    //      250 milliseconds, then invoke the scrolling.
+    //   3. Insert the current time into the circular queue.
     task.setOnSucceeded(
       e -> invokeLater( () -> mPreview.scrollTo( CARET_ID ) )
     );
@@ -982,6 +993,7 @@ public final class MainPane extends SplitPane {
       )
     );
 
+    // Listener for editor modifications or caret position changes.
     editor.addDirtyListener( ( c, o, n ) -> {
       if( n ) {
         // Reset the status bar after changing the text.

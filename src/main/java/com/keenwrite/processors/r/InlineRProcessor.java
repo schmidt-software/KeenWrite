@@ -19,7 +19,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import static com.keenwrite.constants.Constants.STATUS_PARSE_ERROR;
 import static com.keenwrite.Messages.get;
 import static com.keenwrite.events.StatusEvent.clue;
-import static com.keenwrite.preferences.WorkspaceKeys.*;
+import static com.keenwrite.preferences.AppKeys.*;
 import static com.keenwrite.processors.text.TextReplacementFactory.replace;
 import static com.keenwrite.sigils.RSigilOperator.PREFIX;
 import static com.keenwrite.sigils.RSigilOperator.SUFFIX;
@@ -96,8 +96,8 @@ public final class InlineRProcessor extends DefinitionProcessor {
       final var wd = getWorkingDirectory();
       final var dir = wd.toString().replace( '\\', '/' );
       final var map = getDefinitions();
-      final var defBegan = mWorkspace.toString( KEY_DEF_DELIM_BEGAN );
-      final var defEnded = mWorkspace.toString( KEY_DEF_DELIM_ENDED );
+      final var defBegan = mWorkspace.getString( KEY_DEF_DELIM_BEGAN );
+      final var defEnded = mWorkspace.getString( KEY_DEF_DELIM_ENDED );
 
       map.put( defBegan + "application.r.working.directory" + defEnded, dir );
 

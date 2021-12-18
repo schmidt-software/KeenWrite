@@ -17,8 +17,8 @@ import java.nio.file.Path;
 
 import static com.keenwrite.ExportFormat.NONE;
 import static com.keenwrite.events.StatusEvent.clue;
-import static com.keenwrite.preferences.WorkspaceKeys.KEY_IMAGES_DIR;
-import static com.keenwrite.preferences.WorkspaceKeys.KEY_IMAGES_ORDER;
+import static com.keenwrite.preferences.AppKeys.KEY_IMAGES_DIR;
+import static com.keenwrite.preferences.AppKeys.KEY_IMAGES_ORDER;
 import static com.keenwrite.util.ProtocolScheme.getProtocol;
 import static com.vladsch.flexmark.html.HtmlRenderer.Builder;
 import static com.vladsch.flexmark.html.renderer.LinkStatus.VALID;
@@ -147,11 +147,11 @@ public class ImageLinkExtension extends HtmlRendererAdapter {
     }
 
     private Path getUserImagesDir() {
-      return mWorkspace.toFile( KEY_IMAGES_DIR ).toPath();
+      return mWorkspace.asFile( KEY_IMAGES_DIR ).toPath();
     }
 
     private Iterable<String> getImageExtensions() {
-      return on( ' ' ).split( mWorkspace.toString( KEY_IMAGES_ORDER ) );
+      return on( ' ' ).split( mWorkspace.getString( KEY_IMAGES_ORDER ) );
     }
 
     private Path getBaseDir() {

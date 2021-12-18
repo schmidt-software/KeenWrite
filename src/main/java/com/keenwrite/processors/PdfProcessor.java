@@ -8,7 +8,7 @@ import java.io.IOException;
 import static com.keenwrite.Bootstrap.APP_TITLE_LOWERCASE;
 import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.io.MediaType.TEXT_XML;
-import static com.keenwrite.preferences.WorkspaceKeys.*;
+import static com.keenwrite.preferences.AppKeys.*;
 import static com.keenwrite.typesetting.Typesetter.Mutator;
 import static java.nio.file.Files.deleteIfExists;
 import static java.nio.file.Files.writeString;
@@ -45,11 +45,11 @@ public final class PdfProcessor extends ExecutorProcessor<String> {
         .with( Mutator::setOutputPath,
                mContext.getOutputPath() )
         .with( Mutator::setThemePath,
-               workspace.toFile( KEY_TYPESET_CONTEXT_THEMES_PATH ) )
+               workspace.asFile( KEY_TYPESET_CONTEXT_THEMES_PATH ) )
         .with( Mutator::setThemeName,
-               workspace.toString( KEY_TYPESET_CONTEXT_THEME_SELECTION ) )
+               workspace.getString( KEY_TYPESET_CONTEXT_THEME_SELECTION ) )
         .with( Mutator::setAutoclean,
-               workspace.toBoolean( KEY_TYPESET_CONTEXT_CLEAN ) )
+               workspace.getBoolean( KEY_TYPESET_CONTEXT_CLEAN ) )
         .build();
 
       typesetter.typeset();

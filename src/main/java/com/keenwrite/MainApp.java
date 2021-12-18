@@ -17,7 +17,7 @@ import java.util.function.BooleanSupplier;
 import static com.keenwrite.Bootstrap.APP_TITLE;
 import static com.keenwrite.constants.GraphicsConstants.LOGOS;
 import static com.keenwrite.events.Bus.register;
-import static com.keenwrite.preferences.WorkspaceKeys.*;
+import static com.keenwrite.preferences.AppKeys.*;
 import static com.keenwrite.util.FontLoader.initFonts;
 import static javafx.scene.input.KeyCode.ALT;
 import static javafx.scene.input.KeyCode.F11;
@@ -110,12 +110,12 @@ public final class MainApp extends Application {
   private void initState( final Stage stage ) {
     final var enable = createBoundsEnabledSupplier( stage );
 
-    stage.setX( mWorkspace.toDouble( KEY_UI_WINDOW_X ) );
-    stage.setY( mWorkspace.toDouble( KEY_UI_WINDOW_Y ) );
-    stage.setWidth( mWorkspace.toDouble( KEY_UI_WINDOW_W ) );
-    stage.setHeight( mWorkspace.toDouble( KEY_UI_WINDOW_H ) );
-    stage.setMaximized( mWorkspace.toBoolean( KEY_UI_WINDOW_MAX ) );
-    stage.setFullScreen( mWorkspace.toBoolean( KEY_UI_WINDOW_FULL ) );
+    stage.setX( mWorkspace.getDouble( KEY_UI_WINDOW_X ) );
+    stage.setY( mWorkspace.getDouble( KEY_UI_WINDOW_Y ) );
+    stage.setWidth( mWorkspace.getDouble( KEY_UI_WINDOW_W ) );
+    stage.setHeight( mWorkspace.getDouble( KEY_UI_WINDOW_H ) );
+    stage.setMaximized( mWorkspace.getBoolean( KEY_UI_WINDOW_MAX ) );
+    stage.setFullScreen( mWorkspace.getBoolean( KEY_UI_WINDOW_FULL ) );
 
     mWorkspace.listen( KEY_UI_WINDOW_X, stage.xProperty(), enable );
     mWorkspace.listen( KEY_UI_WINDOW_Y, stage.yProperty(), enable );

@@ -22,7 +22,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.HashSet;
 import java.util.Set;
 
-import static com.keenwrite.preferences.WorkspaceKeys.KEY_IMAGES_SERVER;
+import static com.keenwrite.preferences.AppKeys.KEY_IMAGES_SERVER;
 import static com.vladsch.flexmark.html.HtmlRenderer.Builder;
 import static com.vladsch.flexmark.html.renderer.CoreNodeRenderer.CODE_CONTENT;
 import static com.vladsch.flexmark.html.renderer.LinkType.LINK;
@@ -106,7 +106,7 @@ public class FencedBlockExtension extends HtmlRendererAdapter {
           final var type = style.substring( DIAGRAM_STYLE_LEN );
           final var content = node.getContentChars().normalizeEOL();
           final var text = mProcessor.apply( content );
-          final var server = mWorkspace.toString( KEY_IMAGES_SERVER );
+          final var server = mWorkspace.getString( KEY_IMAGES_SERVER );
           final var source = DiagramUrlGenerator.toUrl( server, type, text );
           final var link = context.resolveLink( LINK, source, false );
 

@@ -40,7 +40,7 @@ import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.events.TextEditorFocusEvent.fireTextEditorFocus;
 import static com.keenwrite.io.MediaType.TEXT_MARKDOWN;
 import static com.keenwrite.io.MediaType.TEXT_R_MARKDOWN;
-import static com.keenwrite.preferences.WorkspaceKeys.*;
+import static com.keenwrite.preferences.AppKeys.*;
 import static java.lang.Character.isWhitespace;
 import static java.lang.String.format;
 import static java.util.Collections.singletonList;

@@ -21,7 +21,7 @@ import static com.io7m.jwheatsheaf.api.JWFileChooserConfiguration.Builder;
 import static com.io7m.jwheatsheaf.api.JWFileChooserConfiguration.builder;
 import static com.keenwrite.constants.Constants.USER_DIRECTORY;
 import static com.keenwrite.events.StatusEvent.clue;
-import static com.keenwrite.preferences.WorkspaceKeys.KEY_UI_RECENT_DIR;
+import static com.keenwrite.preferences.AppKeys.KEY_UI_RECENT_DIR;
 import static java.nio.file.FileSystems.getDefault;
 import static java.util.Optional.ofNullable;
 

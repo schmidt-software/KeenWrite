@@ -43,7 +43,7 @@ import static com.keenwrite.ExportFormat.*;
 import static com.keenwrite.Messages.get;
 import static com.keenwrite.constants.GraphicsConstants.ICON_DIALOG_NODE;
 import static com.keenwrite.events.StatusEvent.clue;
-import static com.keenwrite.preferences.WorkspaceKeys.*;
+import static com.keenwrite.preferences.AppKeys.*;
 import static com.keenwrite.processors.ProcessorFactory.createProcessors;
 import static com.keenwrite.ui.explorer.FilePickerFactory.Options;
 import static com.keenwrite.ui.explorer.FilePickerFactory.Options.*;
@@ -224,7 +224,7 @@ public final class GuiCommands {
    */
   private void file_export_pdf( final boolean dir ) {
     final var workspace = getWorkspace();
-    final var themes = workspace.toFile( KEY_TYPESET_CONTEXT_THEMES_PATH );
+    final var themes = workspace.asFile( KEY_TYPESET_CONTEXT_THEMES_PATH );
     final var theme = workspace.stringProperty(
       KEY_TYPESET_CONTEXT_THEME_SELECTION );
 
