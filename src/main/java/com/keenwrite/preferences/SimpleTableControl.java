@@ -11,6 +11,7 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.VBox;
+import javafx.util.StringConverter;
 
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
@@ -128,7 +129,21 @@ public class SimpleTableControl<K, V>
         mapEntry.apply( cellData.getValue() )
       )
     );
-    column.setCellFactory( callback -> new TextFieldTableCell<>() );
+    column.setCellFactory(
+      f -> new TextFieldTableCell<>(
+        new StringConverter<>() {
+          @Override
+          public String toString( final T object ) {
+            return object.toString();
+          }
+
+          @Override
+          public T fromString( final String string ) {
+            return (T) string;
+          }
+        }
+      )
+    );
 
     return column;
   }
