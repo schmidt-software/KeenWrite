@@ -48,12 +48,6 @@ public class IconFactory {
   private static final Map<String, Image> ICONS = new HashMap<>();
 
   /**
-   * Prevent instantiation. Use the {@link #createGraphic(String)} method to
-   * create an icon for display.
-   */
-  private IconFactory() {}
-
-  /**
    * Create a {@link Node} representation for the given icon name.
    *
    * @param icon Name of icon to convert to a UI object (case-insensitive).
@@ -189,4 +183,10 @@ public class IconFactory {
   private static Node createGlyph( final String icon ) {
     return createGraphic( valueOf( icon.toUpperCase() ) );
   }
+
+  /**
+   * Prevent instantiation. Use the {@link #createGraphic(String)} method to
+   * create an icon for display.
+   */
+  private IconFactory() {}
 }

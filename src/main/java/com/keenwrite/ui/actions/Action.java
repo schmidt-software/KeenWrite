@@ -28,104 +28,6 @@ public final class Action implements MenuAction {
   private final EventHandler<ActionEvent> mHandler;
   private final List<MenuAction> mSubActions = new ArrayList<>();
 
-  public Action(
-    final String text,
-    final String accelerator,
-    final String icon,
-    final EventHandler<ActionEvent> handler ) {
-    assert text != null;
-    assert handler != null;
-
-    mText = text;
-    mAccelerator = accelerator == null ? null : valueOf( accelerator );
-    mIcon = icon;
-    mHandler = handler;
-  }
-
-  @Override
-  public MenuItem createMenuItem() {
-    // This will either become a menu or a menu item, depending on whether
-    // sub-actions are defined.
-    final MenuItem menuItem;
-
-    if( mSubActions.isEmpty() ) {
-      // Regular menu item has no sub-menus.
-      menuItem = new MenuItem( mText );
-    }
-    else {
-      // Sub-actions are translated into sub-menu items beneath this action.
-      final var submenu = new Menu( mText );
-
-      for( final var action : mSubActions ) {
-        // Recursive call that creates a sub-menu hierarchy.
-        submenu.getItems().add( action.createMenuItem() );
-      }
-
-      menuItem = submenu;
-    }
-
-    if( mAccelerator != null ) {
-      menuItem.setAccelerator( mAccelerator );
-    }
-
-    if( mIcon != null ) {
-      menuItem.setGraphic( createGraphic( mIcon ) );
-    }
-
-    menuItem.setOnAction( mHandler );
-
-    return menuItem;
-  }
-
-  @Override
-  public Button createToolBarNode() {
-    final var button = createIconButton();
-    var tooltip = mText;
-
-    if( tooltip.endsWith( "..." ) ) {
-      tooltip = tooltip.substring( 0, tooltip.length() - 3 );
-    }
-
-    // Do not display mnemonic accelerator character in tooltip text.
-    // The accelerator key will still be available, this is display-only.
-    tooltip = tooltip.replace( "_", "" );
-
-    if( mAccelerator != null ) {
-      tooltip += " (" + mAccelerator.getDisplayText() + ')';
-    }
-
-    button.setTooltip( new Tooltip( tooltip ) );
-    button.setFocusTraversable( false );
-    button.setOnAction( mHandler );
-
-    return button;
-  }
-
-  private Button createIconButton() {
-    return new Button( null, createGraphic( mIcon ) );
-  }
-
-  /**
-   * Adds subordinate actions to the menu. This is used to establish sub-menu
-   * relationships. The default behaviour does not wire up any registration;
-   * subclasses are responsible for handling how actions relate to one another.
-   *
-   * @param action Actions that only exist with respect to this action.
-   */
-  public MenuAction addSubActions( final MenuAction... action ) {
-    mSubActions.addAll( List.of( action ) );
-    return this;
-  }
-
-  /**
-   * TODO: Reuse the {@link GenericBuilder}.
-   *
-   * @return The {@link Builder} for an instance of {@link Action}.
-   */
-  public static Builder builder() {
-    return new Builder();
-  }
-
   /**
    * Provides a fluent interface around constructing actions so that duplication
    * can be avoided.
@@ -191,5 +93,103 @@ public final class Action implements MenuAction {
     public Action build() {
       return new Action( mText, mAccelerator, mIcon, mHandler );
     }
+  }
+
+  /**
+   * TODO: Reuse the {@link GenericBuilder}.
+   *
+   * @return The {@link Builder} for an instance of {@link Action}.
+   */
+  public static Builder builder() {
+    return new Builder();
+  }
+
+  private static Button createIconButton( final String icon ) {
+    return new Button( null, createGraphic( icon ) );
+  }
+
+  public Action(
+    final String text,
+    final String accelerator,
+    final String icon,
+    final EventHandler<ActionEvent> handler ) {
+    assert text != null;
+    assert handler != null;
+
+    mText = text;
+    mAccelerator = accelerator == null ? null : valueOf( accelerator );
+    mIcon = icon;
+    mHandler = handler;
+  }
+
+  @Override
+  public MenuItem createMenuItem() {
+    // This will either become a menu or a menu item, depending on whether
+    // sub-actions are defined.
+    final MenuItem menuItem;
+
+    if( mSubActions.isEmpty() ) {
+      // Regular menu item has no sub-menus.
+      menuItem = new MenuItem( mText );
+    }
+    else {
+      // Sub-actions are translated into sub-menu items beneath this action.
+      final var submenu = new Menu( mText );
+
+      for( final var action : mSubActions ) {
+        // Recursive call that creates a sub-menu hierarchy.
+        submenu.getItems().add( action.createMenuItem() );
+      }
+
+      menuItem = submenu;
+    }
+
+    if( mAccelerator != null ) {
+      menuItem.setAccelerator( mAccelerator );
+    }
+
+    if( mIcon != null ) {
+      menuItem.setGraphic( createGraphic( mIcon ) );
+    }
+
+    menuItem.setOnAction( mHandler );
+
+    return menuItem;
+  }
+
+  @Override
+  public Button createToolBarNode() {
+    final var button = createIconButton( mIcon );
+    var tooltip = mText;
+
+    if( tooltip.endsWith( "..." ) ) {
+      tooltip = tooltip.substring( 0, tooltip.length() - 3 );
+    }
+
+    // Do not display mnemonic accelerator character in tooltip text.
+    // The accelerator key will still be available, this is display-only.
+    tooltip = tooltip.replace( "_", "" );
+
+    if( mAccelerator != null ) {
+      tooltip += " (" + mAccelerator.getDisplayText() + ')';
+    }
+
+    button.setTooltip( new Tooltip( tooltip ) );
+    button.setFocusTraversable( false );
+    button.setOnAction( mHandler );
+
+    return button;
+  }
+
+  /**
+   * Adds subordinate actions to the menu. This is used to establish sub-menu
+   * relationships. The default behaviour does not wire up any registration;
+   * subclasses are responsible for handling how actions relate to one another.
+   *
+   * @param action Actions that only exist with respect to this action.
+   */
+  public MenuAction addSubActions( final MenuAction... action ) {
+    mSubActions.addAll( List.of( action ) );
+    return this;
   }
 }
