@@ -16,6 +16,8 @@ public final class AppKeys {
   public static final Key KEY_META_VERSION = key( KEY_META, "version" );
 
   public static final Key KEY_DOC = key( KEY_ROOT, "document" );
+  public static final Key KEY_DOC_META = key( KEY_DOC, "meta" );
+
   public static final Key KEY_DOC_TITLE = key( KEY_DOC, "title" );
   public static final Key KEY_DOC_AUTHOR = key( KEY_DOC, "author" );
   public static final Key KEY_DOC_BYLINE = key( KEY_DOC, "byline" );

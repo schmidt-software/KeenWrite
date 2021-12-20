@@ -32,8 +32,7 @@ import static java.lang.System.getProperty;
 import static java.time.format.DateTimeFormatter.RFC_1123_DATE_TIME;
 import static java.util.Map.entry;
 import static javafx.application.Platform.runLater;
-import static javafx.collections.FXCollections.observableArrayList;
-import static javafx.collections.FXCollections.observableSet;
+import static javafx.collections.FXCollections.*;
 
 /**
  * Responsible for defining behaviours for separate projects. A workspace has
@@ -156,6 +155,13 @@ public final class Workspace implements KeyConfiguration {
     )
   );
 
+  private final Map<Key, MapProperty<?, ?>> MAPS = Map.ofEntries(
+    entry(
+      KEY_DOC_META,
+      asMapProperty( new HashMap<String, String>() )
+    )
+  );
+
   /**
    * Creates a new {@link Workspace} that will attempt to load a configuration
    * file. If the configuration file cannot be loaded, the workspace settings
@@ -192,18 +198,6 @@ public final class Workspace implements KeyConfiguration {
   }
 
   /**
-   * Creates an instance of {@link ObservableList} that is based on a
-   * modifiable observable array list for the given items.
-   *
-   * @param items The items to wrap in an observable list.
-   * @param <E>   The type of items to add to the list.
-   * @return An observable property that can have its contents modified.
-   */
-  public static <E> ObservableList<E> listProperty( final Set<E> items ) {
-    return new SimpleListProperty<>( observableArrayList( items ) );
-  }
-
-  /**
    * Returns a list of values that represent a setting in the application that
    * the user may configure, either directly or indirectly. The property
    * returned is backed by a mutable {@link Set}.
@@ -218,40 +212,95 @@ public final class Workspace implements KeyConfiguration {
     return (SetProperty<T>) SETS.get( key );
   }
 
-  private StringProperty asStringProperty( final String defaultValue ) {
-    return new SimpleStringProperty( defaultValue );
+  /**
+   * Returns the {@link Map} {@link Property} associated with the given
+   * {@link Key} from the internal list of preference values. The caller
+   * must be sure that the given {@link Key} is associated with a {@link Map}
+   * {@link Property}.
+   *
+   * @param key The {@link Key} associated with a preference value.
+   * @return The value associated with the given {@link Key}.
+   */
+  @SuppressWarnings( "unchecked" )
+  public <K, V> MapProperty<K, V> mapProperty( final Key key ) {
+    return (MapProperty<K, V>) MAPS.get( key );
   }
 
-  private BooleanProperty asBooleanProperty() {
+  /**
+   * Creates an instance of {@link ObservableList} that is based on a
+   * modifiable observable array list for the given items.
+   *
+   * @param items The items to wrap in an observable list.
+   * @param <E>   The type of items to add to the list.
+   * @return An observable property that can have its contents modified.
+   */
+  public static <E> ObservableList<E> listProperty( final Set<E> items ) {
+    return new SimpleListProperty<>( observableArrayList( items ) );
+  }
+
+  /**
+   * @param value Default value.
+   */
+  private static StringProperty asStringProperty( final String value ) {
+    return new SimpleStringProperty( value );
+  }
+
+  private static BooleanProperty asBooleanProperty() {
     return new SimpleBooleanProperty();
   }
 
+  /**
+   * @param value Default value.
+   */
   @SuppressWarnings( "SameParameterValue" )
-  private BooleanProperty asBooleanProperty( final boolean defaultValue ) {
-    return new SimpleBooleanProperty( defaultValue );
+  private static BooleanProperty asBooleanProperty( final boolean value ) {
+    return new SimpleBooleanProperty( value );
   }
 
+  /**
+   * @param value Default value.
+   */
   @SuppressWarnings( "SameParameterValue" )
-  private IntegerProperty asIntegerProperty( final int defaultValue ) {
-    return new SimpleIntegerProperty( defaultValue );
+  private static IntegerProperty asIntegerProperty( final int value ) {
+    return new SimpleIntegerProperty( value );
   }
 
-  private DoubleProperty asDoubleProperty( final double defaultValue ) {
-    return new SimpleDoubleProperty( defaultValue );
+  /**
+   * @param value Default value.
+   */
+  private static DoubleProperty asDoubleProperty( final double value ) {
+    return new SimpleDoubleProperty( value );
   }
 
-  private FileProperty asFileProperty( final File defaultValue ) {
-    return new FileProperty( defaultValue );
+  /**
+   * @param value Default value.
+   */
+  private static FileProperty asFileProperty( final File value ) {
+    return new FileProperty( value );
   }
 
+  /**
+   * @param value Default value.
+   */
   @SuppressWarnings( "SameParameterValue" )
-  private LocaleProperty asLocaleProperty( final Locale defaultValue ) {
-    return new LocaleProperty( defaultValue );
+  private static LocaleProperty asLocaleProperty( final Locale value ) {
+    return new LocaleProperty( value );
   }
 
+  /**
+   * @param value Default value.
+   */
+  private static <K, V> MapProperty<K, V> asMapProperty(
+    final Map<K, V> value ) {
+    return new MapProperty<>( value );
+  }
+
+  /**
+   * @param value Default value.
+   */
   @SuppressWarnings( "SameParameterValue" )
-  private SkinProperty asSkinProperty( final String defaultValue ) {
-    return new SkinProperty( defaultValue );
+  private static SkinProperty asSkinProperty( final String value ) {
+    return new SkinProperty( value );
   }
 
   /**
@@ -484,6 +533,10 @@ public final class Workspace implements KeyConfiguration {
     SETS.keySet().forEach( consumer );
   }
 
+  public void loadMapKeys( final Consumer<Key> consumer ) {
+    MAPS.keySet().forEach( consumer );
+  }
+
   /**
    * Calls the given consumer for all single-value keys. For lists, see
    * {@link #saveSets(BiConsumer)}.
@@ -505,6 +558,10 @@ public final class Workspace implements KeyConfiguration {
     SETS.forEach( consumer );
   }
 
+  public void saveMaps( final BiConsumer<Key, MapProperty<?, ?>> consumer ) {
+    MAPS.forEach( consumer );
+  }
+
   /**
    * Saves the current workspace.
    */
@@ -516,14 +573,27 @@ public final class Workspace implements KeyConfiguration {
       config.setRootElementName( APP_TITLE_LOWERCASE );
       valuesProperty( KEY_META_VERSION ).setValue( getVersion() );
 
-      saveValues( ( key, property ) ->
-                    config.setProperty( key.toString(), marshall( property ) )
+      saveValues(
+        ( key, property ) ->
+          config.setProperty( key.toString(), marshall( property ) )
       );
 
-      saveSets( ( key, set ) -> {
-        final var keyName = key.toString();
-        set.forEach( ( value ) -> config.addProperty( keyName, value ) );
-      } );
+      saveSets(
+        ( key, set ) -> {
+          final var keyName = key.toString();
+          set.forEach( value -> config.addProperty( keyName, value ) );
+        }
+      );
+
+      saveMaps(
+        ( key, map ) -> {
+          final var keyName = key.toString();
+          map.get().forEach( ( k, v ) -> System.out.printf(
+            "SAVE (%s): %s == %s%n", keyName, k, v
+          ) );
+        }
+      );
+
       new FileHandler( config ).save( FILE_PREFERENCES );
     } catch( final Exception ex ) {
       clue( ex );
@@ -541,7 +611,7 @@ public final class Workspace implements KeyConfiguration {
     try {
       final var config = new Configurations().xml( filename );
 
-      loadValueKeys( ( key ) -> {
+      loadValueKeys( key -> {
         final var configValue = config.getProperty( key.toString() );
 
         // Allow other properties to load, even if any are missing.
@@ -551,11 +621,18 @@ public final class Workspace implements KeyConfiguration {
         }
       } );
 
-      loadSetKeys( ( key ) -> {
+      loadSetKeys( key -> {
         final var configSet =
           new LinkedHashSet<>( config.getList( key.toString() ) );
         final var propertySet = setsProperty( key );
         propertySet.setValue( observableSet( configSet ) );
+      } );
+
+      loadMapKeys( key -> {
+        final var configMap = new HashMap<String, String>();
+        final MapProperty<String, String> propertyMap = mapProperty( key );
+        System.out.println( "MAP = " + propertyMap );
+        propertyMap.setValue( observableMap( configMap ) );
       } );
     } catch( final Exception ex ) {
       clue( ex );

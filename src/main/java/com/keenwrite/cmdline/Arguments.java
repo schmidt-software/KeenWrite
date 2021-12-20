@@ -39,6 +39,14 @@ public final class Arguments implements Callable<Integer>, KeyConfiguration {
   private boolean mAll;
 
   @CommandLine.Option(
+    names = {"-k", "--keep-files"},
+    description =
+      "Keep temporary build files (${DEFAULT-VALUE}).",
+    defaultValue = "false"
+  )
+  private boolean mKeepFiles;
+
+  @CommandLine.Option(
     names = {"-d", "--debug"},
     description =
       "Enable logging to the console (${DEFAULT-VALUE}).",
@@ -149,6 +157,7 @@ public final class Arguments implements Callable<Integer>, KeyConfiguration {
     mValues.put( KEY_IMAGES_DIR, mPathImages );
     mValues.put( KEY_TYPESET_CONTEXT_THEMES_PATH, mThemeName.getParent() );
     mValues.put( KEY_TYPESET_CONTEXT_THEME_SELECTION, mThemeName.getFileName() );
+    mValues.put( KEY_TYPESET_CONTEXT_CLEAN, !mKeepFiles );
 
     final var format = ExportFormat.valueFrom( mFormatType, mFormatSubtype );
 

@@ -18,14 +18,16 @@ import javafx.scene.control.Label;
 import org.controlsfx.control.MasterDetailPane;
 
 import java.io.File;
+import java.util.Map;
 
 import static com.dlsc.formsfx.model.structure.Field.ofStringType;
 import static com.dlsc.preferencesfx.PreferencesFxEvent.EVENT_PREFERENCES_SAVED;
 import static com.keenwrite.Messages.get;
 import static com.keenwrite.constants.GraphicsConstants.ICON_DIALOG;
-import static com.keenwrite.preferences.LocaleProperty.localeListProperty;
-import static com.keenwrite.preferences.SkinProperty.skinListProperty;
 import static com.keenwrite.preferences.AppKeys.*;
+import static com.keenwrite.preferences.LocaleProperty.localeListProperty;
+import static com.keenwrite.preferences.MapField.ofMapType;
+import static com.keenwrite.preferences.SkinProperty.skinListProperty;
 import static javafx.scene.control.ButtonType.CANCEL;
 import static javafx.scene.control.ButtonType.OK;
 
@@ -85,6 +87,13 @@ public final class PreferencesController {
     return ofStringType( fontName ).render( control );
   }
 
+  private <K, V> MapField<K, V> createMapField(
+    final ObjectProperty<Map<K, V>> map ) {
+    final var control = new SimpleTableControl<>( map.get() );
+
+    return ofMapType( map ).render( control );
+  }
+
   /**
    * Creates the preferences dialog based using {@link XmlStorageHandler} and
    * numerous {@link Category} objects.
@@ -108,6 +117,13 @@ public final class PreferencesController {
     return new Category[]{
       Category.of(
         get( KEY_DOC ),
+        Group.of(
+          get( KEY_DOC_META ),
+          Setting.of( label( KEY_DOC_META ) ),
+          Setting.of( title( KEY_DOC_META ),
+                      createMapField( mapProperty( KEY_DOC_META ) ),
+                      mapProperty( KEY_DOC_META ) )
+        ),
         Group.of(
           get( KEY_DOC_TITLE ),
           Setting.of( label( KEY_DOC_TITLE ) ),
@@ -410,6 +426,10 @@ public final class PreferencesController {
 
   private ObjectProperty<String> localeProperty( final Key key ) {
     return mWorkspace.localeProperty( key );
+  }
+
+  private <K, V> MapProperty<K, V> mapProperty( final Key key ) {
+    return mWorkspace.mapProperty( key );
   }
 
   private PreferencesFx getPreferencesFx() {
