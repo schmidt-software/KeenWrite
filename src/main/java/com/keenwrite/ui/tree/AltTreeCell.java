@@ -1,7 +1,7 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.ui.tree;
 
-import com.keenwrite.ui.CellEditor;
+import com.keenwrite.ui.common.CellEditor;
 import javafx.scene.control.cell.TextFieldTreeCell;
 import javafx.util.StringConverter;
 

@@ -1,4 +1,4 @@
-package com.keenwrite.ui;
+package com.keenwrite.ui.common;
 
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.Property;
