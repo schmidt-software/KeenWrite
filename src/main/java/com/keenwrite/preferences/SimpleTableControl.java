@@ -135,7 +135,7 @@ public class SimpleTableControl<K, V>
       )
     );
     column.setCellFactory(
-      f -> new AltTableCell<>(
+      tableColumn -> new AltTableCell<>(
         new StringConverter<>() {
           @Override
           public String toString( final T object ) {

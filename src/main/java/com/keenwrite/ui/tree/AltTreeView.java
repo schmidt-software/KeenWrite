@@ -19,7 +19,7 @@ public class AltTreeView<T> extends TreeView<T> {
     super( root );
 
     setEditable( true );
-    setCellFactory( new AltTreeCellFactory<>( converter ) );
+    setCellFactory( treeView -> new AltTreeCell<>( converter ) );
     setShowRoot( false );
 
     // When focus is lost, clear the selected item only when not editing.
