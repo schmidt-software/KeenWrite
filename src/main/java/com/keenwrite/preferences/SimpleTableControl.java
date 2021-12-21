@@ -1,6 +1,7 @@
 package com.keenwrite.preferences;
 
 import com.dlsc.preferencesfx.formsfx.view.controls.SimpleControl;
+import com.keenwrite.ui.table.AltTableCell;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -66,10 +67,14 @@ public class SimpleTableControl<K, V>
         event -> {
           sCounter++;
 
-          final var k = (K) ("key" + sCounter);
-          final var v = (V) ("value" + sCounter);
-
-          model.add( new SimpleEntry<>( k, v ) );
+          model.add(
+            new SimpleEntry<>(
+              (K) ("key" + sCounter),
+              (V) ("value" + sCounter)
+            )
+          );
+          mMap.clear();
+          model.forEach( item -> mMap.put( item.getKey(), item.getValue() ) );
         }
       ),
 
@@ -130,7 +135,7 @@ public class SimpleTableControl<K, V>
       )
     );
     column.setCellFactory(
-      f -> new TextFieldTableCell<>(
+      f -> new AltTableCell<>(
         new StringConverter<>() {
           @Override
           public String toString( final T object ) {
