@@ -1,10 +1,8 @@
+/* Copyright 2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.preferences;
 
 import com.dlsc.formsfx.model.structure.Field;
 import com.dlsc.formsfx.model.util.BindingMode;
-import javafx.beans.property.ObjectProperty;
-
-import java.util.Map;
 
 /**
  * Responsible for binding a form field to a map of values that, ultimately,
@@ -17,10 +15,8 @@ public class MapField<K, V> extends Field<MapField<K, V>> {
 
   private final MapProperty<K, V> mMapProperty;
 
-  public static <K, V> MapField<K, V> ofMapType(
-    final ObjectProperty<Map<K, V>> binding ) {
-
-    return new MapField<>( new MapProperty<>( binding.get() ) );
+  public static <K, V> MapField<K, V> ofMapType( final MapProperty<K, V> map ) {
+    return new MapField<>( map );
   }
 
   private MapField( final MapProperty<K, V> mapProperty ) {
@@ -34,7 +30,8 @@ public class MapField<K, V> extends Field<MapField<K, V>> {
   }
 
   @Override
-  public void setBindingMode( final BindingMode newValue ) {
+  public void setBindingMode( final BindingMode bindingMode ) {
+    System.out.println( "BIND TO: " + bindingMode );
   }
 
   /**
@@ -49,9 +46,12 @@ public class MapField<K, V> extends Field<MapField<K, V>> {
 
   @Override
   public void persist() {
+    System.out.println( "PURSIST: " + mMapProperty );
+    System.out.println( mMapProperty.get() );
   }
 
   @Override
   public void reset() {
+    System.out.println( "RESET" );
   }
 }

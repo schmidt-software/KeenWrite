@@ -18,7 +18,6 @@ import javafx.scene.control.Label;
 import org.controlsfx.control.MasterDetailPane;
 
 import java.io.File;
-import java.util.Map;
 
 import static com.dlsc.formsfx.model.structure.Field.ofStringType;
 import static com.dlsc.preferencesfx.PreferencesFxEvent.EVENT_PREFERENCES_SAVED;
@@ -87,11 +86,8 @@ public final class PreferencesController {
     return ofStringType( fontName ).render( control );
   }
 
-  private <K, V> MapField<K, V> createMapField(
-    final ObjectProperty<Map<K, V>> map ) {
-    final var control = new SimpleTableControl<>( map.get() );
-
-    return ofMapType( map ).render( control );
+  private <K, V> MapField<K, V> createMapField( final MapProperty<K, V> map ) {
+    return ofMapType( map ).render( new SimpleTableControl<>() );
   }
 
   /**
@@ -365,6 +361,9 @@ public final class PreferencesController {
     return setting;
   }
 
+  /**
+   * Map ENTER and ESCAPE keys to OK and CANCEL buttons, respectively.
+   */
   private void initKeyEventHandler( final PreferencesFx preferences ) {
     final var view = preferences.getView();
     final var nodes = view.getChildrenUnmodifiable();
@@ -372,7 +371,7 @@ public final class PreferencesController {
     final var detail = (NavigationView) master.getDetailNode();
     final var pane = (DialogPane) view.getParent();
 
-    detail.setOnKeyReleased( ( key ) -> {
+    detail.setOnKeyReleased( key -> {
       switch( key.getCode() ) {
         case ENTER -> ((Button) pane.lookupButton( OK )).fire();
         case ESCAPE -> ((Button) pane.lookupButton( CANCEL )).fire();

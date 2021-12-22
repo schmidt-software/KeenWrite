@@ -1,3 +1,4 @@
+/* Copyright 2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.preferences;
 
 import javafx.beans.property.Property;

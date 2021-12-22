@@ -1,8 +1,10 @@
+/* Copyright 2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.preferences;
 
 import com.dlsc.preferencesfx.formsfx.view.controls.SimpleControl;
 import com.keenwrite.ui.table.AltTableCell;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -10,47 +12,42 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.VBox;
 import javafx.util.StringConverter;
 
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
-import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 
 import static com.keenwrite.ui.fonts.IconFactory.createGraphic;
 import static java.util.Arrays.asList;
 import static javafx.collections.FXCollections.observableArrayList;
 import static javafx.scene.control.SelectionMode.MULTIPLE;
+import static javafx.scene.control.TableView.CONSTRAINED_RESIZE_POLICY;
 
 public class SimpleTableControl<K, V>
   extends SimpleControl<MapField<K, V>, VBox> {
 
   private static long sCounter;
 
-  /**
-   * Data model for the table view, which must not be immutable.
-   */
-  private final Map<K, V> mMap;
+  private final ObservableList<Entry<K, V>> mModel = observableArrayList();
 
-  public SimpleTableControl( final Map<K, V> map ) {
-    assert map != null;
-
-    mMap = map;
+  public SimpleTableControl() {
   }
 
   /**
    * {@inheritDoc}
    */
   @Override
+  @SuppressWarnings( "unchecked" )
   public void initializeParts() {
     super.initializeParts();
 
-    final var model = observableArrayList( mMap.entrySet() );
-    final var table = new TableView<>( model );
+    final var table = new TableView<>( mModel );
 
+    table.setColumnResizePolicy( CONSTRAINED_RESIZE_POLICY );
     table.setEditable( true );
     table.getColumns().addAll(
       asList(
@@ -60,6 +57,8 @@ public class SimpleTableControl<K, V>
     );
     table.getSelectionModel().setSelectionMode( MULTIPLE );
 
+    final var inserted = workaroundBug( table );
+
     final var buttons = new ButtonBar();
     buttons.getButtons().addAll(
       createButton(
@@ -67,14 +66,16 @@ public class SimpleTableControl<K, V>
         event -> {
           sCounter++;
 
-          model.add(
+          inserted.set( true );
+          mModel.add(
             new SimpleEntry<>(
               (K) ("key" + sCounter),
               (V) ("value" + sCounter)
             )
           );
-          mMap.clear();
-          model.forEach( item -> mMap.put( item.getKey(), item.getValue() ) );
+
+//          map.clear();
+//          model.forEach( item -> map.put( item.getKey(), item.getValue() ) );
         }
       ),
 
@@ -101,6 +102,29 @@ public class SimpleTableControl<K, V>
     vbox.getChildren().addAll( table, buttons );
 
     super.node = vbox;
+  }
+
+  /**
+   * TODO: Delete method when bug is fixed. See the
+   * <a href="https://github.com/dlsc-software-consulting-gmbh/PreferencesFX/issues/413">issue
+   * tracker</a> for details about the bug.
+   *
+   * @param table Add a width listener to correct a slight width change.
+   * @return A Boolean lock so that the bug fix and "Add" button can
+   * be used to ensure regular resizes don't interfere with programmatic ones.
+   */
+  private AtomicBoolean workaroundBug( final TableView<Entry<K, V>> table ) {
+    final var inserted = new AtomicBoolean( true );
+
+    table.widthProperty().addListener( ( c, o, n ) -> {
+      if( (o != null && n != null)
+        && o.intValue() == n.intValue() - 2
+        && inserted.getAndSet( false ) ) {
+        table.setPrefWidth( table.getPrefWidth() - 2 );
+      }
+    } );
+
+    return inserted;
   }
 
   private Button createButton(
@@ -143,6 +167,7 @@ public class SimpleTableControl<K, V>
           }
 
           @Override
+          @SuppressWarnings( "unchecked" )
           public T fromString( final String string ) {
             return (T) string;
           }
@@ -164,8 +189,10 @@ public class SimpleTableControl<K, V>
         final var value = tableEntry.getValue();
         final var entry = new SimpleEntry<>( key, value );
 
-        mMap.remove( tableEntry.getKey() );
-        mMap.put( event.getNewValue(), tableEntry.getValue() );
+        System.out.println( "LA MAP: " + field.mapProperty().get() );
+
+//        mMap.remove( tableEntry.getKey() );
+//        mMap.put( event.getNewValue(), tableEntry.getValue() );
 
         final var items = event.getTableView().getItems();
         final var rowIndex = event.getTablePosition().getRow();

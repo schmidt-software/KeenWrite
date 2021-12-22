@@ -21,6 +21,7 @@ import static javafx.scene.input.KeyEvent.KEY_RELEASED;
 
 public class CellEditor {
   private FocusListener mFocusListener;
+  private final KeyHandler mKeyHandler = new KeyHandler();
   private final Property<String> mInputText = new SimpleStringProperty();
   private final Consumer<String> mConsumer;
 
@@ -81,19 +82,17 @@ public class CellEditor {
   }
 
   private void init( final ObjectProperty<Node> graphicProperty ) {
-    final var keyHandler = new KeyHandler();
-
     // When the text field is added as the graphics context, we hook into
     // the changed value to get a handle on the text field. From there it is
     // possible to add change the keyboard and focus behaviours.
     graphicProperty.addListener( ( c, o, n ) -> {
       if( o instanceof TextField ) {
-        o.removeEventHandler( KEY_RELEASED, keyHandler );
+        o.removeEventHandler( KEY_RELEASED, mKeyHandler );
         o.focusedProperty().removeListener( mFocusListener );
       }
 
       if( n instanceof final TextField input ) {
-        n.addEventFilter( KEY_RELEASED, keyHandler );
+        n.addEventFilter( KEY_RELEASED, mKeyHandler );
         mInputText.bind( input.textProperty() );
         mFocusListener = new FocusListener( input );
         n.focusedProperty().addListener( mFocusListener );
