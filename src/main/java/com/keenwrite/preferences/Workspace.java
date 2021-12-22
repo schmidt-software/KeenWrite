@@ -17,6 +17,7 @@ import java.io.File;
 import java.time.Year;
 import java.time.ZonedDateTime;
 import java.util.*;
+import java.util.Map.Entry;
 import java.util.function.BiConsumer;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
@@ -32,7 +33,8 @@ import static java.lang.System.getProperty;
 import static java.time.format.DateTimeFormatter.RFC_1123_DATE_TIME;
 import static java.util.Map.entry;
 import static javafx.application.Platform.runLater;
-import static javafx.collections.FXCollections.*;
+import static javafx.collections.FXCollections.observableArrayList;
+import static javafx.collections.FXCollections.observableSet;
 
 /**
  * Responsible for defining behaviours for separate projects. A workspace has
@@ -151,14 +153,11 @@ public final class Workspace implements KeyConfiguration {
   private final Map<Key, SetProperty<?>> SETS = Map.ofEntries(
     entry(
       KEY_UI_FILES_PATH,
-      new SimpleSetProperty<>( observableSet( new HashSet<>() ) )
-    )
-  );
-
-  private final Map<Key, MapProperty<?, ?>> MAPS = Map.ofEntries(
+      createSetProperty( new HashSet<String>() )
+    ),
     entry(
       KEY_DOC_META,
-      asMapProperty( new HashMap<String, String>() )
+      createSetProperty( new HashSet<Entry<String, String>>() )
     )
   );
 
@@ -213,20 +212,6 @@ public final class Workspace implements KeyConfiguration {
   }
 
   /**
-   * Returns the {@link Map} {@link Property} associated with the given
-   * {@link Key} from the internal list of preference values. The caller
-   * must be sure that the given {@link Key} is associated with a {@link Map}
-   * {@link Property}.
-   *
-   * @param key The {@link Key} associated with a preference value.
-   * @return The value associated with the given {@link Key}.
-   */
-  @SuppressWarnings( "unchecked" )
-  public <K, V> MapProperty<K, V> mapProperty( final Key key ) {
-    return (MapProperty<K, V>) MAPS.get( key );
-  }
-
-  /**
    * Creates an instance of {@link ObservableList} that is based on a
    * modifiable observable array list for the given items.
    *
@@ -236,6 +221,10 @@ public final class Workspace implements KeyConfiguration {
    */
   public static <E> ObservableList<E> listProperty( final Set<E> items ) {
     return new SimpleListProperty<>( observableArrayList( items ) );
+  }
+
+  private static <E> SetProperty<E> createSetProperty( final Set<E> set ) {
+    return new SimpleSetProperty<>( observableSet( set ) );
   }
 
   /**
@@ -285,14 +274,6 @@ public final class Workspace implements KeyConfiguration {
   @SuppressWarnings( "SameParameterValue" )
   private static LocaleProperty asLocaleProperty( final Locale value ) {
     return new LocaleProperty( value );
-  }
-
-  /**
-   * @param value Default value.
-   */
-  private static <K, V> MapProperty<K, V> asMapProperty(
-    final Map<K, V> value ) {
-    return new MapProperty<>( value );
   }
 
   /**
@@ -533,10 +514,6 @@ public final class Workspace implements KeyConfiguration {
     SETS.keySet().forEach( consumer );
   }
 
-  public void loadMapKeys( final Consumer<Key> consumer ) {
-    MAPS.keySet().forEach( consumer );
-  }
-
   /**
    * Calls the given consumer for all single-value keys. For lists, see
    * {@link #saveSets(BiConsumer)}.
@@ -556,10 +533,6 @@ public final class Workspace implements KeyConfiguration {
    */
   public void saveSets( final BiConsumer<Key, SetProperty<?>> consumer ) {
     SETS.forEach( consumer );
-  }
-
-  public void saveMaps( final BiConsumer<Key, MapProperty<?, ?>> consumer ) {
-    MAPS.forEach( consumer );
   }
 
   /**
@@ -582,15 +555,6 @@ public final class Workspace implements KeyConfiguration {
         ( key, set ) -> {
           final var keyName = key.toString();
           set.forEach( value -> config.addProperty( keyName, value ) );
-        }
-      );
-
-      saveMaps(
-        ( key, map ) -> {
-          final var keyName = key.toString();
-          map.get().forEach( ( k, v ) -> System.out.printf(
-            "SAVE (%s): %s == %s%n", keyName, k, v
-          ) );
         }
       );
 
@@ -626,13 +590,6 @@ public final class Workspace implements KeyConfiguration {
           new LinkedHashSet<>( config.getList( key.toString() ) );
         final var propertySet = setsProperty( key );
         propertySet.setValue( observableSet( configSet ) );
-      } );
-
-      loadMapKeys( key -> {
-        final var configMap = new HashMap<String, String>();
-        final MapProperty<String, String> propertyMap = mapProperty( key );
-        System.out.println( "MAP = " + propertyMap );
-        propertyMap.setValue( observableMap( configMap ) );
       } );
     } catch( final Exception ex ) {
       clue( ex );

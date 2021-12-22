@@ -3,30 +3,37 @@ package com.keenwrite.preferences;
 
 import com.dlsc.formsfx.model.structure.Field;
 import com.dlsc.formsfx.model.util.BindingMode;
+import javafx.beans.property.ListProperty;
+import javafx.beans.property.SimpleListProperty;
+
+import java.util.ArrayList;
+
+import static javafx.collections.FXCollections.observableList;
 
 /**
  * Responsible for binding a form field to a map of values that, ultimately,
  * users may edit.
  *
- * @param <K> The type of key to store in the map.
- * @param <V> The type of value to store in the map.
+ * @param <E> The type of elements to store in the list.
  */
-public class MapField<K, V> extends Field<MapField<K, V>> {
+public class TableField<E> extends Field<TableField<E>> {
 
-  private final MapProperty<K, V> mMapProperty;
+  /**
+   * Create a writeable list as the data model.
+   */
+  private final ListProperty<E> mViewProperty = new SimpleListProperty<>(
+    observableList( new ArrayList<>() )
+  );
 
-  public static <K, V> MapField<K, V> ofMapType( final MapProperty<K, V> map ) {
-    return new MapField<>( map );
+  public static <E> TableField<E> ofListType() {
+    return new TableField<>();
   }
 
-  private MapField( final MapProperty<K, V> mapProperty ) {
-    assert mapProperty != null;
-
-    mMapProperty = mapProperty;
+  private TableField() {
   }
 
-  public MapProperty<K, V> mapProperty() {
-    return mMapProperty;
+  public ListProperty<E> viewProperty() {
+    return mViewProperty;
   }
 
   @Override
@@ -46,8 +53,7 @@ public class MapField<K, V> extends Field<MapField<K, V>> {
 
   @Override
   public void persist() {
-    System.out.println( "PURSIST: " + mMapProperty );
-    System.out.println( mMapProperty.get() );
+    System.out.println( "PURSIST: " + mViewProperty );
   }
 
   @Override

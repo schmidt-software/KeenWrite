@@ -18,14 +18,15 @@ import javafx.scene.control.Label;
 import org.controlsfx.control.MasterDetailPane;
 
 import java.io.File;
+import java.util.Map.Entry;
 
 import static com.dlsc.formsfx.model.structure.Field.ofStringType;
 import static com.dlsc.preferencesfx.PreferencesFxEvent.EVENT_PREFERENCES_SAVED;
 import static com.keenwrite.Messages.get;
 import static com.keenwrite.constants.GraphicsConstants.ICON_DIALOG;
 import static com.keenwrite.preferences.AppKeys.*;
+import static com.keenwrite.preferences.TableField.ofListType;
 import static com.keenwrite.preferences.LocaleProperty.localeListProperty;
-import static com.keenwrite.preferences.MapField.ofMapType;
 import static com.keenwrite.preferences.SkinProperty.skinListProperty;
 import static javafx.scene.control.ButtonType.CANCEL;
 import static javafx.scene.control.ButtonType.OK;
@@ -86,8 +87,9 @@ public final class PreferencesController {
     return ofStringType( fontName ).render( control );
   }
 
-  private <K, V> MapField<K, V> createMapField( final MapProperty<K, V> map ) {
-    return ofMapType( map ).render( new SimpleTableControl<>() );
+  private <K, V> TableField<Entry<K, V>> createListEntryField() {
+    final TableField<Entry<K, V>> field = ofListType();
+    return field.render( new SimpleTableControl<>() );
   }
 
   /**
@@ -117,8 +119,8 @@ public final class PreferencesController {
           get( KEY_DOC_META ),
           Setting.of( label( KEY_DOC_META ) ),
           Setting.of( title( KEY_DOC_META ),
-                      createMapField( mapProperty( KEY_DOC_META ) ),
-                      mapProperty( KEY_DOC_META ) )
+                      createListEntryField(),
+                      listEntryProperty( KEY_DOC_META ) )
         ),
         Group.of(
           get( KEY_DOC_TITLE ),
@@ -427,8 +429,8 @@ public final class PreferencesController {
     return mWorkspace.localeProperty( key );
   }
 
-  private <K, V> MapProperty<K, V> mapProperty( final Key key ) {
-    return mWorkspace.mapProperty( key );
+  private <E> SetProperty<E> listEntryProperty( final Key key ) {
+    return mWorkspace.setsProperty( key );
   }
 
   private PreferencesFx getPreferencesFx() {

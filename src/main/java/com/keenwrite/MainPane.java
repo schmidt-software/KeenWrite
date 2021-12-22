@@ -1134,7 +1134,7 @@ public final class MainPane extends SplitPane {
    *
    * @return A {@link Set} of file names.
    */
-  private SetProperty<String> getRecentFiles() {
+  private <E> SetProperty<E> getRecentFiles() {
     return getWorkspace().setsProperty( KEY_UI_FILES_PATH );
   }
 }

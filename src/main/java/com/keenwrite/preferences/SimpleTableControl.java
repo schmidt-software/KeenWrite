@@ -4,7 +4,6 @@ package com.keenwrite.preferences;
 import com.dlsc.preferencesfx.formsfx.view.controls.SimpleControl;
 import com.keenwrite.ui.table.AltTableCell;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -23,16 +22,13 @@ import java.util.function.Function;
 
 import static com.keenwrite.ui.fonts.IconFactory.createGraphic;
 import static java.util.Arrays.asList;
-import static javafx.collections.FXCollections.observableArrayList;
 import static javafx.scene.control.SelectionMode.MULTIPLE;
 import static javafx.scene.control.TableView.CONSTRAINED_RESIZE_POLICY;
 
-public class SimpleTableControl<K, V>
-  extends SimpleControl<MapField<K, V>, VBox> {
+public class SimpleTableControl<K, V, F extends TableField<Entry<K, V>>>
+  extends SimpleControl<F, VBox> {
 
   private static long sCounter;
-
-  private final ObservableList<Entry<K, V>> mModel = observableArrayList();
 
   public SimpleTableControl() {
   }
@@ -41,11 +37,11 @@ public class SimpleTableControl<K, V>
    * {@inheritDoc}
    */
   @Override
-  @SuppressWarnings( "unchecked" )
   public void initializeParts() {
     super.initializeParts();
 
-    final var table = new TableView<>( mModel );
+    final var model = field.viewProperty();
+    final var table = new TableView<>( model );
 
     table.setColumnResizePolicy( CONSTRAINED_RESIZE_POLICY );
     table.setEditable( true );
@@ -57,7 +53,7 @@ public class SimpleTableControl<K, V>
     );
     table.getSelectionModel().setSelectionMode( MULTIPLE );
 
-    final var inserted = workaroundBug( table );
+    final var inserted = workaround( table );
 
     final var buttons = new ButtonBar();
     buttons.getButtons().addAll(
@@ -67,15 +63,7 @@ public class SimpleTableControl<K, V>
           sCounter++;
 
           inserted.set( true );
-          mModel.add(
-            new SimpleEntry<>(
-              (K) ("key" + sCounter),
-              (V) ("value" + sCounter)
-            )
-          );
-
-//          map.clear();
-//          model.forEach( item -> map.put( item.getKey(), item.getValue() ) );
+          model.add( createEntry( "key" + sCounter, "value" + sCounter ) );
         }
       ),
 
@@ -104,6 +92,11 @@ public class SimpleTableControl<K, V>
     super.node = vbox;
   }
 
+  @SuppressWarnings( "unchecked" )
+  private Entry<K, V> createEntry( final String k, final String v ) {
+    return new SimpleEntry<>( (K) k, (V) v );
+  }
+
   /**
    * TODO: Delete method when bug is fixed. See the
    * <a href="https://github.com/dlsc-software-consulting-gmbh/PreferencesFX/issues/413">issue
@@ -113,7 +106,8 @@ public class SimpleTableControl<K, V>
    * @return A Boolean lock so that the bug fix and "Add" button can
    * be used to ensure regular resizes don't interfere with programmatic ones.
    */
-  private AtomicBoolean workaroundBug( final TableView<Entry<K, V>> table ) {
+  private AtomicBoolean workaround(
+    final TableView<Entry<K, V>> table ) {
     final var inserted = new AtomicBoolean( true );
 
     table.widthProperty().addListener( ( c, o, n ) -> {
@@ -180,42 +174,12 @@ public class SimpleTableControl<K, V>
 
   private TableColumn<Entry<K, V>, K> createEditableColumnKey(
     final TableView<Entry<K, V>> table ) {
-    final var column = createColumn( table, Entry::getKey, "Key", .3 );
-
-    column.setOnEditCommit(
-      event -> {
-        final var tableEntry = event.getRowValue();
-        final var key = event.getNewValue();
-        final var value = tableEntry.getValue();
-        final var entry = new SimpleEntry<>( key, value );
-
-        System.out.println( "LA MAP: " + field.mapProperty().get() );
-
-//        mMap.remove( tableEntry.getKey() );
-//        mMap.put( event.getNewValue(), tableEntry.getValue() );
-
-        final var items = event.getTableView().getItems();
-        final var rowIndex = event.getTablePosition().getRow();
-
-        items.set( rowIndex, entry );
-      }
-    );
-
-    return column;
+    return createColumn( table, Entry::getKey, "Key", .3 );
   }
 
   private TableColumn<Entry<K, V>, V> createEditableColumnValue(
     final TableView<Entry<K, V>> table ) {
-    final var column = createColumn( table, Entry::getValue, "Value", .7 );
-
-    column.setOnEditCommit(
-      event -> {
-        final var tableEntry = event.getRowValue();
-        tableEntry.setValue( event.getNewValue() );
-      }
-    );
-
-    return column;
+    return createColumn( table, Entry::getValue, "Value", .7 );
   }
 
   @Override
