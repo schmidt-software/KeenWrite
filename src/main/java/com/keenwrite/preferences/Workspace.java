@@ -154,10 +154,13 @@ public final class Workspace implements KeyConfiguration {
     entry(
       KEY_UI_FILES_PATH,
       createSetProperty( new HashSet<String>() )
-    ),
+    )
+  );
+
+  private final Map<Key, ListProperty<?>> LISTS = Map.ofEntries(
     entry(
       KEY_DOC_META,
-      createSetProperty( new HashSet<Entry<String, String>>() )
+      createListProperty( new LinkedList<Entry<String, String>>() )
     )
   );
 
@@ -197,9 +200,9 @@ public final class Workspace implements KeyConfiguration {
   }
 
   /**
-   * Returns a list of values that represent a setting in the application that
+   * Returns a set of values that represent a setting in the application that
    * the user may configure, either directly or indirectly. The property
-   * returned is backed by a mutable {@link Set}.
+   * returned is backed by a {@link Set}.
    *
    * @param key The {@link Key} associated with a preference value.
    * @return An observable property to be persisted.
@@ -209,6 +212,20 @@ public final class Workspace implements KeyConfiguration {
     assert key != null;
     // The type that goes into the map must come out.
     return (SetProperty<T>) SETS.get( key );
+  }
+
+  /**
+   * Returns a list of values that represent a setting in the application that
+   * the user may configure, either directly or indirectly. The property
+   * returned is backed by a mutable {@link List}.
+   *
+   * @param key The {@link Key} associated with a preference value.
+   * @return An observable property to be persisted.
+   */
+  @SuppressWarnings( "unchecked" )
+  public <T> ListProperty<T> listsProperty( final Key key ) {
+    assert key != null;
+    return (ListProperty<T>) LISTS.get( key );
   }
 
   /**
@@ -225,6 +242,11 @@ public final class Workspace implements KeyConfiguration {
 
   private static <E> SetProperty<E> createSetProperty( final Set<E> set ) {
     return new SimpleSetProperty<>( observableSet( set ) );
+  }
+
+  private static <E> ListProperty<E> createListProperty( final List<E> list ) {
+    return new SimpleListProperty<>( observableArrayList( list ) );
+
   }
 
   /**
@@ -514,9 +536,13 @@ public final class Workspace implements KeyConfiguration {
     SETS.keySet().forEach( consumer );
   }
 
+  public void loadListKeys( final Consumer<Key> consumer ) {
+    LISTS.keySet().forEach( consumer );
+  }
+
   /**
-   * Calls the given consumer for all single-value keys. For lists, see
-   * {@link #saveSets(BiConsumer)}.
+   * Calls the given consumer for all single-value keys. Sets use
+   * {@link #saveSets(BiConsumer)} and lists use {@link #saveLists(BiConsumer)}.
    *
    * @param consumer Called to accept each preference key value.
    */
@@ -529,10 +555,21 @@ public final class Workspace implements KeyConfiguration {
    * {@link #saveValues(BiConsumer)}. Callers are responsible for iterating
    * over the list of items retrieved through this method.
    *
-   * @param consumer Called to accept each preference key list.
+   * @param consumer Called to accept each preference key in the set.
    */
   public void saveSets( final BiConsumer<Key, SetProperty<?>> consumer ) {
     SETS.forEach( consumer );
+  }
+
+  /**
+   * Calls the given consumer for all multi-value keys. For single items, see
+   * {@link #saveValues(BiConsumer)}. Callers are responsible for iterating
+   * over the list of items retrieved through this method.
+   *
+   * @param consumer Called to accept each preference key in the list.
+   */
+  public void saveLists( final BiConsumer<Key, ListProperty<?>> consumer ) {
+    LISTS.forEach( consumer );
   }
 
   /**
@@ -558,6 +595,15 @@ public final class Workspace implements KeyConfiguration {
         }
       );
 
+      saveLists(
+        ( key, list ) -> {
+          final var keyName = key.toString();
+          list.forEach(
+            value -> System.out.printf( "SAVE K/V: %s = %s%n", keyName, value )
+          );
+        }
+      );
+
       new FileHandler( config ).save( FILE_PREFERENCES );
     } catch( final Exception ex ) {
       clue( ex );
@@ -580,16 +626,24 @@ public final class Workspace implements KeyConfiguration {
 
         // Allow other properties to load, even if any are missing.
         if( configValue != null ) {
-          final var propertyValue = valuesProperty( key );
-          propertyValue.setValue( unmarshall( propertyValue, configValue ) );
+          final var property = valuesProperty( key );
+          property.setValue( unmarshall( property, configValue ) );
         }
       } );
 
       loadSetKeys( key -> {
         final var configSet =
           new LinkedHashSet<>( config.getList( key.toString() ) );
-        final var propertySet = setsProperty( key );
-        propertySet.setValue( observableSet( configSet ) );
+        final var property = setsProperty( key );
+        property.setValue( observableSet( configSet ) );
+      } );
+
+      loadListKeys( key -> {
+        System.out.println( "LOAD LIST KEY: " + key );
+        final var configList =
+          new LinkedList<>( config.getList( key.toString() ) );
+        final var property = listsProperty( key );
+        property.setValue( observableArrayList( configList ) );
       } );
     } catch( final Exception ex ) {
       clue( ex );

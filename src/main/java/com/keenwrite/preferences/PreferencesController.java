@@ -25,9 +25,9 @@ import static com.dlsc.preferencesfx.PreferencesFxEvent.EVENT_PREFERENCES_SAVED;
 import static com.keenwrite.Messages.get;
 import static com.keenwrite.constants.GraphicsConstants.ICON_DIALOG;
 import static com.keenwrite.preferences.AppKeys.*;
-import static com.keenwrite.preferences.TableField.ofListType;
 import static com.keenwrite.preferences.LocaleProperty.localeListProperty;
 import static com.keenwrite.preferences.SkinProperty.skinListProperty;
+import static com.keenwrite.preferences.TableField.ofListType;
 import static javafx.scene.control.ButtonType.CANCEL;
 import static javafx.scene.control.ButtonType.OK;
 
@@ -87,9 +87,18 @@ public final class PreferencesController {
     return ofStringType( fontName ).render( control );
   }
 
-  private <K, V> TableField<Entry<K, V>> createListEntryField() {
-    final TableField<Entry<K, V>> field = ofListType();
-    return field.render( new SimpleTableControl<>() );
+  /**
+   * Convenience method to create a helper class for the user interface. This
+   * establishes a key-value pair for the view.
+   *
+   * @param persist A reference to the values that will be persisted.
+   * @param <K>     The type of key, usually a string.
+   * @param <V>     The type of value, usually a string.
+   * @return UI data model container that may update the persistent state.
+   */
+  private <K, V> TableField<Entry<K, V>> createTableField(
+    final ListProperty<Entry<K, V>> persist ) {
+    return ofListType( persist ).render( new SimpleTableControl<>() );
   }
 
   /**
@@ -119,7 +128,7 @@ public final class PreferencesController {
           get( KEY_DOC_META ),
           Setting.of( label( KEY_DOC_META ) ),
           Setting.of( title( KEY_DOC_META ),
-                      createListEntryField(),
+                      createTableField( listEntryProperty( KEY_DOC_META ) ),
                       listEntryProperty( KEY_DOC_META ) )
         ),
         Group.of(
@@ -429,8 +438,8 @@ public final class PreferencesController {
     return mWorkspace.localeProperty( key );
   }
 
-  private <E> SetProperty<E> listEntryProperty( final Key key ) {
-    return mWorkspace.setsProperty( key );
+  private <E> ListProperty<E> listEntryProperty( final Key key ) {
+    return mWorkspace.listsProperty( key );
   }
 
   private PreferencesFx getPreferencesFx() {
