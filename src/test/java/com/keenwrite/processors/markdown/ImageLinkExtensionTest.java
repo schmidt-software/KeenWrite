@@ -40,7 +40,7 @@ import static org.testfx.util.WaitForAsyncUtils.waitForFxEvents;
 @SuppressWarnings( "SameParameterValue" )
 public class ImageLinkExtensionTest {
   private static final Workspace sWorkspace = new Workspace(
-    getResource( "workspace.xml" ) );
+    getResourceFile( "workspace.xml" ) );
 
   private static final Map<String, String> IMAGES = new HashMap<>();
 
@@ -172,5 +172,9 @@ public class ImageLinkExtensionTest {
 
   private static String getResource( final String path ) {
     return toUri( path ).toString();
+  }
+
+  private static File getResourceFile( final String path ) {
+    return new File( getResource( path ) );
   }
 }

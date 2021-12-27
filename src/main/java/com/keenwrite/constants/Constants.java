@@ -61,7 +61,7 @@ public final class Constants {
   public static final String STYLESHEET_PREVIEW_LOCALE =
     "file.stylesheet.preview.locale";
 
-  public static final String FILE_PREFERENCES = getPreferencesFilename();
+  public static final File FILE_PREFERENCES = getPreferencesFile();
 
   /**
    * Refer to file name extension settings in the configuration file. Do not
@@ -257,12 +257,12 @@ public final class Constants {
   /**
    * Returns the equivalent of {@code $HOME/.filename.xml}.
    */
-  private static String getPreferencesFilename() {
-    return format(
+  private static File getPreferencesFile() {
+    return new File( format(
       "%s%s.%s.xml",
       getProperty( "user.home" ),
       separator,
       APP_TITLE_LOWERCASE
-    );
+    ) );
   }
 }

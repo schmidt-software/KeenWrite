@@ -15,10 +15,7 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringReader;
-import java.io.StringWriter;
+import java.io.*;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
@@ -70,12 +67,6 @@ public class DocumentParser {
     }
   }
 
-  /**
-   * Use the {@code static} constants and methods, not an instance, at least
-   * until an iterable sub-interface is written.
-   */
-  private DocumentParser() {}
-
   public static Document newDocument() {
     return sDocumentBuilder.newDocument();
   }
@@ -103,6 +94,30 @@ public class DocumentParser {
     }
   }
 
+  /**
+   * Parses the given file contents into a document object model.
+   *
+   * @param doc The source XML document to parse.
+   * @return The file as a document object model.
+   * @throws IOException  Could not open the document.
+   * @throws SAXException Could not read the XML file content.
+   */
+  public static Document parse( final File doc )
+    throws IOException, SAXException {
+    try( final var in = new FileInputStream( doc ) ) {
+      return parse( in );
+    }
+  }
+
+  /**
+   * Parses the given file contents into a document object model. Callers
+   * must close the stream.
+   *
+   * @param doc The source XML document to parse.
+   * @return The {@link InputStream} converted to a document object model.
+   * @throws IOException  Could not open the document.
+   * @throws SAXException Could not read the XML file content.
+   */
   public static Document parse( final InputStream doc )
     throws IOException, SAXException {
     return sDocumentBuilder.parse( doc );
@@ -116,18 +131,18 @@ public class DocumentParser {
    * @param xpath    Document elements to find via {@link XPath} expression.
    * @param consumer The consumer to call for each matching document node.
    */
-  public static void walk(
+  public static void visit(
     final Document document,
-    final String xpath,
+    final CharSequence xpath,
     final Consumer<Node> consumer ) {
     assert document != null;
     assert consumer != null;
 
     try {
-      final var expr = lookupXPathExpression( xpath );
-      final var nodes = (NodeList) expr.evaluate( document, NODESET );
+      final var expr = compile( xpath );
+      final var nodeSet = expr.evaluate( document, NODESET );
 
-      if( nodes != null ) {
+      if( nodeSet instanceof NodeList nodes ) {
         for( int i = 0, len = nodes.getLength(); i < len; i++ ) {
           consumer.accept( nodes.item( i ) );
         }
@@ -188,21 +203,9 @@ public class DocumentParser {
     );
   }
 
-  /**
-   * Adorns the given document with {@code html}, {@code head}, and
-   * {@code body} elements.
-   *
-   * @param html The document to decorate.
-   * @return A document with a typical HTML structure.
-   */
-  public static String decorate( final String html ) {
-    return
-      "<html><head><title> </title><meta charset='utf8'/></head><body>"
-        + html
-        + "</body></html>";
-  }
+  public static XPathExpression compile( final CharSequence cs )   {
+    final var xpath = cs.toString();
 
-  private static XPathExpression lookupXPathExpression( final String xpath ) {
     return sXpaths.computeIfAbsent( xpath, k -> {
       try {
         return sXpath.compile( xpath );
@@ -212,4 +215,10 @@ public class DocumentParser {
       }
     } );
   }
+
+  /**
+   * Use the {@code static} constants and methods, not an instance, at least
+   * until an iterable sub-interface is written.
+   */
+  private DocumentParser() {}
 }

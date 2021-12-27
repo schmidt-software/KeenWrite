@@ -91,10 +91,13 @@ public class TeXRasterizationTest {
 
     final var expectedSvg = g.toString();
     final var bytes = expectedSvg.getBytes();
-    final var doc = parse( new ByteArrayInputStream( bytes ) );
-    final var actualSvg = toSvg( doc.getDocumentElement() );
 
-    verifyImage( rasterizeString( actualSvg ) );
+    try( final var in = new ByteArrayInputStream( bytes ) ) {
+      final var doc = parse( in );
+      final var actualSvg = toSvg( doc.getDocumentElement() );
+
+      verifyImage( rasterizeString( actualSvg ) );
+    }
   }
 
   /**

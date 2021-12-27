@@ -4,6 +4,7 @@ package com.keenwrite.editors.markdown;
 import com.keenwrite.Caret;
 import com.keenwrite.constants.Constants;
 import com.keenwrite.editors.TextEditor;
+import com.keenwrite.events.TextEditorFocusEvent;
 import com.keenwrite.io.MediaType;
 import com.keenwrite.preferences.LocaleProperty;
 import com.keenwrite.preferences.Workspace;
@@ -37,7 +38,6 @@ import java.util.regex.Pattern;
 import static com.keenwrite.MainApp.keyDown;
 import static com.keenwrite.constants.Constants.*;
 import static com.keenwrite.events.StatusEvent.clue;
-import static com.keenwrite.events.TextEditorFocusEvent.fireTextEditorFocus;
 import static com.keenwrite.io.MediaType.TEXT_MARKDOWN;
 import static com.keenwrite.io.MediaType.TEXT_R_MARKDOWN;
 import static com.keenwrite.preferences.AppKeys.*;
@@ -150,7 +150,7 @@ public final class MarkdownEditor extends BorderPane implements TextEditor {
 
     textArea.focusedProperty().addListener( ( c, o, n ) -> {
       if( n != null && n ) {
-        fireTextEditorFocus( this );
+        TextEditorFocusEvent.fire( this );
       }
     } );
   }

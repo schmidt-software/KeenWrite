@@ -9,15 +9,15 @@ import java.util.prefs.Preferences;
 
 /**
  * Prevents {@link PreferencesFx} from saving. Saving and loading preferences
- * and application window state is accomplished by the {@link Workspace}.
- * <p>
- * This implies that undo/redo functionality must be disabled because the
- * {@link Workspace} does not preserve previous states.
- * </p>
+ * and application window state is accomplished by the {@link Workspace}. This
+ * is required to change the user preferences file location and data format.
+ *
+ * @see XmlStore
+ * @see Workspace
  */
-public final class XmlStorageHandler implements StorageHandler {
+public final class SkeletonStorageHandler implements StorageHandler {
   @Override
-  public void saveSelectedCategory( final String breadcrumb ) { }
+  public void saveSelectedCategory( final String breadcrumb ) {}
 
   @Override
   public String loadSelectedCategory() {
@@ -25,8 +25,7 @@ public final class XmlStorageHandler implements StorageHandler {
   }
 
   @Override
-  public void saveDividerPosition( final double dividerPosition ) {
-  }
+  public void saveDividerPosition( final double dividerPosition ) {}
 
   @Override
   public double loadDividerPosition() {
@@ -34,7 +33,7 @@ public final class XmlStorageHandler implements StorageHandler {
   }
 
   @Override
-  public void saveWindowWidth( final double windowWidth ) { }
+  public void saveWindowWidth( final double windowWidth ) {}
 
   @Override
   public double loadWindowWidth() {
@@ -42,7 +41,7 @@ public final class XmlStorageHandler implements StorageHandler {
   }
 
   @Override
-  public void saveWindowHeight( final double windowHeight ) { }
+  public void saveWindowHeight( final double windowHeight ) {}
 
   @Override
   public double loadWindowHeight() {
@@ -50,7 +49,7 @@ public final class XmlStorageHandler implements StorageHandler {
   }
 
   @Override
-  public void saveWindowPosX( final double windowPosX ) { }
+  public void saveWindowPosX( final double windowPosX ) {}
 
   @Override
   public double loadWindowPosX() {
@@ -58,7 +57,7 @@ public final class XmlStorageHandler implements StorageHandler {
   }
 
   @Override
-  public void saveWindowPosY( final double windowPosY ) { }
+  public void saveWindowPosY( final double windowPosY ) {}
 
   @Override
   public double loadWindowPosY() {
@@ -66,7 +65,7 @@ public final class XmlStorageHandler implements StorageHandler {
   }
 
   @Override
-  public void saveObject( final String breadcrumb, final Object object ) { }
+  public void saveObject( final String breadcrumb, final Object object ) {}
 
   @Override
   public Object loadObject(
@@ -81,7 +80,7 @@ public final class XmlStorageHandler implements StorageHandler {
   }
 
   @Override
-  @SuppressWarnings("rawtypes")
+  @SuppressWarnings( "rawtypes" )
   public ObservableList loadObservableList(
     final String breadcrumb, final ObservableList defaultObservableList ) {
     return defaultObservableList;

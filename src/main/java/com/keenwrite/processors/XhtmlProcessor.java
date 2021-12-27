@@ -2,23 +2,25 @@
 package com.keenwrite.processors;
 
 import com.keenwrite.dom.DocumentParser;
-import com.keenwrite.preferences.Key;
 import com.keenwrite.preferences.Workspace;
 import com.keenwrite.ui.heuristics.WordCounter;
 import com.whitemagicsoftware.keenquotes.Contractions;
 import com.whitemagicsoftware.keenquotes.Converter;
-import javafx.beans.property.StringProperty;
+import javafx.beans.property.ListProperty;
 import org.w3c.dom.Document;
 
 import java.io.FileNotFoundException;
 import java.nio.file.Path;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.regex.Pattern;
 
 import static com.keenwrite.Bootstrap.APP_TITLE_LOWERCASE;
-import static com.keenwrite.dom.DocumentParser.*;
+import static com.keenwrite.dom.DocumentParser.createMeta;
+import static com.keenwrite.dom.DocumentParser.visit;
 import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.io.HttpFacade.httpGet;
 import static com.keenwrite.preferences.AppKeys.*;
@@ -47,6 +49,20 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
 
   private final ProcessorContext mContext;
 
+  /**
+   * Adorns the given document with {@code html}, {@code head}, and
+   * {@code body} elements.
+   *
+   * @param html The document to decorate.
+   * @return A document with a typical HTML structure.
+   */
+  private static String decorate( final String html ) {
+    return
+      "<html><head><title> </title><meta charset='utf8'/></head><body>"
+        + html
+        + "</body></html>";
+  }
+
   public XhtmlProcessor(
     final Processor<String> successor, final ProcessorContext context ) {
     super( successor );
@@ -70,7 +86,7 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
       final var doc = DocumentParser.parse( decorate( html ) );
       setMetaData( doc );
 
-      walk( doc, "//img", node -> {
+      visit( doc, "//img", node -> {
         try {
           final var attrs = node.getAttributes();
 
@@ -104,13 +120,16 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
    * @param doc The document to adorn with metadata.
    */
   private void setMetaData( final Document doc ) {
-    final var metadata = createMetaData( doc );
-
-    walk( doc, "/html/head", node ->
+    final var metadata = createMetaDataMap( doc );
+    visit( doc, "/html/head", node ->
       metadata.entrySet()
               .forEach( entry -> node.appendChild( createMeta( doc, entry ) ) )
     );
-    walk( doc, "/html/head/title", node -> node.setTextContent( title() ) );
+
+    final var title = metadata.get( "title" );
+    if( title != null ) {
+      visit( doc, "/html/head/title", node -> node.setTextContent( title ) );
+    }
   }
 
   /**
@@ -119,18 +138,27 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
    * @param doc The document containing the text to tally.
    * @return A map of metadata key/value pairs.
    */
-  private Map<String, String> createMetaData( final Document doc ) {
-    return Map.of(
-      "author", author(),
-      "byline", byLine(),
-      "address", address(),
-      "phone", phone(),
-      "email", email(),
-      "count", wordCount( doc ),
-      "keywords", keywords(),
-      "copyright", copyright(),
-      "date", date()
+  private Map<String, String> createMetaDataMap( final Document doc ) {
+    final Map<String, String> map = new LinkedHashMap<>();
+    final ListProperty<Map.Entry<String, String>> metadata = getMetaData();
+
+    metadata.forEach( entry -> map.put(
+      entry.getKey(), resolve( entry.getValue() ) )
     );
+    map.put( "count", wordCount( doc ) );
+
+    return map;
+  }
+
+  /**
+   * The metadata is in list form because the user interface for entering the
+   * key-value pairs is a table, which requires a generic {@link List} rather
+   * than a generic {@link Map}.
+   *
+   * @return The document metadata.
+   */
+  private ListProperty<Entry<String, String>> getMetaData() {
+    return getWorkspace().listsProperty( KEY_DOC_META );
   }
 
   /**
@@ -220,52 +248,16 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
 
   private Locale locale() {return getWorkspace().getLocale();}
 
-  private String title() {
-    return resolve( KEY_DOC_TITLE );
-  }
-
-  private String author() {
-    return resolve( KEY_DOC_AUTHOR );
-  }
-
-  private String byLine() {
-    return resolve( KEY_DOC_BYLINE );
-  }
-
-  private String address() {
-    return resolve( KEY_DOC_ADDRESS ).replaceAll( "\n", "\\\\\\break{}" );
-  }
-
-  private String phone() {
-    return resolve( KEY_DOC_PHONE );
-  }
-
-  private String email() {
-    return resolve( KEY_DOC_EMAIL );
-  }
-
   private String wordCount( final Document doc ) {
     final var sb = new StringBuilder( 65536 * 10 );
 
-    walk(
+    visit(
       doc,
       "//*[normalize-space( text() ) != '']",
       node -> sb.append( node.getTextContent() )
     );
 
     return valueOf( WordCounter.create( locale() ).count( sb.toString() ) );
-  }
-
-  private String keywords() {
-    return resolve( KEY_DOC_KEYWORDS );
-  }
-
-  private String copyright() {
-    return resolve( KEY_DOC_COPYRIGHT );
-  }
-
-  private String date() {
-    return resolve( KEY_DOC_DATE );
   }
 
   /**
@@ -277,16 +269,8 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
     return getWorkspace().getBoolean( KEY_TYPESET_TYPOGRAPHY_QUOTES );
   }
 
-  private String resolve( final Key key ) {
-    return replace( asString( key ), mContext.getResolvedMap() );
-  }
-
-  private String asString( final Key key ) {
-    return stringProperty( key ).get();
-  }
-
-  private StringProperty stringProperty( final Key key ) {
-    return getWorkspace().stringProperty( key );
+  private String resolve( final String value ) {
+    return replace( value, mContext.getResolvedMap() );
   }
 
   /**

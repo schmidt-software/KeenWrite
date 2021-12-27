@@ -5,6 +5,7 @@ import com.keenwrite.editors.definition.DefinitionEditor;
 import com.keenwrite.editors.definition.yaml.YamlTreeTransformer;
 import com.keenwrite.editors.markdown.MarkdownEditor;
 import com.keenwrite.preferences.Workspace;
+import com.keenwrite.preferences.XmlStore;
 import com.keenwrite.preview.HtmlPreview;
 import com.keenwrite.sigils.Sigils;
 import com.keenwrite.sigils.YamlSigilOperator;
@@ -49,7 +50,8 @@ public class TreeViewTest extends Application {
 
   @Start
   private void onStart( final Stage stage ) {
-    final var workspace = new Workspace();
+    final var store = new XmlStore();
+    final var workspace = new Workspace( store );
     final var mainPane = new SplitPane();
 
     final var began = new SimpleStringProperty( DEF_DELIM_BEGAN_DEFAULT );

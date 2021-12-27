@@ -14,7 +14,7 @@ public class TextEditorFocusEvent extends FocusEvent<TextEditor> {
    *
    * @param editor The instance of editor that has gained input focus.
    */
-  public static void fireTextEditorFocus( final TextEditor editor ) {
+  public static void fire( final TextEditor editor ) {
     new TextEditorFocusEvent( editor ).publish();
   }
 }

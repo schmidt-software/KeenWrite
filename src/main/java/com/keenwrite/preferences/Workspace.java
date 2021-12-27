@@ -9,18 +9,11 @@ import com.keenwrite.sigils.YamlSigilOperator;
 import javafx.application.Platform;
 import javafx.beans.property.*;
 import javafx.collections.ObservableList;
-import org.apache.commons.configuration2.XMLConfiguration;
-import org.apache.commons.configuration2.builder.fluent.Configurations;
-import org.apache.commons.configuration2.io.FileHandler;
 
 import java.io.File;
-import java.time.Year;
-import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.Map.Entry;
-import java.util.function.BiConsumer;
 import java.util.function.BooleanSupplier;
-import java.util.function.Consumer;
 import java.util.function.Function;
 
 import static com.keenwrite.Bootstrap.APP_TITLE_LOWERCASE;
@@ -28,9 +21,6 @@ import static com.keenwrite.Launcher.getVersion;
 import static com.keenwrite.constants.Constants.*;
 import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.preferences.AppKeys.*;
-import static java.lang.String.valueOf;
-import static java.lang.System.getProperty;
-import static java.time.format.DateTimeFormatter.RFC_1123_DATE_TIME;
 import static java.util.Map.entry;
 import static javafx.application.Platform.runLater;
 import static javafx.collections.FXCollections.observableArrayList;
@@ -71,16 +61,6 @@ public final class Workspace implements KeyConfiguration {
   private final Map<Key, Property<?>> VALUES = Map.ofEntries(
     entry( KEY_META_VERSION, asStringProperty( getVersion() ) ),
     entry( KEY_META_NAME, asStringProperty( "default" ) ),
-
-    entry( KEY_DOC_TITLE, asStringProperty( "title" ) ),
-    entry( KEY_DOC_AUTHOR, asStringProperty( getProperty( "user.name" ) ) ),
-    entry( KEY_DOC_BYLINE, asStringProperty( getProperty( "user.name" ) ) ),
-    entry( KEY_DOC_ADDRESS, asStringProperty( "" ) ),
-    entry( KEY_DOC_PHONE, asStringProperty( "" ) ),
-    entry( KEY_DOC_EMAIL, asStringProperty( "" ) ),
-    entry( KEY_DOC_KEYWORDS, asStringProperty( "science, nature" ) ),
-    entry( KEY_DOC_COPYRIGHT, asStringProperty( getYear() ) ),
-    entry( KEY_DOC_DATE, asStringProperty( getDate() ) ),
 
     entry( KEY_EDITOR_AUTOSAVE, asIntegerProperty( 30 ) ),
 
@@ -164,24 +144,30 @@ public final class Workspace implements KeyConfiguration {
     )
   );
 
+  private final XmlStore mStore;
+
   /**
-   * Creates a new {@link Workspace} that will attempt to load a configuration
-   * file. If the configuration file cannot be loaded, the workspace settings
-   * will return default values. This allows unit tests to provide an instance
-   * of {@link Workspace} when necessary without encountering failures.
+   * Creates a new {@link Workspace} using values found in the given
+   * {@link XmlStore}.
+   *
+   * @param store Contains user preferences, usually persisted.
    */
-  public Workspace() {
-    load( FILE_PREFERENCES );
+  public Workspace( final XmlStore store ) {
+    mStore = store;
   }
 
   /**
    * Creates a new {@link Workspace} that will attempt to load the given
-   * configuration file.
+   * configuration file. If the configuration file cannot be loaded, the
+   * workspace settings will return default values. This creates an instance
+   * of {@link XmlStore} to load and parse the user preferences.
    *
-   * @param filename The file to load.
+   * @param file The file to load.
    */
-  public Workspace( final String filename ) {
-    load( filename );
+  public Workspace( final File file ) {
+    // Root-level configuration item is the application name.
+    this( new XmlStore( file, APP_TITLE_LOWERCASE ) );
+    load( mStore );
   }
 
   /**
@@ -223,9 +209,9 @@ public final class Workspace implements KeyConfiguration {
    * @return An observable property to be persisted.
    */
   @SuppressWarnings( "unchecked" )
-  public <T> ListProperty<T> listsProperty( final Key key ) {
+  public <K, V> ListProperty<Entry<K, V>> listsProperty( final Key key ) {
     assert key != null;
-    return (ListProperty<T>) LISTS.get( key );
+    return (ListProperty<Entry<K, V>>) LISTS.get( key );
   }
 
   /**
@@ -246,7 +232,6 @@ public final class Workspace implements KeyConfiguration {
 
   private static <E> ListProperty<E> createListProperty( final List<E> list ) {
     return new SimpleListProperty<>( observableArrayList( list ) );
-
   }
 
   /**
@@ -528,126 +513,76 @@ public final class Workspace implements KeyConfiguration {
     );
   }
 
-  public void loadValueKeys( final Consumer<Key> consumer ) {
-    VALUES.keySet().forEach( consumer );
-  }
-
-  public void loadSetKeys( final Consumer<Key> consumer ) {
-    SETS.keySet().forEach( consumer );
-  }
-
-  public void loadListKeys( final Consumer<Key> consumer ) {
-    LISTS.keySet().forEach( consumer );
-  }
-
   /**
-   * Calls the given consumer for all single-value keys. Sets use
-   * {@link #saveSets(BiConsumer)} and lists use {@link #saveLists(BiConsumer)}.
+   * Attempts to load the {@link Constants#FILE_PREFERENCES} configuration file.
+   * If not found, this will fall back to an empty configuration file, leaving
+   * the application to fill in default values.
    *
-   * @param consumer Called to accept each preference key value.
+   * @param store Container of user preferences to load.
    */
-  public void saveValues( final BiConsumer<Key, Property<?>> consumer ) {
-    VALUES.forEach( consumer );
-  }
+  public void load( final XmlStore store ) {
+    VALUES.keySet().forEach( key -> {
+      final var value = store.getValue( key );
+      final var property = valuesProperty( key );
 
-  /**
-   * Calls the given consumer for all multi-value keys. For single items, see
-   * {@link #saveValues(BiConsumer)}. Callers are responsible for iterating
-   * over the list of items retrieved through this method.
-   *
-   * @param consumer Called to accept each preference key in the set.
-   */
-  public void saveSets( final BiConsumer<Key, SetProperty<?>> consumer ) {
-    SETS.forEach( consumer );
-  }
+      property.setValue( unmarshall( property, value ) );
+    } );
 
-  /**
-   * Calls the given consumer for all multi-value keys. For single items, see
-   * {@link #saveValues(BiConsumer)}. Callers are responsible for iterating
-   * over the list of items retrieved through this method.
-   *
-   * @param consumer Called to accept each preference key in the list.
-   */
-  public void saveLists( final BiConsumer<Key, ListProperty<?>> consumer ) {
-    LISTS.forEach( consumer );
+    SETS.keySet().forEach( key -> {
+      final var set = store.getSet( key );
+      final SetProperty<String> property = setsProperty( key );
+
+      property.setValue( observableSet( set ) );
+    } );
+
+    LISTS.keySet().forEach( key -> {
+      final var map = store.getMap( key );
+      final ListProperty<Entry<String, String>> property = listsProperty( key );
+      final var list = map
+        .entrySet()
+        .stream()
+        .toList();
+
+      property.setValue( observableArrayList( list ) );
+    } );
   }
 
   /**
    * Saves the current workspace.
    */
   public void save() {
-    try {
-      final var config = new XMLConfiguration();
+    assert mStore != null;
 
-      // The root config key can only be set for an empty configuration file.
-      config.setRootElementName( APP_TITLE_LOWERCASE );
+    final var store = mStore;
+
+    try {
+      // Update the string values to include the application version.
       valuesProperty( KEY_META_VERSION ).setValue( getVersion() );
 
-      saveValues(
-        ( key, property ) ->
-          config.setProperty( key.toString(), marshall( property ) )
-      );
+      VALUES.forEach( ( key, val ) -> store.setValue( key, marshall( val ) ) );
+      SETS.forEach( store::setSet );
+      LISTS.forEach( store::setMap );
 
-      saveSets(
-        ( key, set ) -> {
-          final var keyName = key.toString();
-          set.forEach( value -> config.addProperty( keyName, value ) );
-        }
-      );
-
-      saveLists(
-        ( key, list ) -> {
-          final var keyName = key.toString();
-          list.forEach(
-            value -> System.out.printf( "SAVE K/V: %s = %s%n", keyName, value )
-          );
-        }
-      );
-
-      new FileHandler( config ).save( FILE_PREFERENCES );
+      store.save( FILE_PREFERENCES );
     } catch( final Exception ex ) {
       clue( ex );
     }
   }
 
   /**
-   * Attempts to load the {@link Constants#FILE_PREFERENCES} configuration file.
-   * If not found, this will fall back to an empty configuration file, leaving
-   * the application to fill in default values.
+   * Converts the given {@link Property} value to a string.
    *
-   * @param filename The file containing user preferences to load.
+   * @param property The {@link Property} to convert.
+   * @return A string representation of the given property, or the empty
+   * string if no conversion was possible.
    */
-  private void load( final String filename ) {
-    try {
-      final var config = new Configurations().xml( filename );
-
-      loadValueKeys( key -> {
-        final var configValue = config.getProperty( key.toString() );
-
-        // Allow other properties to load, even if any are missing.
-        if( configValue != null ) {
-          final var property = valuesProperty( key );
-          property.setValue( unmarshall( property, configValue ) );
-        }
-      } );
-
-      loadSetKeys( key -> {
-        final var configSet =
-          new LinkedHashSet<>( config.getList( key.toString() ) );
-        final var property = setsProperty( key );
-        property.setValue( observableSet( configSet ) );
-      } );
-
-      loadListKeys( key -> {
-        System.out.println( "LOAD LIST KEY: " + key );
-        final var configList =
-          new LinkedList<>( config.getList( key.toString() ) );
-        final var property = listsProperty( key );
-        property.setValue( observableArrayList( configList ) );
-      } );
-    } catch( final Exception ex ) {
-      clue( ex );
-    }
+  private String marshall( final Property<?> property ) {
+    return property.getValue() == null
+      ? ""
+      : MARSHALL
+      .getOrDefault( property.getClass(), __ -> property.getValue() )
+      .apply( property.getValue().toString() )
+      .toString();
   }
 
   private Object unmarshall(
@@ -655,35 +590,7 @@ public final class Workspace implements KeyConfiguration {
     final var setting = configValue.toString();
 
     return UNMARSHALL
-      .getOrDefault( property.getClass(), ( value ) -> value )
+      .getOrDefault( property.getClass(), value -> value )
       .apply( setting );
-  }
-
-  private Object marshall( final Property<?> property ) {
-    return property.getValue() == null
-      ? null
-      : MARSHALL
-      .getOrDefault( property.getClass(), ( __ ) -> property.getValue() )
-      .apply( property.getValue().toString() );
-  }
-
-  /**
-   * Returns the current year. This is used to populate the default year
-   * (e.g., for copyright notices).
-   *
-   * @return The current year.
-   */
-  private String getYear() {
-    return valueOf( Year.now().getValue() );
-  }
-
-  /**
-   * Returns the current date. This is used to populate the default date
-   * (e.g., for document publication date).
-   *
-   * @return The current year.
-   */
-  private String getDate() {
-    return ZonedDateTime.now().format( RFC_1123_DATE_TIME );
   }
 }

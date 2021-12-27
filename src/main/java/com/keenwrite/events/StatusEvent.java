@@ -4,7 +4,6 @@ package com.keenwrite.events;
 import com.keenwrite.AppCommands;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static com.keenwrite.Messages.get;
 import static com.keenwrite.constants.Constants.NEWLINE;
@@ -76,7 +75,7 @@ public final class StatusEvent implements AppEvent {
       stream( trace.getStackTrace() )
         .takeWhile( StatusEvent::filter )
         .limit( 10 )
-        .collect( Collectors.toList() )
+        .toList()
         .forEach( e -> sb.append( e.toString() ).append( NEWLINE ) );
     }
 

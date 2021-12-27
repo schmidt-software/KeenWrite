@@ -68,14 +68,14 @@ public class TableField<P> extends Field<TableField<P>> {
   @Override
   public void setBindingMode( final BindingMode bindingMode ) {
     if( CONTINUOUS.equals( bindingMode ) ) {
-      mViewProperty.get().addAll( mSaveProperty.get() );
+      mViewProperty.addAll( mSaveProperty );
     }
   }
 
   /**
    * Answers whether the user input is valid.
    *
-   * @return {@code true} Users may provide any strings.
+   * @return {@code true} Users may provide any key or value strings.
    */
   @Override
   protected boolean validate() {
@@ -84,11 +84,14 @@ public class TableField<P> extends Field<TableField<P>> {
 
   /**
    * Update the properties to save by copying the properties updated in the
-   * user interface (i.e., the view).
+   * user interface (i.e., the view). To be clear, the properties are not
+   * persisted after calling this method, merely moved out of the UI data
+   * model and into the to-be-saved data model.
    */
   @Override
   public void persist() {
-    mSaveProperty.get().addAll( mViewProperty.get() );
+    mSaveProperty.clear();
+    mSaveProperty.addAll( mViewProperty );
   }
 
   /**

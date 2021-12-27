@@ -10,6 +10,7 @@ import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableColumn.CellEditEvent;
 import javafx.scene.control.TableView;
 import javafx.scene.layout.VBox;
 import javafx.util.StringConverter;
@@ -18,6 +19,7 @@ import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 import static com.keenwrite.ui.fonts.IconFactory.createGraphic;
@@ -30,12 +32,8 @@ public class SimpleTableControl<K, V, F extends TableField<Entry<K, V>>>
 
   private static long sCounter;
 
-  public SimpleTableControl() {
-  }
+  public SimpleTableControl() {}
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public void initializeParts() {
     super.initializeParts();
@@ -136,9 +134,42 @@ public class SimpleTableControl<K, V, F extends TableField<Entry<K, V>>>
     return button;
   }
 
+  private TableColumn<Entry<K, V>, K> createEditableColumnKey(
+    final TableView<Entry<K, V>> table ) {
+    return createColumn(
+      table,
+      Entry::getKey,
+      ( e, o ) -> new SimpleEntry<>( e.getNewValue(), o.getValue() ),
+      "Key",
+      .2
+    );
+  }
+
+  private TableColumn<Entry<K, V>, V> createEditableColumnValue(
+    final TableView<Entry<K, V>> table ) {
+    return createColumn(
+      table,
+      Entry::getValue,
+      ( e, o ) -> new SimpleEntry<>( o.getKey(), e.getNewValue() ),
+      "Value",
+      .8
+    );
+  }
+
+  /**
+   * Creates a table column having cells that be edited.
+   *
+   * @param table    The table to which the column belongs.
+   * @param mapEntry Data model backing the edited text.
+   * @param label    Column name.
+   * @param width    Fraction of table width (1 = 100%).
+   * @param <T>      The return type for the column (i.e., key or value).
+   * @return The newly configured column.
+   */
   private <T> TableColumn<Entry<K, V>, T> createColumn(
     final TableView<Entry<K, V>> table,
     final Function<Entry<K, V>, T> mapEntry,
+    final BiFunction<CellEditEvent<Entry<K, V>, T>, Entry<K, V>, Entry<K, V>> creator,
     final String label,
     final double width
   ) {
@@ -147,11 +178,21 @@ public class SimpleTableControl<K, V, F extends TableField<Entry<K, V>>>
     column.setEditable( true );
     column.setResizable( true );
     column.prefWidthProperty().bind( table.widthProperty().multiply( width ) );
+
+    column.setOnEditCommit( event -> {
+      final var index = event.getTablePosition().getRow();
+      final var view = event.getTableView();
+      final var old = view.getItems().get( index );
+
+      // Update the data model with the new column value.
+      view.getItems().set( index, creator.apply( event, old ) );
+    } );
+
     column.setCellValueFactory(
-      cellData -> new SimpleObjectProperty<>(
-        mapEntry.apply( cellData.getValue() )
-      )
+      cellData ->
+        new SimpleObjectProperty<>( mapEntry.apply( cellData.getValue() ) )
     );
+
     column.setCellFactory(
       tableColumn -> new AltTableCell<>(
         new StringConverter<>() {
@@ -172,17 +213,10 @@ public class SimpleTableControl<K, V, F extends TableField<Entry<K, V>>>
     return column;
   }
 
-  private TableColumn<Entry<K, V>, K> createEditableColumnKey(
-    final TableView<Entry<K, V>> table ) {
-    return createColumn( table, Entry::getKey, "Key", .3 );
-  }
-
-  private TableColumn<Entry<K, V>, V> createEditableColumnValue(
-    final TableView<Entry<K, V>> table ) {
-    return createColumn( table, Entry::getValue, "Value", .7 );
-  }
-
+  /**
+   * Calling {@link #initializeParts()} also performs layout because no handles
+   * are kept to the widgets after initialization.
+   */
   @Override
-  public void layoutParts() {
-  }
+  public void layoutParts() {}
 }
