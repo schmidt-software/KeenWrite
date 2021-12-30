@@ -8,7 +8,6 @@ import com.keenwrite.processors.r.InlineRProcessor;
 import com.keenwrite.processors.r.RProcessor;
 import com.keenwrite.sigils.RSigilOperator;
 import com.vladsch.flexmark.ast.Paragraph;
-import com.vladsch.flexmark.ast.Text;
 import com.vladsch.flexmark.parser.InlineParserExtensionFactory;
 import com.vladsch.flexmark.parser.InlineParserFactory;
 import com.vladsch.flexmark.parser.delimiter.DelimiterProcessor;
@@ -22,7 +21,6 @@ import java.util.List;
 import java.util.Map;
 
 import static com.keenwrite.processors.IdentityProcessor.IDENTITY;
-import static com.keenwrite.processors.markdown.extensions.EmptyNode.EMPTY_NODE;
 import static com.vladsch.flexmark.parser.Parser.Builder;
 import static com.vladsch.flexmark.parser.Parser.ParserExtension;
 
@@ -120,17 +118,8 @@ public final class RExtension implements ParserExtension {
             final var rText = mProcessor.apply( code );
             var node = mMarkdownProcessor.toNode( rText );
 
-            if( node.getFirstChild() instanceof Paragraph ) {
-              node = new Text( rText );
-            }
-            else {
-              node = node.getFirstChild();
-
-              if( node != null ) {
-                // Mark the node as being generated code, such as text returned
-                // from an R function.
-                node.appendChild( EMPTY_NODE );
-              }
+            if( node.getFirstChild() instanceof Paragraph paragraph ) {
+              node = paragraph.getFirstChild();
             }
 
             if( node != null ) {

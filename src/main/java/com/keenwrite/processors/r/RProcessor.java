@@ -20,6 +20,7 @@ public final class RProcessor
   public RProcessor( final ProcessorContext context ) {
     final var irp = new InlineRProcessor( IDENTITY, context );
     final var rvp = new RVariableProcessor( irp, context );
+
     mProcessor = new ExecutorProcessor<>( rvp );
     mInlineRProcessor = irp;
   }

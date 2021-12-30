@@ -5,7 +5,6 @@ import com.keenwrite.util.BoundedCache;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import java.util.Map;
-import java.util.function.Function;
 
 import static com.keenwrite.Messages.get;
 import static com.keenwrite.events.StatusEvent.clue;
@@ -36,11 +35,10 @@ public class Engine {
    * If the R expression hasn't been cached, it'll first be evaluated.
    *
    * @param r R expression to evaluate.
-   * @param f Post-processing to apply after evaluating the R expression.
    * @return The object resulting from the evaluation.
    */
-  public static String eval( final String r, final Function<String, String> f ) {
-    return sCache.computeIfAbsent( r, __ -> f.apply( eval( r ) ) );
+  public static String eval( final String r ) {
+    return sCache.computeIfAbsent( r, __ -> evaluate( r ) );
   }
 
   /**
@@ -49,7 +47,7 @@ public class Engine {
    * @param r R expression to evaluate.
    * @return The object resulting from the evaluation.
    */
-  public static String eval( final String r ) {
+  private static String evaluate( final String r ) {
     try {
       return ENGINE.eval( r ).toString();
     } catch( final Exception ex ) {

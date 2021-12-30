@@ -5,7 +5,6 @@ import com.keenwrite.preferences.Workspace;
 import com.keenwrite.processors.Processor;
 import com.keenwrite.processors.ProcessorContext;
 import com.keenwrite.processors.VariableProcessor;
-import com.keenwrite.processors.markdown.extensions.r.ROutputProcessor;
 import com.keenwrite.util.InterpolatingMap;
 import javafx.beans.property.Property;
 
@@ -26,14 +25,6 @@ import static java.lang.Math.min;
  */
 public final class InlineRProcessor extends VariableProcessor {
   private static final int PREFIX_LENGTH = PREFIX.length();
-
-  /**
-   * Converts the given string to HTML, trimming new lines, and inlining
-   * the text if it is a paragraph. Otherwise, the resulting HTML is most likely
-   * complex (e.g., a Markdown table) and should be rendered as its HTML
-   * equivalent.
-   */
-  private final Processor<String> mPostProcessor = new ROutputProcessor();
 
   /**
    * Set to {@code true} when the R bootstrap script is loaded successfully.
@@ -135,7 +126,7 @@ public final class InlineRProcessor extends VariableProcessor {
         // Pass the R statement into the R engine for evaluation.
         try {
           // Append the string representation of the result into the text.
-          sb.append( Engine.eval( r, mPostProcessor ) );
+          sb.append( Engine.eval( r ) );
         } catch( final Exception ex ) {
           // Inform the user that there was a problem.
           clue( STATUS_PARSE_ERROR, ex.getMessage(), currIndex );

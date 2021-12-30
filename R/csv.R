@@ -52,12 +52,12 @@ csv2md <- function( f, decimals = 2, totals = T, align = T ) {
     # results back into the data frame.
     df[ (nrow( df ) + 1), number ] <- f.sum( df[, number], na.rm=TRUE )
 
-    # pluralise would be heavyweight here.
+    # pluralize would be heavyweight here.
     if( length( number ) > 1 ) {
-      t <- "**Totals**"
+      t <- "Totals"
     }
     else {
-      t <- "**Total**"
+      t <- "Total"
     }
 
     # Change the first column of the last line to "Total(s)".
@@ -69,7 +69,7 @@ csv2md <- function( f, decimals = 2, totals = T, align = T ) {
 
   if( align ) {
     is.char <- vapply( df, is.character, logical( 1 ) )
-    dashes <- paste( ifelse( is.char, ':---', '---:' ), collapse='|' )
+    dashes <- paste( ifelse( is.char, ':---', '---:' ), collapse = '|' )
   }
   else {
     dashes <- paste( rep( '---', length( df ) ), collapse = '|' )
@@ -77,15 +77,18 @@ csv2md <- function( f, decimals = 2, totals = T, align = T ) {
 
   # Create a Markdown version of the data frame.
   paste(
-    paste( names( df ), collapse = '|'), '\n',
-    dashes, '\n', 
+    '|', paste( names( df ), collapse = '|'), '|', '\n',
+    '|', dashes, '|', '\n', 
     paste(
+      '|',
       Reduce( function( x, y ) {
-          paste( x, format( y, digits = decimals ), sep = '|' )
+          paste( x, format( y, nsmall = decimals ), sep = '|' )
         }, df
       ),
       collapse = '|\n', sep=''
-    )
+    ),
+    '|\n',
+    sep=''
   )
 }
 
