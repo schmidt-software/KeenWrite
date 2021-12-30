@@ -1,7 +1,7 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.processors.r;
 
-import com.keenwrite.processors.DefinitionProcessor;
+import com.keenwrite.processors.VariableProcessor;
 import com.keenwrite.processors.ProcessorContext;
 import com.keenwrite.sigils.SigilOperator;
 
@@ -13,15 +13,15 @@ import java.util.Map;
  * performs a substitution on the text. The default R variable syntax is
  * {@code v$tree$leaf}.
  */
-public final class RVariableProcessor extends DefinitionProcessor {
+public final class RVariableProcessor extends VariableProcessor {
 
-  private final SigilOperator mSigilOperator;
+  private final SigilOperator mOperator;
 
   public RVariableProcessor(
     final InlineRProcessor irp, final ProcessorContext context ) {
     super( irp, context );
 
-    mSigilOperator = context.getWorkspace().createRSigilOperator();
+    mOperator = context.getWorkspace().createRSigilOperator();
   }
 
   /**
@@ -43,10 +43,7 @@ public final class RVariableProcessor extends DefinitionProcessor {
   private Map<String, String> entoken( final Map<String, String> map ) {
     final var rMap = new HashMap<String, String>( map.size() );
 
-    for( final var entry : map.entrySet() ) {
-      final var key = entry.getKey();
-      rMap.put( mSigilOperator.entoken( key ), escape( map.get( key ) ) );
-    }
+    map.forEach( ( k, v ) -> rMap.put( mOperator.entoken( k ), escape( v ) ) );
 
     return rMap;
   }
@@ -66,6 +63,9 @@ public final class RVariableProcessor extends DefinitionProcessor {
   @SuppressWarnings( "SameParameterValue" )
   private String escape(
     final String haystack, final char needle, final String thread ) {
+    assert haystack != null;
+    assert thread != null;
+
     int end = haystack.indexOf( needle );
 
     if( end < 0 ) {

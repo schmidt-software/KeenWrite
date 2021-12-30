@@ -23,6 +23,8 @@ public class SigilOperator implements UnaryOperator<String> {
   }
 
   SigilOperator( final Sigils sigils ) {
+    assert sigils != null;
+
     mSigils = sigils;
   }
 
@@ -46,6 +48,9 @@ public class SigilOperator implements UnaryOperator<String> {
    */
   public String entoken( final String key ) {
     assert key != null;
+    assert !key.startsWith( getBegan() );
+    assert !key.endsWith( getEnded() );
+
     return getBegan() + key + getEnded();
   }
 
@@ -71,5 +76,10 @@ public class SigilOperator implements UnaryOperator<String> {
 
   String getEnded() {
     return mSigils.getEnded();
+  }
+
+  @Override
+  public String toString() {
+    return mSigils.toString();
   }
 }

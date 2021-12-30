@@ -1,11 +1,11 @@
 package com.keenwrite.util;
 
 import com.keenwrite.sigils.SigilOperator;
-import com.keenwrite.sigils.Sigils;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
 
 import static java.lang.String.format;
@@ -20,34 +20,28 @@ public class InterpolatingMap extends ConcurrentHashMap<String, String> {
    */
   private static final int INITIAL_CAPACITY = 1 << 8;
 
-  public InterpolatingMap() {
-    super( INITIAL_CAPACITY );
-  }
+  private final SigilOperator mOperator;
 
   /**
-   * Interpolates all values in the map that reference other values by way
-   * of key names. Performs a non-greedy match of key names delimited by
-   * definition tokens. This operation modifies the map directly.
-   *
    * @param operator Contains the opening and closing sigils that mark
    *                 where variable names begin and end.
-   * @return {@code this}
    */
-  public Map<String, String> interpolate( final SigilOperator operator ) {
-    sigilize( operator );
-    interpolate( operator.getSigils() );
-    return this;
+  public InterpolatingMap( final SigilOperator operator ) {
+    super( INITIAL_CAPACITY );
+
+    assert operator != null;
+    mOperator = operator;
   }
 
   /**
-   * Wraps each key in this map with the starting and ending sigils provided
-   * by the given {@link SigilOperator}. This operation modifies the map
-   * directly.
-   *
-   * @param operator Container for starting and ending sigils.
+   * @param operator Contains the opening and closing sigils that mark
+   *                 where variable names begin and end.
+   * @param m        The initial {@link Map} to copy into this instance.
    */
-  private void sigilize( final SigilOperator operator ) {
-    forEach( ( k, v ) -> put( operator.entoken( k ), v ) );
+  public InterpolatingMap(
+    final SigilOperator operator, final Map<String, String> m ) {
+    this( operator );
+    putAll( m );
   }
 
   /**
@@ -55,39 +49,53 @@ public class InterpolatingMap extends ConcurrentHashMap<String, String> {
    * of key names. Performs a non-greedy match of key names delimited by
    * definition tokens. This operation modifies the map directly.
    *
-   * @param sigils Contains the opening and closing sigils that mark
-   *               where variable names begin and end.
+   * @return The number of failed substitutions.
    */
-  private void interpolate( final Sigils sigils ) {
+  public int interpolate() {
+    final var sigils = mOperator.getSigils();
     final var pattern = compile(
       format(
-        "(%s.*?%s)", quote( sigils.getBegan() ), quote( sigils.getEnded() )
+        "%s(.*?)%s", quote( sigils.getBegan() ), quote( sigils.getEnded() )
       )
     );
 
-    replaceAll( ( k, v ) -> resolve( v, pattern ) );
+    final var failures = new AtomicInteger();
+
+    for( final var k : keySet() ) {
+      replace( k, interpolate( get( k ), pattern, failures ) );
+    }
+
+    return failures.get();
   }
 
   /**
    * Given a value with zero or more key references, this will resolve all
    * the values, recursively. If a key cannot be de-referenced, the value will
-   * contain the key name.
+   * contain the key name, including the original sigils.
    *
-   * @param value   Value containing zero or more key references.
-   * @param pattern The regular expression pattern to match variable key names.
+   * @param value    Value containing zero or more key references.
+   * @param pattern  The regular expression pattern to match variable key names.
+   * @param failures Incremented when a variable replacement fails.
    * @return The given value with all embedded key references interpolated.
    */
-  private String resolve( String value, final Pattern pattern ) {
+  private String interpolate(
+    String value, final Pattern pattern, final AtomicInteger failures ) {
+    assert value != null;
+    assert pattern != null;
+
     final var matcher = pattern.matcher( value );
 
     while( matcher.find() ) {
       final var keyName = matcher.group( GROUP_DELIMITED );
       final var mapValue = get( keyName );
-      final var keyValue = mapValue == null
-        ? keyName
-        : resolve( mapValue, pattern );
 
-      value = value.replace( keyName, keyValue );
+      if( mapValue == null ) {
+        failures.incrementAndGet();
+      }
+      else {
+        final var keyValue = interpolate( mapValue, pattern, failures );
+        value = value.replace( mOperator.entoken( keyName ), keyValue );
+      }
     }
 
     return value;

@@ -2,6 +2,7 @@
 package com.keenwrite.preferences;
 
 import com.keenwrite.constants.Constants;
+import com.keenwrite.io.MediaType;
 import com.keenwrite.sigils.RSigilOperator;
 import com.keenwrite.sigils.SigilOperator;
 import com.keenwrite.sigils.Sigils;
@@ -20,6 +21,7 @@ import static com.keenwrite.Bootstrap.APP_TITLE_LOWERCASE;
 import static com.keenwrite.Launcher.getVersion;
 import static com.keenwrite.constants.Constants.*;
 import static com.keenwrite.events.StatusEvent.clue;
+import static com.keenwrite.io.MediaType.TEXT_R_MARKDOWN;
 import static com.keenwrite.preferences.AppKeys.*;
 import static java.util.Map.entry;
 import static javafx.application.Platform.runLater;
@@ -58,7 +60,10 @@ import static javafx.collections.FXCollections.observableSet;
  * </dl>
  */
 public final class Workspace implements KeyConfiguration {
-  private final Map<Key, Property<?>> VALUES = Map.ofEntries(
+  /**
+   * Main configuration values, single text strings.
+   */
+  private final Map<Key, Property<?>> mValues = Map.ofEntries(
     entry( KEY_META_VERSION, asStringProperty( getVersion() ) ),
     entry( KEY_META_NAME, asStringProperty( "default" ) ),
 
@@ -113,6 +118,33 @@ public final class Workspace implements KeyConfiguration {
   );
 
   /**
+   * Sets of configuration values, all the same type (e.g., file names),
+   * where the key name doesn't change per set.
+   */
+  private final Map<Key, SetProperty<?>> mSets = Map.ofEntries(
+    entry(
+      KEY_UI_RECENT_OPEN_PATH,
+      createSetProperty( new HashSet<String>() )
+    )
+  );
+
+  /**
+   * Lists of configuration values, such as key-value pairs where both the
+   * key name and the value must be preserved per list.
+   */
+  private final Map<Key, ListProperty<?>> mLists = Map.ofEntries(
+    entry(
+      KEY_DOC_META,
+      createListProperty( new LinkedList<Entry<String, String>>() )
+    )
+  );
+
+  /**
+   * Ensures a well-formed configuration file during persistence operations.
+   */
+  private final XmlStore mStore;
+
+  /**
    * Helps instantiate {@link Property} instances for XML configuration items.
    */
   private static final Map<Class<?>, Function<String, Object>> UNMARSHALL =
@@ -122,96 +154,46 @@ public final class Workspace implements KeyConfiguration {
       SimpleIntegerProperty.class, Integer::parseInt,
       SimpleDoubleProperty.class, Double::parseDouble,
       SimpleFloatProperty.class, Float::parseFloat,
+      SimpleStringProperty.class, String::new,
+      SimpleObjectProperty.class, String::new,
+      SkinProperty.class, String::new,
       FileProperty.class, File::new
     );
 
+  /**
+   * The asymmetry with respect to {@link #UNMARSHALL} is because most objects
+   * can simply call {@link Object#toString()} to convert the value to a string.
+   */
   private static final Map<Class<?>, Function<String, Object>> MARSHALL =
     Map.of(
       LocaleProperty.class, LocaleProperty::toLanguageTag
     );
 
-  private final Map<Key, SetProperty<?>> SETS = Map.ofEntries(
-    entry(
-      KEY_UI_FILES_PATH,
-      createSetProperty( new HashSet<String>() )
-    )
-  );
-
-  private final Map<Key, ListProperty<?>> LISTS = Map.ofEntries(
-    entry(
-      KEY_DOC_META,
-      createListProperty( new LinkedList<Entry<String, String>>() )
-    )
-  );
-
-  private final XmlStore mStore;
-
   /**
-   * Creates a new {@link Workspace} using values found in the given
-   * {@link XmlStore}.
+   * Converts the given {@link Property} value to a string.
    *
-   * @param store Contains user preferences, usually persisted.
+   * @param property The {@link Property} to convert.
+   * @return A string representation of the given property, or the empty
+   * string if no conversion was possible.
    */
-  public Workspace( final XmlStore store ) {
-    mStore = store;
+  private static String marshall( final Property<?> property ) {
+    final var v = property.getValue();
+
+    return v == null
+      ? ""
+      : MARSHALL
+      .getOrDefault( property.getClass(), __ -> property.getValue() )
+      .apply( v.toString() )
+      .toString();
   }
 
-  /**
-   * Creates a new {@link Workspace} that will attempt to load the given
-   * configuration file. If the configuration file cannot be loaded, the
-   * workspace settings will return default values. This creates an instance
-   * of {@link XmlStore} to load and parse the user preferences.
-   *
-   * @param file The file to load.
-   */
-  public Workspace( final File file ) {
-    // Root-level configuration item is the application name.
-    this( new XmlStore( file, APP_TITLE_LOWERCASE ) );
-    load( mStore );
-  }
+  private static Object unmarshall(
+    final Property<?> property, final Object configValue ) {
+    final var v = configValue.toString();
 
-  /**
-   * Returns a value that represents a setting in the application that the user
-   * may configure, either directly or indirectly.
-   *
-   * @param key The reference to the users' preference stored in deference
-   *            of app reëntrance.
-   * @return An observable property to be persisted.
-   */
-  @SuppressWarnings( "unchecked" )
-  public <T, U extends Property<T>> U valuesProperty( final Key key ) {
-    assert key != null;
-    // The type that goes into the map must come out.
-    return (U) VALUES.get( key );
-  }
-
-  /**
-   * Returns a set of values that represent a setting in the application that
-   * the user may configure, either directly or indirectly. The property
-   * returned is backed by a {@link Set}.
-   *
-   * @param key The {@link Key} associated with a preference value.
-   * @return An observable property to be persisted.
-   */
-  @SuppressWarnings( "unchecked" )
-  public <T> SetProperty<T> setsProperty( final Key key ) {
-    assert key != null;
-    // The type that goes into the map must come out.
-    return (SetProperty<T>) SETS.get( key );
-  }
-
-  /**
-   * Returns a list of values that represent a setting in the application that
-   * the user may configure, either directly or indirectly. The property
-   * returned is backed by a mutable {@link List}.
-   *
-   * @param key The {@link Key} associated with a preference value.
-   * @return An observable property to be persisted.
-   */
-  @SuppressWarnings( "unchecked" )
-  public <K, V> ListProperty<Entry<K, V>> listsProperty( final Key key ) {
-    assert key != null;
-    return (ListProperty<Entry<K, V>>) LISTS.get( key );
+    return UNMARSHALL
+      .getOrDefault( property.getClass(), value -> property.getValue() )
+      .apply( v );
   }
 
   /**
@@ -234,9 +216,6 @@ public final class Workspace implements KeyConfiguration {
     return new SimpleListProperty<>( observableArrayList( list ) );
   }
 
-  /**
-   * @param value Default value.
-   */
   private static StringProperty asStringProperty( final String value ) {
     return new SimpleStringProperty( value );
   }
@@ -289,6 +268,130 @@ public final class Workspace implements KeyConfiguration {
   @SuppressWarnings( "SameParameterValue" )
   private static SkinProperty asSkinProperty( final String value ) {
     return new SkinProperty( value );
+  }
+
+  /**
+   * Creates a new {@link Workspace} using values found in the given
+   * {@link XmlStore}.
+   *
+   * @param store Contains user preferences, usually persisted.
+   */
+  public Workspace( final XmlStore store ) {
+    mStore = store;
+  }
+
+  /**
+   * Creates a new {@link Workspace} that will attempt to load the given
+   * configuration file. If the configuration file cannot be loaded, the
+   * workspace settings will return default values. This creates an instance
+   * of {@link XmlStore} to load and parse the user preferences.
+   *
+   * @param file The file to load.
+   */
+  public Workspace( final File file ) {
+    // Root-level configuration item is the application name.
+    this( new XmlStore( file, APP_TITLE_LOWERCASE ) );
+    load( mStore );
+  }
+
+  /**
+   * Attempts to load the {@link Constants#FILE_PREFERENCES} configuration file.
+   * If not found, this will fall back to an empty configuration file, leaving
+   * the application to fill in default values.
+   *
+   * @param store Container of user preferences to load.
+   */
+  public void load( final XmlStore store ) {
+    mValues.keySet().forEach( key -> {
+      try {
+        final var storeValue = store.getValue( key );
+        final var property = valuesProperty( key );
+
+        property.setValue( unmarshall( property, storeValue ) );
+      } catch( final NoSuchElementException ignored ) {
+        // When no configuration (item), use the default value.
+      }
+    } );
+
+    mSets.keySet().forEach( key -> {
+      final var set = store.getSet( key );
+      final SetProperty<String> property = setsProperty( key );
+
+      property.setValue( observableSet( set ) );
+    } );
+
+    mLists.keySet().forEach( key -> {
+      final var map = store.getMap( key );
+      final ListProperty<Entry<String, String>> property = listsProperty( key );
+      final var list = map
+        .entrySet()
+        .stream()
+        .toList();
+
+      property.setValue( observableArrayList( list ) );
+    } );
+  }
+
+  /**
+   * Saves the current workspace.
+   */
+  public void save() {
+    assert mStore != null;
+
+    try {
+      // Update the string values to include the application version.
+      valuesProperty( KEY_META_VERSION ).setValue( getVersion() );
+
+      mValues.forEach( ( key, val ) -> mStore.setValue( key, marshall( val ) ) );
+      mSets.forEach( mStore::setSet );
+      mLists.forEach( mStore::setMap );
+
+      mStore.save( FILE_PREFERENCES );
+    } catch( final Exception ex ) {
+      clue( ex );
+    }
+  }
+
+  /**
+   * Returns a value that represents a setting in the application that the user
+   * may configure, either directly or indirectly.
+   *
+   * @param key The reference to the users' preference stored in deference
+   *            of app reëntrance.
+   * @return An observable property to be persisted.
+   */
+  @SuppressWarnings( "unchecked" )
+  public <T, U extends Property<T>> U valuesProperty( final Key key ) {
+    assert key != null;
+    return (U) mValues.get( key );
+  }
+
+  /**
+   * Returns a set of values that represent a setting in the application that
+   * the user may configure, either directly or indirectly. The property
+   * returned is backed by a {@link Set}.
+   *
+   * @param key The {@link Key} associated with a preference value.
+   * @return An observable property to be persisted.
+   */
+  @SuppressWarnings( "unchecked" )
+  public <T> SetProperty<T> setsProperty( final Key key ) {
+    assert key != null;
+    return (SetProperty<T>) mSets.get( key );
+  }
+
+  /**
+   * Returns a list of values that represent a setting in the application that
+   * the user may configure, either directly or indirectly. The property
+   * returned is backed by a mutable {@link List}.
+   *
+   * @param key The {@link Key} associated with a preference value.
+   * @return An observable property to be persisted.
+   */
+  @SuppressWarnings( "unchecked" )
+  public <K, V> ListProperty<Entry<K, V>> listsProperty( final Key key ) {
+    assert key != null;
+    return (ListProperty<Entry<K, V>>) mLists.get( key );
   }
 
   /**
@@ -481,6 +584,9 @@ public final class Workspace implements KeyConfiguration {
    * @param property The external property value that sets the internal value.
    */
   public <T> void listen( final Key key, final ReadOnlyProperty<T> property ) {
+    assert key != null;
+    assert property != null;
+
     listen( key, property, () -> true );
   }
 
@@ -494,7 +600,6 @@ public final class Workspace implements KeyConfiguration {
    * changes should be applied. Without this, exiting the application while the
    * window is maximized would persist the window's maximum dimensions,
    * preventing restoration to its prior, non-maximum size.
-   * </p>
    *
    * @param key      The value to bind to the internal key property.
    * @param property The external property value that sets the internal value.
@@ -504,6 +609,10 @@ public final class Workspace implements KeyConfiguration {
     final Key key,
     final ReadOnlyProperty<T> property,
     final BooleanSupplier enabled ) {
+    assert key != null;
+    assert property != null;
+    assert enabled != null;
+
     property.addListener(
       ( c, o, n ) -> runLater( () -> {
         if( enabled.getAsBoolean() ) {
@@ -514,83 +623,15 @@ public final class Workspace implements KeyConfiguration {
   }
 
   /**
-   * Attempts to load the {@link Constants#FILE_PREFERENCES} configuration file.
-   * If not found, this will fall back to an empty configuration file, leaving
-   * the application to fill in default values.
+   * Returns the sigil operator for the given {@link MediaType}.
    *
-   * @param store Container of user preferences to load.
+   * @param mediaType The type of file being edited.
    */
-  public void load( final XmlStore store ) {
-    VALUES.keySet().forEach( key -> {
-      final var value = store.getValue( key );
-      final var property = valuesProperty( key );
+  public SigilOperator createSigilOperator( final MediaType mediaType ) {
+    assert mediaType != null;
 
-      property.setValue( unmarshall( property, value ) );
-    } );
-
-    SETS.keySet().forEach( key -> {
-      final var set = store.getSet( key );
-      final SetProperty<String> property = setsProperty( key );
-
-      property.setValue( observableSet( set ) );
-    } );
-
-    LISTS.keySet().forEach( key -> {
-      final var map = store.getMap( key );
-      final ListProperty<Entry<String, String>> property = listsProperty( key );
-      final var list = map
-        .entrySet()
-        .stream()
-        .toList();
-
-      property.setValue( observableArrayList( list ) );
-    } );
-  }
-
-  /**
-   * Saves the current workspace.
-   */
-  public void save() {
-    assert mStore != null;
-
-    final var store = mStore;
-
-    try {
-      // Update the string values to include the application version.
-      valuesProperty( KEY_META_VERSION ).setValue( getVersion() );
-
-      VALUES.forEach( ( key, val ) -> store.setValue( key, marshall( val ) ) );
-      SETS.forEach( store::setSet );
-      LISTS.forEach( store::setMap );
-
-      store.save( FILE_PREFERENCES );
-    } catch( final Exception ex ) {
-      clue( ex );
-    }
-  }
-
-  /**
-   * Converts the given {@link Property} value to a string.
-   *
-   * @param property The {@link Property} to convert.
-   * @return A string representation of the given property, or the empty
-   * string if no conversion was possible.
-   */
-  private String marshall( final Property<?> property ) {
-    return property.getValue() == null
-      ? ""
-      : MARSHALL
-      .getOrDefault( property.getClass(), __ -> property.getValue() )
-      .apply( property.getValue().toString() )
-      .toString();
-  }
-
-  private Object unmarshall(
-    final Property<?> property, final Object configValue ) {
-    final var setting = configValue.toString();
-
-    return UNMARSHALL
-      .getOrDefault( property.getClass(), value -> value )
-      .apply( setting );
+    return mediaType == TEXT_R_MARKDOWN
+      ? createRSigilOperator()
+      : createYamlSigilOperator();
   }
 }

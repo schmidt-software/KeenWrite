@@ -15,15 +15,14 @@ import java.util.Map;
 public interface TextDefinition extends TextResource {
 
   /**
-   * Requests the interpolated version of the variable definitions.
+   * Requests all variable definitions.
    *
-   * @return The definition map with all variables interpolated.
+   * @return The definition map without interpolation.
    */
   Map<String, String> getDefinitions();
 
   /**
-   * Requests that the visual representation be expanded to the given
-   * node.
+   * Requests that the visual representation be expanded to the given node.
    *
    * @param node Request expansion to this node.
    */

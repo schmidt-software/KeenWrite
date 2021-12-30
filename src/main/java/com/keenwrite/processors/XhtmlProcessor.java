@@ -270,7 +270,7 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
   }
 
   private String resolve( final String value ) {
-    return replace( value, mContext.getResolvedMap() );
+    return replace( value, mContext.getInterpolatedMap() );
   }
 
   /**

@@ -23,17 +23,17 @@ public final class Bootstrap {
   /**
    * Order matters, this must be populated before deriving the app title.
    */
-  private static final Properties P = new Properties();
+  private static final Properties sP = new Properties();
 
   static {
     try( final var in = openResource( "/bootstrap.properties" ) ) {
-      P.load( in );
+      sP.load( in );
     } catch( final Exception ignored ) {
       // Bootstrap properties cannot be found, throw in the towel.
     }
   }
 
-  public static final String APP_TITLE = P.getProperty( "application.title" );
+  public static final String APP_TITLE = sP.getProperty( "application.title" );
   public static final String APP_TITLE_LOWERCASE = APP_TITLE.toLowerCase();
   public static final String APP_VERSION = Launcher.getVersion();
   public static final String APP_YEAR = getYear();

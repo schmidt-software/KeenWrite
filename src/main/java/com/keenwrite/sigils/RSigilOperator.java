@@ -39,6 +39,7 @@ public final class RSigilOperator extends SigilOperator {
   @Override
   public String apply( final String key ) {
     assert key != null;
+
     return PREFIX + getBegan() + key + getEnded() + SUFFIX;
   }
 
@@ -59,6 +60,7 @@ public final class RSigilOperator extends SigilOperator {
    */
   public String entoken( final String key ) {
     final var detokened = new StringBuilder( key.length() );
+
     detokened.append( "v$" );
     detokened.append( mAntecedent.detoken( key ) );
 

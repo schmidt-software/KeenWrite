@@ -4,12 +4,15 @@ import com.keenwrite.dom.DocumentParser;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.SetProperty;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.function.Consumer;
@@ -58,6 +61,8 @@ public class XmlStore {
   }
 
   private static Document load( final File config ) {
+    assert config != null;
+
     try {
       return DocumentParser.parse( config );
     } catch( final Exception ignored ) {
@@ -69,20 +74,22 @@ public class XmlStore {
    * Returns the document value associated with the given key name.
    *
    * @param key {@link Key} name to retrieve.
-   * @return The value associated with the key, or the empty string if the
-   * key name could not be compiled.
+   * @return The value associated with the key.
+   * @throws NoSuchElementException No value could be found for the key.
    */
-  public String getValue( final Key key ) {
+  public String getValue( final Key key ) throws NoSuchElementException {
     assert key != null;
 
     try {
       final var xpath = toXPath( key );
       final var expr = DocumentParser.compile( xpath );
-      return expr.evaluate( mDocument );
-    } catch( final XPathExpressionException ignored ) {
-      // This exception is a programming error; return a default value.
-      return "";
-    }
+
+      if( expr.evaluate( mDocument, NODE ) instanceof Node node ) {
+        return node.getTextContent();
+      }
+    } catch( final XPathExpressionException ignored ) {}
+
+    throw new NoSuchElementException( key.toString() );
   }
 
   /**
@@ -145,9 +152,18 @@ public class XmlStore {
     return map;
   }
 
-  public void save( final File config ) {
-    System.out.println( "SAVE TO: " + config );
-    System.out.println( DocumentParser.toString( mDocument ) );
+  /**
+   * Call to write the user preferences to a file.
+   *
+   * @param config The file wherein the preferences are saved.
+   * @throws IOException Could not write to the file.
+   */
+  public void save( final File config ) throws IOException {
+    assert config != null;
+
+    try( final var writer = new FileWriter( config ) ) {
+      writer.write( DocumentParser.toString( mDocument ) );
+    }
   }
 
   public void setValue( final Key key, final String value ) {
@@ -165,12 +181,28 @@ public class XmlStore {
     assert key != null;
     assert set != null;
 
+    Node node = null;
+
     try {
-      final var node = upsert( key, mDocument );
+      for( final var item : set ) {
+        if( node == null ) {
+          node = upsert( key, mDocument );
+        }
+        else {
+          final var doc = node.getOwnerDocument();
+          final var sibling = doc.createElement( key.name() );
+          var parent = node.getParentNode();
 
-      // Add child nodes and values.
+          if( parent == null ) {
+            parent = doc.getDocumentElement();
+          }
 
-      System.out.printf( "%s = %s%n", key, set );
+          parent.appendChild( sibling );
+          node = sibling;
+        }
+
+        node.setTextContent( item.toString() );
+      }
     } catch( final XPathExpressionException ignored ) {}
   }
 
@@ -195,8 +227,28 @@ public class XmlStore {
   }
 
   /**
-   * Finds the element in the document represented by the given {@link Key}.
-   * If no element is found then the full path to the element is created.
+   * Provides the equivalent of update-or-insert behaviour provided by some
+   * SQL databases. Finds the element in the document represented by the
+   * given {@link Key}. If no element is found then the full path to the
+   * element is created. In essence, this method converts a hierarchy of
+   * {@link Key} names into a hierarchy of {@link Document} {@link Element}s
+   * (i.e., {@link Node}s).
+   * <p>
+   * For example, given a key named {@code workspace.meta.version}, this will
+   * produce a document structure that, when exported as XML, resembles:
+   * <pre>{@code
+   *   <root>
+   *     <workspace>
+   *       <meta>
+   *         <version/>
+   *       </meta>
+   *     </workspace>
+   *   </root>
+   * }</pre>
+   * <p>
+   * The calling code is responsible for populating the {@link Node} returned
+   * with its particular value. In the example above, the text content of the
+   * {@link Node} would be filled with the application version number.
    *
    * @param key The application key representing a user preference.
    * @param doc The document that may contain an xpath for the {@link Key}.
@@ -204,6 +256,9 @@ public class XmlStore {
    */
   private Node upsert( final Key key, final Document doc )
     throws XPathExpressionException {
+    assert key != null;
+    assert doc != null;
+
     final var missing = new Stack<Key>();
     Key visitor = key;
     Node parent = null;
@@ -213,7 +268,8 @@ public class XmlStore {
       final var expr = DocumentParser.compile( xpath );
       final var element = expr.evaluate( doc, NODE );
 
-      // If an element exists on the first iteration, return it.
+      // If an element exists on the first iteration, return it because there
+      // is no missing hierarchy to create.
       if( element instanceof Node node ) {
         if( missing.isEmpty() ) {
           return node;
@@ -229,12 +285,20 @@ public class XmlStore {
         visitor = visitor.parent();
       }
     }
-    while( visitor.hasParent() && parent == null );
+    while( visitor != null && parent == null );
 
-    // If the document is empty, start creating nodes at the document root.
+    // If the document is empty, update the top-level document element.
     if( parent == null ) {
       parent = doc.getDocumentElement();
+
+      // If there is still no top-level element, then create it.
+      if( parent == null ) {
+        parent = doc.createElement( mRoot );
+        doc.appendChild( parent );
+      }
     }
+
+    assert parent != null;
 
     // Create the hierarchy.
     while( !missing.isEmpty() ) {
@@ -256,11 +320,15 @@ public class XmlStore {
    * @param consumer Accepts each node that matches the {@link XPath}.
    */
   private void visit( final Key key, final Consumer<Node> consumer ) {
+    assert key != null;
+    assert consumer != null;
+
     try {
       final var xpath = toXPath( key );
+
       DocumentParser.visit( mDocument, xpath, consumer );
     } catch( final XPathExpressionException ignored ) {
-      // Programming error. Maybe triggered loading a previous config version?
+      // Programming error. Triggered by loading a previous config version?
     }
   }
 
@@ -273,6 +341,8 @@ public class XmlStore {
    */
   private StringBuilder toXPath( final Key key )
     throws XPathExpressionException {
+    assert key != null;
+
     final var sb = new StringBuilder( 128 );
 
     key.walk( sb::append, SEPARATOR );

@@ -22,6 +22,10 @@ public final class DefinitionNameInjector {
     final TextEditor editor,
     final TextDefinition definitions,
     final SigilOperator operator ) {
+    assert editor != null;
+    assert definitions != null;
+    assert operator != null;
+
     try {
       if( definitions.isEmpty() ) {
         clue( STATUS_DEFINITION_EMPTY );
@@ -60,6 +64,7 @@ public final class DefinitionNameInjector {
   @SuppressWarnings( "ConstantConditions" )
   private static DefinitionTreeItem<String> findLeaf(
     final TextDefinition definition, final String word ) {
+    assert definition != null;
     assert word != null;
 
     DefinitionTreeItem<String> leaf = null;

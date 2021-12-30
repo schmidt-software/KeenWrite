@@ -60,8 +60,7 @@ public final class RExtension implements ParserExtension {
   }
 
   @Override
-  public void parserOptions( final MutableDataHolder options ) {
-  }
+  public void parserOptions( final MutableDataHolder options ) {}
 
   /**
    * Prevents rendering {@code `r} statements as inline HTML {@code <code>}
@@ -83,13 +82,14 @@ public final class RExtension implements ParserExtension {
       final Map<Character, DelimiterProcessor> delimiterProcessors,
       final LinkRefProcessorData referenceLinkProcessors,
       final List<InlineParserExtensionFactory> inlineParserExtensions ) {
-      super( options,
-             specialCharacters,
-             delimiterCharacters,
-             delimiterProcessors,
-             referenceLinkProcessors,
-             inlineParserExtensions );
-      mProcessor.init();
+      super(
+        options,
+        specialCharacters,
+        delimiterCharacters,
+        delimiterProcessors,
+        referenceLinkProcessors,
+        inlineParserExtensions
+      );
     }
 
     /**
@@ -115,6 +115,7 @@ public final class RExtension implements ParserExtension {
 
           if( code.startsWith( RSigilOperator.PREFIX ) ) {
             codeNode.unlink();
+
             final var rText = mProcessor.apply( code );
             var node = mMarkdownProcessor.toNode( rText );
 

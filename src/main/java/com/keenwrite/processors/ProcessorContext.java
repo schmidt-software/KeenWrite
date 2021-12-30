@@ -7,6 +7,7 @@ import com.keenwrite.constants.Constants;
 import com.keenwrite.io.FileType;
 import com.keenwrite.preferences.Workspace;
 import com.keenwrite.util.GenericBuilder;
+import com.keenwrite.util.InterpolatingMap;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -120,8 +121,15 @@ public final class ProcessorContext {
    *
    * @return A map to help dereference variables.
    */
-  Map<String, String> getResolvedMap() {
-    return mMutator.mDefinitions.get();
+  Map<String, String> getInterpolatedMap() {
+    final var map = new InterpolatingMap(
+      getWorkspace().createYamlSigilOperator(),
+      mMutator.mDefinitions.get()
+    );
+
+    map.interpolate();
+
+    return map;
   }
 
   /**

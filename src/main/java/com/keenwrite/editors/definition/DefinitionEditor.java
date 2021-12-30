@@ -4,7 +4,7 @@ package com.keenwrite.editors.definition;
 import com.keenwrite.constants.Constants;
 import com.keenwrite.editors.TextDefinition;
 import com.keenwrite.events.TextDefinitionFocusEvent;
-import com.keenwrite.sigils.SigilOperator;
+import com.keenwrite.processors.r.Engine;
 import com.keenwrite.ui.tree.AltTreeView;
 import com.keenwrite.ui.tree.TreeItemConverter;
 import javafx.beans.property.BooleanProperty;
@@ -66,11 +66,6 @@ public final class DefinitionEditor extends BorderPane
   private final Set<EventHandler<? super KeyEvent>> mKeyEventHandlers
     = new HashSet<>();
 
-  /**
-   * File being edited by this editor instance.
-   */
-  private File mFile;
-
   private final Map<String, String> mDefinitions = new HashMap<>();
 
   /**
@@ -86,18 +81,19 @@ public final class DefinitionEditor extends BorderPane
   private final BooleanProperty mModified = new SimpleBooleanProperty();
 
   /**
+   * File being edited by this editor instance, which may be renamed.
+   */
+  private File mFile;
+
+  /**
    * This is provided for unit tests that are not backed by files.
    *
    * @param treeTransformer Responsible for transforming the definitions into
    *                        {@link TreeItem} instances.
-   * @param operator        Defines how detect variables within values so
-   *                        that they are interpolated when returning the
-   *                        definitions.
    */
   public DefinitionEditor(
-    final TreeTransformer treeTransformer,
-    final SigilOperator operator ) {
-    this( DEFINITION_DEFAULT, treeTransformer, operator );
+    final TreeTransformer treeTransformer ) {
+    this( DEFINITION_DEFAULT, treeTransformer );
   }
 
   /**
@@ -107,8 +103,7 @@ public final class DefinitionEditor extends BorderPane
    */
   public DefinitionEditor(
     final File file,
-    final TreeTransformer treeTransformer,
-    final SigilOperator operator ) {
+    final TreeTransformer treeTransformer ) {
     assert file != null;
     assert treeTransformer != null;
 
@@ -128,31 +123,41 @@ public final class DefinitionEditor extends BorderPane
     );
     buttonBar.setAlignment( CENTER );
     buttonBar.setSpacing( UI_CONTROL_SPACING );
-
     setTop( buttonBar );
     setCenter( mTreeView );
     setAlignment( buttonBar, TOP_CENTER );
+
     mEncoding = open( mFile );
+    updateDefinitions( getDefinitions(), getTreeView().getRoot() );
 
     // After the file is opened, watch for changes, not before. Otherwise,
     // upon saving, users will be prompted to save a file that hasn't had
     // any modifications (from their perspective).
     addTreeChangeHandler( event -> {
-      interpolate( operator );
       mModified.set( true );
+      updateDefinitions( getDefinitions(), getTreeView().getRoot() );
     } );
-
-    interpolate( operator );
   }
 
   /**
-   * Returns the variable definitions. This is called in critical parts of the
-   * application, necessitating a cache. The cache is updated by calling
-   * {@link #interpolate(SigilOperator)}, which happens upon tree modifications
-   * via the editor or immediately after the definition file is loaded.
+   * Replaces the given list of variable definitions with a flat hierarchy
+   * of the converted {@link TreeView} root.
    *
-   * @return The definition map with all variable references fully interpolated
-   * and replaced.
+   * @param definitions The definition map to update.
+   * @param root        The values to flatten then insert into the map.
+   */
+  private void updateDefinitions(
+    final Map<String, String> definitions,
+    final TreeItem<String> root ) {
+    definitions.clear();
+    definitions.putAll( TreeItemMapper.convert( root ) );
+    Engine.clear();
+  }
+
+  /**
+   * Returns the variable definitions.
+   *
+   * @return The definition map.
    */
   @Override
   public Map<String, String> getDefinitions() {
@@ -180,7 +185,7 @@ public final class DefinitionEditor extends BorderPane
       final var problem = isTreeWellFormed();
 
       problem.ifPresentOrElse(
-        ( node ) -> clue( "yaml.error.tree.form", node ),
+        node -> clue( "yaml.error.tree.form", node ),
         () -> result.append( mTreeTransformer.transform( root ) )
       );
     } catch( final Exception ex ) {
@@ -220,13 +225,6 @@ public final class DefinitionEditor extends BorderPane
   @Override
   public void clearModifiedProperty() {
     mModified.setValue( false );
-  }
-
-  private void interpolate( final SigilOperator operator ) {
-    final var map = TreeItemMapper.convert( getTreeView().getRoot() );
-
-    mDefinitions.clear();
-    mDefinitions.putAll( map.interpolate( operator ) );
   }
 
   private Button createButton(

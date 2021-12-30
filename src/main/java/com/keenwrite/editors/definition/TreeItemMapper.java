@@ -2,10 +2,11 @@
 package com.keenwrite.editors.definition;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.keenwrite.util.InterpolatingMap;
 import javafx.scene.control.TreeItem;
 
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Stack;
 
 /**
@@ -65,11 +66,11 @@ public final class TreeItemMapper {
    *
    * @param root The topmost item in the tree.
    */
-  public static InterpolatingMap convert( final TreeItem<String> root ) {
-    final var map = new InterpolatingMap();
+  public static Map<String, String> convert( final TreeItem<String> root ) {
+    final var map = new HashMap<String, String>();
 
     new TreeIterator( root ).forEachRemaining( item -> {
-      if( item.isLeaf() ) {
+      if( item.isLeaf() && item.getParent() != null ) {
         map.put( toPath( item.getParent() ), item.getValue() );
       }
     } );
@@ -86,8 +87,6 @@ public final class TreeItemMapper {
    * @return The string representation of the node's unique key.
    */
   public static <T> String toPath( TreeItem<T> node ) {
-    assert node != null;
-
     final var key = new StringBuilder( DEFAULT_KEY_LENGTH );
     final var stack = new Stack<TreeItem<T>>();
 

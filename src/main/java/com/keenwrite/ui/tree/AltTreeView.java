@@ -18,11 +18,14 @@ public class AltTreeView<T> extends TreeView<T> {
     final TreeItem<T> root, final StringConverter<T> converter ) {
     super( root );
 
+    assert root != null;
+    assert converter != null;
+
     setEditable( true );
     setCellFactory( treeView -> new AltTreeCell<>( converter ) );
     setShowRoot( false );
 
-    // When focus is lost, clear the selected item only when not editing.
+    // When focus is lost while not editing, deselect all items.
     focusedProperty().addListener( ( c, o, n ) -> {
       if( o && getEditingItem() == null ) {
         getSelectionModel().clearSelection();

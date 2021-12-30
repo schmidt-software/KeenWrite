@@ -7,12 +7,9 @@ import com.keenwrite.editors.markdown.MarkdownEditor;
 import com.keenwrite.preferences.Workspace;
 import com.keenwrite.preferences.XmlStore;
 import com.keenwrite.preview.HtmlPreview;
-import com.keenwrite.sigils.Sigils;
-import com.keenwrite.sigils.YamlSigilOperator;
 import com.panemu.tiwulfx.control.dock.DetachableTabPane;
 import javafx.application.Application;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
@@ -24,8 +21,6 @@ import javafx.scene.control.TreeItem;
 import javafx.stage.Stage;
 import org.testfx.framework.junit5.Start;
 
-import static com.keenwrite.constants.Constants.DEF_DELIM_BEGAN_DEFAULT;
-import static com.keenwrite.constants.Constants.DEF_DELIM_ENDED_DEFAULT;
 import static com.keenwrite.util.FontLoader.initFonts;
 
 public class TreeViewTest extends Application {
@@ -53,21 +48,17 @@ public class TreeViewTest extends Application {
     final var store = new XmlStore();
     final var workspace = new Workspace( store );
     final var mainPane = new SplitPane();
-
-    final var began = new SimpleStringProperty( DEF_DELIM_BEGAN_DEFAULT );
-    final var ended = new SimpleStringProperty( DEF_DELIM_ENDED_DEFAULT );
-    final var sigils = new Sigils( began.get(), ended.get() );
-    final var operator = new YamlSigilOperator( sigils );
     final var transformer = new YamlTreeTransformer();
-    final var editor = new DefinitionEditor( transformer, operator );
+    final var editor = new DefinitionEditor( transformer );
 
     final var tabPane1 = new DetachableTabPane();
     tabPane1.addTab( "Editor", editor );
 
     final var tabPane2 = new DetachableTabPane();
-    final var tab21 = tabPane2.addTab( "Picker", new ColorPicker() );
-    final var tab22 = tabPane2.addTab( "Editor",
-                                       new MarkdownEditor( workspace ) );
+    final var tab21 =
+      tabPane2.addTab( "Picker", new ColorPicker() );
+    final var tab22 =
+      tabPane2.addTab( "Editor", new MarkdownEditor( workspace ) );
     tab21.setTooltip( new Tooltip( "Colour Picker" ) );
     tab22.setTooltip( new Tooltip( "Text Editor" ) );
 
@@ -78,9 +69,7 @@ public class TreeViewTest extends Application {
 
     mainPane.getItems().addAll( tabPane1, tabPane2, tabPane3 );
 
-    final var scene = new Scene( mainPane );
-    stage.setScene( scene );
-
+    stage.setScene( new Scene( mainPane ) );
     stage.show();
   }
 }

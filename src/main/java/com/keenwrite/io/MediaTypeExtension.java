@@ -51,6 +51,45 @@ public enum MediaTypeExtension {
 
   MEDIA_UNDEFINED( UNDEFINED, of( "undefined" ) );
 
+  /**
+   * Returns the {@link MediaTypeExtension} that matches the given media type.
+   *
+   * @param mediaType The media type to find.
+   * @return The correlated value or {@link #MEDIA_UNDEFINED} if not found.
+   */
+  public static MediaTypeExtension valueFrom( final MediaType mediaType ) {
+    for( final var type : values() ) {
+      if( type.isMediaType( mediaType ) ) {
+        return type;
+      }
+    }
+
+    return MEDIA_UNDEFINED;
+  }
+
+  /**
+   * Returns the {@link MediaType} associated with the given file name
+   * extension. The extension must not contain a period.
+   *
+   * @param extension File name extension, case insensitive, {@code null}-safe.
+   * @return The associated {@link MediaType} as defined by IANA.
+   */
+  static MediaType getMediaType( final String extension ) {
+    final var sanitized = sanitize( extension );
+
+    for( final var mediaType : MediaTypeExtension.values() ) {
+      if( mediaType.isType( sanitized ) ) {
+        return mediaType.getMediaType();
+      }
+    }
+
+    return UNDEFINED;
+  }
+
+  private static String sanitize( final String extension ) {
+    return extension == null ? "" : extension.toLowerCase();
+  }
+
   private final MediaType mMediaType;
   private final List<String> mExtensions;
 
@@ -96,43 +135,8 @@ public enum MediaTypeExtension {
     return mExtensions.get( 0 );
   }
 
-  /**
-   * Returns the {@link MediaTypeExtension} that matches the given media type.
-   *
-   * @param mediaType The media type to find.
-   * @return The correlated value or {@link #MEDIA_UNDEFINED} if not found.
-   */
-  public static MediaTypeExtension valueFrom( final MediaType mediaType ) {
-    for( final var type : values() ) {
-      if( type.isMediaType( mediaType ) ) {
-        return type;
-      }
-    }
-
-    return MEDIA_UNDEFINED;
-  }
-
   boolean isMediaType( final MediaType mediaType ) {
     return mMediaType == mediaType;
-  }
-
-  /**
-   * Returns the {@link MediaType} associated with the given file name
-   * extension. The extension must not contain a period.
-   *
-   * @param extension File name extension, case insensitive, {@code null}-safe.
-   * @return The associated {@link MediaType} as defined by IANA.
-   */
-  static MediaType getMediaType( final String extension ) {
-    final var sanitized = sanitize( extension );
-
-    for( final var mediaType : MediaTypeExtension.values() ) {
-      if( mediaType.isType( sanitized ) ) {
-        return mediaType.getMediaType();
-      }
-    }
-
-    return UNDEFINED;
   }
 
   private boolean isType( final String sanitized ) {
@@ -143,10 +147,6 @@ public enum MediaTypeExtension {
     }
 
     return false;
-  }
-
-  private static String sanitize( final String extension ) {
-    return extension == null ? "" : extension.toLowerCase();
   }
 
   private MediaType getMediaType() {

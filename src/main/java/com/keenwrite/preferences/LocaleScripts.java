@@ -87,7 +87,7 @@ public final class LocaleScripts {
    */
   private static Map<String, String> m( final String v, final String... k ) {
     final var map = new HashMap<String, String>();
-    asList( k ).forEach( ( key ) -> map.put( key, v ) );
+    asList( k ).forEach( key -> map.put( key, v ) );
     return Collections.unmodifiableMap( map );
   }
 

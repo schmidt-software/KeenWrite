@@ -1,7 +1,7 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.util;
 
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -14,7 +14,6 @@ import java.util.function.Supplier;
  * <p>
  * See <a href="https://stackoverflow.com/a/31754787/59087">source</a> for
  * details.
- * </p>
  *
  * @param <MT> The mutable definition for the type of object to build.
  * @param <IT> The immutable definition for the type of object to build.
@@ -34,7 +33,7 @@ public class GenericBuilder<MT, IT> {
   /**
    * Adds a modifier to call when building an instance.
    */
-  private final List<Consumer<MT>> mModifiers = new ArrayList<>();
+  private final List<Consumer<MT>> mModifiers = new LinkedList<>();
 
   /**
    * Starting point for building an instance of a particular class.
@@ -56,7 +55,7 @@ public class GenericBuilder<MT, IT> {
    * @param mutator Provides methods to use for setting object properties.
    */
   protected GenericBuilder(
-      final Supplier<MT> mutator, final Function<MT, IT> immutable ) {
+    final Supplier<MT> mutator, final Function<MT, IT> immutable ) {
     assert mutator != null;
     assert immutable != null;
 
@@ -73,8 +72,11 @@ public class GenericBuilder<MT, IT> {
    * @return This {@link GenericBuilder} instance.
    */
   public <V> GenericBuilder<MT, IT> with(
-      final BiConsumer<MT, V> consumer, final V value ) {
+    final BiConsumer<MT, V> consumer, final V value ) {
+    assert consumer != null;
+
     mModifiers.add( instance -> consumer.accept( instance, value ) );
+
     return this;
   }
 
@@ -85,8 +87,10 @@ public class GenericBuilder<MT, IT> {
    */
   public IT build() {
     final var value = mMutable.get();
+
     mModifiers.forEach( modifier -> modifier.accept( value ) );
     mModifiers.clear();
+
     return mImmutable.apply( value );
   }
 }

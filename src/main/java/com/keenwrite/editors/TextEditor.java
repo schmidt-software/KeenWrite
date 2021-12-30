@@ -26,23 +26,6 @@ public interface TextEditor extends TextResource {
   StyleClassedTextArea getTextArea();
 
   /**
-   * Requests that styling be added to the document between the given
-   * integer values.
-   *
-   * @param indexes Document offset where style is to start and end.
-   * @param style   The style class to apply between the given offset indexes.
-   */
-  default void stylize( final IndexRange indexes, final String style ) {
-  }
-
-  /**
-   * Requests that the most recent styling for the given style class be
-   * removed from the document between the given integer values.
-   */
-  default void unstylize( final String style ) {
-  }
-
-  /**
    * Returns the complete text for the specified paragraph index.
    *
    * @param paragraph The zero-based paragraph index.
@@ -148,69 +131,84 @@ public interface TextEditor extends TextResource {
   /**
    * Requests making the selected text, or word at caret, bold.
    */
-  default void bold() { }
+  default void bold() {}
 
   /**
    * Requests making the selected text, or word at caret, italic.
    */
-  default void italic() { }
+  default void italic() {}
 
   /**
    * Requests making the selected text, or word at caret, monospace.
    */
-  default void monospace() { }
+  default void monospace() {}
 
   /**
    * Requests making the selected text, or word at caret, a superscript.
    */
-  default void superscript() { }
+  default void superscript() {}
 
   /**
    * Requests making the selected text, or word at caret, a subscript.
    */
-  default void subscript() { }
+  default void subscript() {}
 
   /**
    * Requests making the selected text, or word at caret, struck.
    */
-  default void strikethrough() { }
+  default void strikethrough() {}
 
   /**
    * Requests making the selected text, or word at caret, a blockquote block.
    */
-  default void blockquote() { }
+  default void blockquote() {}
 
   /**
    * Requests making the selected text, or word at caret, inline code.
    */
-  default void code() { }
+  default void code() {}
 
   /**
    * Requests making the selected text, or word at caret, a fenced code block.
    */
-  default void fencedCodeBlock() { }
+  default void fencedCodeBlock() {}
 
   /**
    * Requests making the selected text, or word at caret, a heading.
    *
    * @param level The heading level to apply (typically 1 through 3).
    */
-  default void heading( final int level ) { }
+  default void heading( final int level ) {}
 
   /**
    * Requests making the selected text, or word at caret, an unordered list
    * block.
    */
-  default void unorderedList() { }
+  default void unorderedList() {}
 
   /**
    * Requests making the selected text, or word at caret, an ordered list block.
    */
-  default void orderedList() { }
+  default void orderedList() {}
 
   /**
    * Requests making the selected text, or inserting at the caret, a
    * horizontal rule.
    */
-  default void horizontalRule() { }
+  default void horizontalRule() {}
+
+  /**
+   * Requests that styling be added to the document between the given
+   * integer values.
+   *
+   * @param indexes Document offset where style is to start and end.
+   * @param style   The style class to apply between the given offset indexes.
+   */
+  default void stylize( final IndexRange indexes, final String style ) {}
+
+  /**
+   * Requests that the most recent styling for the given style class be
+   * removed from the document between the given integer values.
+   */
+  default void unstylize( final String style ) {}
 }

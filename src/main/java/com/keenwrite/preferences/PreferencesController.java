@@ -294,7 +294,8 @@ public final class PreferencesController {
                       localeListProperty(),
                       localeProperty( KEY_LANGUAGE_LOCALE ) )
         )
-      )};
+      )
+    };
   }
 
   @SuppressWarnings( "unchecked" )

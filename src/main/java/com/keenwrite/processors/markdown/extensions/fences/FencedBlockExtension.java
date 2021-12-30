@@ -3,7 +3,7 @@ package com.keenwrite.processors.markdown.extensions.fences;
 
 import com.keenwrite.preferences.Workspace;
 import com.keenwrite.preview.DiagramUrlGenerator;
-import com.keenwrite.processors.DefinitionProcessor;
+import com.keenwrite.processors.VariableProcessor;
 import com.keenwrite.processors.Processor;
 import com.keenwrite.processors.ProcessorContext;
 import com.keenwrite.processors.markdown.MarkdownProcessor;
@@ -50,9 +50,9 @@ public class FencedBlockExtension extends HtmlRendererAdapter {
    * Creates a new parser for fenced blocks. This calls out to a web service
    * to generate SVG files of text diagrams.
    * <p>
-   * Internally, this creates a {@link DefinitionProcessor} to substitute
+   * Internally, this creates a {@link VariableProcessor} to substitute
    * variable definitions. This is necessary because the order of processors
-   * matters. If the {@link DefinitionProcessor} comes before an instance of
+   * matters. If the {@link VariableProcessor} comes before an instance of
    * {@link MarkdownProcessor}, for example, then the caret position in the
    * preview pane will not align with the caret position in the editor
    * pane. The {@link MarkdownProcessor} must come before all else. However,

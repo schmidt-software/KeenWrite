@@ -16,6 +16,11 @@ public final class Sigils extends SimpleImmutableEntry<String, String> {
    */
   public Sigils( final String began, final String ended ) {
     super( began, ended );
+
+    assert began != null;
+    assert !began.isBlank();
+    assert ended != null;
+    assert !ended.isBlank();
   }
 
   /**
@@ -30,5 +35,10 @@ public final class Sigils extends SimpleImmutableEntry<String, String> {
    */
   public String getEnded() {
     return getValue();
+  }
+
+  @Override
+  public String toString() {
+    return getBegan() + getEnded();
   }
 }

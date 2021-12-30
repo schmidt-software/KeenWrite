@@ -17,7 +17,6 @@ import com.keenwrite.processors.Processor;
 import com.keenwrite.processors.ProcessorContext;
 import com.keenwrite.processors.ProcessorFactory;
 import com.keenwrite.service.events.Notifier;
-import com.keenwrite.sigils.SigilOperator;
 import com.keenwrite.ui.explorer.FilePickerFactory;
 import com.keenwrite.ui.heuristics.DocumentStatistics;
 import com.keenwrite.ui.outline.DocumentOutline;
@@ -51,6 +50,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static com.keenwrite.ExportFormat.NONE;
 import static com.keenwrite.Messages.get;
@@ -60,7 +60,7 @@ import static com.keenwrite.events.Bus.register;
 import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.io.MediaType.*;
 import static com.keenwrite.preferences.AppKeys.KEY_EDITOR_AUTOSAVE;
-import static com.keenwrite.preferences.AppKeys.KEY_UI_FILES_PATH;
+import static com.keenwrite.preferences.AppKeys.KEY_UI_RECENT_OPEN_PATH;
 import static com.keenwrite.processors.IdentityProcessor.IDENTITY;
 import static com.keenwrite.processors.ProcessorContext.Mutator;
 import static com.keenwrite.processors.ProcessorContext.builder;
@@ -178,6 +178,9 @@ public final class MainPane extends SplitPane {
     // Once the main scene's window regains focus, update the active definition
     // editor to the currently selected tab.
     runLater( () -> getWindow().setOnCloseRequest( event -> {
+      // Order matters: Open file names must be persisted before closing all.
+      mWorkspace.save();
+
       if( closeAll() ) {
         Platform.exit();
         System.exit( 0 );
@@ -343,10 +346,17 @@ public final class MainPane extends SplitPane {
   /**
    * This opens the given file. Since the preview pane is not a file that
    * can be opened, it is safe to add a listener to the detachable pane.
+   * This will exit early if the given file is not a regular file (i.e., a
+   * directory).
    *
    * @param inputFile The file to open.
    */
   private void open( final File inputFile ) {
+    // Prevent opening directories (a non-existent "untitled.md" is fine).
+    if( !inputFile.isFile() && inputFile.exists() ) {
+      return;
+    }
+
     final var tab = createTab( inputFile );
     final var node = tab.getContent();
     final var mediaType = MediaType.valueFrom( inputFile );
@@ -364,7 +374,9 @@ public final class MainPane extends SplitPane {
       );
     }
 
-    getRecentFiles().add( inputFile.getAbsolutePath() );
+    if( inputFile.isFile() ) {
+      getRecentFiles().add( inputFile.getAbsolutePath() );
+    }
   }
 
   /**
@@ -388,8 +400,9 @@ public final class MainPane extends SplitPane {
    */
   public void saveAll() {
     mTabPanes.forEach(
-      ( tp ) -> tp.getTabs().forEach( ( tab ) -> {
+      tp -> tp.getTabs().forEach( tab -> {
         final var node = tab.getContent();
+
         if( node instanceof final TextEditor editor ) {
           save( editor );
         }
@@ -721,17 +734,24 @@ public final class MainPane extends SplitPane {
     final Function<MediaType, MediaType> bin =
       m -> PLAIN_TEXT_FORMAT.contains( m ) ? TEXT_PLAIN : m;
 
-    // Create two groups: YAML files and plain text files.
+    // Create two groups: YAML files and plain text files. The order that
+    // the elements are listed in the enumeration for media types determines
+    // what files are loaded first. Variable definitions come before all other
+    // plain text documents.
     final var bins = paths
       .stream()
       .collect(
-        groupingBy( path -> bin.apply( MediaType.fromFilename( path ) ) )
+          groupingBy(
+            path -> bin.apply( MediaType.fromFilename( path ) ),
+            () -> new TreeMap<>( Enum::compareTo ),
+            Collectors.toList()
+          )
       );
 
     bins.putIfAbsent( TEXT_YAML, List.of( DEFINITION_DEFAULT.toString() ) );
     bins.putIfAbsent( TEXT_PLAIN, List.of( DOCUMENT_DEFAULT.toString() ) );
 
-    final var result = new ArrayList<File>( paths.size() );
+    final var result = new LinkedList<File>();
 
     // Ensure that the same types are listed together (keep insertion order).
     bins.forEach( ( mediaType, files ) -> result.addAll(
@@ -869,7 +889,7 @@ public final class MainPane extends SplitPane {
           if( listener.wasAdded() ) {
             final var tabs = listener.getAddedSubList();
 
-            tabs.forEach( ( tab ) -> {
+            tabs.forEach( tab -> {
               final var node = tab.getContent();
 
               if( node instanceof TextEditor ) {
@@ -901,11 +921,13 @@ public final class MainPane extends SplitPane {
     final var scrollPane = editor.getScrollPane();
     final var scrollBar = mPreview.getVerticalScrollBar();
     final var handler = new ScrollEventHandler( scrollPane, scrollBar );
+
     handler.enabledProperty().bind( tab.selectedProperty() );
   }
 
   private void addTabPane( final int index, final TabPane tabPane ) {
     final var items = getItems();
+
     if( !items.contains( tabPane ) ) {
       items.add( index, tabPane );
     }
@@ -1029,10 +1051,11 @@ public final class MainPane extends SplitPane {
    * the type of file being edited.
    */
   public void autoinsert() {
-    final var definitions = getTextDefinition();
     final var editor = getTextEditor();
     final var mediaType = editor.getMediaType();
-    final var operator = createSigilOperator( mediaType );
+    final var workspace = getWorkspace();
+    final var operator = workspace.createSigilOperator( mediaType );
+    final var definitions = getTextDefinition();
 
     DefinitionNameInjector.autoinsert( editor, definitions, operator );
   }
@@ -1042,9 +1065,10 @@ public final class MainPane extends SplitPane {
   }
 
   private TextDefinition createDefinitionEditor( final File file ) {
-    final var editor = new DefinitionEditor(
-      file, createTreeTransformer(), getWorkspace().createYamlSigilOperator() );
+    final var editor = new DefinitionEditor( file, createTreeTransformer() );
+
     editor.addTreeChangeHandler( mTreeHandler );
+
     return editor;
   }
 
@@ -1057,6 +1081,7 @@ public final class MainPane extends SplitPane {
     final var tooltip = new Tooltip( path.toString() );
 
     tooltip.setShowDelay( millis( 200 ) );
+
     return tooltip;
   }
 
@@ -1092,9 +1117,10 @@ public final class MainPane extends SplitPane {
   }
 
   /**
-   * Returns the interpolated variable definitions.
+   * Returns the active variable definitions, without any interpolation.
+   * Interpolation is a responsibility of {@link Processor} instances.
    *
-   * @return The key-value pairs, fully interpolated.
+   * @return The key-value pairs, not interpolated.
    */
   private Map<String, String> getDefinitions() {
     return getTextDefinition().getDefinitions();
@@ -1109,25 +1135,12 @@ public final class MainPane extends SplitPane {
   }
 
   /**
-   * Returns the sigil operator for the given {@link MediaType}.
-   *
-   * @param mediaType The type of file being edited.
-   */
-  private SigilOperator createSigilOperator( final MediaType mediaType ) {
-    final var workspace = getWorkspace();
-
-    return mediaType == TEXT_R_MARKDOWN
-      ? workspace.createRSigilOperator()
-      : workspace.createYamlSigilOperator();
-  }
-
-  /**
    * Returns the set of file names opened in the application. The names must
    * be converted to {@link File} objects.
    *
    * @return A {@link Set} of file names.
    */
   private <E> SetProperty<E> getRecentFiles() {
-    return getWorkspace().setsProperty( KEY_UI_FILES_PATH );
+    return getWorkspace().setsProperty( KEY_UI_RECENT_OPEN_PATH );
   }
 }

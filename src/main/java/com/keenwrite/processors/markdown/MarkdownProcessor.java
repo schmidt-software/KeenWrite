@@ -2,7 +2,7 @@
 package com.keenwrite.processors.markdown;
 
 import com.keenwrite.io.MediaType;
-import com.keenwrite.processors.DefinitionProcessor;
+import com.keenwrite.processors.VariableProcessor;
 import com.keenwrite.processors.Processor;
 import com.keenwrite.processors.ProcessorContext;
 import com.keenwrite.processors.markdown.extensions.*;
@@ -63,7 +63,7 @@ public final class MarkdownProcessor extends BaseMarkdownProcessor {
       processor = rProcessor;
     }
     else {
-      processor = new DefinitionProcessor( IDENTITY, context );
+      processor = new VariableProcessor( IDENTITY, context );
     }
 
     // Add typographic, table, strikethrough, and similar extensions.

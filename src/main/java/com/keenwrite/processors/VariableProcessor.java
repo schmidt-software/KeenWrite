@@ -11,7 +11,7 @@ import static com.keenwrite.processors.text.TextReplacementFactory.replace;
  * their values into the post-processed text. The default variable syntax is
  * {@code $variable$}.
  */
-public class DefinitionProcessor
+public class VariableProcessor
   extends ExecutorProcessor<String> implements Function<String, String> {
 
   private final ProcessorContext mContext;
@@ -22,10 +22,11 @@ public class DefinitionProcessor
    * @param successor Subsequent link in the processing chain.
    * @param context   Contains resolved definitions map.
    */
-  public DefinitionProcessor(
+  public VariableProcessor(
       final Processor<String> successor,
       final ProcessorContext context ) {
     super( successor );
+
     mContext = context;
   }
 
@@ -47,6 +48,6 @@ public class DefinitionProcessor
    * @return A map of variable names to values.
    */
   protected Map<String, String> getDefinitions() {
-    return mContext.getResolvedMap();
+    return mContext.getInterpolatedMap();
   }
 }

@@ -2,50 +2,40 @@
 package com.keenwrite.processors.r;
 
 import com.keenwrite.preferences.Workspace;
-import com.keenwrite.processors.DefinitionProcessor;
 import com.keenwrite.processors.Processor;
 import com.keenwrite.processors.ProcessorContext;
+import com.keenwrite.processors.VariableProcessor;
 import com.keenwrite.processors.markdown.extensions.r.ROutputProcessor;
-import com.keenwrite.util.BoundedCache;
+import com.keenwrite.util.InterpolatingMap;
 import javafx.beans.property.Property;
 
-import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
 import java.io.File;
 import java.nio.file.Path;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.keenwrite.constants.Constants.STATUS_PARSE_ERROR;
-import static com.keenwrite.Messages.get;
 import static com.keenwrite.events.StatusEvent.clue;
-import static com.keenwrite.preferences.AppKeys.*;
-import static com.keenwrite.processors.text.TextReplacementFactory.replace;
+import static com.keenwrite.preferences.AppKeys.KEY_R_DIR;
+import static com.keenwrite.preferences.AppKeys.KEY_R_SCRIPT;
 import static com.keenwrite.sigils.RSigilOperator.PREFIX;
 import static com.keenwrite.sigils.RSigilOperator.SUFFIX;
-import static java.lang.Math.max;
 import static java.lang.Math.min;
-import static java.lang.String.format;
 
 /**
  * Transforms a document containing R statements into Markdown.
  */
-public final class InlineRProcessor extends DefinitionProcessor {
-  private final Processor<String> mPostProcessor = new ROutputProcessor();
-
-  /**
-   * Where to put document inline evaluated R expressions, constrained to
-   * avoid running out of memory.
-   */
-  private final Map<String, String> mEvalCache =
-    new BoundedCache<>( 512 );
-
-  private static final ScriptEngine ENGINE =
-    (new ScriptEngineManager()).getEngineByName( "Renjin" );
-
+public final class InlineRProcessor extends VariableProcessor {
   private static final int PREFIX_LENGTH = PREFIX.length();
 
-  private final AtomicBoolean mDirty = new AtomicBoolean( false );
+  /**
+   * Converts the given string to HTML, trimming new lines, and inlining
+   * the text if it is a paragraph. Otherwise, the resulting HTML is most likely
+   * complex (e.g., a Markdown table) and should be rendered as its HTML
+   * equivalent.
+   */
+  private final Processor<String> mPostProcessor = new ROutputProcessor();
+
+  private final AtomicBoolean mReady = new AtomicBoolean();
 
   private final Workspace mWorkspace;
 
@@ -61,95 +51,42 @@ public final class InlineRProcessor extends DefinitionProcessor {
     super( successor, context );
 
     mWorkspace = context.getWorkspace();
-
-    bootstrapScriptProperty().addListener(
-      ( __, oldScript, newScript ) -> setDirty( true ) );
-    workingDirectoryProperty().addListener(
-      ( __, oldScript, newScript ) -> setDirty( true ) );
-
-    // TODO: Watch the "R" property keys in the workspace, directly.
-
-    // If the user saves the preferences, make sure that any R-related settings
-    // changes are applied.
-//    getWorkspace().addSaveEventHandler( ( handler ) -> {
-//      if( isDirty() ) {
-//        init();
-//        setDirty( false );
-//      }
-//    } );
-
-    init();
   }
 
   /**
-   * Initialises the R code so that R can find imported libraries. Note that
+   * Initializes the R code so that R can find imported libraries. Note that
    * any existing R functionality will not be overwritten if this method is
    * called multiple times.
-   *
-   * @return {@code true} if initialization completed and all variables were
-   * replaced; {@code false} if any variables remain.
+   * <p>
+   * If the R code to bootstrap contained variables, and they were all updated
+   * successfully, this will update the internal ready flag to {@code true}.
    */
-  public boolean init() {
+  public void init() {
     final var bootstrap = getBootstrapScript();
 
     if( !bootstrap.isBlank() ) {
       final var wd = getWorkingDirectory();
       final var dir = wd.toString().replace( '\\', '/' );
-      final var map = getDefinitions();
-      final var defBegan = mWorkspace.getString( KEY_DEF_DELIM_BEGAN );
-      final var defEnded = mWorkspace.getString( KEY_DEF_DELIM_ENDED );
+      final var definitions = getDefinitions();
+      final var sigils = mWorkspace.createYamlSigilOperator();
+      final var map = new InterpolatingMap( sigils, definitions );
 
-      map.put( defBegan + "application.r.working.directory" + defEnded, dir );
+      map.put( "application.r.working.directory", dir );
+      map.put( "application.r.bootstrap", bootstrap );
 
-      final var replaced = replace( bootstrap, map );
-      final var bIndex = replaced.indexOf( defBegan );
+      mReady.set( map.interpolate() == 0 );
 
-      // If there's a delimiter in the replaced text it means not all variables
-      // are bound, which is an error.
-      if( bIndex >= 0 ) {
-        var eIndex = replaced.indexOf( defEnded );
-        eIndex = (eIndex == -1) ? replaced.length() - 1 : max( bIndex, eIndex );
-
-        final var def = replaced.substring(
-          bIndex + defBegan.length(), eIndex );
-        clue( "Main.status.error.bootstrap.eval",
-              format( "%s%s%s", defBegan, def, defEnded ) );
-
-        return false;
-      }
-      else {
-        eval( replaced );
+      // If all existing variables were replaced---or there were no variables
+      // to replace---initialize the R engine.
+      if( mReady.get() ) {
+        final var replaced = map.get( "application.r.bootstrap" );
+        Engine.eval( replaced );
       }
     }
-
-    return true;
   }
 
-  /**
-   * Empties the cache.
-   */
-  public void clear() {
-    mEvalCache.clear();
-  }
-
-  /**
-   * Sets the dirty flag to indicate that the bootstrap script or working
-   * directory has been modified. Upon saving the preferences, if this flag
-   * is true, then {@link #init()} will be called to reload the R environment.
-   *
-   * @param dirty Set to true to reload changes upon closing preferences.
-   */
-  private void setDirty( final boolean dirty ) {
-    mDirty.set( dirty );
-  }
-
-  /**
-   * Answers whether R-related settings have been modified.
-   *
-   * @return {@code true} when the settings have changed.
-   */
-  private boolean isDirty() {
-    return mDirty.get();
+  public boolean isReady() {
+    return mReady.get();
   }
 
   /**
@@ -190,7 +127,7 @@ public final class InlineRProcessor extends DefinitionProcessor {
         // Pass the R statement into the R engine for evaluation.
         try {
           // Append the string representation of the result into the text.
-          sb.append( evalCached( r ) );
+          sb.append( Engine.eval( r, mPostProcessor ) );
         } catch( final Exception ex ) {
           // Inform the user that there was a problem.
           clue( STATUS_PARSE_ERROR, ex.getMessage(), currIndex );
@@ -210,46 +147,6 @@ public final class InlineRProcessor extends DefinitionProcessor {
 
     // Copy from the previous index to the end of the string.
     return sb.append( text.substring( min( prevIndex, length ) ) ).toString();
-  }
-
-  /**
-   * Look up an R expression from the cache then return the resulting object.
-   * If the R expression hasn't been cached, it'll first be evaluated.
-   *
-   * @param r The expression to evaluate.
-   * @return The object resulting from the evaluation.
-   */
-  private String evalCached( final String r ) {
-    return mEvalCache.computeIfAbsent( r, __ -> evalHtml( r ) );
-  }
-
-  /**
-   * Converts the given string to HTML, trimming new lines, and inlining
-   * the text if it is a paragraph. Otherwise, the resulting HTML is most likely
-   * complex (e.g., a Markdown table) and should be rendered as its HTML
-   * equivalent.
-   *
-   * @param r The R expression to evaluate then convert to HTML.
-   * @return The result from the R expression as an HTML element.
-   */
-  private String evalHtml( final String r ) {
-    return mPostProcessor.apply( eval( r ) );
-  }
-
-  /**
-   * Evaluate an R expression and return the resulting object.
-   *
-   * @param r The expression to evaluate.
-   * @return The object resulting from the evaluation.
-   */
-  private String eval( final String r ) {
-    try {
-      return ENGINE.eval( r ).toString();
-    } catch( final Exception ex ) {
-      final var expr = r.substring( 0, min( r.length(), 50 ) );
-      clue( get( "Main.status.error.r", expr, ex.getMessage() ), ex );
-      return "";
-    }
   }
 
   /**

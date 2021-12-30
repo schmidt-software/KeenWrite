@@ -32,6 +32,8 @@ import static javax.xml.xpath.XPathConstants.NODESET;
 public class DocumentParser {
   private static final String LOAD_EXTERNAL_DTD =
     "http://apache.org/xml/features/nonvalidating/load-external-dtd";
+  private static final String INDENT_AMOUNT =
+    "{http://xml.apache.org/xslt}indent-amount";
 
   /**
    * Caches {@link XPathExpression}s to avoid re-compiling.
@@ -60,8 +62,9 @@ public class DocumentParser {
 
       sTransformer.setOutputProperty( OMIT_XML_DECLARATION, "yes" );
       sTransformer.setOutputProperty( METHOD, "xml" );
-      sTransformer.setOutputProperty( INDENT, "no" );
       sTransformer.setOutputProperty( ENCODING, UTF_8.toString() );
+      sTransformer.setOutputProperty( INDENT, "yes" );
+      sTransformer.setOutputProperty( INDENT_AMOUNT, "2" );
     } catch( final Exception ex ) {
       clue( ex );
     }
@@ -80,6 +83,8 @@ public class DocumentParser {
    * @return The DOM that represents the given XML data.
    */
   public static Document parse( final String xml ) {
+    assert xml != null;
+
     final var input = new InputSource();
 
     try( final var reader = new StringReader( xml ) ) {
@@ -104,6 +109,8 @@ public class DocumentParser {
    */
   public static Document parse( final File doc )
     throws IOException, SAXException {
+    assert doc != null;
+
     try( final var in = new FileInputStream( doc ) ) {
       return parse( in );
     }
@@ -120,6 +127,8 @@ public class DocumentParser {
    */
   public static Document parse( final InputStream doc )
     throws IOException, SAXException {
+    assert doc != null;
+
     return sDocumentBuilder.parse( doc );
   }
 
@@ -154,6 +163,9 @@ public class DocumentParser {
 
   public static Node createMeta(
     final Document document, final Map.Entry<String, String> entry ) {
+    assert document != null;
+    assert entry != null;
+
     final var node = document.createElement( "meta" );
 
     node.setAttribute( "name", entry.getKey() );
@@ -163,6 +175,8 @@ public class DocumentParser {
   }
 
   public static String toString( final Document xhtml ) {
+    assert xhtml != null;
+
     try( final var writer = new StringWriter() ) {
       final var domSource = new DOMSource( xhtml );
       final var result = new StreamResult( writer );
@@ -178,6 +192,8 @@ public class DocumentParser {
 
   public static String transform( final Element root )
     throws IOException, TransformerException {
+    assert root != null;
+
     try( final var writer = new StringWriter() ) {
       sTransformer.transform(
         new DOMSource( root ), new StreamResult( writer )
@@ -194,8 +210,9 @@ public class DocumentParser {
    * @param path The SVG file to process.
    * @throws Exception The file could not be processed.
    */
-  public static void sanitize( final Path path )
-    throws Exception {
+  public static void sanitize( final Path path ) throws Exception {
+    assert path != null;
+
     final var file = path.toFile();
 
     sTransformer.transform(
@@ -203,7 +220,16 @@ public class DocumentParser {
     );
   }
 
-  public static XPathExpression compile( final CharSequence cs )   {
+  /**
+   * Converts a string into an {@link XPathExpression}, which may be used to
+   * extract elements from a {@link Document} object model.
+   *
+   * @param cs The string to convert to an {@link XPathExpression}.
+   * @return {@code null} if there was an error compiling the xpath.
+   */
+  public static XPathExpression compile( final CharSequence cs ) {
+    assert cs != null;
+
     final var xpath = cs.toString();
 
     return sXpaths.computeIfAbsent( xpath, k -> {

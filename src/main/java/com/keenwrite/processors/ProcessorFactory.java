@@ -94,7 +94,7 @@ public final class ProcessorFactory extends AbstractFileFactory {
   private static Processor<String> createDefinitionProcessor(
     final Processor<String> successor,
     final ProcessorContext context ) {
-    return new DefinitionProcessor( successor, context );
+    return new VariableProcessor( successor, context );
   }
 
   /**

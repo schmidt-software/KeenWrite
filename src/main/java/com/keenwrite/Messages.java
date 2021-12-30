@@ -17,16 +17,17 @@ import static java.util.ResourceBundle.getBundle;
  */
 public final class Messages {
 
-  private static final SigilOperator OPERATOR = createBundleSigilOperator();
-  private static final InterpolatingMap MAP = new InterpolatingMap();
+  private static final SigilOperator OPERATOR = new SigilOperator( "${", "}" );
+  private static final InterpolatingMap MAP = new InterpolatingMap( OPERATOR );
 
   static {
     // Obtains the application resource bundle using the default locale. The
     // locale cannot be changed using the application, making interpolation of
     // values viable as a one-time operation.
     final var BUNDLE = getBundle( APP_BUNDLE_NAME );
+
     BUNDLE.keySet().forEach( key -> MAP.put( key, BUNDLE.getString( key ) ) );
-    MAP.interpolate( OPERATOR );
+    MAP.interpolate();
   }
 
   /**
@@ -37,7 +38,8 @@ public final class Messages {
    * @return The value for the key, or the key itself if not found.
    */
   public static String get( final String key ) {
-    final var v = MAP.get( OPERATOR.entoken( key ) );
+    final var v = MAP.get( key );
+
     return v == null ? key : v;
   }
 
@@ -71,13 +73,8 @@ public final class Messages {
    * @return {@code true} when the key exists as an exact match.
    */
   public static boolean containsKey( final String key ) {
-    return MAP.containsKey( OPERATOR.entoken( key ) );
+    return MAP.containsKey( key );
   }
 
-  private static SigilOperator createBundleSigilOperator() {
-    return new SigilOperator( "${", "}" );
-  }
-
-  private Messages() {
-  }
+  private Messages() {}
 }

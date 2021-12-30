@@ -97,15 +97,16 @@ public enum MediaType {
 
   /*
    * Document types for editing or displaying documents, mix of standard and
-   * application-specific.
+   * application-specific. The order that these are declared reflect in the
+   * ordinal value used during comparisons.
    */
-  TEXT_HTML( TEXT, "html" ),
-  TEXT_MARKDOWN( TEXT, "markdown" ),
+  TEXT_YAML( TEXT, "yaml" ),
   TEXT_PLAIN( TEXT, "plain" ),
+  TEXT_MARKDOWN( TEXT, "markdown" ),
   TEXT_R_MARKDOWN( TEXT, "R+markdown" ),
+  TEXT_HTML( TEXT, "html" ),
   TEXT_XHTML( TEXT, "xhtml+xml" ),
   TEXT_XML( TEXT, "xml" ),
-  TEXT_YAML( TEXT, "yaml" ),
 
   /*
    * When all other lights go out.

@@ -30,11 +30,15 @@ public final class SkinProperty extends SimpleObjectProperty<String> {
     sSkins.add( "Vampire Byte" );
   }
 
-  public SkinProperty( final String skin ) {
-    super( skin );
-  }
-
+  /**
+   * Returns the list of available skin names to change the UI fonts and
+   * colours.
+   *
+   * @return A selection of skins.
+   */
   public static ObservableList<String> skinListProperty() {
+    assert !sSkins.isEmpty();
+
     return listProperty( sSkins );
   }
 
@@ -50,6 +54,8 @@ public final class SkinProperty extends SimpleObjectProperty<String> {
    * underscores, without the ".css" extension appended.
    */
   public static String toFilename( final String skin ) {
+    assert skin != null;
+
     return sanitize( skin ).toLowerCase().replace( ' ', '_' );
   }
 
@@ -60,6 +66,12 @@ public final class SkinProperty extends SimpleObjectProperty<String> {
    * @return The given name, if valid, otherwise the default skin.
    */
   private static String sanitize( final String skin ) {
+    assert skin != null;
+
     return sSkins.contains( skin ) ? skin : SKIN_DEFAULT;
+  }
+
+  public SkinProperty( final String skin ) {
+    super( skin );
   }
 }

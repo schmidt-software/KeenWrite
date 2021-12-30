@@ -17,8 +17,6 @@ public final class RProcessor
   private final Processor<String> mProcessor;
   private final InlineRProcessor mInlineRProcessor;
 
-  private boolean mReady;
-
   public RProcessor( final ProcessorContext context ) {
     final var irp = new InlineRProcessor( IDENTITY, context );
     final var rvp = new RVariableProcessor( irp, context );
@@ -26,15 +24,15 @@ public final class RProcessor
     mInlineRProcessor = irp;
   }
 
-  public void init() {
-    mReady = mInlineRProcessor.init();
-  }
-
   public String apply( final String text ) {
+    if( !mInlineRProcessor.isReady() ) {
+      mInlineRProcessor.init();
+    }
+
     return mProcessor.apply( text );
   }
 
   public boolean isReady() {
-    return mReady;
+    return mInlineRProcessor.isReady();
   }
 }

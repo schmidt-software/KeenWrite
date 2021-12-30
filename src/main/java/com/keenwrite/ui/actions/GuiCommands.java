@@ -573,7 +573,7 @@ public final class GuiCommands {
 
       final var text = new StringBuilder( DOCUMENT_LENGTH );
 
-      files.forEach( ( file ) -> {
+      files.forEach( file -> {
         try {
           clue( "Main.status.export.concat", file );
           text.append( readString( file ) );
