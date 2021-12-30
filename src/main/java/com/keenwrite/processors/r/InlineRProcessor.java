@@ -35,6 +35,9 @@ public final class InlineRProcessor extends VariableProcessor {
    */
   private final Processor<String> mPostProcessor = new ROutputProcessor();
 
+  /**
+   * Set to {@code true} when the R bootstrap script is loaded successfully.
+   */
   private final AtomicBoolean mReady = new AtomicBoolean();
 
   private final Workspace mWorkspace;
@@ -85,6 +88,11 @@ public final class InlineRProcessor extends VariableProcessor {
     }
   }
 
+  /**
+   * Answers whether R has been initialized without failures.
+   *
+   * @return {@code true} the R engine is ready to process inline R statements.
+   */
   public boolean isReady() {
     return mReady.get();
   }

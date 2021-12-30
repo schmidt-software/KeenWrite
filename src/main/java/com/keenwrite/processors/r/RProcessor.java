@@ -32,6 +32,16 @@ public final class RProcessor
     return mProcessor.apply( text );
   }
 
+  /**
+   * Called when the {@link InlineRProcessor} is instantiated, which triggers
+   * a re-evaluation of all R expressions in the document. Without this, when
+   * the document is first viewed, no R expressions are evaluated until the
+   * user interacts with the document.
+   */
+  public void init() {
+    mInlineRProcessor.init();
+  }
+
   public boolean isReady() {
     return mInlineRProcessor.isReady();
   }

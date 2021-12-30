@@ -90,6 +90,7 @@ public final class RExtension implements ParserExtension {
         referenceLinkProcessors,
         inlineParserExtensions
       );
+      mProcessor.init();
     }
 
     /**
