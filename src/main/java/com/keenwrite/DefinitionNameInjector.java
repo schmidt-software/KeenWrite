@@ -80,6 +80,5 @@ public final class DefinitionNameInjector {
   /**
    * Prevent instantiation.
    */
-  private DefinitionNameInjector() {
-  }
+  private DefinitionNameInjector() {}
 }

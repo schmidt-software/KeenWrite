@@ -121,7 +121,7 @@ public final class ProcessorContext {
    *
    * @return A map to help dereference variables.
    */
-  Map<String, String> getInterpolatedMap() {
+  InterpolatingMap getInterpolatedDefinitions() {
     final var map = new InterpolatingMap(
       getWorkspace().createYamlSigilOperator(),
       mMutator.mDefinitions.get()

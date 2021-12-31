@@ -48,6 +48,6 @@ public class VariableProcessor
    * @return A map of variable names to values.
    */
   protected Map<String, String> getDefinitions() {
-    return mContext.getInterpolatedMap();
+    return mContext.getInterpolatedDefinitions();
   }
 }

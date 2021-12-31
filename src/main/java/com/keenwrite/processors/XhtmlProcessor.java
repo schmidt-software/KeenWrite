@@ -24,7 +24,6 @@ import static com.keenwrite.dom.DocumentParser.visit;
 import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.io.HttpFacade.httpGet;
 import static com.keenwrite.preferences.AppKeys.*;
-import static com.keenwrite.processors.text.TextReplacementFactory.replace;
 import static com.keenwrite.util.ProtocolScheme.getProtocol;
 import static com.whitemagicsoftware.keenquotes.Converter.CHARS;
 import static com.whitemagicsoftware.keenquotes.ParserFactory.ParserType.PARSER_XML;
@@ -139,15 +138,16 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
    * @return A map of metadata key/value pairs.
    */
   private Map<String, String> createMetaDataMap( final Document doc ) {
-    final Map<String, String> map = new LinkedHashMap<>();
-    final ListProperty<Map.Entry<String, String>> metadata = getMetaData();
+    final Map<String, String> result = new LinkedHashMap<>();
+    final var metadata = getMetaData();
+    final var map = mContext.getInterpolatedDefinitions();
 
-    metadata.forEach( entry -> map.put(
-      entry.getKey(), resolve( entry.getValue() ) )
+    metadata.forEach( entry -> result.put(
+      entry.getKey(), map.interpolate( entry.getValue() ) )
     );
-    map.put( "count", wordCount( doc ) );
+    result.put( "count", wordCount( doc ) );
 
-    return map;
+    return result;
   }
 
   /**
@@ -267,10 +267,6 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
    */
   private boolean curl() {
     return getWorkspace().getBoolean( KEY_TYPESET_TYPOGRAPHY_QUOTES );
-  }
-
-  private String resolve( final String value ) {
-    return replace( value, mContext.getInterpolatedMap() );
   }
 
   /**

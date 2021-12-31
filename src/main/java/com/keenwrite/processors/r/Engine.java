@@ -53,7 +53,7 @@ public class Engine {
     } catch( final Exception ex ) {
       final var expr = r.substring( 0, min( r.length(), 50 ) );
       clue( get( "Main.status.error.r", expr, ex.getMessage() ), ex );
-      return "";
+      throw new IllegalArgumentException( r );
     }
   }
 }

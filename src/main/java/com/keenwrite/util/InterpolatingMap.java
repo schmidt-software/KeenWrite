@@ -45,6 +45,20 @@ public class InterpolatingMap extends ConcurrentHashMap<String, String> {
   }
 
   /**
+   * Interpolates a single text string based on values in this map.
+   *
+   * @param text The text string to interpolate.
+   * @return The text string with all variable definitions resolved.
+   */
+  public String interpolate( final String text ) {
+    assert text != null;
+
+    final var failures = new AtomicInteger();
+
+    return interpolate( text, createPattern(), failures );
+  }
+
+  /**
    * Interpolates all values in the map that reference other values by way
    * of key names. Performs a non-greedy match of key names delimited by
    * definition tokens. This operation modifies the map directly.
@@ -52,17 +66,10 @@ public class InterpolatingMap extends ConcurrentHashMap<String, String> {
    * @return The number of failed substitutions.
    */
   public int interpolate() {
-    final var sigils = mOperator.getSigils();
-    final var pattern = compile(
-      format(
-        "%s(.*?)%s", quote( sigils.getBegan() ), quote( sigils.getEnded() )
-      )
-    );
-
     final var failures = new AtomicInteger();
 
     for( final var k : keySet() ) {
-      replace( k, interpolate( get( k ), pattern, failures ) );
+      replace( k, interpolate( get( k ), createPattern(), failures ) );
     }
 
     return failures.get();
@@ -82,6 +89,7 @@ public class InterpolatingMap extends ConcurrentHashMap<String, String> {
     String value, final Pattern pattern, final AtomicInteger failures ) {
     assert value != null;
     assert pattern != null;
+    assert failures != null;
 
     final var matcher = pattern.matcher( value );
 
@@ -99,5 +107,12 @@ public class InterpolatingMap extends ConcurrentHashMap<String, String> {
     }
 
     return value;
+  }
+
+  private Pattern createPattern() {
+    final var sigils = mOperator.getSigils();
+    return compile( format(
+      "%s(.*?)%s", quote( sigils.getBegan() ), quote( sigils.getEnded() )
+    ) );
   }
 }

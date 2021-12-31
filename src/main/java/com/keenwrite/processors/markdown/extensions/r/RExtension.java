@@ -9,7 +9,6 @@ import com.keenwrite.processors.r.RProcessor;
 import com.keenwrite.sigils.RSigilOperator;
 import com.vladsch.flexmark.ast.Paragraph;
 import com.vladsch.flexmark.parser.InlineParserExtensionFactory;
-import com.vladsch.flexmark.parser.InlineParserFactory;
 import com.vladsch.flexmark.parser.delimiter.DelimiterProcessor;
 import com.vladsch.flexmark.parser.internal.InlineParserImpl;
 import com.vladsch.flexmark.parser.internal.LinkRefProcessorData;
@@ -33,7 +32,6 @@ import static com.vladsch.flexmark.parser.Parser.ParserExtension;
  * reason, some pre-conversion is necessary.
  */
 public final class RExtension implements ParserExtension {
-  private final InlineParserFactory INLINE_FACTORY = InlineParser::new;
   private final RProcessor mProcessor;
   private final BaseMarkdownProcessor mMarkdownProcessor;
 
@@ -54,7 +52,7 @@ public final class RExtension implements ParserExtension {
 
   @Override
   public void extend( final Builder builder ) {
-    builder.customInlineParserFactory( INLINE_FACTORY );
+    builder.customInlineParserFactory( InlineParser::new );
   }
 
   @Override
