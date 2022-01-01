@@ -104,6 +104,7 @@ public enum MediaType {
   TEXT_PLAIN( TEXT, "plain" ),
   TEXT_MARKDOWN( TEXT, "markdown" ),
   TEXT_R_MARKDOWN( TEXT, "R+markdown" ),
+  TEXT_PROPERTIES( TEXT, "x-java-properties" ),
   TEXT_HTML( TEXT, "html" ),
   TEXT_XHTML( TEXT, "xhtml+xml" ),
   TEXT_XML( TEXT, "xml" ),

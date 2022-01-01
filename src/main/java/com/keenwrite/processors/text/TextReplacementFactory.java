@@ -20,8 +20,7 @@ public final class TextReplacementFactory {
    * @return A class that can search and replace text with utmost expediency.
    */
   public static TextReplacer getTextReplacer( final int length ) {
-    // After about 1,500 characters, the StringUtils implementation is slower
-    // than the Aho-Corsick algorithm implementation.
+    // After about 1,500 characters, the Aho-Corsick algorithm is faster.
     return length < 1500 ? APACHE : AHO_CORASICK;
   }
 
@@ -31,12 +30,12 @@ public final class TextReplacementFactory {
    * be already dereferenced and ready to be substituted verbatim; any
    * recursively defined values must have been interpolated previously.
    *
-   * @param text The text containing zero or more variables to replace.
-   * @param map  The map of variables to their dereferenced values.
+   * @param haystack The text containing zero or more variables to replace.
+   * @param needles  The map of variables to their dereferenced values.
    * @return The text with all variables replaced.
    */
   public static String replace(
-      final String text, final Map<String, String> map ) {
-    return getTextReplacer( text.length() ).replace( text, map );
+    final String haystack, final Map<String, String> needles ) {
+    return getTextReplacer( haystack.length() ).replace( haystack, needles );
   }
 }

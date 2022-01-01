@@ -6,6 +6,7 @@ import com.keenwrite.ExportFormat;
 import com.keenwrite.constants.Constants;
 import com.keenwrite.io.FileType;
 import com.keenwrite.preferences.Workspace;
+import com.keenwrite.sigils.SigilKeyOperator;
 import com.keenwrite.util.GenericBuilder;
 import com.keenwrite.util.InterpolatingMap;
 
@@ -117,14 +118,22 @@ public final class ProcessorContext {
   }
 
   /**
-   * Returns the variable map of interpolated definitions.
+   * Returns the variable map of definitions, without interpolation.
    *
    * @return A map to help dereference variables.
    */
-  InterpolatingMap getInterpolatedDefinitions() {
+  public Map<String, String> getDefinitions() {
+    return mMutator.mDefinitions.get();
+  }
+
+  /**
+   * Returns the variable map of definitions, with interpolation.
+   *
+   * @return A map to help dereference variables.
+   */
+  public InterpolatingMap getInterpolatedDefinitions() {
     final var map = new InterpolatingMap(
-      getWorkspace().createYamlSigilOperator(),
-      mMutator.mDefinitions.get()
+      createDefinitionSigilOperator(), getDefinitions()
     );
 
     map.interpolate();
@@ -182,5 +191,13 @@ public final class ProcessorContext {
 
   public Workspace getWorkspace() {
     return mMutator.mWorkspace;
+  }
+
+  public SigilKeyOperator createSigilOperator() {
+    return getWorkspace().createSigilOperator( getInputPath() );
+  }
+
+  public SigilKeyOperator createDefinitionSigilOperator() {
+    return getWorkspace().createDefinitionKeyOperator();
   }
 }

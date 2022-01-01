@@ -5,25 +5,30 @@ import com.keenwrite.preferences.Workspace;
 import com.keenwrite.processors.Processor;
 import com.keenwrite.processors.ProcessorContext;
 import com.keenwrite.processors.VariableProcessor;
-import com.keenwrite.util.InterpolatingMap;
+import com.keenwrite.sigils.RKeyOperator;
 import javafx.beans.property.Property;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.keenwrite.constants.Constants.STATUS_PARSE_ERROR;
 import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.preferences.AppKeys.KEY_R_DIR;
 import static com.keenwrite.preferences.AppKeys.KEY_R_SCRIPT;
-import static com.keenwrite.sigils.RSigilOperator.PREFIX;
-import static com.keenwrite.sigils.RSigilOperator.SUFFIX;
+import static com.keenwrite.processors.r.RVariableProcessor.escape;
+import static com.keenwrite.processors.text.TextReplacementFactory.replace;
 import static java.lang.Math.min;
 
 /**
  * Transforms a document containing R statements into Markdown.
  */
 public final class InlineRProcessor extends VariableProcessor {
+  public static final String PREFIX = "`r#";
+  public static final char SUFFIX = '`';
+
   private static final int PREFIX_LENGTH = PREFIX.length();
 
   /**
@@ -31,7 +36,7 @@ public final class InlineRProcessor extends VariableProcessor {
    */
   private final AtomicBoolean mReady = new AtomicBoolean();
 
-  private final Workspace mWorkspace;
+  private final RKeyOperator mOperator = new RKeyOperator();
 
   /**
    * Constructs a processor capable of evaluating R statements.
@@ -43,8 +48,6 @@ public final class InlineRProcessor extends VariableProcessor {
     final Processor<String> successor,
     final ProcessorContext context ) {
     super( successor, context );
-
-    mWorkspace = context.getWorkspace();
   }
 
   /**
@@ -61,20 +64,24 @@ public final class InlineRProcessor extends VariableProcessor {
     if( !bootstrap.isBlank() ) {
       final var wd = getWorkingDirectory();
       final var dir = wd.toString().replace( '\\', '/' );
-      final var definitions = getDefinitions();
-      final var sigils = mWorkspace.createYamlSigilOperator();
-      final var map = new InterpolatingMap( sigils, definitions );
+      final var definitions = getContext().getDefinitions();
+      final var map = new HashMap<String, String>( definitions.size() + 1 );
 
-      map.put( "application.r.working.directory", dir );
-      map.put( "application.r.bootstrap", bootstrap );
+      definitions.forEach(
+        ( k, v ) -> map.put( mOperator.apply( k ), escape( v ) )
+      );
+      map.put(
+        mOperator.apply( "application.r.working.directory" ),
+        escape( dir )
+      );
 
-      mReady.set( map.interpolate() == 0 );
-
-      // If all existing variables were replaced---or there were no variables
-      // to replace---initialize the R engine.
-      if( mReady.get() ) {
-        final var replaced = map.get( "application.r.bootstrap" );
-        Engine.eval( replaced );
+      try {
+        Engine.eval( replace( bootstrap, map ) );
+        mReady.set( true );
+      } catch( final Exception ignored ) {
+        // A problem with the bootstrap script is likely caused by variables
+        // not being loaded. This implies that the R processor is being invoked
+        // too soon.
       }
     }
   }
@@ -98,7 +105,7 @@ public final class InlineRProcessor extends VariableProcessor {
    * substituted with value returned from their execution.
    */
   @Override
-  public String apply( final String text ) {
+  public @NotNull String apply( final String text ) {
     final int length = text.length();
 
     // The * 2 is a wild guess at the ratio of R statements to the length
@@ -176,6 +183,6 @@ public final class InlineRProcessor extends VariableProcessor {
   }
 
   private Workspace getWorkspace() {
-    return mWorkspace;
+    return getContext().getWorkspace();
   }
 }

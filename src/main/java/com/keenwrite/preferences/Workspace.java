@@ -3,25 +3,26 @@ package com.keenwrite.preferences;
 
 import com.keenwrite.constants.Constants;
 import com.keenwrite.io.MediaType;
-import com.keenwrite.sigils.RSigilOperator;
-import com.keenwrite.sigils.SigilOperator;
-import com.keenwrite.sigils.Sigils;
-import com.keenwrite.sigils.YamlSigilOperator;
+import com.keenwrite.processors.r.InlineRProcessor;
+import com.keenwrite.sigils.PropertyKeyOperator;
+import com.keenwrite.sigils.RKeyOperator;
+import com.keenwrite.sigils.SigilKeyOperator;
 import javafx.application.Platform;
 import javafx.beans.property.*;
 import javafx.collections.ObservableList;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.function.BooleanSupplier;
 import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
 import static com.keenwrite.Bootstrap.APP_TITLE_LOWERCASE;
 import static com.keenwrite.Launcher.getVersion;
 import static com.keenwrite.constants.Constants.*;
 import static com.keenwrite.events.StatusEvent.clue;
-import static com.keenwrite.io.MediaType.TEXT_R_MARKDOWN;
 import static com.keenwrite.preferences.AppKeys.*;
 import static java.util.Map.entry;
 import static javafx.application.Platform.runLater;
@@ -342,7 +343,7 @@ public final class Workspace implements KeyConfiguration {
       // Update the string values to include the application version.
       valuesProperty( KEY_META_VERSION ).setValue( getVersion() );
 
-      mValues.forEach( ( key, val ) -> mStore.setValue( key, marshall( val ) ) );
+      mValues.forEach( ( k, v ) -> mStore.setValue( k, marshall( v ) ) );
       mSets.forEach( mStore::setSet );
       mLists.forEach( mStore::setMap );
 
@@ -555,24 +556,15 @@ public final class Workspace implements KeyConfiguration {
     return localeProperty( KEY_LANGUAGE_LOCALE ).toLocale();
   }
 
-  private Sigils createSigils( final Key keyBegan, final Key keyEnded ) {
-    assert keyBegan != null;
-    assert keyEnded != null;
+  public SigilKeyOperator createDefinitionKeyOperator() {
+    final var began = getString( KEY_DEF_DELIM_BEGAN );
+    final var ended = getString( KEY_DEF_DELIM_ENDED );
 
-    return new Sigils( getString( keyBegan ), getString( keyEnded ) );
+    return new SigilKeyOperator( began, ended );
   }
 
-  public SigilOperator createYamlSigilOperator() {
-    return new YamlSigilOperator(
-      createSigils( KEY_DEF_DELIM_BEGAN, KEY_DEF_DELIM_ENDED )
-    );
-  }
-
-  public SigilOperator createRSigilOperator() {
-    return new RSigilOperator(
-      createSigils( KEY_R_DELIM_BEGAN, KEY_R_DELIM_ENDED ),
-      createYamlSigilOperator()
-    );
+  public SigilKeyOperator createPropertyKeyOperator() {
+    return new PropertyKeyOperator();
   }
 
   /**
@@ -627,11 +619,22 @@ public final class Workspace implements KeyConfiguration {
    *
    * @param mediaType The type of file being edited.
    */
-  public SigilOperator createSigilOperator( final MediaType mediaType ) {
+  public SigilKeyOperator createSigilOperator( final MediaType mediaType ) {
     assert mediaType != null;
 
-    return mediaType == TEXT_R_MARKDOWN
-      ? createRSigilOperator()
-      : createYamlSigilOperator();
+    return mediaType == MediaType.TEXT_PROPERTIES
+      ? createPropertyKeyOperator()
+      : createDefinitionKeyOperator();
+  }
+
+  /**
+   * Returns the sigil operator for the given {@link Path}.
+   *
+   * @param path The type of file being edited, from its extension.
+   */
+  public SigilKeyOperator createSigilOperator( final Path path ) {
+    assert path != null;
+
+    return createSigilOperator( MediaType.valueFrom( path ) );
   }
 }

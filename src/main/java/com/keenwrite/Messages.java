@@ -2,7 +2,8 @@
 package com.keenwrite;
 
 import com.keenwrite.preferences.Key;
-import com.keenwrite.sigils.SigilOperator;
+import com.keenwrite.sigils.PropertyKeyOperator;
+import com.keenwrite.sigils.SigilKeyOperator;
 import com.keenwrite.util.InterpolatingMap;
 
 import java.text.MessageFormat;
@@ -17,16 +18,16 @@ import static java.util.ResourceBundle.getBundle;
  */
 public final class Messages {
 
-  private static final SigilOperator OPERATOR = new SigilOperator( "${", "}" );
+  private static final SigilKeyOperator OPERATOR = new PropertyKeyOperator();
   private static final InterpolatingMap MAP = new InterpolatingMap( OPERATOR );
 
   static {
     // Obtains the application resource bundle using the default locale. The
     // locale cannot be changed using the application, making interpolation of
     // values viable as a one-time operation.
-    final var BUNDLE = getBundle( APP_BUNDLE_NAME );
+    final var bundle = getBundle( APP_BUNDLE_NAME );
 
-    BUNDLE.keySet().forEach( key -> MAP.put( key, BUNDLE.getString( key ) ) );
+    bundle.keySet().forEach( key -> MAP.put( key, bundle.getString( key ) ) );
     MAP.interpolate();
   }
 

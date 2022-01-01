@@ -10,13 +10,17 @@ import com.keenwrite.editors.definition.yaml.YamlTreeTransformer;
 import com.keenwrite.editors.markdown.MarkdownEditor;
 import com.keenwrite.events.*;
 import com.keenwrite.io.MediaType;
+import com.keenwrite.preferences.Key;
 import com.keenwrite.preferences.Workspace;
 import com.keenwrite.preview.HtmlPreview;
 import com.keenwrite.processors.HtmlPreviewProcessor;
 import com.keenwrite.processors.Processor;
 import com.keenwrite.processors.ProcessorContext;
 import com.keenwrite.processors.ProcessorFactory;
+import com.keenwrite.processors.r.InlineRProcessor;
 import com.keenwrite.service.events.Notifier;
+import com.keenwrite.sigils.PropertyKeyOperator;
+import com.keenwrite.sigils.RKeyOperator;
 import com.keenwrite.ui.explorer.FilePickerFactory;
 import com.keenwrite.ui.heuristics.DocumentStatistics;
 import com.keenwrite.ui.outline.DocumentOutline;
@@ -50,6 +54,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
+import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
 import static com.keenwrite.ExportFormat.NONE;
@@ -59,8 +64,7 @@ import static com.keenwrite.constants.GraphicsConstants.ICON_DIALOG_NODE;
 import static com.keenwrite.events.Bus.register;
 import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.io.MediaType.*;
-import static com.keenwrite.preferences.AppKeys.KEY_EDITOR_AUTOSAVE;
-import static com.keenwrite.preferences.AppKeys.KEY_UI_RECENT_OPEN_PATH;
+import static com.keenwrite.preferences.AppKeys.*;
 import static com.keenwrite.processors.IdentityProcessor.IDENTITY;
 import static com.keenwrite.processors.ProcessorContext.Mutator;
 import static com.keenwrite.processors.ProcessorContext.builder;
@@ -741,11 +745,11 @@ public final class MainPane extends SplitPane {
     final var bins = paths
       .stream()
       .collect(
-          groupingBy(
-            path -> bin.apply( MediaType.fromFilename( path ) ),
-            () -> new TreeMap<>( Enum::compareTo ),
-            Collectors.toList()
-          )
+        groupingBy(
+          path -> bin.apply( MediaType.fromFilename( path ) ),
+          () -> new TreeMap<>( Enum::compareTo ),
+          Collectors.toList()
+        )
       );
 
     bins.putIfAbsent( TEXT_YAML, List.of( DEFINITION_DEFAULT.toString() ) );
@@ -1037,11 +1041,9 @@ public final class MainPane extends SplitPane {
   }
 
   /**
-   * Delegates to {@link #autoinsert()}.
-   *
-   * @param event Ignored.
+   * See {@link #autoinsert()}.
    */
-  private void autoinsert( final KeyEvent event ) {
+  private void autoinsert( final KeyEvent ignored ) {
     autoinsert();
   }
 
@@ -1053,11 +1055,46 @@ public final class MainPane extends SplitPane {
   public void autoinsert() {
     final var editor = getTextEditor();
     final var mediaType = editor.getMediaType();
-    final var workspace = getWorkspace();
-    final var operator = workspace.createSigilOperator( mediaType );
+    final var injector = createInjector( mediaType );
     final var definitions = getTextDefinition();
 
-    DefinitionNameInjector.autoinsert( editor, definitions, operator );
+    VariableNameInjector.autoinsert( editor, definitions, injector );
+  }
+
+  private UnaryOperator<String> createInjector( final MediaType mediaType ) {
+    final String began;
+    final String ended;
+    final UnaryOperator<String> operator;
+
+    switch( mediaType ) {
+      case TEXT_MARKDOWN -> {
+        began = getString( KEY_DEF_DELIM_BEGAN );
+        ended = getString( KEY_DEF_DELIM_ENDED );
+        operator = s -> s;
+      }
+      case TEXT_R_MARKDOWN -> {
+        began = InlineRProcessor.PREFIX + getString( KEY_R_DELIM_BEGAN );
+        ended = getString( KEY_R_DELIM_ENDED ) + InlineRProcessor.SUFFIX;
+        operator = new RKeyOperator();
+      }
+      case TEXT_PROPERTIES -> {
+        began = PropertyKeyOperator.BEGAN;
+        ended = PropertyKeyOperator.ENDED;
+        operator = s -> s;
+      }
+      default -> {
+        began = "";
+        ended = "";
+        operator = s -> s;
+      }
+    }
+
+    return s -> began + operator.apply( s ) + ended;
+  }
+
+  private String getString( final Key key ) {
+    assert key != null;
+    return getWorkspace().getString( key );
   }
 
   private TextDefinition createDefinitionEditor() {

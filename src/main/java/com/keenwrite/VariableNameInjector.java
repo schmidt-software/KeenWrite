@@ -4,7 +4,8 @@ package com.keenwrite;
 import com.keenwrite.editors.TextDefinition;
 import com.keenwrite.editors.TextEditor;
 import com.keenwrite.editors.definition.DefinitionTreeItem;
-import com.keenwrite.sigils.SigilOperator;
+
+import java.util.function.UnaryOperator;
 
 import static com.keenwrite.constants.Constants.*;
 import static com.keenwrite.events.StatusEvent.clue;
@@ -12,7 +13,7 @@ import static com.keenwrite.events.StatusEvent.clue;
 /**
  * Provides the logic for injecting variable names within the editor.
  */
-public final class DefinitionNameInjector {
+public final class VariableNameInjector {
 
   /**
    * Find a node that matches the current word and substitute the definition
@@ -21,7 +22,7 @@ public final class DefinitionNameInjector {
   public static void autoinsert(
     final TextEditor editor,
     final TextDefinition definitions,
-    final SigilOperator operator ) {
+    final UnaryOperator<String> operator ) {
     assert editor != null;
     assert definitions != null;
     assert operator != null;
@@ -44,8 +45,7 @@ public final class DefinitionNameInjector {
             clue( STATUS_DEFINITION_MISSING, word );
           }
           else {
-            final var entokened = operator.entoken( leaf.toPath() );
-            editor.replaceText( indexes, operator.apply( entokened ) );
+            editor.replaceText( indexes, operator.apply( leaf.toPath() ) );
             definitions.expand( leaf );
           }
         }
@@ -80,5 +80,5 @@ public final class DefinitionNameInjector {
   /**
    * Prevent instantiation.
    */
-  private DefinitionNameInjector() {}
+  private VariableNameInjector() {}
 }

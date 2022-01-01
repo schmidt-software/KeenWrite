@@ -41,6 +41,9 @@ public class SymSpellSpeller implements SpellChecker {
    * lexicon cannot be loaded.
    */
   public static SpellChecker forLexicon( final String filename ) {
+    assert filename != null;
+    assert !filename.isBlank();
+
     try {
       final var lexicon = readLexicon( filename );
       return SymSpellSpeller.forLexicon( lexicon );
@@ -51,7 +54,8 @@ public class SymSpellSpeller implements SpellChecker {
   }
 
   private static SpellChecker forLexicon( final Map<String, Long> lexicon ) {
-    assert lexicon != null && !lexicon.isEmpty();
+    assert lexicon != null;
+    assert !lexicon.isEmpty();
 
     try {
       return new SymSpellSpeller(
@@ -72,6 +76,8 @@ public class SymSpellSpeller implements SpellChecker {
    * @param symSpell The implementation-specific spell checker.
    */
   private SymSpellSpeller( final SymSpell symSpell ) {
+    assert symSpell != null;
+
     mSymSpell = symSpell;
   }
 
@@ -85,7 +91,7 @@ public class SymSpellSpeller implements SpellChecker {
   @Override
   public boolean inLexicon( final String lexeme ) {
     assert lexeme != null;
-    assert !lexeme.isBlank();
+    assert !lexeme.isEmpty();
 
     final var words = lookup( lexeme, CLOSEST );
     return !words.isEmpty() && lexeme.equals( words.get( 0 ).getSuggestion() );
@@ -93,6 +99,9 @@ public class SymSpellSpeller implements SpellChecker {
 
   @Override
   public List<String> suggestions( final String lexeme, int count ) {
+    assert lexeme != null;
+    assert !lexeme.isEmpty();
+
     final List<String> result = new ArrayList<>( count );
 
     for( final var item : lookup( lexeme, ALL ) ) {
@@ -139,6 +148,9 @@ public class SymSpellSpeller implements SpellChecker {
   @SuppressWarnings( "SameParameterValue" )
   private static Map<String, Long> readLexicon( final String filename )
     throws Exception {
+    assert filename != null;
+    assert !filename.isEmpty();
+
     final var path = '/' + LEXICONS_DIRECTORY + '/' + filename;
     final var map = new HashMap<String, Long>();
 
@@ -170,6 +182,8 @@ public class SymSpellSpeller implements SpellChecker {
    * @return {@code true} if the word begins with a letter.
    */
   private boolean isWord( final String word ) {
+    assert word != null;
+
     return !word.isBlank() && isLetter( word.charAt( 0 ) );
   }
 
@@ -182,6 +196,9 @@ public class SymSpellSpeller implements SpellChecker {
    * @return Alternative lexemes.
    */
   private List<SuggestItem> lookup( final String lexeme, final Verbosity v ) {
+    assert lexeme != null;
+    assert v != null;
+
     return mSymSpell.lookup( lexeme, v );
   }
 }

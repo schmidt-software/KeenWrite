@@ -45,6 +45,7 @@ public enum MediaTypeExtension {
     "mkdn" ) ),
   MEDIA_TEXT_PLAIN( TEXT_PLAIN, of( "txt", "asc", "ascii", "text", "utxt" ) ),
   MEDIA_TEXT_R_MARKDOWN( TEXT_R_MARKDOWN, of( "Rmd" ) ),
+  MEDIA_TEXT_PROPERTIES( TEXT_PROPERTIES, of( "properties" ) ),
   MEDIA_TEXT_XHTML( TEXT_XHTML, of( "xhtml" ) ),
   MEDIA_TEXT_XML( TEXT_XML ),
   MEDIA_TEXT_YAML( TEXT_YAML, of( "yaml", "yml" ) ),

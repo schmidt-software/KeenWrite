@@ -1,54 +1,44 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.processors.r;
 
-import com.keenwrite.processors.VariableProcessor;
 import com.keenwrite.processors.ProcessorContext;
-import com.keenwrite.sigils.SigilOperator;
+import com.keenwrite.processors.VariableProcessor;
+import com.keenwrite.sigils.RKeyOperator;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.function.UnaryOperator;
 
 /**
  * Converts the keys of the resolved map from default form to R form, then
  * performs a substitution on the text. The default R variable syntax is
- * {@code v$tree$leaf}.
+ * <pre>v$tree$leaf</pre>.
  */
 public final class RVariableProcessor extends VariableProcessor {
-
-  private final SigilOperator mOperator;
-
   public RVariableProcessor(
     final InlineRProcessor irp, final ProcessorContext context ) {
     super( irp, context );
-
-    mOperator = context.getWorkspace().createRSigilOperator();
   }
 
-  /**
-   * Returns the R-based version of the interpolated variable definitions.
-   *
-   * @return Variable names transmogrified from the default syntax to R syntax.
-   */
   @Override
-  protected Map<String, String> getDefinitions() {
-    return entoken( super.getDefinitions() );
+  protected UnaryOperator<String> createKeyOperator(
+    final ProcessorContext context ) {
+    return new RKeyOperator();
+  }
+
+  @Override
+  protected String processValue( final String value ) {
+    assert value != null;
+
+    return escape( value );
   }
 
   /**
-   * Converts the given map from regular variables to R variables.
+   * In R, single quotes and double quotes are interchangeable. Using single
+   * quotes is simpler to code.
    *
-   * @param map Map of variable names to values.
-   * @return Map of R variables.
+   * @param value The text to convert into a valid quoted R string.
+   * @return The quoted value with embedded quotes escaped as necessary.
    */
-  private Map<String, String> entoken( final Map<String, String> map ) {
-    final var rMap = new HashMap<String, String>( map.size() );
-
-    map.forEach( ( k, v ) -> rMap.put( mOperator.entoken( k ), escape( v ) ) );
-
-    return rMap;
-  }
-
-  private String escape( final String value ) {
+  public static String escape( final String value ) {
     return '\'' + escape( value, '\'', "\\'" ) + '\'';
   }
 
@@ -61,7 +51,7 @@ public final class RVariableProcessor extends VariableProcessor {
    * @return The haystack with the all instances of needle replaced with thread.
    */
   @SuppressWarnings( "SameParameterValue" )
-  private String escape(
+  private static String escape(
     final String haystack, final char needle, final String thread ) {
     assert haystack != null;
     assert thread != null;
@@ -72,11 +62,10 @@ public final class RVariableProcessor extends VariableProcessor {
       return haystack;
     }
 
-    final int length = haystack.length();
     int start = 0;
 
     // Replace up to 32 occurrences before reallocating the internal buffer.
-    final var sb = new StringBuilder( length + 32 );
+    final var sb = new StringBuilder( haystack.length() + 32 );
 
     while( end >= 0 ) {
       sb.append( haystack, start, end ).append( thread );

@@ -1,3 +1,4 @@
+/* Copyright 2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.processors.r;
 
 import com.keenwrite.util.BoundedCache;
@@ -14,14 +15,21 @@ import static java.lang.Math.min;
  * Responsible for executing R statements, which can also update the engine's
  * state.
  */
-public class Engine {
-  private static final ScriptEngine ENGINE =
-    (new ScriptEngineManager()).getEngineByName( "Renjin" );
-
+public final class Engine {
   /**
    * Inline R expressions that have already been evaluated.
    */
-  private static final Map<String, String> sCache = new BoundedCache<>( 512 );
+  private static final Map<String, String> sCache;
+
+  /**
+   * Engine for evaluating R expressions.
+   */
+  private static final ScriptEngine sEngine;
+
+  static {
+    sCache = new BoundedCache<>( 512 );
+    sEngine = (new ScriptEngineManager()).getEngineByName( "Renjin" );
+  }
 
   /**
    * Empties the cache.
@@ -49,7 +57,7 @@ public class Engine {
    */
   private static String evaluate( final String r ) {
     try {
-      return ENGINE.eval( r ).toString();
+      return sEngine.eval( r ).toString();
     } catch( final Exception ex ) {
       final var expr = r.substring( 0, min( r.length(), 50 ) );
       clue( get( "Main.status.error.r", expr, ex.getMessage() ), ex );

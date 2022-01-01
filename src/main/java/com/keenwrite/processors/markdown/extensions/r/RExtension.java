@@ -6,7 +6,6 @@ import com.keenwrite.processors.ProcessorContext;
 import com.keenwrite.processors.markdown.BaseMarkdownProcessor;
 import com.keenwrite.processors.r.InlineRProcessor;
 import com.keenwrite.processors.r.RProcessor;
-import com.keenwrite.sigils.RSigilOperator;
 import com.vladsch.flexmark.ast.Paragraph;
 import com.vladsch.flexmark.parser.InlineParserExtensionFactory;
 import com.vladsch.flexmark.parser.delimiter.DelimiterProcessor;
@@ -25,7 +24,7 @@ import static com.vladsch.flexmark.parser.Parser.ParserExtension;
 
 /**
  * Responsible for processing inline R statements (denoted using the
- * {@link RSigilOperator#PREFIX}) to prevent them from being converted to
+ * {@link InlineRProcessor#PREFIX}) to prevent them from being converted to
  * HTML {@code <code>} elements and stop them from interfering with TeX
  * statements. Note that TeX statements are processed using a Markdown
  * extension, rather than an implementation of {@link Processor}. For this
@@ -92,7 +91,7 @@ public final class RExtension implements ParserExtension {
     /**
      * The superclass handles a number backtick parsing edge cases; this method
      * changes the behaviour to retain R code snippets, identified by
-     * {@link RSigilOperator#PREFIX}, so that subsequent processing can
+     * {@link InlineRProcessor#PREFIX}, so that subsequent processing can
      * invoke R. If other languages are added, the {@link InlineParser} will
      * have to be rewritten to identify more than merely R.
      *
@@ -110,7 +109,7 @@ public final class RExtension implements ParserExtension {
         if( codeNode != null ) {
           final var code = codeNode.getChars().toString();
 
-          if( code.startsWith( RSigilOperator.PREFIX ) ) {
+          if( code.startsWith( InlineRProcessor.PREFIX ) ) {
             codeNode.unlink();
 
             final var rText = mProcessor.apply( code );
