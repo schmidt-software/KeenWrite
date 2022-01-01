@@ -25,19 +25,29 @@ import static javax.xml.xpath.XPathConstants.NODE;
  * Commons Configuration, JAXB, and Jackson. All of them are heavyweight and
  * the latter are difficult to use with dynamic data (because they require
  * annotations).
+ * <p>
+ * <strong>Note:</strong> It is preferable to use a different instance when
+ * loading and saving the documents. Otherwise, old and duplicate data will
+ * persist. Using a new instance ensures that elements removed from the
+ * user preferences will not persist across XML configuration file versions.
  */
 public class XmlStore {
   private static final String SEPARATOR = "/";
 
-  private final Document mDocument;
   private final String mRoot;
+  private Document mDocument = DocumentParser.newDocument();
 
   /**
-   * Default constructor that creates an empty document with no root-level
-   * element. This is meant as a stub for testing.
+   * Constructs a new instance with a blank {@link Document}. Call the
+   * {@link #load(File)} method to populate the document from a {@link File},
+   * or {@link #save(File)} to persist the current document state.
+   *
+   * @param root The root-level document element.
    */
-  public XmlStore() {
-    this( DocumentParser.newDocument(), "" );
+  public XmlStore( final String root ) {
+    assert root != null;
+
+    mRoot = root;
   }
 
   /**
@@ -46,27 +56,15 @@ public class XmlStore {
    * access methods.
    *
    * @param config File containing persistent user preferences.
-   * @param root   Name of the root element (empty, but never {@code null}).
    */
-  public XmlStore( final File config, final String root ) {
-    this( load( config ), root );
-  }
-
-  private XmlStore( final Document document, final String root ) {
-    assert document != null;
-    assert root != null;
-
-    mDocument = document;
-    mRoot = root;
-  }
-
-  private static Document load( final File config ) {
+  public void load( final File config ) {
     assert config != null;
+    assert config.isFile();
 
     try {
-      return DocumentParser.parse( config );
+      mDocument = DocumentParser.parse( config );
     } catch( final Exception ignored ) {
-      return DocumentParser.newDocument();
+      mDocument = DocumentParser.newDocument();
     }
   }
 
@@ -81,10 +79,9 @@ public class XmlStore {
     assert key != null;
 
     try {
-      final var xpath = toXPath( key );
-      final var expr = DocumentParser.compile( xpath );
+      final var node = toNode( key, mDocument );
 
-      if( expr.evaluate( mDocument, NODE ) instanceof Node node ) {
+      if( node != null ) {
         return node.getTextContent();
       }
     } catch( final XPathExpressionException ignored ) {}
@@ -226,6 +223,15 @@ public class XmlStore {
     }
   }
 
+  private Node toNode( final Key key, final Document doc )
+    throws XPathExpressionException {
+    final var xpath = toXPath( key );
+    final var expr = DocumentParser.compile( xpath );
+    final var element = expr.evaluate( doc, NODE );
+
+    return element instanceof Node node ? node : null;
+  }
+
   /**
    * Provides the equivalent of update-or-insert behaviour provided by some
    * SQL databases. Finds the element in the document represented by the
@@ -264,13 +270,11 @@ public class XmlStore {
     Node parent = null;
 
     do {
-      final var xpath = toXPath( visitor );
-      final var expr = DocumentParser.compile( xpath );
-      final var element = expr.evaluate( doc, NODE );
+      final var node = toNode( visitor, doc );
 
       // If an element exists on the first iteration, return it because there
       // is no missing hierarchy to create.
-      if( element instanceof Node node ) {
+      if( node != null ) {
         if( missing.isEmpty() ) {
           return node;
         }

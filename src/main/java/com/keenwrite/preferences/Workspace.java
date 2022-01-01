@@ -1,11 +1,8 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.preferences;
 
-import com.keenwrite.constants.Constants;
 import com.keenwrite.io.MediaType;
-import com.keenwrite.processors.r.InlineRProcessor;
 import com.keenwrite.sigils.PropertyKeyOperator;
-import com.keenwrite.sigils.RKeyOperator;
 import com.keenwrite.sigils.SigilKeyOperator;
 import javafx.application.Platform;
 import javafx.beans.property.*;
@@ -17,7 +14,6 @@ import java.util.*;
 import java.util.Map.Entry;
 import java.util.function.BooleanSupplier;
 import java.util.function.Function;
-import java.util.function.UnaryOperator;
 
 import static com.keenwrite.Bootstrap.APP_TITLE_LOWERCASE;
 import static com.keenwrite.Launcher.getVersion;
@@ -139,11 +135,6 @@ public final class Workspace implements KeyConfiguration {
       createListProperty( new LinkedList<Entry<String, String>>() )
     )
   );
-
-  /**
-   * Ensures a well-formed configuration file during persistence operations.
-   */
-  private final XmlStore mStore;
 
   /**
    * Helps instantiate {@link Property} instances for XML configuration items.
@@ -272,37 +263,21 @@ public final class Workspace implements KeyConfiguration {
   }
 
   /**
-   * Creates a new {@link Workspace} using values found in the given
-   * {@link XmlStore}.
-   *
-   * @param store Contains user preferences, usually persisted.
+   * Creates a new {@link Workspace} that will attempt to load the users'
+   * preferences. If the configuration file cannot be loaded, the workspace
+   * settings returns default values.
    */
-  public Workspace( final XmlStore store ) {
-    mStore = store;
+  public Workspace() {
+    load();
   }
 
   /**
-   * Creates a new {@link Workspace} that will attempt to load the given
-   * configuration file. If the configuration file cannot be loaded, the
-   * workspace settings will return default values. This creates an instance
-   * of {@link XmlStore} to load and parse the user preferences.
-   *
-   * @param file The file to load.
+   * Attempts to load the app's configuration file.
    */
-  public Workspace( final File file ) {
-    // Root-level configuration item is the application name.
-    this( new XmlStore( file, APP_TITLE_LOWERCASE ) );
-    load( mStore );
-  }
+  private void load() {
+    final var store = createXmlStore();
+    store.load( FILE_PREFERENCES );
 
-  /**
-   * Attempts to load the {@link Constants#FILE_PREFERENCES} configuration file.
-   * If not found, this will fall back to an empty configuration file, leaving
-   * the application to fill in default values.
-   *
-   * @param store Container of user preferences to load.
-   */
-  public void load( final XmlStore store ) {
     mValues.keySet().forEach( key -> {
       try {
         final var storeValue = store.getValue( key );
@@ -337,17 +312,17 @@ public final class Workspace implements KeyConfiguration {
    * Saves the current workspace.
    */
   public void save() {
-    assert mStore != null;
+    final var store = createXmlStore();
 
     try {
       // Update the string values to include the application version.
       valuesProperty( KEY_META_VERSION ).setValue( getVersion() );
 
-      mValues.forEach( ( k, v ) -> mStore.setValue( k, marshall( v ) ) );
-      mSets.forEach( mStore::setSet );
-      mLists.forEach( mStore::setMap );
+      mValues.forEach( ( k, v ) -> store.setValue( k, marshall( v ) ) );
+      mSets.forEach( store::setSet );
+      mLists.forEach( store::setMap );
 
-      mStore.save( FILE_PREFERENCES );
+      store.save( FILE_PREFERENCES );
     } catch( final Exception ex ) {
       clue( ex );
     }
@@ -636,5 +611,15 @@ public final class Workspace implements KeyConfiguration {
     assert path != null;
 
     return createSigilOperator( MediaType.valueFrom( path ) );
+  }
+
+  /**
+   * Creates a lightweight persistence mechanism for user preferences.
+   *
+   * @return The {@link XmlStore} that helps with persisting application state.
+   */
+  private XmlStore createXmlStore() {
+    // Root-level configuration item is the application name.
+    return new XmlStore( APP_TITLE_LOWERCASE );
   }
 }

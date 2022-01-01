@@ -8,7 +8,7 @@ import com.keenwrite.io.FileType;
 import com.keenwrite.preferences.Workspace;
 import com.keenwrite.sigils.SigilKeyOperator;
 import com.keenwrite.util.GenericBuilder;
-import com.keenwrite.util.InterpolatingMap;
+import com.keenwrite.collections.InterpolatingMap;
 
 import java.io.File;
 import java.nio.file.Path;

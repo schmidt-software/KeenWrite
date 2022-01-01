@@ -4,7 +4,7 @@ package com.keenwrite;
 import com.keenwrite.preferences.Key;
 import com.keenwrite.sigils.PropertyKeyOperator;
 import com.keenwrite.sigils.SigilKeyOperator;
-import com.keenwrite.util.InterpolatingMap;
+import com.keenwrite.collections.InterpolatingMap;
 
 import java.text.MessageFormat;
 import java.util.ResourceBundle;

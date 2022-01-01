@@ -2,7 +2,7 @@
 package com.keenwrite.typesetting;
 
 import com.keenwrite.io.SysFile;
-import com.keenwrite.util.BoundedCache;
+import com.keenwrite.collections.BoundedCache;
 import com.keenwrite.util.GenericBuilder;
 
 import java.io.*;

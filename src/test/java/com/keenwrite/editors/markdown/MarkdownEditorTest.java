@@ -2,7 +2,6 @@ package com.keenwrite.editors.markdown;
 
 import com.keenwrite.AwaitFxExtension;
 import com.keenwrite.preferences.Workspace;
-import com.keenwrite.preferences.XmlStore;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.testfx.framework.junit5.ApplicationExtension;
@@ -106,8 +105,7 @@ public class MarkdownEditorTest {
    * @return A new {@link MarkdownEditor} instance, ready for unit tests.
    */
   private MarkdownEditor createMarkdownEditor() {
-    final var store = new XmlStore();
-    final var workspace = new Workspace( store );
+    final var workspace = new Workspace();
     final var editor = new MarkdownEditor( workspace );
     editor.setText( TEXT );
     return editor;

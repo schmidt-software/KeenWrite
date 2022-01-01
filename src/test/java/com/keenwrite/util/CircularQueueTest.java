@@ -1,5 +1,6 @@
 package com.keenwrite.util;
 
+import com.keenwrite.collections.CircularQueue;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;

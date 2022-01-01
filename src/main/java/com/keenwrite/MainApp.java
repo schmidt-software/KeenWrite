@@ -15,7 +15,6 @@ import org.greenrobot.eventbus.Subscribe;
 import java.util.function.BooleanSupplier;
 
 import static com.keenwrite.Bootstrap.APP_TITLE;
-import static com.keenwrite.constants.Constants.FILE_PREFERENCES;
 import static com.keenwrite.constants.GraphicsConstants.LOGOS;
 import static com.keenwrite.events.Bus.register;
 import static com.keenwrite.preferences.AppKeys.*;
@@ -96,7 +95,7 @@ public final class MainApp extends Application {
   public void start( final Stage stage ) {
     // Must be instantiated after the UI is initialized (i.e., not in main)
     // because it interacts with GUI properties.
-    mWorkspace = new Workspace( FILE_PREFERENCES );
+    mWorkspace = new Workspace();
 
     initFonts();
     initState( stage );

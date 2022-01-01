@@ -2,7 +2,7 @@
 package com.keenwrite.preview;
 
 import com.keenwrite.ui.adapters.ReplacedElementAdapter;
-import com.keenwrite.util.BoundedCache;
+import com.keenwrite.collections.BoundedCache;
 import org.w3c.dom.Element;
 import org.xhtmlrenderer.extend.ReplacedElement;
 import org.xhtmlrenderer.extend.ReplacedElementFactory;

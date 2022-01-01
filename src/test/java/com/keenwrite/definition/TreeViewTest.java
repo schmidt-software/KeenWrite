@@ -5,7 +5,6 @@ import com.keenwrite.editors.definition.DefinitionEditor;
 import com.keenwrite.editors.definition.yaml.YamlTreeTransformer;
 import com.keenwrite.editors.markdown.MarkdownEditor;
 import com.keenwrite.preferences.Workspace;
-import com.keenwrite.preferences.XmlStore;
 import com.keenwrite.preview.HtmlPreview;
 import com.panemu.tiwulfx.control.dock.DetachableTabPane;
 import javafx.application.Application;
@@ -45,8 +44,7 @@ public class TreeViewTest extends Application {
 
   @Start
   private void onStart( final Stage stage ) {
-    final var store = new XmlStore();
-    final var workspace = new Workspace( store );
+    final var workspace = new Workspace();
     final var mainPane = new SplitPane();
     final var transformer = new YamlTreeTransformer();
     final var editor = new DefinitionEditor( transformer );

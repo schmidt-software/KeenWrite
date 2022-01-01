@@ -1,5 +1,5 @@
 /* Copyright 2021 White Magic Software, Ltd. -- All rights reserved. */
-package com.keenwrite.util;
+package com.keenwrite.collections;
 
 import com.keenwrite.sigils.SigilKeyOperator;
 

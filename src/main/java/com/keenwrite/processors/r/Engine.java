@@ -1,7 +1,7 @@
 /* Copyright 2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.processors.r;
 
-import com.keenwrite.util.BoundedCache;
+import com.keenwrite.collections.BoundedCache;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
@@ -19,17 +19,14 @@ public final class Engine {
   /**
    * Inline R expressions that have already been evaluated.
    */
-  private static final Map<String, String> sCache;
+  private static final Map<String, String> sCache =
+    new BoundedCache<>( 512 );
 
   /**
    * Engine for evaluating R expressions.
    */
-  private static final ScriptEngine sEngine;
-
-  static {
-    sCache = new BoundedCache<>( 512 );
-    sEngine = (new ScriptEngineManager()).getEngineByName( "Renjin" );
-  }
+  private static final ScriptEngine sEngine =
+    (new ScriptEngineManager()).getEngineByName( "Renjin" );
 
   /**
    * Empties the cache.
