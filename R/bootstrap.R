@@ -1,8 +1,10 @@
-setwd( '{{application.r.working.directory}}' )
-assign( "anchor", '{{date.anchor}}', envir = .GlobalEnv )
+setwd( v$application$r$working$directory )
 
-source( 'pluralize.R' )
-source( 'possessive.R' )
-source( 'conversion.R' )
-source( 'csv.R' )
+# To reference additional R variables in documents, define them such as:
+# assign( "variable", v$key$name, envir = .GlobalEnv )
+
+source( "pluralize.R" )
+source( "possessive.R" )
+source( "conversion.R" )
+source( "csv.R" )
 

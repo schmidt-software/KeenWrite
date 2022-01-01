@@ -152,9 +152,7 @@ public final class PreferencesController {
         get( KEY_R ),
         Group.of(
           get( KEY_R_DIR ),
-          Setting.of( label( KEY_R_DIR,
-                             stringProperty( KEY_DEF_DELIM_BEGAN ).get(),
-                             stringProperty( KEY_DEF_DELIM_ENDED ).get() ) ),
+          Setting.of( label( KEY_R_DIR ) ),
           Setting.of( title( KEY_R_DIR ),
                       fileProperty( KEY_R_DIR ), true )
         ),
