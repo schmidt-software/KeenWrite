@@ -1,6 +1,5 @@
-package com.keenwrite.ui.table;
+package com.keenwrite.ui.cells;
 
-import com.keenwrite.ui.common.CellEditor;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.util.StringConverter;
 

@@ -1,14 +1,14 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.processors;
 
-import com.keenwrite.Caret;
 import com.keenwrite.ExportFormat;
+import com.keenwrite.collections.InterpolatingMap;
 import com.keenwrite.constants.Constants;
+import com.keenwrite.editors.common.Caret;
 import com.keenwrite.io.FileType;
 import com.keenwrite.preferences.Workspace;
 import com.keenwrite.sigils.SigilKeyOperator;
 import com.keenwrite.util.GenericBuilder;
-import com.keenwrite.collections.InterpolatingMap;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -16,8 +16,9 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.function.Supplier;
 
-import static com.keenwrite.AbstractFileFactory.lookup;
-import static com.keenwrite.constants.Constants.DEFAULT_DIRECTORY;
+import static com.keenwrite.constants.Constants.*;
+import static com.keenwrite.io.FileType.UNKNOWN;
+import static com.keenwrite.predicates.PredicateFactory.createFileTypePredicate;
 
 /**
  * Provides a context for configuring a chain of {@link Processor} instances.
@@ -25,6 +26,41 @@ import static com.keenwrite.constants.Constants.DEFAULT_DIRECTORY;
 public final class ProcessorContext {
 
   private final Mutator mMutator;
+
+  /**
+   * Determines the file type from the path extension. This should only be
+   * called when it is known that the file type won't be a definition file
+   * (e.g., YAML or other definition source), but rather an editable file
+   * (e.g., Markdown, R Markdown, etc.).
+   *
+   * @param path The path with a file name extension.
+   * @return The FileType for the given path.
+   */
+  private static FileType lookup( final Path path ) {
+    assert path != null;
+
+    final var prefix = GLOB_PREFIX_FILE;
+    final var keys = sSettings.getKeys( prefix );
+
+    var found = false;
+    var fileType = UNKNOWN;
+
+    while( keys.hasNext() && !found ) {
+      final var key = keys.next();
+      final var patterns = sSettings.getStringSettingList( key );
+      final var predicate = createFileTypePredicate( patterns );
+
+      if( predicate.test( path.toFile() ) ) {
+        // Remove the EXTENSIONS_PREFIX to get the file name extension mapped
+        // to a standard name (as defined in the settings.properties file).
+        final String suffix = key.replace( prefix + '.', "" );
+        fileType = FileType.from( suffix );
+        found = true;
+      }
+    }
+
+    return fileType;
+  }
 
   /**
    * Responsible for populating the instance variables required by the

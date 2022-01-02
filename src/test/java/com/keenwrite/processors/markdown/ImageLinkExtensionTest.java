@@ -2,7 +2,7 @@
 package com.keenwrite.processors.markdown;
 
 import com.keenwrite.AwaitFxExtension;
-import com.keenwrite.Caret;
+import com.keenwrite.editors.common.Caret;
 import com.keenwrite.preferences.Workspace;
 import com.keenwrite.processors.Processor;
 import com.keenwrite.processors.ProcessorContext;

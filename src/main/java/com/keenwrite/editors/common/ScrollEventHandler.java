@@ -1,5 +1,5 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
-package com.keenwrite;
+package com.keenwrite.editors.common;
 
 import com.keenwrite.events.ScrollLockEvent;
 import javafx.beans.property.BooleanProperty;

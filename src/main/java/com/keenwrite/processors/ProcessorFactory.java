@@ -1,7 +1,6 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.processors;
 
-import com.keenwrite.AbstractFileFactory;
 import com.keenwrite.processors.markdown.MarkdownProcessor;
 
 import static com.keenwrite.processors.IdentityProcessor.IDENTITY;
@@ -10,7 +9,7 @@ import static com.keenwrite.processors.IdentityProcessor.IDENTITY;
  * Responsible for creating processors capable of parsing, transforming,
  * interpolating, and rendering known file types.
  */
-public final class ProcessorFactory extends AbstractFileFactory {
+public final class ProcessorFactory {
 
   private ProcessorFactory() {
   }

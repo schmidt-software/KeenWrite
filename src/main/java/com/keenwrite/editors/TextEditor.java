@@ -1,7 +1,7 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.editors;
 
-import com.keenwrite.Caret;
+import com.keenwrite.editors.common.Caret;
 import javafx.scene.control.IndexRange;
 import org.fxmisc.flowless.VirtualizedScrollPane;
 import org.fxmisc.richtext.StyleClassedTextArea;

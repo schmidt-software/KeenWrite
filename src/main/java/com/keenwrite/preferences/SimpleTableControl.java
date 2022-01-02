@@ -2,7 +2,7 @@
 package com.keenwrite.preferences;
 
 import com.dlsc.preferencesfx.formsfx.view.controls.SimpleControl;
-import com.keenwrite.ui.table.AltTableCell;
+import com.keenwrite.ui.cells.AltTableCell;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;

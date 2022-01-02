@@ -13,7 +13,7 @@ import java.util.function.Consumer;
 import java.util.logging.LogManager;
 
 import static com.keenwrite.Bootstrap.*;
-import static com.keenwrite.PermissiveCertificate.installTrustManager;
+import static com.keenwrite.security.PermissiveCertificate.installTrustManager;
 import static java.lang.String.format;
 
 /**

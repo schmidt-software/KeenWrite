@@ -1,4 +1,4 @@
-package com.keenwrite.ui.common;
+package com.keenwrite.ui.cells;
 
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.Property;

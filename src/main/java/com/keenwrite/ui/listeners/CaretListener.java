@@ -1,7 +1,7 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.ui.listeners;
 
-import com.keenwrite.Caret;
+import com.keenwrite.editors.common.Caret;
 import com.keenwrite.editors.TextEditor;
 import com.keenwrite.events.WordCountEvent;
 import javafx.beans.property.ReadOnlyObjectProperty;

@@ -4,6 +4,8 @@ package com.keenwrite;
 import com.keenwrite.editors.TextDefinition;
 import com.keenwrite.editors.TextEditor;
 import com.keenwrite.editors.TextResource;
+import com.keenwrite.editors.common.ScrollEventHandler;
+import com.keenwrite.editors.common.VariableNameInjector;
 import com.keenwrite.editors.definition.DefinitionEditor;
 import com.keenwrite.editors.definition.TreeTransformer;
 import com.keenwrite.editors.definition.yaml.YamlTreeTransformer;
