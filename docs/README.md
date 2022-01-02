@@ -8,6 +8,7 @@ The following documents have additional details about using the editor:
 * [samples](samples) -- Example documents
 * [skins.md](skins.md) -- User interface customization
 * [svg.md](svg.md) -- Resolve issues with some SVG files
+* [metadata.md](metadata.md) -- Document metadata
 * [typesetting.md](typesetting.md) -- Document typesetting
 * [variables.md](variables.md) -- Variable definitions and interpolation
 
