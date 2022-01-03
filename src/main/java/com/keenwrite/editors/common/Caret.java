@@ -49,26 +49,53 @@ public class Caret {
      */
     private Supplier<Integer> mTextLength = () -> 0;
 
+    /**
+     * Sets the {@link Supplier} for the caret's current paragraph number.
+     *
+     * @param paragraph Returns the document caret paragraph index.
+     */
     public void setParagraph( final Supplier<Integer> paragraph ) {
       assert paragraph != null;
       mParagraph = paragraph;
     }
 
+    /**
+     * Sets the {@link Supplier} for the total number of document paragraphs.
+     *
+     * @param paragraphs Returns the document paragraph count.
+     */
     public void setParagraphs( final Supplier<Integer> paragraphs ) {
       assert paragraphs != null;
       mParagraphs = paragraphs;
     }
 
+    /**
+     * Sets the {@link Supplier} for the caret's current character offset
+     * into the current paragraph.
+     *
+     * @param paraOffset Returns the caret's paragraph character index.
+     */
     public void setParaOffset( final Supplier<Integer> paraOffset ) {
       assert paraOffset != null;
       mParaOffset = paraOffset;
     }
 
+    /**
+     * Sets the {@link Supplier} for the caret's current document position.
+     * A value of 0 represents the start of the document.
+     *
+     * @param textOffset Returns the text offset into the current document.
+     */
     public void setTextOffset( final Supplier<Integer> textOffset ) {
       assert textOffset != null;
       mTextOffset = textOffset;
     }
 
+    /**
+     * Sets the {@link Supplier} for the document's total character count.
+     *
+     * @param textLength Returns the total character count in the document.
+     */
     public void setTextLength( final Supplier<Integer> textLength ) {
       assert textLength != null;
       mTextLength = textLength;
