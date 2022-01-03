@@ -26,22 +26,30 @@ import static com.keenwrite.preferences.AppKeys.*;
 @CommandLine.Command(
   name = "KeenWrite",
   mixinStandardHelpOptions = true,
-  description = "Plain text editor for editing with variables."
+  description = "Plain text editor for editing with variables"
 )
 @SuppressWarnings( "unused" )
 public final class Arguments implements Callable<Integer>, KeyConfiguration {
   @CommandLine.Option(
     names = {"-a", "--all"},
     description =
-      "Concatenate files in directory before processing (${DEFAULT-VALUE}).",
+      "Concatenate files in directory before processing (${DEFAULT-VALUE})",
     defaultValue = "false"
   )
   private boolean mAll;
 
   @CommandLine.Option(
+    names = {"-b", "--base-path"},
+    description =
+      "Set all other paths relative to this path",
+    paramLabel = "PATH"
+  )
+  private Path mBasePath;
+
+  @CommandLine.Option(
     names = {"-k", "--keep-files"},
     description =
-      "Keep temporary build files (${DEFAULT-VALUE}).",
+      "Keep temporary build files (${DEFAULT-VALUE})",
     defaultValue = "false"
   )
   private boolean mKeepFiles;
@@ -49,7 +57,7 @@ public final class Arguments implements Callable<Integer>, KeyConfiguration {
   @CommandLine.Option(
     names = {"-d", "--debug"},
     description =
-      "Enable logging to the console (${DEFAULT-VALUE}).",
+      "Enable logging to the console (${DEFAULT-VALUE})",
     defaultValue = "false"
   )
   private boolean mDebug;
@@ -57,7 +65,7 @@ public final class Arguments implements Callable<Integer>, KeyConfiguration {
   @CommandLine.Option(
     names = {"-i", "--input"},
     description =
-      "Set the file name to read.",
+      "Set the file name to read",
     paramLabel = "PATH",
     defaultValue = "stdin",
     required = true
@@ -77,7 +85,7 @@ public final class Arguments implements Callable<Integer>, KeyConfiguration {
   @CommandLine.Option(
     names = {"-m", "--metadata"},
     description =
-      "Map metadata keys to values, variable names allowed.",
+      "Map metadata keys to values, variable names allowed",
     paramLabel = "key=value"
   )
   private Map<String, String> mMetadata;
@@ -85,7 +93,7 @@ public final class Arguments implements Callable<Integer>, KeyConfiguration {
   @CommandLine.Option(
     names = {"-o", "--output"},
     description =
-      "Set the file name to write.",
+      "Set the file name to write",
     paramLabel = "PATH",
     defaultValue = "stdout",
     required = true
@@ -95,7 +103,7 @@ public final class Arguments implements Callable<Integer>, KeyConfiguration {
   @CommandLine.Option(
     names = {"-p", "--images-path"},
     description =
-      "Absolute path to images directory",
+      "Directory containing images",
     paramLabel = "PATH"
   )
   private Path mPathImages;
@@ -103,7 +111,7 @@ public final class Arguments implements Callable<Integer>, KeyConfiguration {
   @CommandLine.Option(
     names = {"-q", "--quiet"},
     description =
-      "Suppress all status messages (${DEFAULT-VALUE}).",
+      "Suppress all status messages (${DEFAULT-VALUE})",
     defaultValue = "false"
   )
   private boolean mQuiet;
@@ -119,7 +127,7 @@ public final class Arguments implements Callable<Integer>, KeyConfiguration {
   @CommandLine.Option(
     names = {"-t", "--theme"},
     description =
-      "Full theme name file path to use when exporting as a PDF file.",
+      "File path to use when exporting as a PDF file",
     paramLabel = "PATH"
   )
   private Path mThemeName;
@@ -127,7 +135,7 @@ public final class Arguments implements Callable<Integer>, KeyConfiguration {
   @CommandLine.Option(
     names = {"-x", "--image-extensions"},
     description =
-      "Space-separated image file name extensions (${DEFAULT-VALUE}).",
+      "Space-separated image file name extensions (${DEFAULT-VALUE})",
     paramLabel = "String",
     defaultValue = "svg pdf png jpg tiff"
   )
@@ -136,7 +144,7 @@ public final class Arguments implements Callable<Integer>, KeyConfiguration {
   @CommandLine.Option(
     names = {"-v", "--variables"},
     description =
-      "Set the file name containing variable definitions (${DEFAULT-VALUE}).",
+      "Set the file name containing variable definitions (${DEFAULT-VALUE})",
     paramLabel = "FILE",
     defaultValue = "variables.yaml"
   )
@@ -156,7 +164,8 @@ public final class Arguments implements Callable<Integer>, KeyConfiguration {
     mValues.put( KEY_UI_RECENT_EXPORT, mPathOutput );
     mValues.put( KEY_IMAGES_DIR, mPathImages );
     mValues.put( KEY_TYPESET_CONTEXT_THEMES_PATH, mThemeName.getParent() );
-    mValues.put( KEY_TYPESET_CONTEXT_THEME_SELECTION, mThemeName.getFileName() );
+    mValues.put( KEY_TYPESET_CONTEXT_THEME_SELECTION,
+                 mThemeName.getFileName() );
     mValues.put( KEY_TYPESET_CONTEXT_CLEAN, !mKeepFiles );
 
     final var format = ExportFormat.valueFrom( mFormatType, mFormatSubtype );

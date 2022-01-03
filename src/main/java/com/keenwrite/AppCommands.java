@@ -1,9 +1,6 @@
 package com.keenwrite;
 
 import com.keenwrite.cmdline.Arguments;
-import com.keenwrite.processors.ProcessorContext;
-import com.keenwrite.typesetting.Typesetter;
-import com.keenwrite.ui.dialogs.ThemePicker;
 import com.keenwrite.util.AlphanumComparator;
 
 import java.io.IOException;
@@ -12,8 +9,9 @@ import java.util.ArrayList;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.atomic.AtomicInteger;
 
-import static com.keenwrite.ExportFormat.*;
+import static com.keenwrite.Launcher.terminate;
 import static com.keenwrite.processors.ProcessorFactory.createProcessors;
 import static com.keenwrite.util.FileWalker.walk;
 import static java.lang.System.lineSeparator;
@@ -40,7 +38,28 @@ public class AppCommands {
   }
 
   public static void run( final Arguments args ) {
-    final var context = args.createProcessorContext();
+    final var exitCode = new AtomicInteger();
+
+    final var future = new CompletableFuture<Path>() {
+      @Override
+      public boolean complete( final Path path ) {
+        System.out.println( " HURRAH! " + path );
+        return super.complete( path );
+      }
+
+      @Override
+      public boolean completeExceptionally( final Throwable ex ) {
+        System.out.println( "PROBLEMO! " + ex.getMessage() );
+        exitCode.set( 1 );
+
+        return super.completeExceptionally( ex );
+      }
+    };
+
+    file_export( args, future );
+
+    future.join();
+    terminate( exitCode.get() );
   }
 
   /**
@@ -48,20 +67,18 @@ public class AppCommands {
    * is set to true, this will first append all files in the same directory
    * as the actively edited file.
    *
-   * @param inputPath The source document to export in the given file format.
-   * @param format    The destination file format.
-   * @param concat    Export all files in the actively edited file's directory.
-   * @param future    Indicates whether the export succeeded or failed.
+   * @param future Indicates whether the export succeeded or failed.
    */
-  private void file_export(
-    final Path inputPath,
-    final ExportFormat format,
-    final boolean concat,
-    final CompletableFuture<Path> future ) {
+  private static void file_export(
+    final Arguments args, final CompletableFuture<Path> future ) {
+    assert args != null;
+
     final Callable<Path> callableTask = () -> {
       try {
-        final var context = ProcessorContext.create( inputPath, format );
-        final var outputPath = format.toExportPath( inputPath );
+        final var context = args.createProcessorContext();
+        final var concat = context.getConcatenate();
+        final var inputPath = context.getInputPath();
+        final var outputPath = context.getOutputPath();
         final var chain = createProcessors( context );
         final var inputDoc = read( inputPath, concat );
         final var outputDoc = chain.apply( inputDoc );
@@ -71,7 +88,7 @@ public class AppCommands {
         final var result =
           outputDoc == null ? null : writeString( outputPath, outputDoc );
 
-        future.complete( result );
+        future.complete( outputPath );
         return result;
       } catch( final Exception ex ) {
         future.completeExceptionally( ex );
@@ -89,42 +106,43 @@ public class AppCommands {
    *               actively edited file.
    *
   private void file_export_pdf( final Path theme, final boolean concat ) {
-    if( Typesetter.canRun() ) {
-      // If the typesetter is installed, allow the user to select a theme. If
-      // the themes aren't installed, a status message will appear.
-      if( ThemePicker.choose( themes, theme ) ) {
-        file_export( APPLICATION_PDF, concat );
-      }
-    }
-    else {
-      fireExportFailedEvent();
-    }
+  if( Typesetter.canRun() ) {
+  // If the typesetter is installed, allow the user to select a theme. If
+  // the themes aren't installed, a status message will appear.
+  if( ThemePicker.choose( themes, theme ) ) {
+  file_export( APPLICATION_PDF, concat );
+  }
+  }
+  else {
+  fireExportFailedEvent();
+  }
   }
 
   public void file_export_pdf() {
-    file_export_pdf( false );
+  file_export_pdf( false );
   }
 
   public void file_export_pdf_dir() {
-    file_export_pdf( true );
+  file_export_pdf( true );
   }
 
   public void file_export_html_svg() {
-    file_export( HTML_TEX_SVG );
+  file_export( HTML_TEX_SVG );
   }
 
   public void file_export_html_tex() {
-    file_export( HTML_TEX_DELIMITED );
+  file_export( HTML_TEX_DELIMITED );
   }
 
   public void file_export_xhtml_tex() {
-    file_export( XHTML_TEX );
+  file_export( XHTML_TEX );
   }
 
   public void file_export_markdown() {
-    file_export( MARKDOWN_PLAIN );
+  file_export( MARKDOWN_PLAIN );
   }
-*/
+   */
+
   /**
    * Concatenates all the files in the same directory as the given file into
    * a string. The extension is determined by the given file name pattern; the
@@ -145,7 +163,7 @@ public class AppCommands {
    * @return All files in the same directory as the file being edited
    * concatenated into a single string.
    */
-  private String read( final Path inputPath, final boolean concat )
+  private static String read( final Path inputPath, final boolean concat )
     throws IOException {
     final var parent = inputPath.getParent();
     final var filename = inputPath.getFileName().toString();

@@ -31,36 +31,6 @@ public final class Launcher implements Consumer<Arguments> {
    */
   private final String[] mArgs;
 
-  private static void parse( final String[] args ) {
-    assert args != null;
-
-    final var arguments = new Arguments( new Launcher( args ) );
-    final var parser = new CommandLine( arguments );
-
-    parser.setColorScheme( ColourScheme.create() );
-
-    final var exitCode = parser.execute( args );
-    final var parseResult = parser.getParseResult();
-
-    if( parseResult.isUsageHelpRequested() ) {
-      System.exit( exitCode );
-    }
-  }
-
-  /**
-   * Suppress writing to standard error, suppresses writing log messages.
-   */
-  private static void disableLogging() {
-    LogManager.getLogManager().reset();
-    System.err.close();
-  }
-
-  private static void showAppInfo() {
-    out( "%n%s version %s", APP_TITLE, APP_VERSION );
-    out( "Copyright 2016-%s White Magic Software, Ltd.", APP_YEAR );
-    out( "Portions copyright 2015-2020 Karl Tauber.%n" );
-  }
-
   /**
    * Returns the application version number retrieved from the application
    * properties file. The properties file is generated at build time, which
@@ -75,6 +45,31 @@ public final class Launcher implements Consumer<Arguments> {
       return properties.getProperty( "application.version" );
     } catch( final Exception ex ) {
       throw new RuntimeException( ex );
+    }
+  }
+
+  /**
+   * Immediately exits the application.
+   *
+   * @param exitCode Code to provide back to the calling shell.
+   */
+  public static void terminate( final int exitCode ) {
+    System.exit( exitCode );
+  }
+
+  private static void parse( final String[] args ) {
+    assert args != null;
+
+    final var arguments = new Arguments( new Launcher( args ) );
+    final var parser = new CommandLine( arguments );
+
+    parser.setColorScheme( ColourScheme.create() );
+
+    final var exitCode = parser.execute( args );
+    final var parseResult = parser.getParseResult();
+
+    if( parseResult.isUsageHelpRequested() ) {
+      terminate( exitCode );
     }
   }
 
@@ -184,4 +179,17 @@ public final class Launcher implements Consumer<Arguments> {
     }
   }
 
+  /**
+   * Suppress writing to standard error, suppresses writing log messages.
+   */
+  private static void disableLogging() {
+    LogManager.getLogManager().reset();
+    System.err.close();
+  }
+
+  private static void showAppInfo() {
+    out( "%n%s version %s", APP_TITLE, APP_VERSION );
+    out( "Copyright 2016-%s White Magic Software, Ltd.", APP_YEAR );
+    out( "Portions copyright 2015-2020 Karl Tauber.%n" );
+  }
 }

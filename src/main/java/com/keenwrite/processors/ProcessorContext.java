@@ -73,20 +73,20 @@ public final class ProcessorContext {
     private Supplier<Map<String, String>> mDefinitions;
     private Supplier<Caret> mCaret;
     private Workspace mWorkspace;
+    private boolean mConcatenate;
 
     public void setInputPath( final Path inputPath ) {
+      assert inputPath != null;
       mInputPath = inputPath;
     }
 
-    public void setInputPath( final File inputPath ) {
-      setInputPath( inputPath.toPath() );
-    }
-
     public void setOutputPath( final Path outputPath ) {
+      assert outputPath != null;
       mOutputPath = outputPath;
     }
 
     public void setOutputPath( final File outputPath ) {
+      assert outputPath != null;
       setOutputPath( outputPath.toPath() );
     }
 
@@ -97,11 +97,11 @@ public final class ProcessorContext {
      * usage can insert their respective behaviours. That is, this method
      * prevents coupling the GUI to the CLI.
      *
-     * @param definitions Defines how to retrieve the definitions.
+     * @param supplier Defines how to retrieve the definitions.
      */
-    public void setDefinitions(
-      final Supplier<Map<String, String>> definitions ) {
-      mDefinitions = definitions;
+    public void setDefinitions( final Supplier<Map<String, String>> supplier ) {
+      assert supplier != null;
+      mDefinitions = supplier;
     }
 
     /**
@@ -111,15 +111,22 @@ public final class ProcessorContext {
      * @param caret The source for the currently active caret.
      */
     public void setCaret( final Supplier<Caret> caret ) {
+      assert caret != null;
       mCaret = caret;
     }
 
     public void setExportFormat( final ExportFormat exportFormat ) {
+      assert exportFormat != null;
       mExportFormat = exportFormat;
     }
 
     public void setWorkspace( final Workspace workspace ) {
+      assert workspace != null;
       mWorkspace = workspace;
+    }
+
+    public void setConcatenate( final boolean concatenate ) {
+      mConcatenate = concatenate;
     }
   }
 
@@ -169,7 +176,7 @@ public final class ProcessorContext {
    */
   public InterpolatingMap getInterpolatedDefinitions() {
     final var map = new InterpolatingMap(
-      createDefinitionSigilOperator(), getDefinitions()
+      getWorkspace().createDefinitionKeyOperator(), getDefinitions()
     );
 
     map.interpolate();
@@ -229,11 +236,19 @@ public final class ProcessorContext {
     return mMutator.mWorkspace;
   }
 
-  public SigilKeyOperator createSigilOperator() {
-    return getWorkspace().createSigilOperator( getInputPath() );
+  /**
+   * Answers whether to process a single text file or all text files in
+   * the same directory as a single text file. See {@link #getInputPath()}
+   * for the file to process (or all files in its directory).
+   *
+   * @return {@code true} means to process all text files, {@code false}
+   * means to process a single file.
+   */
+  public boolean getConcatenate() {
+    return mMutator.mConcatenate;
   }
 
-  public SigilKeyOperator createDefinitionSigilOperator() {
-    return getWorkspace().createDefinitionKeyOperator();
+  public SigilKeyOperator createSigilOperator() {
+    return getWorkspace().createSigilOperator( getInputPath() );
   }
 }

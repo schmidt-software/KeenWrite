@@ -60,6 +60,7 @@ import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
 import static com.keenwrite.ExportFormat.NONE;
+import static com.keenwrite.Launcher.terminate;
 import static com.keenwrite.Messages.get;
 import static com.keenwrite.constants.Constants.*;
 import static com.keenwrite.constants.GraphicsConstants.ICON_DIALOG_NODE;
@@ -189,7 +190,7 @@ public final class MainPane extends SplitPane {
 
       if( closeAll() ) {
         Platform.exit();
-        System.exit( 0 );
+        terminate( 0 );
       }
 
       event.consume();
