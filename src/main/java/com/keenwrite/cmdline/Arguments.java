@@ -2,27 +2,22 @@ package com.keenwrite.cmdline;
 
 import com.keenwrite.ExportFormat;
 import com.keenwrite.preferences.Key;
-import com.keenwrite.preferences.KeyConfiguration;
 import com.keenwrite.processors.ProcessorContext;
 import com.keenwrite.processors.ProcessorContext.Mutator;
 import picocli.CommandLine;
 
-import java.io.File;
 import java.nio.file.Path;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.function.Consumer;
 
 import static com.keenwrite.constants.Constants.DIAGRAM_SERVER_NAME;
-import static com.keenwrite.preferences.AppKeys.*;
 
 /**
  * Responsible for mapping command-line arguments to keys that are used by
- * the application. This class implements the {@link KeyConfiguration} as
- * an abstraction so that the CLI and GUI can reuse the same code, but without
- * the CLI needing to instantiate or initialize JavaFX.
+ * the application.
  */
 @CommandLine.Command(
   name = "KeenWrite",
@@ -30,14 +25,14 @@ import static com.keenwrite.preferences.AppKeys.*;
   description = "Plain text editor for editing with variables"
 )
 @SuppressWarnings( "unused" )
-public final class Arguments implements Callable<Integer>, KeyConfiguration {
+public final class Arguments implements Callable<Integer> {
   @CommandLine.Option(
     names = {"--all"},
     description =
       "Concatenate files before processing (${DEFAULT-VALUE})",
     defaultValue = "false"
   )
-  private boolean mAll;
+  private boolean mConcatenate;
 
   @CommandLine.Option(
     names = {"--base-dir"},
@@ -98,7 +93,7 @@ public final class Arguments implements Callable<Integer>, KeyConfiguration {
     paramLabel = "String",
     defaultValue = "svg,pdf,png,jpg,tiff"
   )
-  private Set<String> mImageExtensions;
+  private List<String> mImageOrder;
 
   @CommandLine.Option(
     names = {"--images-server"},
@@ -107,7 +102,7 @@ public final class Arguments implements Callable<Integer>, KeyConfiguration {
     paramLabel = "String",
     defaultValue = DIAGRAM_SERVER_NAME
   )
-  private Path mImageServer;
+  private String mImageServer;
 
   @CommandLine.Option(
     names = {"--keep-files"},
@@ -186,15 +181,7 @@ public final class Arguments implements Callable<Integer>, KeyConfiguration {
   }
 
   public ProcessorContext createProcessorContext() {
-    mValues.put( KEY_UI_RECENT_EXPORT, mPathOutput );
-    mValues.put( KEY_DEF_PATH, mPathVariables );
-    mValues.put( KEY_IMAGES_DIR, mImageDir );
-    mValues.put( KEY_IMAGES_SERVER, mImageServer );
-    mValues.put( KEY_TYPESET_CONTEXT_THEMES_PATH, mDirTheme );
-    mValues.put( KEY_TYPESET_CONTEXT_CLEAN, !mKeepFiles );
-    mValues.put( KEY_DEF_DELIM_BEGAN, mSigilBegan );
-    mValues.put( KEY_DEF_DELIM_ENDED, mSigilEnded );
-
+    final var definitions = interpolate( mPathVariables );
     final var format = ExportFormat.valueFrom( mFormatType, mFormatSubtype );
 
     return ProcessorContext
@@ -202,6 +189,15 @@ public final class Arguments implements Callable<Integer>, KeyConfiguration {
       .with( Mutator::setInputPath, mPathInput )
       .with( Mutator::setOutputPath, mPathOutput )
       .with( Mutator::setExportFormat, format )
+      .with( Mutator::setThemePath, mDirTheme )
+      .with( Mutator::setConcatenate, mConcatenate )
+      .with( Mutator::setImageDir, mImageDir )
+      .with( Mutator::setImageServer, mImageServer )
+      .with( Mutator::setImageOrder, mImageOrder )
+      .with( Mutator::setDefinitions, () -> definitions )
+      .with( Mutator::setSigilBegan, () -> mSigilBegan )
+      .with( Mutator::setSigilEnded, () -> mSigilEnded )
+      .with( Mutator::setAutoclean, !mKeepFiles )
       .build();
   }
 
@@ -226,32 +222,7 @@ public final class Arguments implements Callable<Integer>, KeyConfiguration {
     return 0;
   }
 
-  @Override
-  public String getString( final Key key ) {
-    return (String) mValues.get( key );
-  }
-
-  @Override
-  public boolean getBoolean( final Key key ) {
-    return (Boolean) mValues.get( key );
-  }
-
-  @Override
-  public int getInteger( final Key key ) {
-    return (Integer) mValues.get( key );
-  }
-
-  @Override
-  public double getDouble( final Key key ) {
-    return (Double) mValues.get( key );
-  }
-
-  @Override
-  public File getFile( final Key key ) {
-    final var value = mValues.get( key );
-
-    return value instanceof Path path
-      ? path.toFile()
-      : (File) value;
+  private static Map<String, String> interpolate( final Path vars ) {
+    return new HashMap<>();
   }
 }

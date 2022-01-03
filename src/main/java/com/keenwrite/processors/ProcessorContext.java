@@ -12,6 +12,7 @@ import com.keenwrite.util.GenericBuilder;
 
 import java.io.File;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.function.Supplier;
@@ -70,10 +71,21 @@ public final class ProcessorContext {
     private Path mInputPath;
     private Path mOutputPath;
     private ExportFormat mExportFormat;
+    private Path mThemePath;
+
     private Supplier<Map<String, String>> mDefinitions;
     private Supplier<Caret> mCaret;
     private Workspace mWorkspace;
     private boolean mConcatenate;
+
+    private Path mImageDir;
+    private String mImageServer;
+    private List<String> mImageOrder;
+
+    private Supplier<String> mSigilBegan;
+    private Supplier<String> mSigilEnded;
+
+    private boolean mAutoclean;
 
     public void setInputPath( final Path inputPath ) {
       assert inputPath != null;
@@ -120,6 +132,11 @@ public final class ProcessorContext {
       mExportFormat = exportFormat;
     }
 
+    public void setThemePath( final Path themePath ) {
+      assert themePath != null;
+      mThemePath = themePath;
+    }
+
     public void setWorkspace( final Workspace workspace ) {
       assert workspace != null;
       mWorkspace = workspace;
@@ -127,6 +144,35 @@ public final class ProcessorContext {
 
     public void setConcatenate( final boolean concatenate ) {
       mConcatenate = concatenate;
+    }
+
+    public void setImageDir( final Path imageDir ) {
+      assert imageDir != null;
+      mImageDir = imageDir;
+    }
+
+    public void setImageServer( final String imageServer ) {
+      assert imageServer != null;
+      mImageServer = imageServer;
+    }
+
+    public void setImageOrder( final List<String> imageOrder ) {
+      assert imageOrder != null;
+      mImageOrder = imageOrder;
+    }
+
+    public void setSigilBegan( final Supplier<String> sigilBegan ) {
+      assert sigilBegan != null;
+      mSigilBegan = sigilBegan;
+    }
+
+    public void setSigilEnded( final Supplier<String> sigilEnded ) {
+      assert sigilEnded != null;
+      mSigilEnded = sigilEnded;
+    }
+
+    public void setAutoclean( final boolean autoclean ) {
+      mAutoclean = autoclean;
     }
   }
 

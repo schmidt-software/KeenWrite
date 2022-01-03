@@ -1,9 +1,9 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.editors.markdown;
 
-import com.keenwrite.editors.common.Caret;
 import com.keenwrite.constants.Constants;
 import com.keenwrite.editors.TextEditor;
+import com.keenwrite.editors.common.Caret;
 import com.keenwrite.events.TextEditorFocusEvent;
 import com.keenwrite.io.MediaType;
 import com.keenwrite.preferences.LocaleProperty;
@@ -471,6 +471,16 @@ public final class MarkdownEditor extends BorderPane implements TextEditor {
     return mCaret;
   }
 
+  /**
+   *       mParagraph = editor.currentParagraphProperty();
+   *       mParagraphs = editor.getParagraphs();
+   *       mParaOffset = editor.caretColumnProperty();
+   *       mTextOffset = editor.caretPositionProperty();
+   *       mTextLength = editor.lengthProperty();
+   *
+   * @param editor
+   * @return
+   */
   private Caret createCaret( final StyleClassedTextArea editor ) {
     return Caret
       .builder()

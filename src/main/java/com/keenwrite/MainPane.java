@@ -1020,6 +1020,8 @@ public final class MainPane extends SplitPane {
 
         // Processing the text may update the status bar.
         process( getTextEditor() );
+
+        CaretMovedEvent.fire( editor.getCaret() );
       }
     } );
 

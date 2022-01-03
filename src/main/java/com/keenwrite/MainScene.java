@@ -1,11 +1,12 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite;
 
+import com.keenwrite.events.CaretMovedEvent;
 import com.keenwrite.io.FileModifiedListener;
 import com.keenwrite.io.FileWatchService;
 import com.keenwrite.preferences.Workspace;
 import com.keenwrite.ui.actions.GuiCommands;
-import com.keenwrite.ui.listeners.CaretListener;
+import com.keenwrite.ui.listeners.CaretStatus;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -20,9 +21,9 @@ import java.text.MessageFormat;
 import static com.keenwrite.constants.Constants.*;
 import static com.keenwrite.events.ScrollLockEvent.fireScrollLockEvent;
 import static com.keenwrite.events.StatusEvent.clue;
-import static com.keenwrite.preferences.SkinProperty.toFilename;
 import static com.keenwrite.preferences.AppKeys.KEY_UI_SKIN_CUSTOM;
 import static com.keenwrite.preferences.AppKeys.KEY_UI_SKIN_SELECTION;
+import static com.keenwrite.preferences.SkinProperty.toFilename;
 import static com.keenwrite.ui.actions.ApplicationBars.*;
 import static javafx.application.Platform.runLater;
 import static javafx.scene.input.KeyCode.*;
@@ -44,12 +45,13 @@ public final class MainScene {
   public MainScene( final Workspace workspace ) {
     final var mainPane = createMainPane( workspace );
     final var actions = createApplicationActions( mainPane );
-    final var caretListener = createCaretListener( mainPane );
+    final var caretStatus = createCaretStatus();
+
     mMenuBar = setManagedLayout( createMenuBar( actions ) );
     mToolBar = setManagedLayout( createToolBar() );
     mStatusBar = setManagedLayout( createStatusBar() );
 
-    mStatusBar.getRightItems().add( caretListener );
+    mStatusBar.getRightItems().add( caretStatus );
 
     final var appPane = new BorderPane();
     appPane.setTop( new VBox( mMenuBar, mToolBar ) );
@@ -62,6 +64,12 @@ public final class MainScene {
 
     mScene = createScene( appPane );
     initStylesheets( mScene, workspace );
+
+    mainPane.textEditorProperty().addListener( ( c, o, n ) -> {
+      if( n != null ) {
+        CaretMovedEvent.fire( n.getCaret() );
+      }
+    } );
   }
 
   /**
@@ -93,7 +101,7 @@ public final class MainScene {
     return mMenuBar;
   }
 
-  public StatusBar getStatusBar() { return mStatusBar; }
+  public StatusBar getStatusBar() {return mStatusBar;}
 
   private void initStylesheets( final Scene scene, final Workspace workspace ) {
     final var internal = workspace.skinProperty( KEY_UI_SKIN_SELECTION );
@@ -175,11 +183,11 @@ public final class MainScene {
    * Creates the class responsible for updating the UI with the caret position
    * based on the active text editor.
    *
-   * @return The {@link CaretListener} responsible for updating the
+   * @return The {@link CaretStatus} responsible for updating the
    * {@link StatusBar} whenever the caret changes position.
    */
-  private CaretListener createCaretListener( final MainPane mainPane ) {
-    return new CaretListener( mainPane.textEditorProperty() );
+  private CaretStatus createCaretStatus() {
+    return new CaretStatus();
   }
 
   /**
