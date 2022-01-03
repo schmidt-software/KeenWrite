@@ -538,7 +538,7 @@ public final class Workspace implements KeyConfiguration {
     return new SigilKeyOperator( began, ended );
   }
 
-  public SigilKeyOperator createPropertyKeyOperator() {
+  public static SigilKeyOperator createPropertyKeyOperator() {
     return new PropertyKeyOperator();
   }
 

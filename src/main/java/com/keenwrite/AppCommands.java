@@ -43,13 +43,13 @@ public class AppCommands {
     final var future = new CompletableFuture<Path>() {
       @Override
       public boolean complete( final Path path ) {
-        System.out.println( " HURRAH! " + path );
+        System.out.println( "DONE! " + path );
         return super.complete( path );
       }
 
       @Override
       public boolean completeExceptionally( final Throwable ex ) {
-        System.out.println( "PROBLEMO! " + ex.getMessage() );
+        System.out.println( ex.getMessage() );
         exitCode.set( 1 );
 
         return super.completeExceptionally( ex );
@@ -57,7 +57,7 @@ public class AppCommands {
     };
 
     file_export( args, future );
-
+    sExecutor.shutdown();
     future.join();
     terminate( exitCode.get() );
   }

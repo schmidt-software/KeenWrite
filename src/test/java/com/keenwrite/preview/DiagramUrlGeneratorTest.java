@@ -2,6 +2,7 @@ package com.keenwrite.preview;
 
 import org.junit.jupiter.api.Test;
 
+import static com.keenwrite.constants.Constants.DIAGRAM_SERVER_NAME;
 import static com.keenwrite.preview.DiagramUrlGenerator.toUrl;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -9,8 +10,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * Responsible for testing that images sent to the diagram server will render.
  */
 class DiagramUrlGeneratorTest {
-  private final static String SERVER_NAME = "kroki.io";
-
   // @formatter:off
   private final static String[] DIAGRAMS = new String[]{
     "graphviz",
@@ -42,7 +41,7 @@ class DiagramUrlGeneratorTest {
       final var name = DIAGRAMS[ i ];
       final var text = DIAGRAMS[ i + 1 ];
       final var expected = DIAGRAMS[ i + 2 ];
-      final var actual = toUrl( SERVER_NAME, name, text );
+      final var actual = toUrl( DIAGRAM_SERVER_NAME, name, text );
 
       assertEquals( expected, actual );
     }

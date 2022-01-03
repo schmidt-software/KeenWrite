@@ -15,6 +15,7 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.function.Consumer;
 
+import static com.keenwrite.constants.Constants.DIAGRAM_SERVER_NAME;
 import static com.keenwrite.preferences.AppKeys.*;
 
 /**
@@ -31,28 +32,20 @@ import static com.keenwrite.preferences.AppKeys.*;
 @SuppressWarnings( "unused" )
 public final class Arguments implements Callable<Integer>, KeyConfiguration {
   @CommandLine.Option(
-    names = {"-a", "--all"},
+    names = {"--all"},
     description =
-      "Concatenate files in directory before processing (${DEFAULT-VALUE})",
+      "Concatenate files before processing (${DEFAULT-VALUE})",
     defaultValue = "false"
   )
   private boolean mAll;
 
   @CommandLine.Option(
-    names = {"-b", "--base-path"},
+    names = {"--base-dir"},
     description =
-      "Set all other paths relative to this path",
-    paramLabel = "PATH"
+      "Set directories and paths relative to this one",
+    paramLabel = "DIR"
   )
   private Path mBasePath;
-
-  @CommandLine.Option(
-    names = {"-k", "--keep-files"},
-    description =
-      "Keep temporary build files (${DEFAULT-VALUE})",
-    defaultValue = "false"
-  )
-  private boolean mKeepFiles;
 
   @CommandLine.Option(
     names = {"-d", "--debug"},
@@ -73,7 +66,7 @@ public final class Arguments implements Callable<Integer>, KeyConfiguration {
   private Path mPathInput;
 
   @CommandLine.Option(
-    names = {"-f", "--format-type"},
+    names = {"--format-type"},
     description =
       "Export type: html, md, pdf, xml (${DEFAULT-VALUE})",
     paramLabel = "String",
@@ -81,6 +74,48 @@ public final class Arguments implements Callable<Integer>, KeyConfiguration {
     required = true
   )
   private String mFormatType;
+
+  @CommandLine.Option(
+    names = {"--format-subtype-tex"},
+    description =
+      "Export subtype for HTML formats: svg, delimited",
+    paramLabel = "String"
+  )
+  private String mFormatSubtype;
+
+  @CommandLine.Option(
+    names = {"--images-dir"},
+    description =
+      "Directory containing images",
+    paramLabel = "DIR"
+  )
+  private Path mImageDir;
+
+  @CommandLine.Option(
+    names = {"--image-extensions"},
+    description =
+      "Comma-separated image order (${DEFAULT-VALUE})",
+    paramLabel = "String",
+    defaultValue = "svg,pdf,png,jpg,tiff"
+  )
+  private Set<String> mImageExtensions;
+
+  @CommandLine.Option(
+    names = {"--images-server"},
+    description =
+      "SVG diagram rendering service (${DEFAULT-VALUE})",
+    paramLabel = "String",
+    defaultValue = DIAGRAM_SERVER_NAME
+  )
+  private Path mImageServer;
+
+  @CommandLine.Option(
+    names = {"--keep-files"},
+    description =
+      "Keep temporary build files (${DEFAULT-VALUE})",
+    defaultValue = "false"
+  )
+  private boolean mKeepFiles;
 
   @CommandLine.Option(
     names = {"-m", "--metadata"},
@@ -98,15 +133,7 @@ public final class Arguments implements Callable<Integer>, KeyConfiguration {
     defaultValue = "stdout",
     required = true
   )
-  private File mPathOutput;
-
-  @CommandLine.Option(
-    names = {"-p", "--images-path"},
-    description =
-      "Directory containing images",
-    paramLabel = "PATH"
-  )
-  private Path mPathImages;
+  private Path mPathOutput;
 
   @CommandLine.Option(
     names = {"-q", "--quiet"},
@@ -117,36 +144,36 @@ public final class Arguments implements Callable<Integer>, KeyConfiguration {
   private boolean mQuiet;
 
   @CommandLine.Option(
-    names = {"-s", "--format-subtype-tex"},
+    names = {"--sigil-opening"},
     description =
-      "Export subtype for HTML formats: svg, delimited",
-    paramLabel = "String"
-  )
-  private String mFormatSubtype;
-
-  @CommandLine.Option(
-    names = {"-t", "--theme"},
-    description =
-      "File path to use when exporting as a PDF file",
-    paramLabel = "PATH"
-  )
-  private Path mThemeName;
-
-  @CommandLine.Option(
-    names = {"-x", "--image-extensions"},
-    description =
-      "Space-separated image file name extensions (${DEFAULT-VALUE})",
+      "Starting sigil for variable names (${DEFAULT-VALUE})",
     paramLabel = "String",
-    defaultValue = "svg pdf png jpg tiff"
+    defaultValue = "{{"
   )
-  private Set<String> mImageExtensions;
+  private String mSigilBegan;
+
+  @CommandLine.Option(
+    names = {"--sigil-closing"},
+    description =
+      "Ending sigil for variable names (${DEFAULT-VALUE})",
+    paramLabel = "String",
+    defaultValue = "}}"
+  )
+  private String mSigilEnded;
+
+  @CommandLine.Option(
+    names = {"--theme-dir"},
+    description =
+      "Absolute theme directory, ignores base dir",
+    paramLabel = "DIR"
+  )
+  private Path mDirTheme;
 
   @CommandLine.Option(
     names = {"-v", "--variables"},
     description =
-      "Set the file name containing variable definitions (${DEFAULT-VALUE})",
-    paramLabel = "FILE",
-    defaultValue = "variables.yaml"
+      "Set the variables file name",
+    paramLabel = "PATH"
   )
   private Path mPathVariables;
 
@@ -159,14 +186,14 @@ public final class Arguments implements Callable<Integer>, KeyConfiguration {
   }
 
   public ProcessorContext createProcessorContext() {
-    mValues.put( KEY_UI_RECENT_DOCUMENT, mPathInput );
-    mValues.put( KEY_UI_RECENT_DEFINITION, mPathVariables );
     mValues.put( KEY_UI_RECENT_EXPORT, mPathOutput );
-    mValues.put( KEY_IMAGES_DIR, mPathImages );
-    mValues.put( KEY_TYPESET_CONTEXT_THEMES_PATH, mThemeName.getParent() );
-    mValues.put( KEY_TYPESET_CONTEXT_THEME_SELECTION,
-                 mThemeName.getFileName() );
+    mValues.put( KEY_DEF_PATH, mPathVariables );
+    mValues.put( KEY_IMAGES_DIR, mImageDir );
+    mValues.put( KEY_IMAGES_SERVER, mImageServer );
+    mValues.put( KEY_TYPESET_CONTEXT_THEMES_PATH, mDirTheme );
     mValues.put( KEY_TYPESET_CONTEXT_CLEAN, !mKeepFiles );
+    mValues.put( KEY_DEF_DELIM_BEGAN, mSigilBegan );
+    mValues.put( KEY_DEF_DELIM_ENDED, mSigilEnded );
 
     final var format = ExportFormat.valueFrom( mFormatType, mFormatSubtype );
 
@@ -201,26 +228,30 @@ public final class Arguments implements Callable<Integer>, KeyConfiguration {
 
   @Override
   public String getString( final Key key ) {
-    return null;
+    return (String) mValues.get( key );
   }
 
   @Override
   public boolean getBoolean( final Key key ) {
-    return false;
+    return (Boolean) mValues.get( key );
   }
 
   @Override
   public int getInteger( final Key key ) {
-    return 0;
+    return (Integer) mValues.get( key );
   }
 
   @Override
   public double getDouble( final Key key ) {
-    return 0;
+    return (Double) mValues.get( key );
   }
 
   @Override
   public File getFile( final Key key ) {
-    return null;
+    final var value = mValues.get( key );
+
+    return value instanceof Path path
+      ? path.toFile()
+      : (File) value;
   }
 }
