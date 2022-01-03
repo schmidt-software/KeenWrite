@@ -64,12 +64,6 @@ public final class MainScene {
 
     mScene = createScene( appPane );
     initStylesheets( mScene, workspace );
-
-    mainPane.textEditorProperty().addListener( ( c, o, n ) -> {
-      if( n != null ) {
-        CaretMovedEvent.fire( n.getCaret() );
-      }
-    } );
   }
 
   /**

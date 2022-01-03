@@ -5,7 +5,10 @@ import com.keenwrite.ui.outline.DocumentOutline;
 
 /**
  * Collates information about a caret event, which is typically triggered when
- * the user double-clicks in the {@link DocumentOutline}.
+ * the user double-clicks in the {@link DocumentOutline}. This is an imperative
+ * event, meaning that the position of the caret will be changed after this
+ * event is handled. As opposed to a {@link CaretMovedEvent}, which provides
+ * information about the caret after it has been moved.
  */
 public class CaretNavigationEvent implements AppEvent {
   /**
