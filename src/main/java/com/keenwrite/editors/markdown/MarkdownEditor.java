@@ -471,20 +471,19 @@ public final class MarkdownEditor extends BorderPane implements TextEditor {
     return mCaret;
   }
 
-  /**
-   *       mParagraph = editor.currentParagraphProperty();
-   *       mParagraphs = editor.getParagraphs();
-   *       mParaOffset = editor.caretColumnProperty();
-   *       mTextOffset = editor.caretPositionProperty();
-   *       mTextLength = editor.lengthProperty();
-   *
-   * @param editor
-   * @return
-   */
   private Caret createCaret( final StyleClassedTextArea editor ) {
     return Caret
       .builder()
-      .with( Caret.Mutator::setEditor, editor )
+      .with( Caret.Mutator::setParagraph,
+             () -> editor.currentParagraphProperty().getValue() )
+      .with( Caret.Mutator::setParagraphs,
+             () -> editor.getParagraphs().size() )
+      .with( Caret.Mutator::setParaOffset,
+             () -> editor.caretColumnProperty().getValue() )
+      .with( Caret.Mutator::setTextOffset,
+             () -> editor.caretPositionProperty().getValue() )
+      .with( Caret.Mutator::setTextLength,
+             () -> editor.lengthProperty().getValue() )
       .build();
   }
 

@@ -2,7 +2,6 @@
 package com.keenwrite.editors.common;
 
 import com.keenwrite.util.GenericBuilder;
-import org.fxmisc.richtext.StyleClassedTextArea;
 
 import java.util.function.Supplier;
 
@@ -22,7 +21,7 @@ public class Caret {
   }
 
   /**
-   * Used for building a new {@link Caret} instance.
+   * Configures a caret.
    */
   public static class Mutator {
     /**
@@ -50,17 +49,29 @@ public class Caret {
      */
     private Supplier<Integer> mTextLength = () -> 0;
 
-    /**
-     * Configures this caret position using properties from the given editor.
-     *
-     * @param editor The text editor that has a caret with position properties.
-     */
-    public void setEditor( final StyleClassedTextArea editor ) {
-      mParagraph = () -> editor.currentParagraphProperty().getValue();
-      mParagraphs = () -> editor.getParagraphs().size() + 1;
-      mParaOffset = () -> editor.caretColumnProperty().getValue();
-      mTextOffset = () -> editor.caretPositionProperty().getValue();
-      mTextLength = () -> editor.lengthProperty().getValue();
+    public void setParagraph( final Supplier<Integer> paragraph ) {
+      assert paragraph != null;
+      mParagraph = paragraph;
+    }
+
+    public void setParagraphs( final Supplier<Integer> paragraphs ) {
+      assert paragraphs != null;
+      mParagraphs = paragraphs;
+    }
+
+    public void setParaOffset( final Supplier<Integer> paraOffset ) {
+      assert paraOffset != null;
+      mParaOffset = paraOffset;
+    }
+
+    public void setTextOffset( final Supplier<Integer> textOffset ) {
+      assert textOffset != null;
+      mTextOffset = textOffset;
+    }
+
+    public void setTextLength( final Supplier<Integer> textLength ) {
+      assert textLength != null;
+      mTextLength = textLength;
     }
   }
 

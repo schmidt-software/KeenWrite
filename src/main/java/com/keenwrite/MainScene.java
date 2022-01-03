@@ -1,7 +1,6 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite;
 
-import com.keenwrite.events.CaretMovedEvent;
 import com.keenwrite.io.FileModifiedListener;
 import com.keenwrite.io.FileWatchService;
 import com.keenwrite.preferences.Workspace;
