@@ -104,7 +104,7 @@ public class FencedBlockExtension extends HtmlRendererAdapter {
           final var type = style.substring( DIAGRAM_STYLE_LEN );
           final var content = node.getContentChars().normalizeEOL();
           final var text = mProcessor.apply( content );
-          final var server = mContext.getImagesServer();
+          final var server = mContext.getImageServer();
           final var source = DiagramUrlGenerator.toUrl( server, type, text );
           final var link = context.resolveLink( LINK, source, false );
 

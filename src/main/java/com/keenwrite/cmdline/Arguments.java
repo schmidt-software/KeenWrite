@@ -6,9 +6,9 @@ import com.keenwrite.processors.ProcessorContext;
 import com.keenwrite.processors.ProcessorContext.Mutator;
 import picocli.CommandLine;
 
+import java.io.File;
 import java.nio.file.Path;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.function.Consumer;
@@ -84,7 +84,7 @@ public final class Arguments implements Callable<Integer> {
       "Directory containing images",
     paramLabel = "DIR"
   )
-  private Path mImageDir;
+  private File mImageDir;
 
   @CommandLine.Option(
     names = {"--image-extensions"},
@@ -93,7 +93,7 @@ public final class Arguments implements Callable<Integer> {
     paramLabel = "String",
     defaultValue = "svg,pdf,png,jpg,tiff"
   )
-  private List<String> mImageOrder;
+  private String mImageOrder;
 
   @CommandLine.Option(
     names = {"--images-server"},
@@ -207,9 +207,9 @@ public final class Arguments implements Callable<Integer> {
       .with( Mutator::setExportFormat, format )
       .with( Mutator::setThemePath, mDirTheme )
       .with( Mutator::setConcatenate, mConcatenate )
-      .with( Mutator::setImageDir, mImageDir )
+      .with( Mutator::setImageDir, () -> mImageDir )
       .with( Mutator::setImageServer, () -> mImageServer )
-      .with( Mutator::setImageOrder, mImageOrder )
+      .with( Mutator::setImageOrder, () -> mImageOrder )
       .with( Mutator::setDefinitions, () -> definitions )
       .with( Mutator::setSigilBegan, () -> mSigilBegan )
       .with( Mutator::setSigilEnded, () -> mSigilEnded )

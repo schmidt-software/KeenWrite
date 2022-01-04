@@ -39,9 +39,7 @@ import static org.testfx.util.WaitForAsyncUtils.waitForFxEvents;
 @ExtendWith( {ApplicationExtension.class, AwaitFxExtension.class} )
 @SuppressWarnings( "SameParameterValue" )
 public class ImageLinkExtensionTest {
-  private static final Workspace sWorkspace = new Workspace(
-    getResourceFile( "workspace.xml" ) );
-
+  private static final Workspace sWorkspace = new Workspace();
   private static final Map<String, String> IMAGES = new HashMap<>();
 
   private static final String URI_WEB = "placekitten.com/200/200";
@@ -172,9 +170,5 @@ public class ImageLinkExtensionTest {
 
   private static String getResource( final String path ) {
     return toUri( path ).toString();
-  }
-
-  private static File getResourceFile( final String path ) {
-    return new File( getResource( path ) );
   }
 }

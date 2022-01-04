@@ -9,10 +9,10 @@ import com.keenwrite.io.FileType;
 import com.keenwrite.preferences.Workspace;
 import com.keenwrite.sigils.SigilKeyOperator;
 import com.keenwrite.util.GenericBuilder;
+import org.renjin.repackaged.guava.base.Splitter;
 
 import java.io.File;
 import java.nio.file.Path;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.function.Supplier;
@@ -78,9 +78,9 @@ public final class ProcessorContext {
     private Workspace mWorkspace;
     private boolean mConcatenate;
 
-    private Path mImageDir;
+    private Supplier<Path> mImageDir;
     private Supplier<String> mImageServer;
-    private List<String> mImageOrder;
+    private Supplier<String> mImageOrder;
 
     private Supplier<String> mSigilBegan;
     private Supplier<String> mSigilEnded;
@@ -149,19 +149,19 @@ public final class ProcessorContext {
       mConcatenate = concatenate;
     }
 
-    public void setImageDir( final Path imageDir ) {
+    public void setImageDir( final Supplier<File> imageDir ) {
       assert imageDir != null;
-      mImageDir = imageDir;
+      mImageDir = () -> imageDir.get().toPath();
+    }
+
+    public void setImageOrder( final Supplier<String> imageOrder ) {
+      assert imageOrder != null;
+      mImageOrder = imageOrder;
     }
 
     public void setImageServer( final Supplier<String> imageServer ) {
       assert imageServer != null;
       mImageServer = imageServer;
-    }
-
-    public void setImageOrder( final List<String> imageOrder ) {
-      assert imageOrder != null;
-      mImageOrder = imageOrder;
     }
 
     public void setSigilBegan( final Supplier<String> sigilBegan ) {
@@ -277,7 +277,20 @@ public final class ProcessorContext {
     return lookup( getInputPath() );
   }
 
-  public String getImagesServer() {
+  public Path getImageDir() {
+    return mMutator.mImageDir.get();
+  }
+
+  public Iterable<String> getImageOrder() {
+    assert mMutator.mImageOrder != null;
+
+    final var order = mMutator.mImageOrder.get();
+    final var token = order.contains( "," ) ? ',' : ' ';
+
+    return Splitter.on( token ).split( order );
+  }
+
+  public String getImageServer() {
     return mMutator.mImageServer.get();
   }
 

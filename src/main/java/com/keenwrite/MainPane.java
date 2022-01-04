@@ -953,6 +953,8 @@ public final class MainPane extends SplitPane {
       .with( Mutator::setCaret, () -> getTextEditor().getCaret() )
       .with( Mutator::setRScript, () -> w.asString( KEY_R_SCRIPT ) )
       .with( Mutator::setRWorkingDir, () -> w.asFile( KEY_R_DIR ) )
+      .with( Mutator::setImageDir, () -> w.asFile( KEY_IMAGES_DIR ) )
+      .with( Mutator::setImageOrder, () -> w.getString( KEY_IMAGES_ORDER ) )
       .with( Mutator::setImageServer, () -> w.asString( KEY_IMAGES_SERVER ) );
   }
 
