@@ -6,19 +6,23 @@ import com.keenwrite.collections.InterpolatingMap;
 import com.keenwrite.constants.Constants;
 import com.keenwrite.editors.common.Caret;
 import com.keenwrite.io.FileType;
-import com.keenwrite.preferences.Workspace;
+import com.keenwrite.sigils.PropertyKeyOperator;
 import com.keenwrite.sigils.SigilKeyOperator;
 import com.keenwrite.util.GenericBuilder;
 import org.renjin.repackaged.guava.base.Splitter;
 
 import java.io.File;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.function.Supplier;
 
 import static com.keenwrite.constants.Constants.*;
 import static com.keenwrite.io.FileType.UNKNOWN;
+import static com.keenwrite.io.MediaType.TEXT_PROPERTIES;
+import static com.keenwrite.io.MediaType.valueFrom;
 import static com.keenwrite.predicates.PredicateFactory.createFileTypePredicate;
 
 /**
@@ -143,7 +147,7 @@ public final class ProcessorContext {
 
     public void setMetadata( final Supplier<Map<String, String>> metadata ) {
       assert metadata != null;
-      mMetadata = metadata;
+      mMetadata = metadata.get() == null ? HashMap::new : metadata;
     }
 
     /**
@@ -201,13 +205,6 @@ public final class ProcessorContext {
       assert autoClean != null;
       mAutoClean = autoClean;
     }
-
-    private Workspace mWorkspace;
-
-    public void setWorkspace( final Workspace workspace ) {
-      assert workspace != null;
-      mWorkspace = workspace;
-    }
   }
 
   public static GenericBuilder<Mutator, ProcessorContext> builder() {
@@ -263,7 +260,7 @@ public final class ProcessorContext {
    */
   public InterpolatingMap getInterpolatedDefinitions() {
     final var map = new InterpolatingMap(
-      getWorkspace().createDefinitionKeyOperator(), getDefinitions()
+      createDefinitionKeyOperator(), getDefinitions()
     );
 
     map.interpolate();
@@ -343,10 +340,6 @@ public final class ProcessorContext {
     return mMutator.mAutoClean.get();
   }
 
-  public Workspace getWorkspace() {
-    return mMutator.mWorkspace;
-  }
-
   /**
    * Answers whether to process a single text file or all text files in
    * the same directory as a single text file. See {@link #getInputPath()}
@@ -359,7 +352,31 @@ public final class ProcessorContext {
     return mMutator.mConcatenate;
   }
 
-  public SigilKeyOperator createSigilOperator() {
-    return getWorkspace().createSigilOperator( getInputPath() );
+  public SigilKeyOperator createKeyOperator() {
+    return createKeyOperator( getInputPath() );
+  }
+
+  /**
+   * Returns the sigil operator for the given {@link Path}.
+   *
+   * @param path The type of file being edited, from its extension.
+   */
+  private SigilKeyOperator createKeyOperator( final Path path ) {
+    assert path != null;
+
+    return valueFrom( path ) == TEXT_PROPERTIES
+      ? createPropertyKeyOperator()
+      : createDefinitionKeyOperator();
+  }
+
+  private SigilKeyOperator createPropertyKeyOperator() {
+    return new PropertyKeyOperator();
+  }
+
+  private SigilKeyOperator createDefinitionKeyOperator() {
+    final var began = mMutator.mSigilBegan.get();
+    final var ended = mMutator.mSigilEnded.get();
+
+    return new SigilKeyOperator( began, ended );
   }
 }

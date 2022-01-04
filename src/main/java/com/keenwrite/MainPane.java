@@ -948,7 +948,6 @@ public final class MainPane extends SplitPane {
     final var w = getWorkspace();
 
     return builder()
-      .with( Mutator::setWorkspace, w )
       .with( Mutator::setDefinitions, this::getDefinitions )
       .with( Mutator::setLocale, w::getLocale )
       .with( Mutator::setMetadata, w::getMetadata )
@@ -961,6 +960,10 @@ public final class MainPane extends SplitPane {
              () -> w.getString( KEY_IMAGES_ORDER ) )
       .with( Mutator::setImageServer,
              () -> w.getString( KEY_IMAGES_SERVER ) )
+      .with( Mutator::setSigilBegan,
+             () -> w.getString( KEY_DEF_DELIM_BEGAN ) )
+      .with( Mutator::setSigilEnded,
+             () -> w.getString( KEY_DEF_DELIM_ENDED ) )
       .with( Mutator::setRScript,
              () -> w.getString( KEY_R_SCRIPT ) )
       .with( Mutator::setRWorkingDir,

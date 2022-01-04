@@ -33,7 +33,7 @@ public final class Arguments implements Callable<Integer> {
       "Concatenate files before processing (${DEFAULT-VALUE})",
     defaultValue = "false"
   )
-  private boolean mConcatenate;
+  private Boolean mConcatenate;
 
   @CommandLine.Option(
     names = {"--autoclean"},

@@ -1,9 +1,6 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.preferences;
 
-import com.keenwrite.io.MediaType;
-import com.keenwrite.sigils.PropertyKeyOperator;
-import com.keenwrite.sigils.SigilKeyOperator;
 import javafx.application.Platform;
 import javafx.beans.property.*;
 import javafx.collections.ObservableList;
@@ -550,17 +547,6 @@ public final class Workspace implements KeyConfiguration {
     return Path.of( dir.toString(), name );
   }
 
-  public SigilKeyOperator createDefinitionKeyOperator() {
-    final var began = getString( KEY_DEF_DELIM_BEGAN );
-    final var ended = getString( KEY_DEF_DELIM_ENDED );
-
-    return new SigilKeyOperator( began, ended );
-  }
-
-  public static SigilKeyOperator createPropertyKeyOperator() {
-    return new PropertyKeyOperator();
-  }
-
   /**
    * Delegates to {@link #listen(Key, ReadOnlyProperty, BooleanSupplier)},
    * providing a value of {@code true} for the {@link BooleanSupplier} to
@@ -606,30 +592,6 @@ public final class Workspace implements KeyConfiguration {
         }
       } )
     );
-  }
-
-  /**
-   * Returns the sigil operator for the given {@link MediaType}.
-   *
-   * @param mediaType The type of file being edited.
-   */
-  public SigilKeyOperator createSigilOperator( final MediaType mediaType ) {
-    assert mediaType != null;
-
-    return mediaType == MediaType.TEXT_PROPERTIES
-      ? createPropertyKeyOperator()
-      : createDefinitionKeyOperator();
-  }
-
-  /**
-   * Returns the sigil operator for the given {@link Path}.
-   *
-   * @param path The type of file being edited, from its extension.
-   */
-  public SigilKeyOperator createSigilOperator( final Path path ) {
-    assert path != null;
-
-    return createSigilOperator( MediaType.valueFrom( path ) );
   }
 
   /**
