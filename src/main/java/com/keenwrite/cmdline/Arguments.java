@@ -33,15 +33,15 @@ public final class Arguments implements Callable<Integer> {
       "Concatenate files before processing (${DEFAULT-VALUE})",
     defaultValue = "false"
   )
-  private Boolean mConcatenate;
+  private boolean mConcatenate;
 
   @CommandLine.Option(
-    names = {"--autoclean"},
+    names = {"--keep-files"},
     description =
-      "Delete temporary build files (${DEFAULT-VALUE})",
-    defaultValue = "true"
+      "Retain temporary build files (${DEFAULT-VALUE})",
+    defaultValue = "false"
   )
-  private boolean mAutoClean;
+  private boolean mKeepFiles;
 
   @CommandLine.Option(
     names = {"--base-dir"},
@@ -235,7 +235,7 @@ public final class Arguments implements Callable<Integer> {
       .with( Mutator::setSigilBegan, () -> mSigilBegan )
       .with( Mutator::setSigilEnded, () -> mSigilEnded )
       .with( Mutator::setCurlQuotes, () -> mCurlQuotes )
-      .with( Mutator::setAutoClean, () -> mAutoClean )
+      .with( Mutator::setAutoClean, () -> !mKeepFiles )
       .build();
   }
 
