@@ -945,14 +945,15 @@ public final class MainPane extends SplitPane {
   }
 
   private GenericBuilder<Mutator, ProcessorContext> createProcessorContextBuilder() {
-    final var workspace = getWorkspace();
+    final var w = getWorkspace();
 
     return builder()
       .with( Mutator::setDefinitions, this::getDefinitions )
-      .with( Mutator::setWorkspace, workspace )
+      .with( Mutator::setWorkspace, w )
       .with( Mutator::setCaret, () -> getTextEditor().getCaret() )
-      .with( Mutator::setRScript, () -> workspace.asString( KEY_R_SCRIPT ) )
-      .with( Mutator::setRWorkingDir, () -> workspace.asFile( KEY_R_DIR ) );
+      .with( Mutator::setRScript, () -> w.asString( KEY_R_SCRIPT ) )
+      .with( Mutator::setRWorkingDir, () -> w.asFile( KEY_R_DIR ) )
+      .with( Mutator::setImageServer, () -> w.asString( KEY_IMAGES_SERVER ) );
   }
 
   public ProcessorContext createProcessorContext() {

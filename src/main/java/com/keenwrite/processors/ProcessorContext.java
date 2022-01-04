@@ -79,7 +79,7 @@ public final class ProcessorContext {
     private boolean mConcatenate;
 
     private Path mImageDir;
-    private String mImageServer;
+    private Supplier<String> mImageServer;
     private List<String> mImageOrder;
 
     private Supplier<String> mSigilBegan;
@@ -154,7 +154,7 @@ public final class ProcessorContext {
       mImageDir = imageDir;
     }
 
-    public void setImageServer( final String imageServer ) {
+    public void setImageServer( final Supplier<String> imageServer ) {
       assert imageServer != null;
       mImageServer = imageServer;
     }
@@ -275,6 +275,10 @@ public final class ProcessorContext {
 
   FileType getFileType() {
     return lookup( getInputPath() );
+  }
+
+  public String getImagesServer() {
+    return mMutator.mImageServer.get();
   }
 
   public Path getRWorkingDir() {

@@ -208,7 +208,7 @@ public final class Arguments implements Callable<Integer> {
       .with( Mutator::setThemePath, mDirTheme )
       .with( Mutator::setConcatenate, mConcatenate )
       .with( Mutator::setImageDir, mImageDir )
-      .with( Mutator::setImageServer, mImageServer )
+      .with( Mutator::setImageServer, () -> mImageServer )
       .with( Mutator::setImageOrder, mImageOrder )
       .with( Mutator::setDefinitions, () -> definitions )
       .with( Mutator::setSigilBegan, () -> mSigilBegan )
