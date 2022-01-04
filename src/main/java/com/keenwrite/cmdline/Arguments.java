@@ -7,6 +7,7 @@ import com.keenwrite.processors.ProcessorContext.Mutator;
 import picocli.CommandLine;
 
 import java.io.File;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Locale;
@@ -162,7 +163,7 @@ public final class Arguments implements Callable<Integer> {
       "R working directory",
     paramLabel = "DIR"
   )
-  private String mRWorkingDir;
+  private Path mRWorkingDir;
 
   @CommandLine.Option(
     names = {"--r-script"},
@@ -218,6 +219,7 @@ public final class Arguments implements Callable<Integer> {
     final var definitions = interpolate( mPathVariables );
     final var format = ExportFormat.valueFrom( mFormatType, mFormatSubtype );
     final var locale = lookupLocale( mLocale );
+    final var rScript = read( mRScriptPath );
 
     return ProcessorContext
       .builder()
@@ -234,9 +236,19 @@ public final class Arguments implements Callable<Integer> {
       .with( Mutator::setImageOrder, () -> mImageOrder )
       .with( Mutator::setSigilBegan, () -> mSigilBegan )
       .with( Mutator::setSigilEnded, () -> mSigilEnded )
+      .with( Mutator::setRWorkingDir, () -> mRWorkingDir )
+      .with( Mutator::setRScript, () -> rScript )
       .with( Mutator::setCurlQuotes, () -> mCurlQuotes )
       .with( Mutator::setAutoClean, () -> !mKeepFiles )
       .build();
+  }
+
+  private String read( final Path path ) {
+    try {
+      return Files.readString( path );
+    } catch( final Exception ex ) {
+      return "";
+    }
   }
 
   public boolean quiet() {

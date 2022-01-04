@@ -186,9 +186,10 @@ public final class ProcessorContext {
       mSigilEnded = sigilEnded;
     }
 
-    public void setRWorkingDir( final Supplier<File> rWorkingDir ) {
+    public void setRWorkingDir(final Supplier<Path> rWorkingDir) {
       assert rWorkingDir != null;
-      mRWorkingDir = () -> rWorkingDir.get().toPath();
+
+      mRWorkingDir = rWorkingDir;
     }
 
     public void setRScript( final Supplier<String> rScript ) {

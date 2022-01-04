@@ -967,7 +967,7 @@ public final class MainPane extends SplitPane {
       .with( Mutator::setRScript,
              () -> w.getString( KEY_R_SCRIPT ) )
       .with( Mutator::setRWorkingDir,
-             () -> w.getFile( KEY_R_DIR ) )
+             () -> w.getFile( KEY_R_DIR ).toPath() )
       .with( Mutator::setCurlQuotes,
              () -> w.getBoolean( KEY_TYPESET_TYPOGRAPHY_QUOTES ) )
       .with( Mutator::setAutoClean,
