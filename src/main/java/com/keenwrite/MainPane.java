@@ -950,6 +950,7 @@ public final class MainPane extends SplitPane {
     return builder()
       .with( Mutator::setDefinitions, this::getDefinitions )
       .with( Mutator::setWorkspace, w )
+      .with( Mutator::setLocale, w::getLocale )
       .with( Mutator::setCaret,
              () -> getTextEditor().getCaret() )
       .with( Mutator::setImageDir,
@@ -964,7 +965,7 @@ public final class MainPane extends SplitPane {
              () -> w.getFile( KEY_R_DIR ) )
       .with( Mutator::setCurlQuotes,
              () -> w.getBoolean( KEY_TYPESET_TYPOGRAPHY_QUOTES ) )
-      .with( Mutator::setAutoclean,
+      .with( Mutator::setAutoClean,
              () -> w.getBoolean( KEY_TYPESET_CONTEXT_CLEAN ) );
   }
 

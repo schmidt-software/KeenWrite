@@ -44,7 +44,7 @@ public class Typesetter {
     private Path mOutputPath;
     private Path mThemePath;
     private String mThemeName;
-    private boolean mAutoclean;
+    private boolean mAutoClean;
 
     /**
      * @param inputPath The input document to typeset.
@@ -82,11 +82,11 @@ public class Typesetter {
     }
 
     /**
-     * @param autoclean {@code true} to remove all temporary files after
+     * @param autoClean {@code true} to remove all temporary files after
      *                  typesetter produces a PDF file.
      */
-    public void setAutoclean( final boolean autoclean ) {
-      mAutoclean = autoclean;
+    public void setAutoClean( final boolean autoClean ) {
+      mAutoClean = autoClean;
     }
   }
 
@@ -454,6 +454,6 @@ public class Typesetter {
    * @return {@code true} to delete generated files.
    */
   public boolean autoclean() {
-    return mMutator.mAutoclean;
+    return mMutator.mAutoClean;
   }
 }

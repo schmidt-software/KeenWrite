@@ -16,14 +16,13 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.regex.Pattern;
 
 import static com.keenwrite.Bootstrap.APP_TITLE_LOWERCASE;
 import static com.keenwrite.dom.DocumentParser.createMeta;
 import static com.keenwrite.dom.DocumentParser.visit;
 import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.io.HttpFacade.httpGet;
-import static com.keenwrite.preferences.AppKeys.*;
+import static com.keenwrite.preferences.AppKeys.KEY_DOC_META;
 import static com.keenwrite.util.ProtocolScheme.getProtocol;
 import static com.whitemagicsoftware.keenquotes.Converter.CHARS;
 import static com.whitemagicsoftware.keenquotes.ParserFactory.ParserType.PARSER_XML;
@@ -31,8 +30,6 @@ import static java.lang.String.format;
 import static java.lang.String.valueOf;
 import static java.nio.file.Files.copy;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
-import static java.util.regex.Pattern.UNICODE_CHARACTER_CLASS;
-import static java.util.regex.Pattern.compile;
 
 /**
  * Responsible for making an XHTML document complete by wrapping it with html
@@ -40,9 +37,6 @@ import static java.util.regex.Pattern.compile;
  * not run in real-time.
  */
 public final class XhtmlProcessor extends ExecutorProcessor<String> {
-  private final static Pattern BLANK =
-    compile( "\\p{Blank}", UNICODE_CHARACTER_CLASS );
-
   private final static Converter sTypographer = new Converter(
     lex -> clue( lex.toString() ), contractions(), CHARS, PARSER_XML );
 
@@ -193,15 +187,11 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
       }
     }
     else {
-      final var extensions = " " + getImageOrder().trim();
+      final var extensions = getImageOrder();
       var imagePath = getImagePath();
       var found = false;
 
-      // By including " " in the extensions, the first element returned
-      // will be the empty string. Thus the first extension to try is the
-      // file's default extension. Subsequent iterations will try to find
-      // a file that has a name matching one of the preferred extensions.
-      for( final var extension : BLANK.split( extensions ) ) {
+      for( final var extension : extensions ) {
         final var filename = format(
           "%s%s%s", src, extension.isBlank() ? "" : ".", extension );
         imageFile = Path.of( imagePath, filename );
@@ -226,11 +216,19 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
   }
 
   private String getImagePath() {
-    return getWorkspace().getFile( KEY_IMAGES_DIR ).toString();
+    return mContext.getImageDir().toString();
   }
 
-  private String getImageOrder() {
-    return getWorkspace().getString( KEY_IMAGES_ORDER );
+  /**
+   * By including an "empty" extension, the first element returned
+   * will be the empty string. Thus, the first extension to try is the
+   * file's default extension. Subsequent iterations will try to find
+   * a file that has a name matching one of the preferred extensions.
+   *
+   * @return A list of extensions, including an empty string at the start.
+   */
+  private Iterable<String> getImageOrder() {
+    return mContext.getImageOrder();
   }
 
   /**
@@ -247,7 +245,7 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
     return mContext.getWorkspace();
   }
 
-  private Locale locale() {return getWorkspace().getLocale();}
+  private Locale locale() {return mContext.getLocale();}
 
   private String wordCount( final Document doc ) {
     final var sb = new StringBuilder( 65536 * 10 );

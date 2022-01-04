@@ -9,6 +9,7 @@ import picocli.CommandLine;
 import java.io.File;
 import java.nio.file.Path;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.function.Consumer;
@@ -33,6 +34,14 @@ public final class Arguments implements Callable<Integer> {
     defaultValue = "false"
   )
   private boolean mConcatenate;
+
+  @CommandLine.Option(
+    names = {"--autoclean"},
+    description =
+      "Delete temporary build files (${DEFAULT-VALUE})",
+    defaultValue = "true"
+  )
+  private boolean mAutoClean;
 
   @CommandLine.Option(
     names = {"--base-dir"},
@@ -113,12 +122,13 @@ public final class Arguments implements Callable<Integer> {
   private String mImageServer;
 
   @CommandLine.Option(
-    names = {"--keep-files"},
+    names = {"--locale"},
     description =
-      "Keep temporary build files (${DEFAULT-VALUE})",
-    defaultValue = "false"
+      "Set localization (${DEFAULT-VALUE})",
+    paramLabel = "String",
+    defaultValue = "en"
   )
-  private boolean mKeepFiles;
+  private String mLocale;
 
   @CommandLine.Option(
     names = {"-m", "--metadata"},
@@ -207,12 +217,14 @@ public final class Arguments implements Callable<Integer> {
   public ProcessorContext createProcessorContext() {
     final var definitions = interpolate( mPathVariables );
     final var format = ExportFormat.valueFrom( mFormatType, mFormatSubtype );
+    final var locale = lookupLocale( mLocale );
 
     return ProcessorContext
       .builder()
       .with( Mutator::setInputPath, mPathInput )
       .with( Mutator::setOutputPath, mPathOutput )
       .with( Mutator::setExportFormat, format )
+      .with( Mutator::setLocale, () -> locale )
       .with( Mutator::setThemePath, mDirTheme )
       .with( Mutator::setConcatenate, mConcatenate )
       .with( Mutator::setImageDir, () -> mImageDir )
@@ -222,7 +234,7 @@ public final class Arguments implements Callable<Integer> {
       .with( Mutator::setSigilBegan, () -> mSigilBegan )
       .with( Mutator::setSigilEnded, () -> mSigilEnded )
       .with( Mutator::setCurlQuotes, () -> mCurlQuotes )
-      .with( Mutator::setAutoclean, () -> !mKeepFiles )
+      .with( Mutator::setAutoClean, () -> mAutoClean )
       .build();
   }
 
@@ -249,5 +261,13 @@ public final class Arguments implements Callable<Integer> {
 
   private static Map<String, String> interpolate( final Path vars ) {
     return new HashMap<>();
+  }
+
+  private Locale lookupLocale( final String locale ) {
+    try {
+      return Locale.forLanguageTag( locale );
+    } catch( final Exception ex ) {
+      return Locale.ENGLISH;
+    }
   }
 }

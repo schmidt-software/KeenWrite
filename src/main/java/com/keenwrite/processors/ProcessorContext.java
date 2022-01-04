@@ -13,6 +13,7 @@ import org.renjin.repackaged.guava.base.Splitter;
 
 import java.io.File;
 import java.nio.file.Path;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.function.Supplier;
@@ -73,9 +74,10 @@ public final class ProcessorContext {
     private ExportFormat mExportFormat;
     private Path mThemePath;
 
+    private Supplier<Locale> mLocale;
+
     private Supplier<Map<String, String>> mDefinitions;
     private Supplier<Caret> mCaret = () -> Caret.builder().build();
-    private Workspace mWorkspace;
     private boolean mConcatenate;
 
     private Supplier<Path> mImageDir;
@@ -89,7 +91,7 @@ public final class ProcessorContext {
     private Supplier<String> mRScript = () -> "";
 
     private Supplier<Boolean> mCurlQuotes = () -> true;
-    private Supplier<Boolean> mAutoclean = () -> true;
+    private Supplier<Boolean> mAutoClean = () -> true;
 
     public void setInputPath( final Path inputPath ) {
       assert inputPath != null;
@@ -104,6 +106,16 @@ public final class ProcessorContext {
     public void setOutputPath( final File outputPath ) {
       assert outputPath != null;
       setOutputPath( outputPath.toPath() );
+    }
+
+    public void setExportFormat( final ExportFormat exportFormat ) {
+      assert exportFormat != null;
+      mExportFormat = exportFormat;
+    }
+
+    public void setLocale( final Supplier<Locale> locale ) {
+      assert locale != null;
+      mLocale = locale;
     }
 
     /**
@@ -131,19 +143,9 @@ public final class ProcessorContext {
       mCaret = caret;
     }
 
-    public void setExportFormat( final ExportFormat exportFormat ) {
-      assert exportFormat != null;
-      mExportFormat = exportFormat;
-    }
-
     public void setThemePath( final Path themePath ) {
       assert themePath != null;
       mThemePath = themePath;
-    }
-
-    public void setWorkspace( final Workspace workspace ) {
-      assert workspace != null;
-      mWorkspace = workspace;
     }
 
     public void setConcatenate( final boolean concatenate ) {
@@ -190,9 +192,16 @@ public final class ProcessorContext {
       mCurlQuotes = curlQuotes;
     }
 
-    public void setAutoclean( final Supplier<Boolean> autoclean ) {
-      assert autoclean != null;
-      mAutoclean = autoclean;
+    public void setAutoClean( final Supplier<Boolean> autoClean ) {
+      assert autoClean != null;
+      mAutoClean = autoClean;
+    }
+
+    private Workspace mWorkspace;
+
+    public void setWorkspace( final Workspace workspace ) {
+      assert workspace != null;
+      mWorkspace = workspace;
     }
   }
 
@@ -210,6 +219,27 @@ public final class ProcessorContext {
     assert mutator != null;
 
     mMutator = mutator;
+  }
+
+  public Path getInputPath() {
+    return mMutator.mInputPath;
+  }
+
+  /**
+   * Fully qualified file name to use when exporting (e.g., document.pdf).
+   *
+   * @return Full path to a file name.
+   */
+  public Path getOutputPath() {
+    return mMutator.mOutputPath;
+  }
+
+  public ExportFormat getExportFormat() {
+    return mMutator.mExportFormat;
+  }
+
+  public Locale getLocale() {
+    return mMutator.mLocale.get();
   }
 
   /**
@@ -234,19 +264,6 @@ public final class ProcessorContext {
     map.interpolate();
 
     return map;
-  }
-
-  /**
-   * Fully qualified file name to use when exporting (e.g., document.pdf).
-   *
-   * @return Full path to a file name.
-   */
-  public Path getOutputPath() {
-    return mMutator.mOutputPath;
-  }
-
-  public ExportFormat getExportFormat() {
-    return mMutator.mExportFormat;
   }
 
   /**
@@ -276,10 +293,6 @@ public final class ProcessorContext {
     return path == null ? DEFAULT_DIRECTORY : path;
   }
 
-  public Path getInputPath() {
-    return mMutator.mInputPath;
-  }
-
   FileType getFileType() {
     return lookup( getInputPath() );
   }
@@ -294,7 +307,7 @@ public final class ProcessorContext {
     final var order = mMutator.mImageOrder.get();
     final var token = order.contains( "," ) ? ',' : ' ';
 
-    return Splitter.on( token ).split( order );
+    return Splitter.on( token ).split( token + order );
   }
 
   public String getImageServer() {
@@ -313,8 +326,8 @@ public final class ProcessorContext {
     return mMutator.mCurlQuotes.get();
   }
 
-  public boolean getAutoclean() {
-    return mMutator.mAutoclean.get();
+  public boolean getAutoClean() {
+    return mMutator.mAutoClean.get();
   }
 
   public Workspace getWorkspace() {
