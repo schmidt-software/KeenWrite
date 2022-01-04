@@ -37,7 +37,7 @@ public final class Arguments implements Callable<Integer> {
   @CommandLine.Option(
     names = {"--base-dir"},
     description =
-      "Set directories and paths relative to this one",
+      "Directories and paths relative to this one",
     paramLabel = "DIR"
   )
   private Path mBasePath;
@@ -53,7 +53,7 @@ public final class Arguments implements Callable<Integer> {
   @CommandLine.Option(
     names = {"-i", "--input"},
     description =
-      "Set the file name to read",
+      "Source document file path",
     paramLabel = "PATH",
     defaultValue = "stdin",
     required = true
@@ -123,7 +123,7 @@ public final class Arguments implements Callable<Integer> {
   @CommandLine.Option(
     names = {"-o", "--output"},
     description =
-      "Set the file name to write",
+      "Destination document file path",
     paramLabel = "PATH",
     defaultValue = "stdout",
     required = true
@@ -137,6 +137,22 @@ public final class Arguments implements Callable<Integer> {
     defaultValue = "false"
   )
   private boolean mQuiet;
+
+  @CommandLine.Option(
+    names = {"--r-dir"},
+    description =
+      "R working directory",
+    paramLabel = "DIR"
+  )
+  private String mRWorkingDir;
+
+  @CommandLine.Option(
+    names = {"--r-script"},
+    description =
+      "R bootstrap script file path",
+    paramLabel = "PATH"
+  )
+  private Path mRScriptPath;
 
   @CommandLine.Option(
     names = {"--sigil-opening"},
@@ -167,7 +183,7 @@ public final class Arguments implements Callable<Integer> {
   @CommandLine.Option(
     names = {"-v", "--variables"},
     description =
-      "Set the variables file name",
+      "Variables file path",
     paramLabel = "PATH"
   )
   private Path mPathVariables;
