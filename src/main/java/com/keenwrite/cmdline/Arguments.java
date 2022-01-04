@@ -224,13 +224,14 @@ public final class Arguments implements Callable<Integer> {
       .with( Mutator::setInputPath, mPathInput )
       .with( Mutator::setOutputPath, mPathOutput )
       .with( Mutator::setExportFormat, format )
+      .with( Mutator::setDefinitions, () -> definitions )
+      .with( Mutator::setMetadata, () -> mMetadata )
       .with( Mutator::setLocale, () -> locale )
       .with( Mutator::setThemePath, () -> mDirTheme )
       .with( Mutator::setConcatenate, mConcatenate )
       .with( Mutator::setImageDir, () -> mImageDir )
       .with( Mutator::setImageServer, () -> mImageServer )
       .with( Mutator::setImageOrder, () -> mImageOrder )
-      .with( Mutator::setDefinitions, () -> definitions )
       .with( Mutator::setSigilBegan, () -> mSigilBegan )
       .with( Mutator::setSigilEnded, () -> mSigilEnded )
       .with( Mutator::setCurlQuotes, () -> mCurlQuotes )
@@ -263,7 +264,7 @@ public final class Arguments implements Callable<Integer> {
     return new HashMap<>();
   }
 
-  private Locale lookupLocale( final String locale ) {
+  private static Locale lookupLocale( final String locale ) {
     try {
       return Locale.forLanguageTag( locale );
     } catch( final Exception ex ) {

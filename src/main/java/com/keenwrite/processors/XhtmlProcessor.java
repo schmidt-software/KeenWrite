@@ -5,7 +5,6 @@ import com.keenwrite.dom.DocumentParser;
 import com.keenwrite.ui.heuristics.WordCounter;
 import com.whitemagicsoftware.keenquotes.Contractions;
 import com.whitemagicsoftware.keenquotes.Converter;
-import javafx.beans.property.ListProperty;
 import org.w3c.dom.Document;
 
 import java.io.FileNotFoundException;
@@ -14,14 +13,12 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import static com.keenwrite.Bootstrap.APP_TITLE_LOWERCASE;
 import static com.keenwrite.dom.DocumentParser.createMeta;
 import static com.keenwrite.dom.DocumentParser.visit;
 import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.io.HttpFacade.httpGet;
-import static com.keenwrite.preferences.AppKeys.KEY_DOC_META;
 import static com.keenwrite.util.ProtocolScheme.getProtocol;
 import static com.whitemagicsoftware.keenquotes.Converter.CHARS;
 import static com.whitemagicsoftware.keenquotes.ParserFactory.ParserType.PARSER_XML;
@@ -132,12 +129,12 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
    * @return A map of metadata key/value pairs.
    */
   private Map<String, String> createMetaDataMap( final Document doc ) {
-    final Map<String, String> result = new LinkedHashMap<>();
-    final var metadata = getMetaData();
+    final var result = new LinkedHashMap<String, String>();
+    final var metadata = getMetadata();
     final var map = mContext.getInterpolatedDefinitions();
 
-    metadata.forEach( entry -> result.put(
-      entry.getKey(), map.interpolate( entry.getValue() ) )
+    metadata.forEach(
+      ( key, value ) -> result.put( key, map.interpolate( value ) )
     );
     result.put( "count", wordCount( doc ) );
 
@@ -151,8 +148,8 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
    *
    * @return The document metadata.
    */
-  private ListProperty<Entry<String, String>> getMetaData() {
-    return mContext.getWorkspace().listsProperty( KEY_DOC_META );
+  private Map<String, String> getMetadata() {
+    return mContext.getMetadata();
   }
 
   /**
@@ -240,7 +237,7 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
     return mContext.getBaseDir();
   }
 
-  private Locale locale() {
+  private Locale getLocale() {
     return mContext.getLocale();
   }
 
@@ -253,7 +250,7 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
       node -> sb.append( node.getTextContent() )
     );
 
-    return valueOf( WordCounter.create( locale() ).count( sb.toString() ) );
+    return valueOf( WordCounter.create( getLocale() ).count( sb.toString() ) );
   }
 
   /**

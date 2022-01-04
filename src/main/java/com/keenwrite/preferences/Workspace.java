@@ -531,6 +531,18 @@ public final class Workspace implements KeyConfiguration {
     return localeProperty( KEY_LANGUAGE_LOCALE ).toLocale();
   }
 
+  @SuppressWarnings( "unchecked" )
+  public <K, V> Map<K, V> getMetadata() {
+    final var metadata = listsProperty( KEY_DOC_META );
+    final var map = new HashMap<K, V>( metadata.size() );
+
+    metadata.forEach(
+      entry -> map.put( (K) entry.getKey(), (V) entry.getValue() )
+    );
+
+    return map;
+  }
+
   public Path getThemePath() {
     final var dir = getFile( KEY_TYPESET_CONTEXT_THEMES_PATH );
     final var name = getString( KEY_TYPESET_CONTEXT_THEME_SELECTION );

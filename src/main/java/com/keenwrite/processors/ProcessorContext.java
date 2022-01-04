@@ -13,8 +13,7 @@ import org.renjin.repackaged.guava.base.Splitter;
 
 import java.io.File;
 import java.nio.file.Path;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.function.Supplier;
 
@@ -75,17 +74,18 @@ public final class ProcessorContext {
     private boolean mConcatenate;
 
     private Supplier<Path> mThemePath;
-    private Supplier<Locale> mLocale;
+    private Supplier<Locale> mLocale = () -> Locale.ENGLISH;
 
-    private Supplier<Map<String, String>> mDefinitions;
+    private Supplier<Map<String, String>> mDefinitions = HashMap::new;
+    private Supplier<Map<String, String>> mMetadata = HashMap::new;
     private Supplier<Caret> mCaret = () -> Caret.builder().build();
 
     private Supplier<Path> mImageDir;
-    private Supplier<String> mImageServer;
-    private Supplier<String> mImageOrder;
+    private Supplier<String> mImageServer = () -> DIAGRAM_SERVER_NAME;
+    private Supplier<String> mImageOrder = () -> PERSIST_IMAGES_DEFAULT;
 
-    private Supplier<String> mSigilBegan;
-    private Supplier<String> mSigilEnded;
+    private Supplier<String> mSigilBegan = () -> DEF_DELIM_BEGAN_DEFAULT;
+    private Supplier<String> mSigilEnded = () -> DEF_DELIM_ENDED_DEFAULT;
 
     private Supplier<Path> mRWorkingDir;
     private Supplier<String> mRScript = () -> "";
@@ -113,6 +113,10 @@ public final class ProcessorContext {
       mExportFormat = exportFormat;
     }
 
+    public void setConcatenate( final boolean concatenate ) {
+      mConcatenate = concatenate;
+    }
+
     public void setLocale( final Supplier<Locale> locale ) {
       assert locale != null;
       mLocale = locale;
@@ -121,17 +125,6 @@ public final class ProcessorContext {
     public void setThemePath( final Supplier<Path> themePath ) {
       assert themePath != null;
       mThemePath = themePath;
-    }
-
-    /**
-     * Sets the source for deriving the {@link Caret}. Typically, this is
-     * the text editor that has focus.
-     *
-     * @param caret The source for the currently active caret.
-     */
-    public void setCaret( final Supplier<Caret> caret ) {
-      assert caret != null;
-      mCaret = caret;
     }
 
     /**
@@ -148,8 +141,20 @@ public final class ProcessorContext {
       mDefinitions = supplier;
     }
 
-    public void setConcatenate( final boolean concatenate ) {
-      mConcatenate = concatenate;
+    public void setMetadata( final Supplier<Map<String, String>> metadata ) {
+      assert metadata != null;
+      mMetadata = metadata;
+    }
+
+    /**
+     * Sets the source for deriving the {@link Caret}. Typically, this is
+     * the text editor that has focus.
+     *
+     * @param caret The source for the currently active caret.
+     */
+    public void setCaret( final Supplier<Caret> caret ) {
+      assert caret != null;
+      mCaret = caret;
     }
 
     public void setImageDir( final Supplier<File> imageDir ) {
@@ -264,6 +269,10 @@ public final class ProcessorContext {
     map.interpolate();
 
     return map;
+  }
+
+  public Map<String, String> getMetadata() {
+    return mMutator.mMetadata.get();
   }
 
   /**

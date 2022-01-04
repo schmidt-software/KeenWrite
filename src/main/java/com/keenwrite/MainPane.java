@@ -948,9 +948,10 @@ public final class MainPane extends SplitPane {
     final var w = getWorkspace();
 
     return builder()
-      .with( Mutator::setDefinitions, this::getDefinitions )
       .with( Mutator::setWorkspace, w )
+      .with( Mutator::setDefinitions, this::getDefinitions )
       .with( Mutator::setLocale, w::getLocale )
+      .with( Mutator::setMetadata, w::getMetadata )
       .with( Mutator::setThemePath, w::getThemePath )
       .with( Mutator::setCaret,
              () -> getTextEditor().getCaret() )
