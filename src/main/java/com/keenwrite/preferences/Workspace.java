@@ -531,6 +531,13 @@ public final class Workspace implements KeyConfiguration {
     return localeProperty( KEY_LANGUAGE_LOCALE ).toLocale();
   }
 
+  public Path getThemePath() {
+    final var dir = getFile( KEY_TYPESET_CONTEXT_THEMES_PATH );
+    final var name = getString( KEY_TYPESET_CONTEXT_THEME_SELECTION );
+
+    return Path.of( dir.toString(), name );
+  }
+
   public SigilKeyOperator createDefinitionKeyOperator() {
     final var began = getString( KEY_DEF_DELIM_BEGAN );
     final var ended = getString( KEY_DEF_DELIM_ENDED );

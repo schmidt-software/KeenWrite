@@ -951,6 +951,7 @@ public final class MainPane extends SplitPane {
       .with( Mutator::setDefinitions, this::getDefinitions )
       .with( Mutator::setWorkspace, w )
       .with( Mutator::setLocale, w::getLocale )
+      .with( Mutator::setThemePath, w::getThemePath )
       .with( Mutator::setCaret,
              () -> getTextEditor().getCaret() )
       .with( Mutator::setImageDir,

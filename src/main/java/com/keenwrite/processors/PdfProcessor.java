@@ -8,7 +8,6 @@ import java.io.IOException;
 import static com.keenwrite.Bootstrap.APP_TITLE_LOWERCASE;
 import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.io.MediaType.TEXT_XML;
-import static com.keenwrite.preferences.AppKeys.*;
 import static com.keenwrite.typesetting.Typesetter.Mutator;
 import static java.nio.file.Files.deleteIfExists;
 import static java.nio.file.Files.writeString;
@@ -36,20 +35,14 @@ public final class PdfProcessor extends ExecutorProcessor<String> {
   public String apply( final String xhtml ) {
     try {
       clue( "Main.status.typeset.create" );
-      final var workspace = mContext.getWorkspace();
+      final var context = mContext;
       final var document = TEXT_XML.createTemporaryFile( APP_TITLE_LOWERCASE );
       final var typesetter = Typesetter
         .builder()
-        .with( Mutator::setInputPath,
-               writeString( document, xhtml ) )
-        .with( Mutator::setOutputPath,
-               mContext.getOutputPath() )
-        .with( Mutator::setThemePath,
-               workspace.getFile( KEY_TYPESET_CONTEXT_THEMES_PATH ) )
-        .with( Mutator::setThemeName,
-               workspace.getString( KEY_TYPESET_CONTEXT_THEME_SELECTION ) )
-        .with( Mutator::setAutoClean,
-               mContext.getAutoClean() )
+        .with( Mutator::setInputPath, writeString( document, xhtml ) )
+        .with( Mutator::setOutputPath, context.getOutputPath() )
+        .with( Mutator::setThemePath, context.getThemePath() )
+        .with( Mutator::setAutoClean, context.getAutoClean() )
         .build();
 
       typesetter.typeset();

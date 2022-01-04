@@ -72,13 +72,13 @@ public final class ProcessorContext {
     private Path mInputPath;
     private Path mOutputPath;
     private ExportFormat mExportFormat;
-    private Path mThemePath;
+    private boolean mConcatenate;
 
+    private Supplier<Path> mThemePath;
     private Supplier<Locale> mLocale;
 
     private Supplier<Map<String, String>> mDefinitions;
     private Supplier<Caret> mCaret = () -> Caret.builder().build();
-    private boolean mConcatenate;
 
     private Supplier<Path> mImageDir;
     private Supplier<String> mImageServer;
@@ -118,18 +118,9 @@ public final class ProcessorContext {
       mLocale = locale;
     }
 
-    /**
-     * Sets the list of fully interpolated key-value pairs to use when
-     * substituting variable names back into the document as variable values.
-     * This uses a {@link Callable} reference so that GUI and command-line
-     * usage can insert their respective behaviours. That is, this method
-     * prevents coupling the GUI to the CLI.
-     *
-     * @param supplier Defines how to retrieve the definitions.
-     */
-    public void setDefinitions( final Supplier<Map<String, String>> supplier ) {
-      assert supplier != null;
-      mDefinitions = supplier;
+    public void setThemePath( final Supplier<Path> themePath ) {
+      assert themePath != null;
+      mThemePath = themePath;
     }
 
     /**
@@ -143,9 +134,18 @@ public final class ProcessorContext {
       mCaret = caret;
     }
 
-    public void setThemePath( final Path themePath ) {
-      assert themePath != null;
-      mThemePath = themePath;
+    /**
+     * Sets the list of fully interpolated key-value pairs to use when
+     * substituting variable names back into the document as variable values.
+     * This uses a {@link Callable} reference so that GUI and command-line
+     * usage can insert their respective behaviours. That is, this method
+     * prevents coupling the GUI to the CLI.
+     *
+     * @param supplier Defines how to retrieve the definitions.
+     */
+    public void setDefinitions( final Supplier<Map<String, String>> supplier ) {
+      assert supplier != null;
+      mDefinitions = supplier;
     }
 
     public void setConcatenate( final boolean concatenate ) {
@@ -312,6 +312,10 @@ public final class ProcessorContext {
 
   public String getImageServer() {
     return mMutator.mImageServer.get();
+  }
+
+  public Path getThemePath() {
+    return mMutator.mThemePath.get();
   }
 
   public Path getRWorkingDir() {

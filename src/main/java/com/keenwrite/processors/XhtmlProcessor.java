@@ -2,7 +2,6 @@
 package com.keenwrite.processors;
 
 import com.keenwrite.dom.DocumentParser;
-import com.keenwrite.preferences.Workspace;
 import com.keenwrite.ui.heuristics.WordCounter;
 import com.whitemagicsoftware.keenquotes.Contractions;
 import com.whitemagicsoftware.keenquotes.Converter;
@@ -153,7 +152,7 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
    * @return The document metadata.
    */
   private ListProperty<Entry<String, String>> getMetaData() {
-    return getWorkspace().listsProperty( KEY_DOC_META );
+    return mContext.getWorkspace().listsProperty( KEY_DOC_META );
   }
 
   /**
@@ -241,11 +240,9 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
     return mContext.getBaseDir();
   }
 
-  private Workspace getWorkspace() {
-    return mContext.getWorkspace();
+  private Locale locale() {
+    return mContext.getLocale();
   }
-
-  private Locale locale() {return mContext.getLocale();}
 
   private String wordCount( final Document doc ) {
     final var sb = new StringBuilder( 65536 * 10 );

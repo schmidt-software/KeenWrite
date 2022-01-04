@@ -225,7 +225,7 @@ public final class Arguments implements Callable<Integer> {
       .with( Mutator::setOutputPath, mPathOutput )
       .with( Mutator::setExportFormat, format )
       .with( Mutator::setLocale, () -> locale )
-      .with( Mutator::setThemePath, mDirTheme )
+      .with( Mutator::setThemePath, () -> mDirTheme )
       .with( Mutator::setConcatenate, mConcatenate )
       .with( Mutator::setImageDir, () -> mImageDir )
       .with( Mutator::setImageServer, () -> mImageServer )
