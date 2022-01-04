@@ -104,8 +104,9 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
       } );
 
       final var document = DocumentParser.toString( doc );
+      final var curl = mContext.getCurlQuotes();
 
-      return curl() ? sTypographer.apply( document ) : document;
+      return curl ? sTypographer.apply( document ) : document;
     } catch( final Exception ex ) {
       clue( ex );
     }
@@ -258,15 +259,6 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
     );
 
     return valueOf( WordCounter.create( locale() ).count( sb.toString() ) );
-  }
-
-  /**
-   * Answers whether straight quotation marks should be curled.
-   *
-   * @return {@code false} to prevent curling straight quotes.
-   */
-  private boolean curl() {
-    return getWorkspace().getBoolean( KEY_TYPESET_TYPOGRAPHY_QUOTES );
   }
 
   /**

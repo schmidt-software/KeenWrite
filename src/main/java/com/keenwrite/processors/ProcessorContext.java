@@ -86,9 +86,10 @@ public final class ProcessorContext {
     private Supplier<String> mSigilEnded;
 
     private Supplier<Path> mRWorkingDir;
-    private Supplier<String> mRScript;
+    private Supplier<String> mRScript = () -> "";
 
-    private boolean mAutoclean;
+    private Supplier<Boolean> mCurlQuotes = () -> true;
+    private Supplier<Boolean> mAutoclean = () -> true;
 
     public void setInputPath( final Path inputPath ) {
       assert inputPath != null;
@@ -184,7 +185,13 @@ public final class ProcessorContext {
       mRScript = rScript;
     }
 
-    public void setAutoclean( final boolean autoclean ) {
+    public void setCurlQuotes( final Supplier<Boolean> curlQuotes ) {
+      assert curlQuotes != null;
+      mCurlQuotes = curlQuotes;
+    }
+
+    public void setAutoclean( final Supplier<Boolean> autoclean ) {
+      assert autoclean != null;
       mAutoclean = autoclean;
     }
   }
@@ -300,6 +307,14 @@ public final class ProcessorContext {
 
   public String getRScript() {
     return mMutator.mRScript.get();
+  }
+
+  public boolean getCurlQuotes() {
+    return mMutator.mCurlQuotes.get();
+  }
+
+  public boolean getAutoclean() {
+    return mMutator.mAutoclean.get();
   }
 
   public Workspace getWorkspace() {

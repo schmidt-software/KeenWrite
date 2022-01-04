@@ -950,12 +950,22 @@ public final class MainPane extends SplitPane {
     return builder()
       .with( Mutator::setDefinitions, this::getDefinitions )
       .with( Mutator::setWorkspace, w )
-      .with( Mutator::setCaret, () -> getTextEditor().getCaret() )
-      .with( Mutator::setRScript, () -> w.asString( KEY_R_SCRIPT ) )
-      .with( Mutator::setRWorkingDir, () -> w.asFile( KEY_R_DIR ) )
-      .with( Mutator::setImageDir, () -> w.asFile( KEY_IMAGES_DIR ) )
-      .with( Mutator::setImageOrder, () -> w.getString( KEY_IMAGES_ORDER ) )
-      .with( Mutator::setImageServer, () -> w.asString( KEY_IMAGES_SERVER ) );
+      .with( Mutator::setCaret,
+             () -> getTextEditor().getCaret() )
+      .with( Mutator::setImageDir,
+             () -> w.getFile( KEY_IMAGES_DIR ) )
+      .with( Mutator::setImageOrder,
+             () -> w.getString( KEY_IMAGES_ORDER ) )
+      .with( Mutator::setImageServer,
+             () -> w.getString( KEY_IMAGES_SERVER ) )
+      .with( Mutator::setRScript,
+             () -> w.getString( KEY_R_SCRIPT ) )
+      .with( Mutator::setRWorkingDir,
+             () -> w.getFile( KEY_R_DIR ) )
+      .with( Mutator::setCurlQuotes,
+             () -> w.getBoolean( KEY_TYPESET_TYPOGRAPHY_QUOTES ) )
+      .with( Mutator::setAutoclean,
+             () -> w.getBoolean( KEY_TYPESET_CONTEXT_CLEAN ) );
   }
 
   public ProcessorContext createProcessorContext() {

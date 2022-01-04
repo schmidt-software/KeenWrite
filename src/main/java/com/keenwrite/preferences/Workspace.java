@@ -384,11 +384,6 @@ public final class Workspace implements KeyConfiguration {
     return valuesProperty( key );
   }
 
-  public String asString( final Key key ) {
-    assert key != null;
-    return stringProperty( key ).get();
-  }
-
   /**
    * Returns the {@link Boolean} {@link Property} associated with the given
    * {@link Key} from the internal list of preference values. The caller
@@ -443,11 +438,6 @@ public final class Workspace implements KeyConfiguration {
   public ObjectProperty<File> fileProperty( final Key key ) {
     assert key != null;
     return valuesProperty( key );
-  }
-
-  public File asFile( final Key key ) {
-    assert key != null;
-    return fileProperty( key ).get();
   }
 
   /**

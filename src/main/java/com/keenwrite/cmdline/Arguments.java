@@ -43,6 +43,14 @@ public final class Arguments implements Callable<Integer> {
   private Path mBasePath;
 
   @CommandLine.Option(
+    names = {"--curl-quotes"},
+    description =
+      "Replace straight quotes with curly quotes",
+    paramLabel = "Boolean"
+  )
+  private Boolean mCurlQuotes;
+
+  @CommandLine.Option(
     names = {"-d", "--debug"},
     description =
       "Enable logging to the console (${DEFAULT-VALUE})",
@@ -213,7 +221,8 @@ public final class Arguments implements Callable<Integer> {
       .with( Mutator::setDefinitions, () -> definitions )
       .with( Mutator::setSigilBegan, () -> mSigilBegan )
       .with( Mutator::setSigilEnded, () -> mSigilEnded )
-      .with( Mutator::setAutoclean, !mKeepFiles )
+      .with( Mutator::setCurlQuotes, () -> mCurlQuotes )
+      .with( Mutator::setAutoclean, () -> !mKeepFiles )
       .build();
   }
 

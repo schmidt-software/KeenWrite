@@ -49,7 +49,7 @@ public final class PdfProcessor extends ExecutorProcessor<String> {
         .with( Mutator::setThemeName,
                workspace.getString( KEY_TYPESET_CONTEXT_THEME_SELECTION ) )
         .with( Mutator::setAutoclean,
-               workspace.getBoolean( KEY_TYPESET_CONTEXT_CLEAN ) )
+               mContext.getAutoclean() )
         .build();
 
       typesetter.typeset();
