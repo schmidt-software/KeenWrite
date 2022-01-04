@@ -74,7 +74,7 @@ public final class ProcessorContext {
     private Path mThemePath;
 
     private Supplier<Map<String, String>> mDefinitions;
-    private Supplier<Caret> mCaret;
+    private Supplier<Caret> mCaret = () -> Caret.builder().build();
     private Workspace mWorkspace;
     private boolean mConcatenate;
 
@@ -84,6 +84,9 @@ public final class ProcessorContext {
 
     private Supplier<String> mSigilBegan;
     private Supplier<String> mSigilEnded;
+
+    private Supplier<Path> mRWorkingDir;
+    private Supplier<String> mRScript;
 
     private boolean mAutoclean;
 
@@ -171,6 +174,16 @@ public final class ProcessorContext {
       mSigilEnded = sigilEnded;
     }
 
+    public void setRWorkingDir( final Supplier<File> rWorkingDir ) {
+      assert rWorkingDir != null;
+      mRWorkingDir = () -> rWorkingDir.get().toPath();
+    }
+
+    public void setRScript( final Supplier<String> rScript ) {
+      assert rScript != null;
+      mRScript = rScript;
+    }
+
     public void setAutoclean( final boolean autoclean ) {
       mAutoclean = autoclean;
     }
@@ -178,20 +191,6 @@ public final class ProcessorContext {
 
   public static GenericBuilder<Mutator, ProcessorContext> builder() {
     return GenericBuilder.of( Mutator::new, ProcessorContext::new );
-  }
-
-  /**
-   * @param inputPath Path to the document to process.
-   * @param format    Indicate configuration options for export format.
-   * @return A context that may be used for processing documents.
-   */
-  public static ProcessorContext create(
-    final Path inputPath,
-    final ExportFormat format ) {
-    return builder()
-      .with( Mutator::setInputPath, inputPath )
-      .with( Mutator::setExportFormat, format )
-      .build();
   }
 
   /**
@@ -276,6 +275,14 @@ public final class ProcessorContext {
 
   FileType getFileType() {
     return lookup( getInputPath() );
+  }
+
+  public Path getRWorkingDir() {
+    return mMutator.mRWorkingDir.get();
+  }
+
+  public String getRScript() {
+    return mMutator.mRScript.get();
   }
 
   public Workspace getWorkspace() {

@@ -945,10 +945,14 @@ public final class MainPane extends SplitPane {
   }
 
   private GenericBuilder<Mutator, ProcessorContext> createProcessorContextBuilder() {
+    final var workspace = getWorkspace();
+
     return builder()
       .with( Mutator::setDefinitions, this::getDefinitions )
-      .with( Mutator::setWorkspace, mWorkspace )
-      .with( Mutator::setCaret, () -> getTextEditor().getCaret() );
+      .with( Mutator::setWorkspace, workspace )
+      .with( Mutator::setCaret, () -> getTextEditor().getCaret() )
+      .with( Mutator::setRScript, () -> workspace.asString( KEY_R_SCRIPT ) )
+      .with( Mutator::setRWorkingDir, () -> workspace.asFile( KEY_R_DIR ) );
   }
 
   public ProcessorContext createProcessorContext() {
@@ -1021,6 +1025,7 @@ public final class MainPane extends SplitPane {
         // Processing the text may update the status bar.
         process( getTextEditor() );
 
+        // Update the caret position in the status bar.
         CaretMovedEvent.fire( editor.getCaret() );
       }
     } );

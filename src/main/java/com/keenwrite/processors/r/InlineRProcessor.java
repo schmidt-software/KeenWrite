@@ -1,23 +1,18 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.processors.r;
 
-import com.keenwrite.preferences.Workspace;
 import com.keenwrite.processors.Processor;
 import com.keenwrite.processors.ProcessorContext;
 import com.keenwrite.processors.VariableProcessor;
 import com.keenwrite.sigils.RKeyOperator;
-import javafx.beans.property.Property;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.File;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.keenwrite.constants.Constants.STATUS_PARSE_ERROR;
 import static com.keenwrite.events.StatusEvent.clue;
-import static com.keenwrite.preferences.AppKeys.KEY_R_DIR;
-import static com.keenwrite.preferences.AppKeys.KEY_R_SCRIPT;
 import static com.keenwrite.processors.r.RVariableProcessor.escape;
 import static com.keenwrite.processors.text.TextReplacementFactory.replace;
 import static java.lang.Math.min;
@@ -162,11 +157,7 @@ public final class InlineRProcessor extends VariableProcessor {
    * @return A non-null path.
    */
   private Path getWorkingDirectory() {
-    return workingDirectoryProperty().getValue().toPath();
-  }
-
-  private Property<File> workingDirectoryProperty() {
-    return getWorkspace().fileProperty( KEY_R_DIR );
+    return getContext().getRWorkingDir();
   }
 
   /**
@@ -175,14 +166,6 @@ public final class InlineRProcessor extends VariableProcessor {
    * @return A non-null string, possibly empty.
    */
   private String getBootstrapScript() {
-    return bootstrapScriptProperty().getValue();
-  }
-
-  private Property<String> bootstrapScriptProperty() {
-    return getWorkspace().valuesProperty( KEY_R_SCRIPT );
-  }
-
-  private Workspace getWorkspace() {
-    return getContext().getWorkspace();
+    return getContext().getRScript();
   }
 }
