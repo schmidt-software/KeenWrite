@@ -53,7 +53,8 @@ import static javafx.collections.FXCollections.observableSet;
  *   <dd>Directory without file name ({@link File#isDirectory()} is true).</dd>
  * </dl>
  */
-public final class Workspace implements KeyConfiguration {
+public final class Workspace {
+
   /**
    * Main configuration values, single text strings.
    */
@@ -456,7 +457,6 @@ public final class Workspace implements KeyConfiguration {
     return valuesProperty( key );
   }
 
-  @Override
   public String getString( final Key key ) {
     assert key != null;
     return stringProperty( key ).get();
@@ -470,7 +470,6 @@ public final class Workspace implements KeyConfiguration {
    * @param key The {@link Key} associated with a preference value.
    * @return The value associated with the given {@link Key}.
    */
-  @Override
   public boolean getBoolean( final Key key ) {
     assert key != null;
     return booleanProperty( key ).get();
@@ -484,7 +483,6 @@ public final class Workspace implements KeyConfiguration {
    * @param key The {@link Key} associated with a preference value.
    * @return The value associated with the given {@link Key}.
    */
-  @Override
   public int getInteger( final Key key ) {
     assert key != null;
     return integerProperty( key ).get();
@@ -498,7 +496,6 @@ public final class Workspace implements KeyConfiguration {
    * @param key The {@link Key} associated with a preference value.
    * @return The value associated with the given {@link Key}.
    */
-  @Override
   public double getDouble( final Key key ) {
     assert key != null;
     return doubleProperty( key ).get();
@@ -512,7 +509,6 @@ public final class Workspace implements KeyConfiguration {
    * @param key The {@link Key} associated with a preference value.
    * @return The value associated with the given {@link Key}.
    */
-  @Override
   public File getFile( final Key key ) {
     assert key != null;
     return fileProperty( key ).get();
