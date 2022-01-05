@@ -51,14 +51,6 @@ public final class Arguments implements Callable<Integer> {
   private boolean mKeepFiles;
 
   @CommandLine.Option(
-    names = {"--base-dir"},
-    description =
-      "Directories and paths relative to this one",
-    paramLabel = "DIR"
-  )
-  private Path mBasePath;
-
-  @CommandLine.Option(
     names = {"--curl-quotes"},
     description =
       "Replace straight quotes with curly quotes",
@@ -203,7 +195,7 @@ public final class Arguments implements Callable<Integer> {
   @CommandLine.Option(
     names = {"--theme-dir"},
     description =
-      "Absolute theme directory, ignores base dir",
+      "Absolute path to theme directory",
     paramLabel = "DIR"
   )
   private Path mDirTheme;
