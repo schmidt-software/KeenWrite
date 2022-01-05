@@ -186,7 +186,7 @@ public final class ProcessorContext {
       mSigilEnded = sigilEnded;
     }
 
-    public void setRWorkingDir(final Supplier<Path> rWorkingDir) {
+    public void setRWorkingDir( final Supplier<Path> rWorkingDir ) {
       assert rWorkingDir != null;
 
       mRWorkingDir = rWorkingDir;
@@ -260,13 +260,9 @@ public final class ProcessorContext {
    * @return A map to help dereference variables.
    */
   public InterpolatingMap getInterpolatedDefinitions() {
-    final var map = new InterpolatingMap(
+    return new InterpolatingMap(
       createDefinitionKeyOperator(), getDefinitions()
-    );
-
-    map.interpolate();
-
-    return map;
+    ).interpolate();
   }
 
   public Map<String, String> getMetadata() {

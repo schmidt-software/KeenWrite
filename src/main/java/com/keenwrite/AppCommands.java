@@ -90,7 +90,7 @@ public class AppCommands {
 
         future.complete( outputPath );
         return result;
-      } catch( final Exception ex ) {
+      } catch( final Throwable ex ) {
         future.completeExceptionally( ex );
         return null;
       }

@@ -1,17 +1,21 @@
 package com.keenwrite.cmdline;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.keenwrite.ExportFormat;
-import com.keenwrite.preferences.Key;
 import com.keenwrite.processors.ProcessorContext;
 import com.keenwrite.processors.ProcessorContext.Mutator;
 import picocli.CommandLine;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.Callable;
 import java.util.function.Consumer;
 
@@ -32,6 +36,7 @@ public final class Arguments implements Callable<Integer> {
     names = {"--all"},
     description =
       "Concatenate files before processing (${DEFAULT-VALUE})",
+    paramLabel = "Boolean",
     defaultValue = "false"
   )
   private boolean mConcatenate;
@@ -40,6 +45,7 @@ public final class Arguments implements Callable<Integer> {
     names = {"--keep-files"},
     description =
       "Retain temporary build files (${DEFAULT-VALUE})",
+    paramLabel = "Boolean",
     defaultValue = "false"
   )
   private boolean mKeepFiles;
@@ -56,7 +62,8 @@ public final class Arguments implements Callable<Integer> {
     names = {"--curl-quotes"},
     description =
       "Replace straight quotes with curly quotes",
-    paramLabel = "Boolean"
+    paramLabel = "Boolean",
+    defaultValue = "true"
   )
   private Boolean mCurlQuotes;
 
@@ -64,6 +71,7 @@ public final class Arguments implements Callable<Integer> {
     names = {"-d", "--debug"},
     description =
       "Enable logging to the console (${DEFAULT-VALUE})",
+    paramLabel = "Boolean",
     defaultValue = "false"
   )
   private boolean mDebug;
@@ -92,6 +100,7 @@ public final class Arguments implements Callable<Integer> {
     names = {"--format-subtype-tex"},
     description =
       "Export subtype for HTML formats: svg, delimited",
+    defaultValue = "",
     paramLabel = "String"
   )
   private String mFormatSubtype;
@@ -105,7 +114,7 @@ public final class Arguments implements Callable<Integer> {
   private File mImageDir;
 
   @CommandLine.Option(
-    names = {"--image-extensions"},
+    names = {"--image-order"},
     description =
       "Comma-separated image order (${DEFAULT-VALUE})",
     paramLabel = "String",
@@ -209,14 +218,13 @@ public final class Arguments implements Callable<Integer> {
 
   private final Consumer<Arguments> mLauncher;
 
-  private final Map<Key, Object> mValues = new HashMap<>();
-
   public Arguments( final Consumer<Arguments> launcher ) {
     mLauncher = launcher;
   }
 
-  public ProcessorContext createProcessorContext() {
-    final var definitions = interpolate( mPathVariables );
+  public ProcessorContext createProcessorContext()
+    throws IOException {
+    final var definitions = parse( mPathVariables );
     final var format = ExportFormat.valueFrom( mFormatType, mFormatSubtype );
     final var locale = lookupLocale( mLocale );
     final var rScript = read( mRScriptPath );
@@ -243,14 +251,6 @@ public final class Arguments implements Callable<Integer> {
       .build();
   }
 
-  private String read( final Path path ) {
-    try {
-      return Files.readString( path );
-    } catch( final Exception ex ) {
-      return "";
-    }
-  }
-
   public boolean quiet() {
     return mQuiet;
   }
@@ -272,8 +272,41 @@ public final class Arguments implements Callable<Integer> {
     return 0;
   }
 
-  private static Map<String, String> interpolate( final Path vars ) {
-    return new HashMap<>();
+  private static String read( final Path path ) throws IOException {
+    return Files.readString( path );
+  }
+
+  private static Map<String, String> parse( final Path vars )
+    throws IOException {
+    final var yaml = read( vars );
+    final var factory = new YAMLFactory();
+    final var json = new ObjectMapper( factory ).readTree( yaml );
+    final var map = new HashMap<String, String>();
+
+    parse( json, "", map );
+
+    return map;
+  }
+
+  private static void parse(
+    final JsonNode json, final String parent, final Map<String, String> map ) {
+    json.fields().forEachRemaining( node -> parse( node, parent, map ) );
+  }
+
+  private static void parse(
+    final Entry<String, JsonNode> node,
+    final String parent,
+    final Map<String, String> map ) {
+    final var jsonNode = node.getValue();
+    final var keyName = parent + "." + node.getKey();
+
+    if( jsonNode.isValueNode() ) {
+      // Trim the leading period, which is always present.
+      map.put( keyName.substring( 1 ), node.getValue().asText() );
+    }
+    else if( jsonNode.isObject() ) {
+      parse( jsonNode, keyName, map );
+    }
   }
 
   private static Locale lookupLocale( final String locale ) {
