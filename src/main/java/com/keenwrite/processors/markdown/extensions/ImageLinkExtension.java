@@ -2,7 +2,6 @@
 package com.keenwrite.processors.markdown.extensions;
 
 import com.keenwrite.ExportFormat;
-import com.keenwrite.preferences.Workspace;
 import com.keenwrite.processors.ProcessorContext;
 import com.vladsch.flexmark.ast.Image;
 import com.vladsch.flexmark.html.IndependentLinkResolverFactory;
@@ -17,12 +16,9 @@ import java.nio.file.Path;
 
 import static com.keenwrite.ExportFormat.NONE;
 import static com.keenwrite.events.StatusEvent.clue;
-import static com.keenwrite.preferences.AppKeys.KEY_IMAGES_DIR;
-import static com.keenwrite.preferences.AppKeys.KEY_IMAGES_ORDER;
 import static com.keenwrite.util.ProtocolScheme.getProtocol;
 import static com.vladsch.flexmark.html.HtmlRenderer.Builder;
 import static com.vladsch.flexmark.html.renderer.LinkStatus.VALID;
-import static org.renjin.repackaged.guava.base.Splitter.on;
 
 /**
  * Responsible for ensuring that images can be rendered relative to a path.
@@ -30,15 +26,10 @@ import static org.renjin.repackaged.guava.base.Splitter.on;
  */
 public class ImageLinkExtension extends HtmlRendererAdapter {
 
-  private final Path mBaseDir;
-  private final Workspace mWorkspace;
-  private final ExportFormat mExportFormat;
+  private final ProcessorContext mContext;
 
-  private ImageLinkExtension(
-    @NotNull final ProcessorContext context ) {
-    mBaseDir = context.getBaseDir();
-    mWorkspace = context.getWorkspace();
-    mExportFormat = context.getExportFormat();
+  private ImageLinkExtension( @NotNull final ProcessorContext context ) {
+    mContext = context;
   }
 
   /**
@@ -110,20 +101,20 @@ public class ImageLinkExtension extends HtmlRendererAdapter {
         return valid( link, uri );
       }
 
-      if( mExportFormat != NONE ) {
+      if( mContext.getExportFormat() != NONE ) {
         return valid( link, uri );
       }
 
       try {
         // Compute the path to the image file. The base directory should
         // be an absolute path to the file being edited, without an extension.
-        final var imagesDir = getUserImagesDir();
+        final var imagesDir = getImageDir();
         final var relativeDir = imagesDir.toString().isEmpty()
           ? imagesDir : baseDir.relativize( imagesDir );
         final var imageFile = Path.of(
           baseDir.toString(), relativeDir.toString(), uri );
 
-        for( final var ext : getImageExtensions() ) {
+        for( final var ext : getImageOrder() ) {
           var file = new File( imageFile.toString() + '.' + ext );
 
           if( file.exists() && file.canRead() ) {
@@ -146,16 +137,16 @@ public class ImageLinkExtension extends HtmlRendererAdapter {
       return link.withStatus( VALID ).withUrl( url );
     }
 
-    private Path getUserImagesDir() {
-      return mWorkspace.getFile( KEY_IMAGES_DIR ).toPath();
+    private Path getImageDir() {
+      return mContext.getImageDir();
     }
 
-    private Iterable<String> getImageExtensions() {
-      return on( ' ' ).split( mWorkspace.getString( KEY_IMAGES_ORDER ) );
+    private Iterable<String> getImageOrder() {
+      return mContext.getImageOrder();
     }
 
     private Path getBaseDir() {
-      return mBaseDir;
+      return mContext.getBaseDir();
     }
   }
 }

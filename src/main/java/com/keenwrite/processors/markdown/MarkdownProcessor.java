@@ -52,8 +52,8 @@ public final class MarkdownProcessor extends BaseMarkdownProcessor {
    */
   @Override
   List<Extension> createExtensions( final ProcessorContext context ) {
-    final var editorFile = context.getInputPath();
-    final var mediaType = MediaType.valueFrom( editorFile );
+    final var inputPath = context.getInputPath();
+    final var mediaType = MediaType.valueFrom( inputPath );
     final Processor<String> processor;
     final List<Extension> extensions = new ArrayList<>();
 

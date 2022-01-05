@@ -51,7 +51,7 @@ public class InterpolatingMap extends ConcurrentHashMap<String, String> {
    *
    * @return {@code this}
    */
-  public Map<String, String> interpolate() {
+  public InterpolatingMap interpolate() {
     for( final var k : keySet() ) {
       replace( k, interpolate( get( k ) ) );
     }

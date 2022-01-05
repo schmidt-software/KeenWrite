@@ -9,6 +9,7 @@ import com.keenwrite.editors.TextDefinition;
 import com.keenwrite.editors.TextEditor;
 import com.keenwrite.editors.markdown.HyperlinkModel;
 import com.keenwrite.editors.markdown.LinkVisitor;
+import com.keenwrite.events.CaretMovedEvent;
 import com.keenwrite.events.ExportFailedEvent;
 import com.keenwrite.preferences.PreferencesController;
 import com.keenwrite.preferences.Workspace;
@@ -108,9 +109,17 @@ public final class GuiCommands {
       }
     } );
 
-    // When the active text editor changes, update the haystack.
+    // When the active text editor changes ...
     mMainPane.textEditorProperty().addListener(
-      ( c, o, n ) -> mSearchModel.search( getActiveTextEditor().getText() )
+      ( c, o, n ) -> {
+        // ... update the haystack.
+        mSearchModel.search( getActiveTextEditor().getText() );
+
+        // ... update the status bar with the current caret position.
+        if( n != null ) {
+          CaretMovedEvent.fire( n.getCaret() );
+        }
+      }
     );
   }
 

@@ -78,6 +78,7 @@ public class DefinitionTreeItem<T> extends TreeItem<T> {
    * @return The leaf that has a value starting with the given text, or {@code
    * null} if there was no match found.
    */
+  @SuppressWarnings( "AssignmentUsedAsCondition" )
   public DefinitionTreeItem<T> findLeaf(
     final String text,
     final BiFunction<DefinitionTreeItem<T>, String, Boolean> findMode ) {
@@ -167,7 +168,7 @@ public class DefinitionTreeItem<T> extends TreeItem<T> {
    * @return A non-null string, possibly empty.
    */
   public String toPath() {
-    return new TreeItemMapper().toPath( getParent() );
+    return TreeItemMapper.toPath( getParent() );
   }
 
   /**

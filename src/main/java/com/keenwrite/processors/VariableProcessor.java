@@ -30,8 +30,8 @@ public class VariableProcessor
     final ProcessorContext context ) {
     super( successor );
 
-    mSigilOperator = createKeyOperator( context );
     mContext = context;
+    mSigilOperator = createKeyOperator( context );
   }
 
   /**
@@ -43,7 +43,7 @@ public class VariableProcessor
    */
   protected UnaryOperator<String> createKeyOperator(
     final ProcessorContext context ) {
-    return context.createSigilOperator();
+    return context.createKeyOperator();
   }
 
   /**

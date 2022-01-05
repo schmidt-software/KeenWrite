@@ -2,12 +2,8 @@
 package com.keenwrite.editors.common;
 
 import com.keenwrite.util.GenericBuilder;
-import javafx.beans.value.ObservableValue;
-import org.fxmisc.richtext.StyleClassedTextArea;
-import org.fxmisc.richtext.model.Paragraph;
-import org.reactfx.collection.LiveList;
 
-import java.util.Collection;
+import java.util.function.Supplier;
 
 import static com.keenwrite.Messages.get;
 import static com.keenwrite.constants.Constants.STATUS_BAR_LINE;
@@ -25,46 +21,84 @@ public class Caret {
   }
 
   /**
-   * Used for building a new {@link Caret} instance.
+   * Configures a caret.
    */
   public static class Mutator {
     /**
      * Caret's current paragraph index (i.e., current caret line number).
      */
-    private ObservableValue<Integer> mParagraph;
+    private Supplier<Integer> mParagraph = () -> 0;
 
     /**
      * Used to count the number of lines in the text editor document.
      */
-    private LiveList<Paragraph<Collection<String>, String,
-      Collection<String>>> mParagraphs;
-
-    /**
-     * Caret offset into the full text, represented as a string index.
-     */
-    private ObservableValue<Integer> mTextOffset;
+    private Supplier<Integer> mParagraphs = () -> 1;
 
     /**
      * Caret offset into the current paragraph, represented as a string index.
      */
-    private ObservableValue<Integer> mParaOffset;
+    private Supplier<Integer> mParaOffset = () -> 0;
+
+    /**
+     * Caret offset into the full text, represented as a string index.
+     */
+    private Supplier<Integer> mTextOffset = () -> 0;
 
     /**
      * Total number of characters in the document.
      */
-    private ObservableValue<Integer> mTextLength;
+    private Supplier<Integer> mTextLength = () -> 0;
 
     /**
-     * Configures this caret position using properties from the given editor.
+     * Sets the {@link Supplier} for the caret's current paragraph number.
      *
-     * @param editor The text editor that has a caret with position properties.
+     * @param paragraph Returns the document caret paragraph index.
      */
-    public void setEditor( final StyleClassedTextArea editor ) {
-      mParagraph = editor.currentParagraphProperty();
-      mParagraphs = editor.getParagraphs();
-      mParaOffset = editor.caretColumnProperty();
-      mTextOffset = editor.caretPositionProperty();
-      mTextLength = editor.lengthProperty();
+    public void setParagraph( final Supplier<Integer> paragraph ) {
+      assert paragraph != null;
+      mParagraph = paragraph;
+    }
+
+    /**
+     * Sets the {@link Supplier} for the total number of document paragraphs.
+     *
+     * @param paragraphs Returns the document paragraph count.
+     */
+    public void setParagraphs( final Supplier<Integer> paragraphs ) {
+      assert paragraphs != null;
+      mParagraphs = paragraphs;
+    }
+
+    /**
+     * Sets the {@link Supplier} for the caret's current character offset
+     * into the current paragraph.
+     *
+     * @param paraOffset Returns the caret's paragraph character index.
+     */
+    public void setParaOffset( final Supplier<Integer> paraOffset ) {
+      assert paraOffset != null;
+      mParaOffset = paraOffset;
+    }
+
+    /**
+     * Sets the {@link Supplier} for the caret's current document position.
+     * A value of 0 represents the start of the document.
+     *
+     * @param textOffset Returns the text offset into the current document.
+     */
+    public void setTextOffset( final Supplier<Integer> textOffset ) {
+      assert textOffset != null;
+      mTextOffset = textOffset;
+    }
+
+    /**
+     * Sets the {@link Supplier} for the document's total character count.
+     *
+     * @param textLength Returns the total character count in the document.
+     */
+    public void setTextLength( final Supplier<Integer> textLength ) {
+      assert textLength != null;
+      mTextLength = textLength;
     }
   }
 
@@ -75,15 +109,6 @@ public class Caret {
     assert mutator != null;
 
     mMutator = mutator;
-  }
-
-  /**
-   * Allows observers to be notified when the value of the caret changes.
-   *
-   * @return An observer for the caret's document offset.
-   */
-  public ObservableValue<Integer> textOffsetProperty() {
-    return mMutator.mTextOffset;
   }
 
   /**
@@ -137,7 +162,7 @@ public class Caret {
   }
 
   private int getParagraph() {
-    return mMutator.mParagraph.getValue();
+    return mMutator.mParagraph.get();
   }
 
   /**
@@ -146,7 +171,7 @@ public class Caret {
    * @return The size of the text editor's paragraph list plus one.
    */
   private int getParagraphCount() {
-    return mMutator.mParagraphs.size() + 1;
+    return mMutator.mParagraphs.get();
   }
 
   /**
@@ -155,7 +180,7 @@ public class Caret {
    * @return A zero-based index of the caret position.
    */
   private int getTextOffset() {
-    return mMutator.mTextOffset.getValue();
+    return mMutator.mTextOffset.get();
   }
 
   /**
@@ -166,7 +191,7 @@ public class Caret {
    * current paragraph.
    */
   private int getParaOffset() {
-    return mMutator.mParaOffset.getValue();
+    return mMutator.mParaOffset.get();
   }
 
   /**
@@ -175,18 +200,17 @@ public class Caret {
    * @return A zero-based count of the total characters in the document.
    */
   private int getTextLength() {
-    return mMutator.mTextLength.getValue();
+    return mMutator.mTextLength.get();
   }
 
   /**
    * Returns a human-readable string that shows the current caret position
-   * within the text. Typically this will include the current line number,
+   * within the text. Typically, this will include the current line number,
    * the number of lines, and the character offset into the text.
    * <p>
    * If the {@link Caret} has not been properly built, this will return a
    * string for the status bar having all values set to zero. This can happen
-   * during unit testing, but should not happen any other time.
-   * </p>
+   * during unit testing.
    *
    * @return A string to present to an end user.
    */

@@ -945,10 +945,33 @@ public final class MainPane extends SplitPane {
   }
 
   private GenericBuilder<Mutator, ProcessorContext> createProcessorContextBuilder() {
+    final var w = getWorkspace();
+
     return builder()
       .with( Mutator::setDefinitions, this::getDefinitions )
-      .with( Mutator::setWorkspace, mWorkspace )
-      .with( Mutator::setCaret, () -> getTextEditor().getCaret() );
+      .with( Mutator::setLocale, w::getLocale )
+      .with( Mutator::setMetadata, w::getMetadata )
+      .with( Mutator::setThemePath, w::getThemePath )
+      .with( Mutator::setCaret,
+             () -> getTextEditor().getCaret() )
+      .with( Mutator::setImageDir,
+             () -> w.getFile( KEY_IMAGES_DIR ) )
+      .with( Mutator::setImageOrder,
+             () -> w.getString( KEY_IMAGES_ORDER ) )
+      .with( Mutator::setImageServer,
+             () -> w.getString( KEY_IMAGES_SERVER ) )
+      .with( Mutator::setSigilBegan,
+             () -> w.getString( KEY_DEF_DELIM_BEGAN ) )
+      .with( Mutator::setSigilEnded,
+             () -> w.getString( KEY_DEF_DELIM_ENDED ) )
+      .with( Mutator::setRScript,
+             () -> w.getString( KEY_R_SCRIPT ) )
+      .with( Mutator::setRWorkingDir,
+             () -> w.getFile( KEY_R_DIR ).toPath() )
+      .with( Mutator::setCurlQuotes,
+             () -> w.getBoolean( KEY_TYPESET_TYPOGRAPHY_QUOTES ) )
+      .with( Mutator::setAutoClean,
+             () -> w.getBoolean( KEY_TYPESET_CONTEXT_CLEAN ) );
   }
 
   public ProcessorContext createProcessorContext() {
@@ -1020,6 +1043,9 @@ public final class MainPane extends SplitPane {
 
         // Processing the text may update the status bar.
         process( getTextEditor() );
+
+        // Update the caret position in the status bar.
+        CaretMovedEvent.fire( editor.getCaret() );
       }
     } );
 

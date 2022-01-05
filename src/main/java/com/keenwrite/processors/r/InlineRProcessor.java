@@ -1,23 +1,17 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.processors.r;
 
-import com.keenwrite.preferences.Workspace;
 import com.keenwrite.processors.Processor;
 import com.keenwrite.processors.ProcessorContext;
 import com.keenwrite.processors.VariableProcessor;
 import com.keenwrite.sigils.RKeyOperator;
-import javafx.beans.property.Property;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.File;
-import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.keenwrite.constants.Constants.STATUS_PARSE_ERROR;
 import static com.keenwrite.events.StatusEvent.clue;
-import static com.keenwrite.preferences.AppKeys.KEY_R_DIR;
-import static com.keenwrite.preferences.AppKeys.KEY_R_SCRIPT;
 import static com.keenwrite.processors.r.RVariableProcessor.escape;
 import static com.keenwrite.processors.text.TextReplacementFactory.replace;
 import static java.lang.Math.min;
@@ -59,10 +53,11 @@ public final class InlineRProcessor extends VariableProcessor {
    * successfully, this will update the internal ready flag to {@code true}.
    */
   public void init() {
-    final var bootstrap = getBootstrapScript();
+    final var context = getContext();
+    final var bootstrap = context.getRScript();
 
     if( !bootstrap.isBlank() ) {
-      final var wd = getWorkingDirectory();
+      final var wd = context.getRWorkingDir();
       final var dir = wd.toString().replace( '\\', '/' );
       final var definitions = getContext().getDefinitions();
       final var map = new HashMap<String, String>( definitions.size() + 1 );
@@ -78,7 +73,8 @@ public final class InlineRProcessor extends VariableProcessor {
       try {
         Engine.eval( replace( bootstrap, map ) );
         mReady.set( true );
-      } catch( final Exception ignored ) {
+      } catch( final Exception ex ) {
+        clue( ex );
         // A problem with the bootstrap script is likely caused by variables
         // not being loaded. This implies that the R processor is being invoked
         // too soon.
@@ -153,36 +149,5 @@ public final class InlineRProcessor extends VariableProcessor {
 
     // Copy from the previous index to the end of the string.
     return sb.append( text.substring( min( prevIndex, length ) ) ).toString();
-  }
-
-  /**
-   * Return the given path if not {@code null}, otherwise return the path to
-   * the user's directory.
-   *
-   * @return A non-null path.
-   */
-  private Path getWorkingDirectory() {
-    return workingDirectoryProperty().getValue().toPath();
-  }
-
-  private Property<File> workingDirectoryProperty() {
-    return getWorkspace().fileProperty( KEY_R_DIR );
-  }
-
-  /**
-   * Loads the R init script from the application's persisted preferences.
-   *
-   * @return A non-null string, possibly empty.
-   */
-  private String getBootstrapScript() {
-    return bootstrapScriptProperty().getValue();
-  }
-
-  private Property<String> bootstrapScriptProperty() {
-    return getWorkspace().valuesProperty( KEY_R_SCRIPT );
-  }
-
-  private Workspace getWorkspace() {
-    return getContext().getWorkspace();
   }
 }

@@ -1,28 +1,29 @@
 package com.keenwrite.cmdline;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.keenwrite.ExportFormat;
-import com.keenwrite.preferences.Key;
-import com.keenwrite.preferences.KeyConfiguration;
 import com.keenwrite.processors.ProcessorContext;
 import com.keenwrite.processors.ProcessorContext.Mutator;
 import picocli.CommandLine;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
+import java.util.Map.Entry;
 import java.util.concurrent.Callable;
 import java.util.function.Consumer;
 
 import static com.keenwrite.constants.Constants.DIAGRAM_SERVER_NAME;
-import static com.keenwrite.preferences.AppKeys.*;
 
 /**
  * Responsible for mapping command-line arguments to keys that are used by
- * the application. This class implements the {@link KeyConfiguration} as
- * an abstraction so that the CLI and GUI can reuse the same code, but without
- * the CLI needing to instantiate or initialize JavaFX.
+ * the application.
  */
 @CommandLine.Command(
   name = "KeenWrite",
@@ -30,27 +31,47 @@ import static com.keenwrite.preferences.AppKeys.*;
   description = "Plain text editor for editing with variables"
 )
 @SuppressWarnings( "unused" )
-public final class Arguments implements Callable<Integer>, KeyConfiguration {
+public final class Arguments implements Callable<Integer> {
   @CommandLine.Option(
     names = {"--all"},
     description =
       "Concatenate files before processing (${DEFAULT-VALUE})",
+    paramLabel = "Boolean",
     defaultValue = "false"
   )
-  private boolean mAll;
+  private boolean mConcatenate;
+
+  @CommandLine.Option(
+    names = {"--keep-files"},
+    description =
+      "Retain temporary build files (${DEFAULT-VALUE})",
+    paramLabel = "Boolean",
+    defaultValue = "false"
+  )
+  private boolean mKeepFiles;
 
   @CommandLine.Option(
     names = {"--base-dir"},
     description =
-      "Set directories and paths relative to this one",
+      "Directories and paths relative to this one",
     paramLabel = "DIR"
   )
   private Path mBasePath;
 
   @CommandLine.Option(
+    names = {"--curl-quotes"},
+    description =
+      "Replace straight quotes with curly quotes",
+    paramLabel = "Boolean",
+    defaultValue = "true"
+  )
+  private Boolean mCurlQuotes;
+
+  @CommandLine.Option(
     names = {"-d", "--debug"},
     description =
       "Enable logging to the console (${DEFAULT-VALUE})",
+    paramLabel = "Boolean",
     defaultValue = "false"
   )
   private boolean mDebug;
@@ -58,7 +79,7 @@ public final class Arguments implements Callable<Integer>, KeyConfiguration {
   @CommandLine.Option(
     names = {"-i", "--input"},
     description =
-      "Set the file name to read",
+      "Source document file path",
     paramLabel = "PATH",
     defaultValue = "stdin",
     required = true
@@ -79,6 +100,7 @@ public final class Arguments implements Callable<Integer>, KeyConfiguration {
     names = {"--format-subtype-tex"},
     description =
       "Export subtype for HTML formats: svg, delimited",
+    defaultValue = "",
     paramLabel = "String"
   )
   private String mFormatSubtype;
@@ -89,16 +111,16 @@ public final class Arguments implements Callable<Integer>, KeyConfiguration {
       "Directory containing images",
     paramLabel = "DIR"
   )
-  private Path mImageDir;
+  private File mImageDir;
 
   @CommandLine.Option(
-    names = {"--image-extensions"},
+    names = {"--image-order"},
     description =
       "Comma-separated image order (${DEFAULT-VALUE})",
     paramLabel = "String",
     defaultValue = "svg,pdf,png,jpg,tiff"
   )
-  private Set<String> mImageExtensions;
+  private String mImageOrder;
 
   @CommandLine.Option(
     names = {"--images-server"},
@@ -107,15 +129,16 @@ public final class Arguments implements Callable<Integer>, KeyConfiguration {
     paramLabel = "String",
     defaultValue = DIAGRAM_SERVER_NAME
   )
-  private Path mImageServer;
+  private String mImageServer;
 
   @CommandLine.Option(
-    names = {"--keep-files"},
+    names = {"--locale"},
     description =
-      "Keep temporary build files (${DEFAULT-VALUE})",
-    defaultValue = "false"
+      "Set localization (${DEFAULT-VALUE})",
+    paramLabel = "String",
+    defaultValue = "en"
   )
-  private boolean mKeepFiles;
+  private String mLocale;
 
   @CommandLine.Option(
     names = {"-m", "--metadata"},
@@ -128,7 +151,7 @@ public final class Arguments implements Callable<Integer>, KeyConfiguration {
   @CommandLine.Option(
     names = {"-o", "--output"},
     description =
-      "Set the file name to write",
+      "Destination document file path",
     paramLabel = "PATH",
     defaultValue = "stdout",
     required = true
@@ -142,6 +165,22 @@ public final class Arguments implements Callable<Integer>, KeyConfiguration {
     defaultValue = "false"
   )
   private boolean mQuiet;
+
+  @CommandLine.Option(
+    names = {"--r-dir"},
+    description =
+      "R working directory",
+    paramLabel = "DIR"
+  )
+  private Path mRWorkingDir;
+
+  @CommandLine.Option(
+    names = {"--r-script"},
+    description =
+      "R bootstrap script file path",
+    paramLabel = "PATH"
+  )
+  private Path mRScriptPath;
 
   @CommandLine.Option(
     names = {"--sigil-opening"},
@@ -172,36 +211,43 @@ public final class Arguments implements Callable<Integer>, KeyConfiguration {
   @CommandLine.Option(
     names = {"-v", "--variables"},
     description =
-      "Set the variables file name",
+      "Variables file path",
     paramLabel = "PATH"
   )
   private Path mPathVariables;
 
   private final Consumer<Arguments> mLauncher;
 
-  private final Map<Key, Object> mValues = new HashMap<>();
-
   public Arguments( final Consumer<Arguments> launcher ) {
     mLauncher = launcher;
   }
 
-  public ProcessorContext createProcessorContext() {
-    mValues.put( KEY_UI_RECENT_EXPORT, mPathOutput );
-    mValues.put( KEY_DEF_PATH, mPathVariables );
-    mValues.put( KEY_IMAGES_DIR, mImageDir );
-    mValues.put( KEY_IMAGES_SERVER, mImageServer );
-    mValues.put( KEY_TYPESET_CONTEXT_THEMES_PATH, mDirTheme );
-    mValues.put( KEY_TYPESET_CONTEXT_CLEAN, !mKeepFiles );
-    mValues.put( KEY_DEF_DELIM_BEGAN, mSigilBegan );
-    mValues.put( KEY_DEF_DELIM_ENDED, mSigilEnded );
-
+  public ProcessorContext createProcessorContext()
+    throws IOException {
+    final var definitions = parse( mPathVariables );
     final var format = ExportFormat.valueFrom( mFormatType, mFormatSubtype );
+    final var locale = lookupLocale( mLocale );
+    final var rScript = read( mRScriptPath );
 
     return ProcessorContext
       .builder()
       .with( Mutator::setInputPath, mPathInput )
       .with( Mutator::setOutputPath, mPathOutput )
       .with( Mutator::setExportFormat, format )
+      .with( Mutator::setDefinitions, () -> definitions )
+      .with( Mutator::setMetadata, () -> mMetadata )
+      .with( Mutator::setLocale, () -> locale )
+      .with( Mutator::setThemePath, () -> mDirTheme )
+      .with( Mutator::setConcatenate, mConcatenate )
+      .with( Mutator::setImageDir, () -> mImageDir )
+      .with( Mutator::setImageServer, () -> mImageServer )
+      .with( Mutator::setImageOrder, () -> mImageOrder )
+      .with( Mutator::setSigilBegan, () -> mSigilBegan )
+      .with( Mutator::setSigilEnded, () -> mSigilEnded )
+      .with( Mutator::setRWorkingDir, () -> mRWorkingDir )
+      .with( Mutator::setRScript, () -> rScript )
+      .with( Mutator::setCurlQuotes, () -> mCurlQuotes )
+      .with( Mutator::setAutoClean, () -> !mKeepFiles )
       .build();
   }
 
@@ -226,32 +272,48 @@ public final class Arguments implements Callable<Integer>, KeyConfiguration {
     return 0;
   }
 
-  @Override
-  public String getString( final Key key ) {
-    return (String) mValues.get( key );
+  private static String read( final Path path ) throws IOException {
+    return Files.readString( path );
   }
 
-  @Override
-  public boolean getBoolean( final Key key ) {
-    return (Boolean) mValues.get( key );
+  private static Map<String, String> parse( final Path vars )
+    throws IOException {
+    final var yaml = read( vars );
+    final var factory = new YAMLFactory();
+    final var json = new ObjectMapper( factory ).readTree( yaml );
+    final var map = new HashMap<String, String>();
+
+    parse( json, "", map );
+
+    return map;
   }
 
-  @Override
-  public int getInteger( final Key key ) {
-    return (Integer) mValues.get( key );
+  private static void parse(
+    final JsonNode json, final String parent, final Map<String, String> map ) {
+    json.fields().forEachRemaining( node -> parse( node, parent, map ) );
   }
 
-  @Override
-  public double getDouble( final Key key ) {
-    return (Double) mValues.get( key );
+  private static void parse(
+    final Entry<String, JsonNode> node,
+    final String parent,
+    final Map<String, String> map ) {
+    final var jsonNode = node.getValue();
+    final var keyName = parent + "." + node.getKey();
+
+    if( jsonNode.isValueNode() ) {
+      // Trim the leading period, which is always present.
+      map.put( keyName.substring( 1 ), node.getValue().asText() );
+    }
+    else if( jsonNode.isObject() ) {
+      parse( jsonNode, keyName, map );
+    }
   }
 
-  @Override
-  public File getFile( final Key key ) {
-    final var value = mValues.get( key );
-
-    return value instanceof Path path
-      ? path.toFile()
-      : (File) value;
+  private static Locale lookupLocale( final String locale ) {
+    try {
+      return Locale.forLanguageTag( locale );
+    } catch( final Exception ex ) {
+      return Locale.ENGLISH;
+    }
   }
 }

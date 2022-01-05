@@ -1,13 +1,14 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.editors.markdown;
 
-import com.keenwrite.editors.common.Caret;
 import com.keenwrite.constants.Constants;
 import com.keenwrite.editors.TextEditor;
+import com.keenwrite.editors.common.Caret;
 import com.keenwrite.events.TextEditorFocusEvent;
 import com.keenwrite.io.MediaType;
 import com.keenwrite.preferences.LocaleProperty;
 import com.keenwrite.preferences.Workspace;
+import com.keenwrite.processors.markdown.extensions.CaretExtension;
 import com.keenwrite.spelling.impl.TextEditorSpeller;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
@@ -471,10 +472,31 @@ public final class MarkdownEditor extends BorderPane implements TextEditor {
     return mCaret;
   }
 
+  /**
+   * A {@link Caret} instance is not directly coupled ot the GUI because
+   * document processing does not always require interactive status bar
+   * updates. This can happen when processing from the command-line. However,
+   * the processors need the {@link Caret} instance to inject the caret
+   * position into the document. Making the {@link CaretExtension} optional
+   * would require more effort than using a {@link Caret} model that is
+   * decoupled from GUI widgets.
+   *
+   * @param editor The text editor containing caret position information.
+   * @return An instance of {@link Caret} that tracks the GUI caret position.
+   */
   private Caret createCaret( final StyleClassedTextArea editor ) {
     return Caret
       .builder()
-      .with( Caret.Mutator::setEditor, editor )
+      .with( Caret.Mutator::setParagraph,
+             () -> editor.currentParagraphProperty().getValue() )
+      .with( Caret.Mutator::setParagraphs,
+             () -> editor.getParagraphs().size() )
+      .with( Caret.Mutator::setParaOffset,
+             () -> editor.caretColumnProperty().getValue() )
+      .with( Caret.Mutator::setTextOffset,
+             () -> editor.caretPositionProperty().getValue() )
+      .with( Caret.Mutator::setTextLength,
+             () -> editor.lengthProperty().getValue() )
       .build();
   }
 

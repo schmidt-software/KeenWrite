@@ -3,7 +3,6 @@ package com.keenwrite.processors.markdown;
 
 import com.keenwrite.AwaitFxExtension;
 import com.keenwrite.editors.common.Caret;
-import com.keenwrite.preferences.Workspace;
 import com.keenwrite.processors.Processor;
 import com.keenwrite.processors.ProcessorContext;
 import com.keenwrite.processors.markdown.extensions.ImageLinkExtension;
@@ -39,9 +38,6 @@ import static org.testfx.util.WaitForAsyncUtils.waitForFxEvents;
 @ExtendWith( {ApplicationExtension.class, AwaitFxExtension.class} )
 @SuppressWarnings( "SameParameterValue" )
 public class ImageLinkExtensionTest {
-  private static final Workspace sWorkspace = new Workspace(
-    getResourceFile( "workspace.xml" ) );
-
   private static final Map<String, String> IMAGES = new HashMap<>();
 
   private static final String URI_WEB = "placekitten.com/200/200";
@@ -146,7 +142,6 @@ public class ImageLinkExtensionTest {
       .builder()
       .with( ProcessorContext.Mutator::setInputPath, inputPath )
       .with( ProcessorContext.Mutator::setExportFormat, XHTML_TEX )
-      .with( ProcessorContext.Mutator::setWorkspace, sWorkspace )
       .with( ProcessorContext.Mutator::setCaret, () -> Caret.builder().build() )
       .build();
   }
@@ -172,9 +167,5 @@ public class ImageLinkExtensionTest {
 
   private static String getResource( final String path ) {
     return toUri( path ).toString();
-  }
-
-  private static File getResourceFile( final String path ) {
-    return new File( getResource( path ) );
   }
 }

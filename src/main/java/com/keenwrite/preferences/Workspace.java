@@ -1,9 +1,6 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.preferences;
 
-import com.keenwrite.io.MediaType;
-import com.keenwrite.sigils.PropertyKeyOperator;
-import com.keenwrite.sigils.SigilKeyOperator;
 import javafx.application.Platform;
 import javafx.beans.property.*;
 import javafx.collections.ObservableList;
@@ -531,15 +528,23 @@ public final class Workspace implements KeyConfiguration {
     return localeProperty( KEY_LANGUAGE_LOCALE ).toLocale();
   }
 
-  public SigilKeyOperator createDefinitionKeyOperator() {
-    final var began = getString( KEY_DEF_DELIM_BEGAN );
-    final var ended = getString( KEY_DEF_DELIM_ENDED );
+  @SuppressWarnings( "unchecked" )
+  public <K, V> Map<K, V> getMetadata() {
+    final var metadata = listsProperty( KEY_DOC_META );
+    final var map = new HashMap<K, V>( metadata.size() );
 
-    return new SigilKeyOperator( began, ended );
+    metadata.forEach(
+      entry -> map.put( (K) entry.getKey(), (V) entry.getValue() )
+    );
+
+    return map;
   }
 
-  public static SigilKeyOperator createPropertyKeyOperator() {
-    return new PropertyKeyOperator();
+  public Path getThemePath() {
+    final var dir = getFile( KEY_TYPESET_CONTEXT_THEMES_PATH );
+    final var name = getString( KEY_TYPESET_CONTEXT_THEME_SELECTION );
+
+    return Path.of( dir.toString(), name );
   }
 
   /**
@@ -587,30 +592,6 @@ public final class Workspace implements KeyConfiguration {
         }
       } )
     );
-  }
-
-  /**
-   * Returns the sigil operator for the given {@link MediaType}.
-   *
-   * @param mediaType The type of file being edited.
-   */
-  public SigilKeyOperator createSigilOperator( final MediaType mediaType ) {
-    assert mediaType != null;
-
-    return mediaType == MediaType.TEXT_PROPERTIES
-      ? createPropertyKeyOperator()
-      : createDefinitionKeyOperator();
-  }
-
-  /**
-   * Returns the sigil operator for the given {@link Path}.
-   *
-   * @param path The type of file being edited, from its extension.
-   */
-  public SigilKeyOperator createSigilOperator( final Path path ) {
-    assert path != null;
-
-    return createSigilOperator( MediaType.valueFrom( path ) );
   }
 
   /**

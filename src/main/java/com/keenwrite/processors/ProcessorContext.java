@@ -6,18 +6,23 @@ import com.keenwrite.collections.InterpolatingMap;
 import com.keenwrite.constants.Constants;
 import com.keenwrite.editors.common.Caret;
 import com.keenwrite.io.FileType;
-import com.keenwrite.preferences.Workspace;
+import com.keenwrite.sigils.PropertyKeyOperator;
 import com.keenwrite.sigils.SigilKeyOperator;
 import com.keenwrite.util.GenericBuilder;
+import org.renjin.repackaged.guava.base.Splitter;
 
 import java.io.File;
 import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.function.Supplier;
 
 import static com.keenwrite.constants.Constants.*;
 import static com.keenwrite.io.FileType.UNKNOWN;
+import static com.keenwrite.io.MediaType.TEXT_PROPERTIES;
+import static com.keenwrite.io.MediaType.valueFrom;
 import static com.keenwrite.predicates.PredicateFactory.createFileTypePredicate;
 
 /**
@@ -70,10 +75,27 @@ public final class ProcessorContext {
     private Path mInputPath;
     private Path mOutputPath;
     private ExportFormat mExportFormat;
-    private Supplier<Map<String, String>> mDefinitions;
-    private Supplier<Caret> mCaret;
-    private Workspace mWorkspace;
     private boolean mConcatenate;
+
+    private Supplier<Path> mThemePath;
+    private Supplier<Locale> mLocale = () -> Locale.ENGLISH;
+
+    private Supplier<Map<String, String>> mDefinitions = HashMap::new;
+    private Supplier<Map<String, String>> mMetadata = HashMap::new;
+    private Supplier<Caret> mCaret = () -> Caret.builder().build();
+
+    private Supplier<Path> mImageDir;
+    private Supplier<String> mImageServer = () -> DIAGRAM_SERVER_NAME;
+    private Supplier<String> mImageOrder = () -> PERSIST_IMAGES_DEFAULT;
+
+    private Supplier<String> mSigilBegan = () -> DEF_DELIM_BEGAN_DEFAULT;
+    private Supplier<String> mSigilEnded = () -> DEF_DELIM_ENDED_DEFAULT;
+
+    private Supplier<Path> mRWorkingDir;
+    private Supplier<String> mRScript = () -> "";
+
+    private Supplier<Boolean> mCurlQuotes = () -> true;
+    private Supplier<Boolean> mAutoClean = () -> true;
 
     public void setInputPath( final Path inputPath ) {
       assert inputPath != null;
@@ -90,6 +112,25 @@ public final class ProcessorContext {
       setOutputPath( outputPath.toPath() );
     }
 
+    public void setExportFormat( final ExportFormat exportFormat ) {
+      assert exportFormat != null;
+      mExportFormat = exportFormat;
+    }
+
+    public void setConcatenate( final boolean concatenate ) {
+      mConcatenate = concatenate;
+    }
+
+    public void setLocale( final Supplier<Locale> locale ) {
+      assert locale != null;
+      mLocale = locale;
+    }
+
+    public void setThemePath( final Supplier<Path> themePath ) {
+      assert themePath != null;
+      mThemePath = themePath;
+    }
+
     /**
      * Sets the list of fully interpolated key-value pairs to use when
      * substituting variable names back into the document as variable values.
@@ -104,6 +145,11 @@ public final class ProcessorContext {
       mDefinitions = supplier;
     }
 
+    public void setMetadata( final Supplier<Map<String, String>> metadata ) {
+      assert metadata != null;
+      mMetadata = metadata.get() == null ? HashMap::new : metadata;
+    }
+
     /**
      * Sets the source for deriving the {@link Caret}. Typically, this is
      * the text editor that has focus.
@@ -115,37 +161,55 @@ public final class ProcessorContext {
       mCaret = caret;
     }
 
-    public void setExportFormat( final ExportFormat exportFormat ) {
-      assert exportFormat != null;
-      mExportFormat = exportFormat;
+    public void setImageDir( final Supplier<File> imageDir ) {
+      assert imageDir != null;
+      mImageDir = () -> imageDir.get().toPath();
     }
 
-    public void setWorkspace( final Workspace workspace ) {
-      assert workspace != null;
-      mWorkspace = workspace;
+    public void setImageOrder( final Supplier<String> imageOrder ) {
+      assert imageOrder != null;
+      mImageOrder = imageOrder;
     }
 
-    public void setConcatenate( final boolean concatenate ) {
-      mConcatenate = concatenate;
+    public void setImageServer( final Supplier<String> imageServer ) {
+      assert imageServer != null;
+      mImageServer = imageServer;
+    }
+
+    public void setSigilBegan( final Supplier<String> sigilBegan ) {
+      assert sigilBegan != null;
+      mSigilBegan = sigilBegan;
+    }
+
+    public void setSigilEnded( final Supplier<String> sigilEnded ) {
+      assert sigilEnded != null;
+      mSigilEnded = sigilEnded;
+    }
+
+    public void setRWorkingDir( final Supplier<Path> rWorkingDir ) {
+      assert rWorkingDir != null;
+
+      mRWorkingDir = rWorkingDir;
+    }
+
+    public void setRScript( final Supplier<String> rScript ) {
+      assert rScript != null;
+      mRScript = rScript;
+    }
+
+    public void setCurlQuotes( final Supplier<Boolean> curlQuotes ) {
+      assert curlQuotes != null;
+      mCurlQuotes = curlQuotes;
+    }
+
+    public void setAutoClean( final Supplier<Boolean> autoClean ) {
+      assert autoClean != null;
+      mAutoClean = autoClean;
     }
   }
 
   public static GenericBuilder<Mutator, ProcessorContext> builder() {
     return GenericBuilder.of( Mutator::new, ProcessorContext::new );
-  }
-
-  /**
-   * @param inputPath Path to the document to process.
-   * @param format    Indicate configuration options for export format.
-   * @return A context that may be used for processing documents.
-   */
-  public static ProcessorContext create(
-    final Path inputPath,
-    final ExportFormat format ) {
-    return builder()
-      .with( Mutator::setInputPath, inputPath )
-      .with( Mutator::setExportFormat, format )
-      .build();
   }
 
   /**
@@ -158,6 +222,27 @@ public final class ProcessorContext {
     assert mutator != null;
 
     mMutator = mutator;
+  }
+
+  public Path getInputPath() {
+    return mMutator.mInputPath;
+  }
+
+  /**
+   * Fully qualified file name to use when exporting (e.g., document.pdf).
+   *
+   * @return Full path to a file name.
+   */
+  public Path getOutputPath() {
+    return mMutator.mOutputPath;
+  }
+
+  public ExportFormat getExportFormat() {
+    return mMutator.mExportFormat;
+  }
+
+  public Locale getLocale() {
+    return mMutator.mLocale.get();
   }
 
   /**
@@ -175,26 +260,13 @@ public final class ProcessorContext {
    * @return A map to help dereference variables.
    */
   public InterpolatingMap getInterpolatedDefinitions() {
-    final var map = new InterpolatingMap(
-      getWorkspace().createDefinitionKeyOperator(), getDefinitions()
-    );
-
-    map.interpolate();
-
-    return map;
+    return new InterpolatingMap(
+      createDefinitionKeyOperator(), getDefinitions()
+    ).interpolate();
   }
 
-  /**
-   * Fully qualified file name to use when exporting (e.g., document.pdf).
-   *
-   * @return Full path to a file name.
-   */
-  public Path getOutputPath() {
-    return mMutator.mOutputPath;
-  }
-
-  public ExportFormat getExportFormat() {
-    return mMutator.mExportFormat;
+  public Map<String, String> getMetadata() {
+    return mMutator.mMetadata.get();
   }
 
   /**
@@ -224,16 +296,45 @@ public final class ProcessorContext {
     return path == null ? DEFAULT_DIRECTORY : path;
   }
 
-  public Path getInputPath() {
-    return mMutator.mInputPath;
-  }
-
   FileType getFileType() {
     return lookup( getInputPath() );
   }
 
-  public Workspace getWorkspace() {
-    return mMutator.mWorkspace;
+  public Path getImageDir() {
+    return mMutator.mImageDir.get();
+  }
+
+  public Iterable<String> getImageOrder() {
+    assert mMutator.mImageOrder != null;
+
+    final var order = mMutator.mImageOrder.get();
+    final var token = order.contains( "," ) ? ',' : ' ';
+
+    return Splitter.on( token ).split( token + order );
+  }
+
+  public String getImageServer() {
+    return mMutator.mImageServer.get();
+  }
+
+  public Path getThemePath() {
+    return mMutator.mThemePath.get();
+  }
+
+  public Path getRWorkingDir() {
+    return mMutator.mRWorkingDir.get();
+  }
+
+  public String getRScript() {
+    return mMutator.mRScript.get();
+  }
+
+  public boolean getCurlQuotes() {
+    return mMutator.mCurlQuotes.get();
+  }
+
+  public boolean getAutoClean() {
+    return mMutator.mAutoClean.get();
   }
 
   /**
@@ -248,7 +349,31 @@ public final class ProcessorContext {
     return mMutator.mConcatenate;
   }
 
-  public SigilKeyOperator createSigilOperator() {
-    return getWorkspace().createSigilOperator( getInputPath() );
+  public SigilKeyOperator createKeyOperator() {
+    return createKeyOperator( getInputPath() );
+  }
+
+  /**
+   * Returns the sigil operator for the given {@link Path}.
+   *
+   * @param path The type of file being edited, from its extension.
+   */
+  private SigilKeyOperator createKeyOperator( final Path path ) {
+    assert path != null;
+
+    return valueFrom( path ) == TEXT_PROPERTIES
+      ? createPropertyKeyOperator()
+      : createDefinitionKeyOperator();
+  }
+
+  private SigilKeyOperator createPropertyKeyOperator() {
+    return new PropertyKeyOperator();
+  }
+
+  private SigilKeyOperator createDefinitionKeyOperator() {
+    final var began = mMutator.mSigilBegan.get();
+    final var ended = mMutator.mSigilEnded.get();
+
+    return new SigilKeyOperator( began, ended );
   }
 }

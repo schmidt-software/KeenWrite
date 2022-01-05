@@ -1,8 +1,8 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.typesetting;
 
-import com.keenwrite.io.SysFile;
 import com.keenwrite.collections.BoundedCache;
+import com.keenwrite.io.SysFile;
 import com.keenwrite.util.GenericBuilder;
 
 import java.io.*;
@@ -43,8 +43,7 @@ public class Typesetter {
     private Path mInputPath;
     private Path mOutputPath;
     private Path mThemePath;
-    private String mThemeName;
-    private boolean mAutoclean;
+    private boolean mAutoClean;
 
     /**
      * @param inputPath The input document to typeset.
@@ -61,32 +60,26 @@ public class Typesetter {
     }
 
     /**
-     * @param themePath Fully qualified path to the theme directory.
+     * @param themePath Fully qualified path to the theme directory, which
+     *                  ends with the selected theme name.
      */
     public void setThemePath( final Path themePath ) {
       mThemePath = themePath;
     }
 
     /**
-     * @param themePath Fully qualified path to the theme directory.
+     * @see #setThemePath(Path)
      */
     public void setThemePath( final File themePath ) {
       setThemePath( themePath.toPath() );
     }
 
     /**
-     * @param themeName Name of theme to apply when generating the PDF file.
-     */
-    public void setThemeName( final String themeName ) {
-      mThemeName = themeName;
-    }
-
-    /**
-     * @param autoclean {@code true} to remove all temporary files after
+     * @param autoClean {@code true} to remove all temporary files after
      *                  typesetter produces a PDF file.
      */
-    public void setAutoclean( final boolean autoclean ) {
-      mAutoclean = autoclean;
+    public void setAutoClean( final boolean autoClean ) {
+      mAutoClean = autoClean;
     }
   }
 
@@ -151,8 +144,7 @@ public class Typesetter {
      */
     private boolean reinitialize() {
       final var filename = getOutputPath().getFileName();
-      final var themes = getThemePath();
-      final var theme = getThemeName();
+      final var theme = getThemePath();
       final var cacheExists = !isEmpty( getCacheDir().toPath() );
 
       // Ensure invoking multiple times will load the correct arguments.
@@ -166,7 +158,7 @@ public class Typesetter {
         mArgs.add( "--batchmode" );
         mArgs.add( "--nonstopmode" );
         mArgs.add( "--purgeall" );
-        mArgs.add( "--path='" + Path.of( themes.toString(), theme ) + "'" );
+        mArgs.add( "--path='" + theme + "'" );
         mArgs.add( "--environment='main'" );
         mArgs.add( "--result='" + filename + "'" );
         mArgs.add( getInputPath().toString() );
@@ -443,10 +435,6 @@ public class Typesetter {
     return mMutator.mThemePath;
   }
 
-  private String getThemeName() {
-    return mMutator.mThemeName;
-  }
-
   /**
    * Answers whether logs and other files should be deleted upon error. The
    * log files are useful for debugging.
@@ -454,6 +442,6 @@ public class Typesetter {
    * @return {@code true} to delete generated files.
    */
   public boolean autoclean() {
-    return mMutator.mAutoclean;
+    return mMutator.mAutoClean;
   }
 }

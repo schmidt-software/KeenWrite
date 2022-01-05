@@ -12,6 +12,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.keenwrite.Launcher.terminate;
+import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.processors.ProcessorFactory.createProcessors;
 import static com.keenwrite.util.FileWalker.walk;
 import static java.lang.System.lineSeparator;
@@ -43,13 +44,12 @@ public class AppCommands {
     final var future = new CompletableFuture<Path>() {
       @Override
       public boolean complete( final Path path ) {
-        System.out.println( "DONE! " + path );
         return super.complete( path );
       }
 
       @Override
       public boolean completeExceptionally( final Throwable ex ) {
-        System.out.println( ex.getMessage() );
+        clue( ex );
         exitCode.set( 1 );
 
         return super.completeExceptionally( ex );
@@ -90,7 +90,7 @@ public class AppCommands {
 
         future.complete( outputPath );
         return result;
-      } catch( final Exception ex ) {
+      } catch( final Throwable ex ) {
         future.completeExceptionally( ex );
         return null;
       }

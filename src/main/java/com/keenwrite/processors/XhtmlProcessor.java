@@ -2,11 +2,9 @@
 package com.keenwrite.processors;
 
 import com.keenwrite.dom.DocumentParser;
-import com.keenwrite.preferences.Workspace;
 import com.keenwrite.ui.heuristics.WordCounter;
 import com.whitemagicsoftware.keenquotes.Contractions;
 import com.whitemagicsoftware.keenquotes.Converter;
-import javafx.beans.property.ListProperty;
 import org.w3c.dom.Document;
 
 import java.io.FileNotFoundException;
@@ -15,15 +13,12 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.regex.Pattern;
 
 import static com.keenwrite.Bootstrap.APP_TITLE_LOWERCASE;
 import static com.keenwrite.dom.DocumentParser.createMeta;
 import static com.keenwrite.dom.DocumentParser.visit;
 import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.io.HttpFacade.httpGet;
-import static com.keenwrite.preferences.AppKeys.*;
 import static com.keenwrite.util.ProtocolScheme.getProtocol;
 import static com.whitemagicsoftware.keenquotes.Converter.CHARS;
 import static com.whitemagicsoftware.keenquotes.ParserFactory.ParserType.PARSER_XML;
@@ -31,8 +26,6 @@ import static java.lang.String.format;
 import static java.lang.String.valueOf;
 import static java.nio.file.Files.copy;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
-import static java.util.regex.Pattern.UNICODE_CHARACTER_CLASS;
-import static java.util.regex.Pattern.compile;
 
 /**
  * Responsible for making an XHTML document complete by wrapping it with html
@@ -40,9 +33,6 @@ import static java.util.regex.Pattern.compile;
  * not run in real-time.
  */
 public final class XhtmlProcessor extends ExecutorProcessor<String> {
-  private final static Pattern BLANK =
-    compile( "\\p{Blank}", UNICODE_CHARACTER_CLASS );
-
   private final static Converter sTypographer = new Converter(
     lex -> clue( lex.toString() ), contractions(), CHARS, PARSER_XML );
 
@@ -104,8 +94,9 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
       } );
 
       final var document = DocumentParser.toString( doc );
+      final var curl = mContext.getCurlQuotes();
 
-      return curl() ? sTypographer.apply( document ) : document;
+      return curl ? sTypographer.apply( document ) : document;
     } catch( final Exception ex ) {
       clue( ex );
     }
@@ -138,12 +129,12 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
    * @return A map of metadata key/value pairs.
    */
   private Map<String, String> createMetaDataMap( final Document doc ) {
-    final Map<String, String> result = new LinkedHashMap<>();
-    final var metadata = getMetaData();
+    final var result = new LinkedHashMap<String, String>();
+    final var metadata = getMetadata();
     final var map = mContext.getInterpolatedDefinitions();
 
-    metadata.forEach( entry -> result.put(
-      entry.getKey(), map.interpolate( entry.getValue() ) )
+    metadata.forEach(
+      ( key, value ) -> result.put( key, map.interpolate( value ) )
     );
     result.put( "count", wordCount( doc ) );
 
@@ -157,8 +148,8 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
    *
    * @return The document metadata.
    */
-  private ListProperty<Entry<String, String>> getMetaData() {
-    return getWorkspace().listsProperty( KEY_DOC_META );
+  private Map<String, String> getMetadata() {
+    return mContext.getMetadata();
   }
 
   /**
@@ -192,15 +183,11 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
       }
     }
     else {
-      final var extensions = " " + getImageOrder().trim();
+      final var extensions = getImageOrder();
       var imagePath = getImagePath();
       var found = false;
 
-      // By including " " in the extensions, the first element returned
-      // will be the empty string. Thus the first extension to try is the
-      // file's default extension. Subsequent iterations will try to find
-      // a file that has a name matching one of the preferred extensions.
-      for( final var extension : BLANK.split( extensions ) ) {
+      for( final var extension : extensions ) {
         final var filename = format(
           "%s%s%s", src, extension.isBlank() ? "" : ".", extension );
         imageFile = Path.of( imagePath, filename );
@@ -225,11 +212,19 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
   }
 
   private String getImagePath() {
-    return getWorkspace().getFile( KEY_IMAGES_DIR ).toString();
+    return mContext.getImageDir().toString();
   }
 
-  private String getImageOrder() {
-    return getWorkspace().getString( KEY_IMAGES_ORDER );
+  /**
+   * By including an "empty" extension, the first element returned
+   * will be the empty string. Thus, the first extension to try is the
+   * file's default extension. Subsequent iterations will try to find
+   * a file that has a name matching one of the preferred extensions.
+   *
+   * @return A list of extensions, including an empty string at the start.
+   */
+  private Iterable<String> getImageOrder() {
+    return mContext.getImageOrder();
   }
 
   /**
@@ -242,11 +237,9 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
     return mContext.getBaseDir();
   }
 
-  private Workspace getWorkspace() {
-    return mContext.getWorkspace();
+  private Locale getLocale() {
+    return mContext.getLocale();
   }
-
-  private Locale locale() {return getWorkspace().getLocale();}
 
   private String wordCount( final Document doc ) {
     final var sb = new StringBuilder( 65536 * 10 );
@@ -257,16 +250,7 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
       node -> sb.append( node.getTextContent() )
     );
 
-    return valueOf( WordCounter.create( locale() ).count( sb.toString() ) );
-  }
-
-  /**
-   * Answers whether straight quotation marks should be curled.
-   *
-   * @return {@code false} to prevent curling straight quotes.
-   */
-  private boolean curl() {
-    return getWorkspace().getBoolean( KEY_TYPESET_TYPOGRAPHY_QUOTES );
+    return valueOf( WordCounter.create( getLocale() ).count( sb.toString() ) );
   }
 
   /**

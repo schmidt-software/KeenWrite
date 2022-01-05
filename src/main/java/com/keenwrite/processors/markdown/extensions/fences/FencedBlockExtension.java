@@ -1,11 +1,10 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.processors.markdown.extensions.fences;
 
-import com.keenwrite.preferences.Workspace;
 import com.keenwrite.preview.DiagramUrlGenerator;
-import com.keenwrite.processors.VariableProcessor;
 import com.keenwrite.processors.Processor;
 import com.keenwrite.processors.ProcessorContext;
+import com.keenwrite.processors.VariableProcessor;
 import com.keenwrite.processors.markdown.MarkdownProcessor;
 import com.keenwrite.processors.markdown.extensions.HtmlRendererAdapter;
 import com.vladsch.flexmark.ast.FencedCodeBlock;
@@ -22,7 +21,6 @@ import org.jetbrains.annotations.NotNull;
 import java.util.HashSet;
 import java.util.Set;
 
-import static com.keenwrite.preferences.AppKeys.KEY_IMAGES_SERVER;
 import static com.vladsch.flexmark.html.HtmlRenderer.Builder;
 import static com.vladsch.flexmark.html.renderer.CoreNodeRenderer.CODE_CONTENT;
 import static com.vladsch.flexmark.html.renderer.LinkType.LINK;
@@ -36,14 +34,14 @@ public class FencedBlockExtension extends HtmlRendererAdapter {
   private final static int DIAGRAM_STYLE_LEN = DIAGRAM_STYLE.length();
 
   private final Processor<String> mProcessor;
-  private final Workspace mWorkspace;
+  private final ProcessorContext mContext;
 
   public FencedBlockExtension(
-    final Processor<String> processor, final Workspace workspace ) {
+    final Processor<String> processor, final ProcessorContext context ) {
     assert processor != null;
-    assert workspace != null;
+    assert context != null;
     mProcessor = processor;
-    mWorkspace = workspace;
+    mContext = context;
   }
 
   /**
@@ -68,7 +66,7 @@ public class FencedBlockExtension extends HtmlRendererAdapter {
     final Processor<String> processor, final ProcessorContext context ) {
     assert processor != null;
     assert context != null;
-    return new FencedBlockExtension( processor, context.getWorkspace() );
+    return new FencedBlockExtension( processor, context );
   }
 
   @Override
@@ -106,7 +104,7 @@ public class FencedBlockExtension extends HtmlRendererAdapter {
           final var type = style.substring( DIAGRAM_STYLE_LEN );
           final var content = node.getContentChars().normalizeEOL();
           final var text = mProcessor.apply( content );
-          final var server = mWorkspace.getString( KEY_IMAGES_SERVER );
+          final var server = mContext.getImageServer();
           final var source = DiagramUrlGenerator.toUrl( server, type, text );
           final var link = context.resolveLink( LINK, source, false );
 
