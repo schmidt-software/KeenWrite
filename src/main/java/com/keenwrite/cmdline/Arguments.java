@@ -268,20 +268,35 @@ public final class Arguments implements Callable<Integer> {
     return Files.readString( path );
   }
 
+  /**
+   * Parses the given YAML document into a map of key-value pairs.
+   *
+   * @param vars Variable definition file to read, may be {@code null} if no
+   *             variables are specified.
+   * @return A non-interpolated variable map, or an empty map.
+   * @throws IOException Could not read the variable definition file
+   */
   private static Map<String, String> parse( final Path vars )
     throws IOException {
-    final var yaml = read( vars );
-    final var factory = new YAMLFactory();
-    final var json = new ObjectMapper( factory ).readTree( yaml );
     final var map = new HashMap<String, String>();
 
-    parse( json, "", map );
+    if( vars != null ) {
+      final var yaml = read( vars );
+      final var factory = new YAMLFactory();
+      final var json = new ObjectMapper( factory ).readTree( yaml );
+
+      parse( json, "", map );
+    }
 
     return map;
   }
 
   private static void parse(
     final JsonNode json, final String parent, final Map<String, String> map ) {
+    assert json != null;
+    assert parent != null;
+    assert map != null;
+
     json.fields().forEachRemaining( node -> parse( node, parent, map ) );
   }
 
@@ -289,6 +304,10 @@ public final class Arguments implements Callable<Integer> {
     final Entry<String, JsonNode> node,
     final String parent,
     final Map<String, String> map ) {
+    assert node != null;
+    assert parent != null;
+    assert map != null;
+
     final var jsonNode = node.getValue();
     final var keyName = parent + "." + node.getKey();
 

@@ -72,6 +72,7 @@ public class AppCommands {
   private static void file_export(
     final Arguments args, final CompletableFuture<Path> future ) {
     assert args != null;
+    assert future != null;
 
     final Callable<Path> callableTask = () -> {
       try {
