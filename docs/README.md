@@ -2,6 +2,7 @@
 
 The following documents have additional details about using the editor:
 
+* [cmd.md](cmd.md) -- Command-line argument usage
 * [div.md](div.md) -- Syntax for annotated text (fenced divs)
 * [i18n.md](i18n.md) -- Internationalization features
 * [r.md](r.md) -- R functions within R Markdown documents
