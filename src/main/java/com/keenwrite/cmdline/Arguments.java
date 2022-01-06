@@ -36,7 +36,6 @@ public final class Arguments implements Callable<Integer> {
     names = {"--all"},
     description =
       "Concatenate files before processing (${DEFAULT-VALUE})",
-    paramLabel = "Boolean",
     defaultValue = "false"
   )
   private boolean mConcatenate;
@@ -45,7 +44,6 @@ public final class Arguments implements Callable<Integer> {
     names = {"--keep-files"},
     description =
       "Retain temporary build files (${DEFAULT-VALUE})",
-    paramLabel = "Boolean",
     defaultValue = "false"
   )
   private boolean mKeepFiles;
@@ -53,8 +51,7 @@ public final class Arguments implements Callable<Integer> {
   @CommandLine.Option(
     names = {"--curl-quotes"},
     description =
-      "Replace straight quotes with curly quotes",
-    paramLabel = "Boolean",
+      "Replace straight quotes with curly quotes (${DEFAULT-VALUE})",
     defaultValue = "true"
   )
   private Boolean mCurlQuotes;
@@ -98,7 +95,7 @@ public final class Arguments implements Callable<Integer> {
   private String mFormatSubtype;
 
   @CommandLine.Option(
-    names = {"--images-dir"},
+    names = {"--image-dir"},
     description =
       "Directory containing images",
     paramLabel = "DIR"
@@ -115,7 +112,7 @@ public final class Arguments implements Callable<Integer> {
   private String mImageOrder;
 
   @CommandLine.Option(
-    names = {"--images-server"},
+    names = {"--image-server"},
     description =
       "SVG diagram rendering service (${DEFAULT-VALUE})",
     paramLabel = "String",
@@ -195,7 +192,7 @@ public final class Arguments implements Callable<Integer> {
   @CommandLine.Option(
     names = {"--theme-dir"},
     description =
-      "Absolute path to theme directory",
+      "Theme directory",
     paramLabel = "DIR"
   )
   private Path mDirTheme;
