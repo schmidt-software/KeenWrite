@@ -71,6 +71,10 @@ public final class Launcher implements Consumer<Arguments> {
     if( parseResult.isUsageHelpRequested() ) {
       terminate( exitCode );
     }
+    else if( parseResult.isVersionHelpRequested() ) {
+      showAppInfo();
+      terminate( exitCode );
+    }
   }
 
   @SuppressWarnings( "SameParameterValue" )
