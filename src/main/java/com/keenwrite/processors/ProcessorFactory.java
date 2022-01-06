@@ -2,7 +2,12 @@
 package com.keenwrite.processors;
 
 import com.keenwrite.processors.markdown.MarkdownProcessor;
+import com.keenwrite.processors.r.InlineRProcessor;
+import com.keenwrite.processors.r.RVariableProcessor;
 
+import static com.keenwrite.ExportFormat.MARKDOWN_PLAIN;
+import static com.keenwrite.io.FileType.RMARKDOWN;
+import static com.keenwrite.io.FileType.SOURCE;
 import static com.keenwrite.processors.IdentityProcessor.IDENTITY;
 
 /**
@@ -28,7 +33,7 @@ public final class ProcessorFactory {
    */
   public static Processor<String> createProcessors(
     final ProcessorContext context, final Processor<String> preview ) {
-    return ProcessorFactory.createProcessor( context, preview );
+    return createProcessor( context, preview );
   }
 
   /**
@@ -50,17 +55,28 @@ public final class ProcessorFactory {
     // with embedded SVG representing formulas, or without any conversion
     // to SVG. Without conversion would require client-side rendering of
     // math (such as using the JavaScript-based KaTeX engine).
-    final var successor = switch( context.getExportFormat() ) {
+    final var outputType = context.getExportFormat();
+
+    final var successor = switch( outputType ) {
       case NONE -> preview;
       case XHTML_TEX -> createXhtmlProcessor( context );
       case APPLICATION_PDF -> createPdfProcessor( context );
       default -> createIdentityProcessor( context );
     };
 
-    final var processor = switch( context.getFileType() ) {
-      case SOURCE, RMARKDOWN -> createMarkdownProcessor( successor, context );
-      default -> createPreformattedProcessor( successor );
-    };
+    final var inputType = context.getInputFileType();
+    final Processor<String> processor;
+
+    if( preview == null && outputType == MARKDOWN_PLAIN ) {
+      processor = inputType == RMARKDOWN
+        ? createInlineRProcessor( successor, context )
+        : createMarkdownProcessor( successor, context );
+    }
+    else {
+      processor = inputType == SOURCE || inputType == RMARKDOWN
+        ? createMarkdownProcessor( successor, context )
+        : createPreformattedProcessor( successor );
+    }
 
     return new ExecutorProcessor<>( processor );
   }
@@ -76,6 +92,7 @@ public final class ProcessorFactory {
     final ProcessorContext ignored ) {
     return IDENTITY;
   }
+
   /**
    * Instantiates a {@link Processor} responsible for parsing Markdown and
    * definitions.
@@ -86,14 +103,31 @@ public final class ProcessorFactory {
   private static Processor<String> createMarkdownProcessor(
     final Processor<String> successor,
     final ProcessorContext context ) {
-    final var dp = createDefinitionProcessor( successor, context );
+    final var dp = createVariableProcessor( successor, context );
     return MarkdownProcessor.create( dp, context );
   }
 
-  private static Processor<String> createDefinitionProcessor(
+  private static Processor<String> createVariableProcessor(
     final Processor<String> successor,
     final ProcessorContext context ) {
     return new VariableProcessor( successor, context );
+  }
+
+  /**
+   * Instantiates a processor capable of executing R statements (along with
+   * R variable references) and embedding the result into the document. This
+   * is useful for converting R Markdown documents into plain Markdown.
+   *
+   * @param successor {@link Processor} invoked after {@link InlineRProcessor}.
+   * @param context   {@link Processor} configuration settings.
+   * @return An instance of {@link Processor} that performs variable
+   * interpolation, replacement, and execution of R statements.
+   */
+  private static Processor<String> createInlineRProcessor(
+    final Processor<String> successor, final ProcessorContext context ) {
+    final var irp = new InlineRProcessor( successor, context );
+    final var rvp = new RVariableProcessor( irp, context );
+    return createVariableProcessor( rvp, context );
   }
 
   /**

@@ -32,7 +32,7 @@
 # @param totals Include total sums (default TRUE).
 # @param align Right-align numbers (default TRUE).
 # -----------------------------------------------------------------------------
-csv2md <- function( f, decimals = 2, totals = T, align = T ) {
+csv2md <- function( f, decimals = 2, totals = T, align = T, caption = "" ) {
   # Read the CVS data from the file; ensure strings become characters.
   df <- read.table( f, sep=',', header=T, stringsAsFactors=F )
 
@@ -75,6 +75,11 @@ csv2md <- function( f, decimals = 2, totals = T, align = T ) {
     dashes <- paste( rep( '---', length( df ) ), collapse = '|' )
   }
 
+  # Use pandoc syntax for table captions.
+  if( caption != "" ) {
+    caption <- paste( '\n[', caption, ']\n', sep='' )
+  }
+
   # Create a Markdown version of the data frame.
   paste(
     '|', paste( names( df ), collapse = '|'), '|', '\n',
@@ -85,9 +90,10 @@ csv2md <- function( f, decimals = 2, totals = T, align = T ) {
           paste( x, format( y, nsmall = decimals ), sep = '|' )
         }, df
       ),
-      collapse = '|\n', sep=''
+      collapse = '|\n',sep=''
     ),
-    '|\n',
+    '|',
+    caption,
     sep=''
   )
 }

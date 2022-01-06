@@ -296,7 +296,7 @@ public final class ProcessorContext {
     return path == null ? DEFAULT_DIRECTORY : path;
   }
 
-  FileType getFileType() {
+  FileType getInputFileType() {
     return lookup( getInputPath() );
   }
 

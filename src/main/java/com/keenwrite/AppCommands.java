@@ -101,49 +101,6 @@ public class AppCommands {
   }
 
   /**
-   * @param concat {@code true} means to export all files in the active file
-   *               editor's directory; {@code false} means to export only the
-   *               actively edited file.
-   *
-  private void file_export_pdf( final Path theme, final boolean concat ) {
-  if( Typesetter.canRun() ) {
-  // If the typesetter is installed, allow the user to select a theme. If
-  // the themes aren't installed, a status message will appear.
-  if( ThemePicker.choose( themes, theme ) ) {
-  file_export( APPLICATION_PDF, concat );
-  }
-  }
-  else {
-  fireExportFailedEvent();
-  }
-  }
-
-  public void file_export_pdf() {
-  file_export_pdf( false );
-  }
-
-  public void file_export_pdf_dir() {
-  file_export_pdf( true );
-  }
-
-  public void file_export_html_svg() {
-  file_export( HTML_TEX_SVG );
-  }
-
-  public void file_export_html_tex() {
-  file_export( HTML_TEX_DELIMITED );
-  }
-
-  public void file_export_xhtml_tex() {
-  file_export( XHTML_TEX );
-  }
-
-  public void file_export_markdown() {
-  file_export( MARKDOWN_PLAIN );
-  }
-   */
-
-  /**
    * Concatenates all the files in the same directory as the given file into
    * a string. The extension is determined by the given file name pattern; the
    * order files are concatenated is based on their numeric sort order (this
