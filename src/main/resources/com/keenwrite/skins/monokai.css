@@ -1,0 +1,124 @@
+/*
+ * Theme contributed by mery6299
+ *
+ * https://github.com/mery6299
+ */
+.root { 
+  -fx-accent: #75715E;
+  -fx-focus-color: -fx-accent;
+  -fx-base: #262626;
+  -fx-control-inner-background: -fx-base;
+  -fx-control-inner-background-alt: -fx-control-inner-background;
+
+  -theme-text-selection: #78dce8;
+  -theme-search-selection: #ffd866;
+
+  -fx-light-text-color: derive( -fx-base, 150% );
+  -fx-mid-text-color: derive( -fx-base, 100% );
+  -fx-dark-text-color: derive( -fx-base, 25% );
+  -fx-text-foreground: -fx-light-text-color;
+  -fx-text-background: derive( -fx-control-inner-background, 25% );
+  -fx-text-selection: derive( -theme-text-selection, -50% );
+}
+
+/* Caret colour */
+.styled-text-area .caret {
+  -fx-stroke: white;
+}
+
+/* Spelling errors */
+.markdown .spelling {
+  -rtfx-underline-color: #fc9867;
+}
+
+/* Search result */
+.markdown .search {
+  -rtfx-background-color: derive( -theme-search-selection, -25% );
+}
+
+.glyph-icon {
+  -fx-text-fill: -fx-light-text-color;
+  -fx-fill: -fx-light-text-color;
+}
+
+.glyph-icon:hover {
+  -fx-effect: dropshadow( three-pass-box, rgba( 0, 0, 0, 0.2 ), 4, 0, 0, 0 );
+}
+
+.label {
+  -fx-text-fill: -fx-light-text-color;
+}
+
+.text-field {
+  -fx-prompt-text-fill: gray;
+}
+
+.button {
+  -fx-focus-traversable: false;
+}
+
+.button:hover {
+  -fx-text-fill: white;
+}
+
+.separator *.line { 
+  -fx-background-color: #3C3C3C;
+  -fx-border-style: solid;
+  -fx-border-width: 1px;
+}
+
+.scroll-bar {
+  -fx-background-color: derive( -fx-base, 15% );
+}
+
+.button:default {
+  -fx-base: derive( -fx-accent, -25% );
+} 
+
+.table-view {
+  -fx-selection-bar-non-focused: derive( -fx-base, 50% );
+}
+
+.table-view .column-header .label {
+  -fx-alignment: CENTER_LEFT;
+  -fx-font-weight: none;
+}
+
+.list-cell:even,
+.list-cell:odd,
+.table-row-cell:even,
+.table-row-cell:odd {  
+  -fx-control-inner-background: derive( -fx-base, 15% );
+}
+
+.list-cell:empty,
+.table-row-cell:empty {
+  -fx-background-color: transparent;
+}
+
+.list-cell,
+.table-row-cell {
+  -fx-border-color: transparent;
+  -fx-table-cell-border-color: transparent;
+}
+
+/* Avoid clipping text descenders in statistics table row. */
+.table-row-cell {
+  -fx-cell-size: 30px;
+}
+
+/* Toolbar */
+.tool-bar .button:hover {
+  -fx-background-color: derive( -fx-accent, -25% );
+  -fx-color: -fx-hover-base;
+}
+
+/* Tabs */
+.tab-pane *.tab-header-background {
+	-fx-background-color: -fx-base;
+}
+
+.tab:selected {
+	-fx-background-color: derive( #A9DC76, -30% );
+}
+
