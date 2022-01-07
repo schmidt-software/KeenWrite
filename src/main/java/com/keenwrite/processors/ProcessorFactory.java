@@ -67,10 +67,16 @@ public final class ProcessorFactory {
     final var inputType = context.getInputFileType();
     final Processor<String> processor;
 
-    if( preview == null && outputType == MARKDOWN_PLAIN ) {
-      processor = inputType == RMARKDOWN
-        ? createInlineRProcessor( successor, context )
-        : createMarkdownProcessor( successor, context );
+    // When there's no preview, determine processor by file name extension.
+    if( preview == null ) {
+      if( outputType == MARKDOWN_PLAIN ) {
+        processor = inputType == RMARKDOWN
+          ? createInlineRProcessor( successor, context )
+          : createVariableProcessor( successor, context );
+      }
+      else {
+        processor = createMarkdownProcessor( successor, context );
+      }
     }
     else {
       processor = inputType == SOURCE || inputType == RMARKDOWN

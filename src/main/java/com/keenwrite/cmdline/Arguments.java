@@ -76,20 +76,10 @@ public final class Arguments implements Callable<Integer> {
   private Path mPathInput;
 
   @CommandLine.Option(
-    names = {"--format-type"},
+    names = {"--format-subtype"},
     description =
-      "Export type: html, md, pdf, xml (${DEFAULT-VALUE})",
-    paramLabel = "String",
-    defaultValue = "pdf",
-    required = true
-  )
-  private String mFormatType;
-
-  @CommandLine.Option(
-    names = {"--format-subtype-tex"},
-    description =
-      "Export subtype for HTML formats: svg, delimited",
-    defaultValue = "",
+      "Export TeX subtype for HTML formats: svg, delimited",
+    defaultValue = "svg",
     paramLabel = "String"
   )
   private String mFormatSubtype;
@@ -214,7 +204,7 @@ public final class Arguments implements Callable<Integer> {
   public ProcessorContext createProcessorContext()
     throws IOException {
     final var definitions = parse( mPathVariables );
-    final var format = ExportFormat.valueFrom( mFormatType, mFormatSubtype );
+    final var format = ExportFormat.valueFrom( mPathOutput, mFormatSubtype );
     final var locale = lookupLocale( mLocale );
     final var rScript = read( mRScriptPath );
 
@@ -262,7 +252,7 @@ public final class Arguments implements Callable<Integer> {
   }
 
   private static String read( final Path path ) throws IOException {
-    return Files.readString( path );
+    return path == null ? "" : Files.readString( path );
   }
 
   /**

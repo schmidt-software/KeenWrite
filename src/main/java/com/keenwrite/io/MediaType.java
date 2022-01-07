@@ -3,10 +3,11 @@ package com.keenwrite.io;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.nio.file.Path;
 
 import static com.keenwrite.io.MediaType.TypeName.*;
-import static com.keenwrite.io.MediaTypeExtension.getMediaType;
+import static com.keenwrite.io.MediaTypeExtension.fromExtension;
 import static java.io.File.createTempFile;
 import static org.apache.commons.io.FilenameUtils.getExtension;
 
@@ -183,11 +184,11 @@ public enum MediaType {
    *                 with a known {@link MediaType}.
    * @return {@link MediaType#UNDEFINED} if the extension has not been
    * assigned, otherwise the {@link MediaType} associated with this
-   * URL's file name extension.
+   * {@link URL}'s file name extension.
    */
   public static MediaType fromFilename( final String filename ) {
     assert filename != null;
-    return getMediaType( getExtension( filename ) );
+    return fromExtension( getExtension( filename ) );
   }
 
   /**

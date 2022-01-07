@@ -1,6 +1,9 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite;
 
+import com.keenwrite.io.MediaType;
+import com.keenwrite.io.MediaTypeExtension;
+
 import java.io.File;
 import java.nio.file.Path;
 
@@ -52,30 +55,54 @@ public enum ExportFormat {
   private final String mExtension;
 
   /**
-   * Looks up the {@link ExportFormat} based on the given format type and
-   * subtype combination.
+   * Looks up the {@link ExportFormat} based on the given path and subtype.
    *
-   * @param type    The type to find.
-   * @param subtype The subtype to find (for HTML).
-   * @return An object that defines the export format according to the given
-   * parameters.
-   * @throws IllegalArgumentException Could not determine the type and
-   *                                  subtype combination.
+   * @param path     The type to find.
+   * @param modifier The subtype to find (for HTML).
+   * @return An object to control the output file format.
+   * @throws IllegalArgumentException The type/subtype could not be found.
+   */
+  public static ExportFormat valueFrom( final Path path, final String modifier )
+    throws IllegalArgumentException {
+    assert path != null;
+
+    return valueFrom( MediaType.valueFrom( path ), modifier );
+  }
+
+  /**
+   * Looks up the {@link ExportFormat} based on the given path and subtype.
+   *
+   * @param extension The type to find.
+   * @param modifier  The subtype to find (for HTML).
+   * @return An object to control the output file format.
+   * @throws IllegalArgumentException The type/subtype could not be found.
    */
   public static ExportFormat valueFrom(
-    final String type,
-    final String subtype ) throws IllegalArgumentException {
-    assert type != null;
-    assert subtype != null;
+    final String extension, final String modifier )
+    throws IllegalArgumentException {
+    assert extension != null;
 
-    return switch( type.trim().toLowerCase() ) {
-      case "html" -> "svg".equalsIgnoreCase( subtype.trim() )
+    return valueFrom( MediaTypeExtension.fromExtension( extension ), modifier );
+  }
+
+  /**
+   * Looks up the {@link ExportFormat} based on the given path and subtype.
+   *
+   * @param type     The media type to find.
+   * @param modifier The subtype to find (for HTML).
+   * @return An object to control the output file format.
+   * @throws IllegalArgumentException The type/subtype could not be found.
+   */
+  public static ExportFormat valueFrom(
+    final MediaType type, final String modifier ) {
+    return switch( type ) {
+      case TEXT_HTML, TEXT_XHTML -> "svg".equalsIgnoreCase( modifier.trim() )
         ? HTML_TEX_SVG
         : HTML_TEX_DELIMITED;
-      case "md" -> MARKDOWN_PLAIN;
-      case "pdf" -> APPLICATION_PDF;
+      case TEXT_MARKDOWN -> MARKDOWN_PLAIN;
+      case APP_PDF -> APPLICATION_PDF;
       default -> throw new IllegalArgumentException( format(
-        "Unrecognized format type and subtype: '%s' and '%s'", type, subtype
+        "Unrecognized format type and subtype: '%s' and '%s'", type, modifier
       ) );
     };
   }

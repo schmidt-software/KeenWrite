@@ -749,7 +749,7 @@ public final class MainPane extends SplitPane {
       .stream()
       .collect(
         groupingBy(
-          path -> bin.apply( MediaType.fromFilename( path ) ),
+          path -> bin.apply( MediaType.valueFrom( path ) ),
           () -> new TreeMap<>( Enum::compareTo ),
           Collectors.toList()
         )
