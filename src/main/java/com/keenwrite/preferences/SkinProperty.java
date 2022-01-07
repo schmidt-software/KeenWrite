@@ -24,6 +24,7 @@ public final class SkinProperty extends SimpleObjectProperty<String> {
     sSkins.add( "Count Darcula" );
     sSkins.add( "Haunted Grey" );
     sSkins.add( "Modena Dark" );
+    sSkins.add( "Monokai" );
     sSkins.add( SKIN_DEFAULT );
     sSkins.add( "Silver Cavern" );
     sSkins.add( "Solarized Dark" );
