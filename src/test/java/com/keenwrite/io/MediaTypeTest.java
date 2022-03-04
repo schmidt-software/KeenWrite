@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 public class MediaTypeTest {
   /**
-   * Test that {@link MediaType#equals(String, String)} is case insensitive.
+   * Test that {@link MediaType#equals(String, String)} is case-insensitive.
    */
   @Test
   public void test_Equality_IgnoreCase_Success() {

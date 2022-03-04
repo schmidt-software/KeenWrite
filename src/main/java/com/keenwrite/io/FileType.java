@@ -49,7 +49,7 @@ public enum FileType {
   }
 
   /**
-   * Answers whether this file type matches the given string, case insensitive
+   * Answers whether this file type matches the given string, case-insensitive
    * comparison.
    *
    * @param type Presumably a file name extension to check against.

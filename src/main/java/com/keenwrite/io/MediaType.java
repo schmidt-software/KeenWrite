@@ -87,7 +87,7 @@ public enum MediaType {
   /*
    * Standard audio types.
    */
-  AUDIO_BASIC( AUDIO, "basic" ),
+  AUDIO_SIMPLE( AUDIO, "basic" ),
   AUDIO_MP3( AUDIO, "mp3" ),
   AUDIO_WAV( AUDIO, "x-wav" ),
 

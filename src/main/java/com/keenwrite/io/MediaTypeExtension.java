@@ -19,7 +19,7 @@ public enum MediaTypeExtension {
   MEDIA_APP_ZIP( APP_ZIP ),
 
   MEDIA_AUDIO_MP3( AUDIO_MP3 ),
-  MEDIA_AUDIO_BASIC( AUDIO_BASIC, of( "au" ) ),
+  MEDIA_AUDIO_SIMPLE( AUDIO_SIMPLE, of( "au" ) ),
   MEDIA_AUDIO_WAV( AUDIO_WAV, of( "wav" ) ),
 
   MEDIA_FONT_OTF( FONT_OTF ),
@@ -46,7 +46,7 @@ public enum MediaTypeExtension {
   MEDIA_TEXT_PLAIN( TEXT_PLAIN, of( "txt", "asc", "ascii", "text", "utxt" ) ),
   MEDIA_TEXT_R_MARKDOWN( TEXT_R_MARKDOWN, of( "Rmd" ) ),
   MEDIA_TEXT_PROPERTIES( TEXT_PROPERTIES, of( "properties" ) ),
-  MEDIA_TEXT_XHTML( TEXT_XHTML, of( "html", "xhtml" ) ),
+  MEDIA_TEXT_XHTML( TEXT_XHTML, of( "htm", "html", "xhtml" ) ),
   MEDIA_TEXT_XML( TEXT_XML ),
   MEDIA_TEXT_YAML( TEXT_YAML, of( "yaml", "yml" ) ),
 
@@ -72,7 +72,7 @@ public enum MediaTypeExtension {
    * Returns the {@link MediaType} associated with the given file name
    * extension. The extension must not contain a period.
    *
-   * @param extension File name extension, case insensitive, {@code null}-safe.
+   * @param extension File name extension, case-insensitive, {@code null}-safe.
    * @return The associated {@link MediaType} as defined by IANA.
    */
   public static MediaType fromExtension( final String extension ) {
