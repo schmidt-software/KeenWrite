@@ -50,19 +50,19 @@ javafx {
 
 dependencies {
   def v_junit = '5.8.2'
-  def v_flexmark = '0.62.2'
-  def v_jackson = '2.13.1'
+  def v_flexmark = '0.64.0'
+  def v_jackson = '2.13.2'
   def v_batik = '1.14'
   def v_wheatsheaf = '2.0.1'
 
   // JavaFX
   // TODO: Reinstate when JDK 17-compatible release is published
   //implementation 'org.controlsfx:controlsfx:11.1.0'
-  implementation 'org.fxmisc.richtext:richtextfx:0.10.7'
-  implementation 'org.fxmisc.flowless:flowless:0.6.7'
+  implementation 'org.fxmisc.richtext:richtextfx:0.10.9'
+  implementation 'org.fxmisc.flowless:flowless:0.6.9'
   implementation 'org.fxmisc.wellbehaved:wellbehavedfx:0.3.3'
   implementation 'com.miglayout:miglayout-javafx:11.0'
-  implementation 'com.dlsc.preferencesfx:preferencesfx-core:11.8.0'
+  implementation 'com.dlsc.preferencesfx:preferencesfx-core:11.9.0'
 
   // Pure JavaFX File Chooser
   // TODO: Reinstate when file picker performance increases
@@ -83,7 +83,7 @@ dependencies {
   implementation "com.fasterxml.jackson.core:jackson-databind:${v_jackson}"
   implementation "com.fasterxml.jackson.core:jackson-annotations:${v_jackson}"
   implementation "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:${v_jackson}"
-  implementation 'org.yaml:snakeyaml:1.29'
+  implementation 'org.yaml:snakeyaml:1.30'
 
   // XML
   implementation 'com.ximpleware:vtd-xml:2.13.4'
@@ -125,7 +125,7 @@ dependencies {
   implementation 'commons-beanutils:commons-beanutils:1.9.4'
 
   // Command-line parsing
-  implementation 'info.picocli:picocli:4.6.2'
+  implementation 'info.picocli:picocli:4.6.3'
 
   // Spelling, TeX, Docking, KeenQuotes
   implementation fileTree(include: ['**/*.jar'], dir: 'libs')
