@@ -10,10 +10,13 @@ import com.vladsch.flexmark.html.HtmlRenderer;
 import com.vladsch.flexmark.parser.Parser;
 import com.vladsch.flexmark.util.data.MutableDataSet;
 import com.vladsch.flexmark.util.misc.Extension;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -22,10 +25,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  */
 public class ParserTest {
 
-  @Test
-  void test_Conversion_InlineStyles_ExportedAsHtml() {
-    final var md = "*emphasis* _emphasis_ **strong**";
-
+  @ParameterizedTest
+  @MethodSource( "markdownParameters" )
+  void test_Conversion_Markdown_Html( final String md, final String expected ) {
     final var extensions = createExtensions();
     final var options = new MutableDataSet();
     final var parser = Parser
@@ -39,10 +41,21 @@ public class ParserTest {
 
     final var document = parser.parse( md );
     final var actual = renderer.render( document );
-    final var expected =
-      "<p><em>emphasis</em> <em>emphasis</em> <strong>strong</strong></p>\n";
 
     assertEquals( expected, actual );
+  }
+
+  private static Stream<Arguments> markdownParameters() {
+    return Stream.of(
+      Arguments.of(
+        "*emphasis* _emphasis_ **strong**",
+        "<p><em>emphasis</em> <em>emphasis</em> <strong>strong</strong></p>\n"
+      ),
+      Arguments.of(
+        "the \uD83D\uDC4D emoji",
+        "<p>the \uD83D\uDC4D emoji</p>\n"
+      )
+    );
   }
 
   private List<Extension> createExtensions() {

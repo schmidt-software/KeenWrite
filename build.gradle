@@ -140,6 +140,7 @@ dependencies {
 
   testImplementation "org.testfx:testfx-junit5:4.0.16-alpha"
   testImplementation "org.junit.jupiter:junit-jupiter-api:${v_junit}"
+  testImplementation "org.junit.jupiter:junit-jupiter-params:${v_junit}"
   testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
 }
 
