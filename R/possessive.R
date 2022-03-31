@@ -81,7 +81,7 @@ pro.obj <- function( s ) {
     s <- 'her'
   }
   else {
-    s <- 'their'
+    s <- 'them'
   }
 
   s
@@ -101,12 +101,26 @@ pro.ref <- function( s ) {
   s
 }
 
-pro.pos <- function( s ) {
+pro.adj <- function( s ) {
   if( s == 'm' ) {
-    s = 'his'
+    s <- 'his'
   }
   else if( s == 'f' ) {
     s <- 'her'
+  }
+  else {
+    s <- 'their'
+  }
+
+  s
+}
+
+pro.pos <- function( s ) {
+  if( s == 'm' ) {
+    s <- 'his'
+  }
+  else if( s == 'f' ) {
+    s <- 'hers'
   }
   else {
     s <- 'theirs'
@@ -117,7 +131,7 @@ pro.pos <- function( s ) {
 
 pro.noun <- function( s ) {
   if( s == 'm' ) {
-    s = 'man'
+    s <- 'man'
   }
   else if( s == 'f' ) {
     s <- 'woman'
