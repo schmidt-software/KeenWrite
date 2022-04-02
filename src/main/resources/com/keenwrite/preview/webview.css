@@ -260,3 +260,45 @@ div.todo {
   border-color: #c00;
   background-color: #f8f8f8;
 }
+
+/* SPEECH BUBBLE ***/
+div.bubblerx, div.bubbletx {
+  display: table;
+  padding: .5em;
+  padding-top: .25em;
+  padding-bottom: .25em;
+  margin: 1em;
+  position: relative;
+  border-radius: .25em;
+  background-color: #ccc;
+
+  font-family: 'OpenSansEmoji', sans-serif;
+  font-size: 95%;
+}
+
+/* Transmit bubble on the right. */
+div.bubbletx {
+  margin-left: auto;
+}
+
+div.bubblerx:after, div.bubbletx:after {
+  content: "";
+  position: absolute;
+  width: 0;
+  height: 0;
+  top: .5em;
+  border-top: 1em solid transparent;
+  border-bottom: 1em solid transparent;
+}
+
+div.bubblerx::after {
+  left: -1em;
+  right: auto;
+  border-right: 1em solid #ccc;
+  border-left: none;
+}
+
+div.bubbletx:after {
+  right: -1em;
+  border-left: 1em solid #ccc;
+}

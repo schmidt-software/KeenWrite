@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 import static com.keenwrite.events.StatusEvent.clue;
+import static java.nio.charset.StandardCharsets.UTF_16;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static javax.xml.transform.OutputKeys.*;
 import static javax.xml.xpath.XPathConstants.NODESET;
@@ -60,9 +61,10 @@ public class DocumentParser {
       sDomImplementation = sDocumentBuilder.getDOMImplementation();
       sTransformer = TransformerFactory.newInstance().newTransformer();
 
+      // Ensure Unicode characters (emojis) are encoded correctly.
+      sTransformer.setOutputProperty( ENCODING, UTF_16.toString() );
       sTransformer.setOutputProperty( OMIT_XML_DECLARATION, "yes" );
       sTransformer.setOutputProperty( METHOD, "xml" );
-      sTransformer.setOutputProperty( ENCODING, UTF_8.toString() );
       sTransformer.setOutputProperty( INDENT, "yes" );
       sTransformer.setOutputProperty( INDENT_AMOUNT, "2" );
     } catch( final Exception ex ) {

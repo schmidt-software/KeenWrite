@@ -45,6 +45,18 @@ public class ParserTest {
     assertEquals( expected, actual );
   }
 
+  private List<Extension> createExtensions() {
+    final var extensions = new ArrayList<Extension>();
+
+    extensions.add( DefinitionExtension.create() );
+    extensions.add( StrikethroughSubscriptExtension.create() );
+    extensions.add( SuperscriptExtension.create() );
+    extensions.add( TablesExtension.create() );
+    extensions.add( FencedDivExtension.create() );
+
+    return extensions;
+  }
+
   private static Stream<Arguments> markdownParameters() {
     return Stream.of(
       Arguments.of(
@@ -56,17 +68,5 @@ public class ParserTest {
         "<p>the \uD83D\uDC4D emoji</p>\n"
       )
     );
-  }
-
-  private List<Extension> createExtensions() {
-    final var extensions = new ArrayList<Extension>();
-
-    extensions.add( DefinitionExtension.create() );
-    extensions.add( StrikethroughSubscriptExtension.create() );
-    extensions.add( SuperscriptExtension.create() );
-    extensions.add( TablesExtension.create() );
-    extensions.add( FencedDivExtension.create() );
-
-    return extensions;
   }
 }
