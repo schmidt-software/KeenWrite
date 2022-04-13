@@ -19,6 +19,15 @@ public class SysFile extends java.io.File {
     {"", ".com", ".exe", ".bat", ".cmd"};
 
   /**
+   * Creates a new instance for a given file name.
+   *
+   * @param pathname File name to represent for subsequent operations.
+   */
+  public SysFile( final String pathname ) {
+    super( pathname );
+  }
+
+  /**
    * For a file name that represents an executable (without an extension)
    * file, this determines whether the executable is found in the PATH
    * environment variable. This will search the PATH each time the method
@@ -32,6 +41,7 @@ public class SysFile extends java.io.File {
   public boolean canRun() {
     final var exe = getName();
     final var paths = getenv( "PATH" ).split( quote( pathSeparator ) );
+
     return Stream.of( paths ).map( Paths::get ).anyMatch(
       path -> {
         final var p = path.resolve( exe );
@@ -45,14 +55,5 @@ public class SysFile extends java.io.File {
         return false;
       }
     );
-  }
-
-  /**
-   * Creates a new instance for a given file name.
-   *
-   * @param pathname File name to represent for subsequent operations.
-   */
-  public SysFile( final String pathname ) {
-    super( pathname );
   }
 }

@@ -1,7 +1,7 @@
 plugins {
   id 'application'
   id 'org.openjfx.javafxplugin' version '0.0.10'
-  id 'com.palantir.git-version' version '0.12.3'
+  id 'com.palantir.git-version' version '0.14.0'
 }
 
 repositories {
@@ -164,7 +164,7 @@ application {
   applicationDefaultJvmArgs = moduleSecurity
 }
 
-version = gitVersion()
+version = "2.6.0" //gitVersion()
 
 final File propertiesFile = new File("${resourceDir}/com/${applicationName}/app.properties")
 propertiesFile.write("application.version=${version}")

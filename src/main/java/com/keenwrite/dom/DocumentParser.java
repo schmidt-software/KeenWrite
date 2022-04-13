@@ -43,9 +43,10 @@ public class DocumentParser {
 
   private static final DocumentBuilderFactory sDocumentFactory;
   private static DocumentBuilder sDocumentBuilder;
-  public static DOMImplementation sDomImplementation;
-  public static Transformer sTransformer;
+  private static Transformer sTransformer;
   private static final XPath sXpath = XPathFactory.newInstance().newXPath();
+
+  public static DOMImplementation sDomImplementation;
 
   static {
     sDocumentFactory = DocumentBuilderFactory.newInstance();
