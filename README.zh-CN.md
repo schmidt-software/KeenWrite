@@ -6,9 +6,9 @@
 
 下载以下版本之一:
 
-* [Windows](https://gitreleases.dev/gh/DaveJarvis/keenwrite/latest/keenwrite.exe)
-* [Linux](https://gitreleases.dev/gh/DaveJarvis/keenwrite/latest/keenwrite.bin)
-* [Java Archive](https://gitreleases.dev/gh/DaveJarvis/keenwrite/latest/keenwrite.jar)
+* [Windows](https://github.com/DaveJarvis/keenwrite/releases/latest/download/keenwrite.exe)
+* [Linux](https://github.com/DaveJarvis/keenwrite/releases/latest/download/keenwrite.bin)
+* [Java Archive](https://github.com/DaveJarvis/keenwrite/releases/latest/download/keenwrite.jar)
 
 ## 跑
 
