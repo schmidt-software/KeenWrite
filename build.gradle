@@ -51,7 +51,7 @@ javafx {
 dependencies {
   def v_junit = '5.8.2'
   def v_flexmark = '0.64.0'
-  def v_jackson = '2.13.2'
+  def v_jackson = '2.13.3'
   def v_batik = '1.14'
   def v_wheatsheaf = '2.0.1'
 
@@ -164,7 +164,7 @@ application {
   applicationDefaultJvmArgs = moduleSecurity
 }
 
-version = "2.6.0" //gitVersion()
+version = gitVersion()
 
 final File propertiesFile = new File("${resourceDir}/com/${applicationName}/app.properties")
 propertiesFile.write("application.version=${version}")

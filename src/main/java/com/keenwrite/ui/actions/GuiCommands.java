@@ -269,10 +269,6 @@ public final class GuiCommands {
     file_export( XHTML_TEX );
   }
 
-  public void file_export_markdown() {
-    file_export( MARKDOWN_PLAIN );
-  }
-
   private void fireExportFailedEvent() {
     runLater( ExportFailedEvent::fire );
   }

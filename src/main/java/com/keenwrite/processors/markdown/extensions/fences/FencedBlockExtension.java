@@ -7,33 +7,55 @@ import com.keenwrite.processors.ProcessorContext;
 import com.keenwrite.processors.VariableProcessor;
 import com.keenwrite.processors.markdown.MarkdownProcessor;
 import com.keenwrite.processors.markdown.extensions.HtmlRendererAdapter;
+import com.keenwrite.processors.r.RChunkEvaluator;
+import com.keenwrite.processors.r.RVariableProcessor;
+import com.keenwrite.util.Pair;
 import com.vladsch.flexmark.ast.FencedCodeBlock;
 import com.vladsch.flexmark.html.HtmlRendererOptions;
 import com.vladsch.flexmark.html.HtmlWriter;
-import com.vladsch.flexmark.html.renderer.DelegatingNodeRendererFactory;
-import com.vladsch.flexmark.html.renderer.NodeRenderer;
-import com.vladsch.flexmark.html.renderer.NodeRendererContext;
-import com.vladsch.flexmark.html.renderer.NodeRenderingHandler;
+import com.vladsch.flexmark.html.renderer.*;
 import com.vladsch.flexmark.util.data.DataHolder;
 import com.vladsch.flexmark.util.sequence.BasedSequence;
 import org.jetbrains.annotations.NotNull;
 
+import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.Set;
 
+import static com.keenwrite.Bootstrap.APP_TITLE_LOWERCASE;
+import static com.keenwrite.processors.IdentityProcessor.IDENTITY;
 import static com.vladsch.flexmark.html.HtmlRenderer.Builder;
 import static com.vladsch.flexmark.html.renderer.CoreNodeRenderer.CODE_CONTENT;
 import static com.vladsch.flexmark.html.renderer.LinkType.LINK;
+import static java.lang.String.format;
 
 /**
  * Responsible for converting textual diagram descriptions into HTML image
  * elements.
  */
-public class FencedBlockExtension extends HtmlRendererAdapter {
-  private final static String DIAGRAM_STYLE = "diagram-";
-  private final static int DIAGRAM_STYLE_LEN = DIAGRAM_STYLE.length();
+public final class FencedBlockExtension extends HtmlRendererAdapter {
+  private final static String STYLE_DIAGRAM = "diagram-";
+  private final static int STYLE_DIAGRAM_LEN = STYLE_DIAGRAM.length();
 
+  private final static String STYLE_R_CHUNK = "{r";
+
+  private final static class VerbatimRVariableProcessor
+    extends RVariableProcessor {
+
+    public VerbatimRVariableProcessor(
+      final Processor<String> successor, final ProcessorContext context ) {
+      super( successor, context );
+    }
+
+    @Override
+    protected String processValue( final String value ) {
+      return value;
+    }
+  }
+
+  private final RChunkEvaluator mEvaluator;
   private final Processor<String> mProcessor;
+  private final Processor<String> mRVariableProcessor;
   private final ProcessorContext mContext;
 
   public FencedBlockExtension(
@@ -42,6 +64,8 @@ public class FencedBlockExtension extends HtmlRendererAdapter {
     assert context != null;
     mProcessor = processor;
     mContext = context;
+    mEvaluator = new RChunkEvaluator( context );
+    mRVariableProcessor = new VerbatimRVariableProcessor( IDENTITY, context );
   }
 
   /**
@@ -100,16 +124,20 @@ public class FencedBlockExtension extends HtmlRendererAdapter {
         FencedCodeBlock.class, ( node, context, html ) -> {
         final var style = sanitize( node.getInfo() );
 
-        if( style.startsWith( DIAGRAM_STYLE ) ) {
-          final var type = style.substring( DIAGRAM_STYLE_LEN );
-          final var content = node.getContentChars().normalizeEOL();
-          final var text = mProcessor.apply( content );
-          final var server = mContext.getImageServer();
-          final var source = DiagramUrlGenerator.toUrl( server, type, text );
-          final var link = context.resolveLink( LINK, source, false );
+        Pair<String, ResolvedLink> imagePair;
 
-          html.attr( "src", source );
-          html.withAttr( link );
+        if( style.startsWith( STYLE_DIAGRAM ) ) {
+          imagePair = importTextDiagram( style, node, context );
+
+          html.attr( "src", imagePair.getKey() );
+          html.withAttr( imagePair.getValue() );
+          html.tagVoid( "img" );
+        }
+        else if( style.startsWith( STYLE_R_CHUNK ) ) {
+          imagePair = evaluateRChunk( node, context );
+
+          html.attr( "src", imagePair.getKey() );
+          html.withAttr( imagePair.getValue() );
           html.tagVoid( "img" );
         }
         else {
@@ -120,6 +148,37 @@ public class FencedBlockExtension extends HtmlRendererAdapter {
       } ) );
 
       return set;
+    }
+
+    private Pair<String, ResolvedLink> importTextDiagram(
+      final String style,
+      final FencedCodeBlock node,
+      final NodeRendererContext context ) {
+
+      final var type = style.substring( STYLE_DIAGRAM_LEN );
+      final var content = node.getContentChars().normalizeEOL();
+      final var text = mProcessor.apply( content );
+      final var server = mContext.getImageServer();
+      final var source = DiagramUrlGenerator.toUrl( server, type, text );
+      final var link = context.resolveLink( LINK, source, false );
+
+      return new Pair<>( source, link );
+    }
+
+    private Pair<String, ResolvedLink> evaluateRChunk(
+      final FencedCodeBlock node,
+      final NodeRendererContext context ) {
+      final var content = node.getContentChars().normalizeEOL().trim();
+      final var text = mRVariableProcessor.apply( content );
+      final var hash = Integer.toHexString( text.hashCode() );
+      final var temp = System.getProperty( "java.io.tmpdir" );
+      final var file = format( "%s-%s.svg", APP_TITLE_LOWERCASE, hash );
+      final var source = Paths.get( temp, file ).toString();
+      final var link = context.resolveLink( LINK, source, false );
+      final var r = format( "svg('%s')%n%s%ndev.off()%n", source, text );
+      final var result = mEvaluator.apply( r );
+
+      return new Pair<>( source, link );
     }
 
     /**

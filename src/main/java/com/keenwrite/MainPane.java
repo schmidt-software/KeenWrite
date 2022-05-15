@@ -19,7 +19,7 @@ import com.keenwrite.processors.HtmlPreviewProcessor;
 import com.keenwrite.processors.Processor;
 import com.keenwrite.processors.ProcessorContext;
 import com.keenwrite.processors.ProcessorFactory;
-import com.keenwrite.processors.r.InlineRProcessor;
+import com.keenwrite.processors.r.RInlineEvaluator;
 import com.keenwrite.service.events.Notifier;
 import com.keenwrite.sigils.PropertyKeyOperator;
 import com.keenwrite.sigils.RKeyOperator;
@@ -1102,8 +1102,8 @@ public final class MainPane extends SplitPane {
         operator = s -> s;
       }
       case TEXT_R_MARKDOWN -> {
-        began = InlineRProcessor.PREFIX + getString( KEY_R_DELIM_BEGAN );
-        ended = getString( KEY_R_DELIM_ENDED ) + InlineRProcessor.SUFFIX;
+        began = RInlineEvaluator.PREFIX + getString( KEY_R_DELIM_BEGAN );
+        ended = getString( KEY_R_DELIM_ENDED ) + RInlineEvaluator.SUFFIX;
         operator = new RKeyOperator();
       }
       case TEXT_PROPERTIES -> {

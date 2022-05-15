@@ -1,6 +1,7 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.processors.r;
 
+import com.keenwrite.processors.Processor;
 import com.keenwrite.processors.ProcessorContext;
 import com.keenwrite.processors.VariableProcessor;
 import com.keenwrite.sigils.RKeyOperator;
@@ -12,10 +13,10 @@ import java.util.function.UnaryOperator;
  * performs a substitution on the text. The default R variable syntax is
  * <pre>v$tree$leaf</pre>.
  */
-public final class RVariableProcessor extends VariableProcessor {
+public class RVariableProcessor extends VariableProcessor {
   public RVariableProcessor(
-    final InlineRProcessor irp, final ProcessorContext context ) {
-    super( irp, context );
+    final Processor<String> successor, final ProcessorContext context ) {
+    super( successor, context );
   }
 
   @Override

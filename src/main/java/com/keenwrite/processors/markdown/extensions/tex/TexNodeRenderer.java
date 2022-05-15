@@ -31,7 +31,6 @@ public class TexNodeRenderer {
       HTML_TEX_SVG, new TexSvgNodeRenderer(),
       HTML_TEX_DELIMITED, new TexDelimNodeRenderer(),
       XHTML_TEX, new TexElementNodeRenderer( true ),
-      MARKDOWN_PLAIN, new TexDelimNodeRenderer(),
       NONE, RENDERER
     );
 

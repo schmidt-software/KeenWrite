@@ -33,12 +33,6 @@ public enum ExportFormat {
   XHTML_TEX( ".xml" ),
 
   /**
-   * Indicates that the processors should export to a Markdown format.
-   * Treat image links relatively.
-   */
-  MARKDOWN_PLAIN( ".out.md" ),
-
-  /**
    * Exports as PDF file format.
    */
   APPLICATION_PDF( ".pdf" ),
@@ -99,7 +93,6 @@ public enum ExportFormat {
       case TEXT_HTML, TEXT_XHTML -> "svg".equalsIgnoreCase( modifier.trim() )
         ? HTML_TEX_SVG
         : HTML_TEX_DELIMITED;
-      case TEXT_MARKDOWN -> MARKDOWN_PLAIN;
       case APP_PDF -> APPLICATION_PDF;
       default -> throw new IllegalArgumentException( format(
         "Unrecognized format type and subtype: '%s' and '%s'", type, modifier
@@ -131,9 +124,5 @@ public enum ExportFormat {
    */
   public File toExportFilename( final Path path ) {
     return toExportFilename( path.toFile() );
-  }
-
-  public Path toExportPath( final Path path ) {
-    return toExportFilename( path ).toPath();
   }
 }

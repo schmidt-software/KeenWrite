@@ -5,7 +5,7 @@ import com.keenwrite.processors.ExecutorProcessor;
 import com.keenwrite.processors.Processor;
 import com.keenwrite.processors.ProcessorContext;
 import com.keenwrite.processors.markdown.extensions.fences.FencedDivExtension;
-import com.keenwrite.processors.markdown.extensions.r.RExtension;
+import com.keenwrite.processors.markdown.extensions.r.RInlineExtension;
 import com.vladsch.flexmark.ext.definition.DefinitionExtension;
 import com.vladsch.flexmark.ext.gfm.strikethrough.StrikethroughSubscriptExtension;
 import com.vladsch.flexmark.ext.superscript.SuperscriptExtension;
@@ -23,7 +23,7 @@ import java.util.List;
 /**
  * Responsible for parsing and rendering Markdown into HTML. This is required
  * to break a circular dependency between the {@link MarkdownProcessor} and
- * {@link RExtension}.
+ * {@link RInlineExtension}.
  */
 public class BaseMarkdownProcessor extends ExecutorProcessor<String> {
 

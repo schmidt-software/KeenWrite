@@ -60,8 +60,7 @@ public final class ApplicationBars {
           addAction( "file.export.pdf.dir", e -> actions.file_export_pdf_dir() ),
           addAction( "file.export.html_svg", e -> actions.file_export_html_svg() ),
           addAction( "file.export.html_tex", e -> actions.file_export_html_tex() ),
-          addAction( "file.export.xhtml_tex", e -> actions.file_export_xhtml_tex() ),
-          addAction( "file.export.markdown", e -> actions.file_export_markdown() )
+          addAction( "file.export.xhtml_tex", e -> actions.file_export_xhtml_tex() )
         ),
       SEPARATOR_ACTION,
       addAction( "file.exit", e -> actions.file_exit() )

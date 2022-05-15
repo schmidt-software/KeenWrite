@@ -2,10 +2,10 @@
 package com.keenwrite.processors;
 
 import com.keenwrite.processors.markdown.MarkdownProcessor;
-import com.keenwrite.processors.r.InlineRProcessor;
+import com.keenwrite.processors.r.RBootstrapController;
+import com.keenwrite.processors.r.RInlineEvaluator;
 import com.keenwrite.processors.r.RVariableProcessor;
 
-import static com.keenwrite.ExportFormat.MARKDOWN_PLAIN;
 import static com.keenwrite.io.FileType.RMARKDOWN;
 import static com.keenwrite.io.FileType.SOURCE;
 import static com.keenwrite.processors.IdentityProcessor.IDENTITY;
@@ -67,16 +67,9 @@ public final class ProcessorFactory {
     final var inputType = context.getInputFileType();
     final Processor<String> processor;
 
-    // When there's no preview, determine processor by file name extension.
+    // When there's no preview, convert to HTML.
     if( preview == null ) {
-      if( outputType == MARKDOWN_PLAIN ) {
-        processor = inputType == RMARKDOWN
-          ? createInlineRProcessor( successor, context )
-          : createVariableProcessor( successor, context );
-      }
-      else {
-        processor = createMarkdownProcessor( successor, context );
-      }
+      processor = createMarkdownProcessor( successor, context );
     }
     else {
       processor = inputType == SOURCE || inputType == RMARKDOWN
@@ -124,15 +117,15 @@ public final class ProcessorFactory {
    * R variable references) and embedding the result into the document. This
    * is useful for converting R Markdown documents into plain Markdown.
    *
-   * @param successor {@link Processor} invoked after {@link InlineRProcessor}.
+   * @param successor {@link Processor} invoked after {@link RInlineEvaluator}.
    * @param context   {@link Processor} configuration settings.
    * @return An instance of {@link Processor} that performs variable
    * interpolation, replacement, and execution of R statements.
    */
-  private static Processor<String> createInlineRProcessor(
+  public static Processor<String> createRProcessor(
     final Processor<String> successor, final ProcessorContext context ) {
-    final var irp = new InlineRProcessor( successor, context );
-    final var rvp = new RVariableProcessor( irp, context );
+    RBootstrapController.init( context );
+    final var rvp = new RVariableProcessor( successor, context );
     return createVariableProcessor( rvp, context );
   }
 

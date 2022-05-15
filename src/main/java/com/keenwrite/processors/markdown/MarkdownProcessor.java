@@ -2,14 +2,15 @@
 package com.keenwrite.processors.markdown;
 
 import com.keenwrite.io.MediaType;
-import com.keenwrite.processors.VariableProcessor;
 import com.keenwrite.processors.Processor;
 import com.keenwrite.processors.ProcessorContext;
-import com.keenwrite.processors.markdown.extensions.*;
+import com.keenwrite.processors.VariableProcessor;
+import com.keenwrite.processors.markdown.extensions.CaretExtension;
+import com.keenwrite.processors.markdown.extensions.DocumentOutlineExtension;
+import com.keenwrite.processors.markdown.extensions.ImageLinkExtension;
 import com.keenwrite.processors.markdown.extensions.fences.FencedBlockExtension;
-import com.keenwrite.processors.markdown.extensions.r.RExtension;
+import com.keenwrite.processors.markdown.extensions.r.RInlineExtension;
 import com.keenwrite.processors.markdown.extensions.tex.TeXExtension;
-import com.keenwrite.processors.r.RProcessor;
 import com.vladsch.flexmark.util.misc.Extension;
 
 import java.util.ArrayList;
@@ -58,9 +59,8 @@ public final class MarkdownProcessor extends BaseMarkdownProcessor {
     final List<Extension> extensions = new ArrayList<>();
 
     if( mediaType == TEXT_R_MARKDOWN ) {
-      final var rProcessor = new RProcessor( context );
-      extensions.add( RExtension.create( rProcessor, context ) );
-      processor = rProcessor;
+      extensions.add( RInlineExtension.create( context ) );
+      processor = IDENTITY;
     }
     else {
       processor = new VariableProcessor( IDENTITY, context );
