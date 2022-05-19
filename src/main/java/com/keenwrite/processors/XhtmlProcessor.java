@@ -79,14 +79,12 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
         try {
           final var attrs = node.getAttributes();
 
-          if( attrs != null ) {
-            final var attr = attrs.getNamedItem( "src" );
+          final var attr = attrs.getNamedItem( "src" );
 
-            if( attr != null ) {
-              final var imageFile = exportImage( attr.getTextContent() );
+          if( attr != null ) {
+            final var imageFile = exportImage( attr.getTextContent() );
 
-              attr.setTextContent( imageFile.toString() );
-            }
+            attr.setTextContent( imageFile.toString() );
           }
         } catch( final Exception ex ) {
           clue( ex );
@@ -168,18 +166,20 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
 
     // Download remote resources into temporary files.
     if( protocol.isRemote() ) {
-      final var response = httpGet( src );
-      final var mediaType = response.getMediaType();
+      try( final var response = httpGet( src ) ) {
+        final var mediaType = response.getMediaType();
 
-      imageFile = mediaType.createTemporaryFile( APP_TITLE_LOWERCASE );
+        imageFile = mediaType.createTemporaryFile( APP_TITLE_LOWERCASE );
 
-      try( final var image = response.getInputStream() ) {
-        copy( image, imageFile, REPLACE_EXISTING );
-      }
+        try( final var image = response.getInputStream() ) {
+          copy( image, imageFile, REPLACE_EXISTING );
+        }
 
-      // Strip comments, superfluous whitespace, DOCTYPE, and XML declarations.
-      if( mediaType.isSvg() ) {
-        DocumentParser.sanitize( imageFile );
+        // Strip comments, superfluous whitespace, DOCTYPE, and XML
+        // declarations.
+        if( mediaType.isSvg() ) {
+          DocumentParser.sanitize( imageFile );
+        }
       }
     }
     else {
