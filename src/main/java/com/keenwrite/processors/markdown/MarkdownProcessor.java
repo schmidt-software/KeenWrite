@@ -11,10 +11,12 @@ import com.keenwrite.processors.markdown.extensions.ImageLinkExtension;
 import com.keenwrite.processors.markdown.extensions.fences.FencedBlockExtension;
 import com.keenwrite.processors.markdown.extensions.r.RInlineExtension;
 import com.keenwrite.processors.markdown.extensions.tex.TeXExtension;
+import com.keenwrite.processors.r.RInlineEvaluator;
 import com.vladsch.flexmark.util.misc.Extension;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 
 import static com.keenwrite.io.MediaType.TEXT_R_MARKDOWN;
 import static com.keenwrite.processors.IdentityProcessor.IDENTITY;
@@ -56,14 +58,17 @@ public final class MarkdownProcessor extends BaseMarkdownProcessor {
     final var inputPath = context.getInputPath();
     final var mediaType = MediaType.valueFrom( inputPath );
     final Processor<String> processor;
+    final Function<String, String> evaluator;
     final List<Extension> extensions = new ArrayList<>();
 
     if( mediaType == TEXT_R_MARKDOWN ) {
       extensions.add( RInlineExtension.create( context ) );
       processor = IDENTITY;
+      evaluator = new RInlineEvaluator( context );
     }
     else {
       processor = new VariableProcessor( IDENTITY, context );
+      evaluator = processor;
     }
 
     // Add typographic, table, strikethrough, and similar extensions.
@@ -71,7 +76,7 @@ public final class MarkdownProcessor extends BaseMarkdownProcessor {
 
     extensions.add( ImageLinkExtension.create( context ) );
     extensions.add( TeXExtension.create( processor, context ) );
-    extensions.add( FencedBlockExtension.create( processor, context ) );
+    extensions.add( FencedBlockExtension.create( processor, evaluator, context ) );
     extensions.add( CaretExtension.create( context ) );
     extensions.add( DocumentOutlineExtension.create( processor ) );
     return extensions;

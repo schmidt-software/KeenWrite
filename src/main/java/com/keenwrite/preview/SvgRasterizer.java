@@ -8,9 +8,7 @@ import org.apache.batik.bridge.UserAgent;
 import org.apache.batik.bridge.UserAgentAdapter;
 import org.apache.batik.css.parser.Parser;
 import org.apache.batik.gvt.renderer.ImageRenderer;
-import org.apache.batik.transcoder.TranscoderException;
-import org.apache.batik.transcoder.TranscoderInput;
-import org.apache.batik.transcoder.TranscoderOutput;
+import org.apache.batik.transcoder.*;
 import org.apache.batik.transcoder.image.ImageTranscoder;
 import org.apache.batik.util.XMLResourceDescriptor;
 import org.w3c.css.sac.CSSException;
@@ -57,6 +55,26 @@ public final class SvgRasterizer {
     }
   }
 
+  /**
+   * Prevent rudely barfing stack traces to the console.
+   */
+  private static final class SvgErrorHandler implements ErrorHandler {
+    @Override
+    public void error( final TranscoderException ex ) {
+      clue( ex );
+    }
+
+    @Override
+    public void fatalError( final TranscoderException ex ) {
+      clue( ex );
+    }
+
+    @Override
+    public void warning( final TranscoderException ex ) {
+      clue( ex );
+    }
+  }
+
   static {
     XMLResourceDescriptor.setCSSParserClassName(
       InkscapeCssParser.class.getName()
@@ -67,6 +85,7 @@ public final class SvgRasterizer {
   private static final BridgeContext BRIDGE_CONTEXT = new BridgeContext(
     USER_AGENT, new DocumentLoader( USER_AGENT )
   );
+  private static final ErrorHandler sErrorHandler = new SvgErrorHandler();
 
   private static final SAXSVGDocumentFactory FACTORY_DOM =
     new SAXSVGDocumentFactory( getXMLParserClassName() );
@@ -140,6 +159,20 @@ public final class SvgRasterizer {
    */
   private static class BufferedImageTranscoder extends ImageTranscoder {
     private BufferedImage mImage;
+
+    /**
+     * Prevent barfing a stack trace when the transcoder encounters problems
+     * parsing SVG contents.
+     */
+    @Override
+    protected UserAgent createUserAgent() {
+      return new SVGAbstractTranscoderUserAgent() {
+        @Override
+        public void displayError( final Exception ex ) {
+          clue( ex );
+        }
+      };
+    }
 
     @Override
     public BufferedImage createImage( final int w, final int h ) {
@@ -244,7 +277,8 @@ public final class SvgRasterizer {
    * happens, a broken image icon is returned instead.
    *
    * @param uri   The URI to a vector graphic file, which must include the
-   *              protocol scheme (such as file:// or https://).
+   *              protocol scheme (such as <code>file://</code> or
+   *              <code>https://</code>).
    * @param width Scale the image to the given width (px); aspect ratio is
    *              maintained.
    * @return A rasterized image as an instance of {@link BufferedImage}.
@@ -347,6 +381,7 @@ public final class SvgRasterizer {
     throws TranscoderException {
     final var transcoder = new BufferedImageTranscoder();
 
+    transcoder.setErrorHandler( sErrorHandler );
     transcoder.addTranscodingHint( key, width );
     transcoder.transcode( input, null );
 

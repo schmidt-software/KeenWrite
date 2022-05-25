@@ -21,6 +21,7 @@ import org.jetbrains.annotations.NotNull;
 import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.function.Function;
 
 import static com.keenwrite.Bootstrap.APP_TITLE_LOWERCASE;
 import static com.keenwrite.processors.IdentityProcessor.IDENTITY;
@@ -53,18 +54,21 @@ public final class FencedBlockExtension extends HtmlRendererAdapter {
     }
   }
 
-  private final RChunkEvaluator mEvaluator;
-  private final Processor<String> mProcessor;
+  private final RChunkEvaluator mRChunkEvaluator;
+  private final Function<String, String> mInlineEvaluator;
+
   private final Processor<String> mRVariableProcessor;
   private final ProcessorContext mContext;
 
   public FencedBlockExtension(
-    final Processor<String> processor, final ProcessorContext context ) {
+    final Processor<String> processor,
+    final Function<String, String> evaluator,
+    final ProcessorContext context ) {
     assert processor != null;
     assert context != null;
-    mProcessor = processor;
     mContext = context;
-    mEvaluator = new RChunkEvaluator( context );
+    mRChunkEvaluator = new RChunkEvaluator( context );
+    mInlineEvaluator = evaluator;
     mRVariableProcessor = new VerbatimRVariableProcessor( IDENTITY, context );
   }
 
@@ -87,10 +91,12 @@ public final class FencedBlockExtension extends HtmlRendererAdapter {
    * diagrams to a service for conversion to SVG.
    */
   public static FencedBlockExtension create(
-    final Processor<String> processor, final ProcessorContext context ) {
+    final Processor<String> processor,
+    final Function<String, String> evaluator,
+    final ProcessorContext context ) {
     assert processor != null;
     assert context != null;
-    return new FencedBlockExtension( processor, context );
+    return new FencedBlockExtension( processor, evaluator, context );
   }
 
   @Override
@@ -157,7 +163,7 @@ public final class FencedBlockExtension extends HtmlRendererAdapter {
 
       final var type = style.substring( STYLE_DIAGRAM_LEN );
       final var content = node.getContentChars().normalizeEOL();
-      final var text = mProcessor.apply( content );
+      final var text = mInlineEvaluator.apply( content );
       final var server = mContext.getImageServer();
       final var source = DiagramUrlGenerator.toUrl( server, type, text );
       final var link = context.resolveLink( LINK, source, false );
@@ -176,7 +182,7 @@ public final class FencedBlockExtension extends HtmlRendererAdapter {
       final var source = Paths.get( temp, file ).toString();
       final var link = context.resolveLink( LINK, source, false );
       final var r = format( "svg('%s')%n%s%ndev.off()%n", source, text );
-      final var result = mEvaluator.apply( r );
+      final var result = mRChunkEvaluator.apply( r );
 
       return new Pair<>( source, link );
     }

@@ -20,15 +20,16 @@ public final class RInlineEvaluator
   public static final String SUFFIX = "`";
 
   private static final int PREFIX_LENGTH = PREFIX.length();
-  private static final int SUFFIX_LENGTH = SUFFIX.length();
 
   private final Processor<String> mProcessor;
+  private final ProcessorContext mContext;
 
   /**
    * Constructs an evaluator capable of executing R statements.
    */
   public RInlineEvaluator( final ProcessorContext context ) {
     mProcessor = new RVariableProcessor( IDENTITY, context );
+    mContext = context;
   }
 
   /**
@@ -43,13 +44,34 @@ public final class RInlineEvaluator
   @Override
   public String apply( final String text ) {
     try {
-      final var len = text.length();
-      final var r = mProcessor.apply(
-        text.substring( PREFIX_LENGTH, len - SUFFIX_LENGTH )
-      );
+      final var buffer = new StringBuilder( text.length() );
 
-      // Return the evaluated R expression for insertion back into the text.
-      return Engine.eval( r );
+      int index = 0;
+      int began;
+      int ended;
+
+      RBootstrapController.init( mContext );
+
+      while( (began = text.indexOf( PREFIX, index )) >= 0 ) {
+        buffer.append( text, index, began );
+
+        ended = text.indexOf( SUFFIX, began + 1 );
+
+        if( ended > began ) {
+          final var r = mProcessor.apply(
+            text.substring( began + PREFIX_LENGTH, ended )
+          );
+
+          // Return the evaluated R expression for insertion back into the text.
+          buffer.append( Engine.eval( r ) );
+
+          index = ended + 1;
+        }
+      }
+
+      buffer.append( text.substring( index ) );
+
+      return buffer.toString();
     } catch( final Exception ex ) {
       clue( STATUS_PARSE_ERROR, ex.getMessage() );
 

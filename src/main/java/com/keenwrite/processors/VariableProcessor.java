@@ -105,8 +105,4 @@ public class VariableProcessor
 
     return result;
   }
-
-  protected ProcessorContext getContext() {
-    return mContext;
-  }
 }
