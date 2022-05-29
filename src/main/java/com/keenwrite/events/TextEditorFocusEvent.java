@@ -3,6 +3,9 @@ package com.keenwrite.events;
 
 import com.keenwrite.editors.TextEditor;
 
+/**
+ * Collates information about the text editor that has gained focus.
+ */
 public class TextEditorFocusEvent extends FocusEvent<TextEditor> {
   protected TextEditorFocusEvent( final TextEditor editor ) {
     super( editor );

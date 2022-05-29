@@ -16,7 +16,6 @@ import java.util.function.UnaryOperator;
 import static com.keenwrite.constants.Constants.*;
 import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.preferences.AppKeys.*;
-import static com.keenwrite.preferences.AppKeys.KEY_R_DELIM_ENDED;
 
 /**
  * Provides the logic for injecting variable names within the editor.
@@ -30,7 +29,61 @@ public final class VariableNameInjector {
     mWorkspace = workspace;
   }
 
-  public UnaryOperator<String> createOperator( final MediaType mediaType ) {
+  /**
+   * Find a node that matches the current word and substitute the definition
+   * reference. After calling this method the document being edited will have
+   * the word under the caret replaced with a corresponding variable name
+   * bracketed by sigils according to the document's media type.
+   *
+   * @param editor      The editor having a caret and a word under that caret.
+   * @param definitions The list of variable definitions to search for a value
+   *                    that matches the word under the caret.
+   */
+  public void autoinsert(
+    final TextEditor editor,
+    final TextDefinition definitions ) {
+    assert editor != null;
+    assert definitions != null;
+
+    try {
+      if( definitions.isEmpty() ) {
+        clue( STATUS_DEFINITION_EMPTY );
+      }
+      else {
+        final var indexes = editor.getCaretWord();
+        final var word = editor.getText( indexes );
+
+        if( word.isBlank() ) {
+          clue( STATUS_DEFINITION_BLANK );
+        }
+        else {
+          final var leaf = findLeaf( definitions, word );
+
+          if( leaf == null ) {
+            clue( STATUS_DEFINITION_MISSING, word );
+          }
+          else {
+            final var mediaType = editor.getMediaType();
+            final var operator = createOperator( mediaType );
+
+            editor.replaceText( indexes, operator.apply( leaf.toPath() ) );
+            definitions.expand( leaf );
+          }
+        }
+      }
+    } catch( final Exception ex ) {
+      clue( STATUS_DEFINITION_BLANK, ex );
+    }
+  }
+
+  /**
+   * Creates an instance of {@link UnaryOperator} that can wrap a value with
+   * sigils.
+   *
+   * @param mediaType The type of document with variables to sigilize.
+   * @return An operator that produces sigilized variable names.
+   */
+  private UnaryOperator<String> createOperator( final MediaType mediaType ) {
     final String began;
     final String ended;
     final UnaryOperator<String> operator;
@@ -65,46 +118,6 @@ public final class VariableNameInjector {
     assert key != null;
 
     return mWorkspace.getString( key );
-  }
-
-  /**
-   * Find a node that matches the current word and substitute the definition
-   * reference.
-   */
-  public void autoinsert(
-    final TextEditor editor,
-    final TextDefinition definitions,
-    final UnaryOperator<String> operator ) {
-    assert editor != null;
-    assert definitions != null;
-    assert operator != null;
-
-    try {
-      if( definitions.isEmpty() ) {
-        clue( STATUS_DEFINITION_EMPTY );
-      }
-      else {
-        final var indexes = editor.getCaretWord();
-        final var word = editor.getText( indexes );
-
-        if( word.isBlank() ) {
-          clue( STATUS_DEFINITION_BLANK );
-        }
-        else {
-          final var leaf = findLeaf( definitions, word );
-
-          if( leaf == null ) {
-            clue( STATUS_DEFINITION_MISSING, word );
-          }
-          else {
-            editor.replaceText( indexes, operator.apply( leaf.toPath() ) );
-            definitions.expand( leaf );
-          }
-        }
-      }
-    } catch( final Exception ex ) {
-      clue( STATUS_DEFINITION_BLANK, ex );
-    }
   }
 
   /**

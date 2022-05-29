@@ -4,7 +4,6 @@ package com.keenwrite.processors.markdown.extensions.r;
 import com.keenwrite.processors.Processor;
 import com.keenwrite.processors.ProcessorContext;
 import com.keenwrite.processors.markdown.BaseMarkdownProcessor;
-import com.keenwrite.processors.r.RBootstrapController;
 import com.keenwrite.processors.r.RInlineEvaluator;
 import com.vladsch.flexmark.ast.Paragraph;
 import com.vladsch.flexmark.parser.InlineParserExtensionFactory;
@@ -33,10 +32,8 @@ import static com.vladsch.flexmark.parser.Parser.ParserExtension;
 public final class RInlineExtension implements ParserExtension {
   private final RInlineEvaluator mEvaluator;
   private final BaseMarkdownProcessor mMarkdownProcessor;
-  private final ProcessorContext mContext;
 
   private RInlineExtension( final ProcessorContext context ) {
-    mContext = context;
     mEvaluator = new RInlineEvaluator( context );
     mMarkdownProcessor = new BaseMarkdownProcessor( IDENTITY, context );
   }
@@ -110,8 +107,6 @@ public final class RInlineExtension implements ParserExtension {
 
           if( mEvaluator.test( code ) ) {
             codeNode.unlink();
-
-            RBootstrapController.init( mContext );
 
             final var rText = mEvaluator.apply( code );
             var node = mMarkdownProcessor.toNode( rText );

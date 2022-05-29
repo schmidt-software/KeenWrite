@@ -67,7 +67,7 @@ public final class FencedBlockExtension extends HtmlRendererAdapter {
     assert processor != null;
     assert context != null;
     mContext = context;
-    mRChunkEvaluator = new RChunkEvaluator( context );
+    mRChunkEvaluator = new RChunkEvaluator();
     mInlineEvaluator = evaluator;
     mRVariableProcessor = new VerbatimRVariableProcessor( IDENTITY, context );
   }

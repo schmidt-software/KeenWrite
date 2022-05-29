@@ -22,14 +22,12 @@ public final class RInlineEvaluator
   private static final int PREFIX_LENGTH = PREFIX.length();
 
   private final Processor<String> mProcessor;
-  private final ProcessorContext mContext;
 
   /**
    * Constructs an evaluator capable of executing R statements.
    */
   public RInlineEvaluator( final ProcessorContext context ) {
     mProcessor = new RVariableProcessor( IDENTITY, context );
-    mContext = context;
   }
 
   /**
@@ -49,8 +47,6 @@ public final class RInlineEvaluator
       int index = 0;
       int began;
       int ended;
-
-      RBootstrapController.init( mContext );
 
       while( (began = text.indexOf( PREFIX, index )) >= 0 ) {
         buffer.append( text, index, began );

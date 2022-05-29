@@ -19,6 +19,7 @@ import com.keenwrite.processors.Processor;
 import com.keenwrite.processors.ProcessorContext;
 import com.keenwrite.processors.ProcessorFactory;
 import com.keenwrite.processors.r.Engine;
+import com.keenwrite.processors.r.RBootstrapController;
 import com.keenwrite.service.events.Notifier;
 import com.keenwrite.ui.explorer.FilePickerFactory;
 import com.keenwrite.ui.heuristics.DocumentStatistics;
@@ -160,7 +161,9 @@ public final class MainPane extends SplitPane {
    */
   private byte mWindowCount;
 
-  private final VariableNameInjector mVarNameInjector;
+  private final VariableNameInjector mVariableNameInjector;
+
+  private final RBootstrapController mRBootstrapController;
 
   private final DocumentStatistics mStatistics;
 
@@ -175,7 +178,9 @@ public final class MainPane extends SplitPane {
     mStatistics = new DocumentStatistics( workspace );
     mTextEditor.set( new MarkdownEditor( workspace ) );
     mDefinitionEditor = createActiveDefinitionEditor( mTextEditor );
-    mVarNameInjector = new VariableNameInjector( mWorkspace );
+    mVariableNameInjector = new VariableNameInjector( mWorkspace );
+    mRBootstrapController = new RBootstrapController(
+      mWorkspace, this::getDefinitions );
 
     open( collect( getRecentFiles() ) );
     viewPreview();
@@ -666,7 +671,16 @@ public final class MainPane extends SplitPane {
       createDefinitionEditor()
     );
 
-    defEditor.addListener( ( c, o, n ) -> process( textEditor.get() ) );
+    defEditor.addListener( ( c, o, n ) -> {
+      final var editor = textEditor.get();
+
+      if( editor.isMediaType( TEXT_R_MARKDOWN ) ) {
+        // Initialize R before the editor is added.
+        mRBootstrapController.update();
+      }
+
+      process( editor );
+    } );
 
     return defEditor;
   }
@@ -749,7 +763,7 @@ public final class MainPane extends SplitPane {
       .stream()
       .collect(
         groupingBy(
-          path -> bin.apply( MediaType.valueFrom( path ) ),
+          path -> bin.apply( MediaType.fromFilename( path ) ),
           () -> new TreeMap<>( Enum::compareTo ),
           Collectors.toList()
         )
@@ -1070,9 +1084,11 @@ public final class MainPane extends SplitPane {
   }
 
   /**
-   * See {@link #autoinsert()}.
+   * Delegates to {@link #autoinsert()}.
+   *
+   * @param keyEvent Ignored.
    */
-  private void autoinsert( final KeyEvent ignored ) {
+  private void autoinsert( final KeyEvent keyEvent ) {
     autoinsert();
   }
 
@@ -1082,12 +1098,7 @@ public final class MainPane extends SplitPane {
    * the type of file being edited.
    */
   public void autoinsert() {
-    final var editor = getTextEditor();
-    final var mediaType = editor.getMediaType();
-    final var definitions = getTextDefinition();
-    final var operator = mVarNameInjector.createOperator( mediaType );
-
-    mVarNameInjector.autoinsert( editor, definitions, operator );
+    mVariableNameInjector.autoinsert( getTextEditor(), getTextDefinition() );
   }
 
   private TextDefinition createDefinitionEditor() {

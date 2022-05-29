@@ -1,12 +1,16 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.processors.r;
 
-import com.keenwrite.processors.ProcessorContext;
+import com.keenwrite.preferences.Workspace;
 import com.keenwrite.sigils.RKeyOperator;
 
 import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Supplier;
 
 import static com.keenwrite.events.StatusEvent.clue;
+import static com.keenwrite.preferences.AppKeys.KEY_R_DIR;
+import static com.keenwrite.preferences.AppKeys.KEY_R_SCRIPT;
 import static com.keenwrite.processors.r.RVariableProcessor.escape;
 import static com.keenwrite.processors.text.TextReplacementFactory.replace;
 
@@ -17,23 +21,32 @@ public final class RBootstrapController {
 
   private final static RKeyOperator KEY_OPERATOR = new RKeyOperator();
 
-  private RBootstrapController() {}
+  private final Workspace mWorkspace;
+  private final Supplier<Map<String, String>> mDefinitions;
+
+  public RBootstrapController(
+    final Workspace workspace,
+    final Supplier<Map<String, String>> supplier ) {
+    mWorkspace = workspace;
+    mDefinitions = supplier;
+
+    mWorkspace.stringProperty( KEY_R_SCRIPT )
+              .addListener( ( c, o, n ) -> update() );
+    mWorkspace.fileProperty( KEY_R_DIR )
+              .addListener( ( c, o, n ) -> update() );
+  }
 
   /**
-   * Initializes the R code so that R can find imported libraries. Note that
+   * Updates the R code so that R can find imported libraries. Note that
    * any existing R functionality will not be overwritten if this method is
    * called multiple times.
-   * <p>
-   * If the R code to bootstrap contained variables, and they were all updated
-   * successfully, this will update the internal ready flag to {@code true}.
    */
-  public static void init( final ProcessorContext context ) {
-    final var bootstrap = context.getRScript();
+  public void update() {
+    final var bootstrap = getRScript();
 
     if( !bootstrap.isBlank() ) {
-      final var wd = context.getRWorkingDir();
-      final var dir = wd.toString().replace( '\\', '/' );
-      final var definitions = context.getDefinitions();
+      final var dir = getRWorkingDirectory();
+      final var definitions = mDefinitions.get();
       final var map = new HashMap<String, String>( definitions.size() + 1 );
 
       definitions.forEach(
@@ -53,5 +66,14 @@ public final class RBootstrapController {
         // too soon.
       }
     }
+  }
+
+  private String getRScript() {
+    return mWorkspace.getString( KEY_R_SCRIPT );
+  }
+
+  private String getRWorkingDirectory() {
+    final var wd = mWorkspace.getFile( KEY_R_DIR );
+    return wd.toString().replace( '\\', '/' );
   }
 }

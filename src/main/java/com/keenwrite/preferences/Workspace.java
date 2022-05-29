@@ -1,6 +1,7 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.preferences;
 
+import com.keenwrite.events.workspace.WorkspaceLoadedEvent;
 import javafx.application.Platform;
 import javafx.beans.property.*;
 import javafx.collections.ObservableList;
@@ -304,6 +305,8 @@ public final class Workspace {
 
       property.setValue( observableArrayList( list ) );
     } );
+
+    WorkspaceLoadedEvent.fire( this );
   }
 
   /**
