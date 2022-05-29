@@ -12,17 +12,14 @@ import com.keenwrite.editors.definition.yaml.YamlTreeTransformer;
 import com.keenwrite.editors.markdown.MarkdownEditor;
 import com.keenwrite.events.*;
 import com.keenwrite.io.MediaType;
-import com.keenwrite.preferences.Key;
 import com.keenwrite.preferences.Workspace;
 import com.keenwrite.preview.HtmlPreview;
 import com.keenwrite.processors.HtmlPreviewProcessor;
 import com.keenwrite.processors.Processor;
 import com.keenwrite.processors.ProcessorContext;
 import com.keenwrite.processors.ProcessorFactory;
-import com.keenwrite.processors.r.RInlineEvaluator;
+import com.keenwrite.processors.r.Engine;
 import com.keenwrite.service.events.Notifier;
-import com.keenwrite.sigils.PropertyKeyOperator;
-import com.keenwrite.sigils.RKeyOperator;
 import com.keenwrite.ui.explorer.FilePickerFactory;
 import com.keenwrite.ui.heuristics.DocumentStatistics;
 import com.keenwrite.ui.outline.DocumentOutline;
@@ -56,7 +53,6 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
-import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
 import static com.keenwrite.ExportFormat.NONE;
@@ -164,6 +160,8 @@ public final class MainPane extends SplitPane {
    */
   private byte mWindowCount;
 
+  private final VariableNameInjector mVarNameInjector;
+
   private final DocumentStatistics mStatistics;
 
   /**
@@ -177,6 +175,7 @@ public final class MainPane extends SplitPane {
     mStatistics = new DocumentStatistics( workspace );
     mTextEditor.set( new MarkdownEditor( workspace ) );
     mDefinitionEditor = createActiveDefinitionEditor( mTextEditor );
+    mVarNameInjector = new VariableNameInjector( mWorkspace );
 
     open( collect( getRecentFiles() ) );
     viewPreview();
@@ -635,6 +634,7 @@ public final class MainPane extends SplitPane {
 
   public void viewRefresh() {
     mPreview.refresh();
+    Engine.clear();
   }
 
   /**
@@ -1084,46 +1084,10 @@ public final class MainPane extends SplitPane {
   public void autoinsert() {
     final var editor = getTextEditor();
     final var mediaType = editor.getMediaType();
-    final var injector = createInjector( mediaType );
     final var definitions = getTextDefinition();
+    final var operator = mVarNameInjector.createOperator( mediaType );
 
-    VariableNameInjector.autoinsert( editor, definitions, injector );
-  }
-
-  private UnaryOperator<String> createInjector( final MediaType mediaType ) {
-    final String began;
-    final String ended;
-    final UnaryOperator<String> operator;
-
-    switch( mediaType ) {
-      case TEXT_MARKDOWN -> {
-        began = getString( KEY_DEF_DELIM_BEGAN );
-        ended = getString( KEY_DEF_DELIM_ENDED );
-        operator = s -> s;
-      }
-      case TEXT_R_MARKDOWN -> {
-        began = RInlineEvaluator.PREFIX + getString( KEY_R_DELIM_BEGAN );
-        ended = getString( KEY_R_DELIM_ENDED ) + RInlineEvaluator.SUFFIX;
-        operator = new RKeyOperator();
-      }
-      case TEXT_PROPERTIES -> {
-        began = PropertyKeyOperator.BEGAN;
-        ended = PropertyKeyOperator.ENDED;
-        operator = s -> s;
-      }
-      default -> {
-        began = "";
-        ended = "";
-        operator = s -> s;
-      }
-    }
-
-    return s -> began + operator.apply( s ) + ended;
-  }
-
-  private String getString( final Key key ) {
-    assert key != null;
-    return getWorkspace().getString( key );
+    mVarNameInjector.autoinsert( editor, definitions, operator );
   }
 
   private TextDefinition createDefinitionEditor() {

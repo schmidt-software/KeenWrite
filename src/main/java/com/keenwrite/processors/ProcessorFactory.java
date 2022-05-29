@@ -113,23 +113,6 @@ public final class ProcessorFactory {
   }
 
   /**
-   * Instantiates a processor capable of executing R statements (along with
-   * R variable references) and embedding the result into the document. This
-   * is useful for converting R Markdown documents into plain Markdown.
-   *
-   * @param successor {@link Processor} invoked after {@link RInlineEvaluator}.
-   * @param context   {@link Processor} configuration settings.
-   * @return An instance of {@link Processor} that performs variable
-   * interpolation, replacement, and execution of R statements.
-   */
-  public static Processor<String> createRProcessor(
-    final Processor<String> successor, final ProcessorContext context ) {
-    RBootstrapController.init( context );
-    final var rvp = new RVariableProcessor( successor, context );
-    return createVariableProcessor( rvp, context );
-  }
-
-  /**
    * Instantiates a new {@link Processor} that wraps an HTML document into
    * its final, well-formed state (including head and body tags). This is
    * useful for generating XHTML documents suitable for typesetting (using

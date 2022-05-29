@@ -21,7 +21,7 @@ import static org.apache.batik.util.ParsedURL.setGlobalUserAgent;
  */
 public final class Bootstrap {
   /**
-   * Order matters, this must be populated before deriving the app title.
+   * Must be populated before deriving the app title (order matters).
    */
   private static final Properties sP = new Properties();
 
