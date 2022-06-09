@@ -640,6 +640,7 @@ public final class MainPane extends SplitPane {
   public void viewRefresh() {
     mPreview.refresh();
     Engine.clear();
+    mRBootstrapController.update();
   }
 
   /**

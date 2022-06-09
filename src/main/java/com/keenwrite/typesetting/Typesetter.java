@@ -329,7 +329,7 @@ public class Typesetter {
    * </p>
    */
   private static class PaginationListener extends Thread {
-    private static final Pattern DIGITS = Pattern.compile( "[^\\d]+" );
+    private static final Pattern DIGITS = Pattern.compile( "\\D+" );
 
     private final InputStream mInputStream;
 
