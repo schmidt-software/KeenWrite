@@ -49,10 +49,16 @@ java -jar keenwrite.jar
 * 使用TeX的子集编写数学公式
 * 嵌入R语句
 
+## Typesetting
+
+排版到 PDF 文件需要以下內容:
+
+* [Theme Pack](https://github.com/DaveJarvis/keenwrite-themes/releases/latest/download/theme-pack.zip)
+* [ConTeXt](https://wiki.contextgarden.net/Installation)
+
 ## 软件使用
 
-See the [detailed documentation](docs/README.md) for information about
-using the application.
+有關使用該應用程序的信息，請參[閱詳細文檔](docs/README.md)。
 
 ## 截图
 

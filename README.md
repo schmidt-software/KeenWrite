@@ -67,6 +67,13 @@ The application offers:
 * Customizable user interface having detachable tabs
 * Platform-independent (Windows, Linux, MacOS)
 
+## Typesetting
+
+Typesetting to PDF files requires the following:
+
+* [Theme Pack](https://github.com/DaveJarvis/keenwrite-themes/releases/latest/download/theme-pack.zip)
+* [ConTeXt](https://wiki.contextgarden.net/Installation)
+
 ## Usage
 
 Read the [detailed documentation](docs/README.md) for using the application.
