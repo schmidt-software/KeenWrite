@@ -35,6 +35,16 @@ import static java.lang.String.format;
  * elements.
  */
 public final class FencedBlockExtension extends HtmlRendererAdapter {
+  private final static String TEMP_DIR = System.getProperty( "java.io.tmpdir" );
+
+  /**
+   * Ensure that the device is always closed to prevent an out-of-resources
+   * error, regardless of whether the R expression the user tries to evaluate
+   * is valid by swallowing errors alongside a {@code finally} block.
+   */
+  private final static String R_SVG_EXPORT =
+    "tryCatch({svg('%s')%n%s%n},finally={dev.off()})%n";
+
   private final static String STYLE_DIAGRAM = "diagram-";
   private final static int STYLE_DIAGRAM_LEN = STYLE_DIAGRAM.length();
 
@@ -177,14 +187,13 @@ public final class FencedBlockExtension extends HtmlRendererAdapter {
       final var content = node.getContentChars().normalizeEOL().trim();
       final var text = mRVariableProcessor.apply( content );
       final var hash = Integer.toHexString( text.hashCode() );
-      final var temp = System.getProperty( "java.io.tmpdir" );
-      final var file = format( "%s-%s.svg", APP_TITLE_LOWERCASE, hash );
-      final var source = Paths.get( temp, file ).toString();
-      final var link = context.resolveLink( LINK, source, false );
-      final var r = format( "svg('%s')%n%s%ndev.off()%n", source, text );
+      final var filename = format( "%s-%s.svg", APP_TITLE_LOWERCASE, hash );
+      final var svg = Paths.get( TEMP_DIR, filename ).toString();
+      final var link = context.resolveLink( LINK, svg, false );
+      final var r = format( R_SVG_EXPORT, svg, text );
       final var result = mRChunkEvaluator.apply( r );
 
-      return new Pair<>( source, link );
+      return new Pair<>( svg, link );
     }
 
     /**
