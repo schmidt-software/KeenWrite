@@ -25,8 +25,8 @@ public final class PdfProcessor extends ExecutorProcessor<String> {
   }
 
   /**
-   * Converts a document by calling a third-party library to typeset the given
-   * XHTML document.
+   * Converts a document by calling a third-party application to typeset the
+   * given XHTML document.
    *
    * @param xhtml The document to convert to a PDF file.
    * @return {@code null} because there is no valid return value from generating

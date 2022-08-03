@@ -161,53 +161,68 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
    * @throws Exception Could not read from, write to, or find a file.
    */
   private Path exportImage( final String src ) throws Exception {
+    return getProtocol( src ).isRemote()
+      ? downloadImage( src )
+      : resolveImage( src );
+  }
+
+  private Path downloadImage( final String src ) throws Exception {
+    final Path imageFile;
+
+    clue( "Main.status.image.xhtml.image.download", src );
+
+    try( final var response = httpGet( src ) ) {
+      final var mediaType = response.getMediaType();
+
+      // Preserve image files if autoclean is turned off.
+      imageFile = mediaType.createTempFile( APP_TITLE_LOWERCASE, autoclean() );
+
+      try( final var image = response.getInputStream() ) {
+        copy( image, imageFile, REPLACE_EXISTING );
+      }
+
+      // Strip comments, superfluous whitespace, DOCTYPE, and XML
+      // declarations.
+      if( mediaType.isSvg() ) {
+        DocumentParser.sanitize( imageFile );
+      }
+    }
+
+    return imageFile;
+  }
+
+  private Path resolveImage( final String src ) throws Exception {
+    var imagePath = getImagePath();
+    var found = false;
+
     Path imageFile = null;
 
-    final var protocol = getProtocol( src );
+    clue( "Main.status.image.xhtml.image.resolve", src );
 
-    // Download remote resources into temporary files.
-    if( protocol.isRemote() ) {
-      try( final var response = httpGet( src ) ) {
-        final var mediaType = response.getMediaType();
+    for( final var extension : getImageOrder() ) {
+      final var filename = format(
+        "%s%s%s", src, extension.isBlank() ? "" : ".", extension );
+      imageFile = Path.of( imagePath, filename );
 
-        imageFile = mediaType.createTempFile( APP_TITLE_LOWERCASE, true );
-
-        try( final var image = response.getInputStream() ) {
-          copy( image, imageFile, REPLACE_EXISTING );
-        }
-
-        // Strip comments, superfluous whitespace, DOCTYPE, and XML
-        // declarations.
-        if( mediaType.isSvg() ) {
-          DocumentParser.sanitize( imageFile );
-        }
+      if( imageFile.toFile().exists() ) {
+        found = true;
+        break;
       }
     }
-    else {
-      final var extensions = getImageOrder();
-      var imagePath = getImagePath();
-      var found = false;
 
-      for( final var extension : extensions ) {
-        final var filename = format(
-          "%s%s%s", src, extension.isBlank() ? "" : ".", extension );
-        imageFile = Path.of( imagePath, filename );
+    if( !found ) {
+      imagePath = getDocumentDir().toString();
+      imageFile = Path.of( imagePath, src );
 
-        if( imageFile.toFile().exists() ) {
-          found = true;
-          break;
-        }
-      }
+      if( !imageFile.toFile().exists() ) {
+        final var filename = imageFile.toString();
+        clue( "Main.status.image.xhtml.image.missing", filename );
 
-      if( !found ) {
-        imagePath = getDocumentDir().toString();
-        imageFile = Path.of( imagePath, src );
-
-        if( !imageFile.toFile().exists() ) {
-          throw new FileNotFoundException( imageFile.toString() );
-        }
+        throw new FileNotFoundException( filename );
       }
     }
+
+    clue( "Main.status.image.xhtml.image.found", imageFile.toString() );
 
     return imageFile;
   }
@@ -240,6 +255,10 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
 
   private Locale getLocale() {
     return mContext.getLocale();
+  }
+
+  private boolean autoclean() {
+    return mContext.getAutoClean();
   }
 
   private String wordCount( final Document doc ) {

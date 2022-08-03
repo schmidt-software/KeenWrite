@@ -163,7 +163,12 @@ public final class ProcessorContext {
 
     public void setImageDir( final Supplier<File> imageDir ) {
       assert imageDir != null;
-      mImageDir = () -> imageDir.get().toPath();
+
+      mImageDir = () -> {
+        final var dir = imageDir.get();
+
+        return (dir == null ? USER_DIRECTORY : dir).toPath();
+      };
     }
 
     public void setImageOrder( final Supplier<String> imageOrder ) {
