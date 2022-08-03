@@ -302,3 +302,16 @@ div.bubbletx:after {
   right: -1em;
   border-left: 1em solid #ccc;
 }
+
+/* LYRICS ***/
+div.lyrics {
+  margin: 0;
+  padding: 0;
+  white-space: pre-line;
+  font-style: italic;
+}
+
+div.lyrics:first-line {
+  line-height: 0;
+}
+

@@ -78,7 +78,6 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
       visit( doc, "//img", node -> {
         try {
           final var attrs = node.getAttributes();
-
           final var attr = attrs.getNamedItem( "src" );
 
           if( attr != null ) {
@@ -109,12 +108,14 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
    */
   private void setMetaData( final Document doc ) {
     final var metadata = createMetaDataMap( doc );
+
     visit( doc, "/html/head", node ->
       metadata.entrySet()
               .forEach( entry -> node.appendChild( createMeta( doc, entry ) ) )
     );
 
     final var title = metadata.get( "title" );
+
     if( title != null ) {
       visit( doc, "/html/head/title", node -> node.setTextContent( title ) );
     }
@@ -169,7 +170,7 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
       try( final var response = httpGet( src ) ) {
         final var mediaType = response.getMediaType();
 
-        imageFile = mediaType.createTemporaryFile( APP_TITLE_LOWERCASE );
+        imageFile = mediaType.createTempFile( APP_TITLE_LOWERCASE, true );
 
         try( final var image = response.getInputStream() ) {
           copy( image, imageFile, REPLACE_EXISTING );

@@ -8,7 +8,6 @@ import java.nio.file.Path;
 
 import static com.keenwrite.io.MediaType.TypeName.*;
 import static com.keenwrite.io.MediaTypeExtension.fromExtension;
-import static java.io.File.createTempFile;
 import static org.apache.commons.io.FilenameUtils.getExtension;
 
 /**
@@ -305,19 +304,35 @@ public enum MediaType {
   }
 
   /**
-   * Creates a temporary {@link File} that starts with the given prefix. The
-   * file will be deleted when the application exits.
+   * Creates a temporary {@link File} that starts with the given prefix.
    *
    * @param prefix The file name begins with this string (may be empty).
    * @return The fully qualified path to the temporary file.
    * @throws IOException Could not create the temporary file.
    */
-  public Path createTemporaryFile( final String prefix ) throws IOException {
+  public Path createTempFile( final String prefix ) throws IOException {
+    return createTempFile( prefix, false );
+  }
+
+  /**
+   * Creates a temporary {@link File} that starts with the given prefix.
+   *
+   * @param prefix The file name begins with this string (may be empty).
+   * @param purge  Set to {@code true} to delete the file on exit.
+   * @return The fully qualified path to the temporary file.
+   * @throws IOException Could not create the temporary file.
+   */
+  public Path createTempFile(
+    final String prefix, final boolean purge ) throws IOException {
     assert prefix != null;
 
-    final var file = createTempFile(
+    final var file = File.createTempFile(
       prefix, '.' + MediaTypeExtension.valueFrom( this ).getExtension() );
-    file.deleteOnExit();
+
+    if( purge ) {
+      file.deleteOnExit();
+    }
+
     return file.toPath();
   }
 

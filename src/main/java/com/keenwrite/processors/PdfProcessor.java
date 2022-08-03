@@ -36,7 +36,7 @@ public final class PdfProcessor extends ExecutorProcessor<String> {
     try {
       clue( "Main.status.typeset.create" );
       final var context = mContext;
-      final var document = TEXT_XML.createTemporaryFile( APP_TITLE_LOWERCASE );
+      final var document = TEXT_XML.createTempFile( APP_TITLE_LOWERCASE );
       final var typesetter = Typesetter
         .builder()
         .with( Mutator::setInputPath, writeString( document, xhtml ) )
@@ -50,9 +50,6 @@ public final class PdfProcessor extends ExecutorProcessor<String> {
       // Smote the temporary file after typesetting the document.
       if( typesetter.autoclean() ) {
         deleteIfExists( document );
-      }
-      else {
-        document.toFile().deleteOnExit();
       }
     } catch( final IOException | InterruptedException ex ) {
       // Typesetter runtime exceptions will pass up the call stack.

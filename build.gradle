@@ -59,7 +59,7 @@ dependencies {
   // TODO: Reinstate when JDK 17-compatible release is published
   //implementation 'org.controlsfx:controlsfx:11.1.0'
   implementation 'org.fxmisc.richtext:richtextfx:0.10.9'
-  implementation 'org.fxmisc.flowless:flowless:0.6.9'
+  implementation 'org.fxmisc.flowless:flowless:0.6.10'
   implementation 'org.fxmisc.wellbehaved:wellbehavedfx:0.3.3'
   implementation 'com.miglayout:miglayout-javafx:11.0'
   implementation 'com.dlsc.preferencesfx:preferencesfx-core:11.9.0'

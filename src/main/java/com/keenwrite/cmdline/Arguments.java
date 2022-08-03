@@ -65,6 +65,7 @@ public final class Arguments implements Callable<Integer> {
   )
   private boolean mDebug;
 
+
   @CommandLine.Option(
     names = {"-i", "--input"},
     description =

@@ -15,6 +15,8 @@ import java.util.logging.LogManager;
 import static com.keenwrite.Bootstrap.*;
 import static com.keenwrite.security.PermissiveCertificate.installTrustManager;
 import static java.lang.String.format;
+import static picocli.CommandLine.*;
+import static picocli.CommandLine.UnmatchedArgumentException.*;
 
 /**
  * Launches the application using the {@link MainApp} class.
@@ -30,6 +32,36 @@ public final class Launcher implements Consumer<Arguments> {
    * Needed for the GUI.
    */
   private final String[] mArgs;
+
+  /**
+   * Responsible for informing the user of an invalid command-line option,
+   * along with suggestions as to the closest argument name that matches.
+   */
+  private static final class ArgHandler implements IParameterExceptionHandler {
+    /**
+     * Invoked by the command-line parser when an invalid option is provided.
+     *
+     * @param ex   Captures information about the parameter.
+     * @param args Captures the complete command-line arguments.
+     * @return The application exit code (non-zero).
+     */
+    public int handleParseException(
+      final ParameterException ex, final String[] args ) {
+      final var cmd = ex.getCommandLine();
+      final var writer = cmd.getErr();
+      final var spec = cmd.getCommandSpec();
+      final var mapper = cmd.getExitCodeExceptionMapper();
+
+      writer.println( ex.getMessage() );
+      printSuggestions( ex, writer );
+      writer.print( cmd.getHelp().fullSynopsis() );
+      writer.printf( "Run '%s --help' for details.%n", spec.qualifiedName() );
+
+      return mapper == null
+        ? spec.exitCodeOnInvalidInput()
+        : mapper.getExitCode( ex );
+    }
+  }
 
   /**
    * Returns the application version number retrieved from the application
@@ -64,6 +96,8 @@ public final class Launcher implements Consumer<Arguments> {
     final var parser = new CommandLine( arguments );
 
     parser.setColorScheme( ColourScheme.create() );
+    parser.setParameterExceptionHandler( new ArgHandler() );
+    parser.setUnmatchedArgumentsAllowed( false );
 
     final var exitCode = parser.execute( args );
     final var parseResult = parser.getParseResult();
