@@ -55,7 +55,6 @@ dependencies {
   def v_batik = '1.14'
 
   // JavaFX
-  // TODO: Reinstate when JDK 17-compatible release is published
   implementation 'org.controlsfx:controlsfx:11.1.1'
   implementation 'org.fxmisc.richtext:richtextfx:0.10.9'
   implementation 'org.fxmisc.flowless:flowless:0.6.10'
