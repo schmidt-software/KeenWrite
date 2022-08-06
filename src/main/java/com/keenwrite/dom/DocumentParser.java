@@ -66,7 +66,7 @@ public class DocumentParser {
       sTransformer.setOutputProperty( ENCODING, UTF_16.toString() );
       sTransformer.setOutputProperty( OMIT_XML_DECLARATION, "yes" );
       sTransformer.setOutputProperty( METHOD, "xml" );
-      sTransformer.setOutputProperty( INDENT, "yes" );
+      sTransformer.setOutputProperty( INDENT, "no" );
       sTransformer.setOutputProperty( INDENT_AMOUNT, "2" );
     } catch( final Exception ex ) {
       clue( ex );
@@ -181,10 +181,9 @@ public class DocumentParser {
     assert xhtml != null;
 
     try( final var writer = new StringWriter() ) {
-      final var domSource = new DOMSource( xhtml );
       final var result = new StreamResult( writer );
 
-      sTransformer.transform( domSource, result );
+      transform( xhtml, result );
 
       return writer.toString();
     } catch( final Exception ex ) {
@@ -198,9 +197,7 @@ public class DocumentParser {
     assert root != null;
 
     try( final var writer = new StringWriter() ) {
-      sTransformer.transform(
-        new DOMSource( root ), new StreamResult( writer )
-      );
+      transform( root.getOwnerDocument(), new StreamResult( writer ) );
 
       return writer.toString();
     }
@@ -218,9 +215,7 @@ public class DocumentParser {
 
     final var file = path.toFile();
 
-    sTransformer.transform(
-      new DOMSource( sDocumentBuilder.parse( file ) ), new StreamResult( file )
-    );
+    transform( sDocumentBuilder.parse( file ), new StreamResult( file ) );
   }
 
   /**
@@ -243,6 +238,18 @@ public class DocumentParser {
         return null;
       }
     } );
+  }
+
+  /**
+   * Streams an instance of {@link Document} as a plain text XML document.
+   *
+   * @param src The source document to transform.
+   * @param dst The destination location to write the transformed version.
+   * @throws TransformerException Could not transform the document.
+   */
+  private static void transform( final Document src, final StreamResult dst )
+    throws TransformerException {
+    sTransformer.transform( new DOMSource( src ), dst );
   }
 
   /**
