@@ -1,7 +1,6 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.ui.explorer;
 
-import com.io7m.jwheatsheaf.ui.JWFileChoosers;
 import com.keenwrite.Messages;
 import com.keenwrite.preferences.Workspace;
 import javafx.beans.property.ObjectProperty;
@@ -11,20 +10,13 @@ import javafx.stage.Window;
 
 import java.io.File;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 
-import static com.io7m.jwheatsheaf.api.JWFileChooserAction.*;
-import static com.io7m.jwheatsheaf.api.JWFileChooserConfiguration.Builder;
-import static com.io7m.jwheatsheaf.api.JWFileChooserConfiguration.builder;
-import static com.keenwrite.constants.Constants.USER_DIRECTORY;
-import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.preferences.AppKeys.KEY_UI_RECENT_DIR;
 import static com.keenwrite.ui.explorer.FilePickerFactory.SelectionType.*;
 import static java.lang.String.format;
-import static java.nio.file.FileSystems.getDefault;
 
 /**
  * Shim for a {@link FilePicker} instance that is implemented in pure Java.
@@ -113,84 +105,6 @@ public class FilePickerFactory {
         : mChooser.showOpenDialog( mOwner );
 
       return file == null ? Optional.empty() : Optional.of( List.of( file ) );
-    }
-  }
-
-  /**
-   * Pure JavaFX file selection dialog.
-   */
-  private class PureFilePicker implements FilePicker {
-    private final Window mParent;
-    private final Builder mBuilder;
-
-    private PureFilePicker( final Window owner, final SelectionType type ) {
-      assert owner != null;
-      assert type != null;
-
-      mParent = owner;
-      mBuilder = builder().setFileSystem( getDefault() );
-
-      mBuilder.setTitle( type.getTitle() );
-      mBuilder.setAction( switch( type ) {
-        case FILE_OPEN_MULTIPLE -> OPEN_EXISTING_MULTIPLE;
-        case FILE_EXPORT, FILE_SAVE_AS -> CREATE;
-        default -> OPEN_EXISTING_SINGLE;
-      } );
-      mBuilder.setAllowDirectoryCreation( true );
-    }
-
-    @Override
-    public void setInitialFilename( final File file ) {
-      mBuilder.setInitialFileName( file.getName() );
-    }
-
-    @Override
-    public void setInitialDirectory( final Path path ) {
-      mBuilder.setInitialDirectory( path );
-    }
-
-    @Override
-    public Optional<List<File>> choose() {
-      final var config = mBuilder.build();
-
-      try( final var chooserType = JWFileChoosers.create() ) {
-        final var chooser = chooserType.create( mParent, config );
-        final var paths = chooser.showAndWait();
-        final var files = new ArrayList<File>( paths.size() );
-
-        paths.forEach( path -> {
-          final var file = path.toFile();
-          files.add( file );
-
-          // Set to the directory of the last file opened successfully.
-          setRecentDirectory( file );
-        } );
-
-        return files.isEmpty() ? Optional.empty() : Optional.of( files );
-      } catch( final Exception ex ) {
-        clue( ex );
-      }
-
-      return Optional.empty();
-    }
-
-  }
-
-  /**
-   * Sets the value for the most recent directly selected. This will get the
-   * parent location from the given file. If the parent is a readable directory
-   * then this will update the most recent directory property.
-   *
-   * @param file A file contained in a directory.
-   */
-  private void setRecentDirectory( final File file ) {
-    assert file != null;
-
-    final var parent = file.getParentFile();
-    final var dir = parent == null ? USER_DIRECTORY : parent;
-
-    if( dir.isDirectory() && dir.canRead() ) {
-      mDirectory.setValue( dir );
     }
   }
 }
