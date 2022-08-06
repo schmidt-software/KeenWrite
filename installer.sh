@@ -12,9 +12,7 @@ source $HOME/bin/build-template
 readonly APP_NAME=$(find "${SCRIPT_DIR}/src" -type f -name "settings.properties" -exec cat {} \; | grep "application.title=" | cut -d'=' -f2)
 readonly FILE_APP_JAR="${APP_NAME}.jar"
 
-# For GTK version, see https://bugs.openjdk.java.net/browse/JDK-8156779
 readonly OPT_JAVA=$(cat << END_OF_ARGS
--Djdk.gtk.version=2 \
 --add-opens=javafx.controls/javafx.scene.control=ALL-UNNAMED \
 --add-opens=javafx.controls/javafx.scene.control.skin=ALL-UNNAMED \
 --add-opens=javafx.graphics/javafx.scene.text=ALL-UNNAMED \
@@ -32,8 +30,8 @@ END_OF_ARGS
 
 ARG_JAVA_OS="linux"
 ARG_JAVA_ARCH="amd64"
-ARG_JAVA_VERSION="17.0.1"
-ARG_JAVA_UPDATE="12"
+ARG_JAVA_VERSION="18.0.2"
+ARG_JAVA_UPDATE="10"
 ARG_JAVA_DIR="java"
 
 ARG_DIR_DIST="dist"

@@ -6,9 +6,9 @@ This document describes how to build the application and platform binaries.
 
 Download and install the following software packages:
 
-* [JDK 17](https://bell-sw.com/pages/downloads/?version=java-17) (Full JDK + JavaFX)
-* [Gradle 7.2](https://gradle.org/releases)
-* [Git 2.33](https://git-scm.com/downloads)
+* [JDK 18](https://bell-sw.com/pages/downloads/?version=java-18) (Full JDK + JavaFX)
+* [Gradle 7.3](https://gradle.org/releases) (build fails on 7.5.1)
+* [Git 2.37.1](https://git-scm.com/downloads)
 
 ## Repository
 

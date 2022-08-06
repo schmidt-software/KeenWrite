@@ -11,7 +11,7 @@ import static javax.net.ssl.HttpsURLConnection.setDefaultSSLSocketFactory;
 /**
  * Responsible for trusting all certificate chains. The purpose of this class
  * is to work-around certificate issues caused by software that blocks
- * HTTP requests. For example, zscaler may block HTTP requests to kroki.io
+ * HTTP requests. For example, Zscaler may block HTTP requests to kroki.io
  * when generating diagrams.
  */
 public final class PermissiveCertificate {

@@ -22,8 +22,9 @@ import static com.io7m.jwheatsheaf.api.JWFileChooserConfiguration.builder;
 import static com.keenwrite.constants.Constants.USER_DIRECTORY;
 import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.preferences.AppKeys.KEY_UI_RECENT_DIR;
+import static com.keenwrite.ui.explorer.FilePickerFactory.SelectionType.*;
+import static java.lang.String.format;
 import static java.nio.file.FileSystems.getDefault;
-import static java.util.Optional.ofNullable;
 
 /**
  * Shim for a {@link FilePicker} instance that is implemented in pure Java.
@@ -31,15 +32,25 @@ import static java.util.Optional.ofNullable;
  * {@link FileChooser} that invokes the native file chooser.
  */
 public class FilePickerFactory {
-  public enum Options {
-    DIRECTORY_OPEN,
-    FILE_IMPORT,
-    FILE_EXPORT,
-    FILE_OPEN_SINGLE,
-    FILE_OPEN_MULTIPLE,
-    FILE_OPEN_NEW,
-    FILE_SAVE_AS,
-    PERMIT_CREATE_DIRS,
+  public enum SelectionType {
+    DIRECTORY_OPEN( "open" ),
+    FILE_IMPORT( "import" ),
+    FILE_EXPORT( "export" ),
+    FILE_OPEN_SINGLE( "open" ),
+    FILE_OPEN_MULTIPLE( "open" ),
+    FILE_OPEN_NEW( "open" ),
+    FILE_SAVE_AS( "save" );
+
+    private final String mTitle;
+
+    SelectionType( final String title ) {
+      assert title != null;
+      mTitle = Messages.get( format( "Dialog.file.choose.%s.title", title ) );
+    }
+
+    public String getTitle() {
+      return mTitle;
+    }
   }
 
   private final ObjectProperty<File> mDirectory;
@@ -51,8 +62,9 @@ public class FilePickerFactory {
   }
 
   public FilePicker createModal(
-    final Window owner, final Options... options ) {
-    final var picker = new PureFilePicker( owner, options );
+    final Window owner, final SelectionType options ) {
+    final var picker = new NativeFilePicker( owner, options );
+
     picker.setInitialDirectory( mDirectory.get().toPath() );
 
     return picker;
@@ -63,41 +75,68 @@ public class FilePickerFactory {
   }
 
   /**
-   * Pure Java implementation of a file selection widget.
+   * Operating system's file selection dialog.
+   */
+  private static final class NativeFilePicker implements FilePicker {
+    private final FileChooser mChooser = new FileChooser();
+    private final Window mOwner;
+    private final SelectionType mType;
+
+    public NativeFilePicker( final Window owner, final SelectionType type ) {
+      assert owner != null;
+      assert type != null;
+
+      mOwner = owner;
+      mType = type;
+    }
+
+    @Override
+    public void setInitialFilename( final File file ) {
+      assert file != null;
+      mChooser.setInitialFileName( file.getName() );
+    }
+
+    @Override
+    public void setInitialDirectory( final Path path ) {
+      assert path != null;
+      mChooser.setInitialDirectory( path.toFile() );
+    }
+
+    @Override
+    public Optional<List<File>> choose() {
+      if( mType == FILE_OPEN_MULTIPLE ) {
+        return Optional.of( mChooser.showOpenMultipleDialog( mOwner ) );
+      }
+
+      final File file = mType == FILE_EXPORT || mType == FILE_SAVE_AS
+        ? mChooser.showSaveDialog( mOwner )
+        : mChooser.showOpenDialog( mOwner );
+
+      return file == null ? Optional.empty() : Optional.of( List.of( file ) );
+    }
+  }
+
+  /**
+   * Pure JavaFX file selection dialog.
    */
   private class PureFilePicker implements FilePicker {
     private final Window mParent;
     private final Builder mBuilder;
 
-    private PureFilePicker( final Window window, final Options... options ) {
-      mParent = window;
+    private PureFilePicker( final Window owner, final SelectionType type ) {
+      assert owner != null;
+      assert type != null;
+
+      mParent = owner;
       mBuilder = builder().setFileSystem( getDefault() );
 
-      final var args = ofNullable( options ).orElse( options );
-
-      var title = "Dialog.file.choose.open.title";
-      var action = OPEN_EXISTING_SINGLE;
-
-      // It is a programming error to provide options that save or export to
-      // multiple files.
-      for( final var arg : args ) {
-        switch( arg ) {
-          case FILE_EXPORT -> {
-            title = "Dialog.file.choose.export.title";
-            action = CREATE;
-          }
-          case FILE_SAVE_AS -> {
-            title = "Dialog.file.choose.save.title";
-            action = CREATE;
-          }
-          case FILE_OPEN_SINGLE -> action = OPEN_EXISTING_SINGLE;
-          case FILE_OPEN_MULTIPLE -> action = OPEN_EXISTING_MULTIPLE;
-          case PERMIT_CREATE_DIRS -> mBuilder.setAllowDirectoryCreation( true );
-        }
-      }
-
-      mBuilder.setTitle( Messages.get( title ) );
-      mBuilder.setAction( action );
+      mBuilder.setTitle( type.getTitle() );
+      mBuilder.setAction( switch( type ) {
+        case FILE_OPEN_MULTIPLE -> OPEN_EXISTING_MULTIPLE;
+        case FILE_EXPORT, FILE_SAVE_AS -> CREATE;
+        default -> OPEN_EXISTING_SINGLE;
+      } );
+      mBuilder.setAllowDirectoryCreation( true );
     }
 
     @Override
@@ -110,22 +149,15 @@ public class FilePickerFactory {
       mBuilder.setInitialDirectory( path );
     }
 
-//    private JWFileChooserFilterType createFileFilters() {
-//      final var filters = new JWFilterGlobFactory();
-//
-//      return filters.create( "PDF Files" )
-//                    .addRule( INCLUDE, "**/*.pdf" )
-//                    .addRule( EXCLUDE_AND_HALT, "**/.*" )
-//                    .build();
-//    }
-
     @Override
     public Optional<List<File>> choose() {
       final var config = mBuilder.build();
+
       try( final var chooserType = JWFileChoosers.create() ) {
         final var chooser = chooserType.create( mParent, config );
         final var paths = chooser.showAndWait();
         final var files = new ArrayList<File>( paths.size() );
+
         paths.forEach( path -> {
           final var file = path.toFile();
           files.add( file );
@@ -141,6 +173,7 @@ public class FilePickerFactory {
 
       return Optional.empty();
     }
+
   }
 
   /**

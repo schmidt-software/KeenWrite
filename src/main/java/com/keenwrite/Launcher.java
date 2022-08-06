@@ -10,13 +10,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 import java.util.function.Consumer;
-import java.util.logging.LogManager;
 
 import static com.keenwrite.Bootstrap.*;
 import static com.keenwrite.security.PermissiveCertificate.installTrustManager;
 import static java.lang.String.format;
-import static picocli.CommandLine.*;
-import static picocli.CommandLine.UnmatchedArgumentException.*;
+import static picocli.CommandLine.IParameterExceptionHandler;
+import static picocli.CommandLine.ParameterException;
+import static picocli.CommandLine.UnmatchedArgumentException.printSuggestions;
 
 /**
  * Launches the application using the {@link MainApp} class.
@@ -201,7 +201,7 @@ public final class Launcher implements Consumer<Arguments> {
         argCount--;
       }
       else {
-        disableLogging();
+        MainApp.disableLogging();
       }
 
       if( argCount <= 0 ) {
@@ -215,14 +215,6 @@ public final class Launcher implements Consumer<Arguments> {
     } catch( final Throwable t ) {
       log( t );
     }
-  }
-
-  /**
-   * Suppress writing to standard error, suppresses writing log messages.
-   */
-  private static void disableLogging() {
-    LogManager.getLogManager().reset();
-    System.err.close();
   }
 
   private static void showAppInfo() {

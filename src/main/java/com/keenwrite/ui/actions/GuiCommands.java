@@ -46,8 +46,8 @@ import static com.keenwrite.constants.GraphicsConstants.ICON_DIALOG_NODE;
 import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.preferences.AppKeys.*;
 import static com.keenwrite.processors.ProcessorFactory.createProcessors;
-import static com.keenwrite.ui.explorer.FilePickerFactory.Options;
-import static com.keenwrite.ui.explorer.FilePickerFactory.Options.*;
+import static com.keenwrite.ui.explorer.FilePickerFactory.SelectionType;
+import static com.keenwrite.ui.explorer.FilePickerFactory.SelectionType.*;
 import static com.keenwrite.util.FileWalker.walk;
 import static java.nio.file.Files.readString;
 import static java.nio.file.Files.writeString;
@@ -173,7 +173,7 @@ public final class GuiCommands {
     final var editor = main.getTextEditor();
     final var exported = getWorkspace().fileProperty( KEY_UI_RECENT_EXPORT );
     final var filename = format.toExportFilename( editor.getPath() );
-    final var selection = pickFiles(
+    final var selection = pickFile(
       Constants.PDF_DEFAULT.getName().equals( exported.get().getName() )
         ? filename
         : exported.get(), FILE_EXPORT
@@ -594,20 +594,21 @@ public final class GuiCommands {
     }
   }
 
-  private Optional<List<File>> pickFiles( final Options... options ) {
-    return createPicker( options ).choose();
+  private Optional<List<File>> pickFiles( final SelectionType type ) {
+    return createPicker( type ).choose();
   }
 
-  private Optional<List<File>> pickFiles(
-    final File filename, final Options... options ) {
-    final var picker = createPicker( options );
+  @SuppressWarnings( "SameParameterValue" )
+  private Optional<List<File>> pickFile(
+    final File filename, final SelectionType type ) {
+    final var picker = createPicker( type );
     picker.setInitialFilename( filename );
     return picker.choose();
   }
 
-  private FilePicker createPicker( final Options... options ) {
+  private FilePicker createPicker( final SelectionType type ) {
     final var factory = new FilePickerFactory( getWorkspace() );
-    return factory.createModal( getWindow(), options );
+    return factory.createModal( getWindow(), type );
   }
 
   private TextEditor getActiveTextEditor() {

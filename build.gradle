@@ -1,7 +1,7 @@
 plugins {
   id 'application'
-  id 'org.openjfx.javafxplugin' version '0.0.10'
-  id 'com.palantir.git-version' version '0.14.0'
+  id 'org.openjfx.javafxplugin' version '0.0.13'
+  id 'com.palantir.git-version' version '0.15.0'
 }
 
 repositories {
@@ -43,13 +43,13 @@ def moduleSecurity = [
 ]
 
 javafx {
-  version = "17"
+  version = "18"
   modules = ['javafx.controls', 'javafx.swing']
   configuration = 'compileOnly'
 }
 
 dependencies {
-  def v_junit = '5.8.2'
+  def v_junit = '5.9.0'
   def v_flexmark = '0.64.0'
   def v_jackson = '2.13.3'
   def v_batik = '1.14'
@@ -57,12 +57,12 @@ dependencies {
 
   // JavaFX
   // TODO: Reinstate when JDK 17-compatible release is published
-  //implementation 'org.controlsfx:controlsfx:11.1.0'
+  implementation 'org.controlsfx:controlsfx:11.1.1'
   implementation 'org.fxmisc.richtext:richtextfx:0.10.9'
   implementation 'org.fxmisc.flowless:flowless:0.6.10'
   implementation 'org.fxmisc.wellbehaved:wellbehavedfx:0.3.3'
   implementation 'com.miglayout:miglayout-javafx:11.0'
-  implementation 'com.dlsc.preferencesfx:preferencesfx-core:11.9.0'
+  implementation 'com.dlsc.preferencesfx:preferencesfx-core:11.9.1'
 
   // Pure JavaFX File Chooser
   // TODO: Reinstate when file picker performance increases
@@ -89,7 +89,7 @@ dependencies {
   implementation 'com.ximpleware:vtd-xml:2.13.4'
 
   // HTML parsing and rendering
-  implementation 'org.jsoup:jsoup:1.14.3'
+  implementation 'org.jsoup:jsoup:1.15.2'
   // TODO: Wait for https://github.com/flyingsaucerproject/flyingsaucer/pull/170
   //implementation 'org.xhtmlrenderer:flying-saucer-core:9.1.22'
 
@@ -115,13 +115,10 @@ dependencies {
 
   // Misc.
   implementation 'org.ahocorasick:ahocorasick:0.6.3'
-  implementation 'org.apache.commons:commons-configuration2:2.7'
+  implementation 'org.apache.commons:commons-configuration2:2.8.0'
   implementation 'com.googlecode.juniversalchardet:juniversalchardet:1.0.3'
   implementation 'javax.validation:validation-api:2.0.1.Final'
   implementation 'org.greenrobot:eventbus-java:3.3.1'
-
-  implementation 'org.apache.commons:commons-configuration2:2.7'
-  //noinspection GradlePackageUpdate
   implementation 'commons-beanutils:commons-beanutils:1.9.4'
 
   // Command-line parsing
