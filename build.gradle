@@ -7,20 +7,15 @@ plugins {
 repositories {
   mavenCentral()
 
-  maven {
-    url 'https://oss.sonatype.org/content/repositories/snapshots/'
-  }
-
-  maven {
-    url "https://nexus.bedatadriven.com/content/groups/public"
-  }
+  maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
+  maven { url 'https://nexus.bedatadriven.com/content/groups/public' }
 }
 
 // Assume a cross-platform überjar unless targetOs is set.
-String[] os = ["win", "mac", "linux"]
+String[] os = ['win', 'mac', 'linux']
 
-if (project.hasProperty('targetOs')) {
-  if ("windows" == targetOs) {
+if (project.hasProperty( 'targetOs' )) {
+  if ('windows' == targetOs) {
     os = ["win"]
   } else {
     os = [targetOs]
@@ -28,22 +23,22 @@ if (project.hasProperty('targetOs')) {
 }
 
 def moduleSecurity = [
-    "--add-opens=javafx.controls/javafx.scene.control=ALL-UNNAMED",
-    "--add-opens=javafx.controls/javafx.scene.control.skin=ALL-UNNAMED",
-    "--add-opens=javafx.graphics/javafx.scene.text=ALL-UNNAMED",
-    "--add-opens=javafx.graphics/com.sun.javafx.css=ALL-UNNAMED",
-    "--add-opens=javafx.graphics/com.sun.javafx.text=ALL-UNNAMED",
-    "--add-exports=javafx.base/com.sun.javafx.event=ALL-UNNAMED",
-    "--add-exports=javafx.graphics/com.sun.javafx.application=ALL-UNNAMED",
-    "--add-exports=javafx.graphics/com.sun.javafx.geom=ALL-UNNAMED",
-    "--add-exports=javafx.graphics/com.sun.javafx.text=ALL-UNNAMED",
-    "--add-exports=javafx.graphics/com.sun.javafx.scene=ALL-UNNAMED",
-    "--add-exports=javafx.graphics/com.sun.javafx.scene.text=ALL-UNNAMED",
-    "--add-exports=javafx.graphics/com.sun.javafx.scene.traversal=ALL-UNNAMED",
+    '--add-opens=javafx.controls/javafx.scene.control=ALL-UNNAMED',
+    '--add-opens=javafx.controls/javafx.scene.control.skin=ALL-UNNAMED',
+    '--add-opens=javafx.graphics/javafx.scene.text=ALL-UNNAMED',
+    '--add-opens=javafx.graphics/com.sun.javafx.css=ALL-UNNAMED',
+    '--add-opens=javafx.graphics/com.sun.javafx.text=ALL-UNNAMED',
+    '--add-exports=javafx.base/com.sun.javafx.event=ALL-UNNAMED',
+    '--add-exports=javafx.graphics/com.sun.javafx.application=ALL-UNNAMED',
+    '--add-exports=javafx.graphics/com.sun.javafx.geom=ALL-UNNAMED',
+    '--add-exports=javafx.graphics/com.sun.javafx.text=ALL-UNNAMED',
+    '--add-exports=javafx.graphics/com.sun.javafx.scene=ALL-UNNAMED',
+    '--add-exports=javafx.graphics/com.sun.javafx.scene.text=ALL-UNNAMED',
+    '--add-exports=javafx.graphics/com.sun.javafx.scene.traversal=ALL-UNNAMED',
 ]
 
 javafx {
-  version = "18"
+  version = '18'
   modules = ['javafx.controls', 'javafx.swing']
   configuration = 'compileOnly'
 }
@@ -82,7 +77,7 @@ dependencies {
 
   // HTML parsing and rendering
   implementation 'org.jsoup:jsoup:1.15.2'
-  // TODO: Wait for https://github.com/flyingsaucerproject/flyingsaucer/pull/170
+  // TODO: https://github.com/flyingsaucerproject/flyingsaucer/pull/170
   //implementation 'org.xhtmlrenderer:flying-saucer-core:9.1.22'
 
   // R
@@ -117,7 +112,7 @@ dependencies {
   implementation 'info.picocli:picocli:4.6.3'
 
   // Spelling, TeX, Docking, KeenQuotes
-  implementation fileTree(include: ['**/*.jar'], dir: 'libs')
+  implementation fileTree( include: ['**/*.jar'], dir: 'libs' )
 
   def fx = ['controls', 'graphics', 'fxml', 'swing']
 
@@ -127,36 +122,36 @@ dependencies {
     }
   }
 
-  testImplementation "org.testfx:testfx-junit5:4.0.16-alpha"
+  testImplementation 'org.testfx:testfx-junit5:4.0.16-alpha'
   testImplementation "org.junit.jupiter:junit-jupiter-api:${v_junit}"
   testImplementation "org.junit.jupiter:junit-jupiter-params:${v_junit}"
   testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
 }
 
 compileJava {
-  options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
+  options.compilerArgs << '-Xlint:unchecked' << '-Xlint:deprecation'
 }
 
 def resourceDir = sourceSets.main.resources.srcDirs[0]
 
 final Properties config = new Properties()
-final File configFile = file("${resourceDir}/bootstrap.properties")
-final FileInputStream configStream = new FileInputStream(configFile)
-config.load(configStream)
+final File configFile = file( "${resourceDir}/bootstrap.properties" )
+final FileInputStream configStream = new FileInputStream( configFile )
+config.load( configStream )
 configStream.close()
 
-final String applicationName = config.get("application.title").toString().toLowerCase()
+final String applicationName = config.get( 'application.title' ).toString().toLowerCase()
 final String applicationClass = "com.${applicationName}.Launcher"
 
 application {
-  mainClass.set(applicationClass)
+  mainClass.set( applicationClass )
   applicationDefaultJvmArgs = moduleSecurity
 }
 
 version = gitVersion()
 
-final File propertiesFile = new File("${resourceDir}/com/${applicationName}/app.properties")
-propertiesFile.write("application.version=${version}")
+final File p = new File( "${resourceDir}/com/${applicationName}/app.properties" )
+p.write( "application.version=${version}" )
 
 jar {
   duplicatesStrategy = DuplicatesStrategy.EXCLUDE
@@ -168,9 +163,8 @@ jar {
   }
 
   from {
-    (configurations.runtimeClasspath.findAll { !it.path.endsWith(".pom") }).collect {
-      it.isDirectory() ? it : zipTree(it)
-    }
+    (configurations.runtimeClasspath.findAll { !it.path.endsWith( ".pom" ) })
+        .collect { it.isDirectory() ? it : zipTree( it ) }
   }
 
   archiveFileName = "${applicationName}.jar"
@@ -183,7 +177,7 @@ distributions {
     distributionBaseName = applicationName
     contents {
       from { ['LICENSE.md', 'README.md'] }
-      into('images') {
+      into( 'images' ) {
         from { 'images' }
       }
     }
@@ -193,11 +187,6 @@ distributions {
 test {
   useJUnitPlatform()
 
-  doFirst {
-    jvmArgs = moduleSecurity
-  }
-
-  testLogging {
-    exceptionFormat = 'full'
-  }
+  doFirst { jvmArgs = moduleSecurity }
+  testLogging { exceptionFormat = 'full' }
 }
