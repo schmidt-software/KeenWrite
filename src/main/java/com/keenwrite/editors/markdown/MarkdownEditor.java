@@ -51,6 +51,7 @@ import static javafx.scene.input.KeyCode.*;
 import static javafx.scene.input.KeyCombination.*;
 import static org.apache.commons.lang3.StringUtils.stripEnd;
 import static org.apache.commons.lang3.StringUtils.stripStart;
+import static org.fxmisc.richtext.Caret.CaretVisibility.*;
 import static org.fxmisc.richtext.model.StyleSpans.singleton;
 import static org.fxmisc.wellbehaved.event.EventPattern.keyPressed;
 import static org.fxmisc.wellbehaved.event.InputMap.consume;
@@ -131,6 +132,7 @@ public final class MarkdownEditor extends BorderPane implements TextEditor {
   }
 
   private void initTextArea( final StyleClassedTextArea textArea ) {
+    textArea.setShowCaret( ON );
     textArea.setWrapText( true );
     textArea.requestFollowCaret();
     textArea.moveTo( 0 );
