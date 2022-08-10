@@ -33,7 +33,7 @@ chmod +x keenwrite.bin
 
 ### Other
 
-Download and install a full version of [OpenJDK 17](https://bell-sw.com/pages/downloads/#/java-17-lts) that includes JavaFX module support, then run:
+Download and install a full version of [OpenJDK 18](https://bell-sw.com/pages/downloads/?version=java-18) that includes JavaFX module support, then run:
 
 ``` bash
 java -jar keenwrite.jar
