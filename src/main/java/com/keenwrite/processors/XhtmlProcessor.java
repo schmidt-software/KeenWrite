@@ -3,8 +3,8 @@ package com.keenwrite.processors;
 
 import com.keenwrite.dom.DocumentParser;
 import com.keenwrite.ui.heuristics.WordCounter;
-import com.whitemagicsoftware.keenquotes.Contractions;
-import com.whitemagicsoftware.keenquotes.Converter;
+import com.whitemagicsoftware.keenquotes.parser.Contractions;
+import com.whitemagicsoftware.keenquotes.parser.Curler;
 import org.w3c.dom.Document;
 
 import java.io.FileNotFoundException;
@@ -20,8 +20,8 @@ import static com.keenwrite.dom.DocumentParser.visit;
 import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.io.HttpFacade.httpGet;
 import static com.keenwrite.util.ProtocolScheme.getProtocol;
-import static com.whitemagicsoftware.keenquotes.Converter.CHARS;
-import static com.whitemagicsoftware.keenquotes.ParserFactory.ParserType.PARSER_XML;
+import static com.whitemagicsoftware.keenquotes.lex.FilterType.FILTER_XML;
+import static com.whitemagicsoftware.keenquotes.parser.Curler.CHARS;
 import static java.lang.String.format;
 import static java.lang.String.valueOf;
 import static java.nio.file.Files.copy;
@@ -33,8 +33,8 @@ import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
  * not run in real-time.
  */
 public final class XhtmlProcessor extends ExecutorProcessor<String> {
-  private final static Converter sTypographer = new Converter(
-    lex -> clue( lex.toString() ), contractions(), CHARS, PARSER_XML );
+  private final static Curler sTypographer =
+    new Curler( contractions(), CHARS, FILTER_XML );
 
   private final ProcessorContext mContext;
 
@@ -279,7 +279,6 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
    * @return List of contractions to use for curling straight quotes.
    */
   private static Contractions contractions() {
-    final var builder = new Contractions.Builder();
-    return builder.withBeganUnambiguous( List.of( "bout" ) ).build();
+    return new Contractions.Builder().build();
   }
 }

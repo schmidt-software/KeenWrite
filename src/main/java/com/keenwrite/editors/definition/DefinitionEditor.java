@@ -3,6 +3,7 @@ package com.keenwrite.editors.definition;
 
 import com.keenwrite.constants.Constants;
 import com.keenwrite.editors.TextDefinition;
+import com.keenwrite.events.InsertDefinitionEvent;
 import com.keenwrite.events.TextDefinitionFocusEvent;
 import com.keenwrite.processors.r.Engine;
 import com.keenwrite.ui.tree.AltTreeView;
@@ -289,7 +290,7 @@ public final class DefinitionEditor extends BorderPane
    * Determines whether the document is well-formed by ensuring that
    * child branches do not contain multiple leaves.
    *
-   * @param item The sub-tree to check for well-formedness.
+   * @param item The subtree to check for well-formedness.
    * @return {@code null} when the tree is well-formed, otherwise the
    * problematic {@link TreeItem}.
    */
@@ -399,6 +400,14 @@ public final class DefinitionEditor extends BorderPane
     getSiblings( c ).remove( c );
   }
 
+  private void insertSelectedItem() {
+    if( getSelectedItem() instanceof DefinitionTreeItem<String> node ) {
+      if( node.isLeaf() ) {
+        InsertDefinitionEvent.fire( node );
+      }
+    }
+  }
+
   /**
    * Adds a new item under the selected item (or root if nothing is selected).
    * There are a few conditions to consider: when adding to the root,
@@ -423,6 +432,8 @@ public final class DefinitionEditor extends BorderPane
       .setOnAction( e -> renameDefinition() );
     addMenuItem( items, ACTION_PREFIX + "definition.delete.text" )
       .setOnAction( e -> deleteSelectedItem() );
+    addMenuItem( items, ACTION_PREFIX + "definition.insert.text" )
+      .setOnAction( e -> insertSelectedItem() );
 
     return menu;
   }

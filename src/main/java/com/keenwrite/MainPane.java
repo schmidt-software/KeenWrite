@@ -295,6 +295,16 @@ public final class MainPane extends SplitPane {
     alert.showAndWait();
   }
 
+  @Subscribe
+  public void handle( final InsertDefinitionEvent<String> event ) {
+    final var leaf = event.getLeaf();
+    final var editor = mTextEditor.get();
+
+    System.out.println( "INJECT: " + leaf.toPath() );
+
+    mVariableNameInjector.insert( editor, leaf );
+  }
+
   private void initAutosave( final Workspace workspace ) {
     final var rate = workspace.integerProperty( KEY_EDITOR_AUTOSAVE );
 

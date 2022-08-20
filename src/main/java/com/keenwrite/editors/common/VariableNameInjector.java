@@ -63,10 +63,7 @@ public final class VariableNameInjector {
             clue( STATUS_DEFINITION_MISSING, word );
           }
           else {
-            final var mediaType = editor.getMediaType();
-            final var operator = createOperator( mediaType );
-
-            editor.replaceText( indexes, operator.apply( leaf.toPath() ) );
+            insert( editor, leaf );
             definitions.expand( leaf );
           }
         }
@@ -74,6 +71,19 @@ public final class VariableNameInjector {
     } catch( final Exception ex ) {
       clue( STATUS_DEFINITION_BLANK, ex );
     }
+  }
+
+  public void insert(
+    final TextEditor editor,
+    final DefinitionTreeItem<String> leaf ) {
+    assert editor != null;
+    assert leaf != null;
+
+    final var mediaType = editor.getMediaType();
+    final var operator = createOperator( mediaType );
+    final var indexes = editor.getCaretWord();
+
+    editor.replaceText( indexes, operator.apply( leaf.toPath() ) );
   }
 
   /**

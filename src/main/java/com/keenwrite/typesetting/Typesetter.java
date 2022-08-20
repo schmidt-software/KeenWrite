@@ -68,13 +68,6 @@ public class Typesetter {
     }
 
     /**
-     * @see #setThemePath(Path)
-     */
-    public void setThemePath( final File themePath ) {
-      setThemePath( themePath.toPath() );
-    }
-
-    /**
      * @param autoClean {@code true} to remove all temporary files after
      *                  typesetter produces a PDF file.
      */
