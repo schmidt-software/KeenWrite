@@ -2,6 +2,7 @@
 package com.keenwrite.ui.dialogs;
 
 import com.keenwrite.util.FileWalker;
+import com.keenwrite.util.RangeValidator;
 import com.keenwrite.util.ResourceWalker;
 import javafx.geometry.Insets;
 import javafx.scene.control.ComboBox;
@@ -244,11 +245,9 @@ public final class ExportDialog extends AbstractDialog<ExportSettings> {
   private TextField createNumericTextField() {
     final var textField = new TextField();
 
-    textField.textProperty().addListener( ( c, o, n ) -> {
-      if( n != null && !n.matches( "^\\d+(-\\d+)?(?:,\\d+(?:-\\d+)?)*+$" ) ) {
-        textField.setText( n.replaceAll( "[^-,\\d\\s]", "" ) );
-      }
-    } );
+    textField.textProperty().addListener(
+      ( c, o, n ) -> textField.setText( RangeValidator.normalize( n ) )
+    );
 
     return textField;
   }

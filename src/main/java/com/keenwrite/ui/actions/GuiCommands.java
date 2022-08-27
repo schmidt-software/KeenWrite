@@ -11,6 +11,7 @@ import com.keenwrite.editors.markdown.HyperlinkModel;
 import com.keenwrite.editors.markdown.LinkVisitor;
 import com.keenwrite.events.CaretMovedEvent;
 import com.keenwrite.events.ExportFailedEvent;
+import com.keenwrite.preferences.Key;
 import com.keenwrite.preferences.PreferencesController;
 import com.keenwrite.preferences.Workspace;
 import com.keenwrite.processors.markdown.MarkdownProcessor;
@@ -25,6 +26,7 @@ import com.keenwrite.ui.explorer.FilePicker;
 import com.keenwrite.ui.explorer.FilePickerFactory;
 import com.keenwrite.ui.logging.LogView;
 import com.keenwrite.util.AlphanumComparator;
+import com.keenwrite.util.RangeValidator;
 import com.vladsch.flexmark.ast.Link;
 import javafx.concurrent.Task;
 import javafx.scene.control.Alert;
@@ -39,6 +41,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.keenwrite.Bootstrap.*;
 import static com.keenwrite.ExportFormat.*;
@@ -584,16 +587,21 @@ public final class GuiCommands {
 
     try {
       final var glob = "**/*." + extension;
-      final ArrayList<Path> files = new ArrayList<>();
+      final var files = new ArrayList<Path>();
+      final var text = new StringBuilder( DOCUMENT_LENGTH );
+      final var range = getString( KEY_TYPESET_CONTEXT_CHAPTERS );
+      final var validator = new RangeValidator( range );
+      final var chapter = new AtomicInteger();
+
       walk( parent, glob, files::add );
       files.sort( new AlphanumComparator<>() );
-
-      final var text = new StringBuilder( DOCUMENT_LENGTH );
-
       files.forEach( file -> {
         try {
           clue( "Main.status.export.concat", file );
-          text.append( readString( file ) );
+
+          if( validator.test( chapter.getAndIncrement() ) ) {
+            text.append( readString( file ) );
+          }
         } catch( final IOException ex ) {
           clue( "Main.status.export.concat.io", file );
         }
@@ -641,6 +649,11 @@ public final class GuiCommands {
 
   private Workspace getWorkspace() {
     return mMainPane.getWorkspace();
+  }
+
+  @SuppressWarnings( "SameParameterValue" )
+  private String getString( final Key key ) {
+    return getWorkspace().getString( key );
   }
 
   private Window getWindow() {
