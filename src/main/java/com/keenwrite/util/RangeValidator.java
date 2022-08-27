@@ -29,7 +29,7 @@ public final class RangeValidator implements Predicate<Integer> {
     }
 
     private boolean includes( final int i ) {
-      return mLo <= i && i <= mHi;
+      return mLo <= i && i <= mHi || mLo == -1 && mHi == -1;
     }
   }
 
@@ -101,20 +101,28 @@ public final class RangeValidator implements Predicate<Integer> {
         }
       }
       else if( hyphenRanges.length == 1 ) {
-        final var i = Integer.parseInt( hyphenRanges[ 0 ].trim() );
-        final var index = commaRange.trim().indexOf( '-' );
+        final var hri = hyphenRanges[ 0 ].trim();
 
-        // If the hyphen is to the left of the number, the range is bounded
-        // from 0 to the number. Otherwise, the range is "unbounded" starting
-        // at the number.
-        if( index == -1 ) {
-          range = new Range( i, i );
-        }
-        else if( index == 0 ) {
-          range = new Range( 1, i );
+        if( hri.isEmpty() ) {
+          // Special case for all numbers being valid.
+          range = new Range( -1, -1 );
         }
         else {
-          range = new Range( i, Integer.MAX_VALUE );
+          final var i = Integer.parseInt( hyphenRanges[ 0 ].trim() );
+          final var index = commaRange.trim().indexOf( '-' );
+
+          // If the hyphen is to the left of the number, the range is bounded
+          // from 0 to the number. Otherwise, the range is "unbounded" starting
+          // at the number.
+          if( index == -1 ) {
+            range = new Range( i, i );
+          }
+          else if( index == 0 ) {
+            range = new Range( 1, i );
+          }
+          else {
+            range = new Range( i, Integer.MAX_VALUE );
+          }
         }
       }
       else {

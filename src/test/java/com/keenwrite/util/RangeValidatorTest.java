@@ -87,4 +87,14 @@ class RangeValidatorTest {
     assertFalse( validator.test( 21 ) );
     assertFalse( validator.test( 29 ) );
   }
+
+  @Test
+  void test_Validation_EmptyRange_AllValid() {
+    final var validator = new RangeValidator( "" );
+
+    assertTrue( validator.test( 0 ) );
+    assertTrue( validator.test( 1 ) );
+    assertTrue( validator.test( 2 ) );
+    assertTrue( validator.test( Integer.MAX_VALUE ) );
+  }
 }
