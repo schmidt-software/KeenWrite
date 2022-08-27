@@ -17,9 +17,10 @@ import com.keenwrite.processors.markdown.MarkdownProcessor;
 import com.keenwrite.search.SearchModel;
 import com.keenwrite.typesetting.Typesetter;
 import com.keenwrite.ui.controls.SearchBar;
+import com.keenwrite.ui.dialogs.ExportDialog;
+import com.keenwrite.ui.dialogs.ExportSettings;
 import com.keenwrite.ui.dialogs.ImageDialog;
 import com.keenwrite.ui.dialogs.LinkDialog;
-import com.keenwrite.ui.dialogs.ThemePicker;
 import com.keenwrite.ui.explorer.FilePicker;
 import com.keenwrite.ui.explorer.FilePickerFactory;
 import com.keenwrite.ui.logging.LogView;
@@ -233,14 +234,25 @@ public final class GuiCommands {
    */
   private void file_export_pdf( final boolean dir ) {
     final var workspace = getWorkspace();
-    final var themes = workspace.getFile( KEY_TYPESET_CONTEXT_THEMES_PATH );
+    final var themes = workspace.getFile(
+      KEY_TYPESET_CONTEXT_THEMES_PATH
+    );
     final var theme = workspace.stringProperty(
-      KEY_TYPESET_CONTEXT_THEME_SELECTION );
+      KEY_TYPESET_CONTEXT_THEME_SELECTION
+    );
+    final var chapters = workspace.stringProperty(
+      KEY_TYPESET_CONTEXT_CHAPTERS
+    );
+    final var settings = ExportSettings
+      .builder()
+      .with( ExportSettings.Mutator::setTheme, theme )
+      .with( ExportSettings.Mutator::setChapters, chapters )
+      .build();
 
     if( Typesetter.canRun() ) {
       // If the typesetter is installed, allow the user to select a theme. If
       // the themes aren't installed, a status message will appear.
-      if( ThemePicker.choose( themes, theme ) ) {
+      if( ExportDialog.choose( getWindow(), themes, settings, dir ) ) {
         file_export( APPLICATION_PDF, dir );
       }
     }

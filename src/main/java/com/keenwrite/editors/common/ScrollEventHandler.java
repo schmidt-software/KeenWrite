@@ -116,7 +116,7 @@ public final class ScrollEventHandler implements EventHandler<Event> {
   public void handle( final Event event ) {
     invokeLater( () -> {
       if( isEnabled() ) {
-        // e is for editor pane
+        // e prefix is for editor pane.
         final var eScrollPane = getEditorScrollPane();
         final var eScrollY =
           eScrollPane.estimatedScrollYProperty().getValue().intValue();
@@ -126,7 +126,7 @@ public final class ScrollEventHandler implements EventHandler<Event> {
         final var eRatio = eHeight > 0
           ? min( max( eScrollY / (float) eHeight, 0 ), 1 ) : 0;
 
-        // p is for preview pane
+        // p prefix is for preview pane.
         final var pScrollBar = getPreviewScrollBar();
         final var pHeight = pScrollBar.getMaximum() - pScrollBar.getHeight();
         final var pScrollY = (int) (pHeight * eRatio);
