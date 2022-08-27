@@ -599,7 +599,7 @@ public final class GuiCommands {
         try {
           clue( "Main.status.export.concat", file );
 
-          if( validator.test( chapter.getAndIncrement() ) ) {
+          if( validator.test( chapter.incrementAndGet() ) ) {
             text.append( readString( file ) );
           }
         } catch( final IOException ex ) {
