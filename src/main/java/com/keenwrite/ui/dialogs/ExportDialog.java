@@ -76,6 +76,7 @@ public final class ExportDialog extends AbstractDialog<ExportSettings> {
     var title = "Dialog.typesetting.settings.header.";
 
     if( multiple ) {
+      mChapters.setText( mSettings.chaptersProperty().get() );
       mPane.add( createLabel( "Dialog.typesetting.settings.chapters" ), 0, 2 );
       mPane.add( mChapters, 1, 2 );
 
