@@ -2,9 +2,6 @@
 package com.keenwrite.processors;
 
 import com.keenwrite.processors.markdown.MarkdownProcessor;
-import com.keenwrite.processors.r.RBootstrapController;
-import com.keenwrite.processors.r.RInlineEvaluator;
-import com.keenwrite.processors.r.RVariableProcessor;
 
 import static com.keenwrite.io.FileType.RMARKDOWN;
 import static com.keenwrite.io.FileType.SOURCE;

@@ -133,7 +133,13 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
     final var map = mContext.getInterpolatedDefinitions();
 
     metadata.forEach(
-      ( key, value ) -> result.put( key, map.interpolate( value ) )
+      ( key, value ) -> {
+        final var interpolated = map.interpolate( value );
+
+        if( !interpolated.isEmpty() ) {
+          result.put( key, interpolated );
+        }
+      }
     );
     result.put( "count", wordCount( doc ) );
 

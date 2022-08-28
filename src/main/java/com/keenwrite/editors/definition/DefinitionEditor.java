@@ -182,13 +182,10 @@ public final class DefinitionEditor extends BorderPane
     final var result = new StringBuilder( 32768 );
 
     try {
-      final var root = getTreeView().getRoot();
-      final var problem = isTreeWellFormed();
+      result.append( mTreeTransformer.transform( getTreeView().getRoot() ) );
 
-      problem.ifPresentOrElse(
-        node -> clue( "yaml.error.tree.form", node ),
-        () -> result.append( mTreeTransformer.transform( root ) )
-      );
+      final var problem = isTreeWellFormed();
+      problem.ifPresent( node -> clue( "yaml.error.tree.form", node ) );
     } catch( final Exception ex ) {
       // Catch errors while checking for a well-formed tree (e.g., stack smash).
       // Also catch any transformation exceptions (e.g., Json processing).
