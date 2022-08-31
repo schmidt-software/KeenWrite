@@ -65,7 +65,7 @@ public class SimpleFontControl extends SimpleControl<StringField, StackPane> {
 
       createFontSelectorDialog( initialFont )
         .showAndWait()
-        .ifPresent( ( font ) -> {
+        .ifPresent( font -> {
           mFontName.setText( font.getFamily() );
           mFontSize.set( font.getSize() );
         } );
@@ -108,12 +108,12 @@ public class SimpleFontControl extends SimpleControl<StringField, StackPane> {
   private FontSelectorDialog createFontSelectorDialog( final Font font ) {
     final var dialog = new FontSelectorDialog( font );
     final var pane = dialog.getDialogPane();
-    final var buttonOk = ((Button) pane.lookupButton( OK ));
-    final var buttonCancel = ((Button) pane.lookupButton( CANCEL ));
+    final var buttonOk = (Button) pane.lookupButton( OK );
+    final var buttonCancel = (Button) pane.lookupButton( CANCEL );
 
     buttonOk.setDefaultButton( true );
     buttonCancel.setCancelButton( true );
-    pane.setOnKeyReleased( ( keyEvent ) -> {
+    pane.setOnKeyReleased( keyEvent -> {
       switch( keyEvent.getCode() ) {
         case ENTER -> buttonOk.fire();
         case ESCAPE -> buttonCancel.fire();

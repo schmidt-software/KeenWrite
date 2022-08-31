@@ -5,6 +5,7 @@ import com.keenwrite.util.FileWalker;
 import com.keenwrite.util.RangeValidator;
 import com.keenwrite.util.ResourceWalker;
 import javafx.geometry.Insets;
+import javafx.scene.Node;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
@@ -23,6 +24,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.Properties;
 import java.util.TreeMap;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static com.keenwrite.Messages.get;
 import static com.keenwrite.constants.Constants.THEME_NAME_LENGTH;
@@ -74,12 +76,14 @@ public final class ExportDialog extends AbstractDialog<ExportSettings> {
     mPane.add( mComboBox, 1, 1 );
 
     var title = "Dialog.typesetting.settings.header.";
+    final var node = new AtomicReference<Node>( mComboBox );
 
     if( multiple ) {
       mChapters.setText( mSettings.chaptersProperty().get() );
       mPane.add( createLabel( "Dialog.typesetting.settings.chapters" ), 0, 2 );
       mPane.add( mChapters, 1, 2 );
 
+      node.set( mChapters );
       title += "multiple";
     }
     else {
@@ -91,7 +95,7 @@ public final class ExportDialog extends AbstractDialog<ExportSettings> {
     final var dialogPane = getDialogPane();
     dialogPane.setContent( mPane );
 
-    runLater( () -> mComboBox.requestFocus() );
+    runLater( () -> node.get().requestFocus() );
   }
 
   /**
@@ -147,7 +151,7 @@ public final class ExportDialog extends AbstractDialog<ExportSettings> {
 
     mPane = createContentPane();
     mComboBox = createComboBox();
-    mComboBox.setOnKeyPressed( ( event ) -> {
+    mComboBox.setOnKeyPressed( event -> {
       // When the user presses the down arrow, open the drop-down. This
       // prevents navigating to the cancel button.
       if( event.getCode() == KeyCode.DOWN && !mComboBox.isShowing() ) {
@@ -204,7 +208,7 @@ public final class ExportDialog extends AbstractDialog<ExportSettings> {
       final var choices = new TreeMap<String, String>();
 
       // Populate the choices with themes detected on the system.
-      walk( themesDir.toPath(), "**/theme.properties", ( path ) -> {
+      walk( themesDir.toPath(), "**/theme.properties", path -> {
         try {
           final var displayed = readThemeName( path );
           final var themeName = path.getParent().toFile().getName();

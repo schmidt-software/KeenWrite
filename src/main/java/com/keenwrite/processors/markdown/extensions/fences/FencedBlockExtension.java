@@ -9,13 +9,13 @@ import com.keenwrite.processors.markdown.MarkdownProcessor;
 import com.keenwrite.processors.markdown.extensions.HtmlRendererAdapter;
 import com.keenwrite.processors.r.RChunkEvaluator;
 import com.keenwrite.processors.r.RVariableProcessor;
-import com.keenwrite.util.Pair;
 import com.vladsch.flexmark.ast.FencedCodeBlock;
 import com.vladsch.flexmark.html.HtmlRendererOptions;
 import com.vladsch.flexmark.html.HtmlWriter;
 import com.vladsch.flexmark.html.renderer.*;
 import com.vladsch.flexmark.util.data.DataHolder;
 import com.vladsch.flexmark.util.sequence.BasedSequence;
+import com.whitemagicsoftware.keenquotes.util.Tuple;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.file.Paths;
@@ -140,20 +140,20 @@ public final class FencedBlockExtension extends HtmlRendererAdapter {
         FencedCodeBlock.class, ( node, context, html ) -> {
         final var style = sanitize( node.getInfo() );
 
-        Pair<String, ResolvedLink> imagePair;
+        Tuple<String, ResolvedLink> imagePair;
 
         if( style.startsWith( STYLE_DIAGRAM ) ) {
           imagePair = importTextDiagram( style, node, context );
 
-          html.attr( "src", imagePair.getKey() );
-          html.withAttr( imagePair.getValue() );
+          html.attr( "src", imagePair.item1() );
+          html.withAttr( imagePair.item2() );
           html.tagVoid( "img" );
         }
         else if( style.startsWith( STYLE_R_CHUNK ) ) {
           imagePair = evaluateRChunk( node, context );
 
-          html.attr( "src", imagePair.getKey() );
-          html.withAttr( imagePair.getValue() );
+          html.attr( "src", imagePair.item1() );
+          html.withAttr( imagePair.item2() );
           html.tagVoid( "img" );
         }
         else {
@@ -166,7 +166,7 @@ public final class FencedBlockExtension extends HtmlRendererAdapter {
       return set;
     }
 
-    private Pair<String, ResolvedLink> importTextDiagram(
+    private Tuple<String, ResolvedLink> importTextDiagram(
       final String style,
       final FencedCodeBlock node,
       final NodeRendererContext context ) {
@@ -178,10 +178,10 @@ public final class FencedBlockExtension extends HtmlRendererAdapter {
       final var source = DiagramUrlGenerator.toUrl( server, type, text );
       final var link = context.resolveLink( LINK, source, false );
 
-      return new Pair<>( source, link );
+      return new Tuple<>( source, link );
     }
 
-    private Pair<String, ResolvedLink> evaluateRChunk(
+    private Tuple<String, ResolvedLink> evaluateRChunk(
       final FencedCodeBlock node,
       final NodeRendererContext context ) {
       final var content = node.getContentChars().normalizeEOL().trim();
@@ -193,7 +193,7 @@ public final class FencedBlockExtension extends HtmlRendererAdapter {
       final var r = format( R_SVG_EXPORT, svg, text );
       final var result = mRChunkEvaluator.apply( r );
 
-      return new Pair<>( svg, link );
+      return new Tuple<>( svg, link );
     }
 
     /**

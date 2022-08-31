@@ -13,7 +13,7 @@ public final class Lanczos3Filter implements ResampleFilter {
     return (float) Math.sin( value ) / value;
   }
 
-  public final float apply( float value ) {
+  public float apply( float value ) {
     if( value == 0 ) {
       return 1.0f;
     }

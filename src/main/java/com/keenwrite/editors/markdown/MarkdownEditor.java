@@ -438,7 +438,7 @@ public final class MarkdownEditor extends BorderPane implements TextEditor {
     // word will have its highlighting removed. The handler removes itself.
     // This won't remove the highlighting if the caret position moves by mouse.
     final var handler = mTextArea.getOnKeyPressed();
-    mTextArea.setOnKeyPressed( ( event ) -> {
+    mTextArea.setOnKeyPressed( event -> {
       mTextArea.setOnKeyPressed( handler );
       unstylize( style );
     } );
@@ -615,7 +615,7 @@ public final class MarkdownEditor extends BorderPane implements TextEditor {
       final var selection = mTextArea.getSelectedText();
 
       selection.lines().forEach(
-        ( l ) -> sb.append( "\t" ).append( l ).append( NEWLINE )
+        l -> sb.append( "\t" ).append( l ).append( NEWLINE )
       );
     }
     else {
@@ -633,8 +633,8 @@ public final class MarkdownEditor extends BorderPane implements TextEditor {
       final var sb = new StringBuilder( selection.length() );
 
       selection.lines().forEach(
-        ( l ) -> sb.append( l.startsWith( "\t" ) ? l.substring( 1 ) : l )
-                   .append( NEWLINE )
+        l -> sb.append( l.startsWith( "\t" ) ? l.substring( 1 ) : l )
+               .append( NEWLINE )
       );
 
       mTextArea.replaceSelection( sb.toString() );
@@ -683,7 +683,7 @@ public final class MarkdownEditor extends BorderPane implements TextEditor {
 
     int length = range.getLength();
     text = stripStart( text, null );
-    final int beganIndex = range.getStart() + (length - text.length());
+    final int beganIndex = range.getStart() + length - text.length();
 
     length = text.length();
     text = stripEnd( text, null );

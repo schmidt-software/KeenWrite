@@ -40,7 +40,7 @@ public final class ImageUtils {
   /**
    * returns one row (height == 1) of byte packed image data in BGR or AGBR form
    *
-   * @param temp must be either null or a array with length of w*h
+   * @param temp must be either null or an array with length of w*h
    */
   static void getPixelsBGR(
     BufferedImage img, int y, int w, byte[] array, int[] temp ) {
@@ -48,7 +48,7 @@ public final class ImageUtils {
     final int h = 1;
 
     assert array.length == temp.length * nrChannels( img );
-    assert (temp.length == w);
+    assert temp.length == w;
 
     final Raster raster;
     switch( img.getType() ) {

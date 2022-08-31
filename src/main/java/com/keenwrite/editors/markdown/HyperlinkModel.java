@@ -69,15 +69,15 @@ public final class HyperlinkModel {
     return String.format( format, getText(), getUrl(), getTitle() );
   }
 
-  public final void setText( final String text ) {
+  public void setText( final String text ) {
     this.text = sanitize( text );
   }
 
-  public final void setUrl( final String url ) {
+  public void setUrl( final String url ) {
     this.url = sanitize( url );
   }
 
-  public final void setTitle( final String title ) {
+  public void setTitle( final String title ) {
     this.title = sanitize( title );
   }
 

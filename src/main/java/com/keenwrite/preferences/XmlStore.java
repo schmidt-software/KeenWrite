@@ -212,7 +212,7 @@ public class XmlStore {
     assert list != null;
 
     for( final var item : list ) {
-      if( item instanceof Entry entry ) {
+      if( item instanceof Entry<?, ?> entry ) {
         try {
           final var child = Key.key( key, entry.getKey().toString() );
           final var node = upsert( child, mDocument );

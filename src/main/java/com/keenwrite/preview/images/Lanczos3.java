@@ -10,7 +10,7 @@ public class Lanczos3 {
   static double sinc( double x ) {
     x *= Math.PI;
 
-    if( (x < 0.01f) && (x > -0.01f) ) {
+    if( x < 0.01f && x > -0.01f ) {
       return 1.0f + x * x * (-1.0f / 6.0f + x * x * 1.0f / 120.0f);
     }
 
@@ -29,7 +29,7 @@ public class Lanczos3 {
     if( t < 0.0f ) { t = -t; }
 
     if( t < 3.0f ) { return clip( sinc( t ) * sinc( t / 3.0f ) ); }
-    else { return (0.0f); }
+    else { return 0.0f; }
   }
 
   static float lancos3_resample_x(
@@ -104,8 +104,8 @@ public class Lanczos3 {
     dst_rows = dst.rows;
     dst_cols = dst.cols;
 
-    xratio = (float) (dst_cols) / (float) src_cols;
-    yratio = (float) (dst_rows) / (float) src_rows;
+    xratio = (float) dst_cols / (float) src_cols;
+    yratio = (float) dst_rows / (float) src_rows;
 
     float scale;
 

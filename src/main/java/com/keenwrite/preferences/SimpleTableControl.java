@@ -109,7 +109,7 @@ public class SimpleTableControl<K, V, F extends TableField<Entry<K, V>>>
     final var inserted = new AtomicBoolean( true );
 
     table.widthProperty().addListener( ( c, o, n ) -> {
-      if( (o != null && n != null)
+      if( o != null && n != null
         && o.intValue() == n.intValue() - 2
         && inserted.getAndSet( false ) ) {
         table.setPrefWidth( table.getPrefWidth() - 2 );

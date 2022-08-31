@@ -168,10 +168,9 @@ public class FileWatchService implements Runnable {
    * Removes a listener from the notify list.
    *
    * @param listener The {@link FileModifiedListener} to remove.
-   * @return {@code true} if this contained the given listener.
    */
-  public boolean removeListener( final FileModifiedListener listener ) {
-    return mListeners.remove( listener );
+  public void removeListener( final FileModifiedListener listener ) {
+    mListeners.remove( listener );
   }
 
   /**

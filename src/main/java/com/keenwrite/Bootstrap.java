@@ -11,10 +11,10 @@ import static org.apache.batik.util.ParsedURL.setGlobalUserAgent;
 
 /**
  * Responsible for loading the bootstrap.properties file, which is
- * tactically located outside of the standard resource reverse domain name
+ * tactically located outside the standard resource reverse domain name
  * namespace to avoid hard-coding the application name in many places.
  * Instead, the application name is located in the bootstrap file, which is
- * then used to look-up the remaining settings.
+ * then used to look up the remaining settings.
  * <p>
  * See {@link Constants#PATH_PROPERTIES_SETTINGS} for details.
  * </p>

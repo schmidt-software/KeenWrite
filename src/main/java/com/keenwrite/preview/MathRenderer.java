@@ -63,7 +63,7 @@ public final class MathRenderer {
 
   /**
    * Tries to instantiate a given object, returning {@code null} on failure.
-   * The failure message is bubbled up to to the user interface.
+   * The failure message is bubbled up to the user interface.
    *
    * @param supplier Creates an instance.
    * @param <T>      The type of instance being created.

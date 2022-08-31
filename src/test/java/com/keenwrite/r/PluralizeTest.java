@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  */
 public class PluralizeTest {
   private static final ScriptEngine ENGINE =
-      (new ScriptEngineManager()).getEngineByName( "Renjin" );
+      new ScriptEngineManager().getEngineByName( "Renjin" );
 
   private static final Map<String, String> PLURAL_MAP = ofEntries(
       entry( "beef", "beefs" ),

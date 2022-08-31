@@ -26,7 +26,7 @@ public final class Engine {
    * Engine for evaluating R expressions.
    */
   private static final ScriptEngine sEngine =
-    (new ScriptEngineManager()).getEngineByName( "Renjin" );
+    new ScriptEngineManager().getEngineByName( "Renjin" );
 
   /**
    * Empties the cache.

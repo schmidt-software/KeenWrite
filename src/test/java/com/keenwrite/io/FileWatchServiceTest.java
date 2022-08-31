@@ -36,7 +36,7 @@ class FileWatchServiceTest {
     final var service = new FileWatchService( file );
     final var thread = new Thread( service );
     final var semaphor = new Semaphore( 0 );
-    final var listener = createListener( ( f ) -> {
+    final var listener = createListener( f -> {
       semaphor.release();
       assertEquals( file, f );
     } );

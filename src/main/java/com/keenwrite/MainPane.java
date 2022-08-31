@@ -286,7 +286,7 @@ public final class MainPane extends SplitPane {
     alert.getDialogPane().contentProperty().set( flowPane );
     alert.setGraphic( ICON_DIALOG_NODE );
 
-    link.setOnAction( ( e ) -> {
+    link.setOnAction( e -> {
       alert.close();
       final var url = Messages.get( "Alert.typesetter.missing.installer.url" );
       runLater( () -> HyperlinkOpenEvent.fire( url ) );
@@ -554,7 +554,7 @@ public final class MainPane extends SplitPane {
    */
   private void close( final TextResource resource ) {
     getTab( resource ).ifPresent(
-      ( tab ) -> {
+      tab -> {
         close( tab );
         tab.getTabPane().getTabs().remove( tab );
       }
@@ -574,7 +574,7 @@ public final class MainPane extends SplitPane {
 
     if( editor.isModified() ) {
       final var filename = new StringBuilder();
-      editorTab.ifPresent( ( tab ) -> filename.append( tab.getText() ) );
+      editorTab.ifPresent( tab -> filename.append( tab.getText() ) );
 
       final var message = sNotifier.createNotification(
         Messages.get( "Alert.file.close.title" ),
@@ -711,7 +711,7 @@ public final class MainPane extends SplitPane {
     // This is called when either the tab is closed by the user clicking on
     // the tab's close icon or when closing (all) from the file menu.
     tab.setOnClosed(
-      ( __ ) -> getRecentFiles().remove( file.getAbsolutePath() )
+      __ -> getRecentFiles().remove( file.getAbsolutePath() )
     );
 
     // When closing a tab, give focus to the newly revealed tab.
@@ -888,7 +888,7 @@ public final class MainPane extends SplitPane {
    * @param tabPane A new {@link DetachableTabPane} to configure.
    */
   private void initStageOwnerFactory( final DetachableTabPane tabPane ) {
-    tabPane.setStageOwnerFactory( ( stage ) -> {
+    tabPane.setStageOwnerFactory( stage -> {
       final var title = get(
         "Detach.tab.title",
         ((Stage) getWindow()).getTitle(), ++mWindowCount

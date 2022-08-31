@@ -69,8 +69,8 @@ public class ImageDialog extends AbstractDialog<String> {
     previewField.textProperty().bind( image );
 
     setResultConverter( dialogButton -> {
-      ButtonData data = (dialogButton != null) ? dialogButton.getButtonData() : null;
-      return (data == ButtonData.OK_DONE) ? image.get() : null;
+      ButtonData data = dialogButton != null ? dialogButton.getButtonData() : null;
+      return data == ButtonData.OK_DONE ? image.get() : null;
     } );
 
     Platform.runLater( () -> {

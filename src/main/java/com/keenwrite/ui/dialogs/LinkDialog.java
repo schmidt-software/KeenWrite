@@ -70,8 +70,8 @@ public class LinkDialog extends AbstractDialog<String> {
         .otherwise( urlField.escapedTextProperty() ) ) );
 
     setResultConverter( dialogButton -> {
-      ButtonData data = (dialogButton != null) ? dialogButton.getButtonData() : null;
-      return (data == ButtonData.OK_DONE) ? link.get() : null;
+      ButtonData data = dialogButton != null ? dialogButton.getButtonData() : null;
+      return data == ButtonData.OK_DONE ? link.get() : null;
     } );
 
     Platform.runLater( () -> {

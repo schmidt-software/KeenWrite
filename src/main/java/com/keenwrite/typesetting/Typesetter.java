@@ -236,7 +236,7 @@ public class Typesetter {
       }
 
       // Exit value for a successful invocation of the typesetter. This value
-      // value is returned when creating the cache on the first run as well as
+      // is returned when creating the cache on the first run as well as
       // creating PDFs on subsequent runs (after the cache has been created).
       // Users don't care about exit codes, only whether the PDF was generated.
       return exit == 0;
@@ -317,7 +317,7 @@ public class Typesetter {
    * pages           > flushing realpage 2, userpage 2, subpage 2
    * }</pre>
    * <p>
-   * The lines are parsed; the first number is displayed in a status bar
+   * The lines are parsed; the first number is displayed as a status bar
    * message.
    * </p>
    */

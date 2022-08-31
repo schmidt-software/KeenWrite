@@ -4,7 +4,6 @@ package com.keenwrite.ui.actions;
 import com.keenwrite.ExportFormat;
 import com.keenwrite.MainPane;
 import com.keenwrite.MainScene;
-import com.keenwrite.constants.Constants;
 import com.keenwrite.editors.TextDefinition;
 import com.keenwrite.editors.TextEditor;
 import com.keenwrite.editors.markdown.HyperlinkModel;
@@ -46,6 +45,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static com.keenwrite.Bootstrap.*;
 import static com.keenwrite.ExportFormat.*;
 import static com.keenwrite.Messages.get;
+import static com.keenwrite.constants.Constants.PDF_DEFAULT;
 import static com.keenwrite.constants.GraphicsConstants.ICON_DIALOG_NODE;
 import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.preferences.AppKeys.*;
@@ -121,6 +121,11 @@ public final class GuiCommands {
 
         // ... update the status bar with the current caret position.
         if( n != null ) {
+          final var w = getWorkspace();
+          final var recentDoc =  w.fileProperty( KEY_UI_RECENT_DOCUMENT );
+
+          // ... preserve the most recent document.
+          recentDoc.setValue( n.getFile() );
           CaretMovedEvent.fire( n.getCaret() );
         }
       }
@@ -177,13 +182,14 @@ public final class GuiCommands {
     final var editor = main.getTextEditor();
     final var exported = getWorkspace().fileProperty( KEY_UI_RECENT_EXPORT );
     final var filename = format.toExportFilename( editor.getPath() );
+    final var selected = PDF_DEFAULT.getName().equals( exported.get().getName() );
     final var selection = pickFile(
-      Constants.PDF_DEFAULT.getName().equals( exported.get().getName() )
-        ? filename
-        : exported.get(), FILE_EXPORT
+      selected ? filename : exported.get(),
+      exported.get().toPath().getParent(),
+      FILE_EXPORT
     );
 
-    selection.ifPresent( ( files ) -> {
+    selection.ifPresent( files -> {
       editor.save();
 
       final var file = files.get( 0 );
@@ -326,7 +332,7 @@ public final class GuiCommands {
       searchBar.matchIndexProperty().bind( mSearchModel.matchIndexProperty() );
       searchBar.matchCountProperty().bind( mSearchModel.matchCountProperty() );
 
-      searchBar.setOnCancelAction( ( event ) -> {
+      searchBar.setOnCancelAction( event -> {
         final var editor = getActiveTextEditor();
         nodes.remove( searchBar );
         editor.unstylize( STYLE_SEARCH );
@@ -339,8 +345,8 @@ public final class GuiCommands {
         }
       } );
 
-      searchBar.setOnNextAction( ( event ) -> edit_find_next() );
-      searchBar.setOnPrevAction( ( event ) -> edit_find_prev() );
+      searchBar.setOnNextAction( event -> edit_find_next() );
+      searchBar.setOnPrevAction( event -> edit_find_prev() );
 
       nodes.add( searchBar );
       searchBar.requestFocus();
@@ -620,9 +626,12 @@ public final class GuiCommands {
 
   @SuppressWarnings( "SameParameterValue" )
   private Optional<List<File>> pickFile(
-    final File filename, final SelectionType type ) {
+    final File file,
+    final Path directory,
+    final SelectionType type ) {
     final var picker = createPicker( type );
-    picker.setInitialFilename( filename );
+    picker.setInitialFilename( file );
+    picker.setInitialDirectory( directory );
     return picker.choose();
   }
 

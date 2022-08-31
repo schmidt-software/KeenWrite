@@ -88,7 +88,6 @@ public final class TextEditorSpeller {
     // can return text in chunks with correlative offsets into the string.
     // This allows Markdown, R Markdown, XML, and R XML documents to return
     // sets of words to check.
-
     final var node = mParser.parse( text );
     final var visitor = new TextVisitor( ( visited, bIndex, eIndex ) -> {
       // Treat hyphenated compound words as individual words.

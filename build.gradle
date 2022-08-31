@@ -55,7 +55,7 @@ dependencies {
   implementation 'org.fxmisc.flowless:flowless:0.6.10'
   implementation 'org.fxmisc.wellbehaved:wellbehavedfx:0.3.3'
   implementation 'com.miglayout:miglayout-javafx:11.0'
-  implementation 'com.dlsc.preferencesfx:preferencesfx-core:11.9.1'
+  implementation 'com.dlsc.preferencesfx:preferencesfx-core:11.10.0'
 
   // Markdown
   implementation "com.vladsch.flexmark:flexmark:${v_flexmark}"
@@ -76,7 +76,7 @@ dependencies {
   implementation 'com.ximpleware:vtd-xml:2.13.4'
 
   // HTML parsing and rendering
-  implementation 'org.jsoup:jsoup:1.15.2'
+  implementation 'org.jsoup:jsoup:1.15.3'
   // TODO: https://github.com/flyingsaucerproject/flyingsaucer/pull/170
   //implementation 'org.xhtmlrenderer:flying-saucer-core:9.1.22'
 

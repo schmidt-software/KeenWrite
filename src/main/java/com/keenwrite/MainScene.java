@@ -30,7 +30,7 @@ import static javafx.scene.input.KeyEvent.KEY_PRESSED;
 import static javafx.scene.input.KeyEvent.KEY_RELEASED;
 
 /**
- * Responsible for creating the bar scene: menu bar, tool bar, and status bar.
+ * Responsible for creating the bar scene: menu bar, toolbar, and status bar.
  */
 public final class MainScene {
 
@@ -220,7 +220,7 @@ public final class MainScene {
   /**
    * Binds the visible property of the node to the managed property so that
    * hiding the node also removes the screen real estate that it occupies.
-   * This allows the user to hide the menu bar, tool bar, etc.
+   * This allows the user to hide the menu bar, toolbar, etc.
    *
    * @param node The node to have its real estate bound to visibility.
    * @return The given node for fluent-like convenience.

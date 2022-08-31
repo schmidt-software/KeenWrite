@@ -172,7 +172,7 @@ public final class FlyingSaucerPanel extends XHTMLPanel
     assert box != null;
 
     // Scroll back up by half the height of the scroll bar to keep the typing
-    // area within the view port. Otherwise the view port will have jumped too
+    // area within the view port; otherwise, the view port will have jumped too
     // high up and the most recently typed letters won't be visible.
     int y = max( box.getAbsY() - scrollPane.getVerticalScrollBar()
                                            .getHeight() / 2, 0 );

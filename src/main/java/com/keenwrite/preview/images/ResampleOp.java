@@ -52,16 +52,8 @@ public class ResampleOp extends AdvancedResizeOp {
       this.numContributors = numContributors;
     }
 
-    public int getNumContributors() {
-      return numContributors;
-    }
-
     public int[] getArrN() {
       return arrN;
-    }
-
-    public float[] getArrWeight() {
-      return arrWeight;
     }
   }
 
