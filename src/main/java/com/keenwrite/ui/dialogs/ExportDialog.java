@@ -76,26 +76,28 @@ public final class ExportDialog extends AbstractDialog<ExportSettings> {
     mPane.add( mComboBox, 1, 1 );
 
     var title = "Dialog.typesetting.settings.header.";
-    final var node = new AtomicReference<Node>( mComboBox );
+    final var focusNode = new AtomicReference<Node>( mComboBox );
 
     if( multiple ) {
-      mChapters.setText( mSettings.chaptersProperty().get() );
       mPane.add( createLabel( "Dialog.typesetting.settings.chapters" ), 0, 2 );
       mPane.add( mChapters, 1, 2 );
 
-      node.set( mChapters );
+      focusNode.set( mChapters );
       title += "multiple";
     }
     else {
       title += "single";
     }
 
+    // Remember the chapter range regardless of text field visibility.
+    mChapters.textProperty().bindBidirectional( mSettings.chaptersProperty() );
+
     setHeaderText( get( title ) );
 
     final var dialogPane = getDialogPane();
     dialogPane.setContent( mPane );
 
-    runLater( () -> node.get().requestFocus() );
+    runLater( () -> focusNode.get().requestFocus() );
   }
 
   /**
@@ -132,8 +134,7 @@ public final class ExportDialog extends AbstractDialog<ExportSettings> {
       // The result will only be set if the OK button is pressed.
       if( result.isPresent() ) {
         final var theme = mComboBox.getSelectionModel().getSelectedItem();
-        mSettings.themeProperty().set( theme.toLowerCase() );
-        mSettings.chaptersProperty().set( mChapters.getText() );
+        mSettings.themeProperty().setValue( theme.toLowerCase() );
 
         return true;
       }

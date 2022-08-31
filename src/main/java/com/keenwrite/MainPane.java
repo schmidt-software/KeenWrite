@@ -300,8 +300,6 @@ public final class MainPane extends SplitPane {
     final var leaf = event.getLeaf();
     final var editor = mTextEditor.get();
 
-    System.out.println( "INJECT: " + leaf.toPath() );
-
     mVariableNameInjector.insert( editor, leaf );
   }
 
@@ -398,6 +396,23 @@ public final class MainPane extends SplitPane {
     if( inputFile.isFile() ) {
       getRecentFiles().add( inputFile.getAbsolutePath() );
     }
+  }
+
+  public void restoreSession() {
+    final var workspace = getWorkspace();
+    final var file = workspace.fileProperty( KEY_UI_RECENT_DOCUMENT );
+    final var offset = workspace.integerProperty( KEY_UI_RECENT_OFFSET );
+
+    mTabPanes.forEach( pane -> {
+      final var tabs = pane.getTabs();
+
+      tabs.forEach( tab -> {
+        System.out.println( tab.getId() );
+      } );
+    } );
+
+    System.out.println( "TAB: " + file );
+    System.out.println( "OFFSET: " + offset );
   }
 
   /**
@@ -1076,6 +1091,11 @@ public final class MainPane extends SplitPane {
 
     editor.addEventListener(
       keyPressed( SPACE, CONTROL_DOWN ), this::autoinsert
+    );
+
+    // Track the caret so its position can be restored later.
+    getWorkspace().integerProperty( KEY_UI_RECENT_OFFSET ).bind(
+      editor.getTextArea().caretPositionProperty()
     );
 
     // Set the active editor, which refreshes the preview panel.

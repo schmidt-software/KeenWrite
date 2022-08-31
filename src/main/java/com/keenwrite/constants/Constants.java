@@ -43,6 +43,7 @@ public final class Constants {
   public static final double WINDOW_H_DEFAULT = 800;
 
   public static final File DOCUMENT_DEFAULT = getFile( "document" );
+  public static final int DOCUMENT_OFFSET = 0;
   public static final File DEFINITION_DEFAULT = getFile( "definition" );
   public static final File PDF_DEFAULT = getFile( "pdf" );
 

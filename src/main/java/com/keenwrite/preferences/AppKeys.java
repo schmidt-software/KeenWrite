@@ -45,6 +45,7 @@ public final class AppKeys {
   public static final Key KEY_UI_RECENT = key( KEY_UI, "recent" );
   public static final Key KEY_UI_RECENT_DIR = key( KEY_UI_RECENT, "dir" );
   public static final Key KEY_UI_RECENT_DOCUMENT = key( KEY_UI_RECENT, "document" );
+  public static final Key KEY_UI_RECENT_OFFSET = key( KEY_UI_RECENT, "offset" );
   public static final Key KEY_UI_RECENT_DEFINITION = key( KEY_UI_RECENT, "definition" );
   public static final Key KEY_UI_RECENT_EXPORT = key( KEY_UI_RECENT, "export" );
   public static final Key KEY_UI_RECENT_OPEN = key( KEY_UI_RECENT, "files" );

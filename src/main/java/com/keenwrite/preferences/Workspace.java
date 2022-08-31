@@ -80,6 +80,7 @@ public final class Workspace {
     entry( KEY_DEF_DELIM_ENDED, asStringProperty( DEF_DELIM_ENDED_DEFAULT ) ),
 
     entry( KEY_UI_RECENT_DIR, asFileProperty( USER_DIRECTORY ) ),
+    entry( KEY_UI_RECENT_OFFSET, asIntegerProperty( DOCUMENT_OFFSET ) ),
     entry( KEY_UI_RECENT_DOCUMENT, asFileProperty( DOCUMENT_DEFAULT ) ),
     entry( KEY_UI_RECENT_DEFINITION, asFileProperty( DEFINITION_DEFAULT ) ),
     entry( KEY_UI_RECENT_EXPORT, asFileProperty( PDF_DEFAULT ) ),
