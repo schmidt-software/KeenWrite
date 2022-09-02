@@ -1,0 +1,50 @@
+module keenwrite.main {
+  requires java.desktop;
+  requires java.prefs;
+  requires java.scripting;
+  requires java.xml;
+  requires javafx.graphics;
+  requires javafx.controls;
+  requires javafx.swing;
+
+  requires annotations;
+
+  requires batik.anim;
+  requires batik.bridge;
+  requires batik.css;
+  requires batik.gvt;
+  requires batik.transcoder;
+  requires batik.util;
+
+  requires com.dlsc.formsfx;
+  requires transitive com.dlsc.preferencesfx;
+  requires com.fasterxml.jackson.databind;
+  requires transitive com.fasterxml.jackson.dataformat.yaml;
+
+  requires flexmark;
+  requires flexmark.util.data;
+  requires flexmark.util.sequence;
+
+  requires keenquotes;
+  requires keentex;
+  requires tokenize;
+
+  requires org.apache.commons.lang3;
+  requires org.jsoup;
+  requires org.controlsfx.controls;
+  requires org.fxmisc.flowless;
+  requires org.fxmisc.richtext;
+  requires org.fxmisc.undo;
+
+  requires commons.io;
+  requires eventbus.java;
+  requires flying.saucer.core;
+  requires info.picocli;
+  requires jsymspell;
+  requires plexus.utils;
+  requires tiwulfx.dock;
+  requires wellbehavedfx;
+  requires xml.apis.ext;
+  requires java.logging;
+}
+
