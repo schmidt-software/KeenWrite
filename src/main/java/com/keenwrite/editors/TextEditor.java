@@ -26,6 +26,13 @@ public interface TextEditor extends TextResource {
   StyleClassedTextArea getTextArea();
 
   /**
+   * Delegates requesting focus to the internal {@link StyleClassedTextArea}.
+   */
+  default void requestFocus() {
+    getTextArea().requestFocus();
+  }
+
+  /**
    * Returns the complete text for the specified paragraph index.
    *
    * @param paragraph The zero-based paragraph index.

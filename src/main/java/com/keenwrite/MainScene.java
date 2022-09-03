@@ -167,8 +167,7 @@ public final class MainScene {
     return new MainPane( workspace );
   }
 
-  private GuiCommands createApplicationActions(
-    final MainPane mainPane ) {
+  private GuiCommands createApplicationActions( final MainPane mainPane ) {
     return new GuiCommands( this, mainPane );
   }
 

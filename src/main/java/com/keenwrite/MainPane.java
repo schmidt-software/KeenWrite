@@ -202,6 +202,9 @@ public final class MainPane extends SplitPane {
 
     register( this );
     initAutosave( workspace );
+
+    restoreSession();
+    runLater( this::restoreFocus );
   }
 
   @Subscribe
@@ -247,9 +250,8 @@ public final class MainPane extends SplitPane {
   @Subscribe
   public void handle( final CaretNavigationEvent event ) {
     runLater( () -> {
-      final var textArea = getTextEditor().getTextArea();
+      final var textArea = getTextEditor();
       textArea.moveTo( event.getOffset() );
-      textArea.requestFollowCaret();
       textArea.requestFocus();
     } );
   }
@@ -398,21 +400,50 @@ public final class MainPane extends SplitPane {
     }
   }
 
-  public void restoreSession() {
+  /**
+   * Gives focus to the most recently edited document and attempts to move
+   * the caret to the most recently known offset into said document.
+   */
+  private void restoreSession() {
     final var workspace = getWorkspace();
     final var file = workspace.fileProperty( KEY_UI_RECENT_DOCUMENT );
     final var offset = workspace.integerProperty( KEY_UI_RECENT_OFFSET );
 
-    mTabPanes.forEach( pane -> {
-      final var tabs = pane.getTabs();
+    for( final var pane : mTabPanes ) {
+      for( final var tab : pane.getTabs() ) {
+        final var tooltip = tab.getTooltip();
 
-      tabs.forEach( tab -> {
-        System.out.println( tab.getId() );
-      } );
-    } );
+        if( tooltip != null ) {
+          final var tabName = tooltip.getText();
+          final var fileName = file.getValue().toString();
 
-    System.out.println( "TAB: " + file );
-    System.out.println( "OFFSET: " + offset );
+          if( tabName.equalsIgnoreCase( fileName ) ) {
+            final var node = tab.getContent();
+
+            pane.getSelectionModel().select( tab );
+            node.requestFocus();
+
+            if( node instanceof TextEditor editor ) {
+              editor.moveTo( offset.getValue() );
+            }
+
+            break;
+          }
+        }
+      }
+    }
+  }
+
+  /**
+   * Sets the focus to the middle pane, which contains the text editor tabs.
+   */
+  private void restoreFocus() {
+    // Work around a bug where focusing directly on the middle pane results
+    // in the R engine not loading variables properly.
+    mTabPanes.get( 0 ).requestFocus();
+
+    // This is the only line that should be required.
+    mTabPanes.get( 1 ).requestFocus();
   }
 
   /**
@@ -1093,10 +1124,10 @@ public final class MainPane extends SplitPane {
       keyPressed( SPACE, CONTROL_DOWN ), this::autoinsert
     );
 
-    // Track the caret so its position can be restored later.
-    getWorkspace().integerProperty( KEY_UI_RECENT_OFFSET ).bind(
-      editor.getTextArea().caretPositionProperty()
-    );
+    // Track the caret to restore its position later.
+    editor.getTextArea().caretPositionProperty().addListener( ( c, o, n ) -> {
+      getWorkspace().integerProperty( KEY_UI_RECENT_OFFSET ).setValue( n );
+    } );
 
     // Set the active editor, which refreshes the preview panel.
     mTextEditor.set( editor );
