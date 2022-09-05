@@ -299,6 +299,7 @@ public final class SvgRasterizer {
     final var document = toDocument( xml );
     final var root = document.getDocumentElement();
     final var width = root.getAttribute( SVG_WIDTH_ATTRIBUTE );
+    
     return rasterizeString( xml, INT_FORMAT.parse( width ).intValue() );
   }
 
