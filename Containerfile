@@ -18,7 +18,7 @@ ADD "https://www.omnibus-type.com/wp-content/uploads/Archivo-Narrow.zip" "archiv
 
 # Unpack fonts (prior to ConTeXt).
 RUN unzip -j -o roboto.zip "*.ttf"
-RUN unzip -j -o inconsolata.zip "*.ttf"
+RUN unzip -j -o inconsolata.zip "**/Inconsolata/*.ttf"
 RUN unzip -j -o source-serif.zip "source-serif-4.004/OTF/SourceSerif4-*.otf"
 RUN unzip -j -o archivo-narrow.zip "Archivo-Narrow/otf/*.otf"
 RUN rm -f roboto.zip
@@ -50,7 +50,7 @@ ENV CONTEXT_HOME=/opt/context
 RUN echo "export CONTEXT_HOME=\"$CONTEXT_HOME\"" >> $PROFILE
 RUN echo "export PATH=\"\$PATH:\$CONTEXT_HOME/tex/texmf-linuxmusl/bin\"" >> $PROFILE
 RUN echo "export OSFONTDIR=\"/usr/share/fonts//\""
-RUN echo "PS1=\"docker:\\w\\\$ \\"" >> $PROFILE
+RUN echo "PS1=\"typesetter:\\w\\\$ \"" >> $PROFILE
 
 # Trim the fat.
 RUN source $PROFILE
@@ -59,6 +59,4 @@ RUN find . -type f -name "*.pdf" -exec rm {} \;
 
 # Prepare to process text files.
 WORKDIR "/root"
-
-ENTRYPOINT ["/bin/sh"]
 
