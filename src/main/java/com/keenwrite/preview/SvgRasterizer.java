@@ -1,24 +1,23 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.preview;
 
-import org.apache.batik.anim.dom.SAXSVGDocumentFactory;
-import org.apache.batik.bridge.BridgeContext;
-import org.apache.batik.bridge.DocumentLoader;
-import org.apache.batik.bridge.UserAgent;
-import org.apache.batik.bridge.UserAgentAdapter;
-import org.apache.batik.css.parser.Parser;
-import org.apache.batik.gvt.renderer.ImageRenderer;
-import org.apache.batik.transcoder.*;
-import org.apache.batik.transcoder.image.ImageTranscoder;
-import org.apache.batik.util.XMLResourceDescriptor;
-import org.w3c.css.sac.CSSException;
+import io.sf.carte.echosvg.anim.dom.SAXSVGDocumentFactory;
+import io.sf.carte.echosvg.bridge.BridgeContext;
+import io.sf.carte.echosvg.bridge.DocumentLoader;
+import io.sf.carte.echosvg.bridge.UserAgent;
+import io.sf.carte.echosvg.bridge.UserAgentAdapter;
+import io.sf.carte.echosvg.gvt.renderer.ImageRenderer;
+import io.sf.carte.echosvg.transcoder.ErrorHandler;
+import io.sf.carte.echosvg.transcoder.TranscoderException;
+import io.sf.carte.echosvg.transcoder.TranscoderInput;
+import io.sf.carte.echosvg.transcoder.TranscoderOutput;
+import io.sf.carte.echosvg.transcoder.image.ImageTranscoder;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.net.URI;
@@ -29,31 +28,19 @@ import java.text.ParseException;
 import static com.keenwrite.dom.DocumentParser.transform;
 import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.preview.HighQualityRenderingHints.RENDERING_HINTS;
+import static io.sf.carte.echosvg.bridge.UnitProcessor.createContext;
+import static io.sf.carte.echosvg.bridge.UnitProcessor.svgHorizontalLengthToUserSpace;
+import static io.sf.carte.echosvg.transcoder.SVGAbstractTranscoder.KEY_WIDTH;
+import static io.sf.carte.echosvg.transcoder.TranscodingHints.Key;
+import static io.sf.carte.echosvg.transcoder.image.ImageTranscoder.KEY_PIXEL_UNIT_TO_MILLIMETER;
+import static io.sf.carte.echosvg.util.SVGConstants.SVG_WIDTH_ATTRIBUTE;
 import static java.awt.image.BufferedImage.TYPE_INT_RGB;
 import static java.text.NumberFormat.getIntegerInstance;
-import static org.apache.batik.bridge.UnitProcessor.createContext;
-import static org.apache.batik.bridge.UnitProcessor.svgHorizontalLengthToUserSpace;
-import static org.apache.batik.transcoder.SVGAbstractTranscoder.KEY_WIDTH;
-import static org.apache.batik.transcoder.TranscodingHints.Key;
-import static org.apache.batik.transcoder.image.ImageTranscoder.KEY_PIXEL_UNIT_TO_MILLIMETER;
-import static org.apache.batik.util.SVGConstants.SVG_WIDTH_ATTRIBUTE;
-import static org.apache.batik.util.XMLResourceDescriptor.getXMLParserClassName;
 
 /**
  * Responsible for converting SVG images into rasterized PNG images.
  */
 public final class SvgRasterizer {
-  /**
-   * <a href="https://issues.apache.org/jira/browse/BATIK-1112">Bug fix</a>
-   */
-  public static final class InkscapeCssParser extends Parser {
-    public void parseStyleDeclaration( final String source )
-      throws CSSException, IOException {
-      super.parseStyleDeclaration(
-        source.replaceAll( "-inkscape-font-specification:[^;\"]*;", "" )
-      );
-    }
-  }
 
   /**
    * Prevent rudely barfing stack traces to the console.
@@ -75,12 +62,6 @@ public final class SvgRasterizer {
     }
   }
 
-  static {
-    XMLResourceDescriptor.setCSSParserClassName(
-      InkscapeCssParser.class.getName()
-    );
-  }
-
   private static final UserAgent USER_AGENT = new UserAgentAdapter();
   private static final BridgeContext BRIDGE_CONTEXT = new BridgeContext(
     USER_AGENT, new DocumentLoader( USER_AGENT )
@@ -88,7 +69,7 @@ public final class SvgRasterizer {
   private static final ErrorHandler sErrorHandler = new SvgErrorHandler();
 
   private static final SAXSVGDocumentFactory FACTORY_DOM =
-    new SAXSVGDocumentFactory( getXMLParserClassName() );
+    new SAXSVGDocumentFactory();
 
   private static final NumberFormat INT_FORMAT = getIntegerInstance();
 

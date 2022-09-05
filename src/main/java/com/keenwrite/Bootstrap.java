@@ -7,8 +7,6 @@ import java.io.InputStream;
 import java.util.Calendar;
 import java.util.Properties;
 
-import static org.apache.batik.util.ParsedURL.setGlobalUserAgent;
-
 /**
  * Responsible for loading the bootstrap.properties file, which is
  * tactically located outside the standard resource reverse domain name
@@ -39,8 +37,8 @@ public final class Bootstrap {
   public static final String APP_YEAR = getYear();
 
   static {
+    // This also sets the user agent for the SVG rendering library.
     System.setProperty( "http.agent", APP_TITLE + " " + APP_VERSION );
-    setGlobalUserAgent( System.getProperty( "http.agent" ) );
   }
 
   @SuppressWarnings( "SameParameterValue" )

@@ -9,6 +9,18 @@ repositories {
 
   maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
   maven { url 'https://nexus.bedatadriven.com/content/groups/public' }
+
+  maven {
+    url "https://css4j.github.io/maven/"
+    mavenContent {
+      releasesOnly()
+    }
+    content {
+      includeGroup 'com.github.css4j'
+      includeGroup 'io.sf.carte'
+      includeGroup 'io.sf.jclf'
+    }
+  }
 }
 
 // Assume a cross-platform überjar unless targetOs is set.
@@ -48,6 +60,7 @@ dependencies {
   def v_flexmark = '0.64.0'
   def v_jackson = '2.13.3'
   def v_batik = '1.14'
+  def v_echosvg = '0.2.1'
 
   // JavaFX
   implementation 'org.controlsfx:controlsfx:11.1.1'
@@ -73,7 +86,7 @@ dependencies {
   implementation 'org.yaml:snakeyaml:1.30'
 
   // XML
-  implementation 'com.ximpleware:vtd-xml:2.13.4'
+  //implementation 'com.ximpleware:vtd-xml:2.13.4'
 
   // HTML parsing and rendering
   implementation 'org.jsoup:jsoup:1.15.3'
@@ -84,21 +97,21 @@ dependencies {
   implementation 'org.renjin:renjin-script-engine:3.5-beta76'
 
   // SVG
-  implementation "org.apache.xmlgraphics:batik-anim:${v_batik}"
-  implementation "org.apache.xmlgraphics:batik-awt-util:${v_batik}"
-  implementation "org.apache.xmlgraphics:batik-bridge:${v_batik}"
-  implementation "org.apache.xmlgraphics:batik-css:${v_batik}"
-  implementation "org.apache.xmlgraphics:batik-dom:${v_batik}"
-  implementation "org.apache.xmlgraphics:batik-ext:${v_batik}"
-  implementation "org.apache.xmlgraphics:batik-gvt:${v_batik}"
-  implementation "org.apache.xmlgraphics:batik-parser:${v_batik}"
-  implementation "org.apache.xmlgraphics:batik-script:${v_batik}"
-  implementation "org.apache.xmlgraphics:batik-svg-dom:${v_batik}"
-  implementation "org.apache.xmlgraphics:batik-svggen:${v_batik}"
-  implementation "org.apache.xmlgraphics:batik-transcoder:${v_batik}"
-  implementation "org.apache.xmlgraphics:batik-rasterizer:${v_batik}"
-  implementation "org.apache.xmlgraphics:batik-util:${v_batik}"
-  implementation "org.apache.xmlgraphics:batik-xml:${v_batik}"
+  implementation "io.sf.carte:echosvg-anim:${v_echosvg}"
+  implementation "io.sf.carte:echosvg-awt-util:${v_echosvg}"
+  implementation "io.sf.carte:echosvg-bridge:${v_echosvg}"
+  implementation "io.sf.carte:echosvg-css:${v_echosvg}"
+  implementation "io.sf.carte:echosvg-dom:${v_echosvg}"
+  implementation "io.sf.carte:echosvg-ext:${v_echosvg}"
+  implementation "io.sf.carte:echosvg-gvt:${v_echosvg}"
+  implementation "io.sf.carte:echosvg-parser:${v_echosvg}"
+  implementation "io.sf.carte:echosvg-script:${v_echosvg}"
+  implementation "io.sf.carte:echosvg-svg-dom:${v_echosvg}"
+  implementation "io.sf.carte:echosvg-svggen:${v_echosvg}"
+  implementation "io.sf.carte:echosvg-transcoder:${v_echosvg}"
+  implementation "io.sf.carte:echosvg-svgrasterizer:${v_echosvg}"
+  implementation "io.sf.carte:echosvg-util:${v_echosvg}"
+  implementation "io.sf.carte:echosvg-xml:${v_echosvg}"
 
   // Misc.
   implementation 'org.ahocorasick:ahocorasick:0.6.3'
