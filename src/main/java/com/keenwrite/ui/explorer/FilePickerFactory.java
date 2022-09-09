@@ -97,7 +97,7 @@ public class FilePickerFactory {
     @Override
     public Optional<List<File>> choose() {
       if( mType == FILE_OPEN_MULTIPLE ) {
-        return Optional.of( mChooser.showOpenMultipleDialog( mOwner ) );
+        return Optional.ofNullable( mChooser.showOpenMultipleDialog( mOwner ) );
       }
 
       final File file = mType == FILE_EXPORT || mType == FILE_SAVE_AS

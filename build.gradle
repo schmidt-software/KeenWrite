@@ -95,9 +95,9 @@ dependencies {
 
   // R
   implementation 'org.renjin:renjin-script-engine:3.5-beta76'
+  implementation 'org.renjin.cran:rjson:0.2.15-renjin-21'
 
   // SVG
-  implementation "io.sf.carte:echosvg-anim:${v_echosvg}"
   implementation "io.sf.carte:echosvg-awt-util:${v_echosvg}"
   implementation "io.sf.carte:echosvg-bridge:${v_echosvg}"
   implementation "io.sf.carte:echosvg-css:${v_echosvg}"
@@ -109,7 +109,6 @@ dependencies {
   implementation "io.sf.carte:echosvg-svg-dom:${v_echosvg}"
   implementation "io.sf.carte:echosvg-svggen:${v_echosvg}"
   implementation "io.sf.carte:echosvg-transcoder:${v_echosvg}"
-  implementation "io.sf.carte:echosvg-svgrasterizer:${v_echosvg}"
   implementation "io.sf.carte:echosvg-util:${v_echosvg}"
   implementation "io.sf.carte:echosvg-xml:${v_echosvg}"
 
