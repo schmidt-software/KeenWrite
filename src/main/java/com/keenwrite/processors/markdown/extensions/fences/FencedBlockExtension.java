@@ -139,8 +139,7 @@ public final class FencedBlockExtension extends HtmlRendererAdapter {
       set.add( new NodeRenderingHandler<>(
         FencedCodeBlock.class, ( node, context, html ) -> {
         final var style = sanitize( node.getInfo() );
-
-        Tuple<String, ResolvedLink> imagePair;
+        final Tuple<String, ResolvedLink> imagePair;
 
         if( style.startsWith( STYLE_DIAGRAM ) ) {
           imagePair = importTextDiagram( style, node, context );

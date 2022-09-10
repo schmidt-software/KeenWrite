@@ -24,6 +24,7 @@ import java.util.function.Consumer;
 import static com.keenwrite.events.StatusEvent.clue;
 import static java.nio.charset.StandardCharsets.UTF_16;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.nio.file.Files.write;
 import static javax.xml.transform.OutputKeys.*;
 import static javax.xml.xpath.XPathConstants.NODESET;
 
@@ -213,9 +214,15 @@ public class DocumentParser {
   public static void sanitize( final Path path ) throws Exception {
     assert path != null;
 
-    final var file = path.toFile();
+    final var writer = new ByteArrayOutputStream( 65536 );
+    final var output = new OutputStreamWriter( writer );
+    final var target = new StreamResult( output );
+    final var source = sDocumentBuilder.parse( path.toFile() );
 
-    transform( sDocumentBuilder.parse( file ), new StreamResult( file ) );
+    transform( source, target );
+    output.close();
+    write( path, writer.toByteArray() );
+    writer.close();
   }
 
   /**

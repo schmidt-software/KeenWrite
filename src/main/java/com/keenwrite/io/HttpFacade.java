@@ -80,7 +80,7 @@ public class HttpFacade {
         conn.setRequestProperty( "Accept-Encoding", "gzip" );
         conn.setRequestProperty( "User-Agent", getProperty( "http.agent" ) );
         conn.setRequestMethod( "GET" );
-        conn.setConnectTimeout( 15000 );
+        conn.setConnectTimeout( 30000 );
         conn.setRequestProperty( "connection", "close" );
         conn.connect();
 

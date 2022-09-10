@@ -187,8 +187,7 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
         copy( image, imageFile, REPLACE_EXISTING );
       }
 
-      // Strip comments, superfluous whitespace, DOCTYPE, and XML
-      // declarations.
+      // Strip comments, superfluous whitespace, DOCTYPE, and XML declarations.
       if( mediaType.isSvg() ) {
         DocumentParser.sanitize( imageFile );
       }

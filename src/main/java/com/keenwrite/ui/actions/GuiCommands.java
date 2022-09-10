@@ -53,6 +53,7 @@ import static com.keenwrite.processors.ProcessorFactory.createProcessors;
 import static com.keenwrite.ui.explorer.FilePickerFactory.SelectionType;
 import static com.keenwrite.ui.explorer.FilePickerFactory.SelectionType.*;
 import static com.keenwrite.util.FileWalker.walk;
+import static java.lang.System.lineSeparator;
 import static java.nio.file.Files.readString;
 import static java.nio.file.Files.writeString;
 import static java.util.concurrent.Executors.newFixedThreadPool;
@@ -122,7 +123,7 @@ public final class GuiCommands {
         // ... update the status bar with the current caret position.
         if( n != null ) {
           final var w = getWorkspace();
-          final var recentDoc =  w.fileProperty( KEY_UI_RECENT_DOCUMENT );
+          final var recentDoc = w.fileProperty( KEY_UI_RECENT_DOCUMENT );
 
           // ... preserve the most recent document.
           recentDoc.setValue( n.getFile() );
@@ -182,7 +183,8 @@ public final class GuiCommands {
     final var editor = main.getTextEditor();
     final var exported = getWorkspace().fileProperty( KEY_UI_RECENT_EXPORT );
     final var filename = format.toExportFilename( editor.getPath() );
-    final var selected = PDF_DEFAULT.getName().equals( exported.get().getName() );
+    final var selected = PDF_DEFAULT.getName()
+                                    .equals( exported.get().getName() );
     final var selection = pickFile(
       selected ? filename : exported.get(),
       exported.get().toPath().getParent(),
@@ -606,7 +608,8 @@ public final class GuiCommands {
           clue( "Main.status.export.concat", file );
 
           if( validator.test( chapter.incrementAndGet() ) ) {
-            text.append( readString( file ) );
+            // Ensure multiple files are separated by an EOL.
+            text.append( readString( file ) ).append( lineSeparator() );
           }
         } catch( final IOException ex ) {
           clue( "Main.status.export.concat.io", file );
