@@ -37,6 +37,11 @@ public class DocumentParser {
   private static final String INDENT_AMOUNT =
     "{http://xml.apache.org/xslt}indent-amount";
 
+  private static final ByteArrayOutputStream sWriter =
+    new ByteArrayOutputStream( 65536 );
+  private static final OutputStreamWriter sOutput =
+    new OutputStreamWriter( sWriter );
+
   /**
    * Caches {@link XPathExpression}s to avoid re-compiling.
    */
@@ -214,15 +219,15 @@ public class DocumentParser {
   public static void sanitize( final Path path ) throws Exception {
     assert path != null;
 
-    final var writer = new ByteArrayOutputStream( 65536 );
-    final var output = new OutputStreamWriter( writer );
-    final var target = new StreamResult( output );
+    // Preprocessing the SVG image is a single-threaded operation, no matter
+    // how many SVG images are in the document to typeset.
+    sWriter.reset();
+
+    final var target = new StreamResult( sOutput );
     final var source = sDocumentBuilder.parse( path.toFile() );
 
     transform( source, target );
-    output.close();
-    write( path, writer.toByteArray() );
-    writer.close();
+    write( path, sWriter.toByteArray() );
   }
 
   /**
