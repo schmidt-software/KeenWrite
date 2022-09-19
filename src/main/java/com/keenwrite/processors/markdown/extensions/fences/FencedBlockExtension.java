@@ -43,7 +43,7 @@ public final class FencedBlockExtension extends HtmlRendererAdapter {
    * is valid by swallowing errors alongside a {@code finally} block.
    */
   private final static String R_SVG_EXPORT =
-    "tryCatch({svg('%s')%n%s%n},finally={dev.off()})%n";
+    "tryCatch({svg('%s'%s)%n%s%n},finally={dev.off()})%n";
 
   private final static String STYLE_DIAGRAM = "diagram-";
   private final static int STYLE_DIAGRAM_LEN = STYLE_DIAGRAM.length();
@@ -180,6 +180,18 @@ public final class FencedBlockExtension extends HtmlRendererAdapter {
       return new Tuple<>( source, link );
     }
 
+    /**
+     * Evaluates an R expression. This will take into consideration any
+     * key/value pairs passed in from the document, such as width and height
+     * attributes of the form: <code>{r width=5 height=5}</code>.
+     *
+     * @param node    The {@link FencedCodeBlock} to evaluate using R.
+     * @param context Used to resolve the link that refers to any resulting
+     *                image produced by the R chunk (such as a plot).
+     * @return The SVG text string associated with the content produced by
+     * the chunk (such as a graphical data plot).
+     */
+    @SuppressWarnings( "unused" )
     private Tuple<String, ResolvedLink> evaluateRChunk(
       final FencedCodeBlock node,
       final NodeRendererContext context ) {
@@ -189,10 +201,43 @@ public final class FencedBlockExtension extends HtmlRendererAdapter {
       final var filename = format( "%s-%s.svg", APP_TITLE_LOWERCASE, hash );
       final var svg = Paths.get( TEMP_DIR, filename ).toString();
       final var link = context.resolveLink( LINK, svg, false );
-      final var r = format( R_SVG_EXPORT, svg, text );
+      final var dimensions = getAttributes( node.getInfo() );
+      final var r = format( R_SVG_EXPORT, svg, dimensions, text );
       final var result = mRChunkEvaluator.apply( r );
 
       return new Tuple<>( svg, link );
+    }
+
+    /**
+     * Splits attributes of the form <code>{r key1=value2 key2=value2}</code>
+     * into a comma-separated string containing only the key/value pairs,
+     * such as <code>key1=value1,key2=value2</code>.
+     *
+     * @param bs The complete line after the fenced block demarcation.
+     * @return A comma-separated string of name/value pairs.
+     */
+    private String getAttributes( final BasedSequence bs ) {
+      final var result = new StringBuilder();
+      final var split = bs.splitList( " " );
+      final var splits = split.size();
+
+      for( var i = 1; i < splits; i++ ) {
+        final var based = split.get( i ).toString();
+        final var attribute = based.replace( '}', ' ' );
+
+        // The order of attribute evaluations is in order of performance.
+        if( !attribute.isBlank() &&
+          attribute.indexOf( '=' ) > 1 &&
+          attribute.matches( ".*\\d.*" ) ) {
+
+          // The comma will do double-duty for separating individual attributes
+          // as well as being the comma that separates all attributes from the
+          // SVG image file name.
+          result.append( ',' ).append( attribute );
+        }
+      }
+
+      return result.toString();
     }
 
     /**
