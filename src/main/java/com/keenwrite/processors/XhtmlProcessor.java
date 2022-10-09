@@ -21,7 +21,6 @@ import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.io.HttpFacade.httpGet;
 import static com.keenwrite.util.ProtocolScheme.getProtocol;
 import static com.whitemagicsoftware.keenquotes.lex.FilterType.FILTER_XML;
-import static com.whitemagicsoftware.keenquotes.parser.Curler.CHARS;
 import static java.lang.String.format;
 import static java.lang.String.valueOf;
 import static java.nio.file.Files.copy;
@@ -34,7 +33,7 @@ import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
  */
 public final class XhtmlProcessor extends ExecutorProcessor<String> {
   private final static Curler sTypographer =
-    new Curler( contractions(), CHARS, FILTER_XML );
+    new Curler( createContractions(), FILTER_XML, true );
 
   private final ProcessorContext mContext;
 
@@ -282,7 +281,7 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
    *
    * @return List of contractions to use for curling straight quotes.
    */
-  private static Contractions contractions() {
+  private static Contractions createContractions() {
     return new Contractions.Builder().build();
   }
 }

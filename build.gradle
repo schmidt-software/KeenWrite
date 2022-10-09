@@ -58,8 +58,7 @@ javafx {
 dependencies {
   def v_junit = '5.9.0'
   def v_flexmark = '0.64.0'
-  def v_jackson = '2.13.3'
-  def v_batik = '1.14'
+  def v_jackson = '2.13.4'
   def v_echosvg = '0.2.1'
 
   // JavaFX
@@ -84,9 +83,6 @@ dependencies {
   implementation "com.fasterxml.jackson.core:jackson-annotations:${v_jackson}"
   implementation "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:${v_jackson}"
   implementation 'org.yaml:snakeyaml:1.30'
-
-  // XML
-  //implementation 'com.ximpleware:vtd-xml:2.13.4'
 
   // HTML parsing and rendering
   implementation 'org.jsoup:jsoup:1.15.3'
