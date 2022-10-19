@@ -67,6 +67,10 @@ public final class ProcessorContext {
     return fileType;
   }
 
+  public boolean isExportFormat( final ExportFormat exportFormat ) {
+    return mMutator.mExportFormat == exportFormat;
+  }
+
   /**
    * Responsible for populating the instance variables required by the
    * context.
@@ -210,6 +214,10 @@ public final class ProcessorContext {
     public void setAutoClean( final Supplier<Boolean> autoClean ) {
       assert autoClean != null;
       mAutoClean = autoClean;
+    }
+
+    private boolean isExportFormat( final ExportFormat format ) {
+      return mExportFormat == format;
     }
   }
 

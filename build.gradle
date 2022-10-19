@@ -82,7 +82,7 @@ dependencies {
   implementation "com.fasterxml.jackson.core:jackson-databind:${v_jackson}"
   implementation "com.fasterxml.jackson.core:jackson-annotations:${v_jackson}"
   implementation "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:${v_jackson}"
-  implementation 'org.yaml:snakeyaml:1.30'
+  implementation 'org.yaml:snakeyaml:1.33'
 
   // HTML parsing and rendering
   implementation 'org.jsoup:jsoup:1.15.3'

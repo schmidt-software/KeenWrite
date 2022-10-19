@@ -1,6 +1,7 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.processors.markdown;
 
+import com.keenwrite.ExportFormat;
 import com.keenwrite.io.MediaType;
 import com.keenwrite.processors.Processor;
 import com.keenwrite.processors.ProcessorContext;
@@ -77,7 +78,11 @@ public final class MarkdownProcessor extends BaseMarkdownProcessor {
     extensions.add( ImageLinkExtension.create( context ) );
     extensions.add( TeXExtension.create( processor, context ) );
     extensions.add( FencedBlockExtension.create( processor, evaluator, context ) );
-    extensions.add( CaretExtension.create( context ) );
+
+    if( context.isExportFormat( ExportFormat.NONE ) ) {
+      extensions.add( CaretExtension.create( context ) );
+    }
+
     extensions.add( DocumentOutlineExtension.create( processor ) );
     return extensions;
   }

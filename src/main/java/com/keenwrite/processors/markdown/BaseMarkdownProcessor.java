@@ -15,6 +15,7 @@ import com.vladsch.flexmark.parser.Parser;
 import com.vladsch.flexmark.util.ast.IParse;
 import com.vladsch.flexmark.util.ast.IRender;
 import com.vladsch.flexmark.util.ast.Node;
+import com.vladsch.flexmark.util.data.MutableDataSet;
 import com.vladsch.flexmark.util.misc.Extension;
 
 import java.util.ArrayList;
@@ -34,10 +35,18 @@ public class BaseMarkdownProcessor extends ExecutorProcessor<String> {
     final Processor<String> successor, final ProcessorContext context ) {
     super( successor );
 
-    final var builder = Parser.builder();
+    final var options = new MutableDataSet();
+    options.set( HtmlRenderer.GENERATE_HEADER_ID, true );
+    options.set( HtmlRenderer.RENDER_HEADER_ID, true );
+
+    final var builder = Parser.builder( options );
     final var extensions = createExtensions( context );
+
     mParser = builder.extensions( extensions ).build();
-    mRenderer = HtmlRenderer.builder().extensions( extensions ).build();
+    mRenderer = HtmlRenderer
+      .builder( options )
+      .extensions( extensions )
+      .build();
   }
 
   /**
