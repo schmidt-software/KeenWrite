@@ -6,9 +6,9 @@ This document describes how to build the application and platform binaries.
 
 Download and install the following software packages:
 
-* [JDK 18](https://bell-sw.com/pages/downloads/?version=java-18) (Full JDK + JavaFX)
-* [Gradle 7.3](https://gradle.org/releases) (build fails on 7.5.1)
-* [Git 2.37.1](https://git-scm.com/downloads)
+* [JDK 19](https://bell-sw.com/pages/downloads) (Full JDK + JavaFX)
+* [Gradle 7.6-rc-1](https://services.gradle.org/distributions/gradle-7.6-rc-1-bin.zip)
+* [Git 2.38.1](https://git-scm.com/downloads)
 
 ## Repository
 
@@ -33,11 +33,14 @@ After the application is compiled, run it using `keenwrite.sh`.
 
 # Integrated development environments
 
-This section describes setup instructions to import and run the application using an integrated development environment (IDE). Running the application should trigger a build.
+This section describes setup instructions to import and run the application
+using an integrated development environment (IDE). Running the application
+should trigger a build.
 
 ## IntelliJ IDEA
 
-This section describes how to build and run the application using IntellIJ's IDEA.
+This section describes how to build and run the application using
+IntellIJ's IDEA.
 
 ### Import
 
@@ -63,7 +66,8 @@ The application is started.
 
 # Installers
 
-This section describes how to set up the development environment and build native executables for supported operating systems.
+This section describes how to set up the development environment and build
+native executables for supported operating systems.
 
 ## Setup
 
@@ -101,5 +105,7 @@ When finished, browse to the project releases page to draft a new release.
 
 # Versioning
 
-Version numbers are read directly from Git using a plugin. The version number is written to `app.properties` in the `resources` directory. The application reads that file to display version information upon start.
+Version numbers are read directly from Git using a plugin. The version
+number is written to `app.properties` in the `resources` directory. The
+application reads that file to display version information upon start.
 

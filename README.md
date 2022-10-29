@@ -37,7 +37,7 @@ chmod +x keenwrite.bin
 
 On other platforms, start the application as follows:
 
-1. Download the *full version* of the Java Runtime Environment, [JRE 18](https://bell-sw.com/pages/downloads/#/java-18).
+1. Download the *Full version* of the Java Runtime Environment, [JRE 19](https://bell-sw.com/pages/downloads).
 1. Install the JRE.
 1. Open a terminal window.
 1. Verify the installation: `java -version`

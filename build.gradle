@@ -50,13 +50,13 @@ def moduleSecurity = [
 ]
 
 javafx {
-  version = '18'
+  version = '19'
   modules = ['javafx.controls', 'javafx.swing']
   configuration = 'compileOnly'
 }
 
 dependencies {
-  def v_junit = '5.9.0'
+  def v_junit = '5.9.1'
   def v_flexmark = '0.64.0'
   def v_jackson = '2.13.4'
   def v_echosvg = '0.2.1'
