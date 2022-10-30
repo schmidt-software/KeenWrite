@@ -51,7 +51,7 @@ import static javafx.scene.input.KeyCode.*;
 import static javafx.scene.input.KeyCombination.*;
 import static org.apache.commons.lang3.StringUtils.stripEnd;
 import static org.apache.commons.lang3.StringUtils.stripStart;
-import static org.fxmisc.richtext.Caret.CaretVisibility.*;
+import static org.fxmisc.richtext.Caret.CaretVisibility.ON;
 import static org.fxmisc.richtext.model.StyleSpans.singleton;
 import static org.fxmisc.wellbehaved.event.EventPattern.keyPressed;
 import static org.fxmisc.wellbehaved.event.InputMap.consume;
@@ -568,9 +568,10 @@ public final class MarkdownEditor extends BorderPane implements TextEditor {
       }
 
       textArea.getCaretBounds().ifPresent(
-        bounds -> menu.show(
-          textArea, bounds.getCenterX(), bounds.getCenterY()
-        )
+        bounds -> {
+          menu.setOnShown( ( event ) -> menu.requestFocus() );
+          menu.show( textArea, bounds.getCenterX(), bounds.getCenterY() );
+        }
       );
     }
     else {
