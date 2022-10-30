@@ -569,7 +569,7 @@ public final class MarkdownEditor extends BorderPane implements TextEditor {
 
       textArea.getCaretBounds().ifPresent(
         bounds -> {
-          menu.setOnShown( ( event ) -> menu.requestFocus() );
+          menu.setOnShown( event -> menu.requestFocus() );
           menu.show( textArea, bounds.getCenterX(), bounds.getCenterY() );
         }
       );
