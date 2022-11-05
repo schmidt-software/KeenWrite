@@ -51,7 +51,7 @@ public class StyleClassedTextAreaTest extends Application {
     return url == null ? "" : url.toURI().toString();
   }
 
-  private final static String TEXT = """
+  private static final String TEXT = """
     In my younger and more vulnerable years my father gave me some advice
     that I’ve been turning over in my mind ever since.
                                                                                     

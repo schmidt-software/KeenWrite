@@ -7,6 +7,8 @@ import java.io.InputStream;
 import java.util.Calendar;
 import java.util.Properties;
 
+import static com.keenwrite.events.StatusEvent.clue;
+
 /**
  * Responsible for loading the bootstrap.properties file, which is
  * tactically located outside the standard resource reverse domain name
@@ -18,25 +20,45 @@ import java.util.Properties;
  * </p>
  */
 public final class Bootstrap {
+  private static final String PATH_BOOTSTRAP = "/bootstrap.properties";
+
   /**
    * Must be populated before deriving the app title (order matters).
    */
   private static final Properties sP = new Properties();
 
+  public static String APP_TITLE;
+  public static String APP_TITLE_LOWERCASE;
+  public static String APP_VERSION;
+  public static String APP_YEAR;
+
   static {
-    try( final var in = openResource( "/bootstrap.properties" ) ) {
+    try( final var in = openResource( PATH_BOOTSTRAP ) ) {
       sP.load( in );
-    } catch( final Exception ignored ) {
-      // Bootstrap properties cannot be found, throw in the towel.
+
+      APP_TITLE = sP.getProperty( "application.title" );
+    } catch( final Exception ex ) {
+      APP_TITLE = "KeenWrite";
+
+      // Bootstrap properties cannot be found, use a default value.
+      final var fmt = "Unable to load %s resource, applying defaults.%n";
+      clue( ex, fmt, PATH_BOOTSTRAP );
     }
-  }
 
-  public static final String APP_TITLE = sP.getProperty( "application.title" );
-  public static final String APP_TITLE_LOWERCASE = APP_TITLE.toLowerCase();
-  public static final String APP_VERSION = Launcher.getVersion();
-  public static final String APP_YEAR = getYear();
+    APP_TITLE_LOWERCASE = APP_TITLE.toLowerCase();
 
-  static {
+    try {
+      APP_VERSION = Launcher.getVersion();
+    } catch( final Exception ex ) {
+      APP_VERSION = "0.0.0";
+
+      // Application version cannot be found, use a default value.
+      final var fmt = "Unable to determine application version.";
+      clue( ex, fmt );
+    }
+
+    APP_YEAR = getYear();
+
     // This also sets the user agent for the SVG rendering library.
     System.setProperty( "http.agent", APP_TITLE + " " + APP_VERSION );
   }

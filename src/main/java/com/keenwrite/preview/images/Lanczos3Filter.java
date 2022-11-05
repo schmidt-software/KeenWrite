@@ -7,7 +7,7 @@
 package com.keenwrite.preview.images;
 
 public final class Lanczos3Filter implements ResampleFilter {
-  private final static float PI_FLOAT = (float) Math.PI;
+  private static final float PI_FLOAT = (float) Math.PI;
 
   private float sincModified( float value ) {
     return (float) Math.sin( value ) / value;

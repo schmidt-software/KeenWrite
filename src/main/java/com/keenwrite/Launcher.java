@@ -75,7 +75,7 @@ public final class Launcher implements Consumer<Arguments> {
     try {
       final var properties = loadProperties( "app.properties" );
       return properties.getProperty( "application.version" );
-    } catch( final Exception ex ) {
+    } catch( final IOException ex ) {
       throw new RuntimeException( ex );
     }
   }

@@ -7,11 +7,11 @@ plugins {
 repositories {
   mavenCentral()
 
-  maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
+  maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
   maven { url 'https://nexus.bedatadriven.com/content/groups/public' }
 
   maven {
-    url "https://css4j.github.io/maven/"
+    url "https://css4j.github.io/maven"
     mavenContent {
       releasesOnly()
     }
@@ -60,9 +60,10 @@ dependencies {
   def v_flexmark = '0.64.0'
   def v_jackson = '2.13.4'
   def v_echosvg = '0.2.1'
+  def v_picocli = '4.7.0'
 
   // JavaFX
-  implementation 'org.controlsfx:controlsfx:11.1.1'
+  implementation 'org.controlsfx:controlsfx:11.1.2'
   implementation 'org.fxmisc.richtext:richtextfx:0.10.9'
   implementation 'org.fxmisc.flowless:flowless:0.6.10'
   implementation 'org.fxmisc.wellbehaved:wellbehavedfx:0.3.3'
@@ -117,7 +118,8 @@ dependencies {
   implementation 'commons-beanutils:commons-beanutils:1.9.4'
 
   // Command-line parsing
-  implementation 'info.picocli:picocli:4.6.3'
+  implementation "info.picocli:picocli:${v_picocli}"
+  annotationProcessor "info.picocli:picocli-codegen:${v_picocli}"
 
   // Spelling, TeX, Docking, KeenQuotes
   implementation fileTree( include: ['**/*.jar'], dir: 'libs' )
@@ -136,12 +138,7 @@ dependencies {
   testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
 }
 
-compileJava {
-  options.compilerArgs << '-Xlint:unchecked' << '-Xlint:deprecation'
-}
-
-def resourceDir = sourceSets.main.resources.srcDirs[0]
-
+final resourceDir = sourceSets.main.resources.srcDirs[0]
 final Properties config = new Properties()
 final File configFile = file( "${resourceDir}/bootstrap.properties" )
 final FileInputStream configStream = new FileInputStream( configFile )
@@ -149,7 +146,18 @@ config.load( configStream )
 configStream.close()
 
 final String applicationName = config.get( 'application.title' ).toString().toLowerCase()
-final String applicationClass = "com.${applicationName}.Launcher"
+final String applicationPackage = "com.${applicationName}"
+final String applicationClass = "${applicationPackage}.Launcher"
+
+compileJava {
+  sourceCompatibility = 17
+  targetCompatibility = 17
+
+  options.compilerArgs
+      << '-Xlint:unchecked'
+      << '-Xlint:deprecation'
+      << "-Aproject=${applicationPackage}/${applicationName}"
+}
 
 application {
   mainClass.set( applicationClass )

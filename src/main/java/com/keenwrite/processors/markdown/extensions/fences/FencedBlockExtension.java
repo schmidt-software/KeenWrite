@@ -35,22 +35,22 @@ import static java.lang.String.format;
  * elements.
  */
 public final class FencedBlockExtension extends HtmlRendererAdapter {
-  private final static String TEMP_DIR = System.getProperty( "java.io.tmpdir" );
+  private static final String TEMP_DIR = System.getProperty( "java.io.tmpdir" );
 
   /**
    * Ensure that the device is always closed to prevent an out-of-resources
    * error, regardless of whether the R expression the user tries to evaluate
    * is valid by swallowing errors alongside a {@code finally} block.
    */
-  private final static String R_SVG_EXPORT =
+  private static final String R_SVG_EXPORT =
     "tryCatch({svg('%s'%s)%n%s%n},finally={dev.off()})%n";
 
-  private final static String STYLE_DIAGRAM = "diagram-";
-  private final static int STYLE_DIAGRAM_LEN = STYLE_DIAGRAM.length();
+  private static final String STYLE_DIAGRAM = "diagram-";
+  private static final int STYLE_DIAGRAM_LEN = STYLE_DIAGRAM.length();
 
-  private final static String STYLE_R_CHUNK = "{r";
+  private static final String STYLE_R_CHUNK = "{r";
 
-  private final static class VerbatimRVariableProcessor
+  private static final class VerbatimRVariableProcessor
     extends RVariableProcessor {
 
     public VerbatimRVariableProcessor(

@@ -19,7 +19,7 @@ import static com.keenwrite.processors.text.TextReplacementFactory.replace;
  */
 public final class RBootstrapController {
 
-  private final static RKeyOperator KEY_OPERATOR = new RKeyOperator();
+  private static final RKeyOperator KEY_OPERATOR = new RKeyOperator();
 
   private final Workspace mWorkspace;
   private final Supplier<Map<String, String>> mDefinitions;

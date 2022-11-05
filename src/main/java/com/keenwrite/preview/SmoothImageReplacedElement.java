@@ -13,7 +13,7 @@ import java.awt.image.BufferedImage;
  * down-sampling.
  */
 public final class SmoothImageReplacedElement extends ImageReplacedElement {
-  private final static Lanczos3Filter FILTER = new Lanczos3Filter();
+  private static final Lanczos3Filter FILTER = new Lanczos3Filter();
 
   /**
    * Creates a high-quality rescaled version of the given image. The

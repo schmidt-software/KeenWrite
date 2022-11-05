@@ -15,7 +15,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
  * Tests file resource allocation.
  */
 public class FileObjectTest {
-  private final static String TEMP_DIR = System.getProperty( "java.io.tmpdir" );
+  private static final String TEMP_DIR = System.getProperty( "java.io.tmpdir" );
 
   /**
    * Test that resources are not exhausted.

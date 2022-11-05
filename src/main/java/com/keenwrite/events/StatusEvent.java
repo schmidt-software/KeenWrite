@@ -174,6 +174,21 @@ public final class StatusEvent implements AppEvent {
   }
 
   /**
+   * Notifies listeners of a custom message.
+   *
+   * @param ex   The exception that warranted calling this method.
+   * @param fmt  The string format specifier.
+   * @param args The arguments to weave into the format specifier.
+   */
+  public static void clue(
+    final Exception ex,
+    final String fmt,
+    final Object... args ) {
+    final var msg = format( fmt, args );
+    clue( msg, ex );
+  }
+
+  /**
    * Notifies listeners of an exception occurs that warrants the user's
    * attention.
    *

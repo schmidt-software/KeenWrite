@@ -18,7 +18,7 @@ public final class PermissiveCertificate {
   /**
    * Create a trust manager that does not validate certificate chains.
    */
-  private final static TrustManager[] TRUST_ALL_CERTS = new TrustManager[]{
+  private static final TrustManager[] TRUST_ALL_CERTS = new TrustManager[]{
     new X509TrustManager() {
       @Override
       public X509Certificate[] getAcceptedIssuers() {

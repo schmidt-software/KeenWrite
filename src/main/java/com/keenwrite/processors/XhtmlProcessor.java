@@ -32,7 +32,7 @@ import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
  * not run in real-time.
  */
 public final class XhtmlProcessor extends ExecutorProcessor<String> {
-  private final static Curler sTypographer =
+  private static final Curler sTypographer =
     new Curler( createContractions(), FILTER_XML, true );
 
   private final ProcessorContext mContext;

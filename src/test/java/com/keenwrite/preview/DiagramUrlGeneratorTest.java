@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  */
 class DiagramUrlGeneratorTest {
   // @formatter:off
-  private final static String[] DIAGRAMS = new String[]{
+  private static final String[] DIAGRAMS = new String[]{
     "graphviz",
     "digraph G {Hello->World; World->Hello;}",
     "https://kroki.io/graphviz/svg/eJxLyUwvSizIUHBXqPZIzcnJ17ULzy_KSbFWAFO6dmBB61oAE9kNww==",
