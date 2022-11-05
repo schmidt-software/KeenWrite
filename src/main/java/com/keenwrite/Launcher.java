@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 import java.util.function.Consumer;
+import java.util.logging.LogManager;
 
 import static com.keenwrite.Bootstrap.*;
 import static com.keenwrite.security.PermissiveCertificate.installTrustManager;
@@ -149,6 +150,21 @@ public final class Launcher implements Consumer<Arguments> {
   }
 
   /**
+   * Suppress writing to standard error, suppresses writing log messages.
+   */
+  private static void disableLogging() {
+    LogManager.getLogManager().reset();
+    stderrDisable();
+  }
+
+  /**
+   * TODO: Delete this after JavaFX/GTK 3 no longer barfs useless warnings.
+   */
+  private static void stderrDisable() {
+    System.err.close();
+  }
+
+  /**
    * Writes the given placeholder text to standard output with a new line
    * appended.
    *
@@ -157,6 +173,12 @@ public final class Launcher implements Consumer<Arguments> {
    */
   private static void out( final String message, final Object... args ) {
     System.out.printf( format( "%s%n", message ), args );
+  }
+
+  private static void showAppInfo() {
+    out( "%n%s version %s", APP_TITLE, APP_VERSION );
+    out( "Copyright 2016-%s White Magic Software, Ltd.", APP_YEAR );
+    out( "Portions copyright 2015-2020 Karl Tauber.%n" );
   }
 
   /**
@@ -201,7 +223,7 @@ public final class Launcher implements Consumer<Arguments> {
         argCount--;
       }
       else {
-        MainApp.disableLogging();
+        disableLogging();
       }
 
       if( argCount <= 0 ) {
@@ -215,11 +237,5 @@ public final class Launcher implements Consumer<Arguments> {
     } catch( final Throwable t ) {
       log( t );
     }
-  }
-
-  private static void showAppInfo() {
-    out( "%n%s version %s", APP_TITLE, APP_VERSION );
-    out( "Copyright 2016-%s White Magic Software, Ltd.", APP_YEAR );
-    out( "Portions copyright 2015-2020 Karl Tauber.%n" );
   }
 }

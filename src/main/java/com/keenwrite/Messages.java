@@ -1,10 +1,10 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite;
 
+import com.keenwrite.collections.InterpolatingMap;
 import com.keenwrite.preferences.Key;
 import com.keenwrite.sigils.PropertyKeyOperator;
 import com.keenwrite.sigils.SigilKeyOperator;
-import com.keenwrite.collections.InterpolatingMap;
 
 import java.text.MessageFormat;
 import java.util.ResourceBundle;
@@ -25,10 +25,16 @@ public final class Messages {
     // Obtains the application resource bundle using the default locale. The
     // locale cannot be changed using the application, making interpolation of
     // values viable as a one-time operation.
-    final var bundle = getBundle( APP_BUNDLE_NAME );
+    try {
+      final var bundle = getBundle( APP_BUNDLE_NAME );
 
-    bundle.keySet().forEach( key -> MAP.put( key, bundle.getString( key ) ) );
-    MAP.interpolate();
+      bundle.keySet().forEach( key -> MAP.put( key, bundle.getString( key ) ) );
+      MAP.interpolate();
+    } catch( final Exception ignored ) {
+      // This is bad, but it'll be extremely apparent when the UI loads. We
+      // can't log this through regular channels because that'd lead to a
+      // circular dependency.
+    }
   }
 
   /**
@@ -77,5 +83,5 @@ public final class Messages {
     return MAP.containsKey( key );
   }
 
-  private Messages() {}
+  private Messages() { }
 }

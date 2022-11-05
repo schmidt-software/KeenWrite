@@ -14,7 +14,6 @@ import org.greenrobot.eventbus.Subscribe;
 
 import java.io.PrintStream;
 import java.util.function.BooleanSupplier;
-import java.util.logging.LogManager;
 
 import static com.keenwrite.Bootstrap.APP_TITLE;
 import static com.keenwrite.constants.GraphicsConstants.LOGOS;
@@ -35,21 +34,6 @@ public final class MainApp extends Application {
 
   private Workspace mWorkspace;
   private MainScene mMainScene;
-
-  /**
-   * Suppress writing to standard error, suppresses writing log messages.
-   */
-  static void disableLogging() {
-    LogManager.getLogManager().reset();
-    stderrDisable();
-  }
-
-  /**
-   * TODO: Delete this after JavaFX/GTK 3 no longer barfs useless warnings.
-   */
-  private static void stderrDisable() {
-    System.err.close();
-  }
 
   /**
    * TODO: Delete this after JavaFX/GTK 3 no longer barfs useless warnings.
@@ -118,8 +102,6 @@ public final class MainApp extends Application {
    */
   @Override
   public void start( final Stage stage ) {
-    stderrDisable();
-
     // Must be instantiated after the UI is initialized (i.e., not in main)
     // because it interacts with GUI properties.
     mWorkspace = new Workspace();
