@@ -624,7 +624,7 @@ pluralize_compound_words <- function(
     "Adjutant",
     "Brigadier",
     "Lieutenant",
-    "Major"
+    "Major",
     "Quartermaster"
   )
 
