@@ -1,3 +1,5 @@
+import static org.gradle.api.JavaVersion.*
+
 plugins {
   id 'application'
   id 'org.openjfx.javafxplugin' version '0.0.13'
@@ -149,10 +151,12 @@ final String applicationName = config.get( 'application.title' ).toString().toLo
 final String applicationPackage = "com.${applicationName}"
 final String applicationClass = "${applicationPackage}.Launcher"
 
-compileJava {
-  sourceCompatibility = 17
-  targetCompatibility = 17
+java {
+  sourceCompatibility = VERSION_17
+  targetCompatibility = VERSION_17
+}
 
+compileJava {
   options.compilerArgs
       << '-Xlint:unchecked'
       << '-Xlint:deprecation'
