@@ -654,8 +654,7 @@ pluralize_compound_words <- function(
 # -----------------------------------------------------------------------------
 # Rule 13
 #
-# Otherwise add -es if ending in -s; otherwise, append -s (e.g., tennis,
-# lychnis, penis, and other singular forms).
+# Add -es if ending in -s (e.g., tennis, lychnis); otherwise, add -s.
 # -----------------------------------------------------------------------------
 pluralize_regular <- function( word ) {
   ending <- 's'
