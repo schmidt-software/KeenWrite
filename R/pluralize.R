@@ -88,21 +88,67 @@ pluralize_non_inflecting <- function( word ) {
 }
 
 .uninflected_nouns <- c( 
-  "bison", "flounder", "pliers", "bream", "gallows", "proceedings", "breeches",
-  "graffiti", "rabies", "britches", "headquarters", "salmon", "carp", "herpes",
-  "scissors", "chassis", "high-jinks", "sea-bass", "clippers", "homework",
-  "series", "cod", "innings", "shears", "contretemps", "jackanapes", "species",
-  "corps", "mackerel", "swine", "debris", "measles", "trout", "diabetes",
-  "mews", "tuna", "djinn", "mumps", "whiting", "eland", "news", "wildebeest",
-  "elk", "pincers"
+  "adonis",
+  "anis",
+  "bison",
+  "bream",
+  "breeches",
+  "britches",
+  "carp",
+  "chassis",
+  "clippers",
+  "cod",
+  "contretemps",
+  "corps",
+  "debris",
+  "diabetes",
+  "djinn",
+  "eland",
+  "elk",
+  "flounder",
+  "gallows",
+  "graffiti",
+  "headquarters",
+  "herpes",
+  "high-jinks",
+  "homework",
+  "innings",
+  "jackanapes",
+  "mackerel",
+  "measles",
+  "mews",
+  "mumps",
+  "news",
+  "pants",
+  "physics",
+  "pincers",
+  "pliers",
+  "proceedings",
+  "rabies",
+  "salmon",
+  "scissors",
+  "sea-bass",
+  "series",
+  "shears",
+  "species",
+  "swine",
+  "trout",
+  "tuna",
+  "whiting",
+  "wildebeest",
 )
 
 .singular_nouns <- c( 
-  "acropolis", "chaos", "lens", "aegis", "cosmos", "mantis", "alias", "dais",
-  "marquis", "asbestos", "digitalis", "metropolis", "atlas", "epidermis",
-  "pathos", "bathos", "ethos", "pelvis", "bias", "gas", "polis", "caddis",
-  "glottis", "rhinoceros", "cannabis", "glottis", "sassafras", "canvas", "ibis",
-  "trellis"
+  "bathos",
+  "caddis",
+  "cannabis",
+  "dais",
+  "digitalis",
+  "ethos",
+  "glottis",
+  "marquis",
+  "pathos",
+  "polis"
 )
 
 .irregular_patterns <- c( 
@@ -110,11 +156,46 @@ pluralize_non_inflecting <- function( word ) {
 )
 
 .prepositions <- c( 
-  "about", "before", "during", "of", "till", "above", "behind", "except", "off",
-  "to", "across", "below", "for", "on", "under", "after", "beneath", "from", 
-  "onto", "until", "among", "beside", "in", "out", "unto", "around", "besides", 
-  "into", "over", "upon", "at", "between", "near", "since", "with", "athwart", 
-  "betwixt", "beyond", "but", "by"
+  "about",
+  "above",
+  "across",
+  "after",
+  "among",
+  "around",
+  "at",
+  "athwart",
+  "before",
+  "behind",
+  "below",
+  "beneath",
+  "beside",
+  "besides",
+  "between",
+  "betwixt",
+  "beyond",
+  "but",
+  "by",
+  "during",
+  "except",
+  "for",
+  "from",
+  "in",
+  "into",
+  "near",
+  "of",
+  "off",
+  "on",
+  "onto",
+  "out",
+  "over",
+  "since",
+  "till",
+  "to",
+  "under",
+  "until",
+  "unto",
+  "upon",
+  "with"
 )
 
 # -----------------------------------------------------------------------------
@@ -128,13 +209,32 @@ pluralize_pronoun <- function( word ) {
 }
 
 .pluralized_pronouns <- c( 
-  "I" = "we", "me" = "us", "myself" = "ourselves",
-  "you" = "you", "thou" = "ye", "thee" = "ye", "yourself" = "yourself", 
+  "I" = "we",
+  "me" = "us",
+  "myself" = "ourselves",
+
+  "you" = "you",
+  "thou" = "ye",
+  "thee" = "ye",
+  "yourself" = "yourself",
   "thyself" = "yourself",
-  "she" = "they", "he" = "they", "it" = "they", "they" = "they", 
-  "her" = "them", "him" = "them", "it" = "them", "them" = "them",
-  "herself" = "themselves", "himself" = "themselves", "itself" = "themselves",
-  "themself" = "themselves", "oneself" = "oneselves" 
+
+  "she" = "they",
+  "he" = "they",
+  "it" = "they",
+  "they" = "they",
+
+  "her" = "them",
+  "him" = "them",
+  "it" = "them",
+  "them" = "them",
+
+  "herself" = "themselves",
+  "himself" = "themselves",
+  "itself" = "themselves",
+
+  "themself" = "themselves",
+  "oneself" = "oneselves"
 )
 
 # -----------------------------------------------------------------------------
@@ -151,13 +251,15 @@ pluralize_irregular <- function( word, method = c( "ac", "ca", "a", "c" ) ) {
       return( NA_character_ )
     }
 
-    return( switch( 
-      method,
-      "a" = plurals["a"],
-      "c" = plurals["c"],
-      "ac" = if.na( plurals["a"], plurals["c"] ),
-      "ca" = if.na( plurals["c"], plurals["a"] )
-    ) )
+    return(
+      switch( 
+        method,
+        "a" = plurals["a"],
+        "c" = plurals["c"],
+        "ac" = if.na( plurals["a"], plurals["c"] ),
+        "ca" = if.na( plurals["c"], plurals["a"] )
+      )
+    )
   }
 
   as.character( lapply( plurals, extract_plural ) )
@@ -208,14 +310,28 @@ pluralize_fully_assimilated_classical_inflections <- function( word ) {
     output, "ex", "ices", c( "codex", "murex", "silex" ) )
   output <- replace_suffix(
     output, "on", "a", c( 
-      "aphelion", "hyperbaton", "perihelion", "asyndeton", "noumenon", 
-      "phenomenon", "criterion", "organon", "prolegomenon"
+      "aphelion",
+      "asyndeton",
+      "criterion",
+      "hyperbaton",
+      "noumenon",
+      "organon",
+      "perihelion",
+      "phenomenon",
+      "prolegomenon"
     )
   )
   output <- replace_suffix(
     output, "um", "a", c( 
-      "agendum", "datum", "extremum", "bacterium", "desideratum", "stratum",
-      "candelabrum", "erratum", "ovum"
+      "agendum",
+      "bacterium",
+      "candelabrum",
+      "datum",
+      "desideratum",
+      "erratum",
+      "extremum",
+      "ovum",
+      "stratum"
     )
   )
 
@@ -233,57 +349,140 @@ pluralize_classical_variants_of_modern_inflections <- function(
   word, method = c( "ac", "ca", "a", "c" ) ) {
   method <- match.arg( method )
 
-  # -a to -as ( anglicized ) or -ae ( classical )
+  # -a to -as (anglicized) or -ae (classical)
   a11 <- c( 
-    "abscissa", "formula", "medusa", "amoeba", "hydra", "nebula", "antenna", 
-    "hyperbola", "nova", "aurora", "lacuna", "parabola"
+    "abscissa",
+    "amoeba",
+    "antenna",
+    "aurora",
+    "formula",
+    "hydra",
+    "hyperbola",
+    "lacuna",
+    "medusa",
+    "nebula",
+    "nova",
+    "parabola"
   )
 
-  # Table A.12: -a to -as ( anglicized ) or -ata ( classical )
+  # Table A.12: -a to -as (anglicized) or -ata (classical)
   a12 <- c( 
-    "anathema", "enema", "oedema", "bema", "enigma", "sarcoma", "carcinoma", 
-    "gumma", "schema", "charisma", "lemma", "soma", "diploma", "lymphoma", 
-    "stigma", "dogma", "magma", "stoma", "drama", "melisma", "trauma", "edema", 
-    "miasma"  
+    "anathema",
+    "bema",
+    "carcinoma",
+    "charisma",
+    "diploma",
+    "dogma",
+    "drama",
+    "edema",
+    "enema",
+    "enigma",
+    "gumma",
+    "lemma",
+    "lymphoma",
+    "magma",
+    "melisma",
+    "miasma",
+    "oedema",
+    "sarcoma",
+    "schema",
+    "soma",
+    "stigma",
+    "stoma",
+    "trauma"
   )
   
-  # Table A.13: -en to -ens ( anglicized ) or -ina ( classical )
+  # Table A.13: -en to -ens (anglicized) or -ina (classical)
   a13 <- c( "stamen", "foramen", "lumen" )
   
-  # Table A.15: -ex to -exes ( anglicized ) or -ices ( classical )
+  # Table A.15: -ex to -exes (anglicized) or -ices (classical)
   a15 <- c( 
-    "apex", "latex", "vertex", "cortex", "pontifex", "vortex", "index", 
-    "simplex"  
+    "apex",
+    "cortex",
+    "index",
+    "latex",
+    "pontifex",
+    "simplex",
+    "vertex",
+    "vortex"
   )
   
-  # Table A.16: -is to -ises ( anglicized ) or -ides ( classical )
+  # Table A.16: -is to -ises (anglicized) or -ides (classical)
   a16 <- c( "iris", "clitoris" )
   
-  # Table A.18: -o to -os ( anglicized ) or -i ( classical )
+  # Table A.18: -o to -os (anglicized) or -i (classical)
   a18 <- c( 
-    "alto", "contralto", "soprano", "basso", "crescendo", "tempo", "canto", 
-    "solo"
+    "alto",
+    "basso",
+    "canto",
+    "contralto",
+    "crescendo",
+    "solo",
+    "soprano",
+    "tempo"
   )
    
-  # Table A.21: -um to -ums ( anglicized ) or -a ( classical )
+  # Table A.21: -um to -ums (anglicized) or -a (classical)
   a21 <- c( 
-    "aquarium", "interregnum", "quantum", "compendium", "lustrum", "rostrum", 
-    "consortium", "maximum", "spectrum", "cranium", "medium", "speculum", 
-    "curriculum", "memorandum", "stadium", "dictum", "millenium", "trapezium", 
-    "emporium", "minimum", "ultimatum", "enconium", "momentum", "vacuum", 
-    "gymnasium", "optimum", "velum", "honorarium", "phylum"  
+    "aquarium",
+    "compendium",
+    "consortium",
+    "cranium",
+    "curriculum",
+    "dictum",
+    "emporium",
+    "enconium",
+    "gymnasium",
+    "honorarium",
+    "interregnum",
+    "lustrum",
+    "maximum",
+    "medium",
+    "memorandum",
+    "millenium",
+    "minimum",
+    "momentum",
+    "optimum",
+    "phylum",
+    "quantum",
+    "rostrum",
+    "spectrum",
+    "speculum",
+    "stadium",
+    "trapezium",
+    "ultimatum",
+    "vacuum",
+    "velum"
   )
   
-  # Table A.22: -us to -uses ( anglicized ) or -i ( classical )
+  # Table A.22: -us to -uses (anglicized) or -i (classical)
   a22 <- c( 
-    "focus", "nimbus", "succubus", "fungus", "nucleolus", "torus", "genius", 
-    "radius", "umbilicus", "incubus", "stylus", "uterus"
+    "focus",
+    "fungus",
+    "genius",
+    "incubus",
+    "nimbus",
+    "nucleolus",
+    "radius",
+    "stylus",
+    "succubus",
+    "torus",
+    "umbilicus",
+    "uterus"
   )
   
-  # Table A.23: -us to -uses ( anglicized ) or -us ( classical )
+  # Table A.23: -us to -uses (anglicized) or -us (classical)
   a23 <- c( 
-    "apparatus", "impetus", "prospectus", "cantus", "nexus", "sinus", "coitus", 
-    "plexus", "status", "hiatus"      
+    "apparatus",
+    "cantus",
+    "coitus",
+    "hiatus",
+    "impetus",
+    "nexus",
+    "plexus",
+    "prospectus",
+    "sinus",
+    "status"
   )
   
   output <- replace_suffix( word, "", "im", c( "cherub", "goy", "seraph"  ) )
@@ -312,7 +511,7 @@ pluralize_classical_variants_of_modern_inflections <- function(
   }
 
   ifelse( 
-    output == word & ( method %in% c( "a", "ac" ) | !word %in% a23 ), 
+    output == word & (method %in% c( "a", "ac" ) | !word %in% a23), 
     NA_character_, 
     output
   )
@@ -368,16 +567,42 @@ pluralize_o_suffix <- function( word, method = c( "ac", "ca", "a", "c" ) ) {
 
   # Table A.17: -o to -os
   a17 <- c( 
-    "albino", "generalissimo", "manifesto", "archipelago", "ghetto", "medico",
-    "armadillo", "guano", "octavo", "commando", "inferno", "photo", "ditto", 
-    "jumbo", "pro", "dynamo", "lingo", "quarto", "embryo", "lumbago", "rhino",
-    "fiasco", "magneto", "stylo"
+    "albino",
+    "archipelago",
+    "armadillo",
+    "commando",
+    "ditto",
+    "dynamo",
+    "embryo",
+    "fiasco",
+    "generalissimo",
+    "ghetto",
+    "guano",
+    "inferno",
+    "jumbo",
+    "lingo",
+    "lumbago",
+    "magneto",
+    "manifesto",
+    "medico",
+    "octavo",
+    "photo",
+    "pro",
+    "quarto",
+    "rhino",
+    "stylo"
   )
 
   # Table A.18: -o to -os (anglicized) or -i (classical)
   a18 <- c( 
-    "alto", "contralto", "soprano", "basso", "crescendo", "tempo", "canto", 
-    "solo" 
+    "alto",
+    "basso",
+    "canto",
+    "contralto",
+    "crescendo",
+    "solo",
+    "soprano",
+    "tempo"
   )
 
   output <- replace_suffix( word, "o", "os", a17 )
@@ -396,7 +621,11 @@ pluralize_compound_words <- function(
   word, method = c( "ac", "ca", "a", "c" ) ) {
   method <- match.arg( method )
   military <- c(
-    "Adjutant", "Lieutenant", "Quartermaster", "Brigadier", "Major"
+    "Adjutant",
+    "Brigadier",
+    "Lieutenant",
+    "Major"
+    "Quartermaster"
   )
 
   pluralize_cw <- Vectorize(
@@ -425,10 +654,17 @@ pluralize_compound_words <- function(
 # -----------------------------------------------------------------------------
 # Rule 13
 #
-# Otherwise add -s.
+# Otherwise add -es if ending in -s; otherwise, append -s (e.g., tennis,
+# lychnis, penis, and other singular forms).
 # -----------------------------------------------------------------------------
 pluralize_regular <- function( word ) {
-  paste0( word, "s" )
+  ending <- 's'
+
+  if( endsWith( word, ending ) ) {
+    ending <- "es"
+  }
+
+  paste0( word, ending )
 }
 
 # -----------------------------------------------------------------------------
