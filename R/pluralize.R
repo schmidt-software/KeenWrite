@@ -135,7 +135,7 @@ pluralize_non_inflecting <- function( word ) {
   "trout",
   "tuna",
   "whiting",
-  "wildebeest",
+  "wildebeest"
 )
 
 .singular_nouns <- c( 
