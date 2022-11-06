@@ -59,7 +59,7 @@ when <- function( d, n = 0, format = "%Y-%m-%d" ) {
 # are ignored by any worthwhile typesetting engine).
 # -----------------------------------------------------------------------------
 annal <- function( days = 0, format = "%Y-%m-%d", oformat = "%B %d, %Y" ) {
-  format( when( anchor, days ), format = oformat )
+  gsub( " 0", " ", format( when( anchor, days ), format = oformat ) )
 }
 
 # -----------------------------------------------------------------------------
@@ -195,7 +195,7 @@ commas <- function( n ) {
     n <- n %/% 1000
   }
 
-  gsub( '^0*', '', s )
+  gsub( "^0*", '', s )
 }
 
 # -----------------------------------------------------------------------------
@@ -225,7 +225,7 @@ elapsed <- function( began, ended, s = "same day" ) {
   }
 
   # Calculate number of elapsed years.
-  years = length( seq( from = began, to = ended, by = 'year' ) ) - 1
+  years = length( seq( from = began, to = ended, by = "year" ) ) - 1
 
   # Move the start date up by the number of elapsed years.
   if( years > 0 ) {
@@ -238,7 +238,7 @@ elapsed <- function( began, ended, s = "same day" ) {
   }
 
   # Calculate number of elapsed months, excluding years.
-  months = length( seq( from = began, to = ended, by = 'month' ) ) - 1
+  months = length( seq( from = began, to = ended, by = "month" ) ) - 1
 
   # Move the start date up by the number of elapsed months
   if( months > 0 ) {
@@ -251,7 +251,7 @@ elapsed <- function( began, ended, s = "same day" ) {
   }
 
   # Calculate number of elapsed days, excluding months and years.
-  days = length( seq( from = began, to = ended, by = 'day' ) ) - 1
+  days = length( seq( from = began, to = ended, by = "day" ) ) - 1
 
   if( days > 0 ) {
     days = pl.numeric( "day", days )
@@ -287,14 +287,14 @@ elapsed <- function( began, ended, s = "same day" ) {
 # "five wolves".
 # -----------------------------------------------------------------------------
 pl.numeric <- function( s, n ) {
-  concat( cms( n ), concat( " ", pluralize( s, n ) ) )
+  concat( cms( n ), concat( " ", pluralize( word=s, n=n ) ) )
 }
 
 # -----------------------------------------------------------------------------
 # Pluralize s if n is not equal to 1.
 # -----------------------------------------------------------------------------
-pl <- function( s, n=2 ) {
-  pluralize( s, x( n ) )
+pl <- function( s, count=2 ) {
+  pluralize( word=s, n=count )
 }
 
 # -----------------------------------------------------------------------------
@@ -344,6 +344,20 @@ days <- function( d1, d2, format = "%Y-%m-%d" ) {
   as.integer( difftime( dates[2], dates[1], units = "days" ) )
 }
 
+weeks <- function( began, ended ) {
+  began = when( anchor, began )
+  ended = when( anchor, ended )
+
+  if( as.integer( ended - began ) < 0 ) {
+    tempd = began
+    began = ended
+    ended = tempd
+  }
+
+  # Calculate number of elapsed weeks.
+  length( seq( from = began, to = ended, by = "weeks" ) ) - 1
+}
+
 # -----------------------------------------------------------------------------
 # Returns the number of years elapsed.
 # -----------------------------------------------------------------------------
@@ -359,7 +373,7 @@ years <- function( began, ended ) {
   }
 
   # Calculate number of elapsed years.
-  length( seq( from = began, to = ended, by = 'year' ) ) - 1
+  length( seq( from = began, to = ended, by = "year" ) ) - 1
 }
 
 # -----------------------------------------------------------------------------

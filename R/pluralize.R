@@ -1,9 +1,9 @@
 # -----------------------------------------------------------------------------
-# Copyright 2020, White Magic Software, Ltd.
+# Copyright 2021 by Robin Gertenbach
 # 
 # Permission is hereby granted, free of charge, to any person obtaining
-# a copy of this software and associated documentation files (the
-# "Software"), to deal in the Software without restriction, including
+# a copy of this software and associated documentation files ( the
+# "Software" ), to deal in the Software without restriction, including
 # without limitation the rights to use, copy, modify, merge, publish,
 # distribute, sublicense, and/or sell copies of the Software, and to
 # permit persons to whom the Software is furnished to do so, subject to
@@ -28,220 +28,438 @@
 # See Shevek's Pluralizer: https://github.com/shevek/linguistics/
 # See also: http://www.freevectors.net/assets/files/plural.txt
 # -----------------------------------------------------------------------------
-pluralize <- function( s, n ) {
-  result <- s
 
-  # Partial implementation of Conway's algorithm for nouns.
+# -----------------------------------------------------------------------------
+# Applies all pluralization rules.
+#
+# @param word The word to pluralize.
+# @param method The pluralization approach to apply to the word.
+# @param n When any other value than 1, the word is pluralized.
+# -----------------------------------------------------------------------------
+pluralize <- function( word, method = c( "ac", "ca", "a", "c" ), n = 2 ) {
   if( n != 1 ) {
-    if( pl.noninflective( s ) ||
-        pl.suffix( "es", s ) ||
-        pl.suffix( "fish", s ) ||
-        pl.suffix( "ois", s ) ||
-        pl.suffix( "sheep", s ) ||
-        pl.suffix( "deer", s ) ||
-        pl.suffix( "pox", s ) ||
-        pl.suffix( "[A-Z].*ese", s ) ||
-        pl.suffix( "itis", s ) ) {
-      # 1. Retain non-inflective user-mapped noun as is.
-      # 2. Retain non-inflective plural as is.
-      result <- s
+    method <- match.arg( method )
+
+    coalesce( 
+      pluralize_non_inflecting( word ),
+      pluralize_pronoun( word ),
+      pluralize_irregular( word, method ),
+      pluralize_irregular_inflection_for_common_suffixes( word ),
+      pluralize_fully_assimilated_classical_inflections( word ),
+      pluralize_classical_variants_of_modern_inflections( word, method ),
+      pluralize_ch_sh_ss_suffixes( word ),
+      pluralize_f_and_fe_suffix( word ),
+      pluralize_y_suffix( word ),
+      pluralize_o_suffix( word ),
+      pluralize_compound_words( word ),
+      pluralize_regular( word )
+    )
+  }
+  else {
+    word
+  }
+}
+
+# -----------------------------------------------------------------------------
+# Rule 1
+#
+# Retain non-inflective user-mapped noun as is.
+#
+# Rule 2
+#
+# Irregular verbs that do not inflect in plural.
+# -----------------------------------------------------------------------------
+pluralize_non_inflecting <- function( word ) {
+  coalesce( 
+    ifelse( word %in% .uninflected_nouns, word, NA_character_ ),
+    ifelse( word %in% .singular_nouns, word, NA_character_ ),
+    ifelse( check_suffix( word, .irregular_patterns ), word, NA_character_ )
+  )
+} 
+
+.check_non_inflecting <- function( word ) {
+  is_uninflected <- word %in% .uninflected_nouns
+  is_singular <- word %in% .singular_nouns
+  is_irregular <- check_suffix( word, .irregular_patterns )
+
+  is_uninflected | is_singular | is_irregular
+}
+
+.uninflected_nouns <- c( 
+  "bison", "flounder", "pliers", "bream", "gallows", "proceedings", "breeches",
+  "graffiti", "rabies", "britches", "headquarters", "salmon", "carp", "herpes",
+  "scissors", "chassis", "high-jinks", "sea-bass", "clippers", "homework",
+  "series", "cod", "innings", "shears", "contretemps", "jackanapes", "species",
+  "corps", "mackerel", "swine", "debris", "measles", "trout", "diabetes",
+  "mews", "tuna", "djinn", "mumps", "whiting", "eland", "news", "wildebeest",
+  "elk", "pincers"
+)
+
+.singular_nouns <- c( 
+  "acropolis", "chaos", "lens", "aegis", "cosmos", "mantis", "alias", "dais",
+  "marquis", "asbestos", "digitalis", "metropolis", "atlas", "epidermis",
+  "pathos", "bathos", "ethos", "pelvis", "bias", "gas", "polis", "caddis",
+  "glottis", "rhinoceros", "cannabis", "glottis", "sassafras", "canvas", "ibis",
+  "trellis"
+)
+
+.irregular_patterns <- c( 
+  "fish$", "ois$", "-sheep$", "deer$", "pox$", "[A-Z].*ese$", "itis$"
+)
+
+.prepositions <- c( 
+  "about", "before", "during", "of", "till", "above", "behind", "except", "off",
+  "to", "across", "below", "for", "on", "under", "after", "beneath", "from", 
+  "onto", "until", "among", "beside", "in", "out", "unto", "around", "besides", 
+  "into", "over", "upon", "at", "between", "near", "since", "with", "athwart", 
+  "betwixt", "beyond", "but", "by"
+)
+
+# -----------------------------------------------------------------------------
+# Rule 3
+#
+# Handle pronouns in the nominative, accusative, and dative and propositional
+# phrases.
+# -----------------------------------------------------------------------------
+pluralize_pronoun <- function( word ) {
+  as.vector( .pluralized_pronouns[word] )
+}
+
+.pluralized_pronouns <- c( 
+  "I" = "we", "me" = "us", "myself" = "ourselves",
+  "you" = "you", "thou" = "ye", "thee" = "ye", "yourself" = "yourself", 
+  "thyself" = "yourself",
+  "she" = "they", "he" = "they", "it" = "they", "they" = "they", 
+  "her" = "them", "him" = "them", "it" = "them", "them" = "them",
+  "herself" = "themselves", "himself" = "themselves", "itself" = "themselves",
+  "themself" = "themselves", "oneself" = "oneselves" 
+)
+
+# -----------------------------------------------------------------------------
+# Rule 4
+#
+# Change irregular plurals based on mapping.
+# -----------------------------------------------------------------------------
+pluralize_irregular <- function( word, method = c( "ac", "ca", "a", "c" ) ) {
+  method <- match.arg( method )
+  plurals <- .irregular_nouns[word]
+
+  extract_plural <- function( plurals ) {
+    if( is.null( plurals ) ) {
+      return( NA_character_ )
     }
-    else if( pl.is.irregular.pl( s ) ) {
-      # 4. Change irregular plurals based on mapping.
-      result <- pl.irregular.pl( s )
-    }
-    else if( pl.is.irregular.es( s ) ) {
-      # x. From Shevek's
-      result <- pl.inflect( s, "", "es" )
-    }
-    else if( pl.suffix( "man", s ) ) {
-      # 5. For -man, change -an to -en
-      result <- pl.inflect( s, "an", "en" )
-    }
-    else if( pl.suffix( "[lm]ouse", s ) ) {
-      # 5. For [lm]ouse, change -ouse to -ice
-      result <- pl.inflect( s, "ouse", "ice" )
-    }
-    else if( pl.suffix( "tooth", s ) ) {
-      # 5. For -tooth, change -ooth to -eeth
-      result <- pl.inflect( s, "ooth", "eeth" )
-    }
-    else if( pl.suffix( "goose", s ) ) {
-      # 5. For -goose, change -oose to -eese
-      result <- pl.inflect( s, "oose", "eese" )
-    }
-    else if( pl.suffix( "foot", s ) ) {
-      # 5. For -foot, change -oot to -eet
-      result <- pl.inflect( s, "oot", "eet" )
-    }
-    else if( pl.suffix( "zoon", s ) ) {
-      # 5. For -zoon, change -on to -a
-      result <- pl.inflect( s, "on", "a" )
-    }
-    else if( pl.suffix( "[csx]is", s ) ) {
-      # 5. Change -cis, -sis, -xis to -es
-      result <- pl.inflect( s, "is", "es" )
-    }
-    else if( pl.suffix( "([cs]h|ss|zz|x|s)", s ) ) {
-      # 8. Change -ch, -sh, -ss, -zz, -x, -s to -es
-      result <- pl.inflect( s, "", "es" )
-    }
-    else if( pl.suffix( "([aeo]lf|[^d]eaf|arf)", s ) ) {
-      # 9. Change -f to -ves
-      result <- pl.inflect( s, "f", "ves" )
-    }
-    else if( pl.suffix( "[nlw]ife", s ) ) {
-      # 10. Change -fe to -ves
-      result <- pl.inflect( s, "fe", "ves" )
-    }
-    else if( pl.suffix( "[aeiou]y", s ) ) {
-      # 11. Change -[aeiou]y to -ys
-      result <- pl.inflect( s, "", "s" )
-    }
-    else if( pl.suffix( "y", s ) ) {
-      # 12. Change -y to -ies
-      result <- pl.inflect( s, "y", "ies" )
-    }
-    else if( pl.suffix( "z", s ) ) {
-      # x. Change -z to -zzes
-      result <- pl.inflect( s, "", "zes" )
-    }
-    else {
-      # 13. Default plural: add -s
-      result <- pl.inflect( s, "", "s" )
-    }
+
+    return( switch( 
+      method,
+      "a" = plurals["a"],
+      "c" = plurals["c"],
+      "ac" = if.na( plurals["a"], plurals["c"] ),
+      "ca" = if.na( plurals["c"], plurals["a"] )
+    ) )
   }
 
-  result
+  as.character( lapply( plurals, extract_plural ) )
+}
+
+.irregular_nouns <- list( 
+  "beef"      = c( "a" = "beefs",       "c" = "beeves" ),
+  "brother"   = c( "a" = "brothers",    "c" = "brethren" ),
+  "child"     = c( "a" = NA_character_, "c" = "children" ),
+  "cow"       = c( "a" = "cows",        "c" = "kine" ),
+  "ephemeris" = c( "a" = NA_character_, "c" = "ephemerides" ),
+  "genie"     = c( "a" = "genies",      "c" = "genii" ),
+  "money"     = c( "a" = "moneys",      "c" = "monies" ),
+  "mongoose"  = c( "a" = "mongooses",   "c" = NA_character_ ),
+  "mythos"    = c( "a" = NA_character_, "c" = "mythoi" ),
+  "octopus"   = c( "a" = "octopuses",   "c" = "octopodes" ),
+  "ox"        = c( "a" = NA_character_, "c" = "oxen" ),
+  "soliloquy" = c( "a" = "soliloquies", "c" = NA_character_ ),
+  "trilby"    = c( "a" = "trilbys",     "c" = NA_character_ )
+)
+
+# -----------------------------------------------------------------------------
+# Rule 5
+#
+# Handle irregular inflections for common suffixes.
+# -----------------------------------------------------------------------------
+pluralize_irregular_inflection_for_common_suffixes <- function( word ) {
+  output <- sub( "man$", "men", word )
+  output <- sub( "([ml])(ouse)$", "\\1ice", output )
+  output <- sub( "tooth$", "teeth", output )
+  output <- sub( "goose$", "geese", output )
+  output <- sub( "foot$", "feet", output )
+  output <- sub( "zoon$", "zoa", output )
+  output <- sub( "([csx])(is)$", "\\1es", output )
+
+  ifelse( output == word, NA_character_, output )
 }
 
 # -----------------------------------------------------------------------------
-# Returns the given string (s) with its suffix replaced by r.
+# Rule 6
+#
+# Handle fully assimilated classical inflections.
 # -----------------------------------------------------------------------------
-pl.inflect <- function( s, suffix, r ) {
-  gsub( paste( suffix, "$", sep="" ), r, s )
-}
-
-# -----------------------------------------------------------------------------
-# Answers whether the given string (s) has the given ending.
-# -----------------------------------------------------------------------------
-pl.suffix <- function( ending, s ) {
-  grepl( paste( ending, "$", sep="" ), s )
-}
-
-# -----------------------------------------------------------------------------
-# Answers whether the given string (s) is a noninflective noun.
-# -----------------------------------------------------------------------------
-pl.noninflective <- function( s ) {
-  v <- c(
-    "aircraft",
-    "Bhutanese",
-    "bison",
-    "bream",
-    "Burmese",
-    "carp",
-    "chassis",
-    "Chinese",
-    "clippers",
-    "cod",
-    "contretemps",
-    "corps",
-    "debris",
-    "djinn",
-    "eland",
-    "elk",
-    "flounder",
-    "fracas",
-    "gallows",
-    "graffiti",
-    "headquarters",
-    "high-jinks",
-    "homework",
-    "hovercraft",
-    "innings",
-    "Japanese",
-    "Lebanese",
-    "mackerel",
-    "means",
-    "mews",
-    "mice",
-    "mumps",
-    "news",
-    "pincers",
-    "pliers",
-    "Portuguese",
-    "proceedings",
-    "salmon",
-    "scissors",
-    "sea-bass",
-    "Senegalese",
-    "shears",
-    "Siamese",
-    "Sinhalese",
-    "spacecraft",
-    "swine",
-    "trout",
-    "tuna",
-    "Vietnamese",
-    "watercraft",
-    "whiting",
-    "wildebeest"
+pluralize_fully_assimilated_classical_inflections <- function( word ) {
+  output <- replace_suffix(
+    word, "", "e", c( "alumna", "alga", "vertebra" ) )
+  output <- replace_suffix(
+    output, "ex", "ices", c( "codex", "murex", "silex" ) )
+  output <- replace_suffix(
+    output, "on", "a", c( 
+      "aphelion", "hyperbaton", "perihelion", "asyndeton", "noumenon", 
+      "phenomenon", "criterion", "organon", "prolegomenon"
+    )
+  )
+  output <- replace_suffix(
+    output, "um", "a", c( 
+      "agendum", "datum", "extremum", "bacterium", "desideratum", "stratum",
+      "candelabrum", "erratum", "ovum"
+    )
   )
 
-  is.element( s, v )
+  ifelse( output == word, NA_character_, output )
 }
 
 # -----------------------------------------------------------------------------
-# Answers whether the given string (s) is an irregular plural.
+# Rule 7
+#
+# Classical variants of modern inflections (e.g., stigmata, soprani).
+#
+# See tables A.11 to A.13, A.15, A.16, A.18, A.21 to A.25.
 # -----------------------------------------------------------------------------
-pl.is.irregular.pl <- function( s ) {
-  # Could be refactored with pl.irregular.pl...
-  v <- c(
-    "beef", "brother", "child", "cow", "ephemeris", "genie", "money",
-    "mongoose", "mythos", "octopus", "ox", "soliloquy", "trilby"
+pluralize_classical_variants_of_modern_inflections <- function( 
+  word, method = c( "ac", "ca", "a", "c" ) ) {
+  method <- match.arg( method )
+
+  # -a to -as ( anglicized ) or -ae ( classical )
+  a11 <- c( 
+    "abscissa", "formula", "medusa", "amoeba", "hydra", "nebula", "antenna", 
+    "hyperbola", "nova", "aurora", "lacuna", "parabola"
   )
 
-  is.element( s, v )
+  # Table A.12: -a to -as ( anglicized ) or -ata ( classical )
+  a12 <- c( 
+    "anathema", "enema", "oedema", "bema", "enigma", "sarcoma", "carcinoma", 
+    "gumma", "schema", "charisma", "lemma", "soma", "diploma", "lymphoma", 
+    "stigma", "dogma", "magma", "stoma", "drama", "melisma", "trauma", "edema", 
+    "miasma"  
+  )
+  
+  # Table A.13: -en to -ens ( anglicized ) or -ina ( classical )
+  a13 <- c( "stamen", "foramen", "lumen" )
+  
+  # Table A.15: -ex to -exes ( anglicized ) or -ices ( classical )
+  a15 <- c( 
+    "apex", "latex", "vertex", "cortex", "pontifex", "vortex", "index", 
+    "simplex"  
+  )
+  
+  # Table A.16: -is to -ises ( anglicized ) or -ides ( classical )
+  a16 <- c( "iris", "clitoris" )
+  
+  # Table A.18: -o to -os ( anglicized ) or -i ( classical )
+  a18 <- c( 
+    "alto", "contralto", "soprano", "basso", "crescendo", "tempo", "canto", 
+    "solo"
+  )
+   
+  # Table A.21: -um to -ums ( anglicized ) or -a ( classical )
+  a21 <- c( 
+    "aquarium", "interregnum", "quantum", "compendium", "lustrum", "rostrum", 
+    "consortium", "maximum", "spectrum", "cranium", "medium", "speculum", 
+    "curriculum", "memorandum", "stadium", "dictum", "millenium", "trapezium", 
+    "emporium", "minimum", "ultimatum", "enconium", "momentum", "vacuum", 
+    "gymnasium", "optimum", "velum", "honorarium", "phylum"  
+  )
+  
+  # Table A.22: -us to -uses ( anglicized ) or -i ( classical )
+  a22 <- c( 
+    "focus", "nimbus", "succubus", "fungus", "nucleolus", "torus", "genius", 
+    "radius", "umbilicus", "incubus", "stylus", "uterus"
+  )
+  
+  # Table A.23: -us to -uses ( anglicized ) or -us ( classical )
+  a23 <- c( 
+    "apparatus", "impetus", "prospectus", "cantus", "nexus", "sinus", "coitus", 
+    "plexus", "status", "hiatus"      
+  )
+  
+  output <- replace_suffix( word, "", "im", c( "cherub", "goy", "seraph"  ) )
+  output <- replace_suffix( output, "", "i", c( "afreet", "afrit", "efreet" ) )
+  
+  if( method %in% c( "a", "ac" ) ) {
+    output <- replace_suffix( output, "us", "uses", a23 )
+    output <- replace_suffix( output, "us", "uses", a22 )
+    output <- replace_suffix( output, "um", "ums", a21 )
+    output <- replace_suffix( output, "o", "os", a18 )
+    output <- replace_suffix( output, "is", "ises", a16 )
+    output <- replace_suffix( output, "ex", "exes", a15 )
+    output <- replace_suffix( output, "en", "ens", a13 )
+    output <- replace_suffix( output, "a", "as", a12 )
+    output <- replace_suffix( output, "a", "as", a11 )
+  } else {
+    output <- replace_suffix( output, "us", "us", a23 )
+    output <- replace_suffix( output, "us", "i", a22 )
+    output <- replace_suffix( output, "um", "a", a21 )
+    output <- replace_suffix( output, "o", "i", a18 )
+    output <- replace_suffix( output, "is", "ides", a16 )
+    output <- replace_suffix( output, "ex", "ices", a15 )
+    output <- replace_suffix( output, "en", "ina", a13 )
+    output <- replace_suffix( output, "a", "ata", a12 )
+    output <- replace_suffix( output, "a", "ae", a11 )
+  }
+
+  ifelse( 
+    output == word & ( method %in% c( "a", "ac" ) | !word %in% a23 ), 
+    NA_character_, 
+    output
+  )
 }
 
 # -----------------------------------------------------------------------------
-# Call to pluralize an irregular noun. Only call after confirming
-# the noun is irregular via pl.is.irregular.pl.
+# Rule 8
+#
+# The suffixes -ch, -sh, and -ss all take -es in the plural (e.g., churches,
+# classes).
 # -----------------------------------------------------------------------------
-pl.irregular.pl <- function( s ) {
-  v <- list(
-    "beef" = "beefs",
-    "brother" = "brothers",
-    "child" = "children",
-    "cow" = "cows",
-    "ephemeris" = "ephemerides",
-    "genie" = "genies",
-    "money" = "moneys",
-    "mongoose" = "mongooses",
-    "mythos" = "mythoi",
-    "octopus" = "octopuses",
-    "ox" = "oxen",
-    "passerby" = "passersby",
-    "soliloquy" = "soliloquies",
-    "trilby" = "trilbys"
-  )
+pluralize_ch_sh_ss_suffixes <- function( word ) {
+  output <- sub( "([cs]h)$", "\\1es", word )
+  output <- replace_suffix( output, "ss", "sses" )
 
-  # Faster version of v[[ s ]]
-  .subset2( v, s )
+  ifelse( output == word, NA_character_, output )
 }
 
 # -----------------------------------------------------------------------------
-# Answers whether the given string (s) pluralizes with -es.
+# Rule 9
+#
+# Certain words ending in -f or -fe take -ves in the plural.
 # -----------------------------------------------------------------------------
-pl.is.irregular.es <- function( s ) {
-  v <- c(
-    "acropolis", "aegis", "alias", "asbestos", "bathos", "bias", "bronchitis",
-    "bursitis", "caddis", "cannabis", "canvas", "chaos", "cosmos", "dais",
-    "digitalis", "epidermis", "ethos", "eyas", "gas", "glottis", "hubris",
-    "ibis", "lens", "mantis", "marquis", "metropolis", "pathos", "pelvis",
-    "polis", "rhinoceros", "sassafrass", "trellis"
+pluralize_f_and_fe_suffix <- function( word ) {
+  output <- sub( "([aeo]l|[^d]ea|ar)f$", "\\1ves", word )
+  output <- sub( "([nlw]i)fe$", "\\1ves", output )
+
+  ifelse( output == word, NA_character_, output )
+}
+
+# -----------------------------------------------------------------------------
+# Rule 10
+#
+# Words ending in -y take -ies.
+# -----------------------------------------------------------------------------
+pluralize_y_suffix <- function( word ) {
+  output <- sub( "([aeiou]y)$", "\\1s", word )
+  output <- sub( "([A-Z].*y)$", "\\1s", output )
+  output <- replace_suffix( output, "y", "ies" )
+
+  ifelse( output == word, NA_character_, output )
+}
+
+# -----------------------------------------------------------------------------
+# Rule 11
+#
+# Some words ending in -o take -os (lassos, solos). See tables A.17 and A.18.
+# Others take -oes (potatoes, dominoes).
+# When -o is preceded by a vowel always take -os (folios, bamboos).
+# -----------------------------------------------------------------------------
+pluralize_o_suffix <- function( word, method = c( "ac", "ca", "a", "c" ) ) {
+  method <- match.arg( method )
+
+  # Table A.17: -o to -os
+  a17 <- c( 
+    "albino", "generalissimo", "manifesto", "archipelago", "ghetto", "medico",
+    "armadillo", "guano", "octavo", "commando", "inferno", "photo", "ditto", 
+    "jumbo", "pro", "dynamo", "lingo", "quarto", "embryo", "lumbago", "rhino",
+    "fiasco", "magneto", "stylo"
   )
 
-  is.element( s, v )
+  # Table A.18: -o to -os (anglicized) or -i (classical)
+  a18 <- c( 
+    "alto", "contralto", "soprano", "basso", "crescendo", "tempo", "canto", 
+    "solo" 
+  )
+
+  output <- replace_suffix( word, "o", "os", a17 )
+  replacement <- if( method %in% c( "c", "ca" ) ) "i" else "os"
+  output <- replace_suffix( output, "o", replacement, a18 )
+
+  ifelse( output == word, NA_character_, output )
+}
+
+# -----------------------------------------------------------------------------
+# Rule 12
+#
+# Compound word pluralization.
+# -----------------------------------------------------------------------------
+pluralize_compound_words <- function(
+  word, method = c( "ac", "ca", "a", "c" ) ) {
+  method <- match.arg( method )
+  military <- c(
+    "Adjutant", "Lieutenant", "Quartermaster", "Brigadier", "Major"
+  )
+
+  pluralize_cw <- Vectorize(
+    function( cw, seps ) {
+      if( cw[length( cw )] %in% c( "General", "general" ) && 
+          (!cw[length( cw )] %in% military) ) {
+        cw[1] <- pluralize( cw[1], method )
+      } else {
+        cw[1] <- pluralize( cw[1], method )
+      }
+
+      paste( paste0( seps, cw ), collapse = "" )
+    }
+  )
+
+  parts <- strsplit( word, "[- ]+" )
+  seps <- strsplit( word, "[^ -]+" )
+  is_compound <- grepl( "[- ]", word )
+  output <- word
+  output[!is_compound] <- NA_character_
+  output[is_compound] <- pluralize_cw( parts[is_compound], seps[is_compound] )
+
+  output
+}
+
+# -----------------------------------------------------------------------------
+# Rule 13
+#
+# Otherwise add -s.
+# -----------------------------------------------------------------------------
+pluralize_regular <- function( word ) {
+  paste0( word, "s" )
+}
+
+# -----------------------------------------------------------------------------
+# Determines whether the word ends with one of the given suffixes.
+# -----------------------------------------------------------------------------
+check_suffix <- function( x, suffixes ) {
+  pattern <- paste0( "(", paste( suffixes, collapse = "|" ), ")$" )
+  grepl( pattern, x, ignore.case = TRUE )
+}
+
+# -----------------------------------------------------------------------------
+# Replaces the suffix of the word.
+# -----------------------------------------------------------------------------
+replace_suffix <- function( x, suffix, replacement, eligible = NULL ) {
+  ifelse( 
+    is.null( eligible ) | x %in% eligible, 
+    sub( paste0( suffix, "$" ), replacement, x ),
+    x
+  )
+}
+
+# -----------------------------------------------------------------------------
+# Returns y if x is na, otherwise x.
+# -----------------------------------------------------------------------------
+if.na <- function( x, y ) {
+  ifelse( is.na( x ), y, x )
+}
+
+# -----------------------------------------------------------------------------
+# Reduces the given function list.
+# -----------------------------------------------------------------------------
+coalesce <- function( ... ) {
+  args <- list( ... )
+  Reduce( if.na, args )
 }
 
