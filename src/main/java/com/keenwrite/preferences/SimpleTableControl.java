@@ -18,7 +18,6 @@ import javafx.util.StringConverter;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Map.Entry;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
@@ -51,8 +50,6 @@ public class SimpleTableControl<K, V, F extends TableField<Entry<K, V>>>
     );
     table.getSelectionModel().setSelectionMode( MULTIPLE );
 
-    final var inserted = workaround( table );
-
     final var buttons = new ButtonBar();
     buttons.getButtons().addAll(
       createButton(
@@ -60,7 +57,6 @@ public class SimpleTableControl<K, V, F extends TableField<Entry<K, V>>>
         event -> {
           sCounter++;
 
-          inserted.set( true );
           model.add( createEntry( "key" + sCounter, "value" + sCounter ) );
         }
       ),
@@ -93,30 +89,6 @@ public class SimpleTableControl<K, V, F extends TableField<Entry<K, V>>>
   @SuppressWarnings( "unchecked" )
   private Entry<K, V> createEntry( final String k, final String v ) {
     return new SimpleEntry<>( (K) k, (V) v );
-  }
-
-  /**
-   * TODO: Delete method when bug is fixed. See the
-   * <a href="https://github.com/dlsc-software-consulting-gmbh/PreferencesFX/issues/413">issue
-   * tracker</a> for details about the bug.
-   *
-   * @param table Add a width listener to correct a slight width change.
-   * @return A Boolean lock so that the bug fix and "Add" button can
-   * be used to ensure regular resizes don't interfere with programmatic ones.
-   */
-  private AtomicBoolean workaround(
-    final TableView<Entry<K, V>> table ) {
-    final var inserted = new AtomicBoolean( true );
-
-    table.widthProperty().addListener( ( c, o, n ) -> {
-      if( o != null && n != null
-        && o.intValue() == n.intValue() - 2
-        && inserted.getAndSet( false ) ) {
-        table.setPrefWidth( table.getPrefWidth() - 2 );
-      }
-    } );
-
-    return inserted;
   }
 
   private Button createButton(
@@ -166,14 +138,14 @@ public class SimpleTableControl<K, V, F extends TableField<Entry<K, V>>>
    * @param <T>      The return type for the column (i.e., key or value).
    * @return The newly configured column.
    */
-  private <T> TableColumn<Entry<K, V>, T> createColumn(
-    final TableView<Entry<K, V>> table,
-    final Function<Entry<K, V>, T> mapEntry,
-    final BiFunction<CellEditEvent<Entry<K, V>, T>, Entry<K, V>, Entry<K, V>> creator,
+  private <T, E extends Entry<K, V>> TableColumn<E, T> createColumn(
+    final TableView<E> table,
+    final Function<E, T> mapEntry,
+    final BiFunction<CellEditEvent<E, T>, E, E> creator,
     final String label,
     final double width
   ) {
-    final var column = new TableColumn<Entry<K, V>, T>( label );
+    final var column = new TableColumn<E, T>( label );
 
     column.setEditable( true );
     column.setResizable( true );

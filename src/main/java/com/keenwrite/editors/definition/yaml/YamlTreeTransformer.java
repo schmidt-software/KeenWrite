@@ -13,8 +13,7 @@ import javafx.scene.control.TreeView;
 
 import java.util.Map.Entry;
 
-import static com.fasterxml.jackson.dataformat.yaml.YAMLGenerator.Feature.MINIMIZE_QUOTES;
-import static com.fasterxml.jackson.dataformat.yaml.YAMLGenerator.Feature.SPLIT_LINES;
+import static com.fasterxml.jackson.dataformat.yaml.YAMLGenerator.Feature.*;
 import static com.keenwrite.events.StatusEvent.clue;
 
 /**

@@ -28,11 +28,10 @@ import java.text.ParseException;
 import static com.keenwrite.dom.DocumentParser.transform;
 import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.preview.HighQualityRenderingHints.RENDERING_HINTS;
-import static io.sf.carte.echosvg.bridge.UnitProcessor.createContext;
-import static io.sf.carte.echosvg.bridge.UnitProcessor.svgHorizontalLengthToUserSpace;
+import static io.sf.carte.echosvg.bridge.UnitProcessor.*;
 import static io.sf.carte.echosvg.transcoder.SVGAbstractTranscoder.KEY_WIDTH;
 import static io.sf.carte.echosvg.transcoder.TranscodingHints.Key;
-import static io.sf.carte.echosvg.transcoder.image.ImageTranscoder.KEY_PIXEL_UNIT_TO_MILLIMETER;
+import static io.sf.carte.echosvg.transcoder.image.ImageTranscoder.*;
 import static io.sf.carte.echosvg.util.SVGConstants.SVG_WIDTH_ATTRIBUTE;
 import static java.awt.image.BufferedImage.TYPE_INT_RGB;
 import static java.text.NumberFormat.getIntegerInstance;
@@ -299,7 +298,7 @@ public final class SvgRasterizer {
     final var document = toDocument( xml );
     final var root = document.getDocumentElement();
     final var width = root.getAttribute( SVG_WIDTH_ATTRIBUTE );
-    
+
     return rasterizeString( xml, INT_FORMAT.parse( width ).intValue() );
   }
 

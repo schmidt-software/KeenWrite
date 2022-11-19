@@ -9,7 +9,7 @@ package com.keenwrite.preview.images;
 import java.awt.image.BufferedImage;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static com.keenwrite.preview.images.ConstrainedDimension.createAbsolutionDimension;
+import static com.keenwrite.preview.images.ConstrainedDimension.*;
 import static java.awt.image.BufferedImage.*;
 import static java.awt.image.DataBuffer.TYPE_USHORT;
 import static java.lang.Runtime.getRuntime;
@@ -140,10 +140,15 @@ public class ResampleOp extends AdvancedResizeOp {
     verticalFromWorkToDst( workPixelsCopy, outPixelsCopy, 0, threadCount );
     waitForAllThreads( threads );
 
-    //noinspection UnusedAssignment
-    workPixels = null; // free memory
+    // free memory
+    // noinspection UnusedAssignment
+    workPixels = null;
+
     final BufferedImage out;
-    if( dest != null && dstWidth == dest.getWidth() && dstHeight == dest.getHeight() ) {
+
+    if( dest != null &&
+      dstWidth == dest.getWidth() &&
+      dstHeight == dest.getHeight() ) {
       out = dest;
       int nrDestChannels = ImageUtils.nrChannels( dest );
       if( nrDestChannels != nrChannels ) {
@@ -298,7 +303,7 @@ public class ResampleOp extends AdvancedResizeOp {
     }
     boolean useChannel3 = nrChannels > 3;
     for( int x = start; x < dstWidth; x += delta ) {
-      final int xLocation = x * nrChannels;
+      final int xLoc = x * nrChannels;
       for( int y = dstHeight - 1; y >= 0; y-- ) {
         final int yTimesNumContributors =
           y * verticalSubsamplingData.numContributors;
@@ -311,13 +316,13 @@ public class ResampleOp extends AdvancedResizeOp {
         float sample3 = 0.0f;
         int index = yTimesNumContributors;
         for( int j = max - 1; j >= 0; j-- ) {
-          int valueLocation = verticalSubsamplingData.arrPixel[ index ];
+          int valueLoc = verticalSubsamplingData.arrPixel[ index ];
           float arrWeight = verticalSubsamplingData.arrWeight[ index ];
-          sample0 += (workPixels[ valueLocation ][ xLocation ] & 0xff) * arrWeight;
-          sample1 += (workPixels[ valueLocation ][ xLocation + 1 ] & 0xff) * arrWeight;
-          sample2 += (workPixels[ valueLocation ][ xLocation + 2 ] & 0xff) * arrWeight;
+          sample0 += (workPixels[ valueLoc ][ xLoc ] & 0xff) * arrWeight;
+          sample1 += (workPixels[ valueLoc ][ xLoc + 1 ] & 0xff) * arrWeight;
+          sample2 += (workPixels[ valueLoc ][ xLoc + 2 ] & 0xff) * arrWeight;
           if( useChannel3 ) {
-            sample3 += (workPixels[ valueLocation ][ xLocation + 3 ] & 0xff) * arrWeight;
+            sample3 += (workPixels[ valueLoc ][ xLoc + 3 ] & 0xff) * arrWeight;
           }
 
           index++;

@@ -277,6 +277,7 @@ pluralize_irregular <- function( word, method = c( "ac", "ca", "a", "c" ) ) {
   "mythos"    = c( "a" = NA_character_, "c" = "mythoi" ),
   "octopus"   = c( "a" = "octopuses",   "c" = "octopodes" ),
   "ox"        = c( "a" = NA_character_, "c" = "oxen" ),
+  "passerby"  = c( "a" = NA_character_, "c" = "passersby" ),
   "soliloquy" = c( "a" = "soliloquies", "c" = NA_character_ ),
   "trilby"    = c( "a" = "trilbys",     "c" = NA_character_ )
 )
@@ -620,6 +621,8 @@ pluralize_o_suffix <- function( word, method = c( "ac", "ca", "a", "c" ) ) {
 pluralize_compound_words <- function(
   word, method = c( "ac", "ca", "a", "c" ) ) {
   method <- match.arg( method )
+
+  # "General" is pluralized.
   military <- c(
     "Adjutant",
     "Brigadier",
@@ -627,6 +630,17 @@ pluralize_compound_words <- function(
     "Major",
     "Quartermaster"
   )
+
+  # X of Y -> plural(X) of Y
+  # X at Y -> plural(X) of Y
+  # X Y general -> X plural(Y) general
+  # X-in-Y -> plural(X)-in-Y
+
+  # Major Generals
+  # Adjutant Generals
+  # Lieutenant Generals
+  # Brigadier Generals
+  # Quartermaster Generals
 
   pluralize_cw <- Vectorize(
     function( cw, seps ) {

@@ -60,10 +60,10 @@ public final class MarkdownProcessor extends BaseMarkdownProcessor {
     final var mediaType = MediaType.valueFrom( inputPath );
     final Processor<String> processor;
     final Function<String, String> evaluator;
-    final List<Extension> extensions = new ArrayList<>();
+    final List<Extension> result = new ArrayList<>();
 
     if( mediaType == TEXT_R_MARKDOWN ) {
-      extensions.add( RInlineExtension.create( context ) );
+      result.add( RInlineExtension.create( context ) );
       processor = IDENTITY;
       evaluator = new RInlineEvaluator( context );
     }
@@ -73,17 +73,17 @@ public final class MarkdownProcessor extends BaseMarkdownProcessor {
     }
 
     // Add typographic, table, strikethrough, and similar extensions.
-    extensions.addAll( super.createExtensions( context ) );
+    result.addAll( super.createExtensions( context ) );
 
-    extensions.add( ImageLinkExtension.create( context ) );
-    extensions.add( TeXExtension.create( processor, context ) );
-    extensions.add( FencedBlockExtension.create( processor, evaluator, context ) );
+    result.add( ImageLinkExtension.create( context ) );
+    result.add( TeXExtension.create( processor, context ) );
+    result.add( FencedBlockExtension.create( processor, evaluator, context ) );
 
     if( context.isExportFormat( ExportFormat.NONE ) ) {
-      extensions.add( CaretExtension.create( context ) );
+      result.add( CaretExtension.create( context ) );
     }
 
-    extensions.add( DocumentOutlineExtension.create( processor ) );
-    return extensions;
+    result.add( DocumentOutlineExtension.create( processor ) );
+    return result;
   }
 }

@@ -7,7 +7,7 @@ import com.keenwrite.processors.ProcessorContext;
 import com.keenwrite.processors.markdown.extensions.fences.FencedDivExtension;
 import com.keenwrite.processors.markdown.extensions.r.RInlineExtension;
 import com.vladsch.flexmark.ext.definition.DefinitionExtension;
-import com.vladsch.flexmark.ext.gfm.strikethrough.StrikethroughSubscriptExtension;
+import com.vladsch.flexmark.ext.gfm.strikethrough.*;
 import com.vladsch.flexmark.ext.superscript.SuperscriptExtension;
 import com.vladsch.flexmark.ext.tables.TablesExtension;
 import com.vladsch.flexmark.html.HtmlRenderer;

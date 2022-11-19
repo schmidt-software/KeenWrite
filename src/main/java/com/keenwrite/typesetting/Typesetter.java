@@ -243,7 +243,8 @@ public class Typesetter {
     }
 
     private Path newExtension( final String baseName, final String ext ) {
-      return getOutputPath().resolveSibling( removeExtension( baseName ) + ext );
+      final var path = getOutputPath();
+      return path.resolveSibling( removeExtension( baseName ) + ext );
     }
 
     /**

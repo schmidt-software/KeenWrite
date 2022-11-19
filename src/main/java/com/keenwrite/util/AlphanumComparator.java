@@ -113,7 +113,10 @@ public final class AlphanumComparator<T> implements Comparator<T> {
         // If equal, the first different number counts
         if( (result = thisChunkLength - thatChunkLength) == 0 ) {
           for( var i = 0; i < thisChunkLength; i++ ) {
-            if( (result = thisChunk.charAt( i ) - thatChunk.charAt( i )) != 0 ) {
+            final var diff = thisChunk.charAt( i ) - thatChunk.charAt( i );
+            result = diff;
+
+            if( result != 0 ) {
               return result;
             }
           }

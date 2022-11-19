@@ -29,8 +29,9 @@ public final class LocaleProperty extends SimpleObjectProperty<String> {
    * </p>
    * <p>
    * See
-   * <a href="https://www.oracle.com/java/technologies/javase/jdk12locales.html">JDK 12 Locales</a>
-   * for details.
+   * <a href="https://oracle.com/java/technologies/javase/jdk12locales.html">
+   * JDK 12 Locales
+   * </a> for details.
    * </p>
    */
   private static final Map<String, Locale> sLocales = new LinkedHashMap<>();

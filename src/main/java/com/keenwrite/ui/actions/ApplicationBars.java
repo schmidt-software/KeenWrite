@@ -10,6 +10,7 @@ import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ToolBar;
 import org.controlsfx.control.StatusBar;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -38,23 +39,36 @@ public final class ApplicationBars {
    * @return An instance of {@link MenuBar} that contains the menu.
    */
   public static MenuBar createMenuBar( final GuiCommands actions ) {
-    final var SEPARATOR_ACTION = new SeparatorAction();
+    final var SEPARATOR = new SeparatorAction();
 
-    //@formatter:off
     return new MenuBar(
-    createMenu(
+      createMenuFile( actions, SEPARATOR ),
+      createMenuEdit( actions, SEPARATOR ),
+      createMenuFormat( actions ),
+      createMenuInsert( actions, SEPARATOR ),
+      createMenuVariable( actions, SEPARATOR ),
+      createMenuView( actions, SEPARATOR ),
+      createMenuHelp( actions )
+    );
+  }
+
+  @NotNull
+  private static Menu createMenuFile(
+    final GuiCommands actions, final SeparatorAction SEPARATOR ) {
+    // @formatter:off
+    return createMenu(
       get( "Main.menu.file" ),
       addAction( "file.new", e -> actions.file_new() ),
       addAction( "file.open", e -> actions.file_open() ),
-      SEPARATOR_ACTION,
+      SEPARATOR,
       addAction( "file.close", e -> actions.file_close() ),
       addAction( "file.close_all", e -> actions.file_close_all() ),
-      SEPARATOR_ACTION,
+      SEPARATOR,
       addAction( "file.save", e -> actions.file_save() ),
       addAction( "file.save_as", e -> actions.file_save_as() ),
       addAction( "file.save_all", e -> actions.file_save_all() ),
-      SEPARATOR_ACTION,
-      addAction( "file.export", e -> {} )
+      SEPARATOR,
+      addAction( "file.export", e -> { } )
         .addSubActions(
           addAction( "file.export.pdf", e -> actions.file_export_pdf() ),
           addAction( "file.export.pdf.dir", e -> actions.file_export_pdf_dir() ),
@@ -62,27 +76,37 @@ public final class ApplicationBars {
           addAction( "file.export.html_tex", e -> actions.file_export_html_tex() ),
           addAction( "file.export.xhtml_tex", e -> actions.file_export_xhtml_tex() )
         ),
-      SEPARATOR_ACTION,
+      SEPARATOR,
       addAction( "file.exit", e -> actions.file_exit() )
-    ),
-    createMenu(
+    );
+    // @formatter:on
+  }
+
+  @NotNull
+  private static Menu createMenuEdit(
+    final GuiCommands actions, final SeparatorAction SEPARATOR ) {
+    return createMenu(
       get( "Main.menu.edit" ),
-      SEPARATOR_ACTION,
+      SEPARATOR,
       addAction( "edit.undo", e -> actions.edit_undo() ),
       addAction( "edit.redo", e -> actions.edit_redo() ),
-      SEPARATOR_ACTION,
+      SEPARATOR,
       addAction( "edit.cut", e -> actions.edit_cut() ),
       addAction( "edit.copy", e -> actions.edit_copy() ),
       addAction( "edit.paste", e -> actions.edit_paste() ),
       addAction( "edit.select_all", e -> actions.edit_select_all() ),
-      SEPARATOR_ACTION,
+      SEPARATOR,
       addAction( "edit.find", e -> actions.edit_find() ),
       addAction( "edit.find_next", e -> actions.edit_find_next() ),
       addAction( "edit.find_prev", e -> actions.edit_find_prev() ),
-      SEPARATOR_ACTION,
+      SEPARATOR,
       addAction( "edit.preferences", e -> actions.edit_preferences() )
-    ),
-    createMenu(
+    );
+  }
+
+  @NotNull
+  private static Menu createMenuFormat( final GuiCommands actions ) {
+    return createMenu(
       get( "Main.menu.format" ),
       addAction( "format.bold", e -> actions.format_bold() ),
       addAction( "format.italic", e -> actions.format_italic() ),
@@ -90,70 +114,91 @@ public final class ApplicationBars {
       addAction( "format.superscript", e -> actions.format_superscript() ),
       addAction( "format.subscript", e -> actions.format_subscript() ),
       addAction( "format.strikethrough", e -> actions.format_strikethrough() )
-    ),
-    createMenu(
+    );
+  }
+
+  @NotNull
+  private static Menu createMenuInsert(
+    final GuiCommands actions,
+    final SeparatorAction SEPARATOR ) {
+    // @formatter:off
+    return createMenu(
       get( "Main.menu.insert" ),
       addAction( "insert.blockquote", e -> actions.insert_blockquote() ),
       addAction( "insert.code", e -> actions.insert_code() ),
       addAction( "insert.fenced_code_block", e -> actions.insert_fenced_code_block() ),
-      SEPARATOR_ACTION,
+      SEPARATOR,
       addAction( "insert.link", e -> actions.insert_link() ),
       addAction( "insert.image", e -> actions.insert_image() ),
-      SEPARATOR_ACTION,
+      SEPARATOR,
       addAction( "insert.heading_1", e -> actions.insert_heading_1() ),
       addAction( "insert.heading_2", e -> actions.insert_heading_2() ),
       addAction( "insert.heading_3", e -> actions.insert_heading_3() ),
-      SEPARATOR_ACTION,
+      SEPARATOR,
       addAction( "insert.unordered_list", e -> actions.insert_unordered_list() ),
       addAction( "insert.ordered_list", e -> actions.insert_ordered_list() ),
       addAction( "insert.horizontal_rule", e -> actions.insert_horizontal_rule() )
-    ),
-    createMenu(
+    );
+    // @formatter:on
+  }
+
+  @NotNull
+  private static Menu createMenuVariable(
+    final GuiCommands actions, final SeparatorAction SEPARATOR ) {
+    return createMenu(
       get( "Main.menu.definition" ),
       addAction( "definition.insert", e -> actions.definition_autoinsert() ),
-      SEPARATOR_ACTION,
+      SEPARATOR,
       addAction( "definition.create", e -> actions.definition_create() ),
       addAction( "definition.rename", e -> actions.definition_rename() ),
       addAction( "definition.delete", e -> actions.definition_delete() )
-    ),
-    createMenu(
+    );
+  }
+
+  @NotNull
+  private static Menu createMenuView(
+    final GuiCommands actions, final SeparatorAction SEPARATOR ) {
+    return createMenu(
       get( "Main.menu.view" ),
       addAction( "view.refresh", e -> actions.view_refresh() ),
-      SEPARATOR_ACTION,
+      SEPARATOR,
       addAction( "view.preview", e -> actions.view_preview() ),
       addAction( "view.outline", e -> actions.view_outline() ),
-      addAction( "view.statistics", e-> actions.view_statistics() ),
-      addAction( "view.files", e-> actions.view_files() ),
-      SEPARATOR_ACTION,
+      addAction( "view.statistics", e -> actions.view_statistics() ),
+      addAction( "view.files", e -> actions.view_files() ),
+      SEPARATOR,
       addAction( "view.menubar", e -> actions.view_menubar() ),
       addAction( "view.toolbar", e -> actions.view_toolbar() ),
       addAction( "view.statusbar", e -> actions.view_statusbar() ),
-      SEPARATOR_ACTION,
+      SEPARATOR,
       addAction( "view.log", e -> actions.view_log() )
-    ),
-    createMenu(
+    );
+  }
+
+  @NotNull
+  private static Menu createMenuHelp( final GuiCommands actions ) {
+    return createMenu(
       get( "Main.menu.help" ),
       addAction( "help.about", e -> actions.help_about() )
-    ) );
-    //@formatter:on
+    );
   }
 
   public static Node createToolBar() {
-    final var SEPARATOR_ACTION = new SeparatorAction();
+    final var SEPARATOR = new SeparatorAction();
 
     return createToolBar(
       getAction( "file.new" ),
       getAction( "file.open" ),
       getAction( "file.save" ),
-      SEPARATOR_ACTION,
+      SEPARATOR,
       getAction( "file.export.pdf" ),
-      SEPARATOR_ACTION,
+      SEPARATOR,
       getAction( "edit.undo" ),
       getAction( "edit.redo" ),
       getAction( "edit.cut" ),
       getAction( "edit.copy" ),
       getAction( "edit.paste" ),
-      SEPARATOR_ACTION,
+      SEPARATOR,
       getAction( "format.bold" ),
       getAction( "format.italic" ),
       getAction( "format.superscript" ),
@@ -161,12 +206,12 @@ public final class ApplicationBars {
       getAction( "insert.blockquote" ),
       getAction( "insert.code" ),
       getAction( "insert.fenced_code_block" ),
-      SEPARATOR_ACTION,
+      SEPARATOR,
       getAction( "insert.link" ),
       getAction( "insert.image" ),
-      SEPARATOR_ACTION,
+      SEPARATOR,
       getAction( "insert.heading_1" ),
-      SEPARATOR_ACTION,
+      SEPARATOR,
       getAction( "insert.unordered_list" ),
       getAction( "insert.ordered_list" )
     );

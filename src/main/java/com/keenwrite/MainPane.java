@@ -1015,7 +1015,7 @@ public final class MainPane extends SplitPane {
     addTabPane( getItems().size(), tabPane );
   }
 
-  private GenericBuilder<Mutator, ProcessorContext> createProcessorContextBuilder() {
+  private GenericBuilder<Mutator, ProcessorContext> processorContextBuilder() {
     final var w = getWorkspace();
 
     return builder()
@@ -1060,7 +1060,7 @@ public final class MainPane extends SplitPane {
     final var textEditor = getTextEditor();
     final var inputPath = textEditor.getPath();
 
-    return createProcessorContextBuilder()
+    return processorContextBuilder()
       .with( Mutator::setInputPath, inputPath )
       .with( Mutator::setOutputPath, outputPath )
       .with( Mutator::setExportFormat, format )
@@ -1074,7 +1074,7 @@ public final class MainPane extends SplitPane {
    * {@link Processor}.
    */
   private ProcessorContext createProcessorContext( final Path inputPath ) {
-    return createProcessorContextBuilder()
+    return processorContextBuilder()
       .with( Mutator::setInputPath, inputPath )
       .with( Mutator::setExportFormat, NONE )
       .build();

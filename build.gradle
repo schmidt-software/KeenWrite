@@ -60,17 +60,17 @@ javafx {
 dependencies {
   def v_junit = '5.9.1'
   def v_flexmark = '0.64.0'
-  def v_jackson = '2.13.4'
+  def v_jackson = '2.14.0'
   def v_echosvg = '0.2.1'
   def v_picocli = '4.7.0'
 
   // JavaFX
   implementation 'org.controlsfx:controlsfx:11.1.2'
-  implementation 'org.fxmisc.richtext:richtextfx:0.10.9'
-  implementation 'org.fxmisc.flowless:flowless:0.6.10'
+  implementation 'org.fxmisc.richtext:richtextfx:0.11.0'
+  implementation 'org.fxmisc.flowless:flowless:0.7.0'
   implementation 'org.fxmisc.wellbehaved:wellbehavedfx:0.3.3'
   implementation 'com.miglayout:miglayout-javafx:11.0'
-  implementation 'com.dlsc.preferencesfx:preferencesfx-core:11.10.0'
+  implementation 'com.dlsc.preferencesfx:preferencesfx-core:11.11.0'
 
   // Markdown
   implementation "com.vladsch.flexmark:flexmark:${v_flexmark}"

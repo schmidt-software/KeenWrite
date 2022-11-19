@@ -86,12 +86,30 @@ public final class Workspace {
     entry( KEY_UI_RECENT_EXPORT, asFileProperty( PDF_DEFAULT ) ),
 
     //@formatter:off
-    entry( KEY_UI_FONT_EDITOR_NAME, asStringProperty( FONT_NAME_EDITOR_DEFAULT ) ),
-    entry( KEY_UI_FONT_EDITOR_SIZE, asDoubleProperty( FONT_SIZE_EDITOR_DEFAULT ) ),
-    entry( KEY_UI_FONT_PREVIEW_NAME, asStringProperty( FONT_NAME_PREVIEW_DEFAULT ) ),
-    entry( KEY_UI_FONT_PREVIEW_SIZE, asDoubleProperty( FONT_SIZE_PREVIEW_DEFAULT ) ),
-    entry( KEY_UI_FONT_PREVIEW_MONO_NAME, asStringProperty( FONT_NAME_PREVIEW_MONO_NAME_DEFAULT ) ),
-    entry( KEY_UI_FONT_PREVIEW_MONO_SIZE, asDoubleProperty( FONT_SIZE_PREVIEW_MONO_SIZE_DEFAULT ) ),
+    entry(
+      KEY_UI_FONT_EDITOR_NAME,
+      asStringProperty( FONT_NAME_EDITOR_DEFAULT )
+    ),
+    entry(
+     KEY_UI_FONT_EDITOR_SIZE,
+     asDoubleProperty( FONT_SIZE_EDITOR_DEFAULT )
+    ),
+    entry(
+     KEY_UI_FONT_PREVIEW_NAME,
+     asStringProperty( FONT_NAME_PREVIEW_DEFAULT )
+    ),
+    entry(
+     KEY_UI_FONT_PREVIEW_SIZE,
+     asDoubleProperty( FONT_SIZE_PREVIEW_DEFAULT )
+    ),
+    entry(
+     KEY_UI_FONT_PREVIEW_MONO_NAME,
+     asStringProperty( FONT_NAME_PREVIEW_MONO_NAME_DEFAULT )
+    ),
+    entry(
+     KEY_UI_FONT_PREVIEW_MONO_SIZE,
+     asDoubleProperty( FONT_SIZE_PREVIEW_MONO_SIZE_DEFAULT )
+    ),
 
     entry( KEY_UI_WINDOW_X, asDoubleProperty( WINDOW_X_DEFAULT ) ),
     entry( KEY_UI_WINDOW_Y, asDoubleProperty( WINDOW_Y_DEFAULT ) ),
@@ -103,7 +121,9 @@ public final class Workspace {
     entry( KEY_UI_SKIN_SELECTION, asSkinProperty( SKIN_DEFAULT ) ),
     entry( KEY_UI_SKIN_CUSTOM, asFileProperty( SKIN_CUSTOM_DEFAULT ) ),
 
-    entry( KEY_UI_PREVIEW_STYLESHEET, asFileProperty( PREVIEW_CUSTOM_DEFAULT ) ),
+    entry(
+      KEY_UI_PREVIEW_STYLESHEET, asFileProperty( PREVIEW_CUSTOM_DEFAULT )
+    ),
 
     entry( KEY_LANGUAGE_LOCALE, asLocaleProperty( LOCALE_DEFAULT ) ),
 

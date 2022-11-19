@@ -69,12 +69,11 @@ public final class HtmlPreview extends SwingNode implements ComponentListener {
    * <li>%s --- base href</li>
    * </p>
    */
-  private static final String HTML_HEAD =
-    """
-      <!doctype html>
-      <html lang='%s'><head><title> </title><meta charset='utf-8'/>
-      %s%s%s<style>body{font-family:'%s';font-size: %dpx;}</style>%s</head><body>
-      """;
+  private static final String HTML_HEAD = """
+    <!doctype html>
+    <html lang='%s'><head><title> </title><meta charset='utf-8'/>
+    %s%s%s<style>body{font-family:'%s';font-size: %dpx;}</style>%s</head><body>
+    """;
 
   private static final String HTML_TAIL = "</body></html>";
 
@@ -119,7 +118,9 @@ public final class HtmlPreview extends SwingNode implements ComponentListener {
       mScrollLockButton.setFont( getIconFont( 14 ) );
       mScrollLockButton.setText( getLockText( mScrollLocked ) );
       mScrollLockButton.setMargin( new Insets( 1, 0, 0, 0 ) );
-      mScrollLockButton.addActionListener( e -> fireScrollLockEvent( !mScrollLocked ) );
+      mScrollLockButton.addActionListener(
+        e -> fireScrollLockEvent( !mScrollLocked )
+      );
 
       verticalPanel.add( verticalBar, CENTER );
       verticalPanel.add( mScrollLockButton, PAGE_END );
@@ -145,7 +146,9 @@ public final class HtmlPreview extends SwingNode implements ComponentListener {
   @Subscribe
   public void handle( final ScrollLockEvent event ) {
     mScrollLocked = event.isLocked();
-    invokeLater( () -> mScrollLockButton.setText( getLockText( mScrollLocked ) ) );
+    invokeLater(
+      () -> mScrollLockButton.setText( getLockText( mScrollLocked ) )
+    );
   }
 
   /**
@@ -354,13 +357,13 @@ public final class HtmlPreview extends SwingNode implements ComponentListener {
   }
 
   @Override
-  public void componentMoved( final ComponentEvent e ) {}
+  public void componentMoved( final ComponentEvent e ) { }
 
   @Override
-  public void componentShown( final ComponentEvent e ) {}
+  public void componentShown( final ComponentEvent e ) { }
 
   @Override
-  public void componentHidden( final ComponentEvent e ) {}
+  public void componentHidden( final ComponentEvent e ) { }
 
   private static String toStylesheetString( final URL url ) {
     return url == null ? "" : format( HTML_STYLESHEET, url );
