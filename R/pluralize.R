@@ -269,9 +269,11 @@ pluralize_irregular <- function( word, method = c( "ac", "ca", "a", "c" ) ) {
   "beef"      = c( "a" = "beefs",       "c" = "beeves" ),
   "brother"   = c( "a" = "brothers",    "c" = "brethren" ),
   "child"     = c( "a" = NA_character_, "c" = "children" ),
+  "cherub"    = c( "a" = "cherubim",    "c" = NA_character_ ),
   "cow"       = c( "a" = "cows",        "c" = "kine" ),
   "ephemeris" = c( "a" = NA_character_, "c" = "ephemerides" ),
   "genie"     = c( "a" = "genies",      "c" = "genii" ),
+  "matrix"    = c( "a" = NA_character_, "c" = "matrices" ),
   "money"     = c( "a" = "moneys",      "c" = "monies" ),
   "mongoose"  = c( "a" = "mongooses",   "c" = NA_character_ ),
   "mythos"    = c( "a" = NA_character_, "c" = "mythoi" ),
@@ -279,7 +281,10 @@ pluralize_irregular <- function( word, method = c( "ac", "ca", "a", "c" ) ) {
   "ox"        = c( "a" = NA_character_, "c" = "oxen" ),
   "passerby"  = c( "a" = NA_character_, "c" = "passersby" ),
   "soliloquy" = c( "a" = "soliloquies", "c" = NA_character_ ),
-  "trilby"    = c( "a" = "trilbys",     "c" = NA_character_ )
+  "seraph"    = c( "a" = "seraphim",    "c" = NA_character_ ),
+  "trilby"    = c( "a" = "trilbys",     "c" = NA_character_ ),
+  "vertex"    = c( "a" = NA_character_, "c" = "vertices" ),
+  "vortex"    = c( "a" = NA_character_, "c" = "vortices" )
 )
 
 # -----------------------------------------------------------------------------
@@ -521,11 +526,12 @@ pluralize_classical_variants_of_modern_inflections <- function(
 # -----------------------------------------------------------------------------
 # Rule 8
 #
-# The suffixes -ch, -sh, and -ss all take -es in the plural (e.g., churches,
+# Suffixes -ch, -sh, -ss, -x, and -z take -es as plural (e.g., churches,
 # classes).
 # -----------------------------------------------------------------------------
 pluralize_ch_sh_ss_suffixes <- function( word ) {
   output <- sub( "([cs]h)$", "\\1es", word )
+  output <- sub( "(x|z)$", "\\1es", word )
   output <- replace_suffix( output, "ss", "sses" )
 
   ifelse( output == word, NA_character_, output )
