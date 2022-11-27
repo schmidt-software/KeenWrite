@@ -33,8 +33,10 @@ public final class RInlineExtension implements ParserExtension {
   private final RInlineEvaluator mEvaluator;
   private final BaseMarkdownProcessor mMarkdownProcessor;
 
-  private RInlineExtension( final ProcessorContext context ) {
-    mEvaluator = new RInlineEvaluator( context );
+  private RInlineExtension(
+    final RInlineEvaluator evaluator,
+    final ProcessorContext context ) {
+    mEvaluator = evaluator;
     mMarkdownProcessor = new BaseMarkdownProcessor( IDENTITY, context );
   }
 
@@ -42,8 +44,10 @@ public final class RInlineExtension implements ParserExtension {
    * Creates an extension capable of intercepting R code blocks and preventing
    * them from being converted into HTML {@code <code>} elements.
    */
-  public static RInlineExtension create( final ProcessorContext context ) {
-    return new RInlineExtension( context );
+  public static RInlineExtension create(
+    final RInlineEvaluator evaluator,
+    final ProcessorContext context ) {
+    return new RInlineExtension( evaluator, context );
   }
 
   @Override

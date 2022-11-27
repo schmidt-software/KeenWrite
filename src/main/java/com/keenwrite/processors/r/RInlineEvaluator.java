@@ -2,14 +2,12 @@
 package com.keenwrite.processors.r;
 
 import com.keenwrite.processors.Processor;
-import com.keenwrite.processors.ProcessorContext;
 
 import java.util.function.Function;
 import java.util.function.Predicate;
 
 import static com.keenwrite.constants.Constants.STATUS_PARSE_ERROR;
 import static com.keenwrite.events.StatusEvent.clue;
-import static com.keenwrite.processors.IdentityProcessor.IDENTITY;
 
 /**
  * Evaluates inline R statements.
@@ -26,8 +24,8 @@ public final class RInlineEvaluator
   /**
    * Constructs an evaluator capable of executing R statements.
    */
-  public RInlineEvaluator( final ProcessorContext context ) {
-    mProcessor = new RVariableProcessor( IDENTITY, context );
+  public RInlineEvaluator( final RVariableProcessor processor ) {
+    mProcessor = processor;
   }
 
   /**

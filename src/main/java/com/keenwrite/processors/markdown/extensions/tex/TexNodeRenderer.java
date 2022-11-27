@@ -3,7 +3,6 @@ package com.keenwrite.processors.markdown.extensions.tex;
 
 import com.keenwrite.ExportFormat;
 import com.keenwrite.preview.SvgRasterizer;
-import com.keenwrite.processors.Processor;
 import com.vladsch.flexmark.html.HtmlWriter;
 import com.vladsch.flexmark.html.renderer.NodeRenderer;
 import com.vladsch.flexmark.html.renderer.NodeRendererContext;
@@ -16,6 +15,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 
 import static com.keenwrite.ExportFormat.*;
 import static com.keenwrite.preview.MathRenderer.MATH_RENDERER;
@@ -38,9 +38,10 @@ public class TexNodeRenderer {
     private final RendererFacade mNodeRenderer;
 
     public Factory(
-      final ExportFormat exportFormat, final Processor<String> processor ) {
+      final ExportFormat exportFormat,
+      final Function<String, String> evaluator ) {
       mNodeRenderer = EXPORT_RENDERERS.getOrDefault( exportFormat, RENDERER );
-      mNodeRenderer.setProcessor( processor );
+      mNodeRenderer.setEvaluator( evaluator );
     }
 
     @NotNull
@@ -52,7 +53,7 @@ public class TexNodeRenderer {
 
   private static abstract class RendererFacade
     implements NodeRenderer {
-    private Processor<String> mProcessor;
+    private Function<String, String> mEvaluator;
 
     @Override
     public @Nullable Set<NodeRenderingHandler<?>> getNodeRenderingHandlers() {
@@ -73,12 +74,12 @@ public class TexNodeRenderer {
                           final NodeRendererContext context,
                           final HtmlWriter html );
 
-    private void setProcessor( final Processor<String> processor ) {
-      mProcessor = processor;
+    private void setEvaluator( final Function<String, String> evaluator ) {
+      mEvaluator = evaluator;
     }
 
-    Processor<String> getProcessor() {
-      return mProcessor;
+    Function<String, String> getEvaluator() {
+      return mEvaluator;
     }
   }
 
@@ -96,7 +97,7 @@ public class TexNodeRenderer {
     void render( final TexNode node,
                  final NodeRendererContext context,
                  final HtmlWriter html ) {
-      final var text = getProcessor().apply( node.getText().toString() );
+      final var text = getEvaluator().apply( node.getText().toString() );
       final var content =
         mIncludeDelimiter
           ? node.getOpeningDelimiter() + text + node.getClosingDelimiter()
@@ -117,7 +118,7 @@ public class TexNodeRenderer {
                  final HtmlWriter html ) {
       final var tex = node.getText().toStringOrNull();
       final var doc = MATH_RENDERER.render(
-        tex == null ? "" : getProcessor().apply( tex ) );
+        tex == null ? "" : getEvaluator().apply( tex ) );
       final var svg = SvgRasterizer.toSvg( doc.getDocumentElement() );
       html.raw( svg );
     }
@@ -131,7 +132,7 @@ public class TexNodeRenderer {
                  final NodeRendererContext context,
                  final HtmlWriter html ) {
       html.raw( TOKEN_OPEN );
-      html.raw( getProcessor().apply( node.getText().toString() ) );
+      html.raw( getEvaluator().apply( node.getText().toString() ) );
       html.raw( TOKEN_CLOSE );
     }
   }

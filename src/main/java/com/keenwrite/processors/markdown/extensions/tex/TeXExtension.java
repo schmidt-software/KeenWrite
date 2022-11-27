@@ -2,7 +2,6 @@
 package com.keenwrite.processors.markdown.extensions.tex;
 
 import com.keenwrite.ExportFormat;
-import com.keenwrite.processors.Processor;
 import com.keenwrite.processors.ProcessorContext;
 import com.keenwrite.processors.markdown.extensions.HtmlRendererAdapter;
 import com.keenwrite.processors.markdown.extensions.tex.TexNodeRenderer.Factory;
@@ -10,6 +9,8 @@ import com.vladsch.flexmark.html.HtmlRenderer;
 import com.vladsch.flexmark.parser.Parser;
 import com.vladsch.flexmark.util.data.MutableDataHolder;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.function.Function;
 
 import static com.vladsch.flexmark.parser.Parser.ParserExtension;
 
@@ -28,7 +29,7 @@ public class TeXExtension extends HtmlRendererAdapter
   /**
    * Responsible for pre-parsing the input.
    */
-  private final Processor<String> mProcessor;
+  private final Function<String, String> mEvaluator;
 
   /**
    * Controls how the node renderer produces TeX code within HTML output.
@@ -36,8 +37,8 @@ public class TeXExtension extends HtmlRendererAdapter
   private final ExportFormat mExportFormat;
 
   private TeXExtension(
-    final Processor<String> processor, final ProcessorContext context  ) {
-    mProcessor = processor;
+    final Function<String, String> evaluator, final ProcessorContext context  ) {
+    mEvaluator = evaluator;
     mExportFormat = context.getExportFormat();
   }
 
@@ -47,8 +48,8 @@ public class TeXExtension extends HtmlRendererAdapter
    * @return The new {@link TeXExtension}, never {@code null}.
    */
   public static TeXExtension create(
-    final Processor<String> processor, final ProcessorContext context  ) {
-    return new TeXExtension( processor, context );
+    final Function<String, String> evaluator, final ProcessorContext context  ) {
+    return new TeXExtension( evaluator, context );
   }
 
   /**
@@ -61,7 +62,7 @@ public class TeXExtension extends HtmlRendererAdapter
   public void extend( @NotNull final HtmlRenderer.Builder builder,
                       @NotNull final String rendererType ) {
     if( "HTML".equalsIgnoreCase( rendererType ) ) {
-      builder.nodeRendererFactory( new Factory( mExportFormat, mProcessor ) );
+      builder.nodeRendererFactory( new Factory( mExportFormat, mEvaluator ) );
     }
   }
 

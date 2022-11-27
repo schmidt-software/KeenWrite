@@ -13,6 +13,7 @@ import com.keenwrite.processors.markdown.extensions.fences.FencedBlockExtension;
 import com.keenwrite.processors.markdown.extensions.r.RInlineExtension;
 import com.keenwrite.processors.markdown.extensions.tex.TeXExtension;
 import com.keenwrite.processors.r.RInlineEvaluator;
+import com.keenwrite.processors.r.RVariableProcessor;
 import com.vladsch.flexmark.util.misc.Extension;
 
 import java.util.ArrayList;
@@ -63,9 +64,11 @@ public final class MarkdownProcessor extends BaseMarkdownProcessor {
     final List<Extension> result = new ArrayList<>();
 
     if( mediaType == TEXT_R_MARKDOWN ) {
-      result.add( RInlineExtension.create( context ) );
-      processor = IDENTITY;
-      evaluator = new RInlineEvaluator( context );
+      final var rVarProcessor = new RVariableProcessor( IDENTITY, context );
+      final var rInlineEvaluator = new RInlineEvaluator( rVarProcessor );
+      result.add( RInlineExtension.create( rInlineEvaluator, context ) );
+      processor = rVarProcessor;
+      evaluator = rInlineEvaluator;
     }
     else {
       processor = new VariableProcessor( IDENTITY, context );
@@ -76,7 +79,7 @@ public final class MarkdownProcessor extends BaseMarkdownProcessor {
     result.addAll( super.createExtensions( context ) );
 
     result.add( ImageLinkExtension.create( context ) );
-    result.add( TeXExtension.create( processor, context ) );
+    result.add( TeXExtension.create( evaluator, context ) );
     result.add( FencedBlockExtension.create( processor, evaluator, context ) );
 
     if( context.isExportFormat( ExportFormat.NONE ) ) {
