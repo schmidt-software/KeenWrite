@@ -11,11 +11,13 @@ public final class RKeyOperator implements UnaryOperator<String> {
   private static final char KEY_SEPARATOR_DEF = '.';
   private static final char KEY_SEPARATOR_R = '$';
 
+  private final StringBuilder mVarName = new StringBuilder( 128 );
+
   /**
    * Constructs a new instance capable of converting dot-separated variable
    * names into R's dollar-symbol-separated names.
    */
-  public RKeyOperator() {}
+  public RKeyOperator() { }
 
   /**
    * Transforms a definition key name into the expected format for an R
@@ -36,18 +38,20 @@ public final class RKeyOperator implements UnaryOperator<String> {
     assert key.length() > 0;
     assert !key.isBlank();
 
-    final var rVarName = new StringBuilder( key.length() + 3 );
-    rVarName.append( "v" );
-    rVarName.append( KEY_SEPARATOR_R );
-    rVarName.append( key );
+    mVarName.setLength( 0 );
+
+    //final var rVarName = new StringBuilder( key.length() + 3 );
+    mVarName.append( "v" );
+    mVarName.append( KEY_SEPARATOR_R );
+    mVarName.append( key );
 
     // The 3 is for v$ + first char, which cannot be a separator.
-    for( int i = rVarName.length() - 1; i >= 3; i-- ) {
-      if( rVarName.charAt( i ) == KEY_SEPARATOR_DEF ) {
-        rVarName.setCharAt( i, KEY_SEPARATOR_R );
+    for( int i = mVarName.length() - 1; i >= 3; i-- ) {
+      if( mVarName.charAt( i ) == KEY_SEPARATOR_DEF ) {
+        mVarName.setCharAt( i, KEY_SEPARATOR_R );
       }
     }
 
-    return rVarName.toString();
+    return mVarName.toString();
   }
 }

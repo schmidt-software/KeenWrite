@@ -13,13 +13,12 @@ public class AhoCorasickReplacer extends AbstractTextReplacer {
   /**
    * Default (empty) constructor.
    */
-  protected AhoCorasickReplacer() {
-  }
+  protected AhoCorasickReplacer() { }
 
   @Override
   public String replace( final String text, final Map<String, String> map ) {
     // Create a buffer sufficiently large that re-allocations are minimized.
-    final var sb = new StringBuilder( (int)(text.length() * 1.25) );
+    final var sb = new StringBuilder( (int) (text.length() * 1.25) );
 
     // Definition names cannot overlap.
     final var builder = builder().ignoreOverlaps();
