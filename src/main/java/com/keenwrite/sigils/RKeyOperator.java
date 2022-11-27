@@ -1,6 +1,8 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.sigils;
 
+import com.keenwrite.collections.BoundedCache;
+
 import java.util.function.UnaryOperator;
 
 /**
@@ -11,7 +13,13 @@ public final class RKeyOperator implements UnaryOperator<String> {
   private static final char KEY_SEPARATOR_DEF = '.';
   private static final char KEY_SEPARATOR_R = '$';
 
+  /** Minor optimization to avoid recreating an object. */
   private final StringBuilder mVarName = new StringBuilder( 128 );
+
+  /** Optimization to avoid re-converting variable names into R format. */
+  private final BoundedCache<String, String> mVariables = new BoundedCache<>(
+    2048
+  );
 
   /**
    * Constructs a new instance capable of converting dot-separated variable
@@ -38,9 +46,11 @@ public final class RKeyOperator implements UnaryOperator<String> {
     assert key.length() > 0;
     assert !key.isBlank();
 
-    mVarName.setLength( 0 );
+    return mVariables.computeIfAbsent( key, this::convert );
+  }
 
-    //final var rVarName = new StringBuilder( key.length() + 3 );
+  private String convert( final String key ) {
+    mVarName.setLength( 0 );
     mVarName.append( "v" );
     mVarName.append( KEY_SEPARATOR_R );
     mVarName.append( key );
