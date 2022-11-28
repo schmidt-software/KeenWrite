@@ -28,7 +28,7 @@ Example usages of the pluralize function include:
 
     `r#pluralize( "mouse" )` - mice
     `r#pluralize( "buzz" )` - buzzes
-    `r#pluralize( "bus" )` - busses
+    `r#pluralize( "bus" )` - buses
 
 # possessive.R
 
