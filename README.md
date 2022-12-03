@@ -35,7 +35,7 @@ chmod +x keenwrite.bin
 
 ### Other
 
-On other platforms, start the application as follows:
+On other platforms, such as MacOS, start the application as follows:
 
 1. Download the *Full version* of the Java Runtime Environment, [JRE 19](https://bell-sw.com/pages/downloads).
 1. Install the JRE (include JRE's `bin` directory in the `PATH` environment variable).
