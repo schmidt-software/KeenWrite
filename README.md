@@ -38,11 +38,13 @@ chmod +x keenwrite.bin
 On other platforms, start the application as follows:
 
 1. Download the *Full version* of the Java Runtime Environment, [JRE 19](https://bell-sw.com/pages/downloads).
-1. Install the JRE.
-1. Open a terminal window.
+1. Install the JRE (include JRE's `bin` directory in the `PATH` environment variable).
+1. Open a new terminal.
 1. Verify the installation: `java -version`
+1. Download [keenwrite.jar](https://github.com/DaveJarvis/keenwrite/releases/latest/download/keenwrite.jar).
 1. Download [keenwrite.sh](https://raw.githubusercontent.com/DaveJarvis/keenwrite/master/keenwrite.sh).
-1. Make `keenwrite.sh` executable.
+1. Place the `.jar` and `.sh` in the same directory.
+1. Make `keenwrite.sh` executable: `chmod +x keenwrite.sh`
 1. Run: `./keenwrite.sh`
 
 The application is started.
