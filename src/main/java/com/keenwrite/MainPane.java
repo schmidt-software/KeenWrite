@@ -229,9 +229,13 @@ public final class MainPane extends SplitPane {
   @Subscribe
   public void handle( final LexiconLoadedEvent event ) {
     final var lexicon = event.getLexicon();
-    final var checker = SymSpellSpeller.forLexicon( lexicon );
 
-    mSpellChecker.set( checker );
+    try {
+      final var checker = SymSpellSpeller.forLexicon( lexicon );
+      mSpellChecker.set( checker );
+    } catch( final Exception ex ) {
+      clue( ex );
+    }
   }
 
   @Subscribe
@@ -1199,7 +1203,7 @@ public final class MainPane extends SplitPane {
    * Creates a spellchecker that accepts all words as correct. This allows
    * the spellchecker property to be initialized to a known valid value.
    *
-   * @return A {@link PermissiveSpeller}.
+   * @return A wrapped {@link PermissiveSpeller}.
    */
   private ObjectProperty<SpellChecker> createSpellChecker() {
     return new SimpleObjectProperty<>( new PermissiveSpeller() );

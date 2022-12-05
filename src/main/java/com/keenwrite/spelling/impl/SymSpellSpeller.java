@@ -7,13 +7,13 @@ import io.gitlab.rxp90.jsymspell.SymSpell;
 import io.gitlab.rxp90.jsymspell.SymSpellBuilder;
 import io.gitlab.rxp90.jsymspell.Verbosity;
 import io.gitlab.rxp90.jsymspell.api.SuggestItem;
+import io.gitlab.rxp90.jsymspell.exceptions.NotInitializedException;
 
 import java.text.BreakIterator;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static com.keenwrite.events.StatusEvent.clue;
 import static io.gitlab.rxp90.jsymspell.Verbosity.ALL;
 import static io.gitlab.rxp90.jsymspell.Verbosity.CLOSEST;
 import static java.lang.Character.isLetter;
@@ -33,20 +33,16 @@ public class SymSpellSpeller implements SpellChecker {
    * is correct and suggest alternatives, or {@link PermissiveSpeller} if the
    * lexicon cannot be loaded.
    */
-  public static SpellChecker forLexicon( final Map<String, Long> lexicon ) {
+  public static SpellChecker forLexicon( final Map<String, Long> lexicon )
+    throws NotInitializedException {
     assert lexicon != null;
     assert !lexicon.isEmpty();
 
-    try {
-      return new SymSpellSpeller(
-        new SymSpellBuilder()
-          .setUnigramLexicon( lexicon )
-          .build()
-      );
-    } catch( final Exception ex ) {
-      clue( ex );
-      return new PermissiveSpeller();
-    }
+    final var symSpell = new SymSpellBuilder()
+      .setUnigramLexicon( lexicon )
+      .build();
+
+    return new SymSpellSpeller( symSpell );
   }
 
   /**
