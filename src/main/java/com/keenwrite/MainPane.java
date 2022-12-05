@@ -11,6 +11,7 @@ import com.keenwrite.editors.definition.TreeTransformer;
 import com.keenwrite.editors.definition.yaml.YamlTreeTransformer;
 import com.keenwrite.editors.markdown.MarkdownEditor;
 import com.keenwrite.events.*;
+import com.keenwrite.events.spelling.LexiconLoadedEvent;
 import com.keenwrite.io.MediaType;
 import com.keenwrite.preferences.Workspace;
 import com.keenwrite.preview.HtmlPreview;
@@ -21,9 +22,13 @@ import com.keenwrite.processors.ProcessorFactory;
 import com.keenwrite.processors.r.Engine;
 import com.keenwrite.processors.r.RBootstrapController;
 import com.keenwrite.service.events.Notifier;
+import com.keenwrite.spelling.api.SpellChecker;
+import com.keenwrite.spelling.impl.PermissiveSpeller;
+import com.keenwrite.spelling.impl.SymSpellSpeller;
 import com.keenwrite.ui.explorer.FilePickerFactory;
 import com.keenwrite.ui.heuristics.DocumentStatistics;
 import com.keenwrite.ui.outline.DocumentOutline;
+import com.keenwrite.ui.spelling.TextEditorSpellChecker;
 import com.keenwrite.util.GenericBuilder;
 import com.panemu.tiwulfx.control.dock.DetachableTab;
 import com.panemu.tiwulfx.control.dock.DetachableTabPane;
@@ -79,7 +84,9 @@ import static javafx.application.Platform.runLater;
 import static javafx.scene.control.Alert.AlertType.ERROR;
 import static javafx.scene.control.ButtonType.*;
 import static javafx.scene.control.TabPane.TabClosingPolicy.ALL_TABS;
+import static javafx.scene.input.KeyCode.ENTER;
 import static javafx.scene.input.KeyCode.SPACE;
+import static javafx.scene.input.KeyCombination.ALT_DOWN;
 import static javafx.scene.input.KeyCombination.CONTROL_DOWN;
 import static javafx.util.Duration.millis;
 import static javax.swing.SwingUtilities.invokeLater;
@@ -145,6 +152,10 @@ public final class MainPane extends SplitPane {
    */
   private final ObjectProperty<TextDefinition> mDefinitionEditor;
 
+  private final ObjectProperty<SpellChecker> mSpellChecker;
+
+  private final TextEditorSpellChecker mEditorSpeller;
+
   /**
    * Called when the definition data is changed.
    */
@@ -174,9 +185,11 @@ public final class MainPane extends SplitPane {
    */
   public MainPane( final Workspace workspace ) {
     mWorkspace = workspace;
+    mSpellChecker = createSpellChecker();
+    mEditorSpeller = createTextEditorSpellChecker( mSpellChecker );
     mPreview = new HtmlPreview( workspace );
     mStatistics = new DocumentStatistics( workspace );
-    mTextEditor.set( new MarkdownEditor( workspace ) );
+    mTextEditor.set( createMarkdownEditor( DOCUMENT_DEFAULT ) );
     mDefinitionEditor = createActiveDefinitionEditor( mTextEditor );
     mVariableNameInjector = new VariableNameInjector( mWorkspace );
     mRBootstrapController = new RBootstrapController(
@@ -205,6 +218,20 @@ public final class MainPane extends SplitPane {
 
     restoreSession();
     runLater( this::restoreFocus );
+  }
+
+  /**
+   * Called when spellchecking can be run. This will reload the dictionary
+   * into memory once, and then re-use it for all the existing text editors.
+   *
+   * @param event The event to process, having a populated word-frequency map.
+   */
+  @Subscribe
+  public void handle( final LexiconLoadedEvent event ) {
+    final var lexicon = event.getLexicon();
+    final var checker = SymSpellSpeller.forLexicon( lexicon );
+
+    mSpellChecker.set( checker );
   }
 
   @Subscribe
@@ -1096,7 +1123,7 @@ public final class MainPane extends SplitPane {
    * @param inputFile The file containing contents for the text editor.
    * @return A non-null text editor.
    */
-  private TextResource createMarkdownEditor( final File inputFile ) {
+  private MarkdownEditor createMarkdownEditor( final File inputFile ) {
     final var editor = new MarkdownEditor( inputFile, getWorkspace() );
 
     mProcessors.computeIfAbsent(
@@ -1124,13 +1151,36 @@ public final class MainPane extends SplitPane {
       keyPressed( SPACE, CONTROL_DOWN ), this::autoinsert
     );
 
-    // Track the caret to restore its position later.
-    editor.getTextArea().caretPositionProperty().addListener( ( c, o, n ) -> {
-      getWorkspace().integerProperty( KEY_UI_RECENT_OFFSET ).setValue( n );
-    } );
+    editor.addEventListener(
+      keyPressed( ENTER, ALT_DOWN ), event -> mEditorSpeller.autofix( editor )
+    );
+
+    final var textArea = editor.getTextArea();
+
+    // Spell check when the paragraph changes.
+    textArea
+      .plainTextChanges()
+      .filter( p -> !p.isIdentity() )
+      .subscribe( change -> mEditorSpeller.checkParagraph( textArea, change ) );
+
+    // Store the caret position to restore it after restarting the application.
+    textArea.caretPositionProperty().addListener(
+      ( c, o, n ) ->
+        getWorkspace().integerProperty( KEY_UI_RECENT_OFFSET ).setValue( n )
+    );
 
     // Set the active editor, which refreshes the preview panel.
     mTextEditor.set( editor );
+
+    // Check the entire document after the spellchecker is initialized (with
+    // a valid lexicon) so that only the current paragraph need be scanned
+    // while editing. (Technically, only the most recently modified word must
+    // be scanned.)
+    mSpellChecker.addListener(
+      ( c, o, n ) -> runLater(
+        () -> mEditorSpeller.checkDocument( mTextEditor.get() )
+      )
+    );
 
     return editor;
   }
@@ -1143,6 +1193,21 @@ public final class MainPane extends SplitPane {
    */
   private Processor<String> createHtmlPreviewProcessor() {
     return new HtmlPreviewProcessor( getPreview() );
+  }
+
+  /**
+   * Creates a spellchecker that accepts all words as correct. This allows
+   * the spellchecker property to be initialized to a known valid value.
+   *
+   * @return A {@link PermissiveSpeller}.
+   */
+  private ObjectProperty<SpellChecker> createSpellChecker() {
+    return new SimpleObjectProperty<>( new PermissiveSpeller() );
+  }
+
+  private TextEditorSpellChecker createTextEditorSpellChecker(
+    final ObjectProperty<SpellChecker> spellChecker ) {
+    return new TextEditorSpellChecker( spellChecker );
   }
 
   /**

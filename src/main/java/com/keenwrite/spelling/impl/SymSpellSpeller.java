@@ -1,7 +1,6 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.spelling.impl;
 
-import com.keenwrite.exceptions.MissingFileException;
 import com.keenwrite.spelling.api.SpellCheckListener;
 import com.keenwrite.spelling.api.SpellChecker;
 import io.gitlab.rxp90.jsymspell.SymSpell;
@@ -9,21 +8,15 @@ import io.gitlab.rxp90.jsymspell.SymSpellBuilder;
 import io.gitlab.rxp90.jsymspell.Verbosity;
 import io.gitlab.rxp90.jsymspell.api.SuggestItem;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.text.BreakIterator;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.keenwrite.constants.Constants.LEXICONS_DIRECTORY;
 import static com.keenwrite.events.StatusEvent.clue;
 import static io.gitlab.rxp90.jsymspell.Verbosity.ALL;
 import static io.gitlab.rxp90.jsymspell.Verbosity.CLOSEST;
 import static java.lang.Character.isLetter;
-import static java.lang.Long.parseLong;
-import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
  * Responsible for spell checking using {@link SymSpell}.
@@ -35,25 +28,12 @@ public class SymSpellSpeller implements SpellChecker {
   /**
    * Creates a new spellchecker for a lexicon of words in the specified file.
    *
-   * @param filename Lexicon language file (e.g., "en.txt").
+   * @param lexicon The word-frequency map.
    * @return An instance of {@link SpellChecker} that can check if a word
    * is correct and suggest alternatives, or {@link PermissiveSpeller} if the
    * lexicon cannot be loaded.
    */
-  public static SpellChecker forLexicon( final String filename ) {
-    assert filename != null;
-    assert !filename.isBlank();
-
-    try {
-      final var lexicon = readLexicon( filename );
-      return SymSpellSpeller.forLexicon( lexicon );
-    } catch( final Exception ex ) {
-      clue( ex );
-      return new PermissiveSpeller();
-    }
-  }
-
-  private static SpellChecker forLexicon( final Map<String, Long> lexicon ) {
+  public static SpellChecker forLexicon( final Map<String, Long> lexicon ) {
     assert lexicon != null;
     assert !lexicon.isEmpty();
 
@@ -143,35 +123,6 @@ public class SymSpellSpeller implements SpellChecker {
       previousIndex = boundaryIndex;
       boundaryIndex = mBreakIterator.next();
     }
-  }
-
-  @SuppressWarnings( "SameParameterValue" )
-  private static Map<String, Long> readLexicon( final String filename )
-    throws Exception {
-    assert filename != null;
-    assert !filename.isEmpty();
-
-    final var path = '/' + LEXICONS_DIRECTORY + '/' + filename;
-    final var map = new HashMap<String, Long>();
-
-    try( final var resource =
-           SymSpellSpeller.class.getResourceAsStream( path ) ) {
-      if( resource == null ) {
-        throw new MissingFileException( path );
-      }
-
-      try( final var isr = new InputStreamReader( resource, UTF_8 );
-           final var reader = new BufferedReader( isr ) ) {
-        String line;
-
-        while( (line = reader.readLine()) != null ) {
-          final var tokens = line.split( "\\t" );
-          map.put( tokens[ 0 ], parseLong( tokens[ 1 ] ) );
-        }
-      }
-    }
-
-    return map;
   }
 
   /**

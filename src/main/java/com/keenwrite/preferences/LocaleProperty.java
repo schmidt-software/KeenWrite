@@ -19,7 +19,15 @@ import static java.util.Locale.forLanguageTag;
 public final class LocaleProperty extends SimpleObjectProperty<String> {
 
   /**
-   * Lists the locales having fonts that are supported by the application.
+   * The {@link Locale}s are used for multiple purposes, including:
+   *
+   * <ul>
+   *   <li>supported text editor font listing in preferences dialog;</li>
+   *   <li>text editor CSS;</li>
+   *   <li>preview window CSS; and</li>
+   *   <li>lexicon to load for spellcheck.</li>
+   * </ul>
+   *
    * When the Markdown and preview CSS files are loaded, a general file is
    * first loaded, then a specific file is loaded according to the locale.
    * The specific file overrides font families so that different languages
@@ -29,23 +37,65 @@ public final class LocaleProperty extends SimpleObjectProperty<String> {
    * </p>
    * <p>
    * See
-   * <a href="https://oracle.com/java/technologies/javase/jdk12locales.html">
-   * JDK 12 Locales
+   * <a href="https://www.oracle.com/java/technologies/javase/jdk19-suported-locales.html">
+   * JDK 19 Supported Locales
    * </a> for details.
    * </p>
    */
   private static final Map<String, Locale> sLocales = new LinkedHashMap<>();
 
   static {
+    @SuppressWarnings( "SpellCheckingInspection" )
     final String[] tags = {
+      // English
       "en-Latn-AU",
       "en-Latn-CA",
       "en-Latn-GB",
       "en-Latn-NZ",
       "en-Latn-US",
       "en-Latn-ZA",
+      // German
+      "de-Latn-AT",
+      "de-Latn-DE",
+      "de-Latn-LU",
+      "de-Latn-CH",
+      // Spanish
+      "es-Latn-AR",
+      "es-Latn-BO",
+      "es-Latn-CL",
+      "es-Latn-CO",
+      "es-Latn-CR",
+      "es-Latn-DO",
+      "es-Latn-EC",
+      "es-Latn-SV",
+      "es-Latn-GT",
+      "es-Latn-HN",
+      "es-Latn-MX",
+      "es-Latn-NI",
+      "es-Latn-PA",
+      "es-Latn-PY",
+      "es-Latn-PE",
+      "es-Latn-PR",
+      "es-Latn-ES",
+      "es-Latn-US",
+      "es-Latn-UY",
+      "es-Latn-VE",
+      // French
+      "fr-Latn-BE",
+      "fr-Latn-CA",
+      "fr-Latn-FR",
+      "fr-Latn-LU",
+      "fr-Latn-CH",
+      // Hebrew
+      //"iw-Hebr-IL",
+      // Italian
+      "it-Latn-IT",
+      "it-Latn-CH",
+      // Japanese
       "ja-Jpan-JP",
+      // Korean
       "ko-Kore-KR",
+      // Chinese
       "zh-Hans-CN",
       "zh-Hans-SG",
       "zh-Hant-HK",
@@ -77,7 +127,7 @@ public final class LocaleProperty extends SimpleObjectProperty<String> {
   }
 
   private static Locale sanitize( final Locale locale ) {
-    // If the language is "und"efined then use the default locale.
+    // If the language is undefined then use the default locale.
     return locale == null || "und".equalsIgnoreCase( locale.toLanguageTag() )
       ? LOCALE_DEFAULT
       : locale;
@@ -89,7 +139,7 @@ public final class LocaleProperty extends SimpleObjectProperty<String> {
 
   /**
    * Performs an O(n) search through the given map to find the key that is
-   * mapped to the given value. A bi-directional map would be faster, but
+   * mapped to the given value. A bidirectional map would be faster, but
    * also introduces additional dependencies. This doesn't need to be fast
    * because it happens once, at start up, and there aren't a lot of values.
    *

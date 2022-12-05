@@ -9,15 +9,12 @@ import com.keenwrite.io.MediaType;
 import com.keenwrite.preferences.LocaleProperty;
 import com.keenwrite.preferences.Workspace;
 import com.keenwrite.processors.markdown.extensions.CaretExtension;
-import com.keenwrite.spelling.impl.TextEditorSpeller;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
 import javafx.beans.value.ChangeListener;
 import javafx.event.Event;
 import javafx.scene.Node;
-import javafx.scene.control.ContextMenu;
 import javafx.scene.control.IndexRange;
-import javafx.scene.control.MenuItem;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
 import org.fxmisc.flowless.VirtualizedScrollPane;
@@ -88,11 +85,6 @@ public final class MarkdownEditor extends BorderPane implements TextEditor {
   private final Caret mCaret = createCaret( mTextArea );
 
   /**
-   * For spell checking the document upon load and whenever it changes.
-   */
-  private final TextEditorSpeller mSpeller = new TextEditorSpeller();
-
-  /**
    * File being edited by this editor instance.
    */
   private File mFile;
@@ -115,10 +107,6 @@ public final class MarkdownEditor extends BorderPane implements TextEditor {
    */
   private final BooleanProperty mModified = new SimpleBooleanProperty();
 
-  public MarkdownEditor( final Workspace workspace ) {
-    this( DOCUMENT_DEFAULT, workspace );
-  }
-
   public MarkdownEditor( final File file, final Workspace workspace ) {
     mEncoding = open( mFile = file );
     mWorkspace = workspace;
@@ -126,7 +114,6 @@ public final class MarkdownEditor extends BorderPane implements TextEditor {
     initTextArea( mTextArea );
     initStyle( mTextArea );
     initScrollPane( mScrollPane );
-    initSpellchecker( mTextArea );
     initHotKeys();
     initUndoManager();
   }
@@ -190,17 +177,11 @@ public final class MarkdownEditor extends BorderPane implements TextEditor {
     setCenter( scrollpane );
   }
 
-  private void initSpellchecker( final StyleClassedTextArea textarea ) {
-    mSpeller.checkDocument( textarea );
-    mSpeller.checkParagraphs( textarea );
-  }
-
   private void initHotKeys() {
     addEventListener( keyPressed( ENTER ), this::onEnterPressed );
     addEventListener( keyPressed( X, CONTROL_DOWN ), this::cut );
     addEventListener( keyPressed( TAB ), this::tab );
     addEventListener( keyPressed( TAB, SHIFT_DOWN ), this::untab );
-    addEventListener( keyPressed( ENTER, ALT_DOWN ), this::autofix );
   }
 
   private void initUndoManager() {
@@ -538,70 +519,6 @@ public final class MarkdownEditor extends BorderPane implements TextEditor {
     }
 
     mTextArea.replaceSelection( newText );
-  }
-
-  /**
-   * Delegates to {@link #autofix()}.
-   *
-   * @param event Ignored.
-   */
-  private void autofix( final KeyEvent event ) {
-    autofix();
-  }
-
-  public void autofix() {
-    final var caretWord = getCaretWord();
-    final var textArea = getTextArea();
-    final var word = textArea.getText( caretWord );
-    final var suggestions = mSpeller.checkWord( word, 10 );
-
-    if( suggestions.isEmpty() ) {
-      clue( "Editor.spelling.check.matches.none", word );
-    }
-    else if( !suggestions.contains( word ) ) {
-      final var menu = createSuggestionsPopup();
-      final var items = menu.getItems();
-      textArea.setContextMenu( menu );
-
-      for( final var correction : suggestions ) {
-        items.add( createSuggestedItem( caretWord, correction ) );
-      }
-
-      textArea.getCaretBounds().ifPresent(
-        bounds -> {
-          menu.setOnShown( event -> menu.requestFocus() );
-          menu.show( textArea, bounds.getCenterX(), bounds.getCenterY() );
-        }
-      );
-    }
-    else {
-      clue( "Editor.spelling.check.matches.okay", word );
-    }
-  }
-
-  private ContextMenu createSuggestionsPopup() {
-    final var menu = new ContextMenu();
-
-    menu.setAutoHide( true );
-    menu.setHideOnEscape( true );
-    menu.setOnHidden( event -> getTextArea().setContextMenu( null ) );
-
-    return menu;
-  }
-
-  /**
-   * Creates a menu item capable of replacing a word under the cursor.
-   *
-   * @param i The beginning and ending text offset to replace.
-   * @param s The text to replace at the given offset.
-   * @return The menu item that, if actioned, will replace the text.
-   */
-  private MenuItem createSuggestedItem( final IndexRange i, final String s ) {
-    final var menuItem = new MenuItem( s );
-
-    menuItem.setOnAction( event -> getTextArea().replaceText( i, s ) );
-
-    return menuItem;
   }
 
   private void cut( final KeyEvent event ) {

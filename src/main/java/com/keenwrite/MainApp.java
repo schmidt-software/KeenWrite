@@ -4,6 +4,7 @@ package com.keenwrite;
 import com.keenwrite.cmdline.HeadlessApp;
 import com.keenwrite.events.HyperlinkOpenEvent;
 import com.keenwrite.preferences.Workspace;
+import com.keenwrite.spelling.impl.Lexicon;
 import javafx.application.Application;
 import javafx.event.Event;
 import javafx.event.EventType;
@@ -24,6 +25,7 @@ import static javafx.scene.input.KeyCode.ALT;
 import static javafx.scene.input.KeyCode.F11;
 import static javafx.scene.input.KeyEvent.KEY_PRESSED;
 import static javafx.scene.input.KeyEvent.KEY_RELEASED;
+import static javafx.stage.WindowEvent.WINDOW_SHOWN;
 
 /**
  * Application entry point. The application allows users to edit plain text
@@ -106,12 +108,20 @@ public final class MainApp extends Application {
     // because it interacts with GUI properties.
     mWorkspace = new Workspace();
 
+    // The locale was already loaded when the workspace was created. This
+    // ensures that when the locale preference changes, a new spellchecker
+    // instance will be loaded and applied.
+    final var property = mWorkspace.localeProperty( KEY_LANGUAGE_LOCALE );
+    property.addListener( ( c, o, n ) -> readLexicon() );
+
     initFonts();
     initState( stage );
     initStage( stage );
     initIcons( stage );
     initScene( stage );
 
+    // Load the lexicon and check all the documents after all files are open.
+    stage.addEventFilter( WINDOW_SHOWN, event -> readLexicon() );
     stage.show();
 
     stderrRedirect( System.out );
@@ -181,6 +191,14 @@ public final class MainApp extends Application {
   @Subscribe
   public void handle( final HyperlinkOpenEvent event ) {
     getHostServices().showDocument( event.getUri().toString() );
+  }
+
+  /**
+   * This will load the lexicon for the user's preferred locale and fire
+   * an event when the all entries in the lexicon have been loaded.
+   */
+  private void readLexicon() {
+    Lexicon.read( mWorkspace.getLocale() );
   }
 
   /**
