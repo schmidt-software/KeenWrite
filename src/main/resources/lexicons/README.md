@@ -24,7 +24,7 @@ The latter steps can be accomplished as follows:
 There may be more efficient ways to filter the data, which takes a few hours
 to complete (on modern hardware).
 
-# Lexicons
+# Resources
 
 There are numerous sources of word and frequency lists available, including:
 
