@@ -58,6 +58,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -497,15 +498,7 @@ public final class MainPane extends SplitPane {
    * that they save themselves.
    */
   public void saveAll() {
-    mTabPanes.forEach(
-      tp -> tp.getTabs().forEach( tab -> {
-        final var node = tab.getContent();
-
-        if( node instanceof final TextEditor editor ) {
-          save( editor );
-        }
-      } )
-    );
+    iterateEditors( this::save );
   }
 
   /**
@@ -667,6 +660,18 @@ public final class MainPane extends SplitPane {
     }
 
     return canClose.get();
+  }
+
+  private void iterateEditors( final Consumer<TextEditor> consumer ) {
+    mTabPanes.forEach(
+      tp -> tp.getTabs().forEach( tab -> {
+        final var node = tab.getContent();
+
+        if( node instanceof final TextEditor editor ) {
+          consumer.accept( editor );
+        }
+      } )
+    );
   }
 
   private ObjectProperty<TextEditor> createActiveTextEditor() {
@@ -1182,9 +1187,12 @@ public final class MainPane extends SplitPane {
     // be scanned.)
     mSpellChecker.addListener(
       ( c, o, n ) -> runLater(
-        () -> mEditorSpeller.checkDocument( mTextEditor.get() )
+        () -> iterateEditors( mEditorSpeller::checkDocument )
       )
     );
+
+    // Check the entire document after it has been loaded.
+    mEditorSpeller.checkDocument( mTextEditor.get() );
 
     return editor;
   }
