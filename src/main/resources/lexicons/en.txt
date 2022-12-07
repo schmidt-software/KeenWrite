@@ -54237,6 +54237,7 @@ trundle	115247
 detoxify	115243
 personalist	115226
 thomas	115222
+torvolds	115221
 inquietude	115218
 magnetospheric	115213
 mudflats	115212
@@ -57948,6 +57949,7 @@ quintiles	95397
 fice	95397
 rewound	95395
 accessor	95384
+accessors	95380
 unobservant	95378
 subserves	95373
 redoubling	95371
@@ -65262,6 +65264,7 @@ wolfs	66861
 guan	66860
 vagary	66857
 flatted	66856
+bouchon	66855
 brogues	66855
 meningocele	66852
 didactics	66852
@@ -100178,6 +100181,10 @@ gildings	15816
 pardoners	15814
 beclouds	15814
 anosmic	15813
+dereference	15812
+dereferenced	15812
+dereferences	15812
+dereferenceing	15812
 refed	15811
 fairweather	15811
 gps	15808
@@ -196224,6 +196231,7 @@ burleigh	646
 bogosity	646
 allegoricalness	646
 acidulates	646
+cyclomatc	645
 zetas	645
 viridians	645
 unshaping	645

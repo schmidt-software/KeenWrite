@@ -69,9 +69,18 @@ public final class TextEditorSpellChecker {
     // Check current paragraph; the document was checked when opened.
     final var offset = change.getPosition();
     final var position = editor.offsetToPosition( offset, Forward );
-    final var paraId = position.getMajor();
-    final var paragraph = editor.getParagraph( paraId );
-    final var text = paragraph.getText();
+    var paraId = position.getMajor();
+    var paragraph = editor.getParagraph( paraId );
+    var text = paragraph.getText();
+
+    // If the current paragraph is blank, it may mean the caret is at the
+    // start of a new paragraph (i.e., a blank line). Spellcheck the "next"
+    // paragraph, instead.
+    if( text.isBlank() ) {
+      paraId++;
+      paragraph = editor.getParagraph( paraId );
+      text = paragraph.getText();
+    }
 
     // Prevent doubling-up styles.
     editor.clearStyle( paraId );
