@@ -36,6 +36,9 @@ public final class TextReplacementFactory {
    */
   public static String replace(
     final String haystack, final Map<String, String> needles ) {
+    assert haystack != null;
+    assert needles != null;
+
     return getTextReplacer( haystack.length() ).replace( haystack, needles );
   }
 }

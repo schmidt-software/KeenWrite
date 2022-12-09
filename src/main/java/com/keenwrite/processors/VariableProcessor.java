@@ -87,6 +87,8 @@ public class VariableProcessor
    */
   @Override
   public String apply( final String text ) {
+    assert text != null;
+
     return replace( text, getDefinitions() );
   }
 
@@ -99,6 +101,8 @@ public class VariableProcessor
    * post-processing.
    */
   protected Map<String, String> entoken( final Map<String, String> map ) {
+    assert map != null;
+
     final var result = new HashMap<String, String>( map.size() );
 
     map.forEach( ( k, v ) -> result.put( processKey( k ), processValue( v ) ) );

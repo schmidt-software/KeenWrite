@@ -17,6 +17,9 @@ public class AhoCorasickReplacer extends AbstractTextReplacer {
 
   @Override
   public String replace( final String text, final Map<String, String> map ) {
+    assert text != null;
+    assert map != null;
+
     // Create a buffer sufficiently large that re-allocations are minimized.
     final var sb = new StringBuilder( (int) (text.length() * 1.25) );
 
