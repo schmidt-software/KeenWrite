@@ -1,50 +1,86 @@
 FROM alpine:latest
 
-RUN apk --update add --no-cache fontconfig curl
+RUN apk update
+RUN apk add --no-cache fontconfig curl
 RUN rm -rf /var/cache
 
-# Download fonts.
+# ########################################################################
+#
+# Download and install fonts
+#
+# ########################################################################
 ENV FONT_DIR=/usr/share/fonts/user
 RUN mkdir -p $FONT_DIR
 WORKDIR $FONT_DIR
 
-ADD "https://fonts.google.com/download?family=Roboto" "roboto.zip"
-ADD "https://fonts.google.com/download?family=Inconsolata" "inconsolata.zip"
-ADD "https://github.com/adobe-fonts/source-serif/releases/download/4.004R/source-serif-4.004.zip" "source-serif.zip"
+# Carlito (Calibri replacement)
+ADD "https://github.com/googlefonts/carlito/raw/main/fonts/ttf/Carlito-Regular.ttf" "Carlito-Regular.ttf"
+ADD "https://github.com/googlefonts/carlito/raw/main/fonts/ttf/Carlito-Bold.ttf" "Carlito-Bold.ttf"
+ADD "https://github.com/googlefonts/carlito/raw/main/fonts/ttf/Carlito-Italic.ttf" "Carlito-Italic.ttf"
+ADD "https://github.com/googlefonts/carlito/raw/main/fonts/ttf/Carlito-BoldItalic.ttf" "Carlito-BoldItalic.ttf"
+
+# Libre Baskerville
+ADD "https://github.com/googlefonts/Libre-Baskerville/blob/master/fonts/ttf/LibreBaskerville-Regular.ttf" "LibreBaskerville-Regular.ttf"
 ADD "https://github.com/googlefonts/Libre-Baskerville/blob/master/fonts/ttf/LibreBaskerville-Bold.ttf" "LibreBaskerville-Bold.ttf"
 ADD "https://github.com/googlefonts/Libre-Baskerville/blob/master/fonts/ttf/LibreBaskerville-Italic.ttf" "LibreBaskerville-Italic.ttf"
-ADD "https://github.com/googlefonts/Libre-Baskerville/blob/master/fonts/ttf/LibreBaskerville-Regular.ttf" "LibreBaskerville-Regular.ttf"
+
+# Open Sans Emoji
+ADD "https://github.com/MorbZ/OpenSansEmoji/raw/master/OpenSansEmoji.ttf" "OpenSansEmoji.ttf"
+
+# Underwood Quiet Tab
+ADD "https://site.xavier.edu/polt/typewriters/Underwood_Quiet_Tab.ttf" "Underwood_Quiet_Tab.ttf"
+
+# Archives
+ADD "https://fonts.google.com/download?family=Courier%20Prime" "courier-prime.zip"
+ADD "https://fonts.google.com/download?family=Inconsolata" "inconsolata.zip"
+ADD "https://fonts.google.com/download?family=Nunito" "nunito.zip"
+ADD "https://fonts.google.com/download?family=Roboto" "roboto.zip"
+ADD "https://fonts.google.com/download?family=Roboto%20Mono" "roboto-mono.zip"
+ADD "https://fonts.google.com/download?family=Varela%20Round" "varela-round.zip"
+ADD "https://github.com/adobe-fonts/source-serif/releases/download/4.004R/source-serif-4.004.zip" "source-serif.zip"
 ADD "https://www.omnibus-type.com/wp-content/uploads/Archivo-Narrow.zip" "archivo-narrow.zip"
 
-# Unpack fonts (prior to ConTeXt).
-RUN unzip -j -o roboto.zip "*.ttf"
+# Unpack fonts
+RUN unzip -j -o courier-prime.zip "*.ttf"
 RUN unzip -j -o inconsolata.zip "**/Inconsolata/*.ttf"
+RUN unzip -j -o nunito.zip "static/*.ttf"
+RUN unzip -j -o roboto.zip "*.ttf"
+RUN unzip -j -o roboto-mono.zip "static/*.ttf"
+RUN unzip -j -o varela-round.zip "*.ttf"
 RUN unzip -j -o source-serif.zip "source-serif-4.004/OTF/SourceSerif4-*.otf"
 RUN unzip -j -o archivo-narrow.zip "Archivo-Narrow/otf/*.otf"
-RUN rm -f roboto.zip
-RUN rm -f inconsolata.zip
-RUN rm -f source-serif.zip
-RUN rm -f archivo-narrow.zip
+RUN rm -f *.zip
 
-# Update system font cache.
+# Update system font cache
 RUN fc-cache -f -v
 
+# ########################################################################
+#
+# Download and install themes
+#
+# ########################################################################
 WORKDIR "/opt"
 
-# Download themes.
 ADD "https://github.com/DaveJarvis/keenwrite-themes/releases/latest/download/theme-pack.zip" "theme-pack.zip"
 RUN unzip theme-pack.zip
 
-# Download ConTeXt.
+# ########################################################################
+#
+# Download and install typesetting software
+#
+# ########################################################################
 ADD "http://lmtx.pragma-ade.nl/install-lmtx/context-linuxmusl.zip" "context.zip"
 RUN unzip context.zip -d context
 RUN rm -f context.zip
 
-# Install ConTeXt.
 WORKDIR "context"
 RUN sh install.sh
 
-# Configure environment to find ConTeXt.
+# ########################################################################
+#
+# Configure typesetter
+#
+# ########################################################################
 ENV PROFILE=/etc/profile
 ENV CONTEXT_HOME=/opt/context
 RUN echo "export CONTEXT_HOME=\"$CONTEXT_HOME\"" >> $PROFILE
@@ -52,7 +88,7 @@ RUN echo "export PATH=\"\$PATH:\$CONTEXT_HOME/tex/texmf-linuxmusl/bin\"" >> $PRO
 RUN echo "export OSFONTDIR=\"/usr/share/fonts//\""
 RUN echo "PS1=\"typesetter:\\w\\\$ \"" >> $PROFILE
 
-# Trim the fat.
+# Remove unnecessary files
 RUN source $PROFILE
 RUN rm -rf $CONTEXT_HOME/tex/texmf-context/doc
 RUN find . -type f -name "*.pdf" -exec rm {} \;

@@ -1,25 +1,26 @@
 #!/usr/bin/env bash
 
-if [ -z ${IMAGES_DIR} ]; then
-  echo "Set IMAGES_DIR"
-  exit 10
-fi
-
 readonly CONTAINER_NAME=typesetter
+
+readonly CONTAINER_NETWORK=host
 
 # Force clean
 podman rmi --all --force
 
 # Build from Containerfile
-podman build --tag ${CONTAINER_NAME} .
+podman build \
+  --network=${CONTAINER_NETWORK} \
+  --tag ${CONTAINER_NAME} .
 
 # Connect and mount images
 podman run \
+  --network=${CONTAINER_NETWORK} \
   --rm \
   -i \
-  -v ${IMAGES_DIR}:/root/images:ro \
   -t ${CONTAINER_NAME} \
   /bin/sh --login -c 'context --version'
+
+# -v ${IMAGES_DIR}:/root/images:ro \
 
 # Create a persistent container
 # podman create typesetter typesetter
