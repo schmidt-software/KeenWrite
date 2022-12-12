@@ -9,12 +9,14 @@
 
 source ../scripts/build-template
 
+readonly BUILD_DIR=build
 readonly CONTAINER_NAME=typesetter
 readonly CONTAINER_NETWORK=host
-readonly CONTAINER_FILE=${CONTAINER_NAME}
-readonly CONTAINER_ARCHIVE_FILE=${CONTAINER_FILE}.tar
-readonly CONTAINER_COMPRESSED_FILE=${CONTAINER_ARCHIVE_FILE}.gz
+readonly CONTAINER_FILE="${CONTAINER_NAME}"
+readonly CONTAINER_ARCHIVE_FILE="${CONTAINER_FILE}.tar"
+readonly CONTAINER_COMPRESSED_FILE="${CONTAINER_ARCHIVE_FILE}.gz"
 readonly CONTAINER_EXE=podman
+readonly CONTAINER_COMPRESSED_PATH="${BUILD_DIR}/${CONTAINER_ARCHIVE_FILE}.gz"
 
 DEPENDENCIES=(
   "podman,https://podman.io"
@@ -25,9 +27,9 @@ DEPENDENCIES=(
 ARGUMENTS+=(
   "b,build,Build container image (${CONTAINER_NAME})"
   "c,connect,Connect to container image"
-  "l,load,Load container image (${CONTAINER_COMPRESSED_FILE})"
+  "l,load,Load container image (${CONTAINER_COMPRESSED_PATH})"
   "r,remove,Remove all container images"
-  "s,save,Save container image (${CONTAINER_COMPRESSED_FILE})"
+  "s,save,Save container image (${CONTAINER_COMPRESSED_PATH})"
 )
 
 # ---------------------------------------------------------------------------
@@ -93,18 +95,20 @@ utile_execute() {
 # Saves the container to a file
 # ---------------------------------------------------------------------------
 utile_save() {
-  if [[ -f "${CONTAINER_COMPRESSED_FILE}" ]]; then
-    warning "${CONTAINER_COMPRESSED_FILE} exists, delete before saving."
+  if [[ -f "${CONTAINER_COMPRESSED_PATH}" ]]; then
+    warning "${CONTAINER_COMPRESSED_PATH} exists, delete before saving."
   else
-    $log "Saving ${CONTAINER_NAME} image ..."
+    $log "Saving ${CONTAINER_NAME} image"
+
+    mkdir -p "${BUILD_DIR}"
 
     ${CONTAINER_EXE} save \
       --quiet \
-      -o "${CONTAINER_ARCHIVE_FILE}" \
+      -o "${BUILD_DIR}/${CONTAINER_ARCHIVE_FILE}" \
       "${CONTAINER_NAME}"
 
-    $log "Compressing to ${CONTAINER_COMPRESSED_FILE} ..."
-    gzip "${CONTAINER_ARCHIVE_FILE}"
+    $log "Compressing to ${CONTAINER_COMPRESSED_PATH}"
+    gzip "${CONTAINER_ARCHIVE_PATH}"
 
     $log "Saved ${CONTAINER_NAME} image"
   fi
@@ -114,16 +118,16 @@ utile_save() {
 # Loads the container from a file
 # ---------------------------------------------------------------------------
 utile_load() {
-  if [[ -f "${CONTAINER_COMPRESSED_FILE}" ]]; then
-    $log "Loading ${CONTAINER_NAME} image ..."
+  if [[ -f "${CONTAINER_COMPRESSED_PATH}" ]]; then
+    $log "Loading ${CONTAINER_NAME} image from ${CONTAINER_COMPRESSED_PATH}"
 
     ${CONTAINER_EXE} load \
       --quiet \
-      -i "${CONTAINER_COMPRESSED_FILE}"
+      -i "${CONTAINER_COMPRESSED_PATH}"
 
     $log "Loaded ${CONTAINER_NAME} image"
   else
-    warning "Missing ${CONTAINER_COMPRESSED_FILE}; use build follwed by save"
+    warning "Missing ${CONTAINER_COMPRESSED_PATH}; use build follwed by save"
   fi
 }
 
