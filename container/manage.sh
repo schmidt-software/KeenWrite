@@ -10,13 +10,21 @@
 source ../scripts/build-template
 
 readonly BUILD_DIR=build
+
+readonly CONTAINER_EXE=podman
 readonly CONTAINER_NAME=typesetter
 readonly CONTAINER_NETWORK=host
 readonly CONTAINER_FILE="${CONTAINER_NAME}"
 readonly CONTAINER_ARCHIVE_FILE="${CONTAINER_FILE}.tar"
+readonly CONTAINER_ARCHIVE_PATH="${BUILD_DIR}/${CONTAINER_ARCHIVE_FILE}"
 readonly CONTAINER_COMPRESSED_FILE="${CONTAINER_ARCHIVE_FILE}.gz"
-readonly CONTAINER_EXE=podman
 readonly CONTAINER_COMPRESSED_PATH="${BUILD_DIR}/${CONTAINER_ARCHIVE_FILE}.gz"
+readonly CONTAINER_DIR_TEXT="/root/text"
+readonly CONTAINER_DIR_IMAGES="/root/images"
+
+ARG_CONTAINER_COMMAND="context --version"
+ARG_MOUNTPOINT_TEXT=""
+ARG_MOUNTPOINT_IMAGES=""
 
 DEPENDENCIES=(
   "podman,https://podman.io"
@@ -25,18 +33,21 @@ DEPENDENCIES=(
 )
 
 ARGUMENTS+=(
-  "b,build,Build container image (${CONTAINER_NAME})"
-  "c,connect,Connect to container image"
-  "l,load,Load container image (${CONTAINER_COMPRESSED_PATH})"
-  "r,remove,Remove all container images"
-  "s,save,Save container image (${CONTAINER_COMPRESSED_PATH})"
+  "b,build,Build container (${CONTAINER_NAME})"
+  "c,connect,Connect to container"
+  "d,delete,Remove all containers"
+  "i,images,Set image files mount point"
+  "l,load,Load container (${CONTAINER_COMPRESSED_PATH})"
+  "r,run,Run a command in the container (\"${ARG_CONTAINER_COMMAND}\")"
+  "s,save,Save container (${CONTAINER_COMPRESSED_PATH})"
+  "t,text,Set text file mount point (to typeset)"
 )
 
 # ---------------------------------------------------------------------------
-# Manages the container image
+# Manages the container image.
 # ---------------------------------------------------------------------------
 execute() {
-  $do_remove
+  $do_delete
   $do_build
   $do_save
   $do_load
@@ -47,18 +58,18 @@ execute() {
 }
 
 # ---------------------------------------------------------------------------
-# Removes all container images
+# Deletes all container images.
 # ---------------------------------------------------------------------------
-utile_remove() {
-  $log "Removing all images"
+utile_delete() {
+  $log "Deleting all images"
 
   ${CONTAINER_EXE} rmi --all --force > /dev/null
 
-  $log "Images removed"
+  $log "Images deleted"
 }
 
 # ---------------------------------------------------------------------------
-# Builds the container file in the current working directory
+# Builds the container file in the current working directory.
 # ---------------------------------------------------------------------------
 utile_build() {
   ${CONTAINER_EXE} build \
@@ -67,32 +78,61 @@ utile_build() {
   grep ^STEP
 }
 
+get_mountpoint() {
+  local result=""
+
+  if [ -z "${1}" ]; then
+    result="-v ${1}:${2}:Z"
+  fi
+
+  return $result
+}
+
+get_mountpoint_text() {
+  return $(get_mountpoint "${ARG_MOUNTPOINT_TEXT}", "${CONTAINER_DIR_TEXT}")
+}
+
+get_mountpoint_images() {
+  return $(get_mountpoint "${ARG_MOUNTPOINT_IMAGES}", "${CONTAINER_DIR_IMAGES}")
+}
+
 # ---------------------------------------------------------------------------
-# Connects to the container
+# Connects to the container.
 # ---------------------------------------------------------------------------
 utile_connect() {
+  local mount_text=$(get_mountpoint_text)
+  local mount_images=$(get_mountpoint_images)
+
   ${CONTAINER_EXE} run \
-    --network=${CONTAINER_NETWORK} \
+    --network="${CONTAINER_NETWORK}" \
     --rm \
+    ${mount_text} \
+    ${mount_images} \
     -i \
-    -t ${CONTAINER_NAME}
+    -t "${CONTAINER_NAME}"
 }
 
 # ---------------------------------------------------------------------------
-# Runs a command in the container
+# Runs a command in the container.
+#
+# Examples:
+#
+#   ./manage.sh -r "ls /"
+#   ./manage.sh -r "context --version"
 # ---------------------------------------------------------------------------
 utile_execute() {
-# -v ${IMAGES_DIR}:/root/images:ro \
+  $log "Run \"${ARG_CONTAINER_COMMAND}\":"
+
   ${CONTAINER_EXE} run \
-    --network=${CONTAINER_NETWORK} \
+    --network="${CONTAINER_NETWORK}" \
     --rm \
     -i \
-    -t ${CONTAINER_NAME} \
-    /bin/sh --login -c 'context --version'
+    -t "${CONTAINER_NAME}" \
+    /bin/sh --login -c "${ARG_CONTAINER_COMMAND}"
 }
 
 # ---------------------------------------------------------------------------
-# Saves the container to a file
+# Saves the container to a file.
 # ---------------------------------------------------------------------------
 utile_save() {
   if [[ -f "${CONTAINER_COMPRESSED_PATH}" ]]; then
@@ -115,7 +155,7 @@ utile_save() {
 }
 
 # ---------------------------------------------------------------------------
-# Loads the container from a file
+# Loads the container from a file.
 # ---------------------------------------------------------------------------
 utile_load() {
   if [[ -f "${CONTAINER_COMPRESSED_PATH}" ]]; then
@@ -136,19 +176,45 @@ argument() {
 
   case "$1" in
     -b|--build)
-    do_remove=utile_build
+    do_build=utile_build
     ;;
     -c|--connect)
     do_connect=utile_connect
     ;;
+    -d|--delete)
+    do_delete=utile_delete
+    ;;
     -l|--load)
     do_load=utile_load
     ;;
-    -r|--remove)
-    do_remove=utile_remove
+    -i|--images)
+    if [ -z "${2+x}" ]; then
+      :
+    else
+      ARG_MOUNTPOINT_IMAGES="$2"
+      consume=2
+    fi
+    ;;
+    -r|--run)
+    do_execute=utile_execute
+
+    if [ -z "${2+x}" ]; then
+      :
+    else
+      ARG_CONTAINER_COMMAND="$2"
+      consume=2
+    fi
     ;;
     -s|--save)
     do_save=utile_save
+    ;;
+    -t|--text)
+    if [ -z "${2+x}" ]; then
+      :
+    else
+      ARG_MOUNTPOINT_TEXT="$2"
+      consume=2
+    fi
     ;;
   esac
 
@@ -157,9 +223,9 @@ argument() {
 
 do_build=:
 do_connect=:
-do_execute=:
+do_delete=:
 do_load=:
-do_remove=:
+do_execute=:
 do_save=:
 
 main "$@"
