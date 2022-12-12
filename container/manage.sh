@@ -24,7 +24,7 @@ DEPENDENCIES=(
 
 ARGUMENTS+=(
   "b,build,Build container image (${CONTAINER_NAME})"
-  "c,connect,Connect to container image (default)"
+  "c,connect,Connect to container image"
   "l,load,Load container image (${CONTAINER_COMPRESSED_FILE})"
   "r,remove,Remove all container images"
   "s,save,Save container image (${CONTAINER_COMPRESSED_FILE})"
@@ -134,11 +134,11 @@ argument() {
 }
 
 do_build=:
-do_clean=:
-do_save=:
-do_load=:
+do_connect=:
 do_execute=:
-do_connect=utile_connect
+do_load=:
+do_remove=:
+do_save=:
 
 main "$@"
 
