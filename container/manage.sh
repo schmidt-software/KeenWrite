@@ -81,35 +81,37 @@ utile_build() {
 get_mountpoint() {
   local result=""
 
-  if [ -z "${1}" ]; then
+  if [ ! -z "${1}" ]; then
     result="-v ${1}:${2}:Z"
   fi
 
-  return $result
+  echo "${result}"
 }
 
 get_mountpoint_text() {
-  return $(get_mountpoint "${ARG_MOUNTPOINT_TEXT}", "${CONTAINER_DIR_TEXT}")
+  echo $(get_mountpoint "${ARG_MOUNTPOINT_TEXT}" "${CONTAINER_DIR_TEXT}")
 }
 
 get_mountpoint_images() {
-  return $(get_mountpoint "${ARG_MOUNTPOINT_IMAGES}", "${CONTAINER_DIR_IMAGES}")
+  echo $(get_mountpoint "${ARG_MOUNTPOINT_IMAGES}" "${CONTAINER_DIR_IMAGES}")
 }
 
 # ---------------------------------------------------------------------------
 # Connects to the container.
 # ---------------------------------------------------------------------------
 utile_connect() {
+  $log "Connecting to container"
+
   local mount_text=$(get_mountpoint_text)
   local mount_images=$(get_mountpoint_images)
 
   ${CONTAINER_EXE} run \
     --network="${CONTAINER_NETWORK}" \
     --rm \
+    -it \
     ${mount_text} \
     ${mount_images} \
-    -i \
-    -t "${CONTAINER_NAME}"
+    "${CONTAINER_NAME}"
 }
 
 # ---------------------------------------------------------------------------
