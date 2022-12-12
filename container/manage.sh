@@ -48,7 +48,11 @@ execute() {
 # Removes all container images
 # ---------------------------------------------------------------------------
 utile_remove() {
-  ${CONTAINER_EXE} rmi --all --force
+  $log "Removing all images"
+
+  ${CONTAINER_EXE} rmi --all --force > /dev/null
+
+  $log "Images removed"
 }
 
 # ---------------------------------------------------------------------------
@@ -89,11 +93,21 @@ utile_execute() {
 # Saves the container to a file
 # ---------------------------------------------------------------------------
 utile_save() {
-  ${CONTAINER_EXE} save \
-    --quiet \
-    -o "${CONTAINER_ARCHIVE_FILE}" \
-    "${CONTAINER_NAME}"
-  gzip "${CONTAINER_ARCHIVE_FILE}"
+  if [[ -f "${CONTAINER_COMPRESSED_FILE}" ]]; then
+    warning "${CONTAINER_COMPRESSED_FILE} exists, delete before saving."
+  else
+    $log "Saving ${CONTAINER_NAME} image ..."
+
+    ${CONTAINER_EXE} save \
+      --quiet \
+      -o "${CONTAINER_ARCHIVE_FILE}" \
+      "${CONTAINER_NAME}"
+
+    $log "Compressing to ${CONTAINER_COMPRESSED_FILE} ..."
+    gzip "${CONTAINER_ARCHIVE_FILE}"
+
+    $log "Saved ${CONTAINER_NAME} image"
+  fi
 }
 
 # ---------------------------------------------------------------------------
@@ -101,11 +115,15 @@ utile_save() {
 # ---------------------------------------------------------------------------
 utile_load() {
   if [[ -f "${CONTAINER_COMPRESSED_FILE}" ]]; then
+    $log "Loading ${CONTAINER_NAME} image ..."
+
     ${CONTAINER_EXE} load \
       --quiet \
       -i "${CONTAINER_COMPRESSED_FILE}"
+
+    $log "Loaded ${CONTAINER_NAME} image"
   else
-    warning "Missing ${CONTAINER_COMPRESSED_FILE}; use build and save"
+    warning "Missing ${CONTAINER_COMPRESSED_FILE}; use build follwed by save"
   fi
 }
 
