@@ -72,17 +72,24 @@ utile_delete() {
 # Builds the container file in the current working directory.
 # ---------------------------------------------------------------------------
 utile_build() {
+  # Show what commands are run while building, but not the commands' output.
   ${CONTAINER_EXE} build \
     --network=${CONTAINER_NETWORK} \
     --tag ${CONTAINER_NAME} . | \
   grep ^STEP
 }
 
+# ---------------------------------------------------------------------------
+# Creates the command-line option for a read-only mountpoint.
+#
+# $1 - The host directory.
+# $2 - The guest (container) directory.
+# ---------------------------------------------------------------------------
 get_mountpoint() {
   local result=""
 
   if [ ! -z "${1}" ]; then
-    result="-v ${1}:${2}:Z"
+    result="-v ${1}:${2}:ro"
   fi
 
   echo "${result}"
