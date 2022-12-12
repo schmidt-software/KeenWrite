@@ -90,8 +90,8 @@ RUN sh install.sh
 # Remove unnecessary files
 RUN rm -rf $CONTEXT_HOME/tex/texmf-context/doc
 RUN find . -type f -name "*.pdf" -exec rm {} \;
+RUN find . -type f -name "*.log" -exec rm {} \;
 
 # Prepare to process text files
 WORKDIR "/root"
-
 
