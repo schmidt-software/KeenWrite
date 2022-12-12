@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
 readonly CONTAINER_NAME=typesetter
-
 readonly CONTAINER_NETWORK=host
 
 # Force clean
