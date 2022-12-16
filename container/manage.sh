@@ -36,15 +36,15 @@ ARGUMENTS+=(
   "b,build,Build container (${CONTAINER_NAME})"
   "c,connect,Connect to container"
   "d,delete,Remove all containers"
-  "i,images,Set image files mount point"
+  "i,images,Set mount point for image files (to typeset)"
   "l,load,Load container (${CONTAINER_COMPRESSED_PATH})"
   "r,run,Run a command in the container (\"${ARG_CONTAINER_COMMAND}\")"
   "s,save,Save container (${CONTAINER_COMPRESSED_PATH})"
-  "t,text,Set text file mount point (to typeset)"
+  "t,text,Set mount point for text file (to typeset)"
 )
 
 # ---------------------------------------------------------------------------
-# Manages the container image.
+# Manages the container.
 # ---------------------------------------------------------------------------
 execute() {
   $do_delete
@@ -58,14 +58,14 @@ execute() {
 }
 
 # ---------------------------------------------------------------------------
-# Deletes all container images.
+# Deletes all containers.
 # ---------------------------------------------------------------------------
 utile_delete() {
-  $log "Deleting all images"
+  $log "Deleting all containers"
 
   ${CONTAINER_EXE} rmi --all --force > /dev/null
 
-  $log "Images deleted"
+  $log "Containers deleted"
 }
 
 # ---------------------------------------------------------------------------
