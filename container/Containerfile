@@ -18,8 +18,6 @@ ENV DOWNLOAD_DIR=/root
 
 ENV CONTEXT_HOME=$INSTALL_DIR/context
 
-RUN apk --update add --no-cache fontconfig curl
-
 # ########################################################################
 #
 # Download all required dependencies
@@ -67,6 +65,7 @@ ADD "https://github.com/DaveJarvis/keenwrite-themes/releases/latest/download/the
 WORKDIR $CONTEXT_HOME
 
 RUN \
+  apk --update add --no-cache fontconfig curl ca-certificates inkscape && \
   mkdir -p "$FONT_DIR" "$DOC_DIR" "$IMAGE_DIR" "$INSTALL_DIR" && \
   echo "export CONTEXT_HOME=\"$CONTEXT_HOME\"" >> $PROFILE && \
   echo "export PATH=\"\$PATH:\$CONTEXT_HOME/tex/texmf-linuxmusl/bin\"" >> $PROFILE && \
