@@ -9,23 +9,23 @@
 FROM alpine:latest
 ENV ENV="/etc/profile"
 ENV PROFILE=/etc/profile
-ENV CONTEXT_HOME=/opt/context
+
+ENV INSTALL_DIR=/opt
 ENV FONT_DIR=/usr/share/fonts/user
 ENV DOC_DIR=/root/text
 ENV IMAGE_DIR=/root/images
-ENV THEME_DIR=/root/themes
-ENV INSTALL_DIR=/opt
+ENV DOWNLOAD_DIR=/root
 
-RUN \
-  apk --update add --no-cache fontconfig curl && \
-  mkdir -p "$FONT_DIR" "$DOC_DIR" "$IMAGE_DIR" "$THEME_DIR" "$INSTALL_DIR"
+ENV CONTEXT_HOME=$INSTALL_DIR/context
+
+RUN apk --update add --no-cache fontconfig curl
 
 # ########################################################################
 #
-# Download and install fonts
+# Download all required dependencies
 #
 # ########################################################################
-WORKDIR $FONT_DIR
+WORKDIR $DOWNLOAD_DIR
 
 # Carlito (Calibri replacement)
 ADD "https://github.com/googlefonts/carlito/raw/main/fonts/ttf/Carlito-Regular.ttf" "Carlito-Regular.ttf"
@@ -53,62 +53,40 @@ ADD "https://fonts.google.com/download?family=Roboto%20Mono" "roboto-mono.zip"
 ADD "https://github.com/adobe-fonts/source-serif/releases/download/4.004R/source-serif-4.004.zip" "source-serif.zip"
 ADD "https://www.omnibus-type.com/wp-content/uploads/Archivo-Narrow.zip" "archivo-narrow.zip"
 
-# Unpack fonts, update system font cache
-RUN \
-  unzip -j -o courier-prime.zip "*.ttf" && \
-  unzip -j -o inconsolata.zip "**/Inconsolata/*.ttf" && \
-  unzip -j -o nunito.zip "static/*.ttf" && \
-  unzip -j -o roboto.zip "*.ttf" && \
-  unzip -j -o roboto-mono.zip "static/*.ttf" && \
-  unzip -j -o source-serif.zip "source-serif-4.004/OTF/SourceSerif4-*.otf" && \
-  unzip -j -o archivo-narrow.zip "Archivo-Narrow/otf/*.otf" && \
-  fc-cache -f -v
+# Typesetting software
+ADD "http://lmtx.pragma-ade.nl/install-lmtx/context-linuxmusl.zip" "context.zip"
+
+# Document themes
+ADD "https://github.com/DaveJarvis/keenwrite-themes/releases/latest/download/theme-pack.zip" "theme-pack.zip"
 
 # ########################################################################
 #
-# Configure environment variables
+# Install components, configure system, remove unnecessary files
 #
 # ########################################################################
+WORKDIR $CONTEXT_HOME
+
 RUN \
+  mkdir -p "$FONT_DIR" "$DOC_DIR" "$IMAGE_DIR" "$INSTALL_DIR" && \
   echo "export CONTEXT_HOME=\"$CONTEXT_HOME\"" >> $PROFILE && \
   echo "export PATH=\"\$PATH:\$CONTEXT_HOME/tex/texmf-linuxmusl/bin\"" >> $PROFILE && \
   echo "export OSFONTDIR=\"/usr/share/fonts//\"" && \
-  echo "PS1='\\u@typesetter:\\w\\$ '" >> $PROFILE
-
-# ########################################################################
-#
-# Download and install typesetting software
-#
-# ########################################################################
-WORKDIR $INSTALL_DIR
-
-ADD "http://lmtx.pragma-ade.nl/install-lmtx/context-linuxmusl.zip" "context.zip"
-RUN unzip context.zip -d context
-
-WORKDIR "context"
-RUN sh install.sh
-
-# ########################################################################
-#
-# Download and extract themes
-#
-# ########################################################################
-WORKDIR $THEME_DIR
-
-ADD "https://github.com/DaveJarvis/keenwrite-themes/releases/latest/download/theme-pack.zip" "theme-pack.zip"
-RUN unzip theme-pack.zip
-
-# ########################################################################
-#
-# Remove unnecessary files
-#
-# ########################################################################
-RUN \
+  echo "PS1='\\u@typesetter:\\w\\$ '" >> $PROFILE && \
+  unzip -d $CONTEXT_HOME $DOWNLOAD_DIR/context.zip && \
+  unzip -d $INSTALL_DIR $DOWNLOAD_DIR/theme-pack.zip && \
+  unzip -j -o -d $FONT_DIR $DOWNLOAD_DIR/courier-prime.zip "*.ttf" && \
+  unzip -j -o -d $FONT_DIR $DOWNLOAD_DIR/inconsolata.zip "**/Inconsolata/*.ttf" && \
+  unzip -j -o -d $FONT_DIR $DOWNLOAD_DIR/nunito.zip "static/*.ttf" && \
+  unzip -j -o -d $FONT_DIR $DOWNLOAD_DIR/roboto.zip "*.ttf" && \
+  unzip -j -o -d $FONT_DIR $DOWNLOAD_DIR/roboto-mono.zip "static/*.ttf" && \
+  unzip -j -o -d $FONT_DIR $DOWNLOAD_DIR/source-serif.zip "source-serif-4.004/OTF/SourceSerif4-*.otf" && \
+  unzip -j -o -d $FONT_DIR $DOWNLOAD_DIR/archivo-narrow.zip "Archivo-Narrow/otf/*.otf" && \
+  mv $DOWNLOAD_DIR/*tf $FONT_DIR && \
+  fc-cache -f -v && \
+  sh install.sh && \
   rm -rf "/var/cache" && \
-  rm -rf "$CONTEXT_HOME/tex/texmf-context/doc" && \
-  rm -f "$THEME_DIR/theme-pack.zip" && \
-  rm -f "$FONT_DIR/*.zip" && \
-  rm -f "$INSTALL_DIR/context.zip" && \
-  find . -type f -name "*.pdf" -exec rm {} \; && \
-  find . -type f -name "*.log" -exec rm {} \;
+  rm -f $DOWNLOAD_DIR/*.zip && \
+  rm -rf $CONTEXT_HOME/tex/texmf-context/doc && \
+  find $CONTEXT_HOME -type f -name "*.pdf" -exec rm {} \; && \
+  find $CONTEXT_HOME -type f -name "*.log" -exec rm {} \;
 
