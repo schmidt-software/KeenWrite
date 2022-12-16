@@ -59,13 +59,14 @@ ADD "https://github.com/DaveJarvis/keenwrite-themes/releases/latest/download/the
 
 # ########################################################################
 #
-# Install components, configure system, remove unnecessary files
+# Install components, modules, configure system, remove unnecessary files
 #
 # ########################################################################
 WORKDIR $CONTEXT_HOME
 
 RUN \
-  apk --update add --no-cache fontconfig curl ca-certificates inkscape && \
+  apk --update --no-cache \
+    add ca-certificates curl fontconfig inkscape rsync && \
   mkdir -p "$FONT_DIR" "$DOC_DIR" "$IMAGE_DIR" "$INSTALL_DIR" && \
   echo "export CONTEXT_HOME=\"$CONTEXT_HOME\"" >> $PROFILE && \
   echo "export PATH=\"\$PATH:\$CONTEXT_HOME/tex/texmf-linuxmusl/bin\"" >> $PROFILE && \
@@ -82,10 +83,22 @@ RUN \
   unzip -j -o -d $FONT_DIR $DOWNLOAD_DIR/archivo-narrow.zip "Archivo-Narrow/otf/*.otf" && \
   mv $DOWNLOAD_DIR/*tf $FONT_DIR && \
   fc-cache -f -v && \
+  mkdir -p tex && \
+  rsync \
+    --recursive --links --times \
+    --info=progress2,remove,symsafe,flist,del \
+    --human-readable --del \
+    rsync://contextgarden.net/minimals/current/modules/ modules && \
+  rsync \
+    -rlt --exclude=/VERSION --del modules/*/ tex/texmf-modules && \
   sh install.sh && \
+  rm -rf modules && \
   rm -rf "/var/cache" && \
   rm -f $DOWNLOAD_DIR/*.zip && \
   rm -rf $CONTEXT_HOME/tex/texmf-context/doc && \
-  find $CONTEXT_HOME -type f -name "*.pdf" -exec rm {} \; && \
-  find $CONTEXT_HOME -type f -name "*.log" -exec rm {} \;
+  find \
+    $CONTEXT_HOME \
+    -type f \
+      \( -iname \*.pdf -o -iname \*.md -o -iname \*.txt -o -iname \*.log \) \
+    -exec rm {} \;
 
