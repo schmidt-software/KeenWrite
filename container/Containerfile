@@ -92,13 +92,18 @@ RUN \
   rsync \
     -rlt --exclude=/VERSION --del modules/*/ tex/texmf-modules && \
   sh install.sh && \
-  rm -rf modules && \
-  rm -rf "/var/cache" && \
   rm -f $DOWNLOAD_DIR/*.zip && \
-  rm -rf $CONTEXT_HOME/tex/texmf-context/doc && \
+  rm -rf \
+    "modules" \
+    "/var/cache" \
+    "/usr/share/icons" \
+    $CONTEXT_HOME/tex/texmf-context/doc && \
+  find \
+    /usr/share/inkscape \
+    -type f -not -iname "*.xml" -exec rm {} \; && \
   find \
     $CONTEXT_HOME \
     -type f \
-      \( -iname \*.pdf -o -iname \*.md -o -iname \*.txt -o -iname \*.log \) \
+      \( -iname \*.pdf -o -iname \*.txt -o -iname \*.log \) \
     -exec rm {} \;
 

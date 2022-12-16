@@ -21,10 +21,12 @@ readonly CONTAINER_COMPRESSED_FILE="${CONTAINER_ARCHIVE_FILE}.gz"
 readonly CONTAINER_COMPRESSED_PATH="${BUILD_DIR}/${CONTAINER_ARCHIVE_FILE}.gz"
 readonly CONTAINER_DIR_TEXT="/root/text"
 readonly CONTAINER_DIR_IMAGES="/root/images"
+readonly CONTAINER_DIR_OUTPUT="/root/output"
 
 ARG_CONTAINER_COMMAND="context --version"
 ARG_MOUNTPOINT_TEXT=""
 ARG_MOUNTPOINT_IMAGES=""
+ARG_MOUNTPOINT_OUTPUT="."
 
 DEPENDENCIES=(
   "podman,https://podman.io"
@@ -38,6 +40,7 @@ ARGUMENTS+=(
   "d,delete,Remove all containers"
   "i,images,Set mount point for image files (to typeset)"
   "l,load,Load container (${CONTAINER_COMPRESSED_PATH})"
+  "o,output,Set mount point for output files (after typesetting)"
   "r,run,Run a command in the container (\"${ARG_CONTAINER_COMMAND}\")"
   "s,save,Save container (${CONTAINER_COMPRESSED_PATH})"
   "t,text,Set mount point for text file (to typeset)"
@@ -84,12 +87,19 @@ utile_build() {
 #
 # $1 - The host directory.
 # $2 - The guest (container) directory.
+# $3 - The file system permissions (set to 1 for read-write).
 # ---------------------------------------------------------------------------
 get_mountpoint() {
   local result=""
 
+  local binding="ro"
+
+  if [ ! -z "${3+x}" ]; then
+    binding="Z"
+  fi
+
   if [ ! -z "${1}" ]; then
-    result="-v ${1}:${2}:ro"
+    result="-v ${1}:${2}:${binding}"
   fi
 
   echo "${result}"
@@ -103,14 +113,19 @@ get_mountpoint_images() {
   echo $(get_mountpoint "${ARG_MOUNTPOINT_IMAGES}" "${CONTAINER_DIR_IMAGES}")
 }
 
+get_mountpoint_output() {
+  echo $(get_mountpoint "${ARG_MOUNTPOINT_OUTPUT}" "${CONTAINER_DIR_OUTPUT}" 1)
+}
+
 # ---------------------------------------------------------------------------
 # Connects to the container.
 # ---------------------------------------------------------------------------
 utile_connect() {
   $log "Connecting to container"
 
-  local mount_text=$(get_mountpoint_text)
-  local mount_images=$(get_mountpoint_images)
+  declare -r mount_text=$(get_mountpoint_text)
+  declare -r mount_images=$(get_mountpoint_images)
+  declare -r mount_output=$(get_mountpoint_output)
 
   ${CONTAINER_EXE} run \
     --network="${CONTAINER_NETWORK}" \
@@ -118,6 +133,7 @@ utile_connect() {
     -it \
     ${mount_text} \
     ${mount_images} \
+    ${mount_output} \
     "${CONTAINER_NAME}"
 }
 
@@ -197,19 +213,21 @@ argument() {
     do_load=utile_load
     ;;
     -i|--images)
-    if [ -z "${2+x}" ]; then
-      :
-    else
+    if [ ! -z "${2+x}" ]; then
       ARG_MOUNTPOINT_IMAGES="$2"
+      consume=2
+    fi
+    ;;
+    -o|--output)
+    if [ ! -z "${2+x}" ]; then
+      ARG_MOUNTPOINT_OUTPUT="$2"
       consume=2
     fi
     ;;
     -r|--run)
     do_execute=utile_execute
 
-    if [ -z "${2+x}" ]; then
-      :
-    else
+    if [ ! -z "${2+x}" ]; then
       ARG_CONTAINER_COMMAND="$2"
       consume=2
     fi
@@ -218,9 +236,7 @@ argument() {
     do_save=utile_save
     ;;
     -t|--text)
-    if [ -z "${2+x}" ]; then
-      :
-    else
+    if [ ! -z "${2+x}" ]; then
       ARG_MOUNTPOINT_TEXT="$2"
       consume=2
     fi
