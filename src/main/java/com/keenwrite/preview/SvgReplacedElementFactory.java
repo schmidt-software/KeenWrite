@@ -56,7 +56,7 @@ public final class SvgReplacedElementFactory extends ReplacedElementAdapter {
           if( getProtocol( source ).isHttp() ) {
             try( final var response = open( source ) ) {
               if( response.isSvg() ) {
-                // Attempt to rasterize SVG depending on URL resource content.
+                // Rasterize SVG from URL resource.
                 raster = rasterize(
                   response.getInputStream(),
                   box.getContentWidth()
