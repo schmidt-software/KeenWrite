@@ -34,7 +34,7 @@ import com.whitemagicsoftware.tex.TeXLayout;
 import com.whitemagicsoftware.tex.graphics.AbstractGraphics2D;
 import com.whitemagicsoftware.tex.graphics.SvgDomGraphics2D;
 import com.whitemagicsoftware.tex.graphics.SvgGraphics2D;
-import org.apache.batik.transcoder.TranscoderException;
+import io.sf.carte.echosvg.transcoder.TranscoderException;
 import org.junit.jupiter.api.Test;
 import org.xml.sax.SAXException;
 

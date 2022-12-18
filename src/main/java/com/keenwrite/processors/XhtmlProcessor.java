@@ -18,7 +18,7 @@ import static com.keenwrite.Bootstrap.APP_TITLE_LOWERCASE;
 import static com.keenwrite.dom.DocumentParser.createMeta;
 import static com.keenwrite.dom.DocumentParser.visit;
 import static com.keenwrite.events.StatusEvent.clue;
-import static com.keenwrite.io.HttpFacade.httpGet;
+import static com.keenwrite.io.downloads.DownloadManager.httpGet;
 import static com.keenwrite.util.ProtocolScheme.getProtocol;
 import static com.whitemagicsoftware.keenquotes.lex.FilterType.FILTER_XML;
 import static java.lang.String.format;

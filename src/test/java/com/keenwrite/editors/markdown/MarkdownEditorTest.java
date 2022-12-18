@@ -2,10 +2,12 @@ package com.keenwrite.editors.markdown;
 
 import com.keenwrite.AwaitFxExtension;
 import com.keenwrite.preferences.Workspace;
+import org.assertj.core.util.Files;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.testfx.framework.junit5.ApplicationExtension;
 
+import java.io.File;
 import java.util.regex.Pattern;
 
 import static java.util.regex.Pattern.compile;
@@ -15,6 +17,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith( {ApplicationExtension.class, AwaitFxExtension.class} )
 public class MarkdownEditorTest {
+  private static final File TEMP_FILE = Files.newTemporaryFile();
+
   private static final String[] WORDS = new String[]{
     "Italicize",
     "English's",
@@ -106,7 +110,7 @@ public class MarkdownEditorTest {
    */
   private MarkdownEditor createMarkdownEditor() {
     final var workspace = new Workspace();
-    final var editor = new MarkdownEditor( workspace );
+    final var editor = new MarkdownEditor( TEMP_FILE, workspace );
     editor.setText( TEXT );
     return editor;
   }

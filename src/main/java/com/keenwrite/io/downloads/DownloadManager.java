@@ -6,11 +6,13 @@ import com.keenwrite.io.MediaTypeSniffer;
 
 import java.io.*;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
 import java.time.Duration;
 import java.util.concurrent.Callable;
 import java.util.zip.GZIPInputStream;
 
+import static com.keenwrite.events.StatusEvent.clue;
 import static java.lang.Boolean.*;
 import static java.lang.Math.toIntExact;
 import static java.lang.String.format;
@@ -291,5 +293,46 @@ public final class DownloadManager {
         ? new GZIPInputStream( is )
         : is
     );
+  }
+
+  public static DownloadToken httpGet( final String url ) throws IOException {
+    return httpGet( url, MediaType.UNDEFINED );
+  }
+
+  /**
+   * Sends an HTTP GET request to a server.
+   *
+   * @param url The remote resource to fetch.
+   * @return The server response.
+   */
+  public static DownloadToken httpGet( final URL url, final MediaType mediaType )
+    throws IOException {
+    clue( "Main.status.image.request.init" );
+
+    return open( url, mediaType );
+  }
+
+  /**
+   * Convenience method to send an HTTP GET request to a server.
+   *
+   * @param uri The remote resource to fetch.
+   * @return The server response.
+   * @see DownloadManager#httpGet(URL, MediaType)
+   */
+  public static DownloadToken httpGet( final URI uri, final MediaType mediaType )
+    throws IOException {
+    return httpGet( uri.toURL(), mediaType );
+  }
+
+  /**
+   * Convenience method to send an HTTP GET request to a server.
+   *
+   * @param url The remote resource to fetch.
+   * @return The server response.
+   * @see DownloadManager#httpGet(URL, MediaType)
+   */
+  public static DownloadToken httpGet( final String url, final MediaType mediaType )
+    throws IOException {
+    return httpGet( new URL( url ), mediaType );
   }
 }

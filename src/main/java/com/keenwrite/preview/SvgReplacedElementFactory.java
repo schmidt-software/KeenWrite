@@ -14,7 +14,7 @@ import java.net.URI;
 import java.nio.file.Path;
 
 import static com.keenwrite.events.StatusEvent.clue;
-import static com.keenwrite.io.HttpFacade.httpGet;
+import static com.keenwrite.io.downloads.DownloadManager.httpGet;
 import static com.keenwrite.io.MediaType.IMAGE_SVG_XML;
 import static com.keenwrite.preview.MathRenderer.MATH_RENDERER;
 import static com.keenwrite.preview.SvgRasterizer.BROKEN_IMAGE_PLACEHOLDER;

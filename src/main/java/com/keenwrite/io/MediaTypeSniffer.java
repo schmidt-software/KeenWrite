@@ -176,7 +176,7 @@ public class MediaTypeSniffer {
    * @return The data with padding.
    */
   private static int[] ints( final int... data ) {
-    final var magic = new int[ FORMAT_LENGTH ];
+    final var magic = new int[ FORMAT_LENGTH + 1 ];
     int i = -1;
 
     while( ++i < data.length ) {

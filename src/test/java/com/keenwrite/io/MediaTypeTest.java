@@ -3,11 +3,10 @@ package com.keenwrite.io;
 
 import org.junit.jupiter.api.Test;
 
-import java.net.URI;
 import java.util.Map;
 
-import static com.keenwrite.io.HttpFacade.httpGet;
 import static com.keenwrite.io.MediaType.*;
+import static com.keenwrite.io.downloads.DownloadManager.httpGet;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -60,7 +59,7 @@ public class MediaTypeTest {
     //@formatter:on
 
     map.forEach( ( k, v ) -> {
-      try( var response = httpGet( new URI( k ) ) ) {
+      try( var response = httpGet( k ) ) {
         assertEquals( v, response.getMediaType() );
       } catch( Exception e ) {
         fail();

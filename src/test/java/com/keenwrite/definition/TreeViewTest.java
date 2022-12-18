@@ -18,6 +18,7 @@ import javafx.scene.control.SplitPane;
 import javafx.scene.control.Tooltip;
 import javafx.scene.control.TreeItem;
 import javafx.stage.Stage;
+import org.assertj.core.util.Files;
 import org.testfx.framework.junit5.Start;
 
 import static com.keenwrite.util.FontLoader.initFonts;
@@ -48,6 +49,7 @@ public class TreeViewTest extends Application {
     final var mainPane = new SplitPane();
     final var transformer = new YamlTreeTransformer();
     final var editor = new DefinitionEditor( transformer );
+    final var file = Files.newTemporaryFile();
 
     final var tabPane1 = new DetachableTabPane();
     tabPane1.addTab( "Editor", editor );
@@ -56,7 +58,7 @@ public class TreeViewTest extends Application {
     final var tab21 =
       tabPane2.addTab( "Picker", new ColorPicker() );
     final var tab22 =
-      tabPane2.addTab( "Editor", new MarkdownEditor( workspace ) );
+      tabPane2.addTab( "Editor", new MarkdownEditor( file, workspace ) );
     tab21.setTooltip( new Tooltip( "Colour Picker" ) );
     tab22.setTooltip( new Tooltip( "Text Editor" ) );
 
