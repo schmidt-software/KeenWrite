@@ -147,34 +147,17 @@ public final class DownloadManager {
 
     /**
      * Answers whether the type of content associated with the download stream
-     * is of a given {@link MediaType}. Note that if the HTTP server sets an
-     * incorrect media type, then the answer may not be incorrect. That is,
-     * the magic heard bytes defer to the HTTP Content-Type header.
+     * is a scalable vector graphic.
      *
-     * @return {@code true} if the given {@link MediaType} matches the
-     * remote resource's {@link MediaType}.
+     * @return {@code true} if the given {@link MediaType} has SVG contents.
      */
-    public boolean isMediaType( final MediaType mediaType ) {
-      assert mediaType != null;
-      return mMediaType.equals( mediaType );
+    public boolean isSvg() {
+      return mMediaType.isSvg();
     }
 
     public MediaType getMediaType() {
       return mMediaType;
     }
-  }
-
-  /**
-   * Opens the input stream for the resource to download.
-   *
-   * @param url The {@link URL} resource to download.
-   * @return A token that can be used for downloading the content with
-   * periodic updates or retrieving the stream for downloading the content.
-   * @throws IOException The stream could not be opened.
-   */
-  public static DownloadToken open( final URL url ) throws IOException {
-    // Pass an undefined media type so that any type of file can be retrieved.
-    return open( url, MediaType.UNDEFINED );
   }
 
   /**
@@ -197,15 +180,11 @@ public final class DownloadManager {
    * underlying stream and the HTTP connection.
    *
    * @param url          The {@link URL} resource to download.
-   * @param resourceType The resource's expected {@link MediaType}.
    * @return A token that can be used for downloading the content with
    * periodic updates or retrieving the stream for downloading the content.
    * @throws IOException               The stream could not be opened.
-   * @throws InvalidMediaTypeException Media type mismatch.
    */
-  public static DownloadToken open(
-    final URL url,
-    final MediaType resourceType )
+  public static DownloadToken open( final URL url )
     throws IOException {
     final var conn = connect( url );
 
@@ -221,16 +200,16 @@ public final class DownloadManager {
 
     final var input = open( conn );
 
-    if( mediaType.isUndefined() ) {
-      // Peeks at the magic header bytes to determine the media type.
-      mediaType = MediaTypeSniffer.getMediaType( input );
+    // Peek at the magic header bytes to determine the media type.
+    final var dataMediaType = MediaTypeSniffer.getMediaType( input );
+
+    // If the transport protocol's Content-Type doesn't align with the
+    // media type for the remote data, differ to the derived media type.
+    if( !mediaType.equals( dataMediaType ) && !dataMediaType.isUndefined() ) {
+      mediaType = dataMediaType;
     }
 
-    if( resourceType.isUndefined() || resourceType.equals( mediaType ) ) {
-      return new DownloadToken( conn, input, mediaType );
-    }
-
-    throw new InvalidMediaTypeException( url, resourceType );
+    return new DownloadToken( conn, input, mediaType );
   }
 
   /**
