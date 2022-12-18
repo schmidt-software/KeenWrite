@@ -1,4 +1,4 @@
-/* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
+/* Copyright 2022 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.typesetting.container.api;
 
 import java.nio.file.Path;

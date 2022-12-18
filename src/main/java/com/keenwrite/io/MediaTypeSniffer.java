@@ -113,7 +113,7 @@ public class MediaTypeSniffer {
    * @param file File to ascertain the {@link MediaType}.
    * @return The IANA-defined {@link MediaType}, or
    * {@link MediaType#UNDEFINED} if indeterminate.
-   * @throws IOException Could not read from the {@link SysFile}.
+   * @throws IOException Could not read from the {@link File}.
    */
   public static MediaType getMediaType( final File file )
     throws IOException {

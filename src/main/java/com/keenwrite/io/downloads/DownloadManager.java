@@ -97,7 +97,6 @@ public final class DownloadManager {
       final OutputStream output,
       final ProgressListener listener
     ) throws IOException, InterruptedException {
-
       return () -> {
         final var buffer = new byte[ BUFFER_SIZE ];
         final var stream = getInputStream();
@@ -179,10 +178,10 @@ public final class DownloadManager {
    * responsible for closing the {@link DownloadManager} to close the
    * underlying stream and the HTTP connection.
    *
-   * @param url          The {@link URL} resource to download.
+   * @param url The {@link URL} resource to download.
    * @return A token that can be used for downloading the content with
    * periodic updates or retrieving the stream for downloading the content.
-   * @throws IOException               The stream could not be opened.
+   * @throws IOException The stream could not be opened.
    */
   public static DownloadToken open( final URL url )
     throws IOException {
