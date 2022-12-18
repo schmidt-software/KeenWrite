@@ -26,6 +26,7 @@ import static java.net.HttpURLConnection.setFollowRedirects;
  */
 public final class DownloadManager {
   static {
+    setProperty( "http.agent", DownloadManager.class.getCanonicalName() );
     setProperty( "http.keepAlive", "false" );
     setFollowRedirects( true );
   }
