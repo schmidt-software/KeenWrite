@@ -204,7 +204,7 @@ public final class DownloadManager {
     final var dataMediaType = MediaTypeSniffer.getMediaType( input );
 
     // If the transport protocol's Content-Type doesn't align with the
-    // media type for the remote data, differ to the derived media type.
+    // media type for the remote data, defer to the derived media type.
     if( !mediaType.equals( dataMediaType ) && !dataMediaType.isUndefined() ) {
       mediaType = dataMediaType;
     }

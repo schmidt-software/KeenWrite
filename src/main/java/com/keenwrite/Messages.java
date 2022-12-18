@@ -72,6 +72,14 @@ public final class Messages {
     return MessageFormat.format( get( key ), args );
   }
 
+  public static int getInt( final String key, final int defaultValue ) {
+    try {
+      return Integer.parseInt( get( key ) );
+    } catch( final NumberFormatException ignored ) {
+      return defaultValue;
+    }
+  }
+
   /**
    * Answers whether the given key is contained in the application's messages
    * properties file.

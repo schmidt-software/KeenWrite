@@ -32,6 +32,7 @@ import static org.apache.commons.io.FilenameUtils.removeExtension;
  */
 public class Typesetter {
   private static final SysFile TYPESETTER = new SysFile( "mtxrun" );
+  private static final SysFile CONTAINER = new SysFile( "podman" );
 
   private final Mutator mMutator;
 
@@ -77,7 +78,7 @@ public class Typesetter {
   }
 
   public static boolean canRun() {
-    return TYPESETTER.canRun();
+    return TYPESETTER.canRun() || CONTAINER.canRun();
   }
 
   /**
