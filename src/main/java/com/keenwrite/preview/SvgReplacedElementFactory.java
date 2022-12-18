@@ -14,8 +14,8 @@ import java.net.URI;
 import java.nio.file.Path;
 
 import static com.keenwrite.events.StatusEvent.clue;
-import static com.keenwrite.io.downloads.DownloadManager.httpGet;
 import static com.keenwrite.io.MediaType.IMAGE_SVG_XML;
+import static com.keenwrite.io.downloads.DownloadManager.open;
 import static com.keenwrite.preview.MathRenderer.MATH_RENDERER;
 import static com.keenwrite.preview.SvgRasterizer.BROKEN_IMAGE_PLACEHOLDER;
 import static com.keenwrite.preview.SvgRasterizer.rasterize;
@@ -55,7 +55,7 @@ public final class SvgReplacedElementFactory extends ReplacedElementAdapter {
           URI uri = null;
 
           if( getProtocol( source ).isHttp() ) {
-            try( final var response = httpGet( source ) ) {
+            try( final var response = open( source ) ) {
               if( response.isMediaType( IMAGE_SVG_XML ) ) {
                 // Attempt to rasterize SVG depending on URL resource content.
                 raster = rasterize(

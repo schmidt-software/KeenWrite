@@ -18,7 +18,7 @@ import static com.keenwrite.Bootstrap.APP_TITLE_LOWERCASE;
 import static com.keenwrite.dom.DocumentParser.createMeta;
 import static com.keenwrite.dom.DocumentParser.visit;
 import static com.keenwrite.events.StatusEvent.clue;
-import static com.keenwrite.io.downloads.DownloadManager.httpGet;
+import static com.keenwrite.io.downloads.DownloadManager.open;
 import static com.keenwrite.util.ProtocolScheme.getProtocol;
 import static com.whitemagicsoftware.keenquotes.lex.FilterType.FILTER_XML;
 import static java.lang.String.format;
@@ -176,7 +176,7 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
 
     clue( "Main.status.image.xhtml.image.download", src );
 
-    try( final var response = httpGet( src ) ) {
+    try( final var response = open( src ) ) {
       final var mediaType = response.getMediaType();
 
       // Preserve image files if auto-clean is turned off.

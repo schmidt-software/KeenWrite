@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Map;
 
 import static com.keenwrite.io.MediaType.*;
-import static com.keenwrite.io.downloads.DownloadManager.httpGet;
+import static com.keenwrite.io.downloads.DownloadManager.open;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -50,7 +50,7 @@ public class MediaTypeTest {
   public void test_HttpRequest_Supported_Success() {
     //@formatter:off
     final var map = Map.of(
-       "https://stackoverflow.com/robots.txt", TEXT_PLAIN,
+       "https://kroki.io/robots.txt", TEXT_PLAIN,
        "https://place-hold.it/300x500", IMAGE_GIF,
        "https://placekitten.com/g/200/300", IMAGE_JPEG,
        "https://upload.wikimedia.org/wikipedia/commons/9/9f/Vimlogo.svg", IMAGE_SVG_XML,
@@ -59,9 +59,9 @@ public class MediaTypeTest {
     //@formatter:on
 
     map.forEach( ( k, v ) -> {
-      try( var response = httpGet( k ) ) {
+      try( var response = open( k ) ) {
         assertEquals( v, response.getMediaType() );
-      } catch( Exception e ) {
+      } catch( final Exception e ) {
         fail();
       }
     } );

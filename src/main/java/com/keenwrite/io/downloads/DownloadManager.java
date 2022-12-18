@@ -6,14 +6,12 @@ import com.keenwrite.io.MediaTypeSniffer;
 
 import java.io.*;
 import java.net.HttpURLConnection;
-import java.net.URI;
 import java.net.URL;
 import java.time.Duration;
 import java.util.concurrent.Callable;
 import java.util.zip.GZIPInputStream;
 
-import static com.keenwrite.events.StatusEvent.clue;
-import static java.lang.Boolean.*;
+import static java.lang.Boolean.TRUE;
 import static java.lang.Math.toIntExact;
 import static java.lang.String.format;
 import static java.lang.System.getProperty;
@@ -180,6 +178,19 @@ public final class DownloadManager {
   }
 
   /**
+   * Opens the input stream for the resource to download.
+   *
+   * @param url The {@link URL} resource to download.
+   * @return A token that can be used for downloading the content with
+   * periodic updates or retrieving the stream for downloading the content.
+   * @throws IOException The stream could not be opened.
+   */
+  public static DownloadToken open( final String url ) throws IOException {
+    // Pass an undefined media type so that any type of file can be retrieved.
+    return open( new URL( url ) );
+  }
+
+  /**
    * Opens the input stream for the resource to download and verifies that
    * the given {@link MediaType} matches the requested type. Callers are
    * responsible for closing the {@link DownloadManager} to close the
@@ -293,46 +304,5 @@ public final class DownloadManager {
         ? new GZIPInputStream( is )
         : is
     );
-  }
-
-  public static DownloadToken httpGet( final String url ) throws IOException {
-    return httpGet( url, MediaType.UNDEFINED );
-  }
-
-  /**
-   * Sends an HTTP GET request to a server.
-   *
-   * @param url The remote resource to fetch.
-   * @return The server response.
-   */
-  public static DownloadToken httpGet( final URL url, final MediaType mediaType )
-    throws IOException {
-    clue( "Main.status.image.request.init" );
-
-    return open( url, mediaType );
-  }
-
-  /**
-   * Convenience method to send an HTTP GET request to a server.
-   *
-   * @param uri The remote resource to fetch.
-   * @return The server response.
-   * @see DownloadManager#httpGet(URL, MediaType)
-   */
-  public static DownloadToken httpGet( final URI uri, final MediaType mediaType )
-    throws IOException {
-    return httpGet( uri.toURL(), mediaType );
-  }
-
-  /**
-   * Convenience method to send an HTTP GET request to a server.
-   *
-   * @param url The remote resource to fetch.
-   * @return The server response.
-   * @see DownloadManager#httpGet(URL, MediaType)
-   */
-  public static DownloadToken httpGet( final String url, final MediaType mediaType )
-    throws IOException {
-    return httpGet( new URL( url ), mediaType );
   }
 }
