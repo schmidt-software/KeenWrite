@@ -14,12 +14,13 @@ import org.controlsfx.dialog.WizardPane;
 import org.greenrobot.eventbus.Subscribe;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.LinkedList;
+
 import static com.keenwrite.Messages.get;
 import static com.keenwrite.Messages.getInt;
 import static com.keenwrite.constants.GraphicsConstants.ICON_DIALOG;
 import static com.keenwrite.events.Bus.register;
 import static java.lang.String.format;
-import static javafx.application.Platform.runLater;
 
 public class TypesetterInstaller {
   private static final int PAD = 10;
@@ -52,47 +53,41 @@ public class TypesetterInstaller {
   }
 
   private WizardPane[] wizardPanes() {
-    final var panes = new WizardPane[ 2 ];
+    final var panes = new LinkedList<WizardPane>();
 
-    panes[ 0 ] = createIntroductionPane();
+    panes.add( createIntroductionPane() );
 
     if( SystemUtils.IS_OS_LINUX ) {
-      panes[ 1 ] = createContainerInstallPanelLinux();
+      panes.add( createContainerInstallPanelLinux() );
     }
     else if( SystemUtils.IS_OS_MAC ) {
-      panes[ 1 ] = createContainerInstallPanelMac();
+      panes.add( createContainerInstallPanelMac() );
     }
     else if( SystemUtils.IS_OS_WINDOWS ) {
-      panes[ 1 ] = createContainerInstallPanelWindows();
+      panes.add( createContainerInstallPanelWindows() );
+    }
+    else {
+      panes.add( createContainerInstallPanelUniversal() );
     }
 
-    return panes;
+    panes.add( createContainerInitializationPanel() );
+
+    return panes.toArray( WizardPane[]::new );
   }
 
   private WizardPane createIntroductionPane() {
     final var pane = wizardPane(
       "Wizard.typesetter.all.1.install.header" );
-    final var containerName = get(
-      "Wizard.typesetter.all.1.install.about.container.name" );
-    final var introText1 = get(
-      "Wizard.typesetter.all.1.install.about.text.1" );
-    final var typesetterName = get(
-      "Wizard.typesetter.all.1.install.about.typesetter.name" );
-    final var introText2 = get(
-      "Wizard.typesetter.all.1.install.about.text.2" );
-
-    final var flowPane = new FlowPane();
-    final var containerLink = hyperlink(
-      "Wizard.typesetter.all.1.install.about.container.link" );
-    final var introText1Label = new Label( introText1 );
-    final var typesetterLink = hyperlink(
-      "Wizard.typesetter.all.1.install.about.typesetter.link" );
-    final var introText2Label = new Label( introText2 );
-
-    flowPane.getChildren().addAll(
-      containerLink, introText1Label, typesetterLink, introText2Label );
-
-    pane.setContent( flowPane );
+    pane.setContent( new FlowPane(
+      hyperlink(
+        "Wizard.typesetter.all.1.install.about.container.link" ),
+      label(
+        "Wizard.typesetter.all.1.install.about.text.1" ),
+      hyperlink(
+        "Wizard.typesetter.all.1.install.about.typesetter.link" ),
+      label(
+        "Wizard.typesetter.all.1.install.about.text.2" )
+    ) );
 
     return pane;
   }
@@ -122,8 +117,8 @@ public class TypesetterInstaller {
     hbox.getChildren().add( comboBox );
     hbox.setPadding( new Insets( 0, 0, PAD, 0 ) );
 
-    final var vbox = new VBox();
-    final var steps = vbox.getChildren();
+    final var stepsPane = new VBox();
+    final var steps = stepsPane.getChildren();
     steps.add( label( "Wizard.typesetter.linux.2.install.container.step.0" ) );
     steps.add( spacer() );
     steps.add( label( "Wizard.typesetter.linux.2.install.container.step.1" ) );
@@ -133,7 +128,7 @@ public class TypesetterInstaller {
     steps.add( spacer() );
 
     final var border = new BorderPane();
-    border.setTop( vbox );
+    //border.setTop( stepsPane );
     border.setCenter( hbox );
     border.setBottom( titledPane );
 
@@ -188,6 +183,20 @@ public class TypesetterInstaller {
   private WizardPane createContainerInstallPanelWindows() {
     final var pane = wizardPane(
       "Wizard.typesetter.win.2.install.container.header" );
+
+    return pane;
+  }
+
+  private WizardPane createContainerInstallPanelUniversal() {
+    final var pane = wizardPane(
+      "Wizard.typesetter.win.2.install.container.header" );
+
+    return pane;
+  }
+
+  private WizardPane createContainerInitializationPanel() {
+    final var pane = wizardPane(
+      "Wizard.typesetter.all.3.install.container.header" );
 
     return pane;
   }
