@@ -179,7 +179,7 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
     try( final var response = httpGet( src ) ) {
       final var mediaType = response.getMediaType();
 
-      // Preserve image files if autoclean is turned off.
+      // Preserve image files if auto-clean is turned off.
       imageFile = mediaType.createTempFile( APP_TITLE_LOWERCASE, autoclean() );
 
       try( final var image = response.getInputStream() ) {

@@ -17,6 +17,7 @@ import static org.apache.commons.io.FilenameUtils.getExtension;
  * <a href="https://www.iana.org/assignments/media-types/media-types.xhtml">IANA
  * Media Types</a>
  */
+@SuppressWarnings( "SpellCheckingInspection" )
 public enum MediaType {
   APP_DOCUMENT_OUTLINE( APPLICATION, "x-document-outline" ),
   APP_DOCUMENT_STATISTICS( APPLICATION, "x-document-statistics" ),
@@ -275,6 +276,7 @@ public enum MediaType {
    * @param typeName The {@link TypeName} to compare against the internal value.
    * @return {@code true} if the given value is the same IANA-defined type name.
    */
+  @SuppressWarnings( "unused" )
   public boolean isType( final TypeName typeName ) {
     return mTypeName == typeName;
   }
@@ -285,11 +287,11 @@ public enum MediaType {
    * @return {@code true} if this instance represents an SVG object.
    */
   public boolean isSvg() {
-    return this == IMAGE_SVG_XML;
+    return equals( IMAGE_SVG_XML );
   }
 
   public boolean isUndefined() {
-    return this == UNDEFINED;
+    return equals( UNDEFINED );
   }
 
   /**
@@ -306,7 +308,7 @@ public enum MediaType {
   /**
    * Creates a temporary {@link File} that starts with the given prefix.
    *
-   * @param prefix The file name begins with this string (may be empty).
+   * @param prefix The file name begins with this string (empty is allowed).
    * @return The fully qualified path to the temporary file.
    * @throws IOException Could not create the temporary file.
    */
@@ -317,7 +319,7 @@ public enum MediaType {
   /**
    * Creates a temporary {@link File} that starts with the given prefix.
    *
-   * @param prefix The file name begins with this string (may be empty).
+   * @param prefix The file name begins with this string (empty is allowed).
    * @param purge  Set to {@code true} to delete the file on exit.
    * @return The fully qualified path to the temporary file.
    * @throws IOException Could not create the temporary file.
@@ -337,7 +339,7 @@ public enum MediaType {
   }
 
   /**
-   * Returns the IANA-defined type and sub-type.
+   * Returns the IANA-defined type and subtype.
    *
    * @return The unique media type identifier.
    */

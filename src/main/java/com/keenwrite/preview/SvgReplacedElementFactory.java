@@ -15,6 +15,7 @@ import java.nio.file.Path;
 
 import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.io.HttpFacade.httpGet;
+import static com.keenwrite.io.MediaType.IMAGE_SVG_XML;
 import static com.keenwrite.preview.MathRenderer.MATH_RENDERER;
 import static com.keenwrite.preview.SvgRasterizer.BROKEN_IMAGE_PLACEHOLDER;
 import static com.keenwrite.preview.SvgRasterizer.rasterize;
@@ -50,24 +51,23 @@ public final class SvgReplacedElementFactory extends ReplacedElementAdapter {
       switch( e.getNodeName() ) {
         case HTML_IMAGE -> {
           final var source = e.getAttribute( HTML_IMAGE_SRC );
-          var mediaType = MediaType.fromFilename( source );
+
           URI uri = null;
 
           if( getProtocol( source ).isHttp() ) {
-            if( mediaType.isSvg() || mediaType.isUndefined() ) {
-              uri = new URI( source );
-
-              try( final var response = httpGet( uri ) ) {
-                mediaType = response.getMediaType();
+            try( final var response = httpGet( source ) ) {
+              if( response.isMediaType( IMAGE_SVG_XML ) ) {
+                // Attempt to rasterize SVG depending on URL resource content.
+                raster = rasterize(
+                  response.getInputStream(),
+                  box.getContentWidth()
+                );
               }
 
-              // Attempt to rasterize SVG depending on URL resource content.
-              if( !mediaType.isSvg() ) {
-                uri = null;
-              }
+              clue( "Main.status.image.request.fetch", source );
             }
           }
-          else if( mediaType.isSvg() ) {
+          else if( MediaType.fromFilename( source ).isSvg() ) {
             // Attempt to rasterize based on file name.
             final var path = Path.of( new URI( source ).getPath() );
 

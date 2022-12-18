@@ -47,7 +47,7 @@ public enum ProtocolScheme {
     try {
       return getProtocol( new URI( uri ) );
     } catch( final Exception ex ) {
-      // Using double-slashes is a short-hand to instruct the browser to
+      // Using double-slashes is a shorthand to instruct the browser to
       // reference a resource using the parent URL's security model. This
       // is known as a protocol-relative URL.
       return uri.startsWith( "//" ) ? HTTP : valueFrom( new File( uri ) );

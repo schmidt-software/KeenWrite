@@ -12,7 +12,7 @@ public class FileEvent extends EventObject {
   /**
    * Constructs a new event that indicates the source of a file system event.
    *
-   * @param file The {@link File} that has succumb to a file system event.
+   * @param file The {@link File} that has succumbed to a file system event.
    */
   public FileEvent( final File file ) {
     super( file );

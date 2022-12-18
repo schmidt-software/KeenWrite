@@ -2,7 +2,6 @@
 package com.keenwrite.io;
 
 import java.io.*;
-import java.nio.file.Path;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -27,48 +26,48 @@ public class MediaTypeSniffer {
 
   private static final Map<int[], MediaType> FORMAT = new LinkedHashMap<>();
 
-  private static void add( final int[] data, final MediaType mediaType ) {
+  private static void put( final int[] data, final MediaType mediaType ) {
     FORMAT.put( data, mediaType );
   }
 
   static {
     //@formatter:off
-    add( ints( 0x3C, 0x73, 0x76, 0x67, 0x20 ), IMAGE_SVG_XML );
-    add( ints( 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A ), IMAGE_PNG );
-    add( ints( 0xFF, 0xD8, 0xFF, 0xE0 ), IMAGE_JPEG );
-    add( ints( 0xFF, 0xD8, 0xFF, 0xEE ), IMAGE_JPEG );
-    add( ints( 0xFF, 0xD8, 0xFF, 0xE1, -1, -1, 0x45, 0x78, 0x69, 0x66, 0x00 ), IMAGE_JPEG );
-    add( ints( 0x49, 0x49, 0x2A, 0x00 ), IMAGE_TIFF );
-    add( ints( 0x4D, 0x4D, 0x00, 0x2A ), IMAGE_TIFF );
-    add( ints( 0x47, 0x49, 0x46, 0x38 ), IMAGE_GIF );
-    add( ints( 0x52, 0x49, 0x46, 0x46, -1, -1, -1, -1, 0x57, 0x45, 0x42, 0x50 ), IMAGE_WEBP );
-    add( ints( 0x25, 0x50, 0x44, 0x46, 0x2D, 0x31, 0x2E ), APP_PDF );
-    add( ints( 0x25, 0x21, 0x50, 0x53, 0x2D, 0x41, 0x64, 0x6F, 0x62, 0x65, 0x2D ), APP_EPS );
-    add( ints( 0x25, 0x21, 0x50, 0x53 ), APP_PS );
-    add( ints( 0x38, 0x42, 0x50, 0x53, 0x00, 0x01 ), IMAGE_PHOTOSHOP );
-    add( ints( 0x8A, 0x4D, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A ), VIDEO_MNG );
-    add( ints( 0x42, 0x4D ), IMAGE_BMP );
-    add( ints( 0xFF, 0xFB, 0x30 ), AUDIO_MP3 );
-    add( ints( 0x49, 0x44, 0x33 ), AUDIO_MP3 );
-    add( ints( 0x3C, 0x21 ), TEXT_HTML );
-    add( ints( 0x3C, 0x68, 0x74, 0x6D, 0x6C ), TEXT_HTML );
-    add( ints( 0x3C, 0x68, 0x65, 0x61, 0x64 ), TEXT_HTML );
-    add( ints( 0x3C, 0x62, 0x6F, 0x64, 0x79 ), TEXT_HTML );
-    add( ints( 0x3C, 0x48, 0x54, 0x4D, 0x4C ), TEXT_HTML );
-    add( ints( 0x3C, 0x48, 0x45, 0x41, 0x44 ), TEXT_HTML );
-    add( ints( 0x3C, 0x42, 0x4F, 0x44, 0x59 ), TEXT_HTML );
-    add( ints( 0x3C, 0x3F, 0x78, 0x6D, 0x6C, 0x20 ), TEXT_XML );
-    add( ints( 0xFE, 0xFF, 0x00, 0x3C, 0x00, 0x3f, 0x00, 0x78 ), TEXT_XML );
-    add( ints( 0xFF, 0xFE, 0x3C, 0x00, 0x3F, 0x00, 0x78, 0x00 ), TEXT_XML );
-    add( ints( 0x23, 0x64, 0x65, 0x66 ), IMAGE_X_BITMAP );
-    add( ints( 0x21, 0x20, 0x58, 0x50, 0x4D, 0x32 ), IMAGE_X_PIXMAP );
-    add( ints( 0x2E, 0x73, 0x6E, 0x64 ), AUDIO_SIMPLE );
-    add( ints( 0x64, 0x6E, 0x73, 0x2E ), AUDIO_SIMPLE );
-    add( ints( 0x52, 0x49, 0x46, 0x46 ), AUDIO_WAV );
-    add( ints( 0x50, 0x4B ), APP_ZIP );
-    add( ints( 0x41, 0x43, -1, -1, -1, -1, 0x00, 0x00, 0x00, 0x00, 0x00 ), APP_ACAD );
-    add( ints( 0xCA, 0xFE, 0xBA, 0xBE ), APP_JAVA );
-    add( ints( 0xAC, 0xED ), APP_JAVA_OBJECT );
+    put( ints( 0x3C, 0x73, 0x76, 0x67, 0x20 ), IMAGE_SVG_XML );
+    put( ints( 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A ), IMAGE_PNG );
+    put( ints( 0xFF, 0xD8, 0xFF, 0xE0 ), IMAGE_JPEG );
+    put( ints( 0xFF, 0xD8, 0xFF, 0xEE ), IMAGE_JPEG );
+    put( ints( 0xFF, 0xD8, 0xFF, 0xE1, -1, -1, 0x45, 0x78, 0x69, 0x66, 0x00 ), IMAGE_JPEG );
+    put( ints( 0x49, 0x49, 0x2A, 0x00 ), IMAGE_TIFF );
+    put( ints( 0x4D, 0x4D, 0x00, 0x2A ), IMAGE_TIFF );
+    put( ints( 0x47, 0x49, 0x46, 0x38 ), IMAGE_GIF );
+    put( ints( 0x52, 0x49, 0x46, 0x46, -1, -1, -1, -1, 0x57, 0x45, 0x42, 0x50 ), IMAGE_WEBP );
+    put( ints( 0x25, 0x50, 0x44, 0x46, 0x2D, 0x31, 0x2E ), APP_PDF );
+    put( ints( 0x25, 0x21, 0x50, 0x53, 0x2D, 0x41, 0x64, 0x6F, 0x62, 0x65, 0x2D ), APP_EPS );
+    put( ints( 0x25, 0x21, 0x50, 0x53 ), APP_PS );
+    put( ints( 0x38, 0x42, 0x50, 0x53, 0x00, 0x01 ), IMAGE_PHOTOSHOP );
+    put( ints( 0x8A, 0x4D, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A ), VIDEO_MNG );
+    put( ints( 0x42, 0x4D ), IMAGE_BMP );
+    put( ints( 0xFF, 0xFB, 0x30 ), AUDIO_MP3 );
+    put( ints( 0x49, 0x44, 0x33 ), AUDIO_MP3 );
+    put( ints( 0x3C, 0x21 ), TEXT_HTML );
+    put( ints( 0x3C, 0x68, 0x74, 0x6D, 0x6C ), TEXT_HTML );
+    put( ints( 0x3C, 0x68, 0x65, 0x61, 0x64 ), TEXT_HTML );
+    put( ints( 0x3C, 0x62, 0x6F, 0x64, 0x79 ), TEXT_HTML );
+    put( ints( 0x3C, 0x48, 0x54, 0x4D, 0x4C ), TEXT_HTML );
+    put( ints( 0x3C, 0x48, 0x45, 0x41, 0x44 ), TEXT_HTML );
+    put( ints( 0x3C, 0x42, 0x4F, 0x44, 0x59 ), TEXT_HTML );
+    put( ints( 0x3C, 0x3F, 0x78, 0x6D, 0x6C, 0x20 ), TEXT_XML );
+    put( ints( 0xFE, 0xFF, 0x00, 0x3C, 0x00, 0x3f, 0x00, 0x78 ), TEXT_XML );
+    put( ints( 0xFF, 0xFE, 0x3C, 0x00, 0x3F, 0x00, 0x78, 0x00 ), TEXT_XML );
+    put( ints( 0x23, 0x64, 0x65, 0x66 ), IMAGE_X_BITMAP );
+    put( ints( 0x21, 0x20, 0x58, 0x50, 0x4D, 0x32 ), IMAGE_X_PIXMAP );
+    put( ints( 0x2E, 0x73, 0x6E, 0x64 ), AUDIO_SIMPLE );
+    put( ints( 0x64, 0x6E, 0x73, 0x2E ), AUDIO_SIMPLE );
+    put( ints( 0x52, 0x49, 0x46, 0x46 ), AUDIO_WAV );
+    put( ints( 0x50, 0x4B ), APP_ZIP );
+    put( ints( 0x41, 0x43, -1, -1, -1, -1, 0x00, 0x00, 0x00, 0x00, 0x00 ), APP_ACAD );
+    put( ints( 0xCA, 0xFE, 0xBA, 0xBE ), APP_JAVA );
+    put( ints( 0xAC, 0xED ), APP_JAVA_OBJECT );
     //@formatter:on
   }
 
@@ -108,19 +107,6 @@ public class MediaTypeSniffer {
 
   /**
    * Convenience method to return the probed media type for the given
-   * {@link Path} instance by delegating to {@link #getMediaType(InputStream)}.
-   *
-   * @param path Path to ascertain the {@link MediaType}.
-   * @return The IANA-defined {@link MediaType}, or
-   * {@link MediaType#UNDEFINED} if indeterminate.
-   * @throws IOException Could not read from the {@link SysFile}.
-   */
-  public static MediaType getMediaType( final Path path ) throws IOException {
-    return getMediaType( path.toFile() );
-  }
-
-  /**
-   * Convenience method to return the probed media type for the given
    * {@link SysFile} instance by delegating to
    * {@link #getMediaType(InputStream)}.
    *
@@ -146,7 +132,7 @@ public class MediaTypeSniffer {
    * @param bis Data source to ascertain the {@link MediaType}.
    * @return The IANA-defined {@link MediaType}, or
    * {@link MediaType#UNDEFINED} if indeterminate.
-   * @throws IOException Could not read from the {@link SysFile}.
+   * @throws IOException Could not read from the stream.
    */
   public static MediaType getMediaType( final BufferedInputStream bis )
     throws IOException {
@@ -158,16 +144,15 @@ public class MediaTypeSniffer {
   }
 
   /**
-   * Helper method to return the probed media type for the given
-   * {@link InputStream} instance. The caller is responsible for closing
-   * the stream. <strong>This advances the stream pointer.</strong>
+   * Returns the probed media type for the given {@link InputStream} instance.
+   * The caller is responsible for closing the stream. <strong>This advances
+   * the stream.</strong> Use {@link #getMediaType(BufferedInputStream)} to
+   * perform a non-destructive read.
    *
    * @param is Data source to ascertain the {@link MediaType}.
    * @return The IANA-defined {@link MediaType}, or
    * {@link MediaType#UNDEFINED} if indeterminate.
    * @throws IOException Could not read from the {@link InputStream}.
-   * @see #getMediaType(BufferedInputStream) to perform a non-destructive
-   * read.
    */
   private static MediaType getMediaType( final InputStream is )
     throws IOException {
@@ -184,8 +169,8 @@ public class MediaTypeSniffer {
   }
 
   /**
-   * Creates an array of integers from the given data, padded with {@link
-   * #END_OF_DATA} values up to {@link #FORMAT_LENGTH}.
+   * Creates integer array from the given data, padded with
+   * {@link #END_OF_DATA} values up to {@link #FORMAT_LENGTH}.
    *
    * @param data The input byte values to pad.
    * @return The data with padding.
