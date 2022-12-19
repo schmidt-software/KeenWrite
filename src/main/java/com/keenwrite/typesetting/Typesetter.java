@@ -17,6 +17,7 @@ import java.util.regex.Pattern;
 
 import static com.keenwrite.constants.Constants.DEFAULT_DIRECTORY;
 import static com.keenwrite.events.StatusEvent.clue;
+import static com.keenwrite.typesetting.container.impl.Podman.CONTAINER;
 import static java.lang.ProcessBuilder.Redirect.DISCARD;
 import static java.lang.String.format;
 import static java.lang.System.currentTimeMillis;
@@ -31,8 +32,7 @@ import static org.apache.commons.io.FilenameUtils.removeExtension;
  * construct suitable command-line arguments to invoke the typesetting engine.
  */
 public class Typesetter {
-  private static final SysFile TYPESETTER = new SysFile( "mtxrun" );
-  private static final SysFile CONTAINER = new SysFile( "podman" );
+  public static final SysFile TYPESETTER = new SysFile( "mtxrun" );
 
   private final Mutator mMutator;
 

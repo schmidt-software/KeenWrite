@@ -1,16 +1,10 @@
 /* Copyright 2022 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.typesetting.container.api;
 
+import java.io.FileNotFoundException;
 import java.nio.file.Path;
 
 public interface Container {
-
-  /**
-   * Answers whether the container software is installed and runnable.
-   *
-   * @return {@code false} when the container must be downloaded.
-   */
-  boolean exists();
 
   /**
    * Downloads the container software into the given directory.
@@ -19,13 +13,17 @@ public interface Container {
 
   /**
    * Installs the container software.
+   *
+   * @throws FileNotFoundException The container installer was not found.
    */
-  void install();
+  void install() throws FileNotFoundException;
 
   /**
    * Runs preliminary commands against the container before starting.
+   *
+   * @throws FileNotFoundException The container executable was not found.
    */
-  void initialize();
+  void initialize() throws FileNotFoundException;
 
   /**
    * Starts the container.

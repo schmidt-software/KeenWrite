@@ -3,17 +3,23 @@ package com.keenwrite.typesetting;
 
 import com.keenwrite.events.ExportFailedEvent;
 import com.keenwrite.events.HyperlinkOpenEvent;
+import com.keenwrite.typesetting.container.api.Container;
+import com.keenwrite.typesetting.container.impl.Podman;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.*;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import org.apache.commons.lang3.SystemUtils;
 import org.controlsfx.dialog.Wizard;
 import org.controlsfx.dialog.WizardPane;
 import org.greenrobot.eventbus.Subscribe;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.PipedOutputStream;
 import java.util.LinkedList;
 
 import static com.keenwrite.Messages.get;
@@ -21,6 +27,7 @@ import static com.keenwrite.Messages.getInt;
 import static com.keenwrite.constants.GraphicsConstants.ICON_DIALOG;
 import static com.keenwrite.events.Bus.register;
 import static java.lang.String.format;
+import static javafx.event.ActionEvent.ACTION;
 
 public class TypesetterInstaller {
   private static final int PAD = 10;
@@ -93,14 +100,8 @@ public class TypesetterInstaller {
   }
 
   private WizardPane createContainerInstallPanelLinux() {
-    final var commands = new TextArea();
-    commands.setEditable( false );
-    commands.setPrefRowCount( 2 );
-    commands.setPrefColumnCount( 40 );
-
-    final var titledPane = new TitledPane( "Run", commands );
-    titledPane.setCollapsible( false );
-
+    final var commands = textArea( 2, 40 );
+    final var titledPane = titledPane( "Run", commands );
     final var comboBox = createLinuxDistroCommands();
     final var selection = comboBox.getSelectionModel();
     selection
@@ -128,7 +129,7 @@ public class TypesetterInstaller {
     steps.add( spacer() );
 
     final var border = new BorderPane();
-    //border.setTop( stepsPane );
+    border.setTop( stepsPane );
     border.setCenter( hbox );
     border.setBottom( titledPane );
 
@@ -137,6 +138,15 @@ public class TypesetterInstaller {
     pane.setContent( border );
 
     return pane;
+  }
+
+  private TextArea textArea( final int rows, final int cols ) {
+    final var commands = new TextArea();
+    commands.setEditable( false );
+    commands.setPrefRowCount( rows );
+    commands.setPrefColumnCount( cols );
+
+    return commands;
   }
 
   private record LinuxDistro( String name, String command )
@@ -156,14 +166,13 @@ public class TypesetterInstaller {
     new ComboBox<LinuxDistro>();
     final var comboBox = new ComboBox<LinuxDistro>();
     final var items = comboBox.getItems();
-    final var distros = getInt(
-      "Wizard.typesetter.linux.2.install.container.command.distros", 13 );
-    final var prefix = "Wizard.typesetter.linux.2.install.container.command.os";
+    final var prefix = "Wizard.typesetter.linux.2.install.container.command";
+    final var distros = getInt( prefix + ".distros", 13 );
 
     for( int i = 1; i <= distros; i++ ) {
       final var suffix = format( ".%02d", i );
-      final var name = get( prefix + ".name" + suffix );
-      final var command = get( prefix + ".text" + suffix );
+      final var name = get( prefix + ".os.name" + suffix );
+      final var command = get( prefix + ".os.text" + suffix );
 
       items.add( new LinuxDistro( name, command ) );
     }
@@ -198,6 +207,27 @@ public class TypesetterInstaller {
     final var pane = wizardPane(
       "Wizard.typesetter.all.3.install.container.header" );
 
+    final var textarea = textArea( 5, 50);
+    final var titledPane = titledPane( "Output", textarea );
+
+    final var initializeButton = new Button( "Initialize" );
+    initializeButton.addEventFilter( ACTION, event -> {
+      try {
+        textarea.appendText( "INITIALIZING\n" );
+        final Container container = new Podman();
+        PipedOutputStream pos;
+        container.initialize();
+      } catch( final Exception e ) {
+        e.printStackTrace();
+      }
+    } );
+
+    final var borderPane = new BorderPane();
+    borderPane.setTop( initializeButton );
+    borderPane.setBottom( titledPane );
+
+    pane.setContent( borderPane );
+
     return pane;
   }
 
@@ -223,9 +253,14 @@ public class TypesetterInstaller {
     return wizardPane;
   }
 
+  /**
+   * Provides vertical spacing between {@link Node}s.
+   *
+   * @return A new empty vertical gap widget.
+   */
   private Node spacer() {
-    final var spacer = new Region();
-    spacer.setPrefHeight( PAD );
+    final var spacer = new FlowPane();
+    spacer.setPadding( new Insets( PAD, 0, 0, 0 ) );
 
     return spacer;
   }
@@ -235,15 +270,22 @@ public class TypesetterInstaller {
     return new Label( text );
   }
 
-  private Hyperlink hyperlink( final String prefx ) {
-    final var label = get( prefx + ".lbl" );
-    final var url = get( prefx + ".url" );
+  private Hyperlink hyperlink( final String prefix ) {
+    final var label = get( prefix + ".lbl" );
+    final var url = get( prefix + ".url" );
     final var link = new Hyperlink( label );
 
     link.setOnAction( e -> browse( url ) );
     link.setTooltip( new Tooltip( url ) );
 
     return link;
+  }
+
+  private TitledPane titledPane( final String key, final Node child ) {
+    final var pane = new TitledPane( "Initialization", child );
+    pane.setCollapsible( false );
+
+    return pane;
   }
 
   /**
