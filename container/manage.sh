@@ -22,11 +22,16 @@ readonly CONTAINER_COMPRESSED_PATH="${BUILD_DIR}/${CONTAINER_ARCHIVE_FILE}.gz"
 readonly CONTAINER_DIR_TEXT="/root/text"
 readonly CONTAINER_DIR_IMAGES="/root/images"
 readonly CONTAINER_DIR_OUTPUT="/root/output"
+readonly CONTAINER_REPO=ghcr.io
 
 ARG_CONTAINER_COMMAND="context --version"
 ARG_MOUNTPOINT_TEXT=""
 ARG_MOUNTPOINT_IMAGES=""
 ARG_MOUNTPOINT_OUTPUT="."
+ARG_ACCESS_TOKEN=""
+
+# Container version is same as tagged release.
+readonly VERSION=$(git describe --abbrev=0)
 
 DEPENDENCIES=(
   "podman,https://podman.io"
@@ -39,8 +44,10 @@ ARGUMENTS+=(
   "c,connect,Connect to container"
   "d,delete,Remove all containers"
   "i,images,Set mount point for image files (to typeset)"
+  "k,token,Set personal access token (to publish)"
   "l,load,Load container (${CONTAINER_COMPRESSED_PATH})"
   "o,output,Set mount point for output files (after typesetting)"
+  "p,publish,Publish the container (after logging in)"
   "r,run,Run a command in the container (\"${ARG_CONTAINER_COMMAND}\")"
   "s,save,Save container (${CONTAINER_COMPRESSED_PATH})"
   "t,text,Set mount point for text file (to typeset)"
@@ -52,6 +59,7 @@ ARGUMENTS+=(
 execute() {
   $do_delete
   $do_build
+  $do_publish
   $do_save
   $do_load
   $do_execute
@@ -75,11 +83,42 @@ utile_delete() {
 # Builds the container file in the current working directory.
 # ---------------------------------------------------------------------------
 utile_build() {
+  local -r container="${CONTAINER_NAME}:${VERSION}"
+
+  $log "Building ${container}"
+
   # Show what commands are run while building, but not the commands' output.
   ${CONTAINER_EXE} build \
     --network=${CONTAINER_NETWORK} \
-    --tag ${CONTAINER_NAME} . | \
+    --squash \
+    -t ${CONTAINER_NAME}:${VERSION} . | \
   grep ^STEP
+}
+
+# ---------------------------------------------------------------------------
+# Publishes the container to the repository.
+# ---------------------------------------------------------------------------
+utile_publish() {
+  local -r container="${CONTAINER_NAME}:${VERSION}"
+  local -r username=$(git config user.name | tr '[A-Z]' '[a-z]')
+  local -r repo="${CONTAINER_REPO}/${username}/${container}"
+
+  if [ ! -z ${ARG_ACCESS_TOKEN} ]; then
+    echo ${ARG_ACCESS_TOKEN} | \
+      ${CONTAINER_EXE} login ghcr.io -u $(git config user.name) --password-stdin
+
+    $log "Tagging ${container}"
+
+    ${CONTAINER_EXE} tag ${container} ${repo}
+
+    $log "Pushing ${container} to ${CONTAINER_REPO}"
+
+    ${CONTAINER_EXE} push ${repo}
+
+    $log "Published ${container} to ${CONTAINER_REPO}"
+  else
+    error "Provide a personal access token to publish."
+  fi
 }
 
 # ---------------------------------------------------------------------------
@@ -90,8 +129,9 @@ utile_build() {
 # $3 - The file system permissions (set to 1 for read-write).
 # ---------------------------------------------------------------------------
 get_mountpoint() {
-  local result=""
+  $log "Mounting ${1} as ${2}"
 
+  local result=""
   local binding="ro"
 
   if [ ! -z "${3+x}" ]; then
@@ -146,7 +186,7 @@ utile_connect() {
 #   ./manage.sh -r "context --version"
 # ---------------------------------------------------------------------------
 utile_execute() {
-  $log "Run \"${ARG_CONTAINER_COMMAND}\":"
+  $log "Running \"${ARG_CONTAINER_COMMAND}\":"
 
   ${CONTAINER_EXE} run \
     --network="${CONTAINER_NETWORK}" \
@@ -209,6 +249,12 @@ argument() {
     -d|--delete)
     do_delete=utile_delete
     ;;
+    -k|--token)
+    if [ ! -z "${2+x}" ]; then
+      ARG_ACCESS_TOKEN="$2"
+      consume=2
+    fi
+    ;;
     -l|--load)
     do_load=utile_load
     ;;
@@ -223,6 +269,9 @@ argument() {
       ARG_MOUNTPOINT_OUTPUT="$2"
       consume=2
     fi
+    ;;
+    -p|--publish)
+    do_publish=utile_publish
     ;;
     -r|--run)
     do_execute=utile_execute
@@ -249,8 +298,9 @@ argument() {
 do_build=:
 do_connect=:
 do_delete=:
-do_load=:
 do_execute=:
+do_load=:
+do_publish=:
 do_save=:
 
 main "$@"

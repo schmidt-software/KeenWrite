@@ -2,14 +2,8 @@
 package com.keenwrite.typesetting.container.api;
 
 import java.io.FileNotFoundException;
-import java.nio.file.Path;
 
 public interface Container {
-
-  /**
-   * Downloads the container software into the given directory.
-   */
-  void download( Path directory );
 
   /**
    * Installs the container software.
@@ -21,21 +15,20 @@ public interface Container {
   /**
    * Runs preliminary commands against the container before starting.
    *
-   * @throws FileNotFoundException The container executable was not found.
+   * @throws FileNotFoundException The container executable was not found
+   *                               anywhere in any directory listed in the
+   *                               PATH environment variable.
    */
-  void initialize() throws FileNotFoundException;
+  void start() throws FileNotFoundException;
 
   /**
-   * Starts the container.
-   */
-  void start();
-
-  /**
-   * Loads the given image into the container.
+   * Loads an image name into the container.
    *
-   * @param imageName The name of the image to load into the container.
+   * @param name    The name of the image to pull.
+   * @param version The image version number.
    */
-  void load( final String imageName );
+  void pull( String name, String version )
+    throws FileNotFoundException;
 
   /**
    * Stops the container.
