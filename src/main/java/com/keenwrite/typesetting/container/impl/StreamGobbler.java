@@ -12,7 +12,7 @@ import java.util.function.Consumer;
  * {@link ProcessBuilder}. Directs the output to a {@link Consumer} of
  * strings.
  */
-class StreamGobbler implements Callable<Boolean> {
+public class StreamGobbler implements Callable<Boolean> {
   private final InputStream mInput;
   private final Consumer<String> mConsumer;
 
@@ -23,10 +23,16 @@ class StreamGobbler implements Callable<Boolean> {
     mConsumer = consumer;
   }
 
+  /**
+   * Consumes the input buffer, closes the stream when finished.
+   *
+   * @return {@link Boolean#TRUE} always.
+   * @throws IOException Could not read from the stream.
+   */
   @Override
   public Boolean call() throws IOException {
     try( final var input = new InputStreamReader( mInput );
-         final var buffer = new BufferedReader( input ); ) {
+         final var buffer = new BufferedReader( input ) ) {
       buffer.lines().forEach( mConsumer );
     }
 

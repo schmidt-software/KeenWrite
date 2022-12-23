@@ -3,21 +3,25 @@ package com.keenwrite.typesetting.container.api;
 
 import com.keenwrite.io.CommandNotFoundException;
 
+import java.io.File;
+import java.io.IOException;
+
 public interface Container {
 
   /**
-   * Installs the container software.
+   * Installs the container software, in quiet and headless mode if possible.
    *
-   * @throws CommandNotFoundException The container installer was not found.
+   * @param exe The installer binary to run.
+   * @throws IOException The container installer could not be run.
    */
-  void install() throws CommandNotFoundException;
+  void install( final File exe ) throws IOException;
 
   /**
    * Runs preliminary commands against the container before starting.
    *
    * @throws CommandNotFoundException The container executable was not found
-   *                               anywhere in any directory listed in the
-   *                               PATH environment variable.
+   *                                  anywhere in any directory listed in the
+   *                                  PATH environment variable.
    */
   void start() throws CommandNotFoundException;
 

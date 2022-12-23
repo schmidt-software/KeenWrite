@@ -13,8 +13,7 @@ import java.util.zip.GZIPInputStream;
 
 import static java.lang.Math.toIntExact;
 import static java.lang.String.format;
-import static java.lang.System.getProperty;
-import static java.lang.System.setProperty;
+import static java.lang.System.*;
 import static java.net.HttpURLConnection.HTTP_OK;
 import static java.net.HttpURLConnection.setFollowRedirects;
 
@@ -84,7 +83,8 @@ public final class DownloadManager {
 
     /**
      * Provides the ability to download remote files asynchronously while
-     * being updated regarding the download progress.
+     * being updated regarding the download progress. The given
+     * {@link OutputStream} will be closed after downloading is complete.
      *
      * @param output   Where to write the file contents.
      * @param listener Receives download progress status updates.
@@ -102,7 +102,7 @@ public final class DownloadManager {
         long bytesTally = 0;
         int bytesRead;
 
-        try {
+        try( output ) {
           while( (bytesRead = stream.read( buffer )) != -1 ) {
             if( Thread.currentThread().isInterrupted() ) {
               throw new InterruptedException();

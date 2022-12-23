@@ -3,6 +3,7 @@ package com.keenwrite.typesetting;
 
 import com.keenwrite.events.ExportFailedEvent;
 import com.keenwrite.events.HyperlinkOpenEvent;
+import com.keenwrite.io.CommandNotFoundException;
 import com.keenwrite.io.downloads.DownloadManager;
 import com.keenwrite.io.downloads.DownloadManager.ProgressListener;
 import com.keenwrite.typesetting.container.api.Container;
@@ -23,7 +24,6 @@ import org.greenrobot.eventbus.Subscribe;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.net.URI;
 import java.nio.file.Path;
@@ -37,12 +37,14 @@ import static com.keenwrite.Messages.getInt;
 import static com.keenwrite.constants.GraphicsConstants.ICON_DIALOG;
 import static com.keenwrite.events.Bus.register;
 import static java.lang.String.format;
+import static java.lang.System.getProperty;
 import static java.lang.System.lineSeparator;
 import static javafx.application.Platform.runLater;
 import static org.apache.commons.lang3.SystemUtils.*;
 
 public class TypesetterInstaller {
   private static final int PAD = 10;
+  private static final String WIN_BIN = "windows.container.binary";
 
   public TypesetterInstaller() {
     register( this );
@@ -77,7 +79,7 @@ public class TypesetterInstaller {
     // STEP 1: Introduction panel (all)
     panes.add( createIntroductionPane() );
 
-    if( true || IS_OS_WINDOWS ) {
+    if( IS_OS_WINDOWS ) {
       // STEP 2 a: Download container (Windows)
       panes.add( createContainerDownloadPanelWindows() );
       // STEP 2 b: Install container (Windows)
@@ -92,7 +94,7 @@ public class TypesetterInstaller {
       panes.add( createContainerInstallPanelUniversal() );
     }
 
-    if( true || !IS_OS_LINUX ) {
+    if( !IS_OS_LINUX ) {
       // STEP 3: Initialize container (all except Linux)
       panes.add( createContainerInitializationPanel() );
     }
@@ -193,12 +195,10 @@ public class TypesetterInstaller {
     final var uri = URI.create( binary );
     final var file = Paths.get( uri.getPath() ).toFile();
     final var filename = file.getName();
-    final var directory = Path.of( System.getProperty( "user.dir" ) );
+    final var directory = Path.of( getProperty( "user.dir" ) );
     final var target = directory.resolve( filename ).toFile();
     final var source = labelf( prefix + ".paths", filename, directory );
     final var status = labelf( prefix + ".status.progress", 0, 0 );
-
-    target.deleteOnExit();
 
     final var border = new BorderPane();
     border.setTop( source );
@@ -208,11 +208,14 @@ public class TypesetterInstaller {
     final var pane = wizardPane(
       prefix + ".header",
       wizard -> {
+        final var properties = wizard.getProperties();
+        properties.put( WIN_BIN, target );
+
         if( !target.exists() ) {
-          download( uri, target, ( progress, total ) -> {
+          download( uri, target, ( progress, bytes ) -> {
             final var msg = progress < 0
-              ? get( prefix + ".status.bytes", total )
-              : get( prefix + ".status.progress", progress, total );
+              ? get( prefix + ".status.bytes", bytes )
+              : get( prefix + ".status.progress", progress, bytes );
 
             runLater( () -> status.setText( msg ) );
           } );
@@ -233,8 +236,44 @@ public class TypesetterInstaller {
    * STEP 2 b: Install container (Windows)
    */
   private WizardPane createContainerInstallPanelWindows() {
+    final var prefix = "Wizard.typesetter.win.2.install.container";
+
+    final var commands = textArea( 2, 55 );
+    final var titledPane = titledPane( "Output", commands );
+    commands.setText( get( prefix + ".status.running" ) );
+    commands.appendText( lineSeparator() );
+
+    final var stepsPane = new VBox();
+    final var steps = stepsPane.getChildren();
+    steps.add( label( prefix + ".step.0" ) );
+    steps.add( spacer() );
+    steps.add( label( prefix + ".step.1" ) );
+    steps.add( label( prefix + ".step.2" ) );
+    steps.add( label( prefix + ".step.3" ) );
+    steps.add( spacer() );
+    steps.add( titledPane );
+
+    final var border = new BorderPane();
+    border.setTop( stepsPane );
+
     final var pane = wizardPane(
-      "Wizard.typesetter.win.2.install.container.header" );
+      prefix + ".header",
+      wizard -> {
+        // Pull the executable directly from the properties.
+        final var properties = wizard.getProperties();
+        final var binary = properties.get( WIN_BIN );
+
+        try {
+          if( binary instanceof File exe ) {
+            new Podman( s -> { } ).install( exe );
+
+            commands.setText( get( prefix + ".status.success" ) );
+          }
+        } catch( final Exception ex ) {
+          commands.setText( ex.getMessage() );
+        }
+      } );
+    pane.setContent( border );
 
     return pane;
   }
@@ -284,7 +323,7 @@ public class TypesetterInstaller {
     final String headerKey,
     final String correctKey,
     final String missingKey,
-    final FailableConsumer<Container, FileNotFoundException> c,
+    final FailableConsumer<Container, CommandNotFoundException> c,
     final int cols
   ) {
     final var textarea = textArea( 5, cols );
@@ -305,7 +344,7 @@ public class TypesetterInstaller {
           c.accept( container );
 
           key = correctKey;
-        } catch( final FileNotFoundException e ) {
+        } catch( final CommandNotFoundException e ) {
           key = missingKey;
         } catch( Exception e ) {
           throw new RuntimeException( e );
@@ -365,7 +404,7 @@ public class TypesetterInstaller {
     implements Comparable<UnixOsCommand> {
     @Override
     public int compareTo(
-      @NotNull final TypesetterInstaller.UnixOsCommand other ) {
+      final @NotNull TypesetterInstaller.UnixOsCommand other ) {
       return toString().compareToIgnoreCase( other.toString() );
     }
 
@@ -398,6 +437,7 @@ public class TypesetterInstaller {
    * @param values The values to insert at the placeholders.
    * @return The formatted text with values replaced.
    */
+  @SuppressWarnings( "SpellCheckingInspection" )
   private Label labelf( final String key, final Object... values ) {
     return new Label( get( key, values ) );
   }

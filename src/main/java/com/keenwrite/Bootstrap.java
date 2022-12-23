@@ -61,7 +61,7 @@ public final class Bootstrap {
     // The plug-in that requests the version from the repository tag will
     // add a "dirty" number and indicator suffix. Removing it allows the
     // "clean" version to be used to pull a corresponding typesetter container.
-    APP_VERSION_CLEAN = APP_VERSION.replace( "-.*", "" );
+    APP_VERSION_CLEAN = APP_VERSION.replaceAll( "-.*", "" );
     APP_YEAR = getYear();
 
     // This also sets the user agent for the SVG rendering library.
