@@ -30,6 +30,7 @@ public final class Bootstrap {
   public static String APP_TITLE;
   public static String APP_TITLE_LOWERCASE;
   public static String APP_VERSION;
+  public static String APP_VERSION_CLEAN;
   public static String APP_YEAR;
 
   static {
@@ -57,10 +58,14 @@ public final class Bootstrap {
       clue( ex, fmt );
     }
 
+    // The plug-in that requests the version from the repository tag will
+    // add a "dirty" number and indicator suffix. Removing it allows the
+    // "clean" version to be used to pull a corresponding typesetter container.
+    APP_VERSION_CLEAN = APP_VERSION.replace( "-.*", "" );
     APP_YEAR = getYear();
 
     // This also sets the user agent for the SVG rendering library.
-    System.setProperty( "http.agent", APP_TITLE + " " + APP_VERSION );
+    System.setProperty( "http.agent", APP_TITLE + " " + APP_VERSION_CLEAN );
   }
 
   @SuppressWarnings( "SameParameterValue" )

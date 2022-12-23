@@ -1,25 +1,25 @@
 /* Copyright 2022 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.typesetting.container.api;
 
-import java.io.FileNotFoundException;
+import com.keenwrite.io.CommandNotFoundException;
 
 public interface Container {
 
   /**
    * Installs the container software.
    *
-   * @throws FileNotFoundException The container installer was not found.
+   * @throws CommandNotFoundException The container installer was not found.
    */
-  void install() throws FileNotFoundException;
+  void install() throws CommandNotFoundException;
 
   /**
    * Runs preliminary commands against the container before starting.
    *
-   * @throws FileNotFoundException The container executable was not found
+   * @throws CommandNotFoundException The container executable was not found
    *                               anywhere in any directory listed in the
    *                               PATH environment variable.
    */
-  void start() throws FileNotFoundException;
+  void start() throws CommandNotFoundException;
 
   /**
    * Loads an image name into the container.
@@ -28,7 +28,7 @@ public interface Container {
    * @param version The image version number.
    */
   void pull( String name, String version )
-    throws FileNotFoundException;
+    throws CommandNotFoundException;
 
   /**
    * Stops the container.

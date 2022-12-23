@@ -6,12 +6,11 @@ import com.keenwrite.io.MediaTypeSniffer;
 
 import java.io.*;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
 import java.time.Duration;
-import java.util.concurrent.Callable;
 import java.util.zip.GZIPInputStream;
 
-import static java.lang.Boolean.TRUE;
 import static java.lang.Math.toIntExact;
 import static java.lang.String.format;
 import static java.lang.System.getProperty;
@@ -26,7 +25,6 @@ import static java.net.HttpURLConnection.setFollowRedirects;
  */
 public final class DownloadManager {
   static {
-    setProperty( "http.agent", DownloadManager.class.getCanonicalName() );
     setProperty( "http.keepAlive", "false" );
     setFollowRedirects( true );
   }
@@ -60,8 +58,10 @@ public final class DownloadManager {
     void update( int percentage, long bytes );
   }
 
+  /**
+   * Callers may check the value of isSuccessful
+   */
   public static final class DownloadToken implements Closeable {
-
     private final HttpURLConnection mConn;
     private final BufferedInputStream mInput;
     private final MediaType mMediaType;
@@ -84,20 +84,16 @@ public final class DownloadManager {
 
     /**
      * Provides the ability to download remote files asynchronously while
-     * being updated regarding the download progress. Callers are responsible
-     * for calling {@link #close()} after the download completes.
+     * being updated regarding the download progress.
      *
      * @param output   Where to write the file contents.
      * @param listener Receives download progress status updates.
-     * @return {@link Boolean#TRUE} to indicate the download completed
-     * successfully, otherwise an exception is thrown.
-     * @throws IOException          Could not download the file.
-     * @throws InterruptedException Download was cancelled.
+     * @return A {@link Runnable} task that can be executed in the background
+     * to download the resource for this {@link DownloadToken}.
      */
-    public Callable<Boolean> download(
+    public Runnable download(
       final OutputStream output,
-      final ProgressListener listener
-    ) throws IOException, InterruptedException {
+      final ProgressListener listener ) {
       return () -> {
         final var buffer = new byte[ BUFFER_SIZE ];
         final var stream = getInputStream();
@@ -106,34 +102,41 @@ public final class DownloadManager {
         long bytesTally = 0;
         int bytesRead;
 
-        while( (bytesRead = stream.read( buffer )) != -1 ) {
-          if( Thread.currentThread().isInterrupted() ) {
-            throw new InterruptedException();
-          }
+        try {
+          while( (bytesRead = stream.read( buffer )) != -1 ) {
+            if( Thread.currentThread().isInterrupted() ) {
+              throw new InterruptedException();
+            }
 
-          bytesTally += bytesRead;
+            bytesTally += bytesRead;
 
-          if( bytesTotal > 0 ) {
-            listener.update(
-              toIntExact( bytesTally * 100 / bytesTotal ),
-              bytesTotal
-            );
-          }
-          else {
-            listener.update( -1, bytesRead );
-          }
+            if( bytesTotal > 0 ) {
+              listener.update(
+                toIntExact( bytesTally * 100 / bytesTotal ),
+                bytesTotal
+              );
+            }
+            else {
+              listener.update( -1, bytesRead );
+            }
 
-          output.write( buffer, 0, bytesRead );
+            output.write( buffer, 0, bytesRead );
+          }
+        } catch( final Exception ex ) {
+          throw new RuntimeException( ex );
+        } finally {
+          close();
         }
-
-        return TRUE;
       };
     }
 
-    @Override
-    public void close() throws IOException {
-      getInputStream().close();
-      mConn.disconnect();
+    public void close() {
+      try {
+        getInputStream().close();
+      } catch( final Exception ignored ) {
+      } finally {
+        mConn.disconnect();
+      }
     }
 
     /**
@@ -145,6 +148,10 @@ public final class DownloadManager {
       return mInput;
     }
 
+    public MediaType getMediaType() {
+      return mMediaType;
+    }
+
     /**
      * Answers whether the type of content associated with the download stream
      * is a scalable vector graphic.
@@ -152,11 +159,7 @@ public final class DownloadManager {
      * @return {@code true} if the given {@link MediaType} has SVG contents.
      */
     public boolean isSvg() {
-      return mMediaType.isSvg();
-    }
-
-    public MediaType getMediaType() {
-      return mMediaType;
+      return getMediaType().isSvg();
     }
   }
 
@@ -173,41 +176,49 @@ public final class DownloadManager {
     return open( new URL( url ) );
   }
 
+  public static DownloadToken open( final URI uri )
+    throws IOException {
+    return open( uri.toURL() );
+  }
+
   /**
    * Opens the input stream for the resource to download and verifies that
    * the given {@link MediaType} matches the requested type. Callers are
    * responsible for closing the {@link DownloadManager} to close the
-   * underlying stream and the HTTP connection.
+   * underlying stream and the HTTP connection. Connections must be closed by
+   * callers if {@link DownloadToken#download(OutputStream, ProgressListener)}
+   * isn't called (i.e., {@link DownloadToken#getMediaType()} is called
+   * after the transport layer's Content-Type is requested but not contents
+   * are downloaded).
    *
    * @param url The {@link URL} resource to download.
    * @return A token that can be used for downloading the content with
    * periodic updates or retrieving the stream for downloading the content.
-   * @throws IOException The stream could not be opened.
+   * @throws IOException The resource could not be downloaded.
    */
-  public static DownloadToken open( final URL url )
-    throws IOException {
+  public static DownloadToken open( final URL url ) throws IOException {
     final var conn = connect( url );
 
-    MediaType mediaType;
+    MediaType contentType;
 
     try {
-      final var contentType = conn.getContentType();
-      mediaType = MediaType.valueFrom( contentType );
+      contentType = MediaType.valueFrom( conn.getContentType() );
     } catch( final Exception ex ) {
       // If the media type couldn't be detected, try using the stream.
-      mediaType = MediaType.UNDEFINED;
+      contentType = MediaType.UNDEFINED;
     }
 
     final var input = open( conn );
 
     // Peek at the magic header bytes to determine the media type.
-    final var dataMediaType = MediaTypeSniffer.getMediaType( input );
+    final var magicType = MediaTypeSniffer.getMediaType( input );
 
     // If the transport protocol's Content-Type doesn't align with the
-    // media type for the remote data, defer to the derived media type.
-    if( !mediaType.equals( dataMediaType ) && !dataMediaType.isUndefined() ) {
-      mediaType = dataMediaType;
-    }
+    // media type for the magic header, defer to the sniffed media type.
+    final MediaType mediaType =
+      !contentType.equals( magicType ) && !magicType.isUndefined()
+        ? magicType
+        : contentType;
 
     return new DownloadToken( conn, input, mediaType );
   }

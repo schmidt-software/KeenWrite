@@ -13,10 +13,16 @@ import java.util.concurrent.atomic.AtomicLong;
 import static com.keenwrite.io.downloads.DownloadManager.ProgressListener;
 import static com.keenwrite.io.downloads.DownloadManager.open;
 import static java.io.OutputStream.nullOutputStream;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static java.lang.System.setProperty;
+import static org.junit.jupiter.api.Assertions.*;
 
 class DownloadManagerTest {
+
+  static {
+    // By default, this returns null, which is not a valid user agent.
+    setProperty( "http.agent", DownloadManager.class.getCanonicalName() );
+  }
+
   private static final String SITE = "https://github.com/";
   private static final String URL
     = SITE + "DaveJarvis/keenwrite/releases/latest/download/keenwrite.exe";
@@ -38,9 +44,12 @@ class DownloadManagerTest {
     final var result = token.download( output, listener );
     final var future = executor.submit( result );
 
+    assertFalse( future.isDone() );
     assertTrue( complete.get() < 100 );
-    assertTrue( future.get() );
     assertTrue( transferred.get() > 100_000 );
+
+    future.get();
+
     assertEquals( 100, complete.get() );
 
     token.close();

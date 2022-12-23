@@ -4,8 +4,10 @@ package com.keenwrite.typesetting;
 import com.keenwrite.events.ExportFailedEvent;
 import com.keenwrite.events.HyperlinkOpenEvent;
 import com.keenwrite.io.downloads.DownloadManager;
+import com.keenwrite.io.downloads.DownloadManager.ProgressListener;
 import com.keenwrite.typesetting.container.api.Container;
 import com.keenwrite.typesetting.container.impl.Podman;
+import javafx.concurrent.Task;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.*;
@@ -20,23 +22,22 @@ import org.controlsfx.dialog.WizardPane;
 import org.greenrobot.eventbus.Subscribe;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.net.URI;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.LinkedList;
 import java.util.function.Consumer;
 
-import static com.keenwrite.Bootstrap.APP_TITLE_LOWERCASE;
+import static com.keenwrite.Bootstrap.APP_VERSION_CLEAN;
 import static com.keenwrite.Messages.get;
 import static com.keenwrite.Messages.getInt;
 import static com.keenwrite.constants.GraphicsConstants.ICON_DIALOG;
 import static com.keenwrite.events.Bus.register;
 import static java.lang.String.format;
 import static java.lang.System.lineSeparator;
-import static java.nio.file.Files.createTempDirectory;
-import static java.util.concurrent.Executors.newFixedThreadPool;
 import static javafx.application.Platform.runLater;
 import static org.apache.commons.lang3.SystemUtils.*;
 
@@ -102,6 +103,9 @@ public class TypesetterInstaller {
     return panes.toArray( WizardPane[]::new );
   }
 
+  /**
+   * STEP 1: Introduction panel (all)
+   */
   private WizardPane createIntroductionPane() {
     final var pane = wizardPane(
       "Wizard.typesetter.all.1.install.header" );
@@ -115,6 +119,9 @@ public class TypesetterInstaller {
     return pane;
   }
 
+  /**
+   * STEP 2: Install container (Unix)
+   */
   private WizardPane createContainerInstallPanelUnix() {
     final var commands = textArea( 2, 40 );
     final var titledPane = titledPane( "Run", commands );
@@ -176,65 +183,55 @@ public class TypesetterInstaller {
     return pane;
   }
 
-  private TextArea textArea( final int rows, final int cols ) {
-    final var textarea = new TextArea();
-    textarea.setEditable( false );
-    textarea.setWrapText( true );
-    textarea.setPrefRowCount( rows );
-    textarea.setPrefColumnCount( cols );
-
-    return textarea;
-  }
-
-  private record UnixOsCommand( String name, String command )
-    implements Comparable<UnixOsCommand> {
-    @Override
-    public int compareTo(
-      @NotNull final TypesetterInstaller.UnixOsCommand other ) {
-      return toString().compareToIgnoreCase( other.toString() );
-    }
-
-    @Override
-    public String toString() {
-      return name;
-    }
-  }
-
+  /**
+   * STEP 2 a: Download container (Windows)
+   */
   private WizardPane createContainerDownloadPanelWindows() {
+    final var prefix = "Wizard.typesetter.win.2.download.container";
+
+    final var binary = get( prefix + ".download.link.url" );
+    final var uri = URI.create( binary );
+    final var file = Paths.get( uri.getPath() ).toFile();
+    final var filename = file.getName();
+    final var directory = Path.of( System.getProperty( "user.dir" ) );
+    final var target = directory.resolve( filename ).toFile();
+    final var source = labelf( prefix + ".paths", filename, directory );
+    final var status = labelf( prefix + ".status.progress", 0, 0 );
+
+    target.deleteOnExit();
+
+    final var border = new BorderPane();
+    border.setTop( source );
+    border.setCenter( spacer() );
+    border.setBottom( status );
+
     final var pane = wizardPane(
-      "Wizard.typesetter.win.2.download.container.header",
+      prefix + ".header",
       wizard -> {
-        final var binary = get(
-          "Wizard.typesetter.win.2.download.container.download.link.url" );
-        final var uri = URI.create( binary );
+        if( !target.exists() ) {
+          download( uri, target, ( progress, total ) -> {
+            final var msg = progress < 0
+              ? get( prefix + ".status.bytes", total )
+              : get( prefix + ".status.progress", progress, total );
 
-        try(
-          final var token = DownloadManager.open( uri.toURL() );
-          final var executor = newFixedThreadPool( 1 ) ) {
-          final var directory = createTempDirectory( APP_TITLE_LOWERCASE );
-
-          System.out.println( "Directory: " + directory.toAbsolutePath() );
-          final var filename = Paths.get( uri.getPath() ).getFileName();
-          System.out.println( "Filename: " + filename.toAbsolutePath() );
-          final var target = directory.resolve( filename ).toFile();
-          System.out.println( "Target: " + target.toString() );
-
-          final var output = new FileOutputStream( target );
-
-          final var result = token.download(
-            output, ( progress, total ) -> {
-              System.out.println( progress + " of " + total + " bytes" );
-            } );
-          final var future = executor.submit( result );
-
-        } catch( final IOException | InterruptedException e ) {
-          throw new RuntimeException( e );
+            runLater( () -> status.setText( msg ) );
+          } );
         }
-      } );
+        else {
+          final var msg = get( prefix + ".status.exists", filename );
+
+          runLater( () -> status.setText( msg ) );
+        }
+      }
+    );
+    pane.setContent( border );
 
     return pane;
   }
 
+  /**
+   * STEP 2 b: Install container (Windows)
+   */
   private WizardPane createContainerInstallPanelWindows() {
     final var pane = wizardPane(
       "Wizard.typesetter.win.2.install.container.header" );
@@ -242,6 +239,9 @@ public class TypesetterInstaller {
     return pane;
   }
 
+  /**
+   * STEP 2: Install container (other)
+   */
   private WizardPane createContainerInstallPanelUniversal() {
     final var pane = wizardPane(
       "Wizard.typesetter.all.2.install.container.header" );
@@ -254,6 +254,9 @@ public class TypesetterInstaller {
     return pane;
   }
 
+  /**
+   * STEP 3: Initialize container (all except Linux)
+   */
   private WizardPane createContainerInitializationPanel() {
     return createContainerOutputPanel(
       "Wizard.typesetter.all.3.install.container.header",
@@ -264,12 +267,15 @@ public class TypesetterInstaller {
     );
   }
 
+  /**
+   * STEP 4: Install typesetter container image (all)
+   */
   private WizardPane createContainerImageDownloadPanel() {
     return createContainerOutputPanel(
       "Wizard.typesetter.all.4.download.typesetter.header",
       "Wizard.typesetter.all.4.download.container.correct",
       "Wizard.typesetter.all.4.download.container.missing",
-      container -> container.pull( "typesetter", "2.11.0" ),
+      container -> container.pull( "typesetter", APP_VERSION_CLEAN ),
       45
     );
   }
@@ -345,6 +351,30 @@ public class TypesetterInstaller {
     return wizardPane( headerKey, wizard -> { } );
   }
 
+  private TextArea textArea( final int rows, final int cols ) {
+    final var textarea = new TextArea();
+    textarea.setEditable( false );
+    textarea.setWrapText( true );
+    textarea.setPrefRowCount( rows );
+    textarea.setPrefColumnCount( cols );
+
+    return textarea;
+  }
+
+  private record UnixOsCommand( String name, String command )
+    implements Comparable<UnixOsCommand> {
+    @Override
+    public int compareTo(
+      @NotNull final TypesetterInstaller.UnixOsCommand other ) {
+      return toString().compareToIgnoreCase( other.toString() );
+    }
+
+    @Override
+    public String toString() {
+      return name;
+    }
+  }
+
   /**
    * Provides vertical spacing between {@link Node}s.
    *
@@ -358,8 +388,18 @@ public class TypesetterInstaller {
   }
 
   private Label label( final String key ) {
-    final var text = get( key );
-    return new Label( text );
+    return new Label( get( key ) );
+  }
+
+  /**
+   * Like printf for labels.
+   *
+   * @param key    The property key to look up.
+   * @param values The values to insert at the placeholders.
+   * @return The formatted text with values replaced.
+   */
+  private Label labelf( final String key, final Object... values ) {
+    return new Label( get( key, values ) );
   }
 
   private Hyperlink hyperlink( final String prefix ) {
@@ -423,5 +463,33 @@ public class TypesetterInstaller {
         textarea.appendText( text );
       } )
     );
+  }
+
+  /**
+   * Downloads a resource to a local file in a separate {@link Thread}.
+   *
+   * @param uri      The resource to download.
+   * @param file     The destination target for the resource.
+   * @param listener Receives updates as the download proceeds.
+   */
+  private void download(
+    final URI uri,
+    final File file,
+    final ProgressListener listener ) {
+    final var task = new Task<Void>() {
+      @Override
+      protected Void call() throws Exception {
+        try( final var token = DownloadManager.open( uri ) ) {
+          final var output = new FileOutputStream( file );
+          final var downloader = token.download( output, listener );
+
+          downloader.run();
+        }
+
+        return null;
+      }
+    };
+
+    new Thread( task ).start();
   }
 }
