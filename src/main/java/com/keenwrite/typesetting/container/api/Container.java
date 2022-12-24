@@ -5,16 +5,28 @@ import com.keenwrite.io.CommandNotFoundException;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.function.Consumer;
 
 public interface Container {
 
   /**
    * Installs the container software, in quiet and headless mode if possible.
    *
-   * @param exe The installer binary to run.
+   * @param exe      The installer binary to run.
+   * @param exitCode Consumes the exit code returned by the installer program.
    * @throws IOException The container installer could not be run.
    */
-  void install( final File exe ) throws IOException;
+  void install( final File exe, final Consumer<Integer> exitCode )
+    throws IOException;
+
+  /**
+   * Answers whether the container is being installed. This is primarily used
+   * because of Windows.
+   *
+   * @return {@code true} if the container is being installed and no attempt
+   * should be made to install until complete.
+   */
+  boolean isInstalling();
 
   /**
    * Runs preliminary commands against the container before starting.

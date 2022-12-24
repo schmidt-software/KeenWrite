@@ -1,9 +1,11 @@
 /* Copyright 2022 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.typesetting;
 
+import com.keenwrite.Messages;
 import com.keenwrite.events.ExportFailedEvent;
 import com.keenwrite.events.HyperlinkOpenEvent;
 import com.keenwrite.io.CommandNotFoundException;
+import com.keenwrite.io.SysFile;
 import com.keenwrite.io.downloads.DownloadManager;
 import com.keenwrite.io.downloads.DownloadManager.ProgressListener;
 import com.keenwrite.typesetting.container.api.Container;
@@ -45,6 +47,12 @@ import static org.apache.commons.lang3.SystemUtils.*;
 public class TypesetterInstaller {
   private static final int PAD = 10;
   private static final String WIN_BIN = "windows.container.binary";
+  private static final String WIN_CONTAINER = "windows.container.object";
+
+  /**
+   * All except for Linux.
+   */
+  private static final String ALL_INITIALIZE = "all.container.initialize";
 
   public TypesetterInstaller() {
     register( this );
@@ -210,8 +218,17 @@ public class TypesetterInstaller {
       wizard -> {
         final var properties = wizard.getProperties();
         properties.put( WIN_BIN, target );
+        final var sysFile = new SysFile( target );
+        final var checksum = get( "Wizard.typesetter.container.checksum" );
 
-        if( !target.exists() ) {
+        if( sysFile.exists() ) {
+          final String msg = sysFile.isChecksum( checksum )
+            ? get( prefix + ".status.checksum" )
+            : get( prefix + ".status.exists", filename );
+
+          runLater( () -> status.setText( msg ) );
+        }
+        else {
           download( uri, target, ( progress, bytes ) -> {
             final var msg = progress < 0
               ? get( prefix + ".status.bytes", bytes )
@@ -219,11 +236,6 @@ public class TypesetterInstaller {
 
             runLater( () -> status.setText( msg ) );
           } );
-        }
-        else {
-          final var msg = get( prefix + ".status.exists", filename );
-
-          runLater( () -> status.setText( msg ) );
         }
       }
     );
@@ -259,18 +271,40 @@ public class TypesetterInstaller {
     final var pane = wizardPane(
       prefix + ".header",
       wizard -> {
-        // Pull the executable directly from the properties.
+        // Pull the fully qualified installer path from the properties.
         final var properties = wizard.getProperties();
         final var binary = properties.get( WIN_BIN );
 
-        try {
-          if( binary instanceof File exe ) {
-            new Podman( s -> { } ).install( exe );
+        if( binary instanceof File exe ) {
+          final var installer = properties.get( WIN_CONTAINER );
 
-            commands.setText( get( prefix + ".status.success" ) );
+          if( installer instanceof Container container ) {
+            if( container.isInstalling() ) {
+              commands.appendText( lineSeparator() );
+              commands.setText( get( prefix + ".status.running" ) );
+            }
           }
-        } catch( final Exception ex ) {
-          commands.setText( ex.getMessage() );
+          else {
+            final var container = new Podman( s -> { } );
+            properties.put( WIN_CONTAINER, container );
+
+            // TODO: Run install in its own Task<Void>
+            container.install( exe, exit -> {
+              // Remove the installer after installation is finished.
+              properties.remove( container );
+
+              final var key = prefix + ".status";
+              final var msg = exit == 0
+                ? get( key + ".success" )
+                : get( key + ".failure", exit );
+
+              runLater( () -> commands.setText( msg ) );
+            } );
+          }
+        }
+        else {
+          final var msg = get( prefix + ".unknown", binary );
+          runLater( () -> commands.setText( msg ) );
         }
       } );
     pane.setContent( border );
@@ -323,7 +357,7 @@ public class TypesetterInstaller {
     final String headerKey,
     final String correctKey,
     final String missingKey,
-    final FailableConsumer<Container, CommandNotFoundException> c,
+    final FailableConsumer<Container, CommandNotFoundException> fc,
     final int cols
   ) {
     final var textarea = textArea( 5, cols );
@@ -336,21 +370,46 @@ public class TypesetterInstaller {
     final var pane = wizardPane(
       headerKey,
       wizard -> {
-        String key;
-
         textarea.clear();
 
         try {
-          c.accept( container );
+          final var properties = wizard.getProperties();
+          final var thread = properties.get( ALL_INITIALIZE );
 
-          key = correctKey;
-        } catch( final CommandNotFoundException e ) {
-          key = missingKey;
-        } catch( Exception e ) {
+          if( thread instanceof Thread initializer && initializer.isAlive() ) {
+            return;
+          }
+
+          final var task = new Task<Void>() {
+            @Override
+            protected Void call() throws CommandNotFoundException {
+              fc.accept( container );
+              return null;
+            }
+
+            @Override
+            protected void succeeded() { update( correctKey ); }
+
+            @Override
+            protected void failed() { update( missingKey ); }
+
+            @Override
+            protected void cancelled() { failed(); }
+
+            private void update( final String key ) {
+              runLater( () -> {
+                textarea.appendText( lineSeparator() );
+                textarea.appendText( Messages.get( key ) );
+              } );
+            }
+          };
+
+          final var initializer = new Thread( task );
+          properties.put( ALL_INITIALIZE, initializer );
+          initializer.start();
+        } catch( final Exception e ) {
           throw new RuntimeException( e );
         }
-
-        textarea.appendText( get( key ) );
       } );
     pane.setContent( borderPane );
 
@@ -496,6 +555,13 @@ public class TypesetterInstaller {
     return comboBox;
   }
 
+  /**
+   * Creates a container that can have its standard output read as an input
+   * stream that's piped directly to a {@link TextArea}.
+   *
+   * @param textarea The {@link TextArea} to receive text.
+   * @return An object that can perform tasks against a container.
+   */
   private Container createContainer( final TextArea textarea ) {
     return new Podman(
       text -> runLater( () -> {

@@ -70,10 +70,19 @@ public final class ExportDialog extends AbstractDialog<ExportSettings> {
     mSettings = settings;
 
     setResultConverter( button -> button == OK ? settings : null );
-    initComboBox( mComboBox, mSettings, readThemes( themesDir ) );
 
-    mPane.add( createLabel( "Dialog.typesetting.settings.theme" ), 0, 1 );
-    mPane.add( mComboBox, 1, 1 );
+    final var themes = readThemes( themesDir );
+
+    if( !themes.isEmpty() ) {
+      initComboBox( mComboBox, mSettings, readThemes( themesDir ) );
+
+      mPane.add( createLabel( "Dialog.typesetting.settings.theme" ), 0, 1 );
+      mPane.add( mComboBox, 1, 1 );
+    }
+    else {
+      clue( "Dialog.typesetting.settings.themes.missing",
+            themesDir.getAbsolutePath() );
+    }
 
     var title = "Dialog.typesetting.settings.header.";
     final var focusNode = new AtomicReference<Node>( mComboBox );

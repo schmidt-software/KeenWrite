@@ -3,12 +3,17 @@ package com.keenwrite.io;
 
 import com.keenwrite.typesetting.container.impl.StreamGobbler;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 
+import static com.keenwrite.util.DataTypeConverter.toHex;
 import static java.lang.System.getenv;
 import static java.nio.file.Files.isExecutable;
 import static java.util.regex.Pattern.compile;
@@ -18,12 +23,17 @@ import static org.apache.commons.lang3.SystemUtils.IS_OS_WINDOWS;
 /**
  * Responsible for file-related functionality.
  */
-public class SysFile extends java.io.File {
+public final class SysFile extends java.io.File {
   /**
    * For finding executable programs.
    */
   private static final String[] EXTENSIONS = new String[]
     {"", ".com", ".exe", ".bat", ".cmd"};
+
+  /**
+   * Number of bytes to read at a time when computing this file's checksum.
+   */
+  private static final int BUFFER_SIZE = 16384;
 
   //@formatter:off
   private static final String SYS_KEY =
@@ -48,6 +58,18 @@ public class SysFile extends java.io.File {
    */
   public SysFile( final String filename ) {
     super( filename );
+  }
+
+  /**
+   * Creates a new instance for a given {@link File}. This is useful for
+   * validating checksums against an existing {@link File} instance that
+   * may optionally exist in a directory listed in the PATH environment
+   * variable.
+   *
+   * @param file The file to change into a "system file".
+   */
+  public SysFile( final File file ) {
+    super( file.getAbsolutePath() );
   }
 
   /**
@@ -195,5 +217,50 @@ public class SysFile extends java.io.File {
     }
 
     return expanded;
+  }
+
+  /**
+   * Answers whether this file's SHA-256 checksum equals the given
+   * hexadecimal-encoded checksum string.
+   *
+   * @param hex The string to compare against the checksum for this file.
+   * @return {@code true} if the checksums match; {@code false} on any
+   * error or checksums don't match.
+   */
+  public boolean isChecksum( final String hex ) {
+    assert hex != null;
+
+    try {
+      return checksum( "SHA-256" ).equals( hex );
+    } catch( final Exception ex ) {
+      return false;
+    }
+  }
+
+  /**
+   * Returns the hash code for this file.
+   *
+   * @return The hex-encoded hash code for the file contents.
+   */
+  @SuppressWarnings( "SameParameterValue" )
+  private String checksum( final String algorithm )
+    throws NoSuchAlgorithmException, IOException {
+    final var digest = createDigest( algorithm );
+
+    try( final var in = new FileInputStream( this ) ) {
+      final var bytes = new byte[ BUFFER_SIZE ];
+      int count;
+
+      while( (count = in.read( bytes )) != -1 ) {
+        digest.update( bytes, 0, count );
+      }
+
+      return toHex( digest.digest() );
+    }
+  }
+
+  private MessageDigest createDigest( final String algorithm )
+    throws NoSuchAlgorithmException {
+    return MessageDigest.getInstance( algorithm );
   }
 }

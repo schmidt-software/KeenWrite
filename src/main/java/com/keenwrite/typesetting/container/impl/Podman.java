@@ -10,6 +10,9 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.LinkedList;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
 import static java.lang.String.format;
@@ -18,10 +21,11 @@ import static java.util.concurrent.Executors.newFixedThreadPool;
 /**
  * Provides facilities for interacting with a container environment.
  */
-public class Podman implements Container {
+public final class Podman implements Container {
   public static final SysFile CONTAINER = new SysFile( "podman" );
 
   private final Consumer<String> mConsumer;
+  private final AtomicBoolean mInstalling = new AtomicBoolean();
 
   /**
    * @param consumer Provides status updates when running with the container.
@@ -31,41 +35,42 @@ public class Podman implements Container {
   }
 
   @Override
-  public void install( final File exe ) throws IOException {
-    final var builder = processBuilder( exe, "/quiet", "/install" );
-    run( builder );
+  public void install( final File exe, final Consumer<Integer> exitCode ) {
+    // This monstrosity is required to run the installer in the background
+    // without displaying a secondary command window while blocking until the
+    // installer completes and an exit code can be determined. I hate Windows.
+    final var builder = processBuilder(
+      "cmd", "/c",
+      format(
+        "start /b /high /wait cmd /c %s /quiet /install & exit ^!errorlevel^!",
+        exe.getAbsolutePath()
+      )
+    );
+
+    runAsync( () -> {
+      try {
+        mInstalling.set( true );
+        final var process = runAsync( builder );
+
+        // Wait for installation to finish (successfully or not).
+        exitCode.accept( process.waitFor() );
+      } catch( final Exception e ) {
+        exitCode.accept( -1 );
+      }
+
+      mInstalling.set( false );
+    } );
+  }
+
+  @Override
+  public boolean isInstalling() {
+    return mInstalling.get();
   }
 
   @Override
   public void start() throws CommandNotFoundException {
     machine( "init" );
     machine( "start" );
-  }
-
-  private void machine( final String option ) throws CommandNotFoundException {
-    podman( "machine", option );
-  }
-
-  private void podman( final String... args ) throws CommandNotFoundException {
-    try {
-      final var exe = CONTAINER.locate();
-      final var path = exe.orElseThrow();
-      final var builder = processBuilder( path, args );
-
-      run( builder );
-    } catch( final Exception ex ) {
-      throw new CommandNotFoundException( CONTAINER.toString() );
-    }
-  }
-
-  private void run( final ProcessBuilder builder ) throws IOException {
-    final var process = builder.start();
-    final var output = process.getInputStream();
-
-    try( final var executor = newFixedThreadPool( 1 ) ) {
-      final var gobbler = new StreamGobbler( output, mConsumer );
-      executor.submit( gobbler );
-    }
   }
 
   @Override
@@ -79,18 +84,65 @@ public class Podman implements Container {
   public void stop() {
   }
 
-  private ProcessBuilder processBuilder( final File file, final String... s ) {
-    final var commands = new LinkedList<String>();
-    commands.add( file.getAbsolutePath() );
-    commands.addAll( Arrays.asList( s ) );
+  private void machine( final String option ) throws CommandNotFoundException {
+    podman( "machine", option );
+  }
 
-    final var builder = new ProcessBuilder( commands );
+  private void podman( final String... args ) throws CommandNotFoundException {
+    try {
+      final var exe = CONTAINER.locate();
+      final var path = exe.orElseThrow();
+      final var builder = processBuilder( path, args );
+      final var process = runAsync( builder );
+
+      process.waitFor();
+    } catch( final Exception ex ) {
+      throw new CommandNotFoundException( CONTAINER.toString() );
+    }
+  }
+
+  private void runAsync( final Runnable r ) {
+    try( final var executor = createExecutor() ) {
+      executor.submit( r );
+    }
+  }
+
+  private <T> void runAsync( final Callable<T> callable ) {
+    try( final var executor = createExecutor() ) {
+      executor.submit( callable );
+    }
+  }
+
+  private Process runAsync( final ProcessBuilder builder ) throws IOException {
+    final var process = builder.start();
+    final var output = process.getInputStream();
+    final var gobbler = new StreamGobbler( output, mConsumer );
+
+    runAsync( gobbler );
+
+    return process;
+  }
+
+  private ProcessBuilder processBuilder( final String... args ) {
+    final var builder = new ProcessBuilder( args );
     builder.redirectErrorStream( true );
 
     return builder;
   }
 
+  private ProcessBuilder processBuilder( final File file, final String... s ) {
+    final var commands = new LinkedList<String>();
+    commands.add( file.getAbsolutePath() );
+    commands.addAll( Arrays.asList( s ) );
+
+    return processBuilder( commands.toArray( new String[ 0 ] ) );
+  }
+
   private ProcessBuilder processBuilder( final Path path, final String... s ) {
     return processBuilder( path.toFile(), s );
+  }
+
+  private ExecutorService createExecutor() {
+    return newFixedThreadPool( 1 );
   }
 }
