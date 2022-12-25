@@ -1,7 +1,6 @@
 /* Copyright 2022 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.typesetting;
 
-import com.keenwrite.Messages;
 import com.keenwrite.events.ExportFailedEvent;
 import com.keenwrite.events.HyperlinkOpenEvent;
 import com.keenwrite.io.CommandNotFoundException;
@@ -27,11 +26,11 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.LinkedList;
+import java.util.concurrent.Callable;
 import java.util.function.Consumer;
 
 import static com.keenwrite.Bootstrap.APP_VERSION_CLEAN;
@@ -227,16 +226,23 @@ public class TypesetterInstaller {
             ? get( prefix + ".status.checksum" )
             : get( prefix + ".status.exists", filename );
 
-          runLater( () -> status.setText( msg ) );
+          update( status, msg );
         }
         else {
-          downloadAsync( uri, target, ( progress, bytes ) -> {
+          final var task = downloadAsync( uri, target, ( progress, bytes ) -> {
             final var msg = progress < 0
               ? get( prefix + ".status.bytes", bytes )
               : get( prefix + ".status.progress", progress, bytes );
 
-            runLater( () -> status.setText( msg ) );
+            update( status, msg );
           } );
+
+          task.setOnSucceeded(
+            event -> update( status, get( prefix + ".status.success" ) )
+          );
+          task.setOnFailed(
+            event -> update( status, get( prefix + ".status.failure" ) )
+          );
         }
       }
     );
@@ -253,8 +259,7 @@ public class TypesetterInstaller {
 
     final var commands = textArea( 2, 55 );
     final var titledPane = titledPane( "Output", commands );
-    commands.setText( get( prefix + ".status.running" ) );
-    commands.appendText( lineSeparator() );
+    append( commands, get( prefix + ".status.running" ) );
 
     final var container = createContainer( commands );
     final var stepsPane = new VBox();
@@ -282,34 +287,32 @@ public class TypesetterInstaller {
         }
 
         final var binary = properties.get( WIN_BIN );
+        final var key = prefix + ".status";
 
         if( binary instanceof File exe ) {
-          final var task = new Task<Void>() {
-            @Override
-            protected Void call() throws IOException {
+          final var task = createTask(
+            () -> {
               container.install( exe, exit -> {
                 // Remove the installer after installation is finished.
-                properties.remove( container );
+                properties.remove( thread );
 
-                final var key = prefix + ".status";
                 final var msg = exit == 0
-                  ? Messages.get( key + ".success" )
-                  : Messages.get( key + ".failure", exit );
+                  ? get( key + ".success" )
+                  : get( key + ".failure", exit );
 
-                runLater( () -> commands.setText( msg ) );
+                append( commands, msg );
               } );
 
               return null;
             }
-          };
+          );
 
-          final var installer = new Thread( task );
+          final var installer = createThread( task );
           properties.put( WIN_INSTALLER, installer );
           installer.start();
         }
         else {
-          final var msg = get( prefix + ".unknown", binary );
-          runLater( () -> commands.setText( msg ) );
+          append( commands, get( prefix + ".unknown", binary ) );
         }
       } );
     pane.setContent( border );
@@ -321,15 +324,11 @@ public class TypesetterInstaller {
    * STEP 2: Install container (other)
    */
   private WizardPane createContainerInstallPanelUniversal() {
-    final var pane = wizardPane(
-      "Wizard.typesetter.all.2.install.container.header" );
-
 //    Wizard.typesetter.all.2.install.container.homepage.lbl=${Wizard
 //    .typesetter.container.name}
 //    Wizard.typesetter.all.2.install.container.homepage.url=https://podman.io
 
-
-    return pane;
+    return wizardPane( "Wizard.typesetter.all.2.install.container.header" );
   }
 
   /**
@@ -351,8 +350,8 @@ public class TypesetterInstaller {
   private WizardPane createContainerImageDownloadPanel() {
     return createContainerOutputPanel(
       "Wizard.typesetter.all.4.download.typesetter.header",
-      "Wizard.typesetter.all.4.download.container.correct",
-      "Wizard.typesetter.all.4.download.container.missing",
+      "Wizard.typesetter.all.4.download.typesetter.correct",
+      "Wizard.typesetter.all.4.download.typesetter.missing",
       container -> container.pull( "typesetter", APP_VERSION_CLEAN ),
       45
     );
@@ -375,8 +374,6 @@ public class TypesetterInstaller {
     final var pane = wizardPane(
       headerKey,
       wizard -> {
-        textarea.clear();
-
         try {
           final var properties = wizard.getProperties();
           final var thread = properties.get( ALL_INITIALIZER );
@@ -385,31 +382,17 @@ public class TypesetterInstaller {
             return;
           }
 
-          final var task = new Task<Void>() {
-            @Override
-            protected Void call() throws CommandNotFoundException {
-              fc.accept( container );
-              return null;
-            }
+          final var task = createTask( () -> {
+            fc.accept( container );
+            properties.remove( thread );
+            return null;
+          } );
 
-            @Override
-            protected void succeeded() { update( correctKey ); }
+          task.setOnSucceeded( event -> append( textarea, get( correctKey ) ) );
+          task.setOnFailed( event -> append( textarea, get( missingKey ) ) );
+          task.setOnCancelled( event -> append( textarea, get( missingKey ) ) );
 
-            @Override
-            protected void failed() { update( missingKey ); }
-
-            @Override
-            protected void cancelled() { failed(); }
-
-            private void update( final String key ) {
-              runLater( () -> {
-                textarea.appendText( lineSeparator() );
-                textarea.appendText( Messages.get( key ) );
-              } );
-            }
-          };
-
-          final var initializer = new Thread( task );
+          final var initializer = createThread( task );
           properties.put( ALL_INITIALIZER, initializer );
           initializer.start();
         } catch( final Exception e ) {
@@ -537,7 +520,13 @@ public class TypesetterInstaller {
    */
   private void browse( final String property ) {
     final var url = get( property );
-    new Thread( () -> HyperlinkOpenEvent.fire( url ) ).start();
+    final var task = createTask( () -> {
+      HyperlinkOpenEvent.fire( url );
+      return null;
+    } );
+    final var thread = createThread( task );
+
+    thread.start();
   }
 
   private ComboBox<UnixOsCommand> createUnixOsCommandMap() {
@@ -568,12 +557,7 @@ public class TypesetterInstaller {
    * @return An object that can perform tasks against a container.
    */
   private Container createContainer( final TextArea textarea ) {
-    return new Podman(
-      text -> runLater( () -> {
-        textarea.appendText( lineSeparator() );
-        textarea.appendText( text );
-      } )
-    );
+    return new Podman( text -> append( textarea, text ) );
   }
 
   /**
@@ -583,24 +567,48 @@ public class TypesetterInstaller {
    * @param file     The destination target for the resource.
    * @param listener Receives updates as the download proceeds.
    */
-  private void downloadAsync(
+  private Task<Void> downloadAsync(
     final URI uri,
     final File file,
     final ProgressListener listener ) {
-    final var task = new Task<Void>() {
+    final Task<Void> task = createTask( () -> {
+      try( final var token = DownloadManager.open( uri ) ) {
+        final var output = new FileOutputStream( file );
+        final var downloader = token.download( output, listener );
+
+        downloader.run();
+      }
+
+      return null;
+    } );
+
+    createThread( task ).start();
+    return task;
+  }
+
+  private void update( final Label node, final String text ) {
+    runLater( () -> node.setText( text ) );
+  }
+
+  private void append( final TextArea node, final String text ) {
+    runLater( () -> {
+      node.appendText( text );
+      node.appendText( lineSeparator() );
+    } );
+  }
+
+  private static <T> Task<T> createTask( final Callable<T> callable ) {
+    return new Task<>() {
       @Override
-      protected Void call() throws Exception {
-        try( final var token = DownloadManager.open( uri ) ) {
-          final var output = new FileOutputStream( file );
-          final var downloader = token.download( output, listener );
-
-          downloader.run();
-        }
-
-        return null;
+      protected T call() throws Exception {
+        return callable.call();
       }
     };
+  }
 
-    new Thread( task ).start();
+  private static <T> Thread createThread( final Task<T> task ) {
+    final var thread = new Thread( task );
+    thread.setDaemon( true );
+    return thread;
   }
 }

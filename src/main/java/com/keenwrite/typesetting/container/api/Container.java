@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.util.function.Consumer;
 
 public interface Container {
-
   /**
    * Installs the container software, in quiet and headless mode if possible.
    *
@@ -20,15 +19,6 @@ public interface Container {
     throws IOException;
 
   /**
-   * Answers whether the container is being installed. This is primarily used
-   * because of Windows.
-   *
-   * @return {@code true} if the container is being installed and no attempt
-   * should be made to install until complete.
-   */
-  boolean isInstalling();
-
-  /**
    * Runs preliminary commands against the container before starting.
    *
    * @throws CommandNotFoundException The container executable was not found
@@ -38,16 +28,13 @@ public interface Container {
   void start() throws CommandNotFoundException;
 
   /**
-   * Stops the container.
-   */
-  void stop();
-
-  /**
-   * Loads an image name into the container.
+   * Loads a named image into the container.
    *
    * @param name    The name of the image to pull.
    * @param version The image version number.
+   * @throws CommandNotFoundException The container executable was not found
+   *                                  anywhere in any directory listed in the
+   *                                  PATH environment variable.
    */
-  void pull( String name, String version )
-    throws CommandNotFoundException;
+  void pull( String name, String version ) throws CommandNotFoundException;
 }

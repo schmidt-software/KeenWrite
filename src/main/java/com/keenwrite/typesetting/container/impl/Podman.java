@@ -8,11 +8,10 @@ import com.keenwrite.typesetting.container.api.Container;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
 import static java.lang.String.format;
@@ -25,7 +24,6 @@ public final class Podman implements Container {
   public static final SysFile CONTAINER = new SysFile( "podman" );
 
   private final Consumer<String> mConsumer;
-  private final AtomicBoolean mInstalling = new AtomicBoolean();
 
   /**
    * @param consumer Provides status updates when running with the container.
@@ -48,7 +46,6 @@ public final class Podman implements Container {
     );
 
     try {
-      mInstalling.set( true );
       final var process = runAsync( builder );
 
       // Wait for installation to finish (successfully or not).
@@ -56,34 +53,26 @@ public final class Podman implements Container {
     } catch( final Exception e ) {
       exitCode.accept( -1 );
     }
-
-    mInstalling.set( false );
-  }
-
-  @Override
-  public boolean isInstalling() {
-    return mInstalling.get();
   }
 
   @Override
   public void start() throws CommandNotFoundException {
+    machine( "stop" );
+    machine( "rm", "--force" );
     machine( "init" );
     machine( "start" );
-  }
-
-  @Override
-  public void stop() {
   }
 
   @Override
   public void pull( final String name, final String version )
     throws CommandNotFoundException {
     final var repo = format( "ghcr.io/davejarvis/%s:%s", name, version );
+
     podman( "pull", repo );
   }
 
-  private void machine( final String option ) throws CommandNotFoundException {
-    podman( "machine", option );
+  private void machine( final String... args ) throws CommandNotFoundException {
+    podman( toArray( "machine", args ) );
   }
 
   private void podman( final String... args ) throws CommandNotFoundException {
@@ -123,11 +112,7 @@ public final class Podman implements Container {
   }
 
   private ProcessBuilder processBuilder( final File file, final String... s ) {
-    final var commands = new LinkedList<String>();
-    commands.add( file.getAbsolutePath() );
-    commands.addAll( Arrays.asList( s ) );
-
-    return processBuilder( commands.toArray( new String[ 0 ] ) );
+    return processBuilder( toArray( file.getAbsolutePath(), s ) );
   }
 
   private ProcessBuilder processBuilder( final Path path, final String... s ) {
@@ -136,5 +121,12 @@ public final class Podman implements Container {
 
   private ExecutorService createExecutor() {
     return newFixedThreadPool( 1 );
+  }
+
+  private String[] toArray( final String first, String... s ) {
+    final var list = new LinkedList<>( List.of( s ) );
+    list.addFirst( first );
+
+    return list.toArray( new String[ 0 ] );
   }
 }

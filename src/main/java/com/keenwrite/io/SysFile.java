@@ -25,10 +25,11 @@ import static org.apache.commons.lang3.SystemUtils.IS_OS_WINDOWS;
  */
 public final class SysFile extends java.io.File {
   /**
-   * For finding executable programs.
+   * For finding executable programs. These are used in an O( n^2 ) search,
+   * so don't add more entries than necessary.
    */
   private static final String[] EXTENSIONS = new String[]
-    {"", ".com", ".exe", ".bat", ".cmd"};
+    {"", ".exe", ".bat", ".cmd", ".msi", ".com"};
 
   /**
    * Number of bytes to read at a time when computing this file's checksum.
@@ -245,7 +246,7 @@ public final class SysFile extends java.io.File {
   @SuppressWarnings( "SameParameterValue" )
   private String checksum( final String algorithm )
     throws NoSuchAlgorithmException, IOException {
-    final var digest = createDigest( algorithm );
+    final var digest = MessageDigest.getInstance( algorithm );
 
     try( final var in = new FileInputStream( this ) ) {
       final var bytes = new byte[ BUFFER_SIZE ];
@@ -257,10 +258,5 @@ public final class SysFile extends java.io.File {
 
       return toHex( digest.digest() );
     }
-  }
-
-  private MessageDigest createDigest( final String algorithm )
-    throws NoSuchAlgorithmException {
-    return MessageDigest.getInstance( algorithm );
   }
 }
