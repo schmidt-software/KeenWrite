@@ -47,19 +47,17 @@ public final class Podman implements Container {
       )
     );
 
-    runAsync( () -> {
-      try {
-        mInstalling.set( true );
-        final var process = runAsync( builder );
+    try {
+      mInstalling.set( true );
+      final var process = runAsync( builder );
 
-        // Wait for installation to finish (successfully or not).
-        exitCode.accept( process.waitFor() );
-      } catch( final Exception e ) {
-        exitCode.accept( -1 );
-      }
+      // Wait for installation to finish (successfully or not).
+      exitCode.accept( process.waitFor() );
+    } catch( final Exception e ) {
+      exitCode.accept( -1 );
+    }
 
-      mInstalling.set( false );
-    } );
+    mInstalling.set( false );
   }
 
   @Override
@@ -74,14 +72,14 @@ public final class Podman implements Container {
   }
 
   @Override
+  public void stop() {
+  }
+
+  @Override
   public void pull( final String name, final String version )
     throws CommandNotFoundException {
     final var repo = format( "ghcr.io/davejarvis/%s:%s", name, version );
     podman( "pull", repo );
-  }
-
-  @Override
-  public void stop() {
   }
 
   private void machine( final String option ) throws CommandNotFoundException {
@@ -98,12 +96,6 @@ public final class Podman implements Container {
       process.waitFor();
     } catch( final Exception ex ) {
       throw new CommandNotFoundException( CONTAINER.toString() );
-    }
-  }
-
-  private void runAsync( final Runnable r ) {
-    try( final var executor = createExecutor() ) {
-      executor.submit( r );
     }
   }
 

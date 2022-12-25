@@ -38,6 +38,11 @@ public interface Container {
   void start() throws CommandNotFoundException;
 
   /**
+   * Stops the container.
+   */
+  void stop();
+
+  /**
    * Loads an image name into the container.
    *
    * @param name    The name of the image to pull.
@@ -45,9 +50,4 @@ public interface Container {
    */
   void pull( String name, String version )
     throws CommandNotFoundException;
-
-  /**
-   * Stops the container.
-   */
-  void stop();
 }

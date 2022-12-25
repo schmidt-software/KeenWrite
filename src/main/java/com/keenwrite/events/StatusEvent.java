@@ -64,7 +64,7 @@ public final class StatusEvent implements AppEvent {
    * Returns the stack trace information for the issue encountered. This is
    * optional because usually a status message isn't an application error.
    *
-   * @return Optional stack trace to pin-point the problem area in the code.
+   * @return Optional stack trace to pinpoint the problem area in the code.
    */
   public String getProblem() {
     // 256 is arbitrary; stack traces shouldn't be much larger.

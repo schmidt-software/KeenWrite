@@ -27,6 +27,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -46,13 +47,13 @@ import static org.apache.commons.lang3.SystemUtils.*;
 
 public class TypesetterInstaller {
   private static final int PAD = 10;
-  private static final String WIN_BIN = "windows.container.binary";
-  private static final String WIN_CONTAINER = "windows.container.object";
 
   /**
    * All except for Linux.
    */
-  private static final String ALL_INITIALIZE = "all.container.initialize";
+  private static final String ALL_INITIALIZER = "all.container.initializer";
+  private static final String WIN_BIN = "windows.container.binary";
+  private static final String WIN_INSTALLER = "windows.container.installer";
 
   public TypesetterInstaller() {
     register( this );
@@ -216,20 +217,20 @@ public class TypesetterInstaller {
     final var pane = wizardPane(
       prefix + ".header",
       wizard -> {
-        final var properties = wizard.getProperties();
-        properties.put( WIN_BIN, target );
         final var sysFile = new SysFile( target );
         final var checksum = get( "Wizard.typesetter.container.checksum" );
+        final var properties = wizard.getProperties();
+        properties.put( WIN_BIN, target );
 
         if( sysFile.exists() ) {
-          final String msg = sysFile.isChecksum( checksum )
+          final var msg = sysFile.isChecksum( checksum )
             ? get( prefix + ".status.checksum" )
             : get( prefix + ".status.exists", filename );
 
           runLater( () -> status.setText( msg ) );
         }
         else {
-          download( uri, target, ( progress, bytes ) -> {
+          downloadAsync( uri, target, ( progress, bytes ) -> {
             final var msg = progress < 0
               ? get( prefix + ".status.bytes", bytes )
               : get( prefix + ".status.progress", progress, bytes );
@@ -255,6 +256,7 @@ public class TypesetterInstaller {
     commands.setText( get( prefix + ".status.running" ) );
     commands.appendText( lineSeparator() );
 
+    final var container = createContainer( commands );
     final var stepsPane = new VBox();
     final var steps = stepsPane.getChildren();
     steps.add( label( prefix + ".step.0" ) );
@@ -273,34 +275,37 @@ public class TypesetterInstaller {
       wizard -> {
         // Pull the fully qualified installer path from the properties.
         final var properties = wizard.getProperties();
+        final var thread = properties.get( WIN_INSTALLER );
+
+        if( thread instanceof Thread installer && installer.isAlive() ) {
+          return;
+        }
+
         final var binary = properties.get( WIN_BIN );
 
         if( binary instanceof File exe ) {
-          final var installer = properties.get( WIN_CONTAINER );
+          final var task = new Task<Void>() {
+            @Override
+            protected Void call() throws IOException {
+              container.install( exe, exit -> {
+                // Remove the installer after installation is finished.
+                properties.remove( container );
 
-          if( installer instanceof Container container ) {
-            if( container.isInstalling() ) {
-              commands.appendText( lineSeparator() );
-              commands.setText( get( prefix + ".status.running" ) );
+                final var key = prefix + ".status";
+                final var msg = exit == 0
+                  ? Messages.get( key + ".success" )
+                  : Messages.get( key + ".failure", exit );
+
+                runLater( () -> commands.setText( msg ) );
+              } );
+
+              return null;
             }
-          }
-          else {
-            final var container = new Podman( s -> { } );
-            properties.put( WIN_CONTAINER, container );
+          };
 
-            // TODO: Run install in its own Task<Void>
-            container.install( exe, exit -> {
-              // Remove the installer after installation is finished.
-              properties.remove( container );
-
-              final var key = prefix + ".status";
-              final var msg = exit == 0
-                ? get( key + ".success" )
-                : get( key + ".failure", exit );
-
-              runLater( () -> commands.setText( msg ) );
-            } );
-          }
+          final var installer = new Thread( task );
+          properties.put( WIN_INSTALLER, installer );
+          installer.start();
         }
         else {
           final var msg = get( prefix + ".unknown", binary );
@@ -374,7 +379,7 @@ public class TypesetterInstaller {
 
         try {
           final var properties = wizard.getProperties();
-          final var thread = properties.get( ALL_INITIALIZE );
+          final var thread = properties.get( ALL_INITIALIZER );
 
           if( thread instanceof Thread initializer && initializer.isAlive() ) {
             return;
@@ -405,7 +410,7 @@ public class TypesetterInstaller {
           };
 
           final var initializer = new Thread( task );
-          properties.put( ALL_INITIALIZE, initializer );
+          properties.put( ALL_INITIALIZER, initializer );
           initializer.start();
         } catch( final Exception e ) {
           throw new RuntimeException( e );
@@ -578,7 +583,7 @@ public class TypesetterInstaller {
    * @param file     The destination target for the resource.
    * @param listener Receives updates as the download proceeds.
    */
-  private void download(
+  private void downloadAsync(
     final URI uri,
     final File file,
     final ProgressListener listener ) {
