@@ -9,6 +9,7 @@ import com.keenwrite.io.downloads.DownloadManager;
 import com.keenwrite.io.downloads.DownloadManager.ProgressListener;
 import com.keenwrite.typesetting.container.api.Container;
 import com.keenwrite.typesetting.container.impl.Podman;
+import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
@@ -20,7 +21,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import org.apache.commons.lang3.function.FailableConsumer;
 import org.controlsfx.dialog.Wizard;
-import org.controlsfx.dialog.WizardPane;
 import org.greenrobot.eventbus.Subscribe;
 import org.jetbrains.annotations.NotNull;
 
@@ -31,7 +31,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.LinkedList;
 import java.util.concurrent.Callable;
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 
 import static com.keenwrite.Bootstrap.APP_VERSION_CLEAN;
 import static com.keenwrite.Messages.get;
@@ -42,6 +42,7 @@ import static java.lang.String.format;
 import static java.lang.System.getProperty;
 import static java.lang.System.lineSeparator;
 import static javafx.application.Platform.runLater;
+import static javafx.scene.control.ButtonBar.ButtonData.NEXT_FORWARD;
 import static org.apache.commons.lang3.SystemUtils.*;
 
 public class TypesetterInstaller {
@@ -53,6 +54,23 @@ public class TypesetterInstaller {
   private static final String ALL_INITIALIZER = "all.container.initializer";
   private static final String WIN_BIN = "windows.container.binary";
   private static final String WIN_INSTALLER = "windows.container.installer";
+  private static final String WIN_DOWNLOADER = "windows.container.downloader";
+
+  private static class WizardPane extends org.controlsfx.dialog.WizardPane {
+    public WizardPane() { }
+
+    protected void disableNext( final boolean disable ) {
+      for( final var buttonType : getButtonTypes() ) {
+        final var buttonData = buttonType.getButtonData();
+
+        if( buttonData.equals( NEXT_FORWARD ) ) {
+          final var button = lookupButton( buttonType );
+          Platform.runLater( () -> button.setDisable( disable ) );
+          break;
+        }
+      }
+    }
+  }
 
   public TypesetterInstaller() {
     register( this );
@@ -194,7 +212,7 @@ public class TypesetterInstaller {
   }
 
   /**
-   * STEP 2 a: Download container (Windows)
+   * STEP 2 a: Download container binary (Windows)
    */
   private WizardPane createContainerDownloadPanelWindows() {
     final var prefix = "Wizard.typesetter.win.2.download.container";
@@ -215,18 +233,28 @@ public class TypesetterInstaller {
 
     final var pane = wizardPane(
       prefix + ".header",
-      wizard -> {
-        final var sysFile = new SysFile( target );
-        final var checksum = get( "Wizard.typesetter.container.checksum" );
+      ( wizard, self ) -> {
+        self.disableNext( true );
+
         final var properties = wizard.getProperties();
         properties.put( WIN_BIN, target );
 
+        final var thread = properties.get( WIN_DOWNLOADER );
+        if( thread instanceof Task<?> downloader && downloader.isRunning() ) {
+          return;
+        }
+
+        final var sysFile = new SysFile( target );
+        final var checksum = get( "Wizard.typesetter.container.checksum" );
+
         if( sysFile.exists() ) {
-          final var msg = sysFile.isChecksum( checksum )
-            ? get( prefix + ".status.checksum" )
-            : get( prefix + ".status.exists", filename );
+          final var checksumOk = sysFile.isChecksum( checksum );
+          final var msg = checksumOk
+            ? get( prefix + ".status.checksum.ok", filename )
+            : get( prefix + ".status.checksum.no", filename );
 
           update( status, msg );
+          self.disableNext( !checksumOk );
         }
         else {
           final var task = downloadAsync( uri, target, ( progress, bytes ) -> {
@@ -237,11 +265,20 @@ public class TypesetterInstaller {
             update( status, msg );
           } );
 
+          properties.put( WIN_DOWNLOADER, task );
+
           task.setOnSucceeded(
-            event -> update( status, get( prefix + ".status.success" ) )
+            event -> {
+              update( status, get( prefix + ".status.success" ) );
+              properties.remove( WIN_DOWNLOADER );
+              self.disableNext( false );
+            }
           );
           task.setOnFailed(
-            event -> update( status, get( prefix + ".status.failure" ) )
+            event -> {
+              update( status, get( prefix + ".status.failure" ) );
+              properties.remove( WIN_DOWNLOADER );
+            }
           );
         }
       }
@@ -277,7 +314,9 @@ public class TypesetterInstaller {
 
     final var pane = wizardPane(
       prefix + ".header",
-      wizard -> {
+      ( wizard, self ) -> {
+        self.disableNext( true );
+
         // Pull the fully qualified installer path from the properties.
         final var properties = wizard.getProperties();
         final var thread = properties.get( WIN_INSTALLER );
@@ -301,6 +340,7 @@ public class TypesetterInstaller {
                   : get( key + ".failure", exit );
 
                 append( commands, msg );
+                self.disableNext( exit != 0 );
               } );
 
               return null;
@@ -373,7 +413,9 @@ public class TypesetterInstaller {
 
     final var pane = wizardPane(
       headerKey,
-      wizard -> {
+      ( wizard, self ) -> {
+        self.disableNext( true );
+
         try {
           final var properties = wizard.getProperties();
           final var thread = properties.get( ALL_INITIALIZER );
@@ -388,7 +430,10 @@ public class TypesetterInstaller {
             return null;
           } );
 
-          task.setOnSucceeded( event -> append( textarea, get( correctKey ) ) );
+          task.setOnSucceeded( event -> {
+            append( textarea, get( correctKey ) );
+            self.disableNext( false );
+          } );
           task.setOnFailed( event -> append( textarea, get( missingKey ) ) );
           task.setOnCancelled( event -> append( textarea, get( missingKey ) ) );
 
@@ -406,7 +451,7 @@ public class TypesetterInstaller {
 
   private WizardPane wizardPane(
     final String headerKey,
-    final Consumer<Wizard> listener ) {
+    final BiConsumer<Wizard, WizardPane> listener ) {
     final var imageView = new ImageView( ICON_DIALOG );
     final var headerText = get( headerKey );
     final var headerLabel = new Label( headerText );
@@ -422,10 +467,10 @@ public class TypesetterInstaller {
     borderPane.setBottom( separator );
     borderPane.setPadding( new Insets( PAD, PAD, 0, PAD ) );
 
-    final var wizardPane = new WizardPane() {
+    final var wizardPane = new TypesetterInstaller.WizardPane() {
       @Override
       public void onEnteringPage( final Wizard wizard ) {
-        listener.accept( wizard );
+        listener.accept( wizard, this );
       }
     };
     wizardPane.setHeader( borderPane );
@@ -434,7 +479,7 @@ public class TypesetterInstaller {
   }
 
   private WizardPane wizardPane( final String headerKey ) {
-    return wizardPane( headerKey, wizard -> { } );
+    return wizardPane( headerKey, ( wizard, self ) -> { } );
   }
 
   private TextArea textArea( final int rows, final int cols ) {

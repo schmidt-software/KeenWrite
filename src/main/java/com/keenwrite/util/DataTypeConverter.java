@@ -10,6 +10,13 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 public final class DataTypeConverter {
   private static final byte[] HEX = "0123456789ABCDEF".getBytes( US_ASCII );
 
+  /**
+   * Returns a hexadecimal number that represents the bit sequences provided
+   * in the given array of bytes.
+   *
+   * @param bytes The bytes to convert to a hexadecimal string.
+   * @return An uppercase-encoded hexadecimal number.
+   */
   public static String toHex( final byte[] bytes ) {
     final var hexChars = new byte[ bytes.length * 2 ];
     final var len = bytes.length;

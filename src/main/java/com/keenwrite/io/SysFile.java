@@ -232,7 +232,7 @@ public final class SysFile extends java.io.File {
     assert hex != null;
 
     try {
-      return checksum( "SHA-256" ).equals( hex );
+      return checksum( "SHA-256" ).equalsIgnoreCase( hex );
     } catch( final Exception ex ) {
       return false;
     }
