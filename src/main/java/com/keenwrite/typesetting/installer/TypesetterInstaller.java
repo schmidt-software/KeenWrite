@@ -20,14 +20,15 @@ import static java.lang.System.lineSeparator;
 import static javafx.application.Platform.runLater;
 import static org.apache.commons.lang3.SystemUtils.*;
 
+/**
+ * Responsible for installing the typesetting system and all its requirements.
+ */
 public final class TypesetterInstaller {
   /**
    * All except for Linux.
    */
   static final String ALL_INITIALIZER = "all.container.initializer";
   static final String WIN_BIN = "windows.container.binary";
-  static final String WIN_INSTALLER = "windows.container.installer";
-  static final String WIN_DOWNLOADER = "windows.container.downloader";
 
   public TypesetterInstaller() {
     register( this );
@@ -83,7 +84,7 @@ public final class TypesetterInstaller {
     }
 
     // STEP 4: Install typesetter container image (all)
-    panes.add( TypesetterImageDownloadPanel.create() );
+    panes.add( TypesetterImageDownloadPane.create() );
 
     return panes.toArray( InstallPane[]::new );
   }

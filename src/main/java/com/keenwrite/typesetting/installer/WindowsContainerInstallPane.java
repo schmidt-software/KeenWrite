@@ -11,6 +11,11 @@ import static com.keenwrite.typesetting.installer.InstallPane.*;
 import static com.keenwrite.typesetting.installer.TypesetterInstaller.*;
 
 public final class WindowsContainerInstallPane {
+  /**
+   * Property for the installation thread to help ensure safe reentrancy.
+   */
+  private static final String WIN_INSTALLER = "windows.container.installer";
+
   private static final String PREFIX =
     "Wizard.typesetter.win.2.install.container";
 

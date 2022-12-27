@@ -1,3 +1,4 @@
+/* Copyright 2022 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.typesetting.installer;
 
 import com.keenwrite.io.SysFile;
@@ -19,6 +20,11 @@ import static java.lang.System.getProperty;
 import static javafx.application.Platform.runLater;
 
 public final class WindowsContainerDownloadPane {
+  /**
+   * Property for the download thread to help ensure safe reentrancy.
+   */
+  private static final String WIN_DOWNLOADER = "windows.container.downloader";
+
   private static final String PREFIX =
     "Wizard.typesetter.win.2.download.container";
 

@@ -30,6 +30,21 @@ class InstallPane extends WizardPane {
   static InstallPane wizardPane(
     final String headerKey,
     final BiConsumer<Wizard, InstallPane> listener ) {
+
+    final var wizardPane = new InstallPane() {
+      @Override
+      public void onEnteringPage( final Wizard wizard ) {
+        listener.accept( wizard, this );
+      }
+    };
+    final var borderPane = createHeader( headerKey );
+
+    wizardPane.setHeader( borderPane );
+
+    return wizardPane;
+  }
+
+  static BorderPane createHeader( final String headerKey ) {
     final var imageView = new ImageView( ICON_DIALOG );
     final var headerText = get( headerKey );
     final var headerLabel = new Label( headerText );
@@ -39,21 +54,13 @@ class InstallPane extends WizardPane {
     final var separator = new Separator();
     separator.setPadding( new Insets( PAD, 0, 0, 0 ) );
 
-    final var borderPane = new BorderPane();
-    borderPane.setCenter( headerLabel );
-    borderPane.setRight( imageView );
-    borderPane.setBottom( separator );
-    borderPane.setPadding( new Insets( PAD, PAD, 0, PAD ) );
+    final var header = new BorderPane();
+    header.setCenter( headerLabel );
+    header.setRight( imageView );
+    header.setBottom( separator );
+    header.setPadding( new Insets( PAD, PAD, 0, PAD ) );
 
-    final var wizardPane = new InstallPane() {
-      @Override
-      public void onEnteringPage( final Wizard wizard ) {
-        listener.accept( wizard, this );
-      }
-    };
-    wizardPane.setHeader( borderPane );
-
-    return wizardPane;
+    return header;
   }
 
   static InstallPane wizardPane( final String headerKey ) {
