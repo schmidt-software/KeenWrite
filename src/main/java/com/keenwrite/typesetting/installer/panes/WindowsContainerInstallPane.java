@@ -15,12 +15,11 @@ import static java.lang.System.lineSeparator;
 import static javafx.application.Platform.runLater;
 
 public final class WindowsContainerInstallPane extends InstallerPane {
-  static final String WIN_BIN = "windows.container.binary";
-
   /**
    * Property for the installation thread to help ensure safe reentrancy.
    */
   private static final String WIN_INSTALLER = "windows.container.installer";
+  private static final String WIN_BIN = "windows.container.binary";
 
   private static final String PREFIX =
     "Wizard.typesetter.win.2.install.container";
@@ -29,8 +28,6 @@ public final class WindowsContainerInstallPane extends InstallerPane {
   private final TextArea mCommands;
 
   public WindowsContainerInstallPane() {
-    super( PREFIX + ".header" );
-
     mCommands = textArea( 2, 55 );
 
     final var titledPane = titledPane( "Output", mCommands );
@@ -91,6 +88,11 @@ public final class WindowsContainerInstallPane extends InstallerPane {
     else {
       append( mCommands, get( PREFIX + ".unknown", binary ) );
     }
+  }
+
+  @Override
+  public String getHeaderKey() {
+    return PREFIX + ".header";
   }
 
   /**

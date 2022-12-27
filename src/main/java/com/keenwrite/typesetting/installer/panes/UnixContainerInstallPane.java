@@ -18,8 +18,6 @@ public final class UnixContainerInstallPane extends InstallerPane {
     "Wizard.typesetter.unix.2.install.container";
 
   public UnixContainerInstallPane() {
-    super( PREFIX + ".header" );
-
     final var commands = textArea( 2, 40 );
     final var titledPane = titledPane( "Run", commands );
     final var comboBox = createUnixOsCommandMap();
@@ -76,6 +74,11 @@ public final class UnixContainerInstallPane extends InstallerPane {
     border.setBottom( titledPane );
 
     setContent( border );
+  }
+
+  @Override
+  protected String getHeaderKey() {
+    return PREFIX + ".header";
   }
 
   private record UnixOsCommand( String name, String command )

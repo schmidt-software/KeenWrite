@@ -6,6 +6,10 @@ public final class UniversalContainerInstallPane extends InstallerPane {
     "Wizard.typesetter.all.2.install.container";
 
   public UniversalContainerInstallPane() {
-    super(PREFIX + ".header" );
+  }
+
+  @Override
+  protected String getHeaderKey() {
+    return PREFIX + ".header";
   }
 }

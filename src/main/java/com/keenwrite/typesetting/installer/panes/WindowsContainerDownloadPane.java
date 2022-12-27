@@ -37,8 +37,6 @@ public final class WindowsContainerDownloadPane extends InstallerPane {
   private final URI mUri;
 
   public WindowsContainerDownloadPane() {
-    super( PREFIX + ".header" );
-
     mUri = getUri( PREFIX + ".download.link.url" );
     mFilename = getFilename( mUri );
     final var directory = UserDataDir.getAppPath( APP_TITLE );
@@ -52,6 +50,11 @@ public final class WindowsContainerDownloadPane extends InstallerPane {
     border.setBottom( mStatus );
 
     setContent( border );
+  }
+
+  @Override
+  public String getHeaderKey() {
+    return PREFIX + ".header";
   }
 
   @Override

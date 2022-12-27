@@ -9,11 +9,15 @@ public final class TypesetterImageDownloadPane extends ContainerOutputPane {
 
   public TypesetterImageDownloadPane() {
     super(
-      PREFIX + ".header",
       PREFIX + ".correct",
       PREFIX + ".missing",
       container -> container.pull( CONTAINER_NAME ),
       45
     );
+  }
+
+  @Override
+  public String getHeaderKey() {
+    return PREFIX + ".header";
   }
 }

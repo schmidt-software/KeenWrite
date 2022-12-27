@@ -22,14 +22,11 @@ public abstract class ContainerOutputPane extends InstallerPane {
   private final TextArea mTextArea;
 
   public ContainerOutputPane(
-    final String headerKey,
     final String correctKey,
     final String missingKey,
     final FailableConsumer<Container, CommandNotFoundException> fc,
     final int cols
   ) {
-    super( headerKey );
-
     mFc = fc;
     mCorrectKey = correctKey;
     mMissingKey = missingKey;

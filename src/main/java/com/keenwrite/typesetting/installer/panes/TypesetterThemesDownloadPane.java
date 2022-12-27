@@ -3,6 +3,10 @@ package com.keenwrite.typesetting.installer.panes;
 
 public class TypesetterThemesDownloadPane extends InstallerPane {
   public TypesetterThemesDownloadPane() {
-    super( "NO KEY" );
+  }
+
+  @Override
+  public String getHeaderKey() {
+    return "NO KEY";
   }
 }

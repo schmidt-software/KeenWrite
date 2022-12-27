@@ -13,11 +13,15 @@ public final class ContainerInitializationPane extends ContainerOutputPane {
 
   public ContainerInitializationPane() {
     super(
-      PREFIX + ".header",
       PREFIX + ".correct",
       PREFIX + ".missing",
       Container::start,
       35
     );
+  }
+
+  @Override
+  public String getHeaderKey() {
+    return PREFIX + ".header";
   }
 }

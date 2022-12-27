@@ -20,9 +20,10 @@ import static com.keenwrite.constants.GraphicsConstants.ICON_DIALOG;
 import static javafx.scene.control.ButtonBar.ButtonData.NEXT_FORWARD;
 
 /**
- * Responsible for creating a {@link WizardPane} with all necessary widgets.
+ * Responsible for creating a {@link WizardPane} with a common header for all
+ * subclasses.
  */
-public class InstallerPane extends WizardPane {
+public abstract class InstallerPane extends WizardPane {
   /**
    * Defines amount of spacing between the installer's UI widgets, in pixels.
    */
@@ -30,17 +31,14 @@ public class InstallerPane extends WizardPane {
 
   private static final double HEADER_FONT_SCALE = 1.25;
 
-  public InstallerPane( final String headerKey ) {
-    assert headerKey != null;
-    assert !headerKey.isBlank();
-
-    setHeader( createHeader( headerKey ) );
+  public InstallerPane() {
+    setHeader( createHeader() );
   }
 
-  private static BorderPane createHeader( final String headerKey ) {
-    final var imageView = new ImageView( ICON_DIALOG );
-    final var headerText = get( headerKey );
-    final var headerLabel = new Label( headerText );
+  protected abstract String getHeaderKey();
+
+  private BorderPane createHeader() {
+    final var headerLabel = label( getHeaderKey() );
     headerLabel.setScaleX( HEADER_FONT_SCALE );
     headerLabel.setScaleY( HEADER_FONT_SCALE );
 
@@ -49,7 +47,7 @@ public class InstallerPane extends WizardPane {
 
     final var header = new BorderPane();
     header.setCenter( headerLabel );
-    header.setRight( imageView );
+    header.setRight( new ImageView( ICON_DIALOG ) );
     header.setBottom( separator );
     header.setPadding( new Insets( PAD, PAD, 0, PAD ) );
 
