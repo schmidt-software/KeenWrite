@@ -1,16 +1,18 @@
 /* Copyright 2022 White Magic Software, Ltd. -- All rights reserved. */
-package com.keenwrite.typesetting.installer;
+package com.keenwrite.typesetting.installer.panes;
 
 import com.keenwrite.typesetting.container.api.Container;
 
-import static com.keenwrite.typesetting.installer.TypesetterInstaller.createContainerOutputPanel;
+/**
+ * Responsible for initializing the container on all platforms except Linux.
+ */
+public final class ContainerInitializationPane extends ContainerOutputPane {
 
-public final class CommonContainerInitializationPane {
   private static final String PREFIX =
     "Wizard.typesetter.all.3.install.container";
 
-  static InstallPane create() {
-    return createContainerOutputPanel(
+  public ContainerInitializationPane() {
+    super(
       PREFIX + ".header",
       PREFIX + ".correct",
       PREFIX + ".missing",

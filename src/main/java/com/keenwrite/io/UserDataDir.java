@@ -1,7 +1,6 @@
 /* Copyright 2022 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.io;
 
-import java.io.FileNotFoundException;
 import java.nio.file.Path;
 
 import static java.lang.System.getProperty;
@@ -25,7 +24,7 @@ import static org.apache.commons.lang3.SystemUtils.*;
  * </li>
  * <li>
  *   <a href="https://developer.apple.com/library/archive/documentation/FileManagement/Conceptual/FileSystemProgrammingGuide/FileSystemOverview/FileSystemOverview.html">
- *     MacOS: File System Programming Guide
+ *     macOS: File System Programming Guide
  *   </a>
  * </li>
  * </ul>
@@ -36,14 +35,14 @@ public final class UserDataDir {
   private static final Path UNDEFINED = Path.of( "/" );
 
   private static final String PROP_USER_HOME = getProperty( "user.home" );
+  private static final String PROP_USER_DIR = getProperty( "user.dir" );
   private static final String PROP_OS_VERSION = getProperty( "os.version" );
   private static final String ENV_APPDATA = getenv( "AppData" );
   private static final String ENV_XDG_DATA_HOME = getenv( "XDG_DATA_HOME" );
 
   private UserDataDir() { }
 
-  public static Path getAppPath( final String appName )
-    throws FileNotFoundException {
+  public static Path getAppPath( final String appName ) {
     final var osPath = isWindows()
       ? getWinAppPath()
       : isMacOs()
@@ -56,11 +55,13 @@ public final class UserDataDir {
       ? getDefaultAppPath( appName )
       : osPath.resolve( appName );
 
-    return ensureExists( path ) ? path : fail( path );
-  }
+    final var alternate = Path.of( PROP_USER_DIR, appName );
 
-  private static Path fail( final Path path ) throws FileNotFoundException {
-    throw new FileNotFoundException( path.toString() );
+    return ensureExists( path )
+      ? path
+      : ensureExists( alternate )
+      ? alternate
+      : Path.of( PROP_USER_DIR );
   }
 
   private static Path getWinAppPath() {

@@ -6,6 +6,7 @@ import com.keenwrite.preferences.Key;
 import com.keenwrite.sigils.PropertyKeyOperator;
 import com.keenwrite.sigils.SigilKeyOperator;
 
+import java.net.URI;
 import java.text.MessageFormat;
 import java.util.ResourceBundle;
 
@@ -78,6 +79,10 @@ public final class Messages {
     } catch( final NumberFormatException ignored ) {
       return defaultValue;
     }
+  }
+
+  public static URI getUri( final String key ) {
+    return URI.create( get( key ) );
   }
 
   /**

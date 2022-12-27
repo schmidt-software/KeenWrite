@@ -1,21 +1,18 @@
 /* Copyright 2022 White Magic Software, Ltd. -- All rights reserved. */
-package com.keenwrite.typesetting.installer;
+package com.keenwrite.typesetting.installer.panes;
 
-import static com.keenwrite.typesetting.installer.InstallPane.*;
-
-public final class IntroductionPane {
+public final class IntroductionPane extends InstallerPane {
   private static final String PREFIX =
     "Wizard.typesetter.all.1.install";
 
-  public static InstallPane create() {
-    final var pane = wizardPane( PREFIX + ".header" );
-    pane.setContent( flowPane(
+  public IntroductionPane() {
+    super( PREFIX + ".header" );
+
+    setContent( flowPane(
       hyperlink( PREFIX + ".about.container.link" ),
       label( PREFIX + ".about.text.1" ),
       hyperlink( PREFIX + ".about.typesetter.link" ),
       label( PREFIX + ".about.text.2" )
     ) );
-
-    return pane;
   }
 }

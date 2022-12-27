@@ -1,5 +1,5 @@
 /* Copyright 2022 White Magic Software, Ltd. -- All rights reserved. */
-package com.keenwrite.typesetting.installer;
+package com.keenwrite.typesetting.installer.panes;
 
 import com.keenwrite.events.HyperlinkOpenEvent;
 import javafx.application.Platform;
@@ -14,37 +14,30 @@ import org.controlsfx.dialog.Wizard;
 import org.controlsfx.dialog.WizardPane;
 
 import java.util.concurrent.Callable;
-import java.util.function.BiConsumer;
 
 import static com.keenwrite.Messages.get;
 import static com.keenwrite.constants.GraphicsConstants.ICON_DIALOG;
-import static com.keenwrite.typesetting.installer.WizardConstants.HEADER_FONT_SCALE;
-import static com.keenwrite.typesetting.installer.WizardConstants.PAD;
 import static javafx.scene.control.ButtonBar.ButtonData.NEXT_FORWARD;
 
 /**
  * Responsible for creating a {@link WizardPane} with all necessary widgets.
  */
-class InstallPane extends WizardPane {
+public class InstallerPane extends WizardPane {
+  /**
+   * Defines amount of spacing between the installer's UI widgets, in pixels.
+   */
+  static final int PAD = 10;
 
-  static InstallPane wizardPane(
-    final String headerKey,
-    final BiConsumer<Wizard, InstallPane> listener ) {
+  private static final double HEADER_FONT_SCALE = 1.25;
 
-    final var wizardPane = new InstallPane() {
-      @Override
-      public void onEnteringPage( final Wizard wizard ) {
-        listener.accept( wizard, this );
-      }
-    };
-    final var borderPane = createHeader( headerKey );
+  public InstallerPane( final String headerKey ) {
+    assert headerKey != null;
+    assert !headerKey.isBlank();
 
-    wizardPane.setHeader( borderPane );
-
-    return wizardPane;
+    setHeader( createHeader( headerKey ) );
   }
 
-  static BorderPane createHeader( final String headerKey ) {
+  private static BorderPane createHeader( final String headerKey ) {
     final var imageView = new ImageView( ICON_DIALOG );
     final var headerText = get( headerKey );
     final var headerLabel = new Label( headerText );
@@ -61,10 +54,6 @@ class InstallPane extends WizardPane {
     header.setPadding( new Insets( PAD, PAD, 0, PAD ) );
 
     return header;
-  }
-
-  static InstallPane wizardPane( final String headerKey ) {
-    return wizardPane( headerKey, ( wizard, self ) -> { } );
   }
 
   static TitledPane titledPane( final String key, final Node child ) {
@@ -159,8 +148,6 @@ class InstallPane extends WizardPane {
     thread.setDaemon( true );
     return thread;
   }
-
-  public InstallPane() { }
 
   void disableNext( final boolean disable ) {
     for( final var buttonType : getButtonTypes() ) {

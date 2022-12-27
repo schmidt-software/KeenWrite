@@ -1,15 +1,14 @@
 /* Copyright 2022 White Magic Software, Ltd. -- All rights reserved. */
-package com.keenwrite.typesetting.installer;
+package com.keenwrite.typesetting.installer.panes;
 
 import static com.keenwrite.typesetting.container.impl.Podman.CONTAINER_NAME;
-import static com.keenwrite.typesetting.installer.TypesetterInstaller.createContainerOutputPanel;
 
-public final class TypesetterImageDownloadPane {
+public final class TypesetterImageDownloadPane extends ContainerOutputPane {
   private static final String PREFIX =
-    "Wizard.typesetter.all.4.download.typesetter";
+    "Wizard.typesetter.all.4.download.image";
 
-  static InstallPane create() {
-    return createContainerOutputPanel(
+  public TypesetterImageDownloadPane() {
+    super(
       PREFIX + ".header",
       PREFIX + ".correct",
       PREFIX + ".missing",

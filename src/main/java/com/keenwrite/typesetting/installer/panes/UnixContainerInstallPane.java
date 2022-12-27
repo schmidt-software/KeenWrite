@@ -1,5 +1,5 @@
 /* Copyright 2022 White Magic Software, Ltd. -- All rights reserved. */
-package com.keenwrite.typesetting.installer;
+package com.keenwrite.typesetting.installer.panes;
 
 import javafx.geometry.Insets;
 import javafx.scene.control.ComboBox;
@@ -10,30 +10,16 @@ import org.jetbrains.annotations.NotNull;
 
 import static com.keenwrite.Messages.get;
 import static com.keenwrite.Messages.getInt;
-import static com.keenwrite.typesetting.installer.InstallPane.*;
-import static com.keenwrite.typesetting.installer.WizardConstants.PAD;
 import static java.lang.String.format;
 import static org.apache.commons.lang3.SystemUtils.IS_OS_MAC;
 
-public final class UnixContainerInstallPane {
+public final class UnixContainerInstallPane extends InstallerPane {
   private static final String PREFIX =
     "Wizard.typesetter.unix.2.install.container";
 
-  private record UnixOsCommand( String name, String command )
-    implements Comparable<UnixOsCommand> {
-    @Override
-    public int compareTo(
-      final @NotNull UnixOsCommand other ) {
-      return toString().compareToIgnoreCase( other.toString() );
-    }
+  public UnixContainerInstallPane() {
+    super( PREFIX + ".header" );
 
-    @Override
-    public String toString() {
-      return name;
-    }
-  }
-
-  static InstallPane create() {
     final var commands = textArea( 2, 40 );
     final var titledPane = titledPane( "Run", commands );
     final var comboBox = createUnixOsCommandMap();
@@ -42,10 +28,12 @@ public final class UnixContainerInstallPane {
       .selectedItemProperty()
       .addListener( ( c, o, n ) -> commands.setText( n.command() ) );
 
+    // Auto-select if running on macOS.
     if( IS_OS_MAC ) {
       final var items = comboBox.getItems();
+
       for( final var item : items ) {
-        if( "MacOS".equalsIgnoreCase( item.name ) ) {
+        if( "macOS".equalsIgnoreCase( item.name ) ) {
           selection.select( item );
           break;
         }
@@ -87,11 +75,21 @@ public final class UnixContainerInstallPane {
     border.setCenter( hbox );
     border.setBottom( titledPane );
 
-    final var pane = wizardPane(
-      PREFIX + ".header" );
-    pane.setContent( border );
+    setContent( border );
+  }
 
-    return pane;
+  private record UnixOsCommand( String name, String command )
+    implements Comparable<UnixOsCommand> {
+    @Override
+    public int compareTo(
+      final @NotNull UnixOsCommand other ) {
+      return toString().compareToIgnoreCase( other.toString() );
+    }
+
+    @Override
+    public String toString() {
+      return name;
+    }
   }
 
   /**
