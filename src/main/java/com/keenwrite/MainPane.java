@@ -25,7 +25,7 @@ import com.keenwrite.service.events.Notifier;
 import com.keenwrite.spelling.api.SpellChecker;
 import com.keenwrite.spelling.impl.PermissiveSpeller;
 import com.keenwrite.spelling.impl.SymSpellSpeller;
-import com.keenwrite.typesetting.TypesetterInstaller;
+import com.keenwrite.typesetting.installer.TypesetterInstaller;
 import com.keenwrite.ui.explorer.FilePickerFactory;
 import com.keenwrite.ui.heuristics.DocumentStatistics;
 import com.keenwrite.ui.outline.DocumentOutline;

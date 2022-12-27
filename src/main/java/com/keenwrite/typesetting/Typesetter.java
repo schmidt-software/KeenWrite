@@ -17,7 +17,7 @@ import java.util.regex.Pattern;
 
 import static com.keenwrite.constants.Constants.DEFAULT_DIRECTORY;
 import static com.keenwrite.events.StatusEvent.clue;
-import static com.keenwrite.typesetting.container.impl.Podman.CONTAINER;
+import static com.keenwrite.typesetting.container.impl.Podman.MANAGER;
 import static java.lang.ProcessBuilder.Redirect.DISCARD;
 import static java.lang.String.format;
 import static java.lang.System.currentTimeMillis;
@@ -78,7 +78,7 @@ public class Typesetter {
   }
 
   public static boolean canRun() {
-    return TYPESETTER.canRun() || CONTAINER.canRun();
+    return TYPESETTER.canRun() || MANAGER.canRun();
   }
 
   /**

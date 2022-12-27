@@ -54,9 +54,6 @@ ADD "https://www.omnibus-type.com/wp-content/uploads/Archivo-Narrow.zip" "archiv
 # Typesetting software
 ADD "http://lmtx.pragma-ade.nl/install-lmtx/context-linuxmusl.zip" "context.zip"
 
-# Document themes
-ADD "https://github.com/DaveJarvis/keenwrite-themes/releases/latest/download/theme-pack.zip" "theme-pack.zip"
-
 # ########################################################################
 #
 # Install components, modules, configure system, remove unnecessary files
@@ -73,7 +70,6 @@ RUN \
   echo "export OSFONTDIR=\"/usr/share/fonts//\"" && \
   echo "PS1='\\u@typesetter:\\w\\$ '" >> $PROFILE && \
   unzip -d $CONTEXT_HOME $DOWNLOAD_DIR/context.zip && \
-  unzip -d $INSTALL_DIR $DOWNLOAD_DIR/theme-pack.zip && \
   unzip -j -o -d $FONT_DIR $DOWNLOAD_DIR/courier-prime.zip "*.ttf" && \
   unzip -j -o -d $FONT_DIR $DOWNLOAD_DIR/inconsolata.zip "**/Inconsolata/*.ttf" && \
   unzip -j -o -d $FONT_DIR $DOWNLOAD_DIR/nunito.zip "static/*.ttf" && \

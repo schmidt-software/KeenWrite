@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+u!/usr/bin/env bash
 
 # ---------------------------------------------------------------------------
 # Copyright 2022 White Magic Software, Ltd.
@@ -12,9 +12,11 @@ source ../scripts/build-template
 readonly BUILD_DIR=build
 
 readonly CONTAINER_EXE=podman
-readonly CONTAINER_NAME=typesetter
+readonly CONTAINER_SHORTNAME=typesetter
+readonly CONTAINER_VERSION=$(git describe --abbrev=0)
+readonly CONTAINER_NAME="${CONTAINER_SHORTNAME}:${CONTAINER_VERSION}"
 readonly CONTAINER_NETWORK=host
-readonly CONTAINER_FILE="${CONTAINER_NAME}"
+readonly CONTAINER_FILE="${CONTAINER_SHORTNAME}"
 readonly CONTAINER_ARCHIVE_FILE="${CONTAINER_FILE}.tar"
 readonly CONTAINER_ARCHIVE_PATH="${BUILD_DIR}/${CONTAINER_ARCHIVE_FILE}"
 readonly CONTAINER_COMPRESSED_FILE="${CONTAINER_ARCHIVE_FILE}.gz"
@@ -29,9 +31,6 @@ ARG_MOUNTPOINT_TEXT=""
 ARG_MOUNTPOINT_IMAGES=""
 ARG_MOUNTPOINT_OUTPUT="."
 ARG_ACCESS_TOKEN=""
-
-# Container version is same as tagged release.
-readonly VERSION=$(git describe --abbrev=0)
 
 DEPENDENCIES=(
   "podman,https://podman.io"
@@ -83,15 +82,13 @@ utile_delete() {
 # Builds the container file in the current working directory.
 # ---------------------------------------------------------------------------
 utile_build() {
-  local -r container="${CONTAINER_NAME}:${VERSION}"
-
-  $log "Building ${container}"
+  $log "Building ${CONTAINER_NAME}"
 
   # Show what commands are run while building, but not the commands' output.
   ${CONTAINER_EXE} build \
     --network=${CONTAINER_NETWORK} \
     --squash \
-    -t ${CONTAINER_NAME}:${VERSION} . | \
+    -t ${CONTAINER_NAME} . | \
   grep ^STEP
 }
 
@@ -99,7 +96,6 @@ utile_build() {
 # Publishes the container to the repository.
 # ---------------------------------------------------------------------------
 utile_publish() {
-  local -r container="${CONTAINER_NAME}:${VERSION}"
   local -r username=$(git config user.name | tr '[A-Z]' '[a-z]')
   local -r repo="${CONTAINER_REPO}/${username}/${container}"
 
@@ -107,15 +103,15 @@ utile_publish() {
     echo ${ARG_ACCESS_TOKEN} | \
       ${CONTAINER_EXE} login ghcr.io -u $(git config user.name) --password-stdin
 
-    $log "Tagging ${container}"
+    $log "Tagging ${CONTAINER_NAME}"
 
-    ${CONTAINER_EXE} tag ${container} ${repo}
+    ${CONTAINER_EXE} tag ${CONTAINER_NAME} ${repo}
 
-    $log "Pushing ${container} to ${CONTAINER_REPO}"
+    $log "Pushing ${CONTAINER_NAME} to ${CONTAINER_REPO}"
 
     ${CONTAINER_EXE} push ${repo}
 
-    $log "Published ${container} to ${CONTAINER_REPO}"
+    $log "Published ${CONTAINER_NAME} to ${CONTAINER_REPO}"
   else
     error "Provide a personal access token to publish."
   fi
@@ -203,19 +199,19 @@ utile_save() {
   if [[ -f "${CONTAINER_COMPRESSED_PATH}" ]]; then
     warning "${CONTAINER_COMPRESSED_PATH} exists, delete before saving."
   else
-    $log "Saving ${CONTAINER_NAME} image"
+    $log "Saving ${CONTAINER_SHORTNAME} image"
 
     mkdir -p "${BUILD_DIR}"
 
     ${CONTAINER_EXE} save \
       --quiet \
       -o "${BUILD_DIR}/${CONTAINER_ARCHIVE_FILE}" \
-      "${CONTAINER_NAME}"
+      "${CONTAINER_SHORTNAME}"
 
     $log "Compressing to ${CONTAINER_COMPRESSED_PATH}"
     gzip "${CONTAINER_ARCHIVE_PATH}"
 
-    $log "Saved ${CONTAINER_NAME} image"
+    $log "Saved ${CONTAINER_SHORTNAME} image"
   fi
 }
 
@@ -224,13 +220,13 @@ utile_save() {
 # ---------------------------------------------------------------------------
 utile_load() {
   if [[ -f "${CONTAINER_COMPRESSED_PATH}" ]]; then
-    $log "Loading ${CONTAINER_NAME} image from ${CONTAINER_COMPRESSED_PATH}"
+    $log "Loading ${CONTAINER_SHORTNAME} from ${CONTAINER_COMPRESSED_PATH}"
 
     ${CONTAINER_EXE} load \
       --quiet \
       -i "${CONTAINER_COMPRESSED_PATH}"
 
-    $log "Loaded ${CONTAINER_NAME} image"
+    $log "Loaded ${CONTAINER_SHORTNAME} image"
   else
     warning "Missing ${CONTAINER_COMPRESSED_PATH}; use build follwed by save"
   fi
