@@ -5,7 +5,6 @@ import com.keenwrite.events.ExportFailedEvent;
 import com.keenwrite.io.CommandNotFoundException;
 import com.keenwrite.typesetting.container.api.Container;
 import com.keenwrite.typesetting.container.impl.Podman;
-import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.BorderPane;
 import org.apache.commons.lang3.function.FailableConsumer;
@@ -150,10 +149,6 @@ public final class TypesetterInstaller {
    */
   public static Container createContainer( final TextArea textarea ) {
     return new Podman( text -> append( textarea, text ) );
-  }
-
-  public static void update( final Label node, final String text ) {
-    runLater( () -> node.setText( text ) );
   }
 
   public static void append( final TextArea node, final String text ) {

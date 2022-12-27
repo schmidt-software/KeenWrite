@@ -5,12 +5,15 @@ import com.keenwrite.typesetting.container.api.Container;
 
 import static com.keenwrite.typesetting.installer.TypesetterInstaller.createContainerOutputPanel;
 
-public  final class CommonContainerInitializationPane {
-  public static InstallPane create() {
+public final class CommonContainerInitializationPane {
+  private static final String PREFIX =
+    "Wizard.typesetter.all.3.install.container";
+
+  static InstallPane create() {
     return createContainerOutputPanel(
-      "Wizard.typesetter.all.3.install.container.header",
-      "Wizard.typesetter.all.3.install.container.correct",
-      "Wizard.typesetter.all.3.install.container.missing",
+      PREFIX + ".header",
+      PREFIX + ".correct",
+      PREFIX + ".missing",
       Container::start,
       35
     );

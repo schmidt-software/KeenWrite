@@ -10,22 +10,23 @@ import static com.keenwrite.Messages.get;
 import static com.keenwrite.typesetting.installer.InstallPane.*;
 import static com.keenwrite.typesetting.installer.TypesetterInstaller.*;
 
-public final  class WindowsContainerInstallPane {
-  public static InstallPane create() {
-    final var prefix = "Wizard.typesetter.win.2.install.container";
+public final class WindowsContainerInstallPane {
+  private static final String PREFIX =
+    "Wizard.typesetter.win.2.install.container";
 
+  static InstallPane create() {
     final var commands = textArea( 2, 55 );
     final var titledPane = titledPane( "Output", commands );
-    append( commands, get( prefix + ".status.running" ) );
+    append( commands, get( PREFIX + ".status.running" ) );
 
     final var container = createContainer( commands );
     final var stepsPane = new VBox();
     final var steps = stepsPane.getChildren();
-    steps.add( label( prefix + ".step.0" ) );
+    steps.add( label( PREFIX + ".step.0" ) );
     steps.add( spacer() );
-    steps.add( label( prefix + ".step.1" ) );
-    steps.add( label( prefix + ".step.2" ) );
-    steps.add( label( prefix + ".step.3" ) );
+    steps.add( label( PREFIX + ".step.1" ) );
+    steps.add( label( PREFIX + ".step.2" ) );
+    steps.add( label( PREFIX + ".step.3" ) );
     steps.add( spacer() );
     steps.add( titledPane );
 
@@ -33,7 +34,7 @@ public final  class WindowsContainerInstallPane {
     border.setTop( stepsPane );
 
     final var pane = wizardPane(
-      prefix + ".header",
+      PREFIX + ".header",
       ( wizard, self ) -> {
         self.disableNext( true );
 
@@ -46,7 +47,7 @@ public final  class WindowsContainerInstallPane {
         }
 
         final var binary = properties.get( WIN_BIN );
-        final var key = prefix + ".status";
+        final var key = PREFIX + ".status";
 
         if( binary instanceof File exe ) {
           final var task = createTask( () -> {
@@ -70,7 +71,7 @@ public final  class WindowsContainerInstallPane {
           installer.start();
         }
         else {
-          append( commands, get( prefix + ".unknown", binary ) );
+          append( commands, get( PREFIX + ".unknown", binary ) );
         }
       } );
     pane.setContent( border );

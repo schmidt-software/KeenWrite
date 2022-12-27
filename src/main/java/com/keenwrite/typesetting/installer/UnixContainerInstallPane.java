@@ -15,7 +15,10 @@ import static com.keenwrite.typesetting.installer.WizardConstants.PAD;
 import static java.lang.String.format;
 import static org.apache.commons.lang3.SystemUtils.IS_OS_MAC;
 
-public final  class UnixContainerInstallPane {
+public final class UnixContainerInstallPane {
+  private static final String PREFIX =
+    "Wizard.typesetter.unix.2.install.container";
+
   private record UnixOsCommand( String name, String command )
     implements Comparable<UnixOsCommand> {
     @Override
@@ -30,7 +33,7 @@ public final  class UnixContainerInstallPane {
     }
   }
 
-  public static InstallPane create() {
+  static InstallPane create() {
     final var commands = textArea( 2, 40 );
     final var titledPane = titledPane( "Run", commands );
     final var comboBox = createUnixOsCommandMap();
@@ -53,7 +56,7 @@ public final  class UnixContainerInstallPane {
     }
 
     final var distro = label(
-      "Wizard.typesetter.unix.2.install.container.os" );
+      PREFIX + ".os" );
     distro.setText( distro.getText() + ":" );
     distro.setPadding( new Insets( PAD / 2.0, PAD, 0, 0 ) );
 
@@ -64,18 +67,18 @@ public final  class UnixContainerInstallPane {
 
     final var stepsPane = new VBox();
     final var steps = stepsPane.getChildren();
-    steps.add( label( "Wizard.typesetter.unix.2.install.container.step.0" ) );
+    steps.add( label( PREFIX + ".step.0" ) );
     steps.add( spacer() );
-    steps.add( label( "Wizard.typesetter.unix.2.install.container.step.1" ) );
-    steps.add( label( "Wizard.typesetter.unix.2.install.container.step.2" ) );
-    steps.add( label( "Wizard.typesetter.unix.2.install.container.step.3" ) );
-    steps.add( label( "Wizard.typesetter.unix.2.install.container.step.4" ) );
+    steps.add( label( PREFIX + ".step.1" ) );
+    steps.add( label( PREFIX + ".step.2" ) );
+    steps.add( label( PREFIX + ".step.3" ) );
+    steps.add( label( PREFIX + ".step.4" ) );
     steps.add( spacer() );
 
     steps.add( flowPane(
-      label( "Wizard.typesetter.unix.2.install.container.details.prefix" ),
-      hyperlink( "Wizard.typesetter.unix.2.install.container.details.link" ),
-      label( "Wizard.typesetter.unix.2.install.container.details.suffix" )
+      label( PREFIX + ".details.prefix" ),
+      hyperlink( PREFIX + ".details.link" ),
+      label( PREFIX + ".details.suffix" )
     ) );
     steps.add( spacer() );
 
@@ -85,7 +88,7 @@ public final  class UnixContainerInstallPane {
     border.setBottom( titledPane );
 
     final var pane = wizardPane(
-      "Wizard.typesetter.unix.2.install.container.header" );
+      PREFIX + ".header" );
     pane.setContent( border );
 
     return pane;
@@ -101,7 +104,7 @@ public final  class UnixContainerInstallPane {
     new ComboBox<UnixOsCommand>();
     final var comboBox = new ComboBox<UnixOsCommand>();
     final var items = comboBox.getItems();
-    final var prefix = "Wizard.typesetter.unix.2.install.container.command";
+    final var prefix = PREFIX + ".command";
     final var distros = getInt( prefix + ".distros", 14 );
 
     for( int i = 1; i <= distros; i++ ) {
