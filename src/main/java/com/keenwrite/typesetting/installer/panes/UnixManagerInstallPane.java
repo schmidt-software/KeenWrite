@@ -13,11 +13,11 @@ import static com.keenwrite.Messages.getInt;
 import static java.lang.String.format;
 import static org.apache.commons.lang3.SystemUtils.IS_OS_MAC;
 
-public final class UnixContainerInstallPane extends InstallerPane {
+public final class UnixManagerInstallPane extends InstallerPane {
   private static final String PREFIX =
     "Wizard.typesetter.unix.2.install.container";
 
-  public UnixContainerInstallPane() {
+  public UnixManagerInstallPane() {
     final var commands = textArea( 2, 40 );
     final var titledPane = titledPane( "Run", commands );
     final var comboBox = createUnixOsCommandMap();

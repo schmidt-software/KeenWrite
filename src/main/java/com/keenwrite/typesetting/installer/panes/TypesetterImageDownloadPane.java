@@ -3,7 +3,7 @@ package com.keenwrite.typesetting.installer.panes;
 
 import static com.keenwrite.typesetting.container.impl.Podman.CONTAINER_NAME;
 
-public final class TypesetterImageDownloadPane extends ContainerOutputPane {
+public final class TypesetterImageDownloadPane extends ManagerOutputPane {
   private static final String PREFIX =
     "Wizard.typesetter.all.4.download.image";
 

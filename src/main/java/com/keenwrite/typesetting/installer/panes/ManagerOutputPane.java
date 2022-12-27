@@ -12,7 +12,7 @@ import static com.keenwrite.Messages.get;
 import static java.lang.System.lineSeparator;
 import static javafx.application.Platform.runLater;
 
-public abstract class ContainerOutputPane extends InstallerPane {
+public abstract class ManagerOutputPane extends InstallerPane {
   private final String PROP_INITIALIZER = getClass().getCanonicalName();
 
   private final String mCorrectKey;
@@ -21,7 +21,7 @@ public abstract class ContainerOutputPane extends InstallerPane {
   private final Container mContainer;
   private final TextArea mTextArea;
 
-  public ContainerOutputPane(
+  public ManagerOutputPane(
     final String correctKey,
     final String missingKey,
     final FailableConsumer<Container, CommandNotFoundException> fc,
@@ -81,11 +81,11 @@ public abstract class ContainerOutputPane extends InstallerPane {
    * @param textarea The {@link TextArea} to receive text.
    * @return An object that can perform tasks against a container.
    */
-  public static Container createContainer( final TextArea textarea ) {
+  private static Container createContainer( final TextArea textarea ) {
     return new Podman( text -> append( textarea, text ) );
   }
 
-  public static void append( final TextArea node, final String text ) {
+  private static void append( final TextArea node, final String text ) {
     runLater( () -> {
       node.appendText( text );
       node.appendText( lineSeparator() );

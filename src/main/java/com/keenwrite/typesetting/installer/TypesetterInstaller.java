@@ -57,16 +57,16 @@ public final class TypesetterInstaller {
     }
     else if( IS_OS_UNIX ) {
       // STEP 2: Install container (Unix)
-      panes.add( new UnixContainerInstallPane() );
+      panes.add( new UnixManagerInstallPane() );
     }
     else {
       // STEP 2: Install container (other)
-      panes.add( new UniversalContainerInstallPane() );
+      panes.add( new UniversalManagerInstallPane() );
     }
 
     if( !IS_OS_LINUX ) {
       // STEP 3: Initialize container (all except Linux)
-      panes.add( new ContainerInitializationPane() );
+      panes.add( new ManagerInitializationPane() );
     }
 
     // STEP 4: Install typesetter container image (all)
