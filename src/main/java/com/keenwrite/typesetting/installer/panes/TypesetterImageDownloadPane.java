@@ -1,7 +1,7 @@
 /* Copyright 2022 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.typesetting.installer.panes;
 
-import static com.keenwrite.typesetting.container.impl.Podman.CONTAINER_NAME;
+import static com.keenwrite.typesetting.containerization.Podman.CONTAINER_NAME;
 
 public final class TypesetterImageDownloadPane extends ManagerOutputPane {
   private static final String PREFIX =

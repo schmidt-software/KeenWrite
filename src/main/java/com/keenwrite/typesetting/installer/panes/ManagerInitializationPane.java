@@ -1,7 +1,7 @@
 /* Copyright 2022 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.typesetting.installer.panes;
 
-import com.keenwrite.typesetting.container.api.Container;
+import com.keenwrite.typesetting.containerization.ContainerManager;
 
 /**
  * Responsible for initializing the container manager on all platforms except
@@ -16,7 +16,7 @@ public final class ManagerInitializationPane extends ManagerOutputPane {
     super(
       PREFIX + ".correct",
       PREFIX + ".missing",
-      Container::start,
+      ContainerManager::start,
       35
     );
   }

@@ -1,12 +1,12 @@
 /* Copyright 2022 White Magic Software, Ltd. -- All rights reserved. */
-package com.keenwrite.typesetting.container.api;
+package com.keenwrite.typesetting.containerization;
 
 import com.keenwrite.io.CommandNotFoundException;
 
 import java.io.File;
 import java.io.IOException;
 
-public interface Container {
+public interface ContainerManager {
   /**
    * Installs the container software, in quiet and headless mode if possible.
    *
@@ -25,7 +25,7 @@ public interface Container {
   void start() throws CommandNotFoundException;
 
   /**
-   * Loads a named image into the container.
+   * Requests that the container manager load an image into the container.
    *
    * @param name The full container name of the image to pull.
    * @throws CommandNotFoundException The container executable was not found.
@@ -33,7 +33,7 @@ public interface Container {
   void pull( String name ) throws CommandNotFoundException;
 
   /**
-   * Runs a command inside the container.
+   * Runs a command using the container manager.
    *
    * @param args The command and arguments to run.
    * @return The exit code returned by the installer program.

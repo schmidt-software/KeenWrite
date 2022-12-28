@@ -1,30 +1,27 @@
 package com.keenwrite.typesetting.installer.panes;
 
 import com.keenwrite.io.CommandNotFoundException;
-import com.keenwrite.typesetting.container.api.Container;
-import com.keenwrite.typesetting.container.impl.Podman;
+import com.keenwrite.typesetting.containerization.ContainerManager;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.BorderPane;
 import org.apache.commons.lang3.function.FailableConsumer;
 import org.controlsfx.dialog.Wizard;
 
 import static com.keenwrite.Messages.get;
-import static java.lang.System.lineSeparator;
-import static javafx.application.Platform.runLater;
 
 public abstract class ManagerOutputPane extends InstallerPane {
   private final String PROP_INITIALIZER = getClass().getCanonicalName();
 
   private final String mCorrectKey;
   private final String mMissingKey;
-  private final FailableConsumer<Container, CommandNotFoundException> mFc;
-  private final Container mContainer;
+  private final FailableConsumer<ContainerManager, CommandNotFoundException> mFc;
+  private final ContainerManager mContainer;
   private final TextArea mTextArea;
 
   public ManagerOutputPane(
     final String correctKey,
     final String missingKey,
-    final FailableConsumer<Container, CommandNotFoundException> fc,
+    final FailableConsumer<ContainerManager, CommandNotFoundException> fc,
     final int cols
   ) {
     mFc = fc;
@@ -72,23 +69,5 @@ public abstract class ManagerOutputPane extends InstallerPane {
     } catch( final Exception e ) {
       throw new RuntimeException( e );
     }
-  }
-
-  /**
-   * Creates a container that can have its standard output read as an input
-   * stream that's piped directly to a {@link TextArea}.
-   *
-   * @param textarea The {@link TextArea} to receive text.
-   * @return An object that can perform tasks against a container.
-   */
-  private static Container createContainer( final TextArea textarea ) {
-    return new Podman( text -> append( textarea, text ) );
-  }
-
-  private static void append( final TextArea node, final String text ) {
-    runLater( () -> {
-      node.appendText( text );
-      node.appendText( lineSeparator() );
-    } );
   }
 }

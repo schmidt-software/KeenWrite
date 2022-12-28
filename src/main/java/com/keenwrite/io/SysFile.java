@@ -1,8 +1,6 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.io;
 
-import com.keenwrite.typesetting.container.impl.StreamGobbler;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;

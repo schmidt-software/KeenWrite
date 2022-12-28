@@ -5,8 +5,7 @@ public final class UniversalManagerInstallPane extends InstallerPane {
   private static final String PREFIX =
     "Wizard.typesetter.all.2.install.container";
 
-  public UniversalManagerInstallPane() {
-  }
+  public UniversalManagerInstallPane() { }
 
   @Override
   protected String getHeaderKey() {

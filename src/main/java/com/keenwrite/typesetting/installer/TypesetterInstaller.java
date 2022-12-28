@@ -53,7 +53,7 @@ public final class TypesetterInstaller {
       // STEP 2 a: Download container (Windows)
       panes.add( new WindowsContainerDownloadPane() );
       // STEP 2 b: Install container (Windows)
-      panes.add( new WindowsContainerInstallPane() );
+      panes.add( new WindowsManagerInstallPane() );
     }
     else if( IS_OS_UNIX ) {
       // STEP 2: Install container (Unix)

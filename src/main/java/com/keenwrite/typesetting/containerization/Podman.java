@@ -1,9 +1,9 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
-package com.keenwrite.typesetting.container.impl;
+package com.keenwrite.typesetting.containerization;
 
 import com.keenwrite.io.CommandNotFoundException;
+import com.keenwrite.io.StreamGobbler;
 import com.keenwrite.io.SysFile;
-import com.keenwrite.typesetting.container.api.Container;
 
 import java.io.File;
 import java.io.IOException;
@@ -21,7 +21,7 @@ import static java.util.concurrent.Executors.newFixedThreadPool;
 /**
  * Provides facilities for interacting with a container environment.
  */
-public final class Podman implements Container {
+public final class Podman implements ContainerManager {
   public static final SysFile MANAGER = new SysFile( "podman" );
   public static final String CONTAINER_SHORTNAME = "typesetter";
   public static final String CONTAINER_NAME =

@@ -1,4 +1,4 @@
-package com.keenwrite.typesetting.container.impl;
+package com.keenwrite.io;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -24,7 +24,7 @@ public class StreamGobbler implements Callable<Boolean> {
   }
 
   /**
-   * Consumes the input buffer, closes the stream when finished.
+   * Consumes the input until no more data is available. Closes the stream.
    *
    * @return {@link Boolean#TRUE} always.
    * @throws IOException Could not read from the stream.

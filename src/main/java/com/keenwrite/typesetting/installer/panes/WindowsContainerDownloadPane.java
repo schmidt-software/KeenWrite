@@ -53,11 +53,6 @@ public final class WindowsContainerDownloadPane extends InstallerPane {
   }
 
   @Override
-  public String getHeaderKey() {
-    return PREFIX + ".header";
-  }
-
-  @Override
   public void onEnteringPage( final Wizard wizard ) {
     disableNext( true );
 
@@ -106,6 +101,11 @@ public final class WindowsContainerDownloadPane extends InstallerPane {
         }
       );
     }
+  }
+
+  @Override
+  public String getHeaderKey() {
+    return PREFIX + ".header";
   }
 
   /**

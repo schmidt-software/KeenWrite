@@ -2,6 +2,8 @@
 package com.keenwrite.typesetting.installer.panes;
 
 import com.keenwrite.events.HyperlinkOpenEvent;
+import com.keenwrite.typesetting.containerization.ContainerManager;
+import com.keenwrite.typesetting.containerization.Podman;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.geometry.Insets;
@@ -17,6 +19,8 @@ import java.util.concurrent.Callable;
 
 import static com.keenwrite.Messages.get;
 import static com.keenwrite.constants.GraphicsConstants.ICON_DIALOG;
+import static java.lang.System.lineSeparator;
+import static javafx.application.Platform.runLater;
 import static javafx.scene.control.ButtonBar.ButtonData.NEXT_FORWARD;
 
 /**
@@ -52,6 +56,27 @@ public abstract class InstallerPane extends WizardPane {
     header.setPadding( new Insets( PAD, PAD, 0, PAD ) );
 
     return header;
+  }
+
+  /**
+   * Disables the "Next" button during the installer. Normally disabling UI
+   * elements is an anti-pattern (along with modal dialogs); however, in this
+   * case, installation cannot proceed until each step is successfully
+   * completed. Further, there may be "misleading" success messages shown
+   * in the output panel, which the user may take as the step being complete.
+   *
+   * @param disable Set to {@code true} to disable the button.
+   */
+  void disableNext( final boolean disable ) {
+    for( final var buttonType : getButtonTypes() ) {
+      final var buttonData = buttonType.getButtonData();
+
+      if( buttonData.equals( NEXT_FORWARD ) ) {
+        final var button = lookupButton( buttonType );
+        Platform.runLater( () -> button.setDisable( disable ) );
+        break;
+      }
+    }
   }
 
   static TitledPane titledPane( final String key, final Node child ) {
@@ -147,15 +172,21 @@ public abstract class InstallerPane extends WizardPane {
     return thread;
   }
 
-  void disableNext( final boolean disable ) {
-    for( final var buttonType : getButtonTypes() ) {
-      final var buttonData = buttonType.getButtonData();
+  /**
+   * Creates a container that can have its standard output read as an input
+   * stream that's piped directly to a {@link TextArea}.
+   *
+   * @param textarea The {@link TextArea} to receive text.
+   * @return An object that can perform tasks against a container.
+   */
+  static ContainerManager createContainer( final TextArea textarea ) {
+    return new Podman( text -> append( textarea, text ) );
+  }
 
-      if( buttonData.equals( NEXT_FORWARD ) ) {
-        final var button = lookupButton( buttonType );
-        Platform.runLater( () -> button.setDisable( disable ) );
-        break;
-      }
-    }
+  static void append( final TextArea node, final String text ) {
+    runLater( () -> {
+      node.appendText( text );
+      node.appendText( lineSeparator() );
+    } );
   }
 }

@@ -1,8 +1,7 @@
 /* Copyright 2022 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.typesetting.installer.panes;
 
-import com.keenwrite.typesetting.container.api.Container;
-import com.keenwrite.typesetting.container.impl.Podman;
+import com.keenwrite.typesetting.containerization.ContainerManager;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
@@ -11,10 +10,8 @@ import org.controlsfx.dialog.Wizard;
 import java.io.File;
 
 import static com.keenwrite.Messages.get;
-import static java.lang.System.lineSeparator;
-import static javafx.application.Platform.runLater;
 
-public final class WindowsContainerInstallPane extends InstallerPane {
+public final class WindowsManagerInstallPane extends InstallerPane {
   /**
    * Property for the installation thread to help ensure safe reentrancy.
    */
@@ -24,10 +21,10 @@ public final class WindowsContainerInstallPane extends InstallerPane {
   private static final String PREFIX =
     "Wizard.typesetter.win.2.install.container";
 
-  private final Container mContainer;
+  private final ContainerManager mContainer;
   private final TextArea mCommands;
 
-  public WindowsContainerInstallPane() {
+  public WindowsManagerInstallPane() {
     mCommands = textArea( 2, 55 );
 
     final var titledPane = titledPane( "Output", mCommands );
@@ -93,23 +90,5 @@ public final class WindowsContainerInstallPane extends InstallerPane {
   @Override
   public String getHeaderKey() {
     return PREFIX + ".header";
-  }
-
-  /**
-   * Creates a container that can have its standard output read as an input
-   * stream that's piped directly to a {@link TextArea}.
-   *
-   * @param textarea The {@link TextArea} to receive text.
-   * @return An object that can perform tasks against a container.
-   */
-  public static Container createContainer( final TextArea textarea ) {
-    return new Podman( text -> append( textarea, text ) );
-  }
-
-  public static void append( final TextArea node, final String text ) {
-    runLater( () -> {
-      node.appendText( text );
-      node.appendText( lineSeparator() );
-    } );
   }
 }

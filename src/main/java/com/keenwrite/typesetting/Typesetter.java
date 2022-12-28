@@ -17,7 +17,7 @@ import java.util.regex.Pattern;
 
 import static com.keenwrite.constants.Constants.DEFAULT_DIRECTORY;
 import static com.keenwrite.events.StatusEvent.clue;
-import static com.keenwrite.typesetting.container.impl.Podman.MANAGER;
+import static com.keenwrite.typesetting.containerization.Podman.MANAGER;
 import static java.lang.ProcessBuilder.Redirect.DISCARD;
 import static java.lang.String.format;
 import static java.lang.System.currentTimeMillis;
