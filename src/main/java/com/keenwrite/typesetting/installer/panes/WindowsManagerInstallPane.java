@@ -16,10 +16,14 @@ import static com.keenwrite.Messages.get;
  */
 public final class WindowsManagerInstallPane extends InstallerPane {
   /**
-   * Property for the installation thread to help ensure safe reentrancy.
+   * Property for the installation thread to help with reentrancy.
    */
   private static final String WIN_INSTALLER = "windows.container.installer";
-  private static final String WIN_BIN = "windows.container.binary";
+
+  /**
+   * Shared property to track name of container manager binary file.
+   */
+  static final String WIN_BIN = "windows.container.binary";
 
   private static final String PREFIX =
     "Wizard.typesetter.win.2.install.container";

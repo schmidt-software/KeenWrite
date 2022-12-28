@@ -2,6 +2,8 @@
 package com.keenwrite.typesetting.installer.panes;
 
 import com.keenwrite.events.HyperlinkOpenEvent;
+import com.keenwrite.io.downloads.DownloadManager;
+import com.keenwrite.io.downloads.DownloadManager.ProgressListener;
 import com.keenwrite.typesetting.containerization.ContainerManager;
 import com.keenwrite.typesetting.containerization.Podman;
 import javafx.application.Platform;
@@ -15,6 +17,10 @@ import javafx.scene.layout.FlowPane;
 import org.controlsfx.dialog.Wizard;
 import org.controlsfx.dialog.WizardPane;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.net.URI;
+import java.nio.file.Paths;
 import java.util.concurrent.Callable;
 
 import static com.keenwrite.Messages.get;
@@ -79,8 +85,8 @@ public abstract class InstallerPane extends WizardPane {
     }
   }
 
-  static TitledPane titledPane( final String key, final Node child ) {
-    final var pane = new TitledPane( key, child );
+  static TitledPane titledPane( final String title, final Node child ) {
+    final var pane = new TitledPane( title, child );
     pane.setCollapsible( false );
 
     return pane;
@@ -183,10 +189,44 @@ public abstract class InstallerPane extends WizardPane {
     return new Podman( text -> append( textarea, text ) );
   }
 
+  static void update( final Label node, final String text ) {
+    runLater( () -> node.setText( text ) );
+  }
+
   static void append( final TextArea node, final String text ) {
     runLater( () -> {
       node.appendText( text );
       node.appendText( lineSeparator() );
     } );
+  }
+
+  /**
+   * Downloads a resource to a local file in a separate {@link Thread}.
+   *
+   * @param uri      The resource to download.
+   * @param file     The destination mTarget for the resource.
+   * @param listener Receives updates as the download proceeds.
+   */
+  static Task<Void> downloadAsync(
+    final URI uri,
+    final File file,
+    final ProgressListener listener ) {
+    final Task<Void> task = createTask( () -> {
+      try( final var token = DownloadManager.open( uri ) ) {
+        final var output = new FileOutputStream( file );
+        final var downloader = token.download( output, listener );
+
+        downloader.run();
+      }
+
+      return null;
+    } );
+
+    createThread( task ).start();
+    return task;
+  }
+
+  static String toFilename( final URI uri ) {
+    return Paths.get( uri.getPath() ).toFile().getName();
   }
 }

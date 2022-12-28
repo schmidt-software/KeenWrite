@@ -72,6 +72,7 @@ dependencies {
   implementation 'org.fxmisc.wellbehaved:wellbehavedfx:0.3.3'
   implementation 'com.miglayout:miglayout-javafx:11.0'
   implementation 'com.dlsc.preferencesfx:preferencesfx-core:11.11.0'
+  implementation 'com.panemu:tiwulfx-dock:0.2'
 
   // Markdown
   implementation "com.vladsch.flexmark:flexmark:${v_flexmark}"

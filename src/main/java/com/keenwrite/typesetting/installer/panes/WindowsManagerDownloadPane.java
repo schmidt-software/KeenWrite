@@ -3,28 +3,23 @@ package com.keenwrite.typesetting.installer.panes;
 
 import com.keenwrite.io.SysFile;
 import com.keenwrite.io.UserDataDir;
-import com.keenwrite.io.downloads.DownloadManager;
-import com.keenwrite.io.downloads.DownloadManager.ProgressListener;
 import javafx.concurrent.Task;
 import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
 import org.controlsfx.dialog.Wizard;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.net.URI;
-import java.nio.file.Paths;
 
 import static com.keenwrite.Bootstrap.APP_TITLE;
 import static com.keenwrite.Messages.get;
 import static com.keenwrite.Messages.getUri;
-import static javafx.application.Platform.runLater;
+import static com.keenwrite.typesetting.installer.panes.WindowsManagerInstallPane.WIN_BIN;
 
 /**
  * Responsible for downloading the container manager software on Windows.
  */
 public final class WindowsManagerDownloadPane extends InstallerPane {
-  private static final String WIN_BIN = "windows.container.binary";
 
   /**
    * Property for the download thread to help ensure safe reentrancy.
@@ -41,7 +36,7 @@ public final class WindowsManagerDownloadPane extends InstallerPane {
 
   public WindowsManagerDownloadPane() {
     mUri = getUri( PREFIX + ".download.link.url" );
-    mFilename = getFilename( mUri );
+    mFilename = toFilename( mUri );
     final var directory = UserDataDir.getAppPath( APP_TITLE );
     mTarget = directory.resolve( mFilename ).toFile();
     final var source = labelf( PREFIX + ".paths", mFilename, directory );
@@ -109,39 +104,5 @@ public final class WindowsManagerDownloadPane extends InstallerPane {
   @Override
   public String getHeaderKey() {
     return PREFIX + ".header";
-  }
-
-  /**
-   * Downloads a resource to a local file in a separate {@link Thread}.
-   *
-   * @param uri      The resource to download.
-   * @param file     The destination mTarget for the resource.
-   * @param listener Receives updates as the download proceeds.
-   */
-  private static Task<Void> downloadAsync(
-    final URI uri,
-    final File file,
-    final ProgressListener listener ) {
-    final Task<Void> task = createTask( () -> {
-      try( final var token = DownloadManager.open( uri ) ) {
-        final var output = new FileOutputStream( file );
-        final var downloader = token.download( output, listener );
-
-        downloader.run();
-      }
-
-      return null;
-    } );
-
-    createThread( task ).start();
-    return task;
-  }
-
-  private static void update( final Label node, final String text ) {
-    runLater( () -> node.setText( text ) );
-  }
-
-  private static String getFilename( final URI uri ) {
-    return Paths.get( uri.getPath() ).toFile().getName();
   }
 }
