@@ -9,6 +9,12 @@ import org.controlsfx.dialog.Wizard;
 
 import static com.keenwrite.Messages.get;
 
+/**
+ * Responsible for showing the output from running commands against a container
+ * manager. There are a few installation steps that run different commands
+ * against the installer, which are platform-specific and cannot be merged.
+ * Common functionality between them is codified in this class.
+ */
 public abstract class ManagerOutputPane extends InstallerPane {
   private final String PROP_INITIALIZER = getClass().getCanonicalName();
 

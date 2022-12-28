@@ -1,6 +1,9 @@
 /* Copyright 2022 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.typesetting.installer.panes;
 
+/**
+ * Responsible for informing the user as to what will happen next.
+ */
 public final class IntroductionPane extends InstallerPane {
   private static final String PREFIX = "Wizard.typesetter.all.1.install";
 

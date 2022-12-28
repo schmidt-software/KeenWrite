@@ -20,7 +20,10 @@ import static com.keenwrite.Messages.get;
 import static com.keenwrite.Messages.getUri;
 import static javafx.application.Platform.runLater;
 
-public final class WindowsContainerDownloadPane extends InstallerPane {
+/**
+ * Responsible for downloading the container manager software on Windows.
+ */
+public final class WindowsManagerDownloadPane extends InstallerPane {
   private static final String WIN_BIN = "windows.container.binary";
 
   /**
@@ -36,7 +39,7 @@ public final class WindowsContainerDownloadPane extends InstallerPane {
   private final String mFilename;
   private final URI mUri;
 
-  public WindowsContainerDownloadPane() {
+  public WindowsManagerDownloadPane() {
     mUri = getUri( PREFIX + ".download.link.url" );
     mFilename = getFilename( mUri );
     final var directory = UserDataDir.getAppPath( APP_TITLE );

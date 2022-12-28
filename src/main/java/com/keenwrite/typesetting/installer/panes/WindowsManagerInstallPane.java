@@ -11,6 +11,9 @@ import java.io.File;
 
 import static com.keenwrite.Messages.get;
 
+/**
+ * Responsible for installing the container manager on Windows.
+ */
 public final class WindowsManagerInstallPane extends InstallerPane {
   /**
    * Property for the installation thread to help ensure safe reentrancy.

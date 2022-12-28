@@ -3,6 +3,9 @@ package com.keenwrite.typesetting.installer.panes;
 
 import static com.keenwrite.typesetting.containerization.Podman.CONTAINER_NAME;
 
+/**
+ * Responsible for installing the typesetter's image via the container manager.
+ */
 public final class TypesetterImageDownloadPane extends ManagerOutputPane {
   private static final String PREFIX =
     "Wizard.typesetter.all.4.download.image";
