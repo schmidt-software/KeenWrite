@@ -130,7 +130,6 @@ dependencies {
   implementation 'javax.validation:validation-api:2.0.1.Final'
   implementation 'org.greenrobot:eventbus-java:3.3.1'
   implementation 'commons-beanutils:commons-beanutils:1.9.4'
-  implementation 'net.lingala.zip4j:zip4j:2.11.2'
 
   // Command-line parsing
   implementation "info.picocli:picocli:${v_picocli}"

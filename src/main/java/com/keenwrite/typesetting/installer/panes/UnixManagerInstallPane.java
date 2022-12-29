@@ -41,8 +41,7 @@ public final class UnixManagerInstallPane extends InstallerPane {
       selection.select( 0 );
     }
 
-    final var distro = label(
-      PREFIX + ".os" );
+    final var distro = label( PREFIX + ".os" );
     distro.setText( distro.getText() + ":" );
     distro.setPadding( new Insets( PAD / 2.0, PAD, 0, 0 ) );
 

@@ -116,4 +116,8 @@ public abstract class AbstractDownloadPane extends InstallerPane {
   protected void updateStatus( final String suffix, final Object... args ) {
     update( mStatus, get( getPrefix() + suffix, args ) );
   }
+
+  protected void deleteTarget() {
+    final var ignored = getTarget().delete();
+  }
 }
