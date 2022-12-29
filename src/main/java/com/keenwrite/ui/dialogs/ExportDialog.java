@@ -38,7 +38,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static javafx.application.Platform.runLater;
 import static javafx.geometry.Pos.CENTER;
 import static javafx.scene.control.ButtonType.OK;
-import static org.codehaus.plexus.util.StringUtils.abbreviate;
+import static org.apache.commons.lang3.StringUtils.abbreviate;
 
 /**
  * Provides controls for exporting to PDF, such as selecting a theme and
