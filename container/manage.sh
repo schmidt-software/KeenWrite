@@ -1,4 +1,4 @@
-u!/usr/bin/env bash
+#!/usr/bin/env bash
 
 # ---------------------------------------------------------------------------
 # Copyright 2022 White Magic Software, Ltd.

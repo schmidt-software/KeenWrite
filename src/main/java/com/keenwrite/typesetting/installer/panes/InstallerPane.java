@@ -45,6 +45,9 @@ public abstract class InstallerPane extends WizardPane {
     setHeader( createHeader() );
   }
 
+  /**
+   * Returns the property bundle key representing the dialog box title.
+   */
   protected abstract String getHeaderKey();
 
   private BorderPane createHeader() {
