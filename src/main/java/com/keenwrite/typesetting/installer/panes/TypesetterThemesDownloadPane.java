@@ -33,14 +33,10 @@ public class TypesetterThemesDownloadPane extends AbstractDownloadPane {
     super.onDownloadSucceeded( threadName, properties );
     final var target = getTarget();
 
-    System.out.println( "DONE!" );
-
     try {
-      System.out.println( "UNZIP TO: " + target.toPath() );
       Zip.extract( target.toPath() );
       deleteTarget();
     } catch( final Exception ex ) {
-      ex.printStackTrace();
       clue( ex );
     }
   }

@@ -12,7 +12,8 @@ import static java.nio.file.Files.createDirectories;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 /**
- * Responsible for managing zipped archive files.
+ * Responsible for managing zipped archive files. Does not handle archives
+ * within archives.
  */
 public final class Zip {
   /**
@@ -38,7 +39,7 @@ public final class Zip {
    * Extracts each entry in the zip archive file.
    *
    * @param zipFile The archive to extract.
-   * @throws IOException Could not extract the zip file entry.
+   * @throws IOException Could not extract a zip file entry.
    */
   private static void iterate( final ZipFile zipFile )
     throws IOException {
@@ -72,7 +73,7 @@ public final class Zip {
     final ZipFile zipFile,
     final ZipEntry zipEntry,
     final Path zipEntryPath ) throws IOException {
-    // Only attempt to extract files, skipping empty directories.
+    // Only extract files, skip empty directories.
     if( !zipEntry.isDirectory() ) {
       createDirectories( zipEntryPath.getParent() );
 
