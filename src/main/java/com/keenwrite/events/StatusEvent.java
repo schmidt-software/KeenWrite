@@ -93,6 +93,12 @@ public final class StatusEvent implements AppEvent {
                    mProblem == null ? "" : toEnglish( mProblem ) );
   }
 
+  /**
+   * Returns {@code true} to allow the {@link StackTraceElement} to pass
+   * through the filter.
+   *
+   * @param e The element to check against the filter.
+   */
   private static boolean filter( final StackTraceElement e ) {
     final var clazz = e.getClassName();
     return clazz.contains( PACKAGE_NAME ) ||

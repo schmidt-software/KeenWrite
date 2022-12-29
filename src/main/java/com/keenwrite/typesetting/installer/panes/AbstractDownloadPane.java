@@ -57,7 +57,8 @@ public abstract class AbstractDownloadPane extends InstallerPane {
 
     updateProperties( properties );
 
-    final var sysFile = new SysFile( mTarget );
+    final var target = getTarget();
+    final var sysFile = new SysFile( target );
     final var checksum = getChecksum();
 
     if( sysFile.exists() ) {
@@ -68,7 +69,7 @@ public abstract class AbstractDownloadPane extends InstallerPane {
       disableNext( !checksumOk );
     }
     else {
-      final var task = downloadAsync( mUri, mTarget, ( progress, bytes ) -> {
+      final var task = downloadAsync( mUri, target, ( progress, bytes ) -> {
         final var suffix = (progress < 0 ? ".bytes" : ".progress");
 
         updateStatus( STATUS + suffix, progress, bytes );

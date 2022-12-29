@@ -25,7 +25,11 @@ public class AhoCorasickReplacer extends AbstractTextReplacer {
 
     // Definition names cannot overlap.
     final var builder = builder().ignoreOverlaps();
-    builder.addKeywords( keys( map ) );
+    final var keySet = keys( map );
+
+    if( keySet != null ) {
+      builder.addKeywords( keys( map ) );
+    }
 
     int index = 0;
 
