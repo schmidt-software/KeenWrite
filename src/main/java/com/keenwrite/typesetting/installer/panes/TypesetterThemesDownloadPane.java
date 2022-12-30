@@ -7,6 +7,9 @@ import com.keenwrite.preferences.Workspace;
 import javafx.collections.ObservableMap;
 import org.controlsfx.dialog.Wizard;
 
+import java.io.File;
+import java.io.IOException;
+
 import static com.keenwrite.Messages.get;
 import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.preferences.AppKeys.KEY_TYPESET_CONTEXT_THEMES_PATH;
@@ -31,7 +34,7 @@ public class TypesetterThemesDownloadPane extends AbstractDownloadPane {
   public void onEnteringPage( final Wizard wizard ) {
     // Delete the target themes file to force re-download so that unzipping
     // the file takes place. This side-steps checksum validation, which would
-    // be best added after downloading.
+    // be best implemented after downloading.
     deleteTarget();
     super.onEnteringPage( wizard );
   }
@@ -40,19 +43,26 @@ public class TypesetterThemesDownloadPane extends AbstractDownloadPane {
   protected void onDownloadSucceeded(
     final String threadName, final ObservableMap<Object, Object> properties ) {
     super.onDownloadSucceeded( threadName, properties );
-    final var target = getTarget();
 
     try {
-      Zip.extract( target.toPath() );
-
-      // Replace the default themes directory with the downloaded version.
-      final var root = Zip.root( target.toPath() ).toFile();
-      mWorkspace.fileProperty( KEY_TYPESET_CONTEXT_THEMES_PATH ).set( root );
-      mWorkspace.save();
-      deleteTarget();
+      process( getTarget() );
     } catch( final Exception ex ) {
       clue( ex );
     }
+  }
+
+  private void process( final File target ) throws IOException {
+    Zip.extract( target.toPath() );
+
+    // Replace the default themes directory with the downloaded version.
+    final var root = Zip.root( target.toPath() ).toFile();
+
+    // Make sure the typesetter will know where to find the themes.
+    mWorkspace.fileProperty( KEY_TYPESET_CONTEXT_THEMES_PATH ).set( root );
+    mWorkspace.save();
+
+    // The themes pack is no longer needed.
+    deleteTarget();
   }
 
   @Override
