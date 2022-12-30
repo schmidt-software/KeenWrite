@@ -92,7 +92,7 @@ public class Typesetter {
 
       try {
         manager.run(
-          TYPESETTER.getName(), ">", "/dev/null", ";", "echo", "$?"
+          format( "%s --version > /dev/null; echo $?", TYPESETTER.getName() )
         );
 
         available = "0".equals( exitCode.toString() );

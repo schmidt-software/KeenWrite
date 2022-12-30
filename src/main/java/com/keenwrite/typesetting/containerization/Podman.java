@@ -73,9 +73,23 @@ public final class Podman implements ContainerManager {
     podman( "pull", "ghcr.io/davejarvis/" + name );
   }
 
+  /**
+   * Runs:
+   * <p>
+   * <code>podman run --network="host" --rm -t IMAGE /bin/sh -lc</code>
+   * </p>
+   * followed by the given arguments.
+   *
+   * @param args The command and arguments to run against the container.
+   * @return The exit code from running the container manager (not the
+   * exit code from running the command).
+   * @throws CommandNotFoundException Container manager couldn't be found.
+   */
   @Override
   public int run( final String... args ) throws CommandNotFoundException {
-    final var prefix = new String[]{"run", "--rm", CONTAINER_NAME};
+    final var prefix = new String[]{
+      "run", "--rm", "--network=host", "-t", CONTAINER_NAME, "/bin/sh", "-lc"
+    };
 
     return podman( toArray( prefix, args ) );
   }
