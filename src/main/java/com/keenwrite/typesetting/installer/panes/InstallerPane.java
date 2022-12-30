@@ -17,6 +17,7 @@ import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.Pane;
 import org.controlsfx.dialog.Wizard;
 import org.controlsfx.dialog.WizardPane;
 
@@ -207,7 +208,7 @@ public abstract class InstallerPane extends WizardPane {
    * @return A new empty vertical gap widget.
    */
   static Node spacer() {
-    final var spacer = new FlowPane();
+    final var spacer = new Pane();
     spacer.setPadding( new Insets( PAD, 0, 0, 0 ) );
 
     return spacer;
