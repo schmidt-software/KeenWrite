@@ -63,14 +63,14 @@ public abstract class AbstractDownloadPane extends InstallerPane {
 
     if( sysFile.exists() ) {
       final var checksumOk = sysFile.isChecksum( checksum );
-      final var suffix = (checksumOk ? ".ok" : ".no");
+      final var suffix = checksumOk ? ".ok" : ".no";
 
       updateStatus( STATUS + ".checksum" + suffix, mFilename );
       disableNext( !checksumOk );
     }
     else {
       final var task = downloadAsync( mUri, target, ( progress, bytes ) -> {
-        final var suffix = (progress < 0 ? ".bytes" : ".progress");
+        final var suffix = progress < 0 ? ".bytes" : ".progress";
 
         updateStatus( STATUS + suffix, progress, bytes );
       } );

@@ -3,11 +3,13 @@ package com.keenwrite.typesetting.installer.panes;
 
 import com.keenwrite.io.UserDataDir;
 import com.keenwrite.io.Zip;
+import com.keenwrite.preferences.Workspace;
 import javafx.collections.ObservableMap;
 import org.controlsfx.dialog.Wizard;
 
 import static com.keenwrite.Messages.get;
 import static com.keenwrite.events.StatusEvent.clue;
+import static com.keenwrite.preferences.AppKeys.KEY_TYPESET_CONTEXT_THEMES_PATH;
 
 /**
  * Responsible for downloading themes into the application's data directory.
@@ -17,6 +19,13 @@ import static com.keenwrite.events.StatusEvent.clue;
 public class TypesetterThemesDownloadPane extends AbstractDownloadPane {
   private static final String PREFIX =
     "Wizard.typesetter.all.5.download.themes";
+
+  private final Workspace mWorkspace;
+
+  public TypesetterThemesDownloadPane( final Workspace workspace ) {
+    assert workspace != null;
+    mWorkspace = workspace;
+  }
 
   @Override
   public void onEnteringPage( final Wizard wizard ) {
@@ -35,6 +44,9 @@ public class TypesetterThemesDownloadPane extends AbstractDownloadPane {
 
     try {
       Zip.extract( target.toPath() );
+      final var root = Zip.root( target.toPath() ).toFile();
+      mWorkspace.fileProperty( KEY_TYPESET_CONTEXT_THEMES_PATH ).set( root );
+      mWorkspace.save();
       deleteTarget();
     } catch( final Exception ex ) {
       clue( ex );

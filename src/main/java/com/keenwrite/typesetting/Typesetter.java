@@ -74,7 +74,7 @@ public class Typesetter {
     }
 
     /**
-     * @param autoClean {@code true} to remove all temporary files after
+     * @param autoClean {@code true} to remove all temporary files after the
      *                  typesetter produces a PDF file.
      */
     public void setAutoClean( final boolean autoClean ) {

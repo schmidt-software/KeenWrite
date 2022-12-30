@@ -2,9 +2,12 @@
 package com.keenwrite.io;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.BiConsumer;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -28,33 +31,80 @@ public final class Zip {
    *                     zip archive.
    */
   public static void extract( final Path zipPath ) throws IOException {
-    assert !zipPath.toFile().isDirectory();
+    final var path = zipPath.getParent().normalize();
 
-    try( final var zipFile = new ZipFile( zipPath.toFile() ) ) {
-      iterate( zipFile );
-    }
-  }
-
-  /**
-   * Extracts each entry in the zip archive file.
-   *
-   * @param zipFile The archive to extract.
-   * @throws IOException Could not extract a zip file entry.
-   */
-  private static void iterate( final ZipFile zipFile )
-    throws IOException {
-    // Determine the directory name where the zip archive resides. Files will
-    // be extracted relative to that directory.
-    final var path = getDirectory( zipFile );
-    final var entries = zipFile.entries();
-
-    while( entries.hasMoreElements() ) {
-      final var zipEntry = entries.nextElement();
+    iterate( zipPath, ( zipFile, zipEntry ) -> {
+      // Determine the directory name where the zip archive resides. Files will
+      // be extracted relative to that directory.
       final var zipEntryPath = path.resolve( zipEntry.getName() );
 
       // Guard against zip slip.
       if( zipEntryPath.normalize().startsWith( path ) ) {
-        extract( zipFile, zipEntry, zipEntryPath );
+        try {
+          extract( zipFile, zipEntry, zipEntryPath );
+        } catch( final IOException ex ) {
+          throw new UncheckedIOException( ex );
+        }
+      }
+    } );
+  }
+
+  /**
+   * Returns the first root-level directory found in the zip archive. Only call
+   * this function if you know there is exactly one top-level directory in the
+   * zip archive. If there are multiple top-level directories, one of the
+   * directories will be returned, albeit indeterminately. No files are
+   * extracted when calling this function.
+   *
+   * @param zipPath The path to the zip archive to process.
+   * @return The fully qualified root-level directory resolved relatively to
+   * the zip archive itself.
+   * @throws IOException Could not process the zip archive.
+   */
+  public static Path root( final Path zipPath ) throws IOException {
+    // Directory that contains the zip archive file.
+    final var zipParent = zipPath.getParent();
+
+    if( zipParent == null ) {
+      throw new IOException( zipPath + " has no parent" );
+    }
+
+    final var result = new AtomicReference<>( zipParent );
+
+    iterate( zipPath, ( zipFile, zipEntry ) -> {
+      final var zipEntryPath = Path.of( zipEntry.getName() );
+
+      // The first entry without a parent is considered the root-level entry.
+      // Return the relative directory path to that entry.
+      if( zipEntryPath.getParent() == null ) {
+        result.set( zipParent.resolve( zipEntryPath ) );
+      }
+    } );
+
+    // The zip file doesn't have a sane folder structure, so return the
+    // directory where the zip file was found.
+    return result.get();
+  }
+
+  /**
+   * Processes each entry in the zip archive.
+   *
+   * @param zipPath  The path to the zip file being processed.
+   * @param consumer The {@link BiConsumer} that receives each entry in the
+   *                 zip archive.
+   * @throws IOException Could not extract zip file entries.
+   */
+  private static void iterate(
+    final Path zipPath,
+    final BiConsumer<ZipFile, ZipEntry> consumer )
+    throws IOException {
+    assert zipPath.toFile().isFile();
+
+    try( final var zipFile = new ZipFile( zipPath.toFile() ) ) {
+      final var entries = zipFile.entries();
+
+      while( entries.hasMoreElements() ) {
+        consumer.accept( zipFile, entries.nextElement() );
       }
     }
   }
@@ -81,24 +131,5 @@ public final class Zip {
         Files.copy( in, zipEntryPath, REPLACE_EXISTING );
       }
     }
-  }
-
-  /**
-   * Helper method to return the normalized directory where the given archive
-   * resides.
-   *
-   * @param zipFile The {@link ZipFile} having a path to normalize.
-   * @return The directory containing the given {@link ZipFile}.
-   * @throws IOException The zip file has no parent directory.
-   */
-  private static Path getDirectory( final ZipFile zipFile ) throws IOException {
-    final var zipPath = Path.of( zipFile.getName() );
-    final var parent = zipPath.getParent();
-
-    if( parent == null ) {
-      throw new IOException( zipFile.getName() + " has no parent directory." );
-    }
-
-    return parent.normalize();
   }
 }

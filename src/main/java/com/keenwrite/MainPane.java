@@ -179,6 +179,9 @@ public final class MainPane extends SplitPane {
 
   private final DocumentStatistics mStatistics;
 
+  @SuppressWarnings( "FieldCanBeLocal" )
+  private final TypesetterInstaller mInstallWizard;
+
   /**
    * Adds all content panels to the main user interface. This will load the
    * configuration settings from the workspace to reproduce the settings from
@@ -220,7 +223,7 @@ public final class MainPane extends SplitPane {
     restoreSession();
     runLater( this::restoreFocus );
 
-    new TypesetterInstaller();
+    mInstallWizard = new TypesetterInstaller( workspace );
   }
 
   /**

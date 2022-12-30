@@ -2,6 +2,7 @@
 package com.keenwrite.typesetting.installer;
 
 import com.keenwrite.events.ExportFailedEvent;
+import com.keenwrite.preferences.Workspace;
 import com.keenwrite.typesetting.installer.panes.*;
 import org.controlsfx.dialog.Wizard;
 import org.greenrobot.eventbus.Subscribe;
@@ -16,7 +17,13 @@ import static org.apache.commons.lang3.SystemUtils.*;
  * Responsible for installing the typesetting system and all its requirements.
  */
 public final class TypesetterInstaller {
-  public TypesetterInstaller() {
+  private final Workspace mWorkspace;
+
+  public TypesetterInstaller( final Workspace workspace ) {
+    assert workspace != null;
+
+    mWorkspace = workspace;
+
     register( this );
   }
 
@@ -73,7 +80,7 @@ public final class TypesetterInstaller {
     panes.add( new TypesetterImageDownloadPane() );
 
     // STEP 5: Download and install typesetter themes (all)
-    panes.add( new TypesetterThemesDownloadPane() );
+    panes.add( new TypesetterThemesDownloadPane( mWorkspace ) );
 
     return panes.toArray( InstallerPane[]::new );
   }
