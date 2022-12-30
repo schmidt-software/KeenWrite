@@ -62,6 +62,7 @@ public final class Podman implements ContainerManager {
   @Override
   public void start() throws CommandNotFoundException {
     machine( "stop" );
+    podman( "system", "prune", "--force" );
     machine( "rm", "--force" );
     machine( "init" );
     machine( "start" );

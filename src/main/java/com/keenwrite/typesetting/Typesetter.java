@@ -2,7 +2,9 @@
 package com.keenwrite.typesetting;
 
 import com.keenwrite.collections.BoundedCache;
+import com.keenwrite.io.CommandNotFoundException;
 import com.keenwrite.io.SysFile;
+import com.keenwrite.typesetting.containerization.Podman;
 import com.keenwrite.util.GenericBuilder;
 
 import java.io.*;
@@ -78,7 +80,26 @@ public class Typesetter {
   }
 
   public static boolean canRun() {
-    return TYPESETTER.canRun() || MANAGER.canRun();
+    return TYPESETTER.canRun() || containerCanRun();
+  }
+
+  private static boolean containerCanRun() {
+    boolean available = false;
+
+    if( MANAGER.canRun() ) {
+      final var exitCode = new StringBuilder();
+      final var manager = new Podman( exitCode::append );
+
+      try {
+        manager.run(
+          TYPESETTER.getName(), ">", "/dev/null", ";", "echo", "$?"
+        );
+
+        available = "0".equals( exitCode.toString() );
+      } catch( final CommandNotFoundException ignored ) { }
+    }
+
+    return available;
   }
 
   /**

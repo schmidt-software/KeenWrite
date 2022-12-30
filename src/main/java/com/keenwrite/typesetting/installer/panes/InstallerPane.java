@@ -8,12 +8,10 @@ import com.keenwrite.typesetting.containerization.ContainerManager;
 import com.keenwrite.typesetting.containerization.Podman;
 import javafx.animation.Animation;
 import javafx.animation.RotateTransition;
-import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.FlowPane;
@@ -65,7 +63,7 @@ public abstract class InstallerPane extends WizardPane {
   @Override
   public void onExitingPage( final Wizard wizard ) {
     super.onExitingPage( wizard );
-    stopAnimation( getNextButton() );
+    runLater( () -> stopAnimation( getNextButton() ) );
   }
 
   /**
@@ -100,22 +98,25 @@ public abstract class InstallerPane extends WizardPane {
    * @param disable Set to {@code true} to disable the button.
    */
   void disableNext( final boolean disable ) {
-    final var button = getNextButton();
-    Platform.runLater( () -> button.setDisable( disable ) );
+    runLater( () -> {
+      final var button = getNextButton();
 
-    if( disable ) {
-      startAnimation( button );
-    }
-    else {
-      stopAnimation( button );
-    }
+      button.setDisable( disable );
+
+      if( disable ) {
+        startAnimation( button );
+      }
+      else {
+        stopAnimation( button );
+      }
+    } );
   }
 
   /**
    * Returns the {@link Button} for advancing the wizard to the next pane.
    *
-   * @throws RuntimeException The {@link ButtonData#NEXT_FORWARD} button could
-   *                          not be found on the button bar.
+   * @return The Next button, if present, otherwise a new {@link Button}
+   * instance so that API calls will succeed, despite not affecting the UI.
    */
   private Button getNextButton() {
     for( final var buttonType : getButtonTypes() ) {
@@ -127,7 +128,8 @@ public abstract class InstallerPane extends WizardPane {
       }
     }
 
-    throw new RuntimeException( "Button not found: " + NEXT_FORWARD );
+    // If there's no Next button, return a fake button.
+    return new Button();
   }
 
   private void startAnimation( final Button button ) {

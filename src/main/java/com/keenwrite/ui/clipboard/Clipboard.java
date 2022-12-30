@@ -10,7 +10,7 @@ import static javafx.scene.input.Clipboard.getSystemClipboard;
  */
 public class Clipboard {
   /**
-   * Pastes the given text into the clipboard, overwriting all data.
+   * Copies the given text into the clipboard, overwriting all data.
    *
    * @param text The text to insert into the clipboard.
    */

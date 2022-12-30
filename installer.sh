@@ -42,7 +42,7 @@ ARG_PATH_DIST_JAR="${SCRIPT_DIR}/build/libs/${FILE_APP_JAR}"
 
 DEPENDENCIES=(
   "gradle,https://gradle.org"
-  "warp-packer,https://github.com/dgiagio/warp"
+  "warp-packer,https://github.com/Reisz/warp/releases"
   "tar,https://www.gnu.org/software/tar"
   "unzip,http://infozip.sourceforge.net"
 )
@@ -202,8 +202,9 @@ utile_create_launcher() {
   fi
 
   warp-packer \
+    pack \
     --arch "${ARG_JAVA_OS}-${ARG_JAVA_ARCH}" \
-    --input_dir "${ARG_DIR_DIST}" \
+    --input-dir "${ARG_DIR_DIST}" \
     --exec "${FILE_DIST_EXEC}" \
     --output "${FILE_APP_NAME}" > /dev/null
 
