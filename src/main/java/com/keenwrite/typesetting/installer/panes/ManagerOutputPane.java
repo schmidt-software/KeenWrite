@@ -37,8 +37,8 @@ public abstract class ManagerOutputPane extends InstallerPane {
     mTextArea = textArea( 5, cols );
     mContainer = createContainer( mTextArea );
 
-    final var titledPane = titledPane( "Output", mTextArea );
     final var borderPane = new BorderPane();
+    final var titledPane = titledPane( "Output", mTextArea );
 
     borderPane.setBottom( titledPane );
     setContent( borderPane );

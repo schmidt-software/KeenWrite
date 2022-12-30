@@ -95,6 +95,8 @@ public final class GuiCommands {
    */
   private final SearchModel mSearchModel;
 
+  private boolean mCanTypeset;
+
   public GuiCommands( final MainScene scene, final MainPane pane ) {
     mMainScene = scene;
     mMainPane = pane;
@@ -260,12 +262,17 @@ public final class GuiCommands {
       .with( ExportSettings.Mutator::setChapters, chapters )
       .build();
 
-    if( Typesetter.canRun() ) {
+    if( mCanTypeset || Typesetter.canRun() ) {
       // If the typesetter is installed, allow the user to select a theme. If
       // the themes aren't installed, a status message will appear.
       if( ExportDialog.choose( getWindow(), themes, settings, dir ) ) {
         file_export( APPLICATION_PDF, dir );
       }
+
+      // Don't re-validate the typesetter installation each time. If the
+      // user mucks up the typesetter installation, it'll get caught the
+      // next time the application is started.
+      mCanTypeset = true;
     }
     else {
       fireExportFailedEvent();

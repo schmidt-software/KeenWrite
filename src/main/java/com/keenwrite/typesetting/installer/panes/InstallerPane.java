@@ -164,7 +164,9 @@ public abstract class InstallerPane extends WizardPane {
 
   static TitledPane titledPane( final String title, final Node child ) {
     final var pane = new TitledPane( title, child );
+    pane.setAnimated( false );
     pane.setCollapsible( false );
+    pane.setExpanded( true );
 
     return pane;
   }
