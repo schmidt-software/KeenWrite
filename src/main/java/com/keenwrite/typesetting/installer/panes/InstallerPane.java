@@ -6,11 +6,14 @@ import com.keenwrite.io.downloads.DownloadManager;
 import com.keenwrite.io.downloads.DownloadManager.ProgressListener;
 import com.keenwrite.typesetting.containerization.ContainerManager;
 import com.keenwrite.typesetting.containerization.Podman;
+import javafx.animation.Animation;
+import javafx.animation.RotateTransition;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.*;
+import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.FlowPane;
@@ -26,14 +29,22 @@ import java.util.concurrent.Callable;
 import static com.keenwrite.Messages.get;
 import static com.keenwrite.constants.GraphicsConstants.ICON_DIALOG;
 import static java.lang.System.lineSeparator;
+import static javafx.animation.Interpolator.LINEAR;
 import static javafx.application.Platform.runLater;
 import static javafx.scene.control.ButtonBar.ButtonData.NEXT_FORWARD;
+import static javafx.scene.control.ContentDisplay.RIGHT;
+import static javafx.util.Duration.seconds;
 
 /**
  * Responsible for creating a {@link WizardPane} with a common header for all
  * subclasses.
  */
 public abstract class InstallerPane extends WizardPane {
+  /**
+   * Unique key name to store the animation object so that it can be stopped.
+   */
+  private static final String PROP_ROTATION = "Wizard.typesetter.next.animate";
+
   /**
    * Defines amount of spacing between the installer's UI widgets, in pixels.
    */
@@ -43,6 +54,17 @@ public abstract class InstallerPane extends WizardPane {
 
   public InstallerPane() {
     setHeader( createHeader() );
+  }
+
+  /**
+   * When leaving the page, stop the animation. This is idempotent.
+   *
+   * @param wizard The wizard controlling the installer steps.
+   */
+  @Override
+  public void onExitingPage( final Wizard wizard ) {
+    super.onExitingPage( wizard );
+    stopAnimation( getNextButton() );
   }
 
   /**
@@ -77,14 +99,63 @@ public abstract class InstallerPane extends WizardPane {
    * @param disable Set to {@code true} to disable the button.
    */
   void disableNext( final boolean disable ) {
+    final var button = getNextButton();
+    Platform.runLater( () -> button.setDisable( disable ) );
+
+    if( disable ) {
+      startAnimation( button );
+    }
+    else {
+      stopAnimation( button );
+    }
+  }
+
+  /**
+   * Returns the {@link Button} for advancing the wizard to the next pane.
+   *
+   * @throws RuntimeException The {@link ButtonData#NEXT_FORWARD} button could
+   *                          not be found on the button bar.
+   */
+  private Button getNextButton() {
     for( final var buttonType : getButtonTypes() ) {
       final var buttonData = buttonType.getButtonData();
 
-      if( buttonData.equals( NEXT_FORWARD ) ) {
-        final var button = lookupButton( buttonType );
-        Platform.runLater( () -> button.setDisable( disable ) );
-        break;
+      if( buttonData.equals( NEXT_FORWARD ) &&
+        lookupButton( buttonType ) instanceof Button button ) {
+        return button;
       }
+    }
+
+    throw new RuntimeException( "Button not found: " + NEXT_FORWARD );
+  }
+
+  private void startAnimation( final Button button ) {
+    // Create an image that is slightly taller than the button's font.
+    final var graphic = new ImageView( ICON_DIALOG );
+    graphic.setFitHeight( button.getFont().getSize() + 2 );
+    graphic.setPreserveRatio( true );
+    graphic.setSmooth( true );
+
+    button.setGraphic( graphic );
+    button.setGraphicTextGap( PAD );
+    button.setContentDisplay( RIGHT );
+
+    final var rotation = new RotateTransition( seconds( 1 ), graphic );
+    getProperties().put( PROP_ROTATION, rotation );
+
+    rotation.setCycleCount( Animation.INDEFINITE );
+    rotation.setByAngle( 360 );
+    rotation.setInterpolator( LINEAR );
+    rotation.play();
+  }
+
+  private void stopAnimation( final Button button ) {
+    final var animation = getProperties().get( PROP_ROTATION );
+
+    if( animation instanceof RotateTransition rotation ) {
+      rotation.stop();
+      button.setGraphic( null );
+      getProperties().remove( PROP_ROTATION );
     }
   }
 

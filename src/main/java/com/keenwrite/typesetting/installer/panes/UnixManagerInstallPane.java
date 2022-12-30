@@ -86,6 +86,7 @@ public final class UnixManagerInstallPane extends InstallerPane {
     final var layout = new BorderPane();
     final var copyButton = button( PREFIX + ".copy.began" );
 
+    // Change the label to indicate clipboard is updated.
     copyButton.setOnAction( event -> {
       Clipboard.write( mCommands.getText() );
       copyButton.setText( get( PREFIX + ".copy.ended" ) );
