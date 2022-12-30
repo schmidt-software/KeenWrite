@@ -121,6 +121,11 @@ public abstract class InstallerPane extends WizardPane {
     return new Label( get( key, values ) );
   }
 
+  @SuppressWarnings( "SameParameterValue" )
+  static Button button( final String key ) {
+    return new Button( get( key ) );
+  }
+
   static Node flowPane( final Node... nodes ) {
     return new FlowPane( nodes );
   }

@@ -1,8 +1,12 @@
 /* Copyright 2022 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.typesetting.installer.panes;
 
+import com.keenwrite.ui.clipboard.Clipboard;
 import javafx.geometry.Insets;
+import javafx.scene.Node;
+import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.TextArea;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -17,14 +21,15 @@ public final class UnixManagerInstallPane extends InstallerPane {
   private static final String PREFIX =
     "Wizard.typesetter.unix.2.install.container";
 
+  private final TextArea mCommands = textArea( 2, 40 );
+
   public UnixManagerInstallPane() {
-    final var commands = textArea( 2, 40 );
-    final var titledPane = titledPane( "Run", commands );
+    final var titledPane = titledPane( "Run", mCommands );
     final var comboBox = createUnixOsCommandMap();
     final var selection = comboBox.getSelectionModel();
     selection
       .selectedItemProperty()
-      .addListener( ( c, o, n ) -> commands.setText( n.command() ) );
+      .addListener( ( c, o, n ) -> mCommands.setText( n.command() ) );
 
     // Auto-select if running on macOS.
     if( IS_OS_MAC ) {
@@ -73,6 +78,28 @@ public final class UnixManagerInstallPane extends InstallerPane {
     border.setBottom( titledPane );
 
     setContent( border );
+  }
+
+  @Override
+  public Node createButtonBar() {
+    final var node = super.createButtonBar();
+    final var layout = new BorderPane();
+    final var copyButton = button( PREFIX + ".copy.began" );
+
+    copyButton.setOnAction( event -> {
+      Clipboard.write( mCommands.getText() );
+      copyButton.setText( get( PREFIX + ".copy.ended" ) );
+    } );
+
+    if( node instanceof ButtonBar buttonBar ) {
+      copyButton.setMinWidth( buttonBar.getButtonMinWidth() );
+    }
+
+    layout.setPadding( new Insets( PAD, PAD, PAD, PAD ) );
+    layout.setLeft( copyButton );
+    layout.setRight( node );
+
+    return layout;
   }
 
   @Override
