@@ -42,6 +42,14 @@ public final class UserDataDir {
 
   private UserDataDir() { }
 
+  /**
+   * Makes a valiant attempt at determining where to create application-specific
+   * files, regardless of operating system.
+   *
+   * @param appName The application name that seeks to create files.
+   * @return A fully qualified {@link Path} to a directory wherein files may
+   * be created that are user- and application-specific.
+   */
   public static Path getAppPath( final String appName ) {
     final var osPath = isWindows()
       ? getWinAppPath()
