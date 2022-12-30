@@ -262,17 +262,18 @@ public final class GuiCommands {
       .with( ExportSettings.Mutator::setChapters, chapters )
       .build();
 
-    if( mCanTypeset || Typesetter.canRun() ) {
+    // Don't re-validate the typesetter installation each time. If the
+    // user mucks up the typesetter installation, it'll get caught the
+    // next time the application is started. Don't use |= because it
+    // won't short-circuit.
+    mCanTypeset = mCanTypeset || Typesetter.canRun();
+
+    if( mCanTypeset ) {
       // If the typesetter is installed, allow the user to select a theme. If
       // the themes aren't installed, a status message will appear.
       if( ExportDialog.choose( getWindow(), themes, settings, dir ) ) {
         file_export( APPLICATION_PDF, dir );
       }
-
-      // Don't re-validate the typesetter installation each time. If the
-      // user mucks up the typesetter installation, it'll get caught the
-      // next time the application is started.
-      mCanTypeset = true;
     }
     else {
       fireExportFailedEvent();
@@ -531,7 +532,7 @@ public final class GuiCommands {
     getMainPane().viewOutline();
   }
 
-  public void view_files() {getMainPane().viewFiles();}
+  public void view_files() { getMainPane().viewFiles(); }
 
   public void view_statistics() {
     getMainPane().viewStatistics();

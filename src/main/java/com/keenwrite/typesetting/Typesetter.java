@@ -34,7 +34,10 @@ import static org.apache.commons.io.FilenameUtils.removeExtension;
  * construct suitable command-line arguments to invoke the typesetting engine.
  */
 public class Typesetter {
-  public static final SysFile TYPESETTER = new SysFile( "mtxrun" );
+  private static final String TYPESETTER_EXE = "mtxrun";
+  private static final String TYPESETTER_VERSION =
+    TYPESETTER_EXE + " --version > /dev/null";
+  private static final SysFile TYPESETTER = new SysFile( TYPESETTER_EXE );
 
   private final Mutator mMutator;
 
@@ -79,27 +82,32 @@ public class Typesetter {
     }
   }
 
+  /**
+   * Answers whether the typesetting software is installed locally or within
+   * a containerized environment. If either is true, then this will return
+   * {@code true}.
+   *
+   * @return {@code true} if the typesetting software can be launched from
+   * either a local install or a containerized installation.
+   */
   public static boolean canRun() {
     return TYPESETTER.canRun() || containerCanRun();
   }
 
   private static boolean containerCanRun() {
-    boolean available = false;
-
     if( MANAGER.canRun() ) {
       final var exitCode = new StringBuilder();
-      final var manager = new Podman( exitCode::append );
+      final var manager = new Podman( s -> exitCode.append( s.trim() ) );
 
       try {
-        manager.run(
-          format( "%s --version > /dev/null; echo $?", TYPESETTER.getName() )
-        );
+        manager.run( TYPESETTER_VERSION + "; echo $?" );
 
-        available = "0".equals( exitCode.toString() );
+        // If the typesetter ran with an exit code of 0, it is available.
+        return exitCode.indexOf( "0" ) == 0;
       } catch( final CommandNotFoundException ignored ) { }
     }
 
-    return available;
+    return false;
   }
 
   /**
@@ -422,7 +430,7 @@ public class Typesetter {
    */
   public void typeset()
     throws IOException, InterruptedException, TypesetterNotFoundException {
-    if( TYPESETTER.canRun() ) {
+    if( Typesetter.canRun() ) {
       final var outputPath = getOutputPath();
 
       clue( "Main.status.typeset.began", outputPath );
