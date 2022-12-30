@@ -44,6 +44,8 @@ public class TypesetterThemesDownloadPane extends AbstractDownloadPane {
 
     try {
       Zip.extract( target.toPath() );
+
+      // Replace the default themes directory with the downloaded version.
       final var root = Zip.root( target.toPath() ).toFile();
       mWorkspace.fileProperty( KEY_TYPESET_CONTEXT_THEMES_PATH ).set( root );
       mWorkspace.save();

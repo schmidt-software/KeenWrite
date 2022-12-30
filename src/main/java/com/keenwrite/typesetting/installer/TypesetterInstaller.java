@@ -2,6 +2,7 @@
 package com.keenwrite.typesetting.installer;
 
 import com.keenwrite.events.ExportFailedEvent;
+import com.keenwrite.preferences.AppKeys;
 import com.keenwrite.preferences.Workspace;
 import com.keenwrite.typesetting.installer.panes.*;
 import org.controlsfx.dialog.Wizard;
@@ -19,6 +20,13 @@ import static org.apache.commons.lang3.SystemUtils.*;
 public final class TypesetterInstaller {
   private final Workspace mWorkspace;
 
+  /**
+   * Registers for the {@link ExportFailedEvent}, which, when received,
+   * indicates that the typesetting software must be installed.
+   *
+   * @param workspace To set {@link AppKeys#KEY_TYPESET_CONTEXT_THEMES_PATH} via
+   *                  {@link TypesetterThemesDownloadPane}.
+   */
   public TypesetterInstaller( final Workspace workspace ) {
     assert workspace != null;
 

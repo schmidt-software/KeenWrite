@@ -179,7 +179,7 @@ public final class MainPane extends SplitPane {
 
   private final DocumentStatistics mStatistics;
 
-  @SuppressWarnings( "FieldCanBeLocal" )
+  @SuppressWarnings( {"FieldCanBeLocal", "unused"} )
   private final TypesetterInstaller mInstallWizard;
 
   /**
