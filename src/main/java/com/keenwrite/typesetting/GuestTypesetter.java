@@ -24,7 +24,9 @@ public final class GuestTypesetter extends Typesetter
 
   @Override
   public Void call() throws Exception {
-    System.out.println( "Typeset using the container yo yo yo" );
+    final var sb = new StringBuilder( 128 );
+    options().forEach( arg -> sb.append( arg ).append( " " ) );
+    System.out.println( sb );
 
     return null;
   }

@@ -11,10 +11,7 @@ import java.nio.file.Path;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Scanner;
 import java.util.concurrent.Callable;
-import java.util.regex.Pattern;
 
 import static com.keenwrite.constants.Constants.DEFAULT_DIRECTORY;
 import static com.keenwrite.events.StatusEvent.clue;
@@ -85,8 +82,6 @@ public final class HostTypesetter extends Typesetter implements Callable<Void> {
      * @return {@code true} if the cache directory exists.
      */
     private boolean reinitialize() {
-      final var filename = getOutputPath().getFileName();
-      final var theme = getThemePath();
       final var cacheExists = !isEmpty( getCacheDir().toPath() );
 
       // Ensure invoking multiple times will load the correct arguments.
@@ -94,16 +89,7 @@ public final class HostTypesetter extends Typesetter implements Callable<Void> {
       mArgs.add( TYPESETTER_EXE );
 
       if( cacheExists ) {
-        mArgs.add( "--autogenerate" );
-        mArgs.add( "--script" );
-        mArgs.add( "mtx-context" );
-        mArgs.add( "--batchmode" );
-        mArgs.add( "--nonstopmode" );
-        mArgs.add( "--purgeall" );
-        mArgs.add( "--path='" + theme + "'" );
-        mArgs.add( "--environment='main'" );
-        mArgs.add( "--result='" + filename + "'" );
-        mArgs.add( getInputPath().toString() );
+        mArgs.addAll( options() );
 
         final var sb = new StringBuilder( 128 );
         mArgs.forEach( arg -> sb.append( arg ).append( " " ) );
@@ -134,7 +120,7 @@ public final class HostTypesetter extends Typesetter implements Callable<Void> {
     @Override
     public Boolean call() throws IOException, InterruptedException {
       final var stdout = new BoundedCache<String, String>( 150 );
-      final var builder = new ProcessBuilder( mArgs );
+      final var builder = new ProcessBuilder( options() );
       builder.directory( mDirectory.toFile() );
       builder.environment().put( "TEXMFCACHE", getCacheDir().toString() );
 
@@ -249,81 +235,6 @@ public final class HostTypesetter extends Typesetter implements Callable<Void> {
       } catch( final IOException ex ) {
         throw new RuntimeException( ex );
       }
-    }
-  }
-
-  /**
-   * Responsible for parsing the output from the typesetting engine and
-   * updating the status bar to provide assurance that typesetting is
-   * executing.
-   *
-   * <p>
-   * Example lines written to standard output:
-   * </p>
-   * <pre>{@code
-   * pages           > flushing realpage 15, userpage 15, subpage 15
-   * pages           > flushing realpage 16, userpage 16, subpage 16
-   * pages           > flushing realpage 1, userpage 1, subpage 1
-   * pages           > flushing realpage 2, userpage 2, subpage 2
-   * }</pre>
-   * <p>
-   * The lines are parsed; the first number is displayed as a status bar
-   * message.
-   * </p>
-   */
-  private static class PaginationListener extends Thread {
-    private static final Pattern DIGITS = Pattern.compile( "\\D+" );
-
-    private final InputStream mInputStream;
-
-    private final Map<String, String> mCache;
-
-    public PaginationListener(
-      final InputStream in, final Map<String, String> cache ) {
-      mInputStream = in;
-      mCache = cache;
-    }
-
-    public void run() {
-      try( final var reader = createReader( mInputStream ) ) {
-        int pageCount = 1;
-        int passCount = 1;
-        int pageTotal = 0;
-        String line;
-
-        while( (line = reader.readLine()) != null ) {
-          mCache.put( line, "" );
-
-          if( line.startsWith( "pages" ) ) {
-            // The bottleneck will be the typesetting engine writing to stdout,
-            // not the parsing of stdout.
-            final var scanner = new Scanner( line ).useDelimiter( DIGITS );
-            final var digits = scanner.next();
-            final var page = Integer.parseInt( digits );
-
-            // If the page number is less than the previous page count, it
-            // means that the typesetting engine has started another pass.
-            if( page < pageCount ) {
-              passCount++;
-              pageTotal = pageCount;
-            }
-
-            pageCount = page;
-
-            // Inform the user of pages being typeset.
-            clue( "Main.status.typeset.page",
-                  pageCount, pageTotal < 1 ? "?" : pageTotal, passCount
-            );
-          }
-        }
-      } catch( final IOException ex ) {
-        clue( ex );
-        throw new RuntimeException( ex );
-      }
-    }
-
-    private BufferedReader createReader( final InputStream inputStream ) {
-      return new BufferedReader( new InputStreamReader( inputStream ) );
     }
   }
 

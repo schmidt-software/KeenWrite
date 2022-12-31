@@ -76,7 +76,7 @@ public final class Podman implements ContainerManager {
   /**
    * Runs:
    * <p>
-   * <code>podman run --network="host" --rm -t IMAGE /bin/sh -lc</code>
+   * <code>podman run --network=host --rm -t IMAGE /bin/sh -lc</code>
    * </p>
    * followed by the given arguments.
    *
