@@ -27,6 +27,7 @@ public class Typesetter {
     private Path mInputPath;
     private Path mOutputPath;
     private Path mThemePath;
+    private Path mImagePath;
     private boolean mAutoClean;
 
     /**
@@ -52,6 +53,13 @@ public class Typesetter {
     }
 
     /**
+     * @param imagePath Fully qualified path to the images directory.
+     */
+    public void setImagePath( final Path imagePath ) {
+      mImagePath = imagePath;
+    }
+
+    /**
      * @param autoClean {@code true} to remove all temporary files after the
      *                  typesetter produces a PDF file.
      */
@@ -69,6 +77,10 @@ public class Typesetter {
 
     public Path getThemePath() {
       return mThemePath;
+    }
+
+    public Path getImagePath() {
+      return mImagePath;
     }
 
     public boolean isAutoClean() {
@@ -108,15 +120,17 @@ public class Typesetter {
    * Generates the command-line arguments used to invoke the typesetter.
    */
   List<String> options() {
-    final var themePath = getThemePath();
     final var inputDoc = getInputPath().toString();
     final var outputDoc = getOutputPath().getFileName();
+    final var themePath = getThemePath();
+    final var imagePath = getImagePath();
 
     final var args = new LinkedList<String>();
 
     args.add( "--autogenerate" );
     args.add( "--script" );
     args.add( "mtx-context" );
+    args.add( "--arguments=imagedir=" + getImagePath().toString() );
     args.add( "--batchmode" );
     args.add( "--nonstopmode" );
     args.add( "--purgeall" );
@@ -138,6 +152,10 @@ public class Typesetter {
 
   private Path getThemePath() {
     return mMutator.getThemePath();
+  }
+
+  protected Path getImagePath() {
+    return mMutator.getImagePath();
   }
 
   /**

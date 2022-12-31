@@ -120,7 +120,7 @@ public final class HostTypesetter extends Typesetter implements Callable<Void> {
     @Override
     public Boolean call() throws IOException, InterruptedException {
       final var stdout = new BoundedCache<String, String>( 150 );
-      final var builder = new ProcessBuilder( options() );
+      final var builder = new ProcessBuilder( mArgs );
       builder.directory( mDirectory.toFile() );
       builder.environment().put( "TEXMFCACHE", getCacheDir().toString() );
 

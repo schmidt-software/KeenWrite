@@ -40,6 +40,7 @@ public final class PdfProcessor extends ExecutorProcessor<String> {
         .with( Mutator::setInputPath, writeString( document, xhtml ) )
         .with( Mutator::setOutputPath, context.getOutputPath() )
         .with( Mutator::setThemePath, context.getThemePath() )
+        .with( Mutator::setImagePath, context.getImageDir() )
         .with( Mutator::setAutoClean, context.getAutoClean() )
         .build();
 

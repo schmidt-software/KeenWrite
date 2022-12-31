@@ -80,9 +80,10 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
           final var attr = attrs.getNamedItem( "src" );
 
           if( attr != null ) {
-            final var imageFile = exportImage( attr.getTextContent() );
+            final var location = exportImage( attr.getTextContent() );
+            final var relative = mContext.getImageDir().relativize( location );
 
-            attr.setTextContent( imageFile.toString() );
+            attr.setTextContent( relative.toString() );
           }
         } catch( final Exception ex ) {
           clue( ex );
