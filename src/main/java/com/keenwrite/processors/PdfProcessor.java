@@ -3,8 +3,6 @@ package com.keenwrite.processors;
 
 import com.keenwrite.typesetting.Typesetter;
 
-import java.io.IOException;
-
 import static com.keenwrite.Bootstrap.APP_TITLE_LOWERCASE;
 import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.io.MediaType.TEXT_XML;
@@ -17,11 +15,11 @@ import static java.nio.file.Files.writeString;
  * into a PDF file. This must not be run from the JavaFX thread.
  */
 public final class PdfProcessor extends ExecutorProcessor<String> {
-  private final ProcessorContext mContext;
+  private final ProcessorContext mProcessorContext;
 
   public PdfProcessor( final ProcessorContext context ) {
     assert context != null;
-    mContext = context;
+    mProcessorContext = context;
   }
 
   /**
@@ -35,7 +33,7 @@ public final class PdfProcessor extends ExecutorProcessor<String> {
   public String apply( final String xhtml ) {
     try {
       clue( "Main.status.typeset.create" );
-      final var context = mContext;
+      final var context = mProcessorContext;
       final var document = TEXT_XML.createTempFile( APP_TITLE_LOWERCASE );
       final var typesetter = Typesetter
         .builder()
@@ -51,7 +49,7 @@ public final class PdfProcessor extends ExecutorProcessor<String> {
       if( typesetter.autoclean() ) {
         deleteIfExists( document );
       }
-    } catch( final IOException | InterruptedException ex ) {
+    } catch( final Exception ex ) {
       // Typesetter runtime exceptions will pass up the call stack.
       clue( "Main.status.typeset.failed", ex );
     }
