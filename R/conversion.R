@@ -83,7 +83,8 @@ concat <- paste0
 
 # -----------------------------------------------------------------------------
 # Translates a number from digits to words using Chicago Manual of Style.
-# This does not translate numbers greater than one hundred. If ordinal
+# This will translate numbers greater than one by truncating to nearest
+# thousandth, millionth, billionth, etc. regardless of oridinal. If ordinal
 # is TRUE, this will return the ordinal name. This will not produce ordinals
 # for numbers greater than 100.
 # -----------------------------------------------------------------------------
@@ -104,6 +105,21 @@ cms <- function( n, ordinal = FALSE ) {
     n = abs( n )
   }
 
+  if( n > 999 ) {
+    scales <- c(
+      "thousand", "million", "billion", "trillion", "quadrillion",
+      "quintillion", "sextillion", "septillion", "octillion", "nonillion",
+      "decillion", "undecillion", "duodecillion", "tredecillion",
+      "quattuordecillion", "quindecillion", "sexdecillion", "septendecillion",
+      "octodecillion", "novemdecillion", "vigintillion", "centillion",
+      "quadrillion", "quitillion", "sextillion"
+    );
+
+    d <- round( n / (10 ^ (log10( n ) - log10( n ) %% 3)) );
+    n <- floor( log10( n ) ) / 3;
+    return( paste( cms( d ), scales[ n ] ) );
+  }
+
   # Do not spell out numbers greater than one hundred.
   if( n > 100 ) {
     # Comma-separated numbers.
@@ -121,17 +137,16 @@ cms <- function( n, ordinal = FALSE ) {
 
   # Samuel Langhorne Clemens noted English has too many exceptions.
   small = c(
-    "one", "two", "three", "four", "five",
-    "six", "seven", "eight", "nine", "ten",
-    "eleven", "twelve", "thirteen", "fourteen", "fifteen",
-    "sixteen", "seventeen", "eighteen", "nineteen"
+    "one", "two", "three", "four", "five", "six", "seven", "eight", "nine",
+    "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen",
+    "seventeen", "eighteen", "nineteen"
   )
 
   ord_small = c(
-    "first", "second", "third", "fourth", "fifth",
-    "sixth", "seventh", "eighth", "ninth", "tenth",
-    "eleventh", "twelfth", "thirteenth", "fourteenth", "fifteenth",
-    "sixteenth", "seventeenth", "eighteenth", "nineteenth", "twentieth"
+    "first", "second", "third", "fourth", "fifth", "sixth", "seventh",
+    "eighth", "ninth", "tenth", "eleventh", "twelfth", "thirteenth",
+    "fourteenth", "fifteenth", "sixteenth", "seventeenth", "eighteenth",
+    "nineteenth", "twentieth"
   )
 
   # After this, the number (n) is between 20 and 99.
@@ -179,6 +194,10 @@ cms <- function( n, ordinal = FALSE ) {
   # Hyphenate the tens and the ones together.
   concat( unit_10, concat( "-", unit_1 ) )
 }
+
+cms.big <- function( n ) {
+}
+
 
 # -----------------------------------------------------------------------------
 # Returns a number as a comma-delimited string. This is a work-around
