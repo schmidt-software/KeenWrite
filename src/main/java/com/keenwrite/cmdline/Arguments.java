@@ -211,15 +211,15 @@ public final class Arguments implements Callable<Integer> {
 
     return ProcessorContext
       .builder()
-      .with( Mutator::setInputPath, mPathInput )
-      .with( Mutator::setOutputPath, mPathOutput )
+      .with( Mutator::setSourcePath, mPathInput )
+      .with( Mutator::setTargetPath, mPathOutput )
       .with( Mutator::setExportFormat, format )
       .with( Mutator::setDefinitions, () -> definitions )
       .with( Mutator::setMetadata, () -> mMetadata )
       .with( Mutator::setLocale, () -> locale )
-      .with( Mutator::setThemePath, () -> mDirTheme )
+      .with( Mutator::setThemesPath, () -> mDirTheme )
       .with( Mutator::setConcatenate, mConcatenate )
-      .with( Mutator::setImageDir, () -> mImageDir )
+      .with( Mutator::setImagesPath, () -> mImageDir )
       .with( Mutator::setImageServer, () -> mImageServer )
       .with( Mutator::setImageOrder, () -> mImageOrder )
       .with( Mutator::setSigilBegan, () -> mSigilBegan )
@@ -227,7 +227,7 @@ public final class Arguments implements Callable<Integer> {
       .with( Mutator::setRWorkingDir, () -> mRWorkingDir )
       .with( Mutator::setRScript, () -> rScript )
       .with( Mutator::setCurlQuotes, () -> mCurlQuotes )
-      .with( Mutator::setAutoClean, () -> !mKeepFiles )
+      .with( Mutator::setAutoRemove, () -> !mKeepFiles )
       .build();
   }
 

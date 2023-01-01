@@ -12,8 +12,10 @@ ENV PROFILE=/etc/profile
 
 ENV INSTALL_DIR=/opt
 ENV FONT_DIR=/usr/share/fonts/user
-ENV DOC_DIR=/root/text
-ENV IMAGE_DIR=/root/images
+ENV TARGET_DIR=/root/target
+ENV SOURCE_DIR=/root/source
+ENV IMAGES_DIR=/root/images
+ENV THEMES_DIR=/root/themes
 ENV DOWNLOAD_DIR=/root
 
 ENV CONTEXT_HOME=$INSTALL_DIR/context
@@ -64,7 +66,9 @@ WORKDIR $CONTEXT_HOME
 RUN \
   apk --update --no-cache \
     add ca-certificates curl fontconfig inkscape rsync && \
-  mkdir -p "$FONT_DIR" "$DOC_DIR" "$IMAGE_DIR" "$INSTALL_DIR" && \
+  mkdir -p \
+    "$FONT_DIR" "$INSTALL_DIR" \
+    "$TARGET_DIR" "$SOURCE_DIR" "$THEMES_DIR" "$IMAGES_DIR" && \
   echo "export CONTEXT_HOME=\"$CONTEXT_HOME\"" >> $PROFILE && \
   echo "export PATH=\"\$PATH:\$CONTEXT_HOME/tex/texmf-linuxmusl/bin\"" >> $PROFILE && \
   echo "export OSFONTDIR=\"/usr/share/fonts//\"" && \

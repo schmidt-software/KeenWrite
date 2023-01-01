@@ -7,6 +7,7 @@ import com.keenwrite.typesetting.containerization.Podman;
 import java.util.concurrent.Callable;
 
 import static com.keenwrite.typesetting.containerization.Podman.MANAGER;
+import static com.keenwrite.typesetting.containerization.Podman.mountPoint;
 
 /**
  * Responsible for invoking an executable to typeset text. This will
@@ -15,6 +16,9 @@ import static com.keenwrite.typesetting.containerization.Podman.MANAGER;
  */
 public final class GuestTypesetter extends Typesetter
   implements Callable<Void> {
+  private static final boolean READONLY = true;
+  private static final boolean READWRITE = !READONLY;
+
   private static final String TYPESETTER_VERSION =
     TYPESETTER_EXE + " --version > /dev/null";
 
@@ -24,9 +28,15 @@ public final class GuestTypesetter extends Typesetter
 
   @Override
   public Void call() throws Exception {
-    final var sb = new StringBuilder( 128 );
-    options().forEach( arg -> sb.append( arg ).append( " " ) );
-    System.out.println( sb );
+    final var targetDir = getTargetPath().getParent();
+    final var sourceDir = getSourcePath().getParent();
+    final var themesDir = getThemesPath().getParent();
+    final var imagesDir = getImagesPath();
+
+    final var target = mountPoint( targetDir, "/root/target", READWRITE );
+    final var source = mountPoint( sourceDir, "/root/source", READONLY );
+    final var themes = mountPoint( themesDir, "/root/themes", READONLY );
+    final var images = mountPoint( imagesDir, "/root/images", READONLY );
 
     return null;
   }

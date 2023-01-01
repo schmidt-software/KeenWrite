@@ -30,6 +30,26 @@ public final class Podman implements ContainerManager {
   private final Consumer<String> mConsumer;
 
   /**
+   * Generates a command-line argument representing a mount point between
+   * the host and guest systems.
+   *
+   * @param hostDir  The host directory to mount in the container.
+   * @param guestDir The guest directory to map from the container to host.
+   * @param readonly Set {@code true} to make the mount point read-only.
+   * @return A string representing a command-line argument to pass back
+   * into an instance of this class when running commands.
+   */
+  public static String mountPoint(
+    final Path hostDir, final String guestDir, final boolean readonly ) {
+    assert hostDir != null;
+    assert guestDir != null;
+    assert !guestDir.isBlank();
+    assert hostDir.toFile().isDirectory();
+
+    return format( "-v %s:%s:%s", hostDir, guestDir, readonly ? "ro" : "Z" );
+  }
+
+  /**
    * @param consumer Receives stdout/stderr from commands run on a container.
    */
   public Podman( final Consumer<String> consumer ) {

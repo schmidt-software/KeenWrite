@@ -42,13 +42,13 @@ public class XhtmlProcessorTest {
     final var caret = Caret.builder().build();
     return builder()
       .with( ProcessorContext.Mutator::setExportFormat, format )
-      .with( ProcessorContext.Mutator::setInputPath, Path.of( "f.md" ) )
+      .with( ProcessorContext.Mutator::setSourcePath, Path.of( "f.md" ) )
       .with( ProcessorContext.Mutator::setDefinitions, HashMap::new )
       .with( ProcessorContext.Mutator::setLocale, () -> ENGLISH )
       .with( ProcessorContext.Mutator::setMetadata, HashMap::new )
-      .with( ProcessorContext.Mutator::setThemePath, () -> Path.of( "b" ) )
+      .with( ProcessorContext.Mutator::setThemesPath, () -> Path.of( "b" ) )
       .with( ProcessorContext.Mutator::setCaret, () -> caret )
-      .with( ProcessorContext.Mutator::setImageDir, () -> new File( "i" ) )
+      .with( ProcessorContext.Mutator::setImagesPath, () -> new File( "i" ) )
       .with( ProcessorContext.Mutator::setImageOrder, () -> "" )
       .with( ProcessorContext.Mutator::setImageServer, () -> "" )
       .with( ProcessorContext.Mutator::setSigilBegan, () -> "" )
@@ -56,7 +56,7 @@ public class XhtmlProcessorTest {
       .with( ProcessorContext.Mutator::setRScript, () -> "" )
       .with( ProcessorContext.Mutator::setRWorkingDir, () -> Path.of( "r" ) )
       .with( ProcessorContext.Mutator::setCurlQuotes, () -> true )
-      .with( ProcessorContext.Mutator::setAutoClean, () -> true )
+      .with( ProcessorContext.Mutator::setAutoRemove, () -> true )
       .build();
   }
 

@@ -561,7 +561,7 @@ public final class Workspace {
     return map;
   }
 
-  public Path getThemePath() {
+  public Path getThemesPath() {
     final var dir = getFile( KEY_TYPESET_CONTEXT_THEMES_PATH );
     final var name = getString( KEY_TYPESET_CONTEXT_THEME_SELECTION );
 

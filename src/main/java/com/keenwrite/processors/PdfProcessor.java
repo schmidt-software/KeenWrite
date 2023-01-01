@@ -37,11 +37,11 @@ public final class PdfProcessor extends ExecutorProcessor<String> {
       final var document = TEXT_XML.createTempFile( APP_TITLE_LOWERCASE );
       final var typesetter = Typesetter
         .builder()
-        .with( Mutator::setInputPath, writeString( document, xhtml ) )
-        .with( Mutator::setOutputPath, context.getOutputPath() )
-        .with( Mutator::setThemePath, context.getThemePath() )
-        .with( Mutator::setImagePath, context.getImageDir() )
-        .with( Mutator::setAutoClean, context.getAutoClean() )
+        .with( Mutator::setSourcePath, writeString( document, xhtml ) )
+        .with( Mutator::setTargetPath, context.getTargetPath() )
+        .with( Mutator::setThemesPath, context.getThemesPath() )
+        .with( Mutator::setImagesPath, context.getImagesPath() )
+        .with( Mutator::setAutoRemove, context.getAutoRemove() )
         .build();
 
       typesetter.typeset();

@@ -81,7 +81,7 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
 
           if( attr != null ) {
             final var location = exportImage( attr.getTextContent() );
-            final var relative = mContext.getImageDir().relativize( location );
+            final var relative = mContext.getImagesPath().relativize( location );
 
             attr.setTextContent( relative.toString() );
           }
@@ -232,7 +232,7 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
   }
 
   private String getImagePath() {
-    return mContext.getImageDir().toString();
+    return mContext.getImagesPath().toString();
   }
 
   /**
@@ -262,7 +262,7 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
   }
 
   private boolean autoclean() {
-    return mContext.getAutoClean();
+    return mContext.getAutoRemove();
   }
 
   private String wordCount( final Document doc ) {

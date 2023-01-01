@@ -185,7 +185,7 @@ utile_execute() {
   $log "Running \"${ARG_CONTAINER_COMMAND}\":"
 
   ${CONTAINER_EXE} run \
-    --network="${CONTAINER_NETWORK}" \
+    --network=${CONTAINER_NETWORK} \
     --rm \
     -i \
     -t "${CONTAINER_NAME}" \

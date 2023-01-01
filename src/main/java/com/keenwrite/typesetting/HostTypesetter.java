@@ -71,7 +71,7 @@ public final class HostTypesetter extends Typesetter implements Callable<Void> {
     private final Path mDirectory;
 
     private TypesetTask() {
-      final var parentDir = getOutputPath().getParent();
+      final var parentDir = getTargetPath().getParent();
       mDirectory = parentDir == null ? DEFAULT_DIRECTORY : parentDir;
     }
 
@@ -147,8 +147,8 @@ public final class HostTypesetter extends Typesetter implements Callable<Void> {
       // If there was an error, the typesetter will leave behind log, pdf, and
       // error files.
       if( exit > 0 ) {
-        final var xmlName = getInputPath().getFileName().toString();
-        final var srcName = getOutputPath().getFileName().toString();
+        final var xmlName = getSourcePath().getFileName().toString();
+        final var srcName = getTargetPath().getFileName().toString();
         final var logName = newExtension( xmlName, ".log" );
         final var errName = newExtension( xmlName, "-error.log" );
         final var pdfName = newExtension( xmlName, ".pdf" );
@@ -178,7 +178,7 @@ public final class HostTypesetter extends Typesetter implements Callable<Void> {
     }
 
     private Path newExtension( final String baseName, final String ext ) {
-      final var path = getOutputPath();
+      final var path = getTargetPath();
       return path.resolveSibling( removeExtension( baseName ) + ext );
     }
 
@@ -251,7 +251,7 @@ public final class HostTypesetter extends Typesetter implements Callable<Void> {
   @Override
   public Void call()
     throws IOException, InterruptedException, TypesetterNotFoundException {
-    final var outputPath = getOutputPath();
+    final var outputPath = getTargetPath();
     final var prefix = "Main.status.typeset";
 
     clue( prefix + ".began", outputPath );

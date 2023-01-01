@@ -1022,10 +1022,10 @@ public final class MainPane extends SplitPane {
       .with( Mutator::setDefinitions, this::getDefinitions )
       .with( Mutator::setLocale, w::getLocale )
       .with( Mutator::setMetadata, w::getMetadata )
-      .with( Mutator::setThemePath, w::getThemePath )
+      .with( Mutator::setThemesPath, w::getThemesPath )
       .with( Mutator::setCaret,
              () -> getTextEditor().getCaret() )
-      .with( Mutator::setImageDir,
+      .with( Mutator::setImagesPath,
              () -> w.getFile( KEY_IMAGES_DIR ) )
       .with( Mutator::setImageOrder,
              () -> w.getString( KEY_IMAGES_ORDER ) )
@@ -1041,7 +1041,7 @@ public final class MainPane extends SplitPane {
              () -> w.getFile( KEY_R_DIR ).toPath() )
       .with( Mutator::setCurlQuotes,
              () -> w.getBoolean( KEY_TYPESET_TYPOGRAPHY_QUOTES ) )
-      .with( Mutator::setAutoClean,
+      .with( Mutator::setAutoRemove,
              () -> w.getBoolean( KEY_TYPESET_CONTEXT_CLEAN ) );
   }
 
@@ -1050,19 +1050,19 @@ public final class MainPane extends SplitPane {
   }
 
   /**
-   * @param outputPath Used when exporting to a PDF file (binary).
+   * @param targetPath Used when exporting to a PDF file (binary).
    * @param format     Used when processors export to a new text format.
    * @return A new {@link ProcessorContext} to use when creating an instance of
    * {@link Processor}.
    */
   public ProcessorContext createProcessorContext(
-    final Path outputPath, final ExportFormat format ) {
+    final Path targetPath, final ExportFormat format ) {
     final var textEditor = getTextEditor();
-    final var inputPath = textEditor.getPath();
+    final var sourcePath = textEditor.getPath();
 
     return processorContextBuilder()
-      .with( Mutator::setInputPath, inputPath )
-      .with( Mutator::setOutputPath, outputPath )
+      .with( Mutator::setSourcePath, sourcePath )
+      .with( Mutator::setTargetPath, targetPath )
       .with( Mutator::setExportFormat, format )
       .build();
   }
@@ -1075,7 +1075,7 @@ public final class MainPane extends SplitPane {
    */
   private ProcessorContext createProcessorContext( final Path inputPath ) {
     return processorContextBuilder()
-      .with( Mutator::setInputPath, inputPath )
+      .with( Mutator::setSourcePath, inputPath )
       .with( Mutator::setExportFormat, NONE )
       .build();
   }

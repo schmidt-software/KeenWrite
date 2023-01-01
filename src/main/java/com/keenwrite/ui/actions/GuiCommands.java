@@ -196,10 +196,10 @@ public final class GuiCommands {
     selection.ifPresent( files -> {
       editor.save();
 
-      final var file = files.get( 0 );
-      final var path = file.toPath();
+      final var sourceFile = files.get( 0 );
+      final var sourcePath = sourceFile.toPath();
       final var document = dir ? append( editor ) : editor.getText();
-      final var context = main.createProcessorContext( path, format );
+      final var context = main.createProcessorContext( sourcePath, format );
 
       final var task = new Task<Path>() {
         @Override
@@ -209,14 +209,14 @@ public final class GuiCommands {
 
           // Processors can export binary files. In such cases, processors
           // return null to prevent further processing.
-          return export == null ? null : writeString( path, export );
+          return export == null ? null : writeString( sourcePath, export );
         }
       };
 
       task.setOnSucceeded(
         e -> {
           // Remember the exported file name for next time.
-          exported.setValue( file );
+          exported.setValue( sourceFile );
 
           final var result = task.getValue();
 

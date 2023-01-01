@@ -76,19 +76,19 @@ public final class ProcessorContext {
    * context.
    */
   public static class Mutator {
-    private Path mInputPath;
-    private Path mOutputPath;
+    private Path mSourcePath;
+    private Path mTargetPath;
     private ExportFormat mExportFormat;
     private boolean mConcatenate;
 
-    private Supplier<Path> mThemePath;
+    private Supplier<Path> mThemesPath;
     private Supplier<Locale> mLocale = () -> Locale.ENGLISH;
 
     private Supplier<Map<String, String>> mDefinitions = HashMap::new;
     private Supplier<Map<String, String>> mMetadata = HashMap::new;
     private Supplier<Caret> mCaret = () -> Caret.builder().build();
 
-    private Supplier<Path> mImageDir;
+    private Supplier<Path> mImagesPath;
     private Supplier<String> mImageServer = () -> DIAGRAM_SERVER_NAME;
     private Supplier<String> mImageOrder = () -> PERSIST_IMAGES_DEFAULT;
 
@@ -99,21 +99,21 @@ public final class ProcessorContext {
     private Supplier<String> mRScript = () -> "";
 
     private Supplier<Boolean> mCurlQuotes = () -> true;
-    private Supplier<Boolean> mAutoClean = () -> true;
+    private Supplier<Boolean> mAutoRemove = () -> true;
 
-    public void setInputPath( final Path inputPath ) {
-      assert inputPath != null;
-      mInputPath = inputPath;
+    public void setSourcePath( final Path sourcePath ) {
+      assert sourcePath != null;
+      mSourcePath = sourcePath;
     }
 
-    public void setOutputPath( final Path outputPath ) {
+    public void setTargetPath( final Path outputPath ) {
       assert outputPath != null;
-      mOutputPath = outputPath;
+      mTargetPath = outputPath;
     }
 
-    public void setOutputPath( final File outputPath ) {
+    public void setTargetPath( final File outputPath ) {
       assert outputPath != null;
-      setOutputPath( outputPath.toPath() );
+      setTargetPath( outputPath.toPath() );
     }
 
     public void setExportFormat( final ExportFormat exportFormat ) {
@@ -130,9 +130,9 @@ public final class ProcessorContext {
       mLocale = locale;
     }
 
-    public void setThemePath( final Supplier<Path> themePath ) {
-      assert themePath != null;
-      mThemePath = themePath;
+    public void setThemesPath( final Supplier<Path> themesPath ) {
+      assert themesPath != null;
+      mThemesPath = themesPath;
     }
 
     /**
@@ -165,10 +165,10 @@ public final class ProcessorContext {
       mCaret = caret;
     }
 
-    public void setImageDir( final Supplier<File> imageDir ) {
+    public void setImagesPath( final Supplier<File> imageDir ) {
       assert imageDir != null;
 
-      mImageDir = () -> {
+      mImagesPath = () -> {
         final var dir = imageDir.get();
 
         return (dir == null ? USER_DIRECTORY : dir).toPath();
@@ -211,9 +211,9 @@ public final class ProcessorContext {
       mCurlQuotes = curlQuotes;
     }
 
-    public void setAutoClean( final Supplier<Boolean> autoClean ) {
-      assert autoClean != null;
-      mAutoClean = autoClean;
+    public void setAutoRemove( final Supplier<Boolean> autoRemove ) {
+      assert autoRemove != null;
+      mAutoRemove = autoRemove;
     }
 
     private boolean isExportFormat( final ExportFormat format ) {
@@ -238,7 +238,7 @@ public final class ProcessorContext {
   }
 
   public Path getInputPath() {
-    return mMutator.mInputPath;
+    return mMutator.mSourcePath;
   }
 
   /**
@@ -246,8 +246,8 @@ public final class ProcessorContext {
    *
    * @return Full path to a file name.
    */
-  public Path getOutputPath() {
-    return mMutator.mOutputPath;
+  public Path getTargetPath() {
+    return mMutator.mTargetPath;
   }
 
   public ExportFormat getExportFormat() {
@@ -313,8 +313,8 @@ public final class ProcessorContext {
     return lookup( getInputPath() );
   }
 
-  public Path getImageDir() {
-    return mMutator.mImageDir.get();
+  public Path getImagesPath() {
+    return mMutator.mImagesPath.get();
   }
 
   public Iterable<String> getImageOrder() {
@@ -330,8 +330,8 @@ public final class ProcessorContext {
     return mMutator.mImageServer.get();
   }
 
-  public Path getThemePath() {
-    return mMutator.mThemePath.get();
+  public Path getThemesPath() {
+    return mMutator.mThemesPath.get();
   }
 
   public Path getRWorkingDir() {
@@ -346,8 +346,8 @@ public final class ProcessorContext {
     return mMutator.mCurlQuotes.get();
   }
 
-  public boolean getAutoClean() {
-    return mMutator.mAutoClean.get();
+  public boolean getAutoRemove() {
+    return mMutator.mAutoRemove.get();
   }
 
   /**

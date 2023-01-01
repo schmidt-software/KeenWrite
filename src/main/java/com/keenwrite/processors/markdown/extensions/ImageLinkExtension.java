@@ -138,7 +138,7 @@ public class ImageLinkExtension extends HtmlRendererAdapter {
     }
 
     private Path getImageDir() {
-      return mContext.getImageDir();
+      return mContext.getImagesPath();
     }
 
     private Iterable<String> getImageOrder() {

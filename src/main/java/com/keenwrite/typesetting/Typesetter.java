@@ -24,67 +24,67 @@ public class Typesetter {
   }
 
   public static final class Mutator {
-    private Path mInputPath;
-    private Path mOutputPath;
-    private Path mThemePath;
-    private Path mImagePath;
-    private boolean mAutoClean;
+    private Path mSourcePath;
+    private Path mTargetPath;
+    private Path mThemesPath;
+    private Path mImagesPath;
+    private boolean mAutoRemove;
 
     /**
      * @param inputPath The input document to typeset.
      */
-    public void setInputPath( final Path inputPath ) {
-      mInputPath = inputPath;
+    public void setSourcePath( final Path inputPath ) {
+      mSourcePath = inputPath;
     }
 
     /**
      * @param outputPath Path to the finished typeset document to create.
      */
-    public void setOutputPath( final Path outputPath ) {
-      mOutputPath = outputPath;
+    public void setTargetPath( final Path outputPath ) {
+      mTargetPath = outputPath;
     }
 
     /**
      * @param themePath Fully qualified path to the theme directory, which
      *                  ends with the selected theme name.
      */
-    public void setThemePath( final Path themePath ) {
-      mThemePath = themePath;
+    public void setThemesPath( final Path themePath ) {
+      mThemesPath = themePath;
     }
 
     /**
      * @param imagePath Fully qualified path to the images directory.
      */
-    public void setImagePath( final Path imagePath ) {
-      mImagePath = imagePath;
+    public void setImagesPath( final Path imagePath ) {
+      mImagesPath = imagePath;
     }
 
     /**
-     * @param autoClean {@code true} to remove all temporary files after the
+     * @param remove {@code true} to remove all temporary files after the
      *                  typesetter produces a PDF file.
      */
-    public void setAutoClean( final boolean autoClean ) {
-      mAutoClean = autoClean;
+    public void setAutoRemove( final boolean remove ) {
+      mAutoRemove = remove;
     }
 
-    public Path getInputPath() {
-      return mInputPath;
+    public Path getSourcePath() {
+      return mSourcePath;
     }
 
-    public Path getOutputPath() {
-      return mOutputPath;
+    public Path getTargetPath() {
+      return mTargetPath;
     }
 
-    public Path getThemePath() {
-      return mThemePath;
+    public Path getThemesPath() {
+      return mThemesPath;
     }
 
-    public Path getImagePath() {
-      return mImagePath;
+    public Path getImagesPath() {
+      return mImagesPath;
     }
 
-    public boolean isAutoClean() {
-      return mAutoClean;
+    public boolean isAutoRemove() {
+      return mAutoRemove;
     }
   }
 
@@ -120,17 +120,17 @@ public class Typesetter {
    * Generates the command-line arguments used to invoke the typesetter.
    */
   List<String> options() {
-    final var inputDoc = getInputPath().toString();
-    final var outputDoc = getOutputPath().getFileName();
-    final var themePath = getThemePath();
-    final var imagePath = getImagePath();
+    final var inputDoc = getSourcePath().toString();
+    final var outputDoc = getTargetPath().getFileName();
+    final var themePath = getThemesPath();
+    final var imagePath = getImagesPath();
 
     final var args = new LinkedList<String>();
 
     args.add( "--autogenerate" );
     args.add( "--script" );
     args.add( "mtx-context" );
-    args.add( "--arguments=imagedir=" + getImagePath().toString() );
+    args.add( "--arguments=imagedir=" + imagePath );
     args.add( "--batchmode" );
     args.add( "--nonstopmode" );
     args.add( "--purgeall" );
@@ -142,20 +142,20 @@ public class Typesetter {
     return args;
   }
 
-  protected Path getInputPath() {
-    return mMutator.getInputPath();
+  protected Path getSourcePath() {
+    return mMutator.getSourcePath();
   }
 
-  protected Path getOutputPath() {
-    return mMutator.getOutputPath();
+  protected Path getTargetPath() {
+    return mMutator.getTargetPath();
   }
 
-  private Path getThemePath() {
-    return mMutator.getThemePath();
+  protected Path getThemesPath() {
+    return mMutator.getThemesPath();
   }
 
-  protected Path getImagePath() {
-    return mMutator.getImagePath();
+  protected Path getImagesPath() {
+    return mMutator.getImagesPath();
   }
 
   /**
@@ -165,7 +165,7 @@ public class Typesetter {
    * @return {@code true} to delete generated files.
    */
   public boolean autoclean() {
-    return mMutator.isAutoClean();
+    return mMutator.isAutoRemove();
   }
 
   public static boolean canRun() {

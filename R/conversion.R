@@ -87,8 +87,10 @@ concat <- paste0
 # thousandth, millionth, billionth, etc. regardless of oridinal. If ordinal
 # is TRUE, this will return the ordinal name. This will not produce ordinals
 # for numbers greater than 100.
+#
+# If scaled is TRUE, this will write large numbers as comma-separated values.
 # -----------------------------------------------------------------------------
-cms <- function( n, ordinal = FALSE ) {
+cms <- function( n, ordinal = FALSE, scaled = TRUE ) {
   n <- x( n )
 
   if( n == 0 ) {
@@ -105,7 +107,7 @@ cms <- function( n, ordinal = FALSE ) {
     n = abs( n )
   }
 
-  if( n > 999 ) {
+  if( n > 999 && scaled ) {
     scales <- c(
       "thousand", "million", "billion", "trillion", "quadrillion",
       "quintillion", "sextillion", "septillion", "octillion", "nonillion",
