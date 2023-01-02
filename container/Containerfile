@@ -11,11 +11,11 @@ ENV ENV="/etc/profile"
 ENV PROFILE=/etc/profile
 
 ENV INSTALL_DIR=/opt
-ENV FONT_DIR=/usr/share/fonts/user
-ENV TARGET_DIR=/root/target
 ENV SOURCE_DIR=/root/source
+ENV TARGET_DIR=/root/target
 ENV IMAGES_DIR=/root/images
 ENV THEMES_DIR=/root/themes
+ENV FONTS_DIR=/usr/share/fonts/user
 ENV DOWNLOAD_DIR=/root
 
 ENV CONTEXT_HOME=$INSTALL_DIR/context
@@ -33,11 +33,6 @@ ADD "https://github.com/googlefonts/carlito/raw/main/fonts/ttf/Carlito-Bold.ttf"
 ADD "https://github.com/googlefonts/carlito/raw/main/fonts/ttf/Carlito-Italic.ttf" "Carlito-Italic.ttf"
 ADD "https://github.com/googlefonts/carlito/raw/main/fonts/ttf/Carlito-BoldItalic.ttf" "Carlito-BoldItalic.ttf"
 
-# Libre Baskerville
-ADD "https://github.com/googlefonts/Libre-Baskerville/blob/master/fonts/ttf/LibreBaskerville-Regular.ttf" "LibreBaskerville-Regular.ttf"
-ADD "https://github.com/googlefonts/Libre-Baskerville/blob/master/fonts/ttf/LibreBaskerville-Bold.ttf" "LibreBaskerville-Bold.ttf"
-ADD "https://github.com/googlefonts/Libre-Baskerville/blob/master/fonts/ttf/LibreBaskerville-Italic.ttf" "LibreBaskerville-Italic.ttf"
-
 # Open Sans Emoji
 ADD "https://github.com/MorbZ/OpenSansEmoji/raw/master/OpenSansEmoji.ttf" "OpenSansEmoji.ttf"
 
@@ -47,6 +42,7 @@ ADD "https://site.xavier.edu/polt/typewriters/Underwood_Quiet_Tab.ttf" "Underwoo
 # Archives
 ADD "https://fonts.google.com/download?family=Courier%20Prime" "courier-prime.zip"
 ADD "https://fonts.google.com/download?family=Inconsolata" "inconsolata.zip"
+ADD "https://fonts.google.com/download?family=Libre%20Baskerville" "libre-baskerville.zip"
 ADD "https://fonts.google.com/download?family=Nunito" "nunito.zip"
 ADD "https://fonts.google.com/download?family=Roboto" "roboto.zip"
 ADD "https://fonts.google.com/download?family=Roboto%20Mono" "roboto-mono.zip"
@@ -67,21 +63,22 @@ RUN \
   apk --update --no-cache \
     add ca-certificates curl fontconfig inkscape rsync && \
   mkdir -p \
-    "$FONT_DIR" "$INSTALL_DIR" \
+    "$FONTS_DIR" "$INSTALL_DIR" \
     "$TARGET_DIR" "$SOURCE_DIR" "$THEMES_DIR" "$IMAGES_DIR" && \
   echo "export CONTEXT_HOME=\"$CONTEXT_HOME\"" >> $PROFILE && \
   echo "export PATH=\"\$PATH:\$CONTEXT_HOME/tex/texmf-linuxmusl/bin\"" >> $PROFILE && \
-  echo "export OSFONTDIR=\"/usr/share/fonts//\"" && \
+  echo "export OSFONTDIR=\"/usr/share/fonts//\"" >> $PROFILE && \
   echo "PS1='\\u@typesetter:\\w\\$ '" >> $PROFILE && \
   unzip -d $CONTEXT_HOME $DOWNLOAD_DIR/context.zip && \
-  unzip -j -o -d $FONT_DIR $DOWNLOAD_DIR/courier-prime.zip "*.ttf" && \
-  unzip -j -o -d $FONT_DIR $DOWNLOAD_DIR/inconsolata.zip "**/Inconsolata/*.ttf" && \
-  unzip -j -o -d $FONT_DIR $DOWNLOAD_DIR/nunito.zip "static/*.ttf" && \
-  unzip -j -o -d $FONT_DIR $DOWNLOAD_DIR/roboto.zip "*.ttf" && \
-  unzip -j -o -d $FONT_DIR $DOWNLOAD_DIR/roboto-mono.zip "static/*.ttf" && \
-  unzip -j -o -d $FONT_DIR $DOWNLOAD_DIR/source-serif.zip "source-serif-4.004/OTF/SourceSerif4-*.otf" && \
-  unzip -j -o -d $FONT_DIR $DOWNLOAD_DIR/archivo-narrow.zip "Archivo-Narrow/otf/*.otf" && \
-  mv $DOWNLOAD_DIR/*tf $FONT_DIR && \
+  unzip -j -o -d $FONTS_DIR $DOWNLOAD_DIR/courier-prime.zip "*.ttf" && \
+  unzip -j -o -d $FONTS_DIR $DOWNLOAD_DIR/libre-baskerville.zip "*.ttf" && \
+  unzip -j -o -d $FONTS_DIR $DOWNLOAD_DIR/inconsolata.zip "**/Inconsolata/*.ttf" && \
+  unzip -j -o -d $FONTS_DIR $DOWNLOAD_DIR/nunito.zip "static/*.ttf" && \
+  unzip -j -o -d $FONTS_DIR $DOWNLOAD_DIR/roboto.zip "*.ttf" && \
+  unzip -j -o -d $FONTS_DIR $DOWNLOAD_DIR/roboto-mono.zip "static/*.ttf" && \
+  unzip -j -o -d $FONTS_DIR $DOWNLOAD_DIR/source-serif.zip "source-serif-4.004/OTF/SourceSerif4-*.otf" && \
+  unzip -j -o -d $FONTS_DIR $DOWNLOAD_DIR/archivo-narrow.zip "Archivo-Narrow/otf/*.otf" && \
+  mv $DOWNLOAD_DIR/*tf $FONTS_DIR && \
   fc-cache -f -v && \
   mkdir -p tex && \
   rsync \
@@ -101,6 +98,8 @@ RUN \
     $CONTEXT_HOME/tex/texmf-context/doc && \
   mkdir -p $CONTEXT_HOME/tex/texmf-fonts/tex/context/user && \
   ln -s $CONTEXT_HOME/tex/texmf-fonts/tex/context/user $HOME/fonts && \
+  source $PROFILE && \
+  mtxrun --generate && \
   find \
     /usr/share/inkscape \
     -type f -not -iname "*.xml" -exec rm {} \; && \
@@ -109,4 +108,12 @@ RUN \
     -type f \
       \( -iname \*.pdf -o -iname \*.txt -o -iname \*.log \) \
     -exec rm {} \;
+
+# ########################################################################
+#
+# Ensure login goes to the target directory. ConTeXt prefers to export to
+# the current working directory.
+#
+# ########################################################################
+WORKDIR $TARGET_DIR
 

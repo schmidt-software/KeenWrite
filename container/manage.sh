@@ -51,7 +51,7 @@ ARGUMENTS+=(
   "b,build,Build container"
   "c,connect,Connect to container"
   "d,delete,Remove all containers"
-  "s,source,Set mount point for source files (before typesetting)"
+  "s,source,Set mount point for input document (before typesetting)"
   "t,target,Set mount point for output file (after typesetting)"
   "i,images,Set mount point for image files (to typeset)"
   "f,fonts,Set mount point for font files (during typesetting)"
@@ -223,7 +223,7 @@ utile_export() {
     ${CONTAINER_EXE} save \
       --quiet \
       -o "${BUILD_DIR}/${CONTAINER_ARCHIVE_FILE}" \
-      "${CONTAINER_SHORTNAME}"
+      "${ARG_CONTAINER_NAME}"
 
     $log "Compressing to ${CONTAINER_COMPRESSED_PATH}"
     gzip "${CONTAINER_ARCHIVE_PATH}"

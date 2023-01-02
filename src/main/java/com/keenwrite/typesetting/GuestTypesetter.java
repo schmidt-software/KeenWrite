@@ -3,16 +3,16 @@ package com.keenwrite.typesetting;
 
 import com.keenwrite.io.CommandNotFoundException;
 import com.keenwrite.typesetting.containerization.Podman;
+import org.apache.commons.io.FilenameUtils;
 
+import java.nio.file.Path;
+import java.util.LinkedList;
 import java.util.concurrent.Callable;
 
 import static com.keenwrite.typesetting.containerization.Podman.MANAGER;
-import static com.keenwrite.typesetting.containerization.Podman.mountPoint;
 
 /**
- * Responsible for invoking an executable to typeset text. This will
- * construct suitable command-line arguments to invoke the typesetting engine.
- * This uses a version of the typesetter installed in a container.
+ * Responsible for invoking a typesetter installed inside a container.
  */
 public final class GuestTypesetter extends Typesetter
   implements Callable<Void> {
@@ -27,22 +27,51 @@ public final class GuestTypesetter extends Typesetter
   }
 
   @Override
+  @SuppressWarnings( "ConstantValue" )
   public Void call() throws Exception {
-    final var targetDir = getTargetPath().getParent();
-    final var sourceDir = getSourcePath().getParent();
-    final var themesDir = getThemesPath().getParent();
+    final var sourcePath = getSourcePath();
+    final var targetPath = getTargetPath();
+    final var themesPath = getThemesPath();
+
+    final var sourceDir = sourcePath.getParent();
+    final var targetDir = targetPath.getParent();
+    final var themesDir = themesPath.getParent();
     final var imagesDir = getImagesPath();
     final var fontsDir = getFontsPath();
 
-    final var source = mountPoint( sourceDir, "/root/source", READONLY );
-    final var target = mountPoint( targetDir, "/root/target", READWRITE );
-    final var themes = mountPoint( themesDir, "/root/themes", READONLY );
-    final var images = mountPoint( imagesDir, "/root/images", READONLY );
-    final var fonts = mountPoint( fontsDir, "/root/fonts", READONLY );
+    final var sourceFile = sourcePath.getFileName();
+    final var targetFile = targetPath.getFileName();
+    final var themesFile = themesPath.getFileName();
+
+    final var manager = new Podman( System.out::println );
+    manager.mount( sourceDir, "/root/source", READONLY );
+    manager.mount( targetDir, "/root/target", READWRITE );
+    manager.mount( themesDir, "/root/themes", READONLY );
+    manager.mount( imagesDir, "/root/images", READONLY );
+    manager.mount( fontsDir, "/root/fonts", READONLY );
+
+    final var args = new LinkedList<String>();
+    args.add( TYPESETTER_EXE );
+    args.addAll( commonOptions() );
+    args.add( "--arguments=imagedir=/root/images" );
+    args.add( "--path='/root/themes/" + themesFile + "'" );
+    args.add( "--result='" + removeExtension( targetFile ) + "'" );
+    args.add( "/root/source/" + sourceFile );
+
+    final var command = String.join(" ", args);
+    manager.run( command );
 
     return null;
   }
 
+  static String removeExtension( final Path path ) {
+    return FilenameUtils.removeExtension( path.toString() );
+  }
+
+  /**
+   * @return {@code true} indicates that the containerized typesetter is
+   * installed, properly configured, and ready to typeset documents.
+   */
   static boolean isReady() {
     if( MANAGER.canRun() ) {
       final var exitCode = new StringBuilder();

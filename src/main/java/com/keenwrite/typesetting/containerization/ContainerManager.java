@@ -5,6 +5,7 @@ import com.keenwrite.io.CommandNotFoundException;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 public interface ContainerManager {
   /**
@@ -40,4 +41,23 @@ public interface ContainerManager {
    * @throws CommandNotFoundException The container executable was not found.
    */
   int run( final String... args ) throws CommandNotFoundException;
+
+  /**
+   * Convenience method to run a command using the container manager.
+   *
+   * @see #run(String...)
+   */
+  default int run( final List<String> args ) throws CommandNotFoundException {
+    return run( toArray( args ) );
+  }
+
+  /**
+   * Convenience method to convert a {@link List} into an array.
+   *
+   * @param list The elements to convert to an array.
+   * @return The converted {@link List}.
+   */
+  default String[] toArray( final List<String> list ) {
+    return list.toArray( new String[ 0 ] );
+  }
 }

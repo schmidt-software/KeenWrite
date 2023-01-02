@@ -132,24 +132,31 @@ public class Typesetter {
    * Generates the command-line arguments used to invoke the typesetter.
    */
   List<String> options() {
-    final var inputDoc = getSourcePath().toString();
-    final var outputDoc = getTargetPath().getFileName();
-    final var themePath = getThemesPath();
-    final var imagePath = getImagesPath();
+    final var args = commonOptions();
 
+    final var sourcePath = getSourcePath().toString();
+    final var targetPath = getTargetPath().getFileName();
+    final var themesPath = getThemesPath();
+    final var imagesPath = getImagesPath();
+
+    args.add( "--arguments=imagedir=" + imagesPath );
+    args.add( "--path='" + themesPath + "'" );
+    args.add( "--result='" + targetPath + "'" );
+    args.add( sourcePath );
+
+    return args;
+  }
+
+  List<String> commonOptions() {
     final var args = new LinkedList<String>();
 
     args.add( "--autogenerate" );
     args.add( "--script" );
     args.add( "mtx-context" );
-    args.add( "--arguments=imagedir=" + imagePath );
     args.add( "--batchmode" );
     args.add( "--nonstopmode" );
     args.add( "--purgeall" );
-    args.add( "--path='" + themePath + "'" );
     args.add( "--environment='main'" );
-    args.add( "--result='" + outputDoc + "'" );
-    args.add( inputDoc );
 
     return args;
   }

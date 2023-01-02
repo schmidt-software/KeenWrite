@@ -8,6 +8,9 @@ import com.keenwrite.io.SysFile;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.function.Consumer;
@@ -28,6 +31,7 @@ public final class Podman implements ContainerManager {
     format( "%s:%s", CONTAINER_SHORTNAME, CONTAINER_VERSION );
 
   private final Consumer<String> mConsumer;
+  private final List<String> mMountPoints = new LinkedList<>();
 
   /**
    * Generates a command-line argument representing a mount point between
@@ -36,17 +40,17 @@ public final class Podman implements ContainerManager {
    * @param hostDir  The host directory to mount in the container.
    * @param guestDir The guest directory to map from the container to host.
    * @param readonly Set {@code true} to make the mount point read-only.
-   * @return A string representing a command-line argument to pass back
-   * into an instance of this class when running commands.
    */
-  public static String mountPoint(
+  public void mount(
     final Path hostDir, final String guestDir, final boolean readonly ) {
     assert hostDir != null;
     assert guestDir != null;
     assert !guestDir.isBlank();
     assert hostDir.toFile().isDirectory();
 
-    return format( "-v %s:%s:%s", hostDir, guestDir, readonly ? "ro" : "Z" );
+    mMountPoints.add(
+      format( "-v%s:%s:%s", hostDir, guestDir, readonly ? "ro" : "Z" )
+    );
   }
 
   /**
@@ -107,11 +111,21 @@ public final class Podman implements ContainerManager {
    */
   @Override
   public int run( final String... args ) throws CommandNotFoundException {
-    final var prefix = new String[]{
-      "run", "--rm", "--network=host", "-t", CONTAINER_NAME, "/bin/sh", "-lc"
-    };
+    final var options = new LinkedList<String>();
+    options.add( "run" );
+    options.add( "--rm" );
+    options.add( "--network=host" );
+    options.addAll( mMountPoints );
+    options.add( "-t" );
+    options.add( CONTAINER_NAME );
+    options.add( "/bin/sh" );
+    options.add( "-lc" );
 
-    return podman( toArray( prefix, args ) );
+    final var command = toArray( toArray( options ), args );
+
+    System.out.println( Arrays.toString( command ) );
+
+    return podman( command );
   }
 
   private void machine( final String... args ) throws CommandNotFoundException {
