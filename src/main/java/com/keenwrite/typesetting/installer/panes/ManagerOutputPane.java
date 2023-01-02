@@ -2,13 +2,15 @@ package com.keenwrite.typesetting.installer.panes;
 
 import com.keenwrite.io.CommandNotFoundException;
 import com.keenwrite.typesetting.containerization.ContainerManager;
+import com.keenwrite.typesetting.containerization.StreamProcessor;
 import javafx.concurrent.Task;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.BorderPane;
-import org.apache.commons.lang3.function.FailableConsumer;
+import org.apache.commons.lang3.function.FailableBiConsumer;
 import org.controlsfx.dialog.Wizard;
 
 import static com.keenwrite.Messages.get;
+import static com.keenwrite.io.StreamGobbler.gobble;
 
 /**
  * Responsible for showing the output from running commands against a container
@@ -21,21 +23,23 @@ public abstract class ManagerOutputPane extends InstallerPane {
 
   private final String mCorrectKey;
   private final String mMissingKey;
-  private final FailableConsumer<ContainerManager, CommandNotFoundException> mFc;
+  private final FailableBiConsumer<ContainerManager, StreamProcessor,
+    CommandNotFoundException> mFc;
   private final ContainerManager mContainer;
   private final TextArea mTextArea;
 
   public ManagerOutputPane(
     final String correctKey,
     final String missingKey,
-    final FailableConsumer<ContainerManager, CommandNotFoundException> fc,
+    final FailableBiConsumer<ContainerManager, StreamProcessor,
+      CommandNotFoundException> fc,
     final int cols
   ) {
     mFc = fc;
     mCorrectKey = correctKey;
     mMissingKey = missingKey;
     mTextArea = textArea( 5, cols );
-    mContainer = createContainer( mTextArea );
+    mContainer = createContainer();
 
     final var borderPane = new BorderPane();
     final var titledPane = titledPane( "Output", mTextArea );
@@ -57,7 +61,10 @@ public abstract class ManagerOutputPane extends InstallerPane {
       }
 
       final Task<Void> task = createTask( () -> {
-        mFc.accept( mContainer );
+        mFc.accept(
+          mContainer,
+          input -> gobble( input, line -> append( mTextArea, line ) )
+        );
         properties.remove( thread );
         return null;
       } );

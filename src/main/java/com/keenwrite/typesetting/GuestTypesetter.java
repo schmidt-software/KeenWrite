@@ -2,6 +2,7 @@
 package com.keenwrite.typesetting;
 
 import com.keenwrite.io.CommandNotFoundException;
+import com.keenwrite.io.StreamGobbler;
 import com.keenwrite.typesetting.containerization.Podman;
 import org.apache.commons.io.FilenameUtils;
 
@@ -9,6 +10,7 @@ import java.nio.file.Path;
 import java.util.LinkedList;
 import java.util.concurrent.Callable;
 
+import static com.keenwrite.io.StreamGobbler.gobble;
 import static com.keenwrite.typesetting.containerization.Podman.MANAGER;
 
 /**
@@ -43,7 +45,7 @@ public final class GuestTypesetter extends Typesetter
     final var targetFile = targetPath.getFileName();
     final var themesFile = themesPath.getFileName();
 
-    final var manager = new Podman( System.out::println );
+    final var manager = new Podman();
     manager.mount( sourceDir, "/root/source", READONLY );
     manager.mount( targetDir, "/root/target", READWRITE );
     manager.mount( themesDir, "/root/themes", READONLY );
@@ -58,8 +60,10 @@ public final class GuestTypesetter extends Typesetter
     args.add( "--result='" + removeExtension( targetFile ) + "'" );
     args.add( "/root/source/" + sourceFile );
 
-    final var command = String.join(" ", args);
-    manager.run( command );
+    final var listener = new PaginationListener();
+    final var command = String.join( " ", args );
+
+    manager.run( in -> StreamGobbler.gobble( in, listener ), command );
 
     return null;
   }
@@ -75,10 +79,14 @@ public final class GuestTypesetter extends Typesetter
   static boolean isReady() {
     if( MANAGER.canRun() ) {
       final var exitCode = new StringBuilder();
-      final var manager = new Podman( s -> exitCode.append( s.trim() ) );
+      final var manager = new Podman();
 
       try {
-        manager.run( TYPESETTER_VERSION + "; echo $?" );
+        // Running blocks until the command completes.
+        manager.run(
+          input -> gobble( input, s -> exitCode.append( s.trim() ) ),
+          TYPESETTER_VERSION + "; echo $?"
+        );
 
         // If the typesetter ran with an exit code of 0, it is available.
         return exitCode.indexOf( "0" ) == 0;

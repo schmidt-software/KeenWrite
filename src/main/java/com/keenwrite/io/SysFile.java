@@ -166,14 +166,21 @@ public final class SysFile extends java.io.File {
     final var process = Runtime.getRuntime().exec( args );
     final var stream = process.getInputStream();
     final var regValue = new StringBuffer( 1024 );
-    final var gobbler = new StreamGobbler( stream, text -> {
+
+    StreamGobbler.gobble( stream, text -> {
       if( text.contains( regVarName ) ) {
         regValue.append( parseRegEntry( text ) );
       }
     } );
 
-    // Populate the buffer.
-    gobbler.call();
+    try {
+      process.waitFor();
+    } catch( final InterruptedException ex ) {
+      throw new IOException( ex );
+    } finally {
+      process.destroy();
+    }
+
 
     return regValue.toString();
   }

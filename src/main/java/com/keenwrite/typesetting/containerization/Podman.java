@@ -2,24 +2,17 @@
 package com.keenwrite.typesetting.containerization;
 
 import com.keenwrite.io.CommandNotFoundException;
-import com.keenwrite.io.StreamGobbler;
 import com.keenwrite.io.SysFile;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.function.Consumer;
 
 import static com.keenwrite.Bootstrap.CONTAINER_VERSION;
 import static java.lang.String.format;
 import static java.lang.System.arraycopy;
 import static java.util.Arrays.copyOf;
-import static java.util.concurrent.Executors.newFixedThreadPool;
 
 /**
  * Provides facilities for interacting with a container environment.
@@ -30,8 +23,77 @@ public final class Podman implements ContainerManager {
   public static final String CONTAINER_NAME =
     format( "%s:%s", CONTAINER_SHORTNAME, CONTAINER_VERSION );
 
-  private final Consumer<String> mConsumer;
   private final List<String> mMountPoints = new LinkedList<>();
+
+  public Podman() { }
+
+  @Override
+  public int install( final File exe ) {
+    // This monstrosity runs the installer in the background without displaying
+    // a secondary command window, while blocking until the installer completes
+    // and an exit code can be determined. I hate Windows.
+    final var builder = processBuilder(
+      "cmd", "/c",
+      format(
+        "start /b /high /wait cmd /c %s /quiet /install & exit ^!errorlevel^!",
+        exe.getAbsolutePath()
+      )
+    );
+
+    try {
+      // Wait for installation to finish (successfully or not).
+      return wait( builder.start() );
+    } catch( final Exception ignored ) {
+      return -1;
+    }
+  }
+
+  @Override
+  public void start( final StreamProcessor processor )
+    throws CommandNotFoundException {
+    machine( processor, "stop" );
+    podman( processor, "system", "prune", "--force" );
+    machine( processor, "rm", "--force" );
+    machine( processor, "init" );
+    machine( processor, "start" );
+  }
+
+  @Override
+  public void pull( final StreamProcessor processor, final String name )
+    throws CommandNotFoundException {
+    podman( processor, "pull", "ghcr.io/davejarvis/" + name );
+  }
+
+  /**
+   * Runs:
+   * <p>
+   * <code>podman run --network=host --rm -t IMAGE /bin/sh -lc</code>
+   * </p>
+   * followed by the given arguments.
+   *
+   * @param args The command and arguments to run against the container.
+   * @return The exit code from running the container manager (not the
+   * exit code from running the command).
+   * @throws CommandNotFoundException Container manager couldn't be found.
+   */
+  @Override
+  public int run(
+    final StreamProcessor processor,
+    final String... args ) throws CommandNotFoundException {
+    final var options = new LinkedList<String>();
+    options.add( "run" );
+    options.add( "--rm" );
+    options.add( "--network=host" );
+    options.addAll( mMountPoints );
+    options.add( "-t" );
+    options.add( CONTAINER_NAME );
+    options.add( "/bin/sh" );
+    options.add( "-lc" );
+
+    final var command = toArray( toArray( options ), args );
+
+    return podman( processor, command );
+  }
 
   /**
    * Generates a command-line argument representing a mount point between
@@ -53,131 +115,59 @@ public final class Podman implements ContainerManager {
     );
   }
 
-  /**
-   * @param consumer Receives stdout/stderr from commands run on a container.
-   */
-  public Podman( final Consumer<String> consumer ) {
-    mConsumer = consumer;
+  private static void machine(
+    final StreamProcessor processor,
+    final String... args )
+    throws CommandNotFoundException {
+    podman( processor, toArray( "machine", args ) );
   }
 
-  @Override
-  public int install( final File exe ) {
-    // This monstrosity runs the installer in the background without displaying
-    // a secondary command window, while blocking until the installer completes
-    // and an exit code can be determined. I hate Windows.
-    final var builder = processBuilder(
-      "cmd", "/c",
-      format(
-        "start /b /high /wait cmd /c %s /quiet /install & exit ^!errorlevel^!",
-        exe.getAbsolutePath()
-      )
-    );
-
-    try {
-      final var process = runAsync( builder );
-
-      // Wait for installation to finish (successfully or not).
-      return process.waitFor();
-    } catch( final Exception ignored ) {
-      return -1;
-    }
-  }
-
-  @Override
-  public void start() throws CommandNotFoundException {
-    machine( "stop" );
-    podman( "system", "prune", "--force" );
-    machine( "rm", "--force" );
-    machine( "init" );
-    machine( "start" );
-  }
-
-  @Override
-  public void pull( final String name ) throws CommandNotFoundException {
-    podman( "pull", "ghcr.io/davejarvis/" + name );
-  }
-
-  /**
-   * Runs:
-   * <p>
-   * <code>podman run --network=host --rm -t IMAGE /bin/sh -lc</code>
-   * </p>
-   * followed by the given arguments.
-   *
-   * @param args The command and arguments to run against the container.
-   * @return The exit code from running the container manager (not the
-   * exit code from running the command).
-   * @throws CommandNotFoundException Container manager couldn't be found.
-   */
-  @Override
-  public int run( final String... args ) throws CommandNotFoundException {
-    final var options = new LinkedList<String>();
-    options.add( "run" );
-    options.add( "--rm" );
-    options.add( "--network=host" );
-    options.addAll( mMountPoints );
-    options.add( "-t" );
-    options.add( CONTAINER_NAME );
-    options.add( "/bin/sh" );
-    options.add( "-lc" );
-
-    final var command = toArray( toArray( options ), args );
-
-    System.out.println( Arrays.toString( command ) );
-
-    return podman( command );
-  }
-
-  private void machine( final String... args ) throws CommandNotFoundException {
-    podman( toArray( "machine", args ) );
-  }
-
-  private int podman( final String... args ) throws CommandNotFoundException {
+  private static int podman(
+    final StreamProcessor processor, final String... args )
+    throws CommandNotFoundException {
     try {
       final var exe = MANAGER.locate();
       final var path = exe.orElseThrow();
       final var builder = processBuilder( path, args );
-      final var process = runAsync( builder );
+      final var process = builder.start();
 
-      return process.waitFor();
+      processor.start( process.getInputStream() );
+
+      return wait( process );
     } catch( final Exception ex ) {
       throw new CommandNotFoundException( MANAGER.toString() );
     }
   }
 
-  private <T> void runAsync( final Callable<T> callable ) {
-    try( final var executor = createExecutor() ) {
-      executor.submit( callable );
-    }
+  /**
+   * Performs a blocking wait until the {@link Process} completes.
+   *
+   * @param process The {@link Process} to await completion.
+   * @return The exit code from running a command.
+   * @throws InterruptedException The {@link Process} was interrupted.
+   */
+  private static int wait( final Process process ) throws InterruptedException {
+    final var exitCode = process.waitFor();
+    process.destroy();
+
+    return exitCode;
   }
 
-  private Process runAsync( final ProcessBuilder builder ) throws IOException {
-    final var process = builder.start();
-    final var output = process.getInputStream();
-    final var gobbler = new StreamGobbler( output, mConsumer );
-
-    runAsync( gobbler );
-
-    return process;
-  }
-
-  private ProcessBuilder processBuilder( final String... args ) {
+  private static ProcessBuilder processBuilder( final String... args ) {
     final var builder = new ProcessBuilder( args );
     builder.redirectErrorStream( true );
 
     return builder;
   }
 
-  private ProcessBuilder processBuilder( final File file, final String... s ) {
+  private static ProcessBuilder processBuilder(
+    final File file, final String... s ) {
     return processBuilder( toArray( file.getAbsolutePath(), s ) );
   }
 
-  private ProcessBuilder processBuilder( final Path path, final String... s ) {
+  private static ProcessBuilder processBuilder(
+    final Path path, final String... s ) {
     return processBuilder( path.toFile(), s );
-  }
-
-  private ExecutorService createExecutor() {
-    return newFixedThreadPool( 1 );
   }
 
   /**
@@ -189,7 +179,7 @@ public final class Podman implements ContainerManager {
    * @return The merged arrays, with the first array elements preceding the
    * second array's elements.
    */
-  private <T> T[] toArray( final T[] first, final T[] second ) {
+  private static <T> T[] toArray( final T[] first, final T[] second ) {
     assert first != null;
     assert second != null;
     assert first.length > 0;
@@ -208,7 +198,7 @@ public final class Podman implements ContainerManager {
    * @return A new array with the first element at index 0 and the second
    * elements starting at index 1.
    */
-  private String[] toArray( final String first, String... second ) {
+  private static String[] toArray( final String first, String... second ) {
     assert first != null;
     assert second != null;
     assert second.length > 0;

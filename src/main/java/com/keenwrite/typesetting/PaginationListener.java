@@ -1,8 +1,8 @@
+/* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.typesetting;
 
-import java.io.*;
-import java.util.Map;
 import java.util.Scanner;
+import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
 import static com.keenwrite.events.StatusEvent.clue;
@@ -26,62 +26,35 @@ import static com.keenwrite.events.StatusEvent.clue;
  * message.
  * </p>
  */
-class PaginationListener extends Thread implements Runnable {
+class PaginationListener implements Consumer<String> {
   private static final Pattern DIGITS = Pattern.compile( "\\D+" );
 
-  private final InputStream mInputStream;
+  private int mPageCount = 1;
+  private int mPassCount = 1;
+  private int mPageTotal = 0;
 
-  private final Map<String, String> mCache;
-
-  public PaginationListener(
-    final InputStream in, final Map<String, String> cache ) {
-    assert in != null;
-    assert cache != null;
-
-    mInputStream = in;
-    mCache = cache;
-  }
+  public PaginationListener() { }
 
   @Override
-  public void run() {
-    try( final var reader = createReader( mInputStream ) ) {
-      int pageCount = 1;
-      int passCount = 1;
-      int pageTotal = 0;
-      String line;
+  public void accept( final String line ) {
+    if( line.startsWith( "pages" ) ) {
+      final var scanner = new Scanner( line ).useDelimiter( DIGITS );
+      final var digits = scanner.next();
+      final var page = Integer.parseInt( digits );
 
-      while( (line = reader.readLine()) != null ) {
-        mCache.put( line, "" );
-
-        if( line.startsWith( "pages" ) ) {
-          // The bottleneck will be the typesetting engine writing to stdout,
-          // not the parsing of stdout.
-          final var scanner = new Scanner( line ).useDelimiter( DIGITS );
-          final var digits = scanner.next();
-          final var page = Integer.parseInt( digits );
-
-          // If the page number is less than the previous page count, it
-          // means that the typesetting engine has started another pass.
-          if( page < pageCount ) {
-            passCount++;
-            pageTotal = pageCount;
-          }
-
-          pageCount = page;
-
-          // Inform the user of pages being typeset.
-          clue( "Main.status.typeset.page",
-                pageCount, pageTotal < 1 ? "?" : pageTotal, passCount
-          );
-        }
+      // If the page number is less than the previous page count, it
+      // means that the typesetting engine has started another pass.
+      if( page < mPageCount ) {
+        mPassCount++;
+        mPageTotal = mPageCount;
       }
-    } catch( final IOException ex ) {
-      clue( ex );
-      throw new UncheckedIOException( ex );
-    }
-  }
 
-  private BufferedReader createReader( final InputStream inputStream ) {
-    return new BufferedReader( new InputStreamReader( inputStream ) );
+      mPageCount = page;
+
+      // Inform the user of pages being typeset.
+      clue( "Main.status.typeset.page",
+            mPageCount, mPageTotal < 1 ? "?" : mPageTotal, mPassCount
+      );
+    }
   }
 }

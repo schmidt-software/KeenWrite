@@ -21,34 +21,40 @@ public interface ContainerManager {
   /**
    * Runs preliminary commands against the container before starting.
    *
+   * @param processor Processes the command output (in a separate thread).
    * @throws CommandNotFoundException The container executable was not found.
    */
-  void start() throws CommandNotFoundException;
+  void start( StreamProcessor processor ) throws CommandNotFoundException;
 
   /**
    * Requests that the container manager load an image into the container.
    *
    * @param name The full container name of the image to pull.
+   * @param processor Processes the command output (in a separate thread).
    * @throws CommandNotFoundException The container executable was not found.
    */
-  void pull( String name ) throws CommandNotFoundException;
+  void pull( StreamProcessor processor, String name )
+    throws CommandNotFoundException;
 
   /**
    * Runs a command using the container manager.
    *
-   * @param args The command and arguments to run.
+   * @param processor Processes the command output (in a separate thread).
+   * @param args      The command and arguments to run.
    * @return The exit code returned by the installer program.
    * @throws CommandNotFoundException The container executable was not found.
    */
-  int run( final String... args ) throws CommandNotFoundException;
+  int run( StreamProcessor processor, String... args )
+    throws CommandNotFoundException;
 
   /**
    * Convenience method to run a command using the container manager.
    *
-   * @see #run(String...)
+   * @see #run(StreamProcessor, String...)
    */
-  default int run( final List<String> args ) throws CommandNotFoundException {
-    return run( toArray( args ) );
+  default int run( final StreamProcessor listener, final List<String> args )
+    throws CommandNotFoundException {
+    return run( listener, toArray( args ) );
   }
 
   /**

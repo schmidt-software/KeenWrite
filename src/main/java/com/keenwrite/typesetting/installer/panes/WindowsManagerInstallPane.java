@@ -50,7 +50,7 @@ public final class WindowsManagerInstallPane extends InstallerPane {
     final var border = new BorderPane();
     border.setTop( stepsPane );
 
-    mContainer = createContainer( mCommands );
+    mContainer = createContainer();
   }
 
   @Override

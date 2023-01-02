@@ -1,11 +1,13 @@
 /* Copyright 2022 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.typesetting;
 
-import com.keenwrite.collections.BoundedCache;
+import com.keenwrite.collections.CircularQueue;
+import com.keenwrite.io.StreamGobbler;
 import com.keenwrite.io.SysFile;
 import com.keenwrite.util.Time;
 
-import java.io.*;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.time.Duration;
@@ -119,7 +121,7 @@ public final class HostTypesetter extends Typesetter implements Callable<Void> {
 
     @Override
     public Boolean call() throws IOException, InterruptedException {
-      final var stdout = new BoundedCache<String, String>( 150 );
+      final var stdout = new CircularQueue<String>( 150 );
       final var builder = new ProcessBuilder( mArgs );
       builder.directory( mDirectory.toFile() );
       builder.environment().put( "TEXMFCACHE", getCacheDir().toString() );
@@ -129,11 +131,13 @@ public final class HostTypesetter extends Typesetter implements Callable<Void> {
       builder.redirectError( DISCARD );
 
       final var process = builder.start();
-      final var stream = process.getInputStream();
+      final var listener = new PaginationListener();
 
-      // Reading from stdout allows slurping page numbers while generating.
-      final var listener = new PaginationListener( stream, stdout );
-      listener.start();
+      // Slurp page numbers in a separate thread while typesetting.
+      StreamGobbler.gobble( process.getInputStream(), line -> {
+        listener.accept( line );
+        stdout.add( line );
+      } );
 
       // Even though the process has completed, there may be incomplete I/O.
       process.waitFor();
@@ -158,7 +162,7 @@ public final class HostTypesetter extends Typesetter implements Callable<Void> {
         log( badName );
         log( logName );
         log( errName );
-        log( stdout.keySet().stream().toList() );
+        log( stdout.stream().toList() );
 
         // Users may opt to keep these files around for debugging purposes.
         if( autoclean() ) {

@@ -266,11 +266,10 @@ public abstract class InstallerPane extends WizardPane {
    * Creates a container that can have its standard output read as an input
    * stream that's piped directly to a {@link TextArea}.
    *
-   * @param textarea The {@link TextArea} to receive text.
    * @return An object that can perform tasks against a container.
    */
-  static ContainerManager createContainer( final TextArea textarea ) {
-    return new Podman( text -> append( textarea, text ) );
+  static ContainerManager createContainer() {
+    return new Podman();
   }
 
   static void update( final Label node, final String text ) {

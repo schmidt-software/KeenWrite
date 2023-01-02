@@ -7,18 +7,30 @@ import java.io.InputStreamReader;
 import java.util.concurrent.Callable;
 import java.util.function.Consumer;
 
+import static java.util.concurrent.Executors.newFixedThreadPool;
+
 /**
  * Consumes the standard output of a {@link Process} created from a
  * {@link ProcessBuilder}. Directs the output to a {@link Consumer} of
- * strings.
+ * strings. This will run on its own thread and close the stream when
+ * no more data can be processed.
  */
 public class StreamGobbler implements Callable<Boolean> {
   private final InputStream mInput;
   private final Consumer<String> mConsumer;
 
-  public StreamGobbler(
+  /**
+   * Constructs a new
+   *
+   * @param input    The stream having input to pass to the consumer.
+   * @param consumer The {@link Consumer} that receives each line.
+   */
+  private StreamGobbler(
     final InputStream input,
     final Consumer<String> consumer ) {
+    assert input != null;
+    assert consumer != null;
+
     mInput = input;
     mConsumer = consumer;
   }
@@ -37,5 +49,19 @@ public class StreamGobbler implements Callable<Boolean> {
     }
 
     return Boolean.TRUE;
+  }
+
+  /**
+   * Reads the given {@link InputStream} on a separate thread and passes
+   * each line of text input to the given {@link Consumer}.
+   *
+   * @param inputStream The stream having input to pass to the consumer.
+   * @param consumer    The {@link Consumer} that receives each line.
+   */
+  public static void gobble(
+    final InputStream inputStream, final Consumer<String> consumer ) {
+    try( final var executor = newFixedThreadPool( 1 ) ) {
+      executor.submit( new StreamGobbler( inputStream, consumer ) );
+    }
   }
 }

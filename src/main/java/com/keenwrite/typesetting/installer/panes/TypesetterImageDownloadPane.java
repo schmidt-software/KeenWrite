@@ -14,7 +14,7 @@ public final class TypesetterImageDownloadPane extends ManagerOutputPane {
     super(
       PREFIX + ".correct",
       PREFIX + ".missing",
-      container -> container.pull( CONTAINER_NAME ),
+      (container, processor) -> container.pull( processor, CONTAINER_NAME ),
       45
     );
   }
