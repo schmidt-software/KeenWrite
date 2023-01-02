@@ -12,7 +12,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.function.Consumer;
 
-import static com.keenwrite.Bootstrap.APP_VERSION_CLEAN;
+import static com.keenwrite.Bootstrap.CONTAINER_VERSION;
 import static java.lang.String.format;
 import static java.lang.System.arraycopy;
 import static java.util.Arrays.copyOf;
@@ -25,7 +25,7 @@ public final class Podman implements ContainerManager {
   public static final SysFile MANAGER = new SysFile( "podman" );
   public static final String CONTAINER_SHORTNAME = "typesetter";
   public static final String CONTAINER_NAME =
-    format( "%s:%s", CONTAINER_SHORTNAME, APP_VERSION_CLEAN );
+    format( "%s:%s", CONTAINER_SHORTNAME, CONTAINER_VERSION );
 
   private final Consumer<String> mConsumer;
 

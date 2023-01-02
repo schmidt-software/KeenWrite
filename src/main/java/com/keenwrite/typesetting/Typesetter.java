@@ -28,6 +28,7 @@ public class Typesetter {
     private Path mTargetPath;
     private Path mThemesPath;
     private Path mImagesPath;
+    private Path mFontsPath;
     private boolean mAutoRemove;
 
     /**
@@ -60,6 +61,13 @@ public class Typesetter {
     }
 
     /**
+     * @param fontsPath Fully qualified path to the fonts directory.
+     */
+    public void setFontsPath( final Path fontsPath ) {
+      mFontsPath = fontsPath;
+    }
+
+    /**
      * @param remove {@code true} to remove all temporary files after the
      *                  typesetter produces a PDF file.
      */
@@ -81,6 +89,10 @@ public class Typesetter {
 
     public Path getImagesPath() {
       return mImagesPath;
+    }
+
+    public Path getFontsPath() {
+      return mFontsPath;
     }
 
     public boolean isAutoRemove() {
@@ -156,6 +168,10 @@ public class Typesetter {
 
   protected Path getImagesPath() {
     return mMutator.getImagesPath();
+  }
+
+  protected Path getFontsPath() {
+    return mMutator.getFontsPath();
   }
 
   /**

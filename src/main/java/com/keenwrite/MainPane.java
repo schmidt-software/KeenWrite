@@ -1023,6 +1023,8 @@ public final class MainPane extends SplitPane {
       .with( Mutator::setLocale, w::getLocale )
       .with( Mutator::setMetadata, w::getMetadata )
       .with( Mutator::setThemesPath, w::getThemesPath )
+      .with( Mutator::setFontsPath,
+             () -> w.getFile( KEY_TYPESET_CONTEXT_FONTS_DIR ) )
       .with( Mutator::setCaret,
              () -> getTextEditor().getCaret() )
       .with( Mutator::setImagesPath,
@@ -1068,14 +1070,14 @@ public final class MainPane extends SplitPane {
   }
 
   /**
-   * @param inputPath Used by {@link ProcessorFactory} to determine
-   *                  {@link Processor} type to create based on file type.
+   * @param sourcePath Used by {@link ProcessorFactory} to determine
+   *                   {@link Processor} type to create based on file type.
    * @return A new {@link ProcessorContext} to use when creating an instance of
    * {@link Processor}.
    */
-  private ProcessorContext createProcessorContext( final Path inputPath ) {
+  private ProcessorContext createProcessorContext( final Path sourcePath ) {
     return processorContextBuilder()
-      .with( Mutator::setSourcePath, inputPath )
+      .with( Mutator::setSourcePath, sourcePath )
       .with( Mutator::setExportFormat, NONE )
       .build();
   }

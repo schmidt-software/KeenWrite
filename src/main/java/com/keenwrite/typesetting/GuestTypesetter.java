@@ -32,11 +32,13 @@ public final class GuestTypesetter extends Typesetter
     final var sourceDir = getSourcePath().getParent();
     final var themesDir = getThemesPath().getParent();
     final var imagesDir = getImagesPath();
+    final var fontsDir = getFontsPath();
 
-    final var target = mountPoint( targetDir, "/root/target", READWRITE );
     final var source = mountPoint( sourceDir, "/root/source", READONLY );
+    final var target = mountPoint( targetDir, "/root/target", READWRITE );
     final var themes = mountPoint( themesDir, "/root/themes", READONLY );
     final var images = mountPoint( imagesDir, "/root/images", READONLY );
+    final var fonts = mountPoint( fontsDir, "/root/fonts", READONLY );
 
     return null;
   }

@@ -99,6 +99,8 @@ RUN \
     "/usr/share/icons" \
     $CONTEXT_HOME/tex/texmf-modules/doc \
     $CONTEXT_HOME/tex/texmf-context/doc && \
+  mkdir -p $CONTEXT_HOME/tex/texmf-fonts/tex/context/user && \
+  ln -s $CONTEXT_HOME/tex/texmf-fonts/tex/context/user $HOME/fonts && \
   find \
     /usr/share/inkscape \
     -type f -not -iname "*.xml" -exec rm {} \; && \

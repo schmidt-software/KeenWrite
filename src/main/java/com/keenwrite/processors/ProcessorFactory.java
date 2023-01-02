@@ -61,7 +61,7 @@ public final class ProcessorFactory {
       default -> createIdentityProcessor( context );
     };
 
-    final var inputType = context.getInputFileType();
+    final var inputType = context.getSourceFileType();
     final Processor<String> processor;
 
     // When there's no preview, convert to HTML.

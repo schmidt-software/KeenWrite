@@ -31,10 +31,12 @@ public final class Bootstrap {
 
   public static String APP_TITLE;
   public static String APP_VERSION;
+  public static String CONTAINER_VERSION;
 
   public static final String APP_TITLE_LOWERCASE;
   public static final String APP_VERSION_CLEAN;
   public static final String APP_YEAR;
+
   public static final Path USER_DATA_DIR;
 
   static {
@@ -42,12 +44,17 @@ public final class Bootstrap {
       sP.load( in );
 
       APP_TITLE = sP.getProperty( "application.title" );
+      CONTAINER_VERSION = sP.getProperty( "container.version" );
     } catch( final Exception ex ) {
       APP_TITLE = "KeenWrite";
 
       // Bootstrap properties cannot be found, use a default value.
       final var fmt = "Unable to load %s resource, applying defaults.%n";
       clue( ex, fmt, PATH_BOOTSTRAP );
+
+      // There's no way to know what container version is compatible. This
+      // value will cause a failure when downloading the container,
+      CONTAINER_VERSION = "1.0.0";
     }
 
     APP_TITLE_LOWERCASE = APP_TITLE.toLowerCase();
