@@ -2,7 +2,6 @@
 package com.keenwrite.typesetting.installer.panes;
 
 import com.keenwrite.io.SysFile;
-import com.keenwrite.io.UserDataDir;
 import javafx.collections.ObservableMap;
 import javafx.concurrent.Task;
 import javafx.scene.control.Label;
@@ -12,7 +11,7 @@ import org.controlsfx.dialog.Wizard;
 import java.io.File;
 import java.net.URI;
 
-import static com.keenwrite.Bootstrap.APP_TITLE;
+import static com.keenwrite.Bootstrap.USER_DATA_DIR;
 import static com.keenwrite.Messages.get;
 import static com.keenwrite.Messages.getUri;
 
@@ -30,7 +29,7 @@ public abstract class AbstractDownloadPane extends InstallerPane {
   public AbstractDownloadPane() {
     mUri = getUri( getPrefix() + ".download.link.url" );
     mFilename = toFilename( mUri );
-    final var directory = UserDataDir.getAppPath( APP_TITLE.toLowerCase() );
+    final var directory = USER_DATA_DIR;
     mTarget = directory.resolve( mFilename ).toFile();
     final var source = labelf( getPrefix() + ".paths", mFilename, directory );
     mStatus = labelf( getPrefix() + STATUS + ".progress", 0, 0 );

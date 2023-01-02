@@ -2,8 +2,10 @@
 package com.keenwrite;
 
 import com.keenwrite.constants.Constants;
+import com.keenwrite.io.UserDataDir;
 
 import java.io.InputStream;
+import java.nio.file.Path;
 import java.util.Calendar;
 import java.util.Properties;
 
@@ -28,10 +30,12 @@ public final class Bootstrap {
   private static final Properties sP = new Properties();
 
   public static String APP_TITLE;
-  public static String APP_TITLE_LOWERCASE;
   public static String APP_VERSION;
-  public static String APP_VERSION_CLEAN;
-  public static String APP_YEAR;
+
+  public static final String APP_TITLE_LOWERCASE;
+  public static final String APP_VERSION_CLEAN;
+  public static final String APP_YEAR;
+  public static final Path USER_DATA_DIR;
 
   static {
     try( final var in = openResource( PATH_BOOTSTRAP ) ) {
@@ -66,6 +70,8 @@ public final class Bootstrap {
 
     // This also sets the user agent for the SVG rendering library.
     System.setProperty( "http.agent", APP_TITLE + " " + APP_VERSION_CLEAN );
+
+    USER_DATA_DIR = UserDataDir.getAppPath( APP_TITLE_LOWERCASE );
   }
 
   @SuppressWarnings( "SameParameterValue" )

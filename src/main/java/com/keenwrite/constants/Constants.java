@@ -11,10 +11,12 @@ import java.nio.file.Path;
 import java.util.Locale;
 
 import static com.keenwrite.Bootstrap.APP_TITLE_LOWERCASE;
+import static com.keenwrite.Bootstrap.USER_DATA_DIR;
 import static com.keenwrite.preferences.LocaleScripts.withScript;
 import static java.io.File.separator;
 import static java.lang.String.format;
 import static java.lang.System.getProperty;
+import static org.apache.commons.lang3.SystemUtils.*;
 
 /**
  * Defines application-wide default values.
@@ -265,5 +267,37 @@ public final class Constants {
       separator,
       APP_TITLE_LOWERCASE
     ) );
+  }
+
+  /**
+   * Tries to get a system-independent path to the user's fonts directory.
+   */
+  public static File getFontDirectory() {
+    final var FONT_PATH = Path.of( "fonts" );
+    final var USER_HOME = System.getProperty( "user.home" );
+
+    final String fontBase;
+    final Path fontUser;
+
+    if( IS_OS_WINDOWS ) {
+      fontBase = System.getenv( "WINDIR" );
+      fontUser = FONT_PATH;
+    }
+    else if( IS_OS_MAC ) {
+      fontBase = USER_HOME;
+      fontUser = Path.of( "Library", "Fonts" );
+    }
+    else if( IS_OS_UNIX ) {
+      fontBase = USER_HOME;
+      fontUser = Path.of( ".fonts" );
+    }
+    else {
+      fontBase = USER_DATA_DIR.toString();
+      fontUser = FONT_PATH;
+    }
+
+    return (fontBase == null
+      ? USER_DATA_DIR.relativize( fontUser )
+      : Path.of( fontBase ).resolve( fontUser )).toFile();
   }
 }
