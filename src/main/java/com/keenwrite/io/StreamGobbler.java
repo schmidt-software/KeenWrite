@@ -14,13 +14,20 @@ import static java.util.concurrent.Executors.newFixedThreadPool;
  * {@link ProcessBuilder}. Directs the output to a {@link Consumer} of
  * strings. This will run on its own thread and close the stream when
  * no more data can be processed.
+ * <p>
+ * <strong>Warning:</strong> Do not use this with binary data, it is only
+ * meant for text streams, such as standard out from running command-line
+ * applications.
+ * </p>
  */
 public class StreamGobbler implements Callable<Boolean> {
   private final InputStream mInput;
   private final Consumer<String> mConsumer;
 
   /**
-   * Constructs a new
+   * Constructs a new instance of {@link StreamGobbler} that is capable of
+   * reading an {@link InputStream} and passing each line of textual data from
+   * that stream over to a string {@link Consumer}.
    *
    * @param input    The stream having input to pass to the consumer.
    * @param consumer The {@link Consumer} that receives each line.

@@ -23,16 +23,16 @@ public abstract class ManagerOutputPane extends InstallerPane {
 
   private final String mCorrectKey;
   private final String mMissingKey;
-  private final FailableBiConsumer<ContainerManager, StreamProcessor,
-    CommandNotFoundException> mFc;
+  private final FailableBiConsumer
+    <ContainerManager, StreamProcessor, CommandNotFoundException> mFc;
   private final ContainerManager mContainer;
   private final TextArea mTextArea;
 
   public ManagerOutputPane(
     final String correctKey,
     final String missingKey,
-    final FailableBiConsumer<ContainerManager, StreamProcessor,
-      CommandNotFoundException> fc,
+    final FailableBiConsumer
+      <ContainerManager, StreamProcessor, CommandNotFoundException> fc,
     final int cols
   ) {
     mFc = fc;
