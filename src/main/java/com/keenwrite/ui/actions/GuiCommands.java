@@ -46,6 +46,7 @@ import static com.keenwrite.Bootstrap.*;
 import static com.keenwrite.ExportFormat.*;
 import static com.keenwrite.Messages.get;
 import static com.keenwrite.constants.Constants.PDF_DEFAULT;
+import static com.keenwrite.constants.Constants.USER_DIRECTORY;
 import static com.keenwrite.constants.GraphicsConstants.ICON_DIALOG_NODE;
 import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.preferences.AppKeys.*;
@@ -185,11 +186,23 @@ public final class GuiCommands {
     final var editor = main.getTextEditor();
     final var exported = getWorkspace().fileProperty( KEY_UI_RECENT_EXPORT );
     final var filename = format.toExportFilename( editor.getPath() );
-    final var selected = PDF_DEFAULT.getName()
-                                    .equals( exported.get().getName() );
+    final var exportParent = exported.get().toPath().getParent();
+    final var editorParent = editor.getPath().getParent();
+    final var userHomeParent = USER_DIRECTORY.toPath();
+    final var exportPath = exportParent != null
+      ? exportParent
+      : editorParent != null
+      ? editorParent
+      : userHomeParent;
+
+    final var selected = PDF_DEFAULT
+      .getName()
+      .equals( exported.get().getName() );
     final var selection = pickFile(
-      selected ? filename : exported.get(),
-      exported.get().toPath().getParent(),
+      selected
+        ? filename
+        : exported.get(),
+      exportPath,
       FILE_EXPORT
     );
 
