@@ -17,6 +17,7 @@
 *.eps binary
 *.exe binary
 *.gif binary
+*.ico binary
 *.jar binary
 *.jpg binary
 *.mng binary
