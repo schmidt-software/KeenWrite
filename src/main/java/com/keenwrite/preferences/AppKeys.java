@@ -28,7 +28,9 @@ public final class AppKeys {
   public static final Key KEY_R_DELIM_BEGAN = key( KEY_R_DELIM, "began" );
   public static final Key KEY_R_DELIM_ENDED = key( KEY_R_DELIM, "ended" );
 
+
   public static final Key KEY_IMAGES = key( KEY_ROOT, "images" );
+  public static final Key KEY_CACHES_DIR = key( KEY_IMAGES, "cache" );
   public static final Key KEY_IMAGES_DIR = key( KEY_IMAGES, "dir" );
   public static final Key KEY_IMAGES_ORDER = key( KEY_IMAGES, "order" );
   public static final Key KEY_IMAGES_RESIZE = key( KEY_IMAGES, "resize" );

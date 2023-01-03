@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import static com.keenwrite.Bootstrap.APP_TITLE_LOWERCASE;
+import static com.keenwrite.Bootstrap.APP_TITLE_ABBR;
 import static com.keenwrite.dom.DocumentParser.createMeta;
 import static com.keenwrite.dom.DocumentParser.visit;
 import static com.keenwrite.events.StatusEvent.clue;
@@ -81,7 +81,8 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
 
           if( attr != null ) {
             final var location = exportImage( attr.getTextContent() );
-            final var relative = mContext.getImagesPath().relativize( location );
+            final var parent = getTargetPath().getParent();
+            final var relative = parent.relativize( location );
 
             attr.setTextContent( relative.toString() );
           }
@@ -174,6 +175,7 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
 
   private Path downloadImage( final String src ) throws Exception {
     final Path imageFile;
+    final var cachesPath = getCachesPath();
 
     clue( "Main.status.image.xhtml.image.download", src );
 
@@ -181,7 +183,9 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
       final var mediaType = response.getMediaType();
 
       // Preserve image files if auto-clean is turned off.
-      imageFile = mediaType.createTempFile( APP_TITLE_LOWERCASE, autoclean() );
+      imageFile = mediaType.createTempFile(
+        APP_TITLE_ABBR, cachesPath, autoRemove()
+      );
 
       try( final var image = response.getInputStream() ) {
         copy( image, imageFile, REPLACE_EXISTING );
@@ -196,7 +200,7 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
   }
 
   private Path resolveImage( final String src ) throws Exception {
-    var imagePath = getImagePath();
+    var imagePath = getImagesPath();
     var found = false;
 
     Path imageFile = null;
@@ -206,7 +210,7 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
     for( final var extension : getImageOrder() ) {
       final var filename = format(
         "%s%s%s", src, extension.isBlank() ? "" : ".", extension );
-      imageFile = Path.of( imagePath, filename );
+      imageFile = imagePath.resolve( filename );
 
       if( imageFile.toFile().exists() ) {
         found = true;
@@ -215,8 +219,8 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
     }
 
     if( !found ) {
-      imagePath = getDocumentDir().toString();
-      imageFile = Path.of( imagePath, src );
+      imagePath = getDocumentDir();
+      imageFile = imagePath.resolve( src );
 
       if( !imageFile.toFile().exists() ) {
         final var filename = imageFile.toString();
@@ -231,8 +235,16 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
     return imageFile;
   }
 
-  private String getImagePath() {
-    return mContext.getImagesPath().toString();
+  private Path getTargetPath() {
+    return mContext.getTargetPath();
+  }
+
+  private Path getImagesPath() {
+    return mContext.getImagesPath();
+  }
+
+  private Path getCachesPath() {
+    return mContext.getCachesPath();
   }
 
   /**
@@ -261,7 +273,7 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
     return mContext.getLocale();
   }
 
-  private boolean autoclean() {
+  private boolean autoRemove() {
     return mContext.getAutoRemove();
   }
 

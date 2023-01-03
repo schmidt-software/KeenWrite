@@ -3,7 +3,7 @@ package com.keenwrite.processors;
 
 import com.keenwrite.typesetting.Typesetter;
 
-import static com.keenwrite.Bootstrap.APP_TITLE_LOWERCASE;
+import static com.keenwrite.Bootstrap.APP_TITLE_ABBR;
 import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.io.MediaType.TEXT_XML;
 import static com.keenwrite.typesetting.Typesetter.Mutator;
@@ -34,7 +34,9 @@ public final class PdfProcessor extends ExecutorProcessor<String> {
     try {
       clue( "Main.status.typeset.create" );
       final var context = mProcessorContext;
-      final var document = TEXT_XML.createTempFile( APP_TITLE_LOWERCASE );
+      final var parent = context.getTargetPath().getParent();
+      final var document =
+        TEXT_XML.createTempFile( APP_TITLE_ABBR, parent );
       final var typesetter = Typesetter
         .builder()
         .with( Mutator::setAutoRemove, context.getAutoRemove() )
@@ -42,6 +44,7 @@ public final class PdfProcessor extends ExecutorProcessor<String> {
         .with( Mutator::setTargetPath, context.getTargetPath() )
         .with( Mutator::setThemesPath, context.getThemesPath() )
         .with( Mutator::setImagesPath, context.getImagesPath() )
+        .with( Mutator::setCachesPath, context.getCachesPath() )
         .with( Mutator::setFontsPath, context.getFontsPath() )
         .build();
 

@@ -13,7 +13,7 @@ import java.util.Map.Entry;
 import java.util.function.BooleanSupplier;
 import java.util.function.Function;
 
-import static com.keenwrite.Bootstrap.APP_TITLE_LOWERCASE;
+import static com.keenwrite.Bootstrap.*;
 import static com.keenwrite.Launcher.getVersion;
 import static com.keenwrite.constants.Constants.*;
 import static com.keenwrite.events.StatusEvent.clue;
@@ -70,6 +70,7 @@ public final class Workspace {
     entry( KEY_R_DELIM_BEGAN, asStringProperty( R_DELIM_BEGAN_DEFAULT ) ),
     entry( KEY_R_DELIM_ENDED, asStringProperty( R_DELIM_ENDED_DEFAULT ) ),
 
+    entry( KEY_CACHES_DIR, asFileProperty( USER_CACHE_DIR ) ),
     entry( KEY_IMAGES_DIR, asFileProperty( USER_DIRECTORY ) ),
     entry( KEY_IMAGES_ORDER, asStringProperty( PERSIST_IMAGES_DEFAULT ) ),
     entry( KEY_IMAGES_RESIZE, asBooleanProperty( true ) ),

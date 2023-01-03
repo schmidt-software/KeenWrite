@@ -4,6 +4,7 @@ package com.keenwrite;
 import com.keenwrite.constants.Constants;
 import com.keenwrite.io.UserDataDir;
 
+import java.io.File;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.Calendar;
@@ -33,11 +34,13 @@ public final class Bootstrap {
   public static String APP_VERSION;
   public static String CONTAINER_VERSION;
 
+  public static final String APP_TITLE_ABBR = "kwr";
   public static final String APP_TITLE_LOWERCASE;
   public static final String APP_VERSION_CLEAN;
   public static final String APP_YEAR;
 
   public static final Path USER_DATA_DIR;
+  public static final File USER_CACHE_DIR;
 
   static {
     try( final var in = openResource( PATH_BOOTSTRAP ) ) {
@@ -79,6 +82,11 @@ public final class Bootstrap {
     System.setProperty( "http.agent", APP_TITLE + " " + APP_VERSION_CLEAN );
 
     USER_DATA_DIR = UserDataDir.getAppPath( APP_TITLE_LOWERCASE );
+    USER_CACHE_DIR = USER_DATA_DIR.resolve( "cache" ).toFile();
+
+    if( !USER_CACHE_DIR.exists() ) {
+      final var ignored = USER_CACHE_DIR.mkdirs();
+    }
   }
 
   @SuppressWarnings( "SameParameterValue" )

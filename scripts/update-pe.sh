@@ -32,3 +32,5 @@ wine rcedit-x64.exe "../${BINARY}.exe" \
   --set-product-version "${VERSION}" \
   --set-file-version "${VERSION}"
 
+cp "../${BINARY}.exe" "../${application_title}.exe"
+

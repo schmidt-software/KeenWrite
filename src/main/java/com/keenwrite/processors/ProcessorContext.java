@@ -19,6 +19,7 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.function.Supplier;
 
+import static com.keenwrite.Bootstrap.USER_DATA_DIR;
 import static com.keenwrite.constants.Constants.*;
 import static com.keenwrite.io.FileType.UNKNOWN;
 import static com.keenwrite.io.MediaType.TEXT_PROPERTIES;
@@ -94,6 +95,8 @@ public final class ProcessorContext {
     private Supplier<String> mImageServer = () -> DIAGRAM_SERVER_NAME;
     private Supplier<String> mImageOrder = () -> PERSIST_IMAGES_DEFAULT;
 
+    private Supplier<Path> mCachesPath;
+
     private Supplier<String> mSigilBegan = () -> DEF_DELIM_BEGAN_DEFAULT;
     private Supplier<String> mSigilEnded = () -> DEF_DELIM_ENDED_DEFAULT;
 
@@ -113,9 +116,9 @@ public final class ProcessorContext {
       mTargetPath = outputPath;
     }
 
-    public void setTargetPath( final File outputPath ) {
-      assert outputPath != null;
-      setTargetPath( outputPath.toPath() );
+    public void setTargetPath( final File targetPath ) {
+      assert targetPath != null;
+      setTargetPath( targetPath.toPath() );
     }
 
     public void setThemesPath( final Supplier<Path> themesPath ) {
@@ -123,11 +126,21 @@ public final class ProcessorContext {
       mThemesPath = themesPath;
     }
 
-    public void setImagesPath( final Supplier<File> imageDir ) {
-      assert imageDir != null;
+    public void setCachesPath( final Supplier<File> cachesDir ) {
+      assert cachesDir != null;
+
+      mCachesPath = () -> {
+        final var dir = cachesDir.get();
+
+        return (dir == null ? USER_DATA_DIR.toFile() : dir).toPath();
+      };
+    }
+
+    public void setImagesPath( final Supplier<File> imagesDir ) {
+      assert imagesDir != null;
 
       mImagesPath = () -> {
-        final var dir = imageDir.get();
+        final var dir = imagesDir.get();
 
         return (dir == null ? USER_DIRECTORY : dir).toPath();
       };
@@ -330,6 +343,10 @@ public final class ProcessorContext {
 
   public Path getImagesPath() {
     return mMutator.mImagesPath.get();
+  }
+
+  public Path getCachesPath() {
+    return mMutator.mCachesPath.get();
   }
 
   public Iterable<String> getImageOrder() {

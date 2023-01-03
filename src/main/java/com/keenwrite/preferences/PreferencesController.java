@@ -191,6 +191,10 @@ public final class PreferencesController {
           Setting.of( label( KEY_IMAGES_DIR ) ),
           Setting.of( title( KEY_IMAGES_DIR ),
                       directoryProperty( KEY_IMAGES_DIR ),
+                      true ),
+          Setting.of( label( KEY_CACHES_DIR ) ),
+          Setting.of( title( KEY_CACHES_DIR ),
+                      directoryProperty( KEY_CACHES_DIR ),
                       true )
         ),
         Group.of(

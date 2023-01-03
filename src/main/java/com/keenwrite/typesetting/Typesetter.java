@@ -35,6 +35,7 @@ public class Typesetter {
     private Path mTargetPath;
     private Path mThemesPath;
     private Path mImagesPath;
+    private Path mCachesPath;
     private Path mFontsPath;
     private boolean mAutoRemove;
 
@@ -68,6 +69,13 @@ public class Typesetter {
     }
 
     /**
+     * @param cachePath Fully qualified path to the "caches" directory.
+     */
+    public void setCachesPath( final Path cachePath ) {
+      mCachesPath = cachePath;
+    }
+
+    /**
      * @param fontsPath Fully qualified path to the "fonts" directory.
      */
     public void setFontsPath( final Path fontsPath ) {
@@ -96,6 +104,10 @@ public class Typesetter {
 
     public Path getImagesPath() {
       return mImagesPath;
+    }
+
+    public Path getCachesPath() {
+      return mCachesPath;
     }
 
     public Path getFontsPath() {
@@ -193,6 +205,10 @@ public class Typesetter {
 
   protected Path getImagesPath() {
     return mMutator.getImagesPath();
+  }
+
+  protected Path getCachesPath() {
+    return mMutator.getCachesPath();
   }
 
   protected Path getFontsPath() {

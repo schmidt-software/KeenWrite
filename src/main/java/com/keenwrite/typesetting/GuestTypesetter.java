@@ -20,7 +20,7 @@ import static com.keenwrite.typesetting.containerization.Podman.MANAGER;
 public final class GuestTypesetter extends Typesetter
   implements Callable<Boolean> {
   private static final boolean READONLY = true;
-  private static final boolean READWRITE = !READONLY;
+  private static final boolean READWRITE = false;
 
   private static final String TYPESETTER_VERSION =
     TYPESETTER_EXE + " --version > /dev/null";
@@ -30,7 +30,6 @@ public final class GuestTypesetter extends Typesetter
   }
 
   @Override
-  @SuppressWarnings( "ConstantValue" )
   public Boolean call() throws Exception {
     final var sourcePath = getSourcePath();
     final var targetPath = getTargetPath();
@@ -40,6 +39,7 @@ public final class GuestTypesetter extends Typesetter
     final var targetDir = normalize( targetPath.getParent() );
     final var themesDir = normalize( themesPath.getParent() );
     final var imagesDir = normalize( getImagesPath() );
+    final var cachesDir = normalize( getCachesPath() );
     final var fontsDir = normalize( getFontsPath() );
 
     final var sourceFile = sourcePath.getFileName();
@@ -52,12 +52,13 @@ public final class GuestTypesetter extends Typesetter
     manager.mount( targetDir, "/root/target", READWRITE );
     manager.mount( themesDir, "/root/themes", READONLY );
     manager.mount( imagesDir, "/root/images", READONLY );
+    manager.mount( cachesDir, "/root/caches", READWRITE );
     manager.mount( fontsDir, "/root/fonts", READONLY );
 
     final var args = new LinkedList<String>();
     args.add( TYPESETTER_EXE );
     args.addAll( commonOptions() );
-    args.add( "--arguments=imagedir=/root/images" );
+    args.add( "--arguments=imagesdir=/root/images,cachesdir=/root/caches" );
     args.add( "--path='/root/themes/" + themesFile + "'" );
     args.add( "--result='" + removeExtension( targetFile ) + "'" );
     args.add( "/root/source/" + sourceFile );

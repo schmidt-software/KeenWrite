@@ -15,6 +15,7 @@ ENV SOURCE_DIR=/root/source
 ENV TARGET_DIR=/root/target
 ENV IMAGES_DIR=/root/images
 ENV THEMES_DIR=/root/themes
+ENV CACHES_DIR=/root/caches
 ENV FONTS_DIR=/usr/share/fonts/user
 ENV DOWNLOAD_DIR=/root
 
@@ -64,7 +65,7 @@ RUN \
     add ca-certificates curl fontconfig inkscape rsync && \
   mkdir -p \
     "$FONTS_DIR" "$INSTALL_DIR" \
-    "$TARGET_DIR" "$SOURCE_DIR" "$THEMES_DIR" "$IMAGES_DIR" && \
+    "$TARGET_DIR" "$SOURCE_DIR" "$THEMES_DIR" "$IMAGES_DIR" "$CACHES_DIR" && \
   echo "export CONTEXT_HOME=\"$CONTEXT_HOME\"" >> $PROFILE && \
   echo "export PATH=\"\$PATH:\$CONTEXT_HOME/tex/texmf-linuxmusl/bin\"" >> $PROFILE && \
   echo "export OSFONTDIR=\"/usr/share/fonts//\"" >> $PROFILE && \

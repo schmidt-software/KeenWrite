@@ -74,7 +74,7 @@ public final class Arguments implements Callable<Integer> {
     defaultValue = "stdin",
     required = true
   )
-  private Path mPathInput;
+  private Path mSourcePath;
 
   @CommandLine.Option(
     names = {"--format-subtype"},
@@ -86,12 +86,20 @@ public final class Arguments implements Callable<Integer> {
   private String mFormatSubtype;
 
   @CommandLine.Option(
+    names = {"--cache-dir"},
+    description =
+      "Directory to store remote resources",
+    paramLabel = "DIR"
+  )
+  private File mCachesDir;
+
+  @CommandLine.Option(
     names = {"--image-dir"},
     description =
       "Directory containing images",
     paramLabel = "DIR"
   )
-  private File mImageDir;
+  private File mImagesDir;
 
   @CommandLine.Option(
     names = {"--image-order"},
@@ -136,7 +144,7 @@ public final class Arguments implements Callable<Integer> {
     defaultValue = "stdout",
     required = true
   )
-  private Path mPathOutput;
+  private Path mTargetPath;
 
   @CommandLine.Option(
     names = {"-q", "--quiet"},
@@ -186,7 +194,7 @@ public final class Arguments implements Callable<Integer> {
       "Theme directory",
     paramLabel = "DIR"
   )
-  private Path mDirTheme;
+  private Path mThemesDir;
 
   @CommandLine.Option(
     names = {"-v", "--variables"},
@@ -205,23 +213,24 @@ public final class Arguments implements Callable<Integer> {
   public ProcessorContext createProcessorContext()
     throws IOException {
     final var definitions = parse( mPathVariables );
-    final var format = ExportFormat.valueFrom( mPathOutput, mFormatSubtype );
+    final var format = ExportFormat.valueFrom( mTargetPath, mFormatSubtype );
     final var locale = lookupLocale( mLocale );
     final var rScript = read( mRScriptPath );
 
     return ProcessorContext
       .builder()
-      .with( Mutator::setSourcePath, mPathInput )
-      .with( Mutator::setTargetPath, mPathOutput )
+      .with( Mutator::setSourcePath, mSourcePath )
+      .with( Mutator::setTargetPath, mTargetPath )
+      .with( Mutator::setThemesPath, () -> mThemesDir )
+      .with( Mutator::setCachesPath, () -> mCachesDir )
+      .with( Mutator::setImagesPath, () -> mImagesDir )
+      .with( Mutator::setImageServer, () -> mImageServer )
+      .with( Mutator::setImageOrder, () -> mImageOrder )
       .with( Mutator::setExportFormat, format )
       .with( Mutator::setDefinitions, () -> definitions )
       .with( Mutator::setMetadata, () -> mMetadata )
       .with( Mutator::setLocale, () -> locale )
-      .with( Mutator::setThemesPath, () -> mDirTheme )
       .with( Mutator::setConcatenate, mConcatenate )
-      .with( Mutator::setImagesPath, () -> mImageDir )
-      .with( Mutator::setImageServer, () -> mImageServer )
-      .with( Mutator::setImageOrder, () -> mImageOrder )
       .with( Mutator::setSigilBegan, () -> mSigilBegan )
       .with( Mutator::setSigilEnded, () -> mSigilEnded )
       .with( Mutator::setRWorkingDir, () -> mRWorkingDir )

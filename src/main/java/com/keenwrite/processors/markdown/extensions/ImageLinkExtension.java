@@ -97,11 +97,8 @@ public class ImageLinkExtension extends HtmlRendererAdapter {
       // Determine the fully-qualified file name (fqfn).
       final var fqfn = Path.of( baseDir.toString(), uri ).toFile();
 
-      if( fqfn.isFile() && fqfn.canRead() ) {
-        return valid( link, uri );
-      }
-
-      if( mContext.getExportFormat() != NONE ) {
+      if( fqfn.isFile() && fqfn.canRead() ||
+        mContext.getExportFormat() != NONE ) {
         return valid( link, uri );
       }
 
