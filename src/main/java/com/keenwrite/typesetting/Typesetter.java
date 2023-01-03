@@ -12,6 +12,7 @@ import java.util.concurrent.Callable;
 
 import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.util.Time.toElapsedTime;
+import static java.lang.String.format;
 import static java.lang.System.currentTimeMillis;
 import static java.time.Duration.ofMillis;
 
@@ -84,7 +85,7 @@ public class Typesetter {
 
     /**
      * @param remove {@code true} to remove all temporary files after the
-     *                  typesetter produces a PDF file.
+     *               typesetter produces a PDF file.
      */
     public void setAutoRemove( final boolean remove ) {
       mAutoRemove = remove;
@@ -167,10 +168,13 @@ public class Typesetter {
     final var targetPath = getTargetPath().getFileName();
     final var themesPath = getThemesPath();
     final var imagesPath = getImagesPath();
+    final var cachesPath = getCachesPath();
 
-    args.add( "--arguments=imagedir=" + imagesPath );
-    args.add( "--path='" + themesPath + "'" );
-    args.add( "--result='" + targetPath + "'" );
+    args.add(
+      format( "--arguments=imagesdir=%s,cachesdir=%s", imagesPath, cachesPath )
+    );
+    args.add( format( "--path='%s'", themesPath ) );
+    args.add( format( "--result='%s'", targetPath ) );
     args.add( sourcePath );
 
     return args;

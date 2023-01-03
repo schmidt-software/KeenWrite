@@ -1,6 +1,9 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.util;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
 import static java.nio.charset.StandardCharsets.US_ASCII;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -29,5 +32,17 @@ public final class DataTypeConverter {
     }
 
     return new String( hexChars, UTF_8 );
+  }
+
+  /**
+   * Hashes a string using the SHA-1 algorithm.
+   *
+   * @param s The string to has.
+   * @return The hashed string.
+   * @throws NoSuchAlgorithmException Could not find the SHA-1 algorithm.
+   */
+  public static byte[] hash( final String s ) throws NoSuchAlgorithmException {
+    final var digest = MessageDigest.getInstance( "SHA-1" );
+    return digest.digest( s.getBytes() );
   }
 }
