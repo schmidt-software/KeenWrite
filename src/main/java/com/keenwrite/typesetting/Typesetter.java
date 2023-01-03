@@ -171,7 +171,8 @@ public class Typesetter {
     final var cachesPath = getCachesPath();
 
     args.add(
-      format( "--arguments=imagesdir=%s,cachesdir=%s", imagesPath, cachesPath )
+      format( "--arguments=themesdir=%s,imagesdir=%s,cachesdir=%s",
+              themesPath, imagesPath, cachesPath  )
     );
     args.add( format( "--path='%s'", themesPath ) );
     args.add( format( "--result='%s'", targetPath ) );

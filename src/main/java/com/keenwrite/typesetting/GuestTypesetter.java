@@ -13,12 +13,20 @@ import java.util.concurrent.Callable;
 import static com.keenwrite.constants.Constants.USER_DIRECTORY;
 import static com.keenwrite.io.StreamGobbler.gobble;
 import static com.keenwrite.typesetting.containerization.Podman.MANAGER;
+import static java.lang.String.format;
 
 /**
  * Responsible for invoking a typesetter installed inside a container.
  */
 public final class GuestTypesetter extends Typesetter
   implements Callable<Boolean> {
+  private static final String SOURCE = "/root/source";
+  private static final String TARGET = "/root/target";
+  private static final String THEMES = "/root/themes";
+  private static final String IMAGES = "/root/images";
+  private static final String CACHES = "/root/caches";
+  private static final String FONTS = "/root/fonts";
+
   private static final boolean READONLY = true;
   private static final boolean READWRITE = false;
 
@@ -47,21 +55,23 @@ public final class GuestTypesetter extends Typesetter
     final var themesFile = themesPath.getFileName();
 
     final var manager = new Podman();
-
-    manager.mount( sourceDir, "/root/source", READONLY );
-    manager.mount( targetDir, "/root/target", READWRITE );
-    manager.mount( themesDir, "/root/themes", READONLY );
-    manager.mount( imagesDir, "/root/images", READONLY );
-    manager.mount( cachesDir, "/root/caches", READWRITE );
-    manager.mount( fontsDir, "/root/fonts", READONLY );
+    manager.mount( sourceDir, SOURCE, READONLY );
+    manager.mount( targetDir, TARGET, READWRITE );
+    manager.mount( themesDir, THEMES, READONLY );
+    manager.mount( imagesDir, IMAGES, READONLY );
+    manager.mount( cachesDir, CACHES, READWRITE );
+    manager.mount( fontsDir, FONTS, READONLY );
 
     final var args = new LinkedList<String>();
     args.add( TYPESETTER_EXE );
     args.addAll( commonOptions() );
-    args.add( "--arguments=imagesdir=/root/images,cachesdir=/root/caches" );
-    args.add( "--path='/root/themes/" + themesFile + "'" );
-    args.add( "--result='" + removeExtension( targetFile ) + "'" );
-    args.add( "/root/source/" + sourceFile );
+    args.add( format(
+      "--arguments=themesdir=%s/%s,imagesdir=%s,cachesdir=%s",
+      THEMES, themesFile, IMAGES, CACHES
+    ) );
+    args.add( format( "--path='%s/%s'", THEMES, themesFile ) );
+    args.add( format( "--result='%s'", removeExtension( targetFile ) ) );
+    args.add( format( "%s/%s", SOURCE, sourceFile ) );
 
     final var listener = new PaginationListener();
     final var command = String.join( " ", args );

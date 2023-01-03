@@ -84,18 +84,21 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
           if( attr != null ) {
             final var src = attr.getTextContent();
             final Path location;
-            final Path parent;
+            final Path imagesDir;
 
+            // Download into a cache directory, which can be written to without
+            // any possibility of overwriting local image files. Further, the
+            // filenames are hashed as a second layer of protection.
             if( getProtocol( src ).isRemote() ) {
               location = downloadImage( src );
-              parent = getCachesPath();
+              imagesDir = getCachesPath();
             }
             else {
               location = resolveImage( src );
-              parent = getTargetPath().getParent();
+              imagesDir = getImagesPath();
             }
 
-            final var relative = parent.relativize( location );
+            final var relative = imagesDir.relativize( location );
 
             attr.setTextContent( relative.toString() );
           }
@@ -195,7 +198,7 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
 
       imageFile = cachesPath.resolve( APP_TITLE_ABBR + id + '.' + ext );
 
-      // Preserve image files if auto-clean is turned off.
+      // Preserve image files if auto-remove is turned off.
       if( autoRemove() ) {
         imageFile.toFile().deleteOnExit();
       }
@@ -246,10 +249,6 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
     clue( "Main.status.image.xhtml.image.found", imageFile.toString() );
 
     return imageFile;
-  }
-
-  private Path getTargetPath() {
-    return mContext.getTargetPath();
   }
 
   private Path getImagesPath() {
