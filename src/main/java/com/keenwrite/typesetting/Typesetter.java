@@ -2,11 +2,18 @@
 package com.keenwrite.typesetting;
 
 import com.keenwrite.util.GenericBuilder;
+import com.keenwrite.util.Time;
 
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.Callable;
+
+import static com.keenwrite.events.StatusEvent.clue;
+import static com.keenwrite.util.Time.toElapsedTime;
+import static java.lang.System.currentTimeMillis;
+import static java.time.Duration.ofMillis;
 
 /**
  * Responsible for typesetting a document using either a typesetter installed
@@ -54,14 +61,14 @@ public class Typesetter {
     }
 
     /**
-     * @param imagePath Fully qualified path to the images directory.
+     * @param imagePath Fully qualified path to the "images" directory.
      */
     public void setImagesPath( final Path imagePath ) {
       mImagesPath = imagePath;
     }
 
     /**
-     * @param fontsPath Fully qualified path to the fonts directory.
+     * @param fontsPath Fully qualified path to the "fonts" directory.
      */
     public void setFontsPath( final Path fontsPath ) {
       mFontsPath = fontsPath;
@@ -113,7 +120,7 @@ public class Typesetter {
   }
 
   public void typeset() throws Exception {
-    final Callable<Void> typesetter;
+    final Callable<Boolean> typesetter;
 
     if( HostTypesetter.isReady() ) {
       typesetter = new HostTypesetter( mMutator );
@@ -125,12 +132,22 @@ public class Typesetter {
       throw new TypesetterNotFoundException( TYPESETTER_EXE );
     }
 
-    typesetter.call();
+    final var outputPath = getTargetPath();
+    final var prefix = "Main.status.typeset";
+
+    clue( prefix + ".began", outputPath );
+
+    final var time = currentTimeMillis();
+    final var success = typesetter.call();
+    final var suffix = success ? ".success" : ".failure";
+
+    clue( prefix + ".ended" + suffix, outputPath, since( time ) );
   }
 
   /**
    * Generates the command-line arguments used to invoke the typesetter.
    */
+  @SuppressWarnings( "SpellCheckingInspection" )
   List<String> options() {
     final var args = commonOptions();
 
@@ -147,6 +164,7 @@ public class Typesetter {
     return args;
   }
 
+  @SuppressWarnings( "SpellCheckingInspection" )
   List<String> commonOptions() {
     final var args = new LinkedList<String>();
 
@@ -187,7 +205,7 @@ public class Typesetter {
    *
    * @return {@code true} to delete generated files.
    */
-  public boolean autoclean() {
+  public boolean autoRemove() {
     return mMutator.isAutoRemove();
   }
 
@@ -201,5 +219,17 @@ public class Typesetter {
 
   private static boolean guestCanRun() {
     return GuestTypesetter.isReady();
+  }
+
+  /**
+   * Calculates the time that has elapsed from the current time to the
+   * given moment in time.
+   *
+   * @param start The starting time, which should be before the current time.
+   * @return A human-readable formatted time.
+   * @see Time#toElapsedTime(Duration)
+   */
+  private static String since( final long start ) {
+    return toElapsedTime( ofMillis( currentTimeMillis() - start ) );
   }
 }

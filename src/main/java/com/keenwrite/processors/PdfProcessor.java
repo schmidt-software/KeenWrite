@@ -48,7 +48,7 @@ public final class PdfProcessor extends ExecutorProcessor<String> {
       typesetter.typeset();
 
       // Smote the temporary file after typesetting the document.
-      if( typesetter.autoclean() ) {
+      if( typesetter.autoRemove() ) {
         deleteIfExists( document );
       }
     } catch( final Exception ex ) {

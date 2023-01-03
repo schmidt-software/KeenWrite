@@ -18,7 +18,7 @@ import static com.keenwrite.typesetting.containerization.Podman.MANAGER;
  * Responsible for invoking a typesetter installed inside a container.
  */
 public final class GuestTypesetter extends Typesetter
-  implements Callable<Void> {
+  implements Callable<Boolean> {
   private static final boolean READONLY = true;
   private static final boolean READWRITE = !READONLY;
 
@@ -31,7 +31,7 @@ public final class GuestTypesetter extends Typesetter
 
   @Override
   @SuppressWarnings( "ConstantValue" )
-  public Void call() throws Exception {
+  public Boolean call() throws Exception {
     final var sourcePath = getSourcePath();
     final var targetPath = getTargetPath();
     final var themesPath = getThemesPath();
@@ -67,7 +67,7 @@ public final class GuestTypesetter extends Typesetter
 
     manager.run( in -> StreamGobbler.gobble( in, listener ), command );
 
-    return null;
+    return true;
   }
 
   /**

@@ -4,25 +4,20 @@ package com.keenwrite.typesetting;
 import com.keenwrite.collections.CircularQueue;
 import com.keenwrite.io.StreamGobbler;
 import com.keenwrite.io.SysFile;
-import com.keenwrite.util.Time;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 
 import static com.keenwrite.constants.Constants.DEFAULT_DIRECTORY;
 import static com.keenwrite.events.StatusEvent.clue;
-import static com.keenwrite.util.Time.toElapsedTime;
 import static java.lang.ProcessBuilder.Redirect.DISCARD;
-import static java.lang.System.currentTimeMillis;
 import static java.lang.System.getProperty;
 import static java.nio.file.Files.*;
-import static java.time.Duration.ofMillis;
 import static java.util.Arrays.asList;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.apache.commons.io.FilenameUtils.removeExtension;
@@ -32,7 +27,8 @@ import static org.apache.commons.io.FilenameUtils.removeExtension;
  * construct suitable command-line arguments to invoke the typesetting engine.
  * This uses a version of the typesetter installed on the host system.
  */
-public final class HostTypesetter extends Typesetter implements Callable<Void> {
+public final class HostTypesetter extends Typesetter
+  implements Callable<Boolean> {
   private static final SysFile TYPESETTER = new SysFile( TYPESETTER_EXE );
 
   HostTypesetter( final Mutator mutator ) {
@@ -46,18 +42,6 @@ public final class HostTypesetter extends Typesetter implements Callable<Void> {
    */
   public static boolean isReady() {
     return TYPESETTER.canRun();
-  }
-
-  /**
-   * Calculates the time that has elapsed from the current time to the
-   * given moment in time.
-   *
-   * @param start The starting time, which should be before the current time.
-   * @return A human-readable formatted time.
-   * @see Time#toElapsedTime(Duration)
-   */
-  private static String since( final long start ) {
-    return toElapsedTime( ofMillis( currentTimeMillis() - start ) );
   }
 
   /**
@@ -165,7 +149,7 @@ public final class HostTypesetter extends Typesetter implements Callable<Void> {
         log( stdout.stream().toList() );
 
         // Users may opt to keep these files around for debugging purposes.
-        if( autoclean() ) {
+        if( autoRemove() ) {
           deleteIfExists( logName );
           deleteIfExists( errName );
           deleteIfExists( pdfName );
@@ -215,6 +199,7 @@ public final class HostTypesetter extends Typesetter implements Callable<Void> {
      * @return A fully qualified path to the location to store temporary
      * files between typesetting runs.
      */
+    @SuppressWarnings( "SpellCheckingInspection" )
     private java.io.File getCacheDir() {
       final var temp = getProperty( "java.io.tmpdir" );
       final var cache = Path.of( temp, "luatex-cache" );
@@ -253,20 +238,9 @@ public final class HostTypesetter extends Typesetter implements Callable<Void> {
    * @throws TypesetterNotFoundException When no typesetter is along the PATH.
    */
   @Override
-  public Void call()
+  public Boolean call()
     throws IOException, InterruptedException, TypesetterNotFoundException {
-    final var outputPath = getTargetPath();
-    final var prefix = "Main.status.typeset";
-
-    clue( prefix + ".began", outputPath );
-
-    final var task = new TypesetTask();
-    final var time = currentTimeMillis();
-    final var success = task.typeset();
-    final var suffix = success ? ".success" : ".failure";
-
-    clue( prefix + ".ended" + suffix, outputPath, since( time ) );
-
-    return null;
+    final var task = new HostTypesetter.TypesetTask();
+    return task.typeset();
   }
 }
