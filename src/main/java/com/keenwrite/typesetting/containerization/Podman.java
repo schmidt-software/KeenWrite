@@ -91,7 +91,6 @@ public final class Podman implements ContainerManager {
     options.add( "-lc" );
 
     final var command = toArray( toArray( options ), args );
-
     return podman( processor, command );
   }
 

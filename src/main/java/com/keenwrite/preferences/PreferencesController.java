@@ -21,6 +21,7 @@ import java.util.Map.Entry;
 import static com.dlsc.formsfx.model.structure.Field.ofStringType;
 import static com.dlsc.preferencesfx.PreferencesFxEvent.EVENT_PREFERENCES_SAVED;
 import static com.keenwrite.Messages.get;
+import static com.keenwrite.constants.Constants.USER_DIRECTORY;
 import static com.keenwrite.constants.GraphicsConstants.ICON_DIALOG;
 import static com.keenwrite.preferences.AppKeys.*;
 import static com.keenwrite.preferences.LocaleProperty.localeListProperty;
@@ -127,7 +128,8 @@ public final class PreferencesController {
           get( KEY_TYPESET_CONTEXT ),
           Setting.of( label( KEY_TYPESET_CONTEXT_THEMES_PATH ) ),
           Setting.of( title( KEY_TYPESET_CONTEXT_THEMES_PATH ),
-                      fileProperty( KEY_TYPESET_CONTEXT_THEMES_PATH ), true ),
+                      directoryProperty( KEY_TYPESET_CONTEXT_THEMES_PATH ),
+                      true ),
           Setting.of( label( KEY_TYPESET_CONTEXT_CLEAN ) ),
           Setting.of( title( KEY_TYPESET_CONTEXT_CLEAN ),
                       booleanProperty( KEY_TYPESET_CONTEXT_CLEAN ) )
@@ -136,7 +138,8 @@ public final class PreferencesController {
           get( KEY_TYPESET_CONTEXT_FONTS ),
           Setting.of( label( KEY_TYPESET_CONTEXT_FONTS_DIR ) ),
           Setting.of( title( KEY_TYPESET_CONTEXT_FONTS_DIR ),
-                      fileProperty( KEY_TYPESET_CONTEXT_FONTS_DIR ), true )
+                      directoryProperty( KEY_TYPESET_CONTEXT_FONTS_DIR ),
+                      true )
         ),
         Group.of(
           get( KEY_TYPESET_TYPOGRAPHY ),
@@ -160,7 +163,8 @@ public final class PreferencesController {
           get( KEY_R_DIR ),
           Setting.of( label( KEY_R_DIR ) ),
           Setting.of( title( KEY_R_DIR ),
-                      fileProperty( KEY_R_DIR ), true )
+                      directoryProperty( KEY_R_DIR ),
+                      true )
         ),
         Group.of(
           get( KEY_R_SCRIPT ),
@@ -186,7 +190,8 @@ public final class PreferencesController {
           get( KEY_IMAGES_DIR ),
           Setting.of( label( KEY_IMAGES_DIR ) ),
           Setting.of( title( KEY_IMAGES_DIR ),
-                      fileProperty( KEY_IMAGES_DIR ), true )
+                      directoryProperty( KEY_IMAGES_DIR ),
+                      true )
         ),
         Group.of(
           get( KEY_IMAGES_ORDER ),
@@ -358,6 +363,28 @@ public final class PreferencesController {
 
   private String title( final Key key ) {
     return get( key.toString() + ".title" );
+  }
+
+  /**
+   * Screens out non-existent directories to avoid throwing an exception caused
+   * by
+   * <a href="https://github.com/dlsc-software-consulting-gmbh/PreferencesFX/issues/441">
+   * PreferencesFX issue #441
+   * </a>.
+   *
+   * @param key Preference to pre-screen before creating a {@link FileProperty}.
+   * @return The preferred value or the user's home directory if the directory
+   * does not exist.
+   */
+  private ObjectProperty<File> directoryProperty( final Key key ) {
+    final var property = mWorkspace.fileProperty( key );
+    final var file = property.get();
+
+    if( !file.exists() ) {
+      property.set( USER_DIRECTORY );
+    }
+
+    return property;
   }
 
   private ObjectProperty<File> fileProperty( final Key key ) {

@@ -304,8 +304,9 @@ public final class Workspace {
       try {
         final var storeValue = store.getValue( key );
         final var property = valuesProperty( key );
+        final var unmarshalled = unmarshall( property, storeValue );
 
-        property.setValue( unmarshall( property, storeValue ) );
+        property.setValue( unmarshalled );
       } catch( final NoSuchElementException ignored ) {
         // When no configuration (item), use the default value.
       }

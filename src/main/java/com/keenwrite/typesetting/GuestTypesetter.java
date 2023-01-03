@@ -10,6 +10,7 @@ import java.nio.file.Path;
 import java.util.LinkedList;
 import java.util.concurrent.Callable;
 
+import static com.keenwrite.constants.Constants.USER_DIRECTORY;
 import static com.keenwrite.io.StreamGobbler.gobble;
 import static com.keenwrite.typesetting.containerization.Podman.MANAGER;
 
@@ -35,17 +36,18 @@ public final class GuestTypesetter extends Typesetter
     final var targetPath = getTargetPath();
     final var themesPath = getThemesPath();
 
-    final var sourceDir = sourcePath.getParent();
-    final var targetDir = targetPath.getParent();
-    final var themesDir = themesPath.getParent();
-    final var imagesDir = getImagesPath();
-    final var fontsDir = getFontsPath();
+    final var sourceDir = normalize( sourcePath.getParent() );
+    final var targetDir = normalize( targetPath.getParent() );
+    final var themesDir = normalize( themesPath.getParent() );
+    final var imagesDir = normalize( getImagesPath() );
+    final var fontsDir = normalize( getFontsPath() );
 
     final var sourceFile = sourcePath.getFileName();
     final var targetFile = targetPath.getFileName();
     final var themesFile = themesPath.getFileName();
 
     final var manager = new Podman();
+
     manager.mount( sourceDir, "/root/source", READONLY );
     manager.mount( targetDir, "/root/target", READWRITE );
     manager.mount( themesDir, "/root/themes", READONLY );
@@ -66,6 +68,23 @@ public final class GuestTypesetter extends Typesetter
     manager.run( in -> StreamGobbler.gobble( in, listener ), command );
 
     return null;
+  }
+
+  /**
+   * If the path doesn't exist right before typesetting, switch the path
+   * to the user's home directory to increase the odds of the typesetter
+   * succeeding. This could help, for example, if the images directory was
+   * deleted or moved.
+   *
+   * @param path The path to verify existence.
+   * @return The given path, if it exists, otherwise the user's home directory.
+   */
+  private static Path normalize( final Path path ) {
+    assert path != null;
+
+    return path.toFile().exists()
+      ? path
+      : USER_DIRECTORY.toPath();
   }
 
   static String removeExtension( final Path path ) {
