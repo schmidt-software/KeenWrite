@@ -70,7 +70,7 @@ javafx {
 }
 
 dependencies {
-  def v_junit = '5.9.1'
+  def v_junit = '5.9.2'
   def v_flexmark = '0.64.0'
   def v_jackson = '2.14.0'
   def v_echosvg = '0.2.2'
