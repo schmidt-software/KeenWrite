@@ -77,7 +77,9 @@ public final class TextEditorSpellChecker {
     // start of a new paragraph (i.e., a blank line). Spellcheck the "next"
     // paragraph, instead.
     if( text.isBlank() ) {
-      paraId++;
+      final var paragraphs = editor.getParagraphs().size();
+
+      paraId = Math.min( paraId + 1, paragraphs - 1 );
       paragraph = editor.getParagraph( paraId );
       text = paragraph.getText();
     }
@@ -93,8 +95,7 @@ public final class TextEditorSpellChecker {
    *
    * @param editor The document (or portions thereof) to spellcheck.
    * @param text   Look up words for this text in the lexicon.
-   * @param paraId Set to -1 to apply resulting style spans to the entire
-   *               text.
+   * @param paraId Set to -1 to apply resulting style spans to the entire text.
    */
   private void spellcheck(
     final StyleClassedTextArea editor, final String text, final int paraId ) {
