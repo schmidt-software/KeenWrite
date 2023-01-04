@@ -214,11 +214,11 @@ public final class DownloadManager {
     final var magicType = MediaTypeSniffer.getMediaType( input );
 
     // If the transport protocol's Content-Type doesn't align with the
-    // media type for the magic header, defer to the sniffed media type.
+    // media type for the magic header, defer to the transport protocol.
     final MediaType mediaType =
       !contentType.equals( magicType ) && !magicType.isUndefined()
-        ? magicType
-        : contentType;
+        ? contentType
+        : magicType;
 
     return new DownloadToken( conn, input, mediaType );
   }

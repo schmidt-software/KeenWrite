@@ -96,7 +96,7 @@ public final class SvgReplacedElementFactory extends ReplacedElementAdapter {
       clue( ex );
     }
 
-    return image;
+    return image == null ? BROKEN_IMAGE : image;
   }
 
   private static ImageReplacedElement createImageReplacedElement(
