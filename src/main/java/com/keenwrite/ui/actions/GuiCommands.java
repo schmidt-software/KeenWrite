@@ -46,6 +46,7 @@ import static com.keenwrite.Bootstrap.*;
 import static com.keenwrite.ExportFormat.*;
 import static com.keenwrite.Messages.get;
 import static com.keenwrite.constants.Constants.PDF_DEFAULT;
+import static com.keenwrite.constants.Constants.USER_DIRECTORY;
 import static com.keenwrite.constants.GraphicsConstants.ICON_DIALOG_NODE;
 import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.preferences.AppKeys.*;
@@ -94,6 +95,8 @@ public final class GuiCommands {
    * Tracks finding text in the active document.
    */
   private final SearchModel mSearchModel;
+
+  private boolean mCanTypeset;
 
   public GuiCommands( final MainScene scene, final MainPane pane ) {
     mMainScene = scene;
@@ -183,21 +186,33 @@ public final class GuiCommands {
     final var editor = main.getTextEditor();
     final var exported = getWorkspace().fileProperty( KEY_UI_RECENT_EXPORT );
     final var filename = format.toExportFilename( editor.getPath() );
-    final var selected = PDF_DEFAULT.getName()
-                                    .equals( exported.get().getName() );
+    final var exportParent = exported.get().toPath().getParent();
+    final var editorParent = editor.getPath().getParent();
+    final var userHomeParent = USER_DIRECTORY.toPath();
+    final var exportPath = exportParent != null
+      ? exportParent
+      : editorParent != null
+      ? editorParent
+      : userHomeParent;
+
+    final var selected = PDF_DEFAULT
+      .getName()
+      .equals( exported.get().getName() );
     final var selection = pickFile(
-      selected ? filename : exported.get(),
-      exported.get().toPath().getParent(),
+      selected
+        ? filename
+        : exported.get(),
+      exportPath,
       FILE_EXPORT
     );
 
     selection.ifPresent( files -> {
       editor.save();
 
-      final var file = files.get( 0 );
-      final var path = file.toPath();
+      final var sourceFile = files.get( 0 );
+      final var sourcePath = sourceFile.toPath();
       final var document = dir ? append( editor ) : editor.getText();
-      final var context = main.createProcessorContext( path, format );
+      final var context = main.createProcessorContext( sourcePath, format );
 
       final var task = new Task<Path>() {
         @Override
@@ -207,14 +222,14 @@ public final class GuiCommands {
 
           // Processors can export binary files. In such cases, processors
           // return null to prevent further processing.
-          return export == null ? null : writeString( path, export );
+          return export == null ? null : writeString( sourcePath, export );
         }
       };
 
       task.setOnSucceeded(
         e -> {
           // Remember the exported file name for next time.
-          exported.setValue( file );
+          exported.setValue( sourceFile );
 
           final var result = task.getValue();
 
@@ -260,7 +275,13 @@ public final class GuiCommands {
       .with( ExportSettings.Mutator::setChapters, chapters )
       .build();
 
-    if( Typesetter.canRun() ) {
+    // Don't re-validate the typesetter installation each time. If the
+    // user mucks up the typesetter installation, it'll get caught the
+    // next time the application is started. Don't use |= because it
+    // won't short-circuit.
+    mCanTypeset = mCanTypeset || Typesetter.canRun();
+
+    if( mCanTypeset ) {
       // If the typesetter is installed, allow the user to select a theme. If
       // the themes aren't installed, a status message will appear.
       if( ExportDialog.choose( getWindow(), themes, settings, dir ) ) {
@@ -524,7 +545,7 @@ public final class GuiCommands {
     getMainPane().viewOutline();
   }
 
-  public void view_files() {getMainPane().viewFiles();}
+  public void view_files() { getMainPane().viewFiles(); }
 
   public void view_statistics() {
     getMainPane().viewStatistics();

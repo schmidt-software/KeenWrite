@@ -78,8 +78,8 @@ public class AppCommands {
       try {
         final var context = args.createProcessorContext();
         final var concat = context.getConcatenate();
-        final var inputPath = context.getInputPath();
-        final var outputPath = context.getOutputPath();
+        final var inputPath = context.getSourcePath();
+        final var outputPath = context.getTargetPath();
         final var chain = createProcessors( context );
         final var inputDoc = read( inputPath, concat );
         final var outputDoc = chain.apply( inputDoc );

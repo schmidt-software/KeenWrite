@@ -13,7 +13,7 @@ import java.util.Map.Entry;
 import java.util.function.BooleanSupplier;
 import java.util.function.Function;
 
-import static com.keenwrite.Bootstrap.APP_TITLE_LOWERCASE;
+import static com.keenwrite.Bootstrap.*;
 import static com.keenwrite.Launcher.getVersion;
 import static com.keenwrite.constants.Constants.*;
 import static com.keenwrite.events.StatusEvent.clue;
@@ -70,6 +70,7 @@ public final class Workspace {
     entry( KEY_R_DELIM_BEGAN, asStringProperty( R_DELIM_BEGAN_DEFAULT ) ),
     entry( KEY_R_DELIM_ENDED, asStringProperty( R_DELIM_ENDED_DEFAULT ) ),
 
+    entry( KEY_CACHES_DIR, asFileProperty( USER_CACHE_DIR ) ),
     entry( KEY_IMAGES_DIR, asFileProperty( USER_DIRECTORY ) ),
     entry( KEY_IMAGES_ORDER, asStringProperty( PERSIST_IMAGES_DEFAULT ) ),
     entry( KEY_IMAGES_RESIZE, asBooleanProperty( true ) ),
@@ -128,6 +129,7 @@ public final class Workspace {
     entry( KEY_LANGUAGE_LOCALE, asLocaleProperty( LOCALE_DEFAULT ) ),
 
     entry( KEY_TYPESET_CONTEXT_CLEAN, asBooleanProperty( true ) ),
+    entry( KEY_TYPESET_CONTEXT_FONTS_DIR, asFileProperty( getFontDirectory() ) ),
     entry( KEY_TYPESET_CONTEXT_THEMES_PATH, asFileProperty( USER_DIRECTORY ) ),
     entry( KEY_TYPESET_CONTEXT_THEME_SELECTION, asStringProperty( "boschet" ) ),
     entry( KEY_TYPESET_CONTEXT_CHAPTERS, asStringProperty( "" ) ),
@@ -303,8 +305,9 @@ public final class Workspace {
       try {
         final var storeValue = store.getValue( key );
         final var property = valuesProperty( key );
+        final var unmarshalled = unmarshall( property, storeValue );
 
-        property.setValue( unmarshall( property, storeValue ) );
+        property.setValue( unmarshalled );
       } catch( final NoSuchElementException ignored ) {
         // When no configuration (item), use the default value.
       }
@@ -561,7 +564,7 @@ public final class Workspace {
     return map;
   }
 
-  public Path getThemePath() {
+  public Path getThemesPath() {
     final var dir = getFile( KEY_TYPESET_CONTEXT_THEMES_PATH );
     final var name = getString( KEY_TYPESET_CONTEXT_THEME_SELECTION );
 

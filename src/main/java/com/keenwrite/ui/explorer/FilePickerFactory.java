@@ -85,13 +85,19 @@ public class FilePickerFactory {
     @Override
     public void setInitialFilename( final File file ) {
       assert file != null;
+
       mChooser.setInitialFileName( file.getName() );
     }
 
     @Override
     public void setInitialDirectory( final Path path ) {
       assert path != null;
-      mChooser.setInitialDirectory( path.toFile() );
+
+      final var file = path.toFile();
+
+      mChooser.setInitialDirectory(
+        file.exists() ? file : new File( System.getProperty( "user.home" ) )
+      );
     }
 
     @Override

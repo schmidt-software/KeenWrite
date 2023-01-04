@@ -140,7 +140,7 @@ public class ImageLinkExtensionTest {
   private ProcessorContext createProcessorContext( final Path inputPath ) {
     return ProcessorContext
       .builder()
-      .with( ProcessorContext.Mutator::setInputPath, inputPath )
+      .with( ProcessorContext.Mutator::setSourcePath, inputPath )
       .with( ProcessorContext.Mutator::setExportFormat, XHTML_TEX )
       .with( ProcessorContext.Mutator::setCaret, () -> Caret.builder().build() )
       .build();

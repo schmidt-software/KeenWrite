@@ -9,12 +9,12 @@ module keenwrite.main {
 
   requires annotations;
 
-  requires batik.anim;
-  requires batik.bridge;
-  requires batik.css;
-  requires batik.gvt;
-  requires batik.transcoder;
-  requires batik.util;
+  requires echosvg.anim;
+  requires echosvg.bridge;
+  requires echosvg.css;
+  requires echosvg.gvt;
+  requires echosvg.transcoder;
+  requires echosvg.util;
 
   requires com.dlsc.formsfx;
   requires transitive com.dlsc.preferencesfx;
@@ -41,10 +41,8 @@ module keenwrite.main {
   requires flying.saucer.core;
   requires info.picocli;
   requires jsymspell;
-  requires plexus.utils;
   requires tiwulfx.dock;
   requires wellbehavedfx;
   requires xml.apis.ext;
   requires java.logging;
 }
-

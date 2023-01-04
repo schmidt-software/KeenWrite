@@ -19,6 +19,7 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.function.Supplier;
 
+import static com.keenwrite.Bootstrap.USER_DATA_DIR;
 import static com.keenwrite.constants.Constants.*;
 import static com.keenwrite.io.FileType.UNKNOWN;
 import static com.keenwrite.io.MediaType.TEXT_PROPERTIES;
@@ -76,21 +77,25 @@ public final class ProcessorContext {
    * context.
    */
   public static class Mutator {
-    private Path mInputPath;
-    private Path mOutputPath;
+    private Path mSourcePath;
+    private Path mTargetPath;
     private ExportFormat mExportFormat;
     private boolean mConcatenate;
 
-    private Supplier<Path> mThemePath;
+    private Supplier<Path> mThemesPath;
     private Supplier<Locale> mLocale = () -> Locale.ENGLISH;
 
     private Supplier<Map<String, String>> mDefinitions = HashMap::new;
     private Supplier<Map<String, String>> mMetadata = HashMap::new;
     private Supplier<Caret> mCaret = () -> Caret.builder().build();
 
-    private Supplier<Path> mImageDir;
+    private Supplier<Path> mFontsPath;
+
+    private Supplier<Path> mImagesPath;
     private Supplier<String> mImageServer = () -> DIAGRAM_SERVER_NAME;
     private Supplier<String> mImageOrder = () -> PERSIST_IMAGES_DEFAULT;
+
+    private Supplier<Path> mCachesPath;
 
     private Supplier<String> mSigilBegan = () -> DEF_DELIM_BEGAN_DEFAULT;
     private Supplier<String> mSigilEnded = () -> DEF_DELIM_ENDED_DEFAULT;
@@ -99,21 +104,65 @@ public final class ProcessorContext {
     private Supplier<String> mRScript = () -> "";
 
     private Supplier<Boolean> mCurlQuotes = () -> true;
-    private Supplier<Boolean> mAutoClean = () -> true;
+    private Supplier<Boolean> mAutoRemove = () -> true;
 
-    public void setInputPath( final Path inputPath ) {
-      assert inputPath != null;
-      mInputPath = inputPath;
+    public void setSourcePath( final Path sourcePath ) {
+      assert sourcePath != null;
+      mSourcePath = sourcePath;
     }
 
-    public void setOutputPath( final Path outputPath ) {
+    public void setTargetPath( final Path outputPath ) {
       assert outputPath != null;
-      mOutputPath = outputPath;
+      mTargetPath = outputPath;
     }
 
-    public void setOutputPath( final File outputPath ) {
-      assert outputPath != null;
-      setOutputPath( outputPath.toPath() );
+    public void setTargetPath( final File targetPath ) {
+      assert targetPath != null;
+      setTargetPath( targetPath.toPath() );
+    }
+
+    public void setThemesPath( final Supplier<Path> themesPath ) {
+      assert themesPath != null;
+      mThemesPath = themesPath;
+    }
+
+    public void setCachesPath( final Supplier<File> cachesDir ) {
+      assert cachesDir != null;
+
+      mCachesPath = () -> {
+        final var dir = cachesDir.get();
+
+        return (dir == null ? USER_DATA_DIR.toFile() : dir).toPath();
+      };
+    }
+
+    public void setImagesPath( final Supplier<File> imagesDir ) {
+      assert imagesDir != null;
+
+      mImagesPath = () -> {
+        final var dir = imagesDir.get();
+
+        return (dir == null ? USER_DIRECTORY : dir).toPath();
+      };
+    }
+
+    public void setImageOrder( final Supplier<String> imageOrder ) {
+      assert imageOrder != null;
+      mImageOrder = imageOrder;
+    }
+
+    public void setImageServer( final Supplier<String> imageServer ) {
+      assert imageServer != null;
+      mImageServer = imageServer;
+    }
+
+    public void setFontsPath( final Supplier<File> fontsPath ) {
+      assert fontsPath != null;
+      mFontsPath = () -> {
+        final var dir = fontsPath.get();
+
+        return (dir == null ? USER_DIRECTORY : dir).toPath();
+      };
     }
 
     public void setExportFormat( final ExportFormat exportFormat ) {
@@ -128,11 +177,6 @@ public final class ProcessorContext {
     public void setLocale( final Supplier<Locale> locale ) {
       assert locale != null;
       mLocale = locale;
-    }
-
-    public void setThemePath( final Supplier<Path> themePath ) {
-      assert themePath != null;
-      mThemePath = themePath;
     }
 
     /**
@@ -165,26 +209,6 @@ public final class ProcessorContext {
       mCaret = caret;
     }
 
-    public void setImageDir( final Supplier<File> imageDir ) {
-      assert imageDir != null;
-
-      mImageDir = () -> {
-        final var dir = imageDir.get();
-
-        return (dir == null ? USER_DIRECTORY : dir).toPath();
-      };
-    }
-
-    public void setImageOrder( final Supplier<String> imageOrder ) {
-      assert imageOrder != null;
-      mImageOrder = imageOrder;
-    }
-
-    public void setImageServer( final Supplier<String> imageServer ) {
-      assert imageServer != null;
-      mImageServer = imageServer;
-    }
-
     public void setSigilBegan( final Supplier<String> sigilBegan ) {
       assert sigilBegan != null;
       mSigilBegan = sigilBegan;
@@ -211,9 +235,9 @@ public final class ProcessorContext {
       mCurlQuotes = curlQuotes;
     }
 
-    public void setAutoClean( final Supplier<Boolean> autoClean ) {
-      assert autoClean != null;
-      mAutoClean = autoClean;
+    public void setAutoRemove( final Supplier<Boolean> autoRemove ) {
+      assert autoRemove != null;
+      mAutoRemove = autoRemove;
     }
 
     private boolean isExportFormat( final ExportFormat format ) {
@@ -237,8 +261,8 @@ public final class ProcessorContext {
     mMutator = mutator;
   }
 
-  public Path getInputPath() {
-    return mMutator.mInputPath;
+  public Path getSourcePath() {
+    return mMutator.mSourcePath;
   }
 
   /**
@@ -246,8 +270,8 @@ public final class ProcessorContext {
    *
    * @return Full path to a file name.
    */
-  public Path getOutputPath() {
-    return mMutator.mOutputPath;
+  public Path getTargetPath() {
+    return mMutator.mTargetPath;
   }
 
   public ExportFormat getExportFormat() {
@@ -305,16 +329,24 @@ public final class ProcessorContext {
    * default user directory if the base path cannot be determined.
    */
   public Path getBaseDir() {
-    final var path = getInputPath().toAbsolutePath().getParent();
+    final var path = getSourcePath().toAbsolutePath().getParent();
     return path == null ? DEFAULT_DIRECTORY : path;
   }
 
-  FileType getInputFileType() {
-    return lookup( getInputPath() );
+  FileType getSourceFileType() {
+    return lookup( getSourcePath() );
   }
 
-  public Path getImageDir() {
-    return mMutator.mImageDir.get();
+  public Path getThemesPath() {
+    return mMutator.mThemesPath.get();
+  }
+
+  public Path getImagesPath() {
+    return mMutator.mImagesPath.get();
+  }
+
+  public Path getCachesPath() {
+    return mMutator.mCachesPath.get();
   }
 
   public Iterable<String> getImageOrder() {
@@ -330,8 +362,12 @@ public final class ProcessorContext {
     return mMutator.mImageServer.get();
   }
 
-  public Path getThemePath() {
-    return mMutator.mThemePath.get();
+  public Path getFontsPath() {
+    return mMutator.mFontsPath.get();
+  }
+
+  public boolean getAutoRemove() {
+    return mMutator.mAutoRemove.get();
   }
 
   public Path getRWorkingDir() {
@@ -346,13 +382,9 @@ public final class ProcessorContext {
     return mMutator.mCurlQuotes.get();
   }
 
-  public boolean getAutoClean() {
-    return mMutator.mAutoClean.get();
-  }
-
   /**
    * Answers whether to process a single text file or all text files in
-   * the same directory as a single text file. See {@link #getInputPath()}
+   * the same directory as a single text file. See {@link #getSourcePath()}
    * for the file to process (or all files in its directory).
    *
    * @return {@code true} means to process all text files, {@code false}
@@ -363,7 +395,7 @@ public final class ProcessorContext {
   }
 
   public SigilKeyOperator createKeyOperator() {
-    return createKeyOperator( getInputPath() );
+    return createKeyOperator( getSourcePath() );
   }
 
   /**

@@ -308,28 +308,38 @@ public enum MediaType {
   /**
    * Creates a temporary {@link File} that starts with the given prefix.
    *
-   * @param prefix The file name begins with this string (empty is allowed).
+   * @param prefix    The file name begins with this string (empty is allowed).
+   * @param directory The directory wherein the file is created.
    * @return The fully qualified path to the temporary file.
    * @throws IOException Could not create the temporary file.
    */
-  public Path createTempFile( final String prefix ) throws IOException {
-    return createTempFile( prefix, false );
+  public Path createTempFile(
+    final String prefix,
+    final Path directory ) throws IOException {
+    return createTempFile( prefix, directory, false );
   }
 
   /**
    * Creates a temporary {@link File} that starts with the given prefix.
    *
-   * @param prefix The file name begins with this string (empty is allowed).
-   * @param purge  Set to {@code true} to delete the file on exit.
+   * @param prefix    The file name begins with this string (empty is allowed).
+   * @param directory The directory wherein the file is created.
+   * @param purge     Set to {@code true} to delete the file on exit.
    * @return The fully qualified path to the temporary file.
    * @throws IOException Could not create the temporary file.
    */
   public Path createTempFile(
-    final String prefix, final boolean purge ) throws IOException {
+    final String prefix,
+    final Path directory,
+    final boolean purge )
+    throws IOException {
     assert prefix != null;
 
-    final var file = File.createTempFile(
-      prefix, '.' + MediaTypeExtension.valueFrom( this ).getExtension() );
+    final var suffix = '.' + MediaTypeExtension
+      .valueFrom( this )
+      .getExtension();
+
+    final var file = File.createTempFile( prefix, suffix, directory.toFile() );
 
     if( purge ) {
       file.deleteOnExit();

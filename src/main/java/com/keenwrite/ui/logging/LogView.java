@@ -2,11 +2,11 @@
 package com.keenwrite.ui.logging;
 
 import com.keenwrite.events.StatusEvent;
+import com.keenwrite.ui.clipboard.Clipboard;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.ObservableList;
 import javafx.scene.control.*;
-import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.stage.Stage;
 import org.greenrobot.eventbus.Subscribe;
@@ -28,7 +28,6 @@ import static javafx.event.ActionEvent.ACTION;
 import static javafx.scene.control.Alert.AlertType.INFORMATION;
 import static javafx.scene.control.ButtonType.OK;
 import static javafx.scene.control.SelectionMode.MULTIPLE;
-import static javafx.scene.input.Clipboard.getSystemClipboard;
 import static javafx.scene.input.KeyCode.C;
 import static javafx.scene.input.KeyCode.INSERT;
 import static javafx.scene.input.KeyCombination.CONTROL_ANY;
@@ -248,8 +247,6 @@ public final class LogView extends Alert {
       }
     }
 
-    final var contents = new ClipboardContent();
-    contents.putString( sb.toString() );
-    getSystemClipboard().setContent( contents );
+    Clipboard.write( sb );
   }
 }

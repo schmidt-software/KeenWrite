@@ -28,7 +28,9 @@ public final class AppKeys {
   public static final Key KEY_R_DELIM_BEGAN = key( KEY_R_DELIM, "began" );
   public static final Key KEY_R_DELIM_ENDED = key( KEY_R_DELIM, "ended" );
 
+
   public static final Key KEY_IMAGES = key( KEY_ROOT, "images" );
+  public static final Key KEY_CACHES_DIR = key( KEY_IMAGES, "cache" );
   public static final Key KEY_IMAGES_DIR = key( KEY_IMAGES, "dir" );
   public static final Key KEY_IMAGES_ORDER = key( KEY_IMAGES, "order" );
   public static final Key KEY_IMAGES_RESIZE = key( KEY_IMAGES, "resize" );
@@ -82,6 +84,8 @@ public final class AppKeys {
 
   public static final Key KEY_TYPESET = key( KEY_ROOT, "typeset" );
   public static final Key KEY_TYPESET_CONTEXT = key( KEY_TYPESET, "context" );
+  public static final Key KEY_TYPESET_CONTEXT_FONTS = key( KEY_TYPESET_CONTEXT, "fonts" );
+  public static final Key KEY_TYPESET_CONTEXT_FONTS_DIR = key( KEY_TYPESET_CONTEXT_FONTS, "dir" );
   public static final Key KEY_TYPESET_CONTEXT_THEMES = key( KEY_TYPESET_CONTEXT, "themes" );
   public static final Key KEY_TYPESET_CONTEXT_THEMES_PATH = key( KEY_TYPESET_CONTEXT_THEMES, "path" );
   public static final Key KEY_TYPESET_CONTEXT_THEME_SELECTION = key( KEY_TYPESET_CONTEXT_THEMES, "selection" );

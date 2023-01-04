@@ -64,7 +64,7 @@ public final class StatusEvent implements AppEvent {
    * Returns the stack trace information for the issue encountered. This is
    * optional because usually a status message isn't an application error.
    *
-   * @return Optional stack trace to pin-point the problem area in the code.
+   * @return Optional stack trace to pinpoint the problem area in the code.
    */
   public String getProblem() {
     // 256 is arbitrary; stack traces shouldn't be much larger.
@@ -93,6 +93,12 @@ public final class StatusEvent implements AppEvent {
                    mProblem == null ? "" : toEnglish( mProblem ) );
   }
 
+  /**
+   * Returns {@code true} to allow the {@link StackTraceElement} to pass
+   * through the filter.
+   *
+   * @param e The element to check against the filter.
+   */
   private static boolean filter( final StackTraceElement e ) {
     final var clazz = e.getClassName();
     return clazz.contains( PACKAGE_NAME ) ||

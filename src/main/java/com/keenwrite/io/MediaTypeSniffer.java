@@ -11,7 +11,7 @@ import static java.lang.System.arraycopy;
 /**
  * Associates file signatures with IANA-defined {@link MediaType}s. See:
  * <a href="https://www.garykessler.net/library/file_sigs.html">
- * Kessler's List
+ * Gary Kessler's List
  * </a>,
  * <a href="https://en.wikipedia.org/wiki/List_of_file_signatures">
  * Wikipedia's List

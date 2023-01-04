@@ -1,8 +1,8 @@
-![Total Downloads](https://img.shields.io/github/downloads/DaveJarvis/keenwrite/total?color=blue&label=Total%20Downloads&style=flat) ![Release Downloads](https://img.shields.io/github/downloads/DaveJarvis/keenwrite/latest/total?color=purple&label=Release%20Downloads&style=flat) ![Release Date](https://img.shields.io/github/release-date/DaveJarvis/keenwrite?color=red&style=flat&label=Release%20Date) ![Release Version](https://img.shields.io/github/v/release/DaveJarvis/keenwrite?style=flat&label=Release)
+![Total Downloads](https://img.shields.io/github/downloads/DaveJarvis/keenwrite/total?color=blue&label=Total%20Downloads&style=flat) ![Release Downloads](https://img.shields.io/github/downloads/DaveJarvis/keenwrite/latest/total?color=purple&label=Release%20Downloads&style=flat) ![Released](https://img.shields.io/github/release-date/DaveJarvis/keenwrite?color=red&style=flat&label=Released) ![Version](https://img.shields.io/github/v/release/DaveJarvis/keenwrite?style=flat&label=Release)
 
 # ![Logo](docs/images/app-title.png)
 
-A text editor that uses [interpolated strings](https://en.wikipedia.org/wiki/String_interpolation) to reference values defined externally.
+A free, open-source, cross-platform desktop Markdown editor that can produce beautifully typeset PDFs.
 
 ## Download
 
@@ -17,10 +17,6 @@ Download one of the following editions:
 Note that the first time the application runs, it will unpack itself into a local directory. Subsequent starts will be faster.
 
 ### Windows
-
-When upgrading to a new version, delete the following directory:
-
-    C:\Users\%USERNAME%\AppData\Local\warp\packages\keenwrite.exe
 
 Double-click the application to start; give the application permission to run.
 

@@ -8,8 +8,9 @@ import static java.lang.Math.min;
 /**
  * Responsible for maintaining a circular queue where newly added items will
  * overwrite existing items.
- *
+ * <p>
  * <strong>Warning:</strong> This class is not thread-safe.
+ * </p>
  *
  * @param <E> The type of elements to store in this collection.
  */

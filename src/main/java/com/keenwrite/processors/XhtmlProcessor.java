@@ -2,7 +2,9 @@
 package com.keenwrite.processors;
 
 import com.keenwrite.dom.DocumentParser;
+import com.keenwrite.io.MediaTypeExtension;
 import com.keenwrite.ui.heuristics.WordCounter;
+import com.keenwrite.util.DataTypeConverter;
 import com.whitemagicsoftware.keenquotes.parser.Contractions;
 import com.whitemagicsoftware.keenquotes.parser.Curler;
 import org.w3c.dom.Document;
@@ -14,7 +16,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import static com.keenwrite.Bootstrap.APP_TITLE_LOWERCASE;
+import static com.keenwrite.Bootstrap.APP_TITLE_ABBR;
 import static com.keenwrite.dom.DocumentParser.createMeta;
 import static com.keenwrite.dom.DocumentParser.visit;
 import static com.keenwrite.events.StatusEvent.clue;
@@ -80,9 +82,25 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
           final var attr = attrs.getNamedItem( "src" );
 
           if( attr != null ) {
-            final var imageFile = exportImage( attr.getTextContent() );
+            final var src = attr.getTextContent();
+            final Path location;
+            final Path imagesDir;
 
-            attr.setTextContent( imageFile.toString() );
+            // Download into a cache directory, which can be written to without
+            // any possibility of overwriting local image files. Further, the
+            // filenames are hashed as a second layer of protection.
+            if( getProtocol( src ).isRemote() ) {
+              location = downloadImage( src );
+              imagesDir = getCachesPath();
+            }
+            else {
+              location = resolveImage( src );
+              imagesDir = getImagesPath();
+            }
+
+            final var relative = imagesDir.relativize( location );
+
+            attr.setTextContent( relative.toString() );
           }
         } catch( final Exception ex ) {
           clue( ex );
@@ -157,30 +175,33 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
   }
 
   /**
-   * For a given src URI, this method will attempt to normalize it such that a
-   * third-party application can find the file. Normalization could entail
-   * downloading from the Internet or finding a suitable file name extension.
+   * Hashes the URL so that the number of files doesn't eat up disk space
+   * over time. For static resources, a feature could be added to prevent
+   * downloading the URL if the hashed filename already exists.
    *
-   * @param src A path, local or remote, to a partial or complete file name.
-   * @return A local file system path to the source path.
-   * @throws Exception Could not read from, write to, or find a file.
+   * @param src The source file's URL to download.
+   * @return A {@link Path} to the local file containing the URL's contents.
+   * @throws Exception Could not download or save the file.
    */
-  private Path exportImage( final String src ) throws Exception {
-    return getProtocol( src ).isRemote()
-      ? downloadImage( src )
-      : resolveImage( src );
-  }
-
   private Path downloadImage( final String src ) throws Exception {
     final Path imageFile;
+    final var cachesPath = getCachesPath();
 
     clue( "Main.status.image.xhtml.image.download", src );
 
     try( final var response = open( src ) ) {
       final var mediaType = response.getMediaType();
 
-      // Preserve image files if auto-clean is turned off.
-      imageFile = mediaType.createTempFile( APP_TITLE_LOWERCASE, autoclean() );
+      final var ext = MediaTypeExtension.valueFrom( mediaType ).getExtension();
+      final var hash = DataTypeConverter.toHex( DataTypeConverter.hash( src ) );
+      final var id = hash.toLowerCase();
+
+      imageFile = cachesPath.resolve( APP_TITLE_ABBR + id + '.' + ext );
+
+      // Preserve image files if auto-remove is turned off.
+      if( autoRemove() ) {
+        imageFile.toFile().deleteOnExit();
+      }
 
       try( final var image = response.getInputStream() ) {
         copy( image, imageFile, REPLACE_EXISTING );
@@ -195,7 +216,7 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
   }
 
   private Path resolveImage( final String src ) throws Exception {
-    var imagePath = getImagePath();
+    var imagePath = getImagesPath();
     var found = false;
 
     Path imageFile = null;
@@ -205,7 +226,7 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
     for( final var extension : getImageOrder() ) {
       final var filename = format(
         "%s%s%s", src, extension.isBlank() ? "" : ".", extension );
-      imageFile = Path.of( imagePath, filename );
+      imageFile = imagePath.resolve( filename );
 
       if( imageFile.toFile().exists() ) {
         found = true;
@@ -214,8 +235,8 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
     }
 
     if( !found ) {
-      imagePath = getDocumentDir().toString();
-      imageFile = Path.of( imagePath, src );
+      imagePath = getDocumentDir();
+      imageFile = imagePath.resolve( src );
 
       if( !imageFile.toFile().exists() ) {
         final var filename = imageFile.toString();
@@ -230,8 +251,12 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
     return imageFile;
   }
 
-  private String getImagePath() {
-    return mContext.getImageDir().toString();
+  private Path getImagesPath() {
+    return mContext.getImagesPath();
+  }
+
+  private Path getCachesPath() {
+    return mContext.getCachesPath();
   }
 
   /**
@@ -260,8 +285,8 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
     return mContext.getLocale();
   }
 
-  private boolean autoclean() {
-    return mContext.getAutoClean();
+  private boolean autoRemove() {
+    return mContext.getAutoRemove();
   }
 
   private String wordCount( final Document doc ) {

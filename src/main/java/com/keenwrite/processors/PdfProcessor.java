@@ -3,9 +3,7 @@ package com.keenwrite.processors;
 
 import com.keenwrite.typesetting.Typesetter;
 
-import java.io.IOException;
-
-import static com.keenwrite.Bootstrap.APP_TITLE_LOWERCASE;
+import static com.keenwrite.Bootstrap.APP_TITLE_ABBR;
 import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.io.MediaType.TEXT_XML;
 import static com.keenwrite.typesetting.Typesetter.Mutator;
@@ -17,11 +15,11 @@ import static java.nio.file.Files.writeString;
  * into a PDF file. This must not be run from the JavaFX thread.
  */
 public final class PdfProcessor extends ExecutorProcessor<String> {
-  private final ProcessorContext mContext;
+  private final ProcessorContext mProcessorContext;
 
   public PdfProcessor( final ProcessorContext context ) {
     assert context != null;
-    mContext = context;
+    mProcessorContext = context;
   }
 
   /**
@@ -35,23 +33,28 @@ public final class PdfProcessor extends ExecutorProcessor<String> {
   public String apply( final String xhtml ) {
     try {
       clue( "Main.status.typeset.create" );
-      final var context = mContext;
-      final var document = TEXT_XML.createTempFile( APP_TITLE_LOWERCASE );
+      final var context = mProcessorContext;
+      final var parent = context.getTargetPath().getParent();
+      final var document =
+        TEXT_XML.createTempFile( APP_TITLE_ABBR, parent );
       final var typesetter = Typesetter
         .builder()
-        .with( Mutator::setInputPath, writeString( document, xhtml ) )
-        .with( Mutator::setOutputPath, context.getOutputPath() )
-        .with( Mutator::setThemePath, context.getThemePath() )
-        .with( Mutator::setAutoClean, context.getAutoClean() )
+        .with( Mutator::setAutoRemove, context.getAutoRemove() )
+        .with( Mutator::setSourcePath, writeString( document, xhtml ) )
+        .with( Mutator::setTargetPath, context.getTargetPath() )
+        .with( Mutator::setThemesPath, context.getThemesPath() )
+        .with( Mutator::setImagesPath, context.getImagesPath() )
+        .with( Mutator::setCachesPath, context.getCachesPath() )
+        .with( Mutator::setFontsPath, context.getFontsPath() )
         .build();
 
       typesetter.typeset();
 
       // Smote the temporary file after typesetting the document.
-      if( typesetter.autoclean() ) {
+      if( typesetter.autoRemove() ) {
         deleteIfExists( document );
       }
-    } catch( final IOException | InterruptedException ex ) {
+    } catch( final Exception ex ) {
       // Typesetter runtime exceptions will pass up the call stack.
       clue( "Main.status.typeset.failed", ex );
     }

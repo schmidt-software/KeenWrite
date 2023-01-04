@@ -42,8 +42,9 @@ ARG_PATH_DIST_JAR="${SCRIPT_DIR}/build/libs/${FILE_APP_JAR}"
 
 DEPENDENCIES=(
   "gradle,https://gradle.org"
-  "warp-packer,https://github.com/dgiagio/warp"
+  "warp-packer,https://github.com/Reisz/warp/releases"
   "tar,https://www.gnu.org/software/tar"
+  "wine,https://www.winehq.org"
   "unzip,http://infozip.sourceforge.net"
 )
 
@@ -76,6 +77,8 @@ execute() {
 
   $do_create_launcher
 
+  $do_brand_windows
+
   return 1
 }
 
@@ -89,6 +92,7 @@ utile_configure_target() {
     FILE_DIST_EXEC="run.bat"
     APP_EXTENSION="exe"
     do_create_launch_script=utile_create_launch_script_windows
+    do_brand_windows=utile_brand_windows
   fi
 }
 
@@ -179,6 +183,38 @@ __EOT
 }
 
 # ---------------------------------------------------------------------------
+# Modify the binary to include icon and identifying information.
+# ---------------------------------------------------------------------------
+utile_brand_windows() {
+  # Read the properties file to get the application name (case sensitvely).
+  while IFS='=' read -r key value
+  do
+    key=$(echo $key | tr '.' '_')
+    eval ${key}=\${value}
+  done < "src/main/resources/bootstrap.properties"
+
+  readonly BINARY="${APP_NAME}.exe"
+  readonly VERSION=$(git describe --tags)
+  readonly COMPANY="White Magic Software, Ltd."
+  readonly YEAR=$(date +%Y)
+  readonly DESCRIPTION="Markdown editor with live preview, variables, and math."
+  readonly SIZE=$(stat --format="%s" ${BINARY})
+
+  wine ${SCRIPT_DIR}/scripts/rcedit-x64.exe "${BINARY}" \
+    --set-icon "scripts/logo.ico" \
+    --set-version-string "OriginalFilename" "${application_title}.exe" \
+    --set-version-string "CompanyName" "${COMPANY}" \
+    --set-version-string "ProductName" "${application_title}" \
+    --set-version-string "LegalCopyright" "Copyright ${YEAR} ${COMPANY}" \
+    --set-version-string "FileDescription" "${DESCRIPTION}" \
+    --set-version-string "Size" "${DESCRIPTION}" \
+    --set-product-version "${VERSION}" \
+    --set-file-version "${VERSION}"
+
+  mv -f "${BINARY}" "${application_title}.exe"
+}
+
+# ---------------------------------------------------------------------------
 # Copy application überjar.
 # ---------------------------------------------------------------------------
 utile_copy_archive() {
@@ -202,8 +238,9 @@ utile_create_launcher() {
   fi
 
   warp-packer \
+    pack \
     --arch "${ARG_JAVA_OS}-${ARG_JAVA_ARCH}" \
-    --input_dir "${ARG_DIR_DIST}" \
+    --input-dir "${ARG_DIR_DIST}" \
     --exec "${FILE_DIST_EXEC}" \
     --output "${FILE_APP_NAME}" > /dev/null
 
@@ -238,6 +275,7 @@ do_extract_java=utile_extract_java
 do_create_launch_script=utile_create_launch_script_linux
 do_copy_archive=utile_copy_archive
 do_create_launcher=utile_create_launcher
+do_brand_windows=:
 
 main "$@"
 

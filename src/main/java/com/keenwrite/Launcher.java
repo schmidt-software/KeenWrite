@@ -154,13 +154,7 @@ public final class Launcher implements Consumer<Arguments> {
    */
   private static void disableLogging() {
     LogManager.getLogManager().reset();
-    stderrDisable();
-  }
-
-  /**
-   * TODO: Delete this after JavaFX/GTK 3 no longer barfs useless warnings.
-   */
-  private static void stderrDisable() {
+    // TODO: Delete this after JavaFX/GTK 3 no longer barfs useless warnings.
     System.err.close();
   }
 
