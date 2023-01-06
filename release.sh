@@ -17,15 +17,23 @@ DEPENDENCIES=(
 )
 
 execute() {
+  $log "Remove distribution directory"
+  rm -rf "${SCRIPT_DIR}/dist"
+
+  $log "Remove stale binaries"
+  rm -f "${application_title,,}.jar"
+  rm -f "${application_title,,}.bin"
+  rm -f "${application_title}.exe"
+
+  $log "Build Java archive"
+  gradle clean jar
+  mv "build/libs/${application_title,,}.jar" .
+
   $log "Build Windows installer binary"
   ${BIN_INSTALLER} -o windows
 
   $log "Build Linux installer binary"
   ${BIN_INSTALLER} -o linux
-
-  $log "Build Java archive"
-  gradle clean jar
-  mv "build/libs/${application_title}.jar" .
 }
 
 preprocess() {
@@ -38,7 +46,7 @@ preprocess() {
     eval ${key}=\${value}
   done < "${FILE_PROPERTIES}"
 
-  application_title="${application_title,,}"
+  application_title="${application_title}"
 
   return 1
 }
