@@ -183,6 +183,21 @@ public class DocumentParser {
     return node;
   }
 
+  public static Node createElement(
+    final Document doc, final String nodeName, final String nodeValue ) {
+    assert doc != null;
+    assert nodeName != null;
+    assert !nodeName.isBlank();
+
+    final var node = doc.createElement( nodeName );
+
+    if( nodeValue != null ) {
+      node.setTextContent( nodeValue );
+    }
+
+    return node;
+  }
+
   public static String toString( final Document xhtml ) {
     assert xhtml != null;
 
@@ -268,5 +283,5 @@ public class DocumentParser {
    * Use the {@code static} constants and methods, not an instance, at least
    * until an iterable sub-interface is written.
    */
-  private DocumentParser() {}
+  private DocumentParser() { }
 }

@@ -17,8 +17,7 @@ import java.util.Locale;
 import java.util.Map;
 
 import static com.keenwrite.Bootstrap.APP_TITLE_ABBR;
-import static com.keenwrite.dom.DocumentParser.createMeta;
-import static com.keenwrite.dom.DocumentParser.visit;
+import static com.keenwrite.dom.DocumentParser.*;
 import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.io.downloads.DownloadManager.open;
 import static com.keenwrite.util.ProtocolScheme.getProtocol;
@@ -38,20 +37,6 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
     new Curler( createContractions(), FILTER_XML, true );
 
   private final ProcessorContext mContext;
-
-  /**
-   * Adorns the given document with {@code html}, {@code head}, and
-   * {@code body} elements.
-   *
-   * @param html The document to decorate.
-   * @return A document with a typical HTML structure.
-   */
-  private static String decorate( final String html ) {
-    return
-      "<html><head><title> </title><meta charset='utf8'/></head><body>"
-        + html
-        + "</body></html>";
-  }
 
   public XhtmlProcessor(
     final Processor<String> successor, final ProcessorContext context ) {
@@ -73,7 +58,7 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
     clue( "Main.status.typeset.xhtml" );
 
     try {
-      final var doc = DocumentParser.parse( decorate( html ) );
+      final var doc = parse( html );
       setMetaData( doc );
 
       visit( doc, "//img", node -> {
@@ -125,17 +110,17 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
    */
   private void setMetaData( final Document doc ) {
     final var metadata = createMetaDataMap( doc );
-
-    visit( doc, "/html/head", node ->
-      metadata.entrySet()
-              .forEach( entry -> node.appendChild( createMeta( doc, entry ) ) )
-    );
-
     final var title = metadata.get( "title" );
 
-    if( title != null ) {
-      visit( doc, "/html/head/title", node -> node.setTextContent( title ) );
-    }
+    visit( doc, "/html/head", node -> {
+      // Insert <title>text</title> inside <head>.
+      node.appendChild( createElement( doc, "title", title ) );
+
+      // Insert each <meta name=x content=y /> inside <head>.
+      metadata.entrySet().forEach(
+        entry -> node.appendChild( createMeta( doc, entry ) )
+      );
+    } );
   }
 
   /**
@@ -208,7 +193,7 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
       }
 
       if( mediaType.isSvg() ) {
-        DocumentParser.sanitize( imageFile );
+        sanitize( imageFile );
       }
     }
 
