@@ -7,7 +7,7 @@ import com.keenwrite.processors.ProcessorContext;
 import com.keenwrite.processors.markdown.extensions.fences.FencedDivExtension;
 import com.keenwrite.processors.markdown.extensions.r.RInlineExtension;
 import com.vladsch.flexmark.ext.definition.DefinitionExtension;
-import com.vladsch.flexmark.ext.gfm.strikethrough.*;
+import com.vladsch.flexmark.ext.gfm.strikethrough.StrikethroughSubscriptExtension;
 import com.vladsch.flexmark.ext.superscript.SuperscriptExtension;
 import com.vladsch.flexmark.ext.tables.TablesExtension;
 import com.vladsch.flexmark.html.HtmlRenderer;
@@ -17,6 +17,8 @@ import com.vladsch.flexmark.util.ast.IRender;
 import com.vladsch.flexmark.util.ast.Node;
 import com.vladsch.flexmark.util.data.MutableDataSet;
 import com.vladsch.flexmark.util.misc.Extension;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document.OutputSettings.Syntax;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -78,7 +80,7 @@ public class BaseMarkdownProcessor extends ExecutorProcessor<String> {
    */
   @Override
   public String apply( final String markdown ) {
-    return toHtml( parse( markdown ) );
+    return toXhtml( toHtml( parse( markdown ) ) );
   }
 
   /**
@@ -101,6 +103,12 @@ public class BaseMarkdownProcessor extends ExecutorProcessor<String> {
    */
   public String toHtml( final Node node ) {
     return getRenderer().render( node );
+  }
+
+  private String toXhtml( final String html ) {
+    final var document = Jsoup.parse( html );
+    document.outputSettings().syntax( Syntax.xml );
+    return document.html();
   }
 
   /**
