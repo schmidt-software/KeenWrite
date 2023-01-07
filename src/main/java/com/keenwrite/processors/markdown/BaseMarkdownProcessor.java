@@ -85,7 +85,7 @@ public class BaseMarkdownProcessor extends ExecutorProcessor<String> {
 
   /**
    * Returns the AST in the form of a node for the given Markdown document. This
-   * can be used, for example, to determine if a hyperlink exists inside of a
+   * can be used, for example, to determine if a hyperlink exists inside a
    * paragraph.
    *
    * @param markdown The Markdown to convert into an AST.
@@ -105,6 +105,13 @@ public class BaseMarkdownProcessor extends ExecutorProcessor<String> {
     return getRenderer().render( node );
   }
 
+  /**
+   * Ensures that subsequent processing will receive a well-formed document.
+   * That is, an XHTML document.
+   *
+   * @param html Document to transform (may contain unbalanced HTML tags).
+   * @return A well-formed (balanced) equivalent HTML document.
+   */
   private String toXhtml( final String html ) {
     final var document = Jsoup.parse( html );
     document.outputSettings().syntax( Syntax.xml );

@@ -10,6 +10,7 @@ import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.StringProperty;
 import javafx.embed.swing.SwingNode;
 import org.greenrobot.eventbus.Subscribe;
+import org.jsoup.Jsoup;
 
 import javax.swing.*;
 import java.awt.*;
@@ -34,7 +35,6 @@ import static javax.swing.KeyStroke.getKeyStroke;
 import static javax.swing.SwingUtilities.invokeLater;
 import static org.controlsfx.glyphfont.FontAwesome.Glyph.LOCK;
 import static org.controlsfx.glyphfont.FontAwesome.Glyph.UNLOCK_ALT;
-import static org.jsoup.Jsoup.parse;
 
 /**
  * Responsible for parsing an HTML document.
@@ -157,7 +157,7 @@ public final class HtmlPreview extends SwingNode implements ComponentListener {
    * @param html The new HTML document to display.
    */
   public void render( final String html ) {
-    final var doc = CONVERTER.fromJsoup( parse( decorate( html ) ) );
+    final var doc = CONVERTER.fromJsoup( Jsoup.parse( decorate( html ) ) );
     final var uri = getBaseUri();
     doc.setDocumentURI( uri );
 
@@ -268,7 +268,7 @@ public final class HtmlPreview extends SwingNode implements ComponentListener {
    * Returns the ISO 639 alpha-2 or alpha-3 language code followed by a hyphen
    * followed by the ISO 15924 alpha-4 script code, followed by an ISO 3166
    * alpha-2 country code or UN M.49 numeric-3 area code. For example, this
-   * could return "en-Latn-CA" for Canadian English written in the Latin
+   * could return {@code en-Latn-CA} for Canadian English written in the Latin
    * character set.
    *
    * @return Unique identifier for language and country.
