@@ -1,6 +1,9 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.io;
 
+import org.apache.commons.io.FilenameUtils;
+
+import java.io.File;
 import java.util.List;
 
 import static com.keenwrite.io.MediaType.*;
@@ -85,6 +88,16 @@ public enum MediaTypeExtension {
     }
 
     return UNDEFINED;
+  }
+
+  /**
+   * Returns the {@link MediaType} associated with the given file.
+   *
+   * @param file The file having an extension to map to a {@link MediaType}.
+   * @return The associated {@link MediaType} as defined by IANA.
+   */
+  public static MediaType fromFile( final File file ) {
+    return fromExtension( FilenameUtils.getExtension( file.getName() ) );
   }
 
   private static String sanitize( final String extension ) {

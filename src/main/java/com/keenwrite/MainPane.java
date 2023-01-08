@@ -13,6 +13,7 @@ import com.keenwrite.editors.markdown.MarkdownEditor;
 import com.keenwrite.events.*;
 import com.keenwrite.events.spelling.LexiconLoadedEvent;
 import com.keenwrite.io.MediaType;
+import com.keenwrite.io.MediaTypeExtension;
 import com.keenwrite.preferences.Workspace;
 import com.keenwrite.preview.HtmlPreview;
 import com.keenwrite.processors.HtmlPreviewProcessor;
@@ -72,11 +73,13 @@ import static com.keenwrite.constants.Constants.*;
 import static com.keenwrite.events.Bus.register;
 import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.io.MediaType.*;
+import static com.keenwrite.io.MediaType.TypeName.TEXT;
 import static com.keenwrite.preferences.AppKeys.*;
 import static com.keenwrite.processors.IdentityProcessor.IDENTITY;
 import static com.keenwrite.processors.ProcessorContext.Mutator;
 import static com.keenwrite.processors.ProcessorContext.builder;
 import static com.keenwrite.processors.ProcessorFactory.createProcessors;
+import static java.awt.Desktop.getDesktop;
 import static java.util.concurrent.Executors.newFixedThreadPool;
 import static java.util.concurrent.Executors.newScheduledThreadPool;
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -281,7 +284,22 @@ public final class MainPane extends SplitPane {
       }
     }
 
-    runLater( () -> open( eventFile ) );
+    final var mediaType = MediaTypeExtension.fromFile( eventFile );
+
+    runLater( () -> {
+      // Open text files locally.
+      if( mediaType.isType( TEXT ) ) {
+        open( eventFile );
+      }
+      else {
+        try {
+          // Delegate opening all other file types to the operating system.
+          getDesktop().open( eventFile );
+        } catch( final Exception ex ) {
+          clue( ex );
+        }
+      }
+    } );
   }
 
   @Subscribe
