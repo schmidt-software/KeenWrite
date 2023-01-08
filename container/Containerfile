@@ -6,6 +6,8 @@
 #
 # ########################################################################
 
+LABEL org.opencontainers.image.description Configures a typesetting system.
+
 FROM alpine:latest
 ENV ENV="/etc/profile"
 ENV PROFILE=/etc/profile

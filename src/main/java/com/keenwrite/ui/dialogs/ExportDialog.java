@@ -1,6 +1,7 @@
 /* Copyright 2022 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.ui.dialogs;
 
+import com.keenwrite.events.ExportFailedEvent;
 import com.keenwrite.util.FileWalker;
 import com.keenwrite.util.RangeValidator;
 import com.keenwrite.util.ResourceWalker;
@@ -50,6 +51,7 @@ public final class ExportDialog extends AbstractDialog<ExportSettings> {
   private GridPane mPane;
   private ComboBox<String> mComboBox;
   private TextField mChapters;
+  private final boolean mMissingThemes;
 
   /**
    * Construction must use static method to allow caching themes in the
@@ -73,16 +75,22 @@ public final class ExportDialog extends AbstractDialog<ExportSettings> {
 
     final var themes = readThemes( themesDir );
 
-    if( !themes.isEmpty() ) {
-      initComboBox( mComboBox, mSettings, readThemes( themesDir ) );
+    mMissingThemes = themes.isEmpty();
 
-      mPane.add( createLabel( "Dialog.typesetting.settings.theme" ), 0, 1 );
-      mPane.add( mComboBox, 1, 1 );
-    }
-    else {
+    // Typesetting installation has been corrupted. This is probably due
+    // to the user's settings file gone missing. Rather than force users
+    // to find the "themes" directory location, re-install the typesetter,
+    if( mMissingThemes ) {
       clue( "Dialog.typesetting.settings.themes.missing",
             themesDir.getAbsolutePath() );
+      ExportFailedEvent.fire();
+      return;
     }
+
+    initComboBox( mComboBox, mSettings, readThemes( themesDir ) );
+
+    mPane.add( createLabel( "Dialog.typesetting.settings.theme" ), 0, 1 );
+    mPane.add( mComboBox, 1, 1 );
 
     var title = "Dialog.typesetting.settings.header.";
     final var focusNode = new AtomicReference<Node>( mComboBox );
@@ -138,14 +146,16 @@ public final class ExportDialog extends AbstractDialog<ExportSettings> {
    */
   private boolean pick() {
     try {
-      final var result = showAndWait();
+      if( !mMissingThemes ) {
+        final var result = showAndWait();
 
-      // The result will only be set if the OK button is pressed.
-      if( result.isPresent() ) {
-        final var theme = mComboBox.getSelectionModel().getSelectedItem();
-        mSettings.themeProperty().setValue( theme.toLowerCase() );
+        // The result will only be set if the OK button is pressed.
+        if( result.isPresent() ) {
+          final var theme = mComboBox.getSelectionModel().getSelectedItem();
+          mSettings.themeProperty().setValue( theme.toLowerCase() );
 
-        return true;
+          return true;
+        }
       }
     } catch( final Exception ex ) {
       clue( get( "Main.status.error.theme.missing", mThemes ), ex );

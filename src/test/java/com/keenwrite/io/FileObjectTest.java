@@ -19,8 +19,9 @@ public class FileObjectTest {
 
   /**
    * Test that resources are not exhausted.
-   *
+   * <p>
    * Disabled because no issue was found and this test thrashes the I/O.
+   * </p>
    */
   @Disabled
   void test_Open_MultipleFiles_NoResourcesExpire() throws FileSystemException {
