@@ -304,14 +304,13 @@ div.bubbletx:after {
 }
 
 /* LYRICS ***/
-div.lyrics {
+div.lyrics p {
   margin: 0;
   padding: 0;
   white-space: pre-line;
   font-style: italic;
 }
 
-div.lyrics:first-line {
+div.lyrics:first-line p {
   line-height: 0;
 }
-

@@ -1,6 +1,7 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.processors.markdown;
 
+import com.keenwrite.dom.DocumentConverter;
 import com.keenwrite.processors.ExecutorProcessor;
 import com.keenwrite.processors.Processor;
 import com.keenwrite.processors.ProcessorContext;
@@ -17,8 +18,6 @@ import com.vladsch.flexmark.util.ast.IRender;
 import com.vladsch.flexmark.util.ast.Node;
 import com.vladsch.flexmark.util.data.MutableDataSet;
 import com.vladsch.flexmark.util.misc.Extension;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document.OutputSettings.Syntax;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -113,9 +112,7 @@ public class BaseMarkdownProcessor extends ExecutorProcessor<String> {
    * @return A well-formed (balanced) equivalent HTML document.
    */
   private String toXhtml( final String html ) {
-    final var document = Jsoup.parse( html );
-    document.outputSettings().syntax( Syntax.xml );
-    return document.html();
+    return DocumentConverter.parse( html ).html();
   }
 
   /**

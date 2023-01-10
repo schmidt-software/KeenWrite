@@ -10,7 +10,6 @@ import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.StringProperty;
 import javafx.embed.swing.SwingNode;
 import org.greenrobot.eventbus.Subscribe;
-import org.jsoup.Jsoup;
 
 import javax.swing.*;
 import java.awt.*;
@@ -157,12 +156,12 @@ public final class HtmlPreview extends SwingNode implements ComponentListener {
    * @param html The new HTML document to display.
    */
   public void render( final String html ) {
-    final var doc = CONVERTER.fromJsoup( Jsoup.parse( decorate( html ) ) );
+    final var jsoupDoc = DocumentConverter.parse( decorate( html ) );
+    final var doc = CONVERTER.fromJsoup( jsoupDoc );
     final var uri = getBaseUri();
+
     doc.setDocumentURI( uri );
-
     invokeLater( () -> mPreview.render( doc, uri ) );
-
     DocumentChangedEvent.fire( html );
   }
 
