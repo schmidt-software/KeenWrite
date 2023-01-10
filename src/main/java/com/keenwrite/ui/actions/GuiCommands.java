@@ -27,6 +27,7 @@ import com.keenwrite.ui.logging.LogView;
 import com.keenwrite.util.AlphanumComparator;
 import com.keenwrite.util.RangeValidator;
 import com.vladsch.flexmark.ast.Link;
+import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Dialog;
@@ -39,7 +40,6 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.keenwrite.Bootstrap.*;
@@ -57,7 +57,6 @@ import static com.keenwrite.util.FileWalker.walk;
 import static java.lang.System.lineSeparator;
 import static java.nio.file.Files.readString;
 import static java.nio.file.Files.writeString;
-import static java.util.concurrent.Executors.newFixedThreadPool;
 import static javafx.application.Platform.runLater;
 import static javafx.event.Event.fireEvent;
 import static javafx.scene.control.Alert.AlertType.INFORMATION;
@@ -71,8 +70,6 @@ import static org.apache.commons.io.FilenameUtils.getExtension;
  * using their respective syntax.
  */
 public final class GuiCommands {
-  private static final ExecutorService sExecutor = newFixedThreadPool( 1 );
-
   private static final String STYLE_SEARCH = "search";
 
   /**
@@ -97,6 +94,9 @@ public final class GuiCommands {
   private final SearchModel mSearchModel;
 
   private boolean mCanTypeset;
+
+  private Service<Path> mTypesetService;
+  private final Object mMutex = new Object();
 
   public GuiCommands( final MainScene scene, final MainPane pane ) {
     mMainScene = scene;
@@ -182,10 +182,8 @@ public final class GuiCommands {
    * @param dir    Export all files in the actively edited file's directory.
    */
   private void file_export( final ExportFormat format, final boolean dir ) {
-    final var main = getMainPane();
-    final var editor = main.getTextEditor();
+    final var editor = getMainPane().getTextEditor();
     final var exported = getWorkspace().fileProperty( KEY_UI_RECENT_EXPORT );
-    final var filename = format.toExportFilename( editor.getPath() );
     final var exportParent = exported.get().toPath().getParent();
     final var editorParent = editor.getPath().getParent();
     final var userHomeParent = USER_DIRECTORY.toPath();
@@ -195,6 +193,7 @@ public final class GuiCommands {
       ? editorParent
       : userHomeParent;
 
+    final var filename = format.toExportFilename( editor.getPath() );
     final var selected = PDF_DEFAULT
       .getName()
       .equals( exported.get().getName() );
@@ -206,51 +205,67 @@ public final class GuiCommands {
       FILE_EXPORT
     );
 
-    selection.ifPresent( files -> {
-      editor.save();
+    selection.ifPresent( files -> file_export( editor, format, files, dir ) );
+  }
 
-      final var sourceFile = files.get( 0 );
-      final var sourcePath = sourceFile.toPath();
-      final var document = dir ? append( editor ) : editor.getText();
-      final var context = main.createProcessorContext( sourcePath, format );
+  private void file_export(
+    final TextEditor editor,
+    final ExportFormat format,
+    final List<File> files,
+    final boolean dir ) {
+    editor.save();
+    final var main = getMainPane();
+    final var exported = getWorkspace().fileProperty( KEY_UI_RECENT_EXPORT );
 
-      final var task = new Task<Path>() {
-        @Override
-        protected Path call() throws Exception {
-          final var chain = createProcessors( context );
-          final var export = chain.apply( document );
+    final var sourceFile = files.get( 0 );
+    final var sourcePath = sourceFile.toPath();
+    final var document = dir ? append( editor ) : editor.getText();
+    final var context = main.createProcessorContext( sourcePath, format );
 
-          // Processors can export binary files. In such cases, processors
-          // return null to prevent further processing.
-          return export == null ? null : writeString( sourcePath, export );
-        }
-      };
+    final var service = new Service<Path>() {
+      @Override
+      protected Task<Path> createTask() {
+        final var task = new Task<Path>() {
+          @Override
+          protected Path call() throws Exception {
+            final var chain = createProcessors( context );
+            final var export = chain.apply( document );
 
-      task.setOnSucceeded(
-        e -> {
-          // Remember the exported file name for next time.
-          exported.setValue( sourceFile );
-
-          final var result = task.getValue();
-
-          // Binary formats must notify users of success independently.
-          if( result != null ) {
-            clue( "Main.status.export.success", result );
+            // Processors can export binary files. In such cases, processors
+            // return null to prevent further processing.
+            return export == null ? null : writeString( sourcePath, export );
           }
-        }
-      );
+        };
 
-      task.setOnFailed( e -> {
-        final var ex = task.getException();
-        clue( ex );
+        task.setOnSucceeded(
+          e -> {
+            // Remember the exported file name for next time.
+            exported.setValue( sourceFile );
 
-        if( ex instanceof TypeNotPresentException ) {
-          fireExportFailedEvent();
-        }
-      } );
+            final var result = task.getValue();
 
-      sExecutor.execute( task );
-    } );
+            // Binary formats must notify users of success independently.
+            if( result != null ) {
+              clue( "Main.status.export.success", result );
+            }
+          }
+        );
+
+        task.setOnFailed( e -> {
+          final var ex = task.getException();
+          clue( ex );
+
+          if( ex instanceof TypeNotPresentException ) {
+            fireExportFailedEvent();
+          }
+        } );
+
+        return task;
+      }
+    };
+
+    mTypesetService = service;
+    typeset( service );
   }
 
   /**
@@ -299,6 +314,10 @@ public final class GuiCommands {
 
   public void file_export_pdf_dir() {
     file_export_pdf( true );
+  }
+
+  public void file_export_repeat() {
+    typeset( mTypesetService );
   }
 
   public void file_export_html_svg() {
@@ -576,6 +595,15 @@ public final class GuiCommands {
     alert.setGraphic( ICON_DIALOG_NODE );
     alert.initOwner( getWindow() );
     alert.showAndWait();
+  }
+
+  private <T> void typeset( final Service<T> service ) {
+    synchronized( mMutex ) {
+      if( service != null && !service.isRunning() ) {
+        service.reset();
+        service.start();
+      }
+    }
   }
 
   /**
