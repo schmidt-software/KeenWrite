@@ -95,7 +95,16 @@ public final class GuiCommands {
 
   private boolean mCanTypeset;
 
+  /**
+   * A {@link Task} can only be run once, so wrap it in a {@link Service} to
+   * allow re-launching the typesetting task repeatedly.
+   */
   private Service<Path> mTypesetService;
+
+  /**
+   * Prevent a race-condition between checking to see if the typesetting task
+   * is running and restarting the task itself.
+   */
   private final Object mMutex = new Object();
 
   public GuiCommands( final MainScene scene, final MainPane pane ) {
