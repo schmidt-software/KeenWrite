@@ -65,7 +65,6 @@ public final class Arguments implements Callable<Integer> {
   )
   private boolean mDebug;
 
-
   @CommandLine.Option(
     names = {"-i", "--input"},
     description =
@@ -77,11 +76,19 @@ public final class Arguments implements Callable<Integer> {
   private Path mSourcePath;
 
   @CommandLine.Option(
+    names = {"--font-dir"},
+    description =
+      "Directory to specify additional fonts",
+    paramLabel = "String"
+  )
+  private File mFontDir;
+
+  @CommandLine.Option(
     names = {"--format-subtype"},
     description =
       "Export TeX subtype for HTML formats: svg, delimited",
-    defaultValue = "svg",
-    paramLabel = "String"
+    paramLabel = "String",
+    defaultValue = "svg"
   )
   private String mFormatSubtype;
 
@@ -226,6 +233,7 @@ public final class Arguments implements Callable<Integer> {
       .with( Mutator::setImagesPath, () -> mImagesDir )
       .with( Mutator::setImageServer, () -> mImageServer )
       .with( Mutator::setImageOrder, () -> mImageOrder )
+      .with( Mutator::setFontsPath, () -> mFontDir )
       .with( Mutator::setExportFormat, format )
       .with( Mutator::setDefinitions, () -> definitions )
       .with( Mutator::setMetadata, () -> mMetadata )
