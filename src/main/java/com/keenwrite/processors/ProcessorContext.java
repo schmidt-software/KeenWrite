@@ -19,6 +19,7 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.function.Supplier;
 
+import static com.keenwrite.Bootstrap.USER_CACHE_DIR;
 import static com.keenwrite.Bootstrap.USER_DATA_DIR;
 import static com.keenwrite.constants.Constants.*;
 import static com.keenwrite.io.FileType.UNKNOWN;
@@ -82,25 +83,25 @@ public final class ProcessorContext {
     private ExportFormat mExportFormat;
     private boolean mConcatenate;
 
-    private Supplier<Path> mThemesPath;
+    private Supplier<Path> mThemesPath = USER_DIRECTORY::toPath;
     private Supplier<Locale> mLocale = () -> Locale.ENGLISH;
 
     private Supplier<Map<String, String>> mDefinitions = HashMap::new;
     private Supplier<Map<String, String>> mMetadata = HashMap::new;
     private Supplier<Caret> mCaret = () -> Caret.builder().build();
 
-    private Supplier<Path> mFontsPath;
+    private Supplier<Path> mFontsPath = () -> getFontDirectory().toPath();
 
-    private Supplier<Path> mImagesPath;
+    private Supplier<Path> mImagesPath = USER_DIRECTORY::toPath;
     private Supplier<String> mImageServer = () -> DIAGRAM_SERVER_NAME;
     private Supplier<String> mImageOrder = () -> PERSIST_IMAGES_DEFAULT;
 
-    private Supplier<Path> mCachesPath;
+    private Supplier<Path> mCachesPath = USER_CACHE_DIR::toPath;
 
     private Supplier<String> mSigilBegan = () -> DEF_DELIM_BEGAN_DEFAULT;
     private Supplier<String> mSigilEnded = () -> DEF_DELIM_ENDED_DEFAULT;
 
-    private Supplier<Path> mRWorkingDir;
+    private Supplier<Path> mRWorkingDir = USER_DIRECTORY::toPath;
     private Supplier<String> mRScript = () -> "";
 
     private Supplier<Boolean> mCurlQuotes = () -> true;
