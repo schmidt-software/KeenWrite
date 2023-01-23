@@ -25,16 +25,22 @@ public final class MathRenderer {
   private MathRenderer() { }
 
   /**
-   * This method only takes a few seconds to generate
+   * Converts a TeX-based equation into an SVG document.
    *
-   * @param equation A mathematical expression to render.
+   * @param equation A mathematical expression to render, without sigils.
    * @return The given string with all formulas transformed into SVG format.
    */
   public static Document toDocument( final String equation ) {
     return DocumentParser.parse( toString( equation ) );
   }
 
-  private static String toString( final String equation ) {
+  /**
+   * Converts a TeX-based equation into an SVG document.
+   *
+   * @param equation A mathematical expression to render, without sigils.
+   * @return The given string with all formulas transformed into SVG format.
+   */
+  public static String toString( final String equation ) {
     return sTypesetter.toSvg( "$" + equation + "$" );
   }
 }
