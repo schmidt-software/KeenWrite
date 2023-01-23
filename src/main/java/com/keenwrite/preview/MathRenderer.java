@@ -34,7 +34,7 @@ public final class MathRenderer {
     return DocumentParser.parse( toString( equation ) );
   }
 
-  public static String toString( final String equation ) {
+  private static String toString( final String equation ) {
     return sTypesetter.toSvg( "$" + equation + "$" );
   }
 }

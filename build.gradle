@@ -152,10 +152,6 @@ dependencies {
   testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
 }
 
-processResources {
-  expand project.properties
-}
-
 final resourceDir = sourceSets.main.resources.srcDirs[0]
 final Properties config = new Properties()
 final File configFile = file( "${resourceDir}/bootstrap.properties" )

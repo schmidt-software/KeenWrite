@@ -183,6 +183,17 @@ public final class SvgRasterizer {
   }
 
   /**
+   * Rasterizes the given SVG input stream into an image.
+   *
+   * @param svg The SVG data to rasterize, must be closed by caller.
+   * @return The given input stream converted to a rasterized image.
+   */
+  public static BufferedImage rasterize( final String svg )
+    throws TranscoderException, ParseException {
+    return rasterize( toDocument( svg ) );
+  }
+
+  /**
    * Rasterizes the given SVG input stream into an image at 96 DPI.
    *
    * @param svg The SVG data to rasterize, must be closed by caller.
@@ -293,7 +304,8 @@ public final class SvgRasterizer {
    * Converts an SVG string into a rasterized image that can be drawn on
    * a graphics context. The dimensions are determined from the document.
    *
-   * @param svg The SVG xml document.
+   * @param svg   The SVG xml document.
+   * @param scale The scaling factor to apply when transcoding.
    * @return The vector graphic transcoded into a raster image format.
    */
   public static BufferedImage rasterizeImage(

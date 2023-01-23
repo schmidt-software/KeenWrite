@@ -83,7 +83,7 @@ public final class SvgReplacedElementFactory extends ReplacedElementAdapter {
         }
         case HTML_TEX ->
           // Convert the TeX element to a raster graphic.
-          raster = rasterizeImage( MathRenderer.toString( e.getTextContent() ), 2.5 );
+          raster = rasterize( MathRenderer.toString( e.getTextContent() ) );
       }
 
       if( raster != null ) {
