@@ -2,6 +2,7 @@
 package com.keenwrite.processors.markdown.extensions.tex;
 
 import com.keenwrite.ExportFormat;
+import com.keenwrite.preview.MathRenderer;
 import com.keenwrite.preview.SvgRasterizer;
 import com.vladsch.flexmark.html.HtmlWriter;
 import com.vladsch.flexmark.html.renderer.NodeRenderer;
@@ -18,7 +19,6 @@ import java.util.Set;
 import java.util.function.Function;
 
 import static com.keenwrite.ExportFormat.*;
-import static com.keenwrite.preview.MathRenderer.MATH_RENDERER;
 import static com.keenwrite.processors.markdown.extensions.tex.TexNode.*;
 
 public class TexNodeRenderer {
@@ -117,8 +117,9 @@ public class TexNodeRenderer {
                  final NodeRendererContext context,
                  final HtmlWriter html ) {
       final var tex = node.getText().toStringOrNull();
-      final var doc = MATH_RENDERER.render(
-        tex == null ? "" : getEvaluator().apply( tex ) );
+      final var doc = MathRenderer.toDocument(
+        tex == null ? "" : getEvaluator().apply( tex )
+      );
       final var svg = SvgRasterizer.toSvg( doc.getDocumentElement() );
       html.raw( svg );
     }

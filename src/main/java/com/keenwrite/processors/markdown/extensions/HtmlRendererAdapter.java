@@ -17,6 +17,5 @@ public abstract class HtmlRendererAdapter implements HtmlRendererExtension {
    * @param options Ignored.
    */
   @Override
-  public void rendererOptions( @NotNull final MutableDataHolder options ) {
-  }
+  public void rendererOptions( @NotNull final MutableDataHolder options ) { }
 }

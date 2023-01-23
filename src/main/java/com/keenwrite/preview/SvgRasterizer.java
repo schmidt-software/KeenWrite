@@ -7,10 +7,7 @@ import io.sf.carte.echosvg.bridge.DocumentLoader;
 import io.sf.carte.echosvg.bridge.UserAgent;
 import io.sf.carte.echosvg.bridge.UserAgentAdapter;
 import io.sf.carte.echosvg.gvt.renderer.ImageRenderer;
-import io.sf.carte.echosvg.transcoder.ErrorHandler;
-import io.sf.carte.echosvg.transcoder.TranscoderException;
-import io.sf.carte.echosvg.transcoder.TranscoderInput;
-import io.sf.carte.echosvg.transcoder.TranscoderOutput;
+import io.sf.carte.echosvg.transcoder.*;
 import io.sf.carte.echosvg.transcoder.image.ImageTranscoder;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -24,14 +21,19 @@ import java.net.URI;
 import java.nio.file.Path;
 import java.text.NumberFormat;
 import java.text.ParseException;
+import java.util.HashMap;
+import java.util.Map;
 
 import static com.keenwrite.dom.DocumentParser.transform;
 import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.preview.HighQualityRenderingHints.RENDERING_HINTS;
-import static io.sf.carte.echosvg.bridge.UnitProcessor.*;
+import static io.sf.carte.echosvg.bridge.UnitProcessor.createContext;
+import static io.sf.carte.echosvg.bridge.UnitProcessor.svgHorizontalLengthToUserSpace;
+import static io.sf.carte.echosvg.transcoder.SVGAbstractTranscoder.KEY_HEIGHT;
 import static io.sf.carte.echosvg.transcoder.SVGAbstractTranscoder.KEY_WIDTH;
 import static io.sf.carte.echosvg.transcoder.TranscodingHints.Key;
-import static io.sf.carte.echosvg.transcoder.image.ImageTranscoder.*;
+import static io.sf.carte.echosvg.transcoder.image.ImageTranscoder.KEY_PIXEL_UNIT_TO_MILLIMETER;
+import static io.sf.carte.echosvg.util.SVGConstants.SVG_HEIGHT_ATTRIBUTE;
 import static io.sf.carte.echosvg.util.SVGConstants.SVG_WIDTH_ATTRIBUTE;
 import static java.awt.image.BufferedImage.TYPE_INT_RGB;
 import static java.text.NumberFormat.getIntegerInstance;
@@ -112,7 +114,7 @@ public final class SvgRasterizer {
     BufferedImage image;
 
     try {
-      image = rasterizeString( BROKEN_IMAGE_SVG, w );
+      image = rasterizeImage( BROKEN_IMAGE_SVG, w );
     } catch( final Exception ex ) {
       image = new BufferedImage( w, h, TYPE_INT_RGB );
       final var graphics = (Graphics2D) image.getGraphics();
@@ -236,6 +238,7 @@ public final class SvgRasterizer {
     throws ParseException, TranscoderException {
     final var root = document.getDocumentElement();
     final var width = root.getAttribute( SVG_WIDTH_ATTRIBUTE );
+
     return rasterize( document, INT_FORMAT.parse( width ).intValue() );
   }
 
@@ -290,16 +293,20 @@ public final class SvgRasterizer {
    * Converts an SVG string into a rasterized image that can be drawn on
    * a graphics context. The dimensions are determined from the document.
    *
-   * @param xml The SVG xml document.
+   * @param svg The SVG xml document.
    * @return The vector graphic transcoded into a raster image format.
    */
-  public static BufferedImage rasterizeString( final String xml )
+  public static BufferedImage rasterizeImage(
+    final String svg, final double scale )
     throws ParseException, TranscoderException {
-    final var document = toDocument( xml );
+    final var document = toDocument( svg );
     final var root = document.getDocumentElement();
     final var width = root.getAttribute( SVG_WIDTH_ATTRIBUTE );
+    final var height = root.getAttribute( SVG_HEIGHT_ATTRIBUTE );
+    final var w = INT_FORMAT.parse( width ).intValue() * scale;
+    final var h = INT_FORMAT.parse( height ).intValue() * scale;
 
-    return rasterizeString( xml, INT_FORMAT.parse( width ).intValue() );
+    return rasterize( svg, w, h );
   }
 
   /**
@@ -311,7 +318,7 @@ public final class SvgRasterizer {
    *            maintained).
    * @return The vector graphic transcoded into a raster image format.
    */
-  public static BufferedImage rasterizeString( final String svg, final int w )
+  public static BufferedImage rasterizeImage( final String svg, final int w )
     throws TranscoderException {
     return rasterize( toDocument( svg ), w );
   }
@@ -351,19 +358,41 @@ public final class SvgRasterizer {
   /**
    * Creates a rasterized image of the given source document.
    *
-   * @param input The source document to transcode.
-   * @param key   Transcoding hint key.
-   * @param width Transcoding hint value.
+   * @param input     The source document to transcode.
+   * @param hintKey   Transcoding hint key.
+   * @param hintValue Transcoding hint value.
    * @return A new {@link BufferedImageTranscoder} instance with the given
    * transcoding hint applied.
    */
   private static BufferedImage rasterize(
-    final TranscoderInput input, final Key key, final float width )
+    final TranscoderInput input, final Key hintKey, final float hintValue )
     throws TranscoderException {
+    final var hints = new HashMap<Key, Object>();
+    hints.put( hintKey, hintValue );
+
+    return rasterize( input, hints );
+  }
+
+  private static BufferedImage rasterize(
+    final String svg, final double w, final double h )
+    throws TranscoderException {
+    final var hints = new HashMap<Key, Object>();
+    hints.put( KEY_WIDTH, (float) w );
+    hints.put( KEY_HEIGHT, (float) h );
+
+    return rasterize( new TranscoderInput( toDocument( svg ) ), hints );
+  }
+
+  public static BufferedImage rasterize(
+    final TranscoderInput input,
+    final Map<TranscodingHints.Key, Object> hints ) throws TranscoderException {
     final var transcoder = new BufferedImageTranscoder();
 
+    for( final var hint : hints.entrySet() ) {
+      transcoder.addTranscodingHint( hint.getKey(), hint.getValue() );
+    }
+
     transcoder.setErrorHandler( sErrorHandler );
-    transcoder.addTranscodingHint( key, width );
     transcoder.transcode( input, null );
 
     return transcoder.getImage();
@@ -377,10 +406,13 @@ public final class SvgRasterizer {
    * @param width The display width (e.g., rendering canvas width).
    * @return The lower value of the document's width or the display width.
    */
+  @SuppressWarnings( "ConstantValue" )
   private static float fit( final Element root, final int width ) {
     final var w = root.getAttribute( SVG_WIDTH_ATTRIBUTE );
 
-    return w == null || w.isBlank() ? width : fit( root, w, width );
+    return w == null || w.isBlank()
+      ? width
+      : fit( root, w, width );
   }
 
   /**

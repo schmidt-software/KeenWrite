@@ -15,9 +15,7 @@ import java.nio.file.Path;
 
 import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.io.downloads.DownloadManager.open;
-import static com.keenwrite.preview.MathRenderer.MATH_RENDERER;
-import static com.keenwrite.preview.SvgRasterizer.BROKEN_IMAGE_PLACEHOLDER;
-import static com.keenwrite.preview.SvgRasterizer.rasterize;
+import static com.keenwrite.preview.SvgRasterizer.*;
 import static com.keenwrite.processors.markdown.extensions.tex.TexNode.HTML_TEX;
 import static com.keenwrite.util.ProtocolScheme.getProtocol;
 
@@ -85,7 +83,7 @@ public final class SvgReplacedElementFactory extends ReplacedElementAdapter {
         }
         case HTML_TEX ->
           // Convert the TeX element to a raster graphic.
-          raster = rasterize( MATH_RENDERER.render( e.getTextContent() ) );
+          raster = rasterizeImage( MathRenderer.toString( e.getTextContent() ), 2.5 );
       }
 
       if( raster != null ) {

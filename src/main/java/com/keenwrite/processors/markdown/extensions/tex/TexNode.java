@@ -30,12 +30,12 @@ public class TexNode extends DelimitedNodeImpl {
   }
 
   /**
-   * @return Either '$' or '$$.
+   * @return Either '$' or '$$'.
    */
   public String getOpeningDelimiter() { return mOpener; }
 
   /**
-   * @return Either '$' or '$$.
+   * @return Either '$' or '$$'.
    */
   public String getClosingDelimiter() { return mCloser; }
 

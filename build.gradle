@@ -135,7 +135,7 @@ dependencies {
   implementation "info.picocli:picocli:${v_picocli}"
   annotationProcessor "info.picocli:picocli-codegen:${v_picocli}"
 
-  // Spelling, TeX, Docking, KeenQuotes
+  // KeenQuotes, KeenType, Spelling, Docking,
   implementation fileTree( include: ['**/*.jar'], dir: 'libs' )
 
   def fx = ['controls', 'graphics', 'fxml', 'swing']
@@ -150,6 +150,10 @@ dependencies {
   testImplementation "org.junit.jupiter:junit-jupiter-api:${v_junit}"
   testImplementation "org.junit.jupiter:junit-jupiter-params:${v_junit}"
   testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+}
+
+processResources {
+  expand project.properties
 }
 
 final resourceDir = sourceSets.main.resources.srcDirs[0]

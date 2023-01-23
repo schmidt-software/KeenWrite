@@ -1,0 +1,8 @@
+Merriweather Sans ExtraBold Italic
+
+https://github.com/SorkinType/Merriweather-Sans/blob/master/fonts/otf/MerriweatherSans-ExtraBoldItalic.otf
+
+Weight 800
+
+https://fonts.google.com/specimen/Merriweather+Sans
+
