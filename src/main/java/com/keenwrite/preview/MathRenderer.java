@@ -16,7 +16,7 @@ public final class MathRenderer {
 
   static {
     try {
-      sTypesetter = new KeenType();
+      sTypesetter = new KeenType( false );
     } catch( final Exception e ) {
       clue( e );
     }
@@ -41,6 +41,6 @@ public final class MathRenderer {
    * @return The given string with all formulas transformed into SVG format.
    */
   public static String toString( final String equation ) {
-    return sTypesetter.toSvg( "$" + equation + "$" );
+    return sTypesetter.toSvg( "$" + equation + "$", 2 );
   }
 }
