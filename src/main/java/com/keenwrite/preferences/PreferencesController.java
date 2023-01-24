@@ -271,6 +271,11 @@ public final class PreferencesController {
           Setting.of( label( KEY_UI_FONT_PREVIEW_MONO_SIZE ) ),
           Setting.of( title( KEY_UI_FONT_PREVIEW_MONO_SIZE ),
                       doubleProperty( KEY_UI_FONT_PREVIEW_MONO_SIZE ) )
+        ),
+        Group.of(
+          get( KEY_UI_FONT_MATH ),
+          Setting.of( title( KEY_UI_FONT_MATH_SIZE ),
+                      doubleProperty( KEY_UI_FONT_MATH_SIZE ) )
         )
       ),
       Category.of(
@@ -403,12 +408,10 @@ public final class PreferencesController {
     return mWorkspace.booleanProperty( key );
   }
 
-  @SuppressWarnings( "SameParameterValue" )
   private IntegerProperty integerProperty( final Key key ) {
     return mWorkspace.integerProperty( key );
   }
 
-  @SuppressWarnings( "SameParameterValue" )
   private DoubleProperty doubleProperty( final Key key ) {
     return mWorkspace.doubleProperty( key );
   }

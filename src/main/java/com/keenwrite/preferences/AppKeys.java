@@ -63,6 +63,8 @@ public final class AppKeys {
   public static final Key KEY_UI_FONT_PREVIEW_MONO = key( KEY_UI_FONT_PREVIEW, "mono" );
   public static final Key KEY_UI_FONT_PREVIEW_MONO_NAME = key( KEY_UI_FONT_PREVIEW_MONO, "name" );
   public static final Key KEY_UI_FONT_PREVIEW_MONO_SIZE = key( KEY_UI_FONT_PREVIEW_MONO, "size" );
+  public static final Key KEY_UI_FONT_MATH = key( KEY_UI_FONT, "math" );
+  public static final Key KEY_UI_FONT_MATH_SIZE = key( KEY_UI_FONT_MATH, "size" );
 
   public static final Key KEY_UI_WINDOW = key( KEY_UI, "window" );
   public static final Key KEY_UI_WINDOW_X = key( KEY_UI_WINDOW, "x" );

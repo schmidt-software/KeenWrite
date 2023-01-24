@@ -111,6 +111,10 @@ public final class Workspace {
      KEY_UI_FONT_PREVIEW_MONO_SIZE,
      asDoubleProperty( FONT_SIZE_PREVIEW_MONO_SIZE_DEFAULT )
     ),
+    entry(
+      KEY_UI_FONT_MATH_SIZE,
+      asDoubleProperty( FONT_SIZE_MATH_DEFAULT )
+    ),
 
     entry( KEY_UI_WINDOW_X, asDoubleProperty( WINDOW_X_DEFAULT ) ),
     entry( KEY_UI_WINDOW_Y, asDoubleProperty( WINDOW_Y_DEFAULT ) ),

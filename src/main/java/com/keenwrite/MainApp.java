@@ -4,6 +4,7 @@ package com.keenwrite;
 import com.keenwrite.cmdline.HeadlessApp;
 import com.keenwrite.events.HyperlinkOpenEvent;
 import com.keenwrite.preferences.Workspace;
+import com.keenwrite.preview.MathRenderer;
 import com.keenwrite.spelling.impl.Lexicon;
 import javafx.application.Application;
 import javafx.event.Event;
@@ -119,6 +120,8 @@ public final class MainApp extends Application {
     initStage( stage );
     initIcons( stage );
     initScene( stage );
+
+    MathRenderer.bindSize( mWorkspace.doubleProperty( KEY_UI_FONT_MATH_SIZE ) );
 
     // Load the lexicon and check all the documents after all files are open.
     stage.addEventFilter( WINDOW_SHOWN, event -> readLexicon() );

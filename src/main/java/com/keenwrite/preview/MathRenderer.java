@@ -3,6 +3,8 @@ package com.keenwrite.preview;
 
 import com.keenwrite.dom.DocumentParser;
 import com.whitemagicsoftware.keentype.lib.KeenType;
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.SimpleDoubleProperty;
 import org.w3c.dom.Document;
 
 import static com.keenwrite.events.StatusEvent.clue;
@@ -22,7 +24,13 @@ public final class MathRenderer {
     }
   }
 
+  private static final DoubleProperty sSize = new SimpleDoubleProperty( 2 );
+
   private MathRenderer() { }
+
+  public static void bindSize( final DoubleProperty size ) {
+    sSize.bind( size );
+  }
 
   /**
    * Converts a TeX-based equation into an SVG document.
@@ -41,6 +49,6 @@ public final class MathRenderer {
    * @return The given string with all formulas transformed into SVG format.
    */
   public static String toString( final String equation ) {
-    return sTypesetter.toSvg( "$" + equation + "$", 2 );
+    return sTypesetter.toSvg( "$" + equation + "$", sSize.doubleValue() );
   }
 }

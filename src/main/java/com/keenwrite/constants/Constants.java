@@ -171,6 +171,11 @@ public final class Constants {
   public static final float FONT_SIZE_PREVIEW_DEFAULT = 13f;
 
   /**
+   * Scaling factor for rendering mathematics.
+   */
+  public static final double FONT_SIZE_MATH_DEFAULT = 2;
+
+  /**
    * Default monospace preview font name.
    */
   public static final String FONT_NAME_PREVIEW_MONO_NAME_DEFAULT =
