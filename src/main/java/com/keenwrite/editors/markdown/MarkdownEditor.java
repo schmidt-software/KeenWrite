@@ -519,6 +519,7 @@ public final class MarkdownEditor extends BorderPane implements TextEditor {
     }
 
     mTextArea.replaceSelection( newText );
+    mTextArea.requestFollowCaret();
   }
 
   private void cut( final KeyEvent event ) {
