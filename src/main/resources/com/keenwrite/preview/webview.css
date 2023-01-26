@@ -251,14 +251,24 @@ div.todo:before {
 }
 
 div.todo {
+  border-color: #c00;
+  background-color: #f8f8f8;
+}
+
+div.todo, div.terminal {
   padding: .5em;
   padding-top: .25em;
   padding-bottom: .25em;
   border-style: solid;
   border-width: 0.05em;
   border-radius: .25em;
-  border-color: #c00;
-  background-color: #f8f8f8;
+}
+
+/* TERMINAL ***/
+div.terminal {
+  font-family: 'Source Code Pro';
+  font-size: 90%;
+  border-color: #222;
 }
 
 /* SPEECH BUBBLE ***/
