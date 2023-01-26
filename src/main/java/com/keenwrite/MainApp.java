@@ -22,7 +22,7 @@ import static com.keenwrite.constants.GraphicsConstants.LOGOS;
 import static com.keenwrite.events.Bus.register;
 import static com.keenwrite.preferences.AppKeys.*;
 import static com.keenwrite.util.FontLoader.initFonts;
-import static javafx.scene.input.KeyCode.ALT;
+import static javafx.scene.input.KeyCode.ESCAPE;
 import static javafx.scene.input.KeyCode.F11;
 import static javafx.scene.input.KeyEvent.KEY_PRESSED;
 import static javafx.scene.input.KeyEvent.KEY_RELEASED;
@@ -159,19 +159,13 @@ public final class MainApp extends Application {
     } );
 
     // After the app loses focus, when the user switches back using Alt+Tab,
-    // the menu mnemonic is sometimes engaged, swallowing the first letter that
-    // the user types---if it is a menu mnemonic. See MainScene::createScene().
+    // the menu is engaged on Windows. Simulate an ESC keypress to the menu
+    // to disable the menu, giving focus back to the application proper.
     //
     // JavaFX Bug: https://bugs.openjdk.java.net/browse/JDK-8090647
-    stage.focusedProperty().addListener( ( c, lost, show ) -> {
-      for( final var menu : mMainScene.getMenuBar().getMenus() ) {
-        menu.hide();
-      }
-
-      for( final var mnemonics : stage.getScene().getMnemonics().values() ) {
-        for( final var mnemonic : mnemonics ) {
-          mnemonic.getNode().fireEvent( keyUp( ALT ) );
-        }
+    stage.focusedProperty().addListener( ( c, lost, found ) -> {
+      if( found ) {
+        mMainScene.getMenuBar().fireEvent( keyDown( ESCAPE, false ) );
       }
     } );
   }
