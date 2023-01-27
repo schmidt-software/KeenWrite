@@ -506,11 +506,24 @@ public final class MainPane extends SplitPane {
     final var tab = getTab( editor );
     final var file = files.get( 0 );
 
+    // If the file type has changed, refresh the processors.
+    final var mediaType = MediaType.valueFrom( file );
+    final var typeChanged = !editor.isMediaType( mediaType );
+
+    if( typeChanged ) {
+      removeProcessor( editor );
+    }
+
     editor.rename( file );
     tab.ifPresent( t -> {
       t.setText( editor.getFilename() );
       t.setTooltip( createTooltip( file ) );
     } );
+
+    if( typeChanged ) {
+      updateProcessors( editor );
+      process( editor );
+    }
 
     save();
   }
@@ -1121,12 +1134,7 @@ public final class MainPane extends SplitPane {
   private MarkdownEditor createMarkdownEditor( final File inputFile ) {
     final var editor = new MarkdownEditor( inputFile, getWorkspace() );
 
-    mProcessors.computeIfAbsent(
-      editor, p -> createProcessors(
-        createProcessorContext( inputFile.toPath() ),
-        createHtmlPreviewProcessor()
-      )
-    );
+    updateProcessors( editor );
 
     // Listener for editor modifications or caret position changes.
     editor.addDirtyListener( ( c, o, n ) -> {
@@ -1181,6 +1189,34 @@ public final class MainPane extends SplitPane {
     mEditorSpeller.checkDocument( mTextEditor.get() );
 
     return editor;
+  }
+
+  /**
+   * Creates a processor for an editor, provided one doesn't already exist.
+   *
+   * @param editor The editor that potentially requires an associated processor.
+   */
+  private void updateProcessors( final TextEditor editor ) {
+    final var path = editor.getFile().toPath();
+
+    mProcessors.computeIfAbsent(
+      editor, p -> createProcessors(
+        createProcessorContext( path ),
+        createHtmlPreviewProcessor()
+      )
+    );
+  }
+
+  /**
+   * Removes a processor for an editor. This is required because a file may
+   * change type while editing (e.g., from plain Markdown to R Markdown).
+   * In the case that an editor's type changes, its associated processor must
+   * be changed accordingly.
+   *
+   * @param editor The editor that potentially requires an associated processor.
+   */
+  private void removeProcessor( final TextEditor editor ) {
+    mProcessors.remove( editor );
   }
 
   /**
