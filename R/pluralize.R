@@ -530,8 +530,7 @@ pluralize_classical_variants_of_modern_inflections <- function(
 # classes).
 # -----------------------------------------------------------------------------
 pluralize_ch_sh_ss_suffixes <- function( word ) {
-  output <- sub( "([cs]h)$", "\\1es", word )
-  output <- sub( "(x|z)$", "\\1es", word )
+  output <- sub( "(([cs]h)|(x|z))$", "\\1es", word )
   output <- replace_suffix( output, "ss", "sses" )
 
   ifelse( output == word, NA_character_, output )
