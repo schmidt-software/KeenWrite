@@ -69,6 +69,17 @@ public final class MainApp extends Application {
   }
 
   /**
+   * Creates an instance of {@link KeyEvent} that represents a key released
+   * event without any modifier keys held.
+   *
+   * @param code The key code representing a key to simulate releasing.
+   * @return An instance of {@link KeyEvent}.
+   */
+  public static Event keyDown( final KeyCode code ) {
+    return keyDown( code, false );
+  }
+
+  /**
    * Creates an instance of {@link KeyEvent} that represents releasing a key.
    *
    * @param code  The key to simulate being released up.
@@ -76,19 +87,9 @@ public final class MainApp extends Application {
    * @return An instance of {@link KeyEvent} that may be used to simulate
    * a key being released.
    */
+  @SuppressWarnings( "unused" )
   public static Event keyUp( final KeyCode code, final boolean shift ) {
     return keyEvent( KEY_RELEASED, code, shift );
-  }
-
-  /**
-   * Creates an instance of {@link KeyEvent} that represents a key released
-   * event without any modifier keys held.
-   *
-   * @param code The key code representing a key to simulate releasing.
-   * @return An instance of {@link KeyEvent}.
-   */
-  public static Event keyUp( final KeyCode code ) {
-    return keyUp( code, false );
   }
 
   private static Event keyEvent(
@@ -165,7 +166,7 @@ public final class MainApp extends Application {
     // JavaFX Bug: https://bugs.openjdk.java.net/browse/JDK-8090647
     stage.focusedProperty().addListener( ( c, lost, found ) -> {
       if( found ) {
-        mMainScene.getMenuBar().fireEvent( keyDown( ESCAPE, false ) );
+        mMainScene.getMenuBar().fireEvent( keyDown( ESCAPE ) );
       }
     } );
   }
