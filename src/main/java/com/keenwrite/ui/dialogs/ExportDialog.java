@@ -16,7 +16,6 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.stage.Window;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -39,8 +38,8 @@ import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.util.FileWalker.walk;
 import static java.lang.Math.max;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.text.Normalizer.*;
-import static java.text.Normalizer.Form.*;
+import static java.text.Normalizer.Form.NFKD;
+import static java.text.Normalizer.normalize;
 import static javafx.application.Platform.runLater;
 import static javafx.geometry.Pos.CENTER;
 import static javafx.scene.control.ButtonType.OK;
@@ -54,7 +53,6 @@ public final class ExportDialog extends AbstractDialog<ExportSettings> {
   private static final String UNCRITIC = "\\p{InCombiningDiacriticalMarks}+";
 
   private record Theme( Path path, String name ) implements Comparable<Theme> {
-
     /**
      * Answers whether the given theme directory name matches the theme name
      * that the user selected.
@@ -83,7 +81,7 @@ public final class ExportDialog extends AbstractDialog<ExportSettings> {
     }
 
     @Override
-    public int compareTo( @NotNull final ExportDialog.Theme o ) {
+    public int compareTo( final Theme o ) {
       return name().compareTo( o.name() );
     }
   }
