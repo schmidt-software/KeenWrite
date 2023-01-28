@@ -19,7 +19,6 @@ import com.whitemagicsoftware.keenquotes.util.Tuple;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Function;
@@ -201,6 +200,7 @@ public final class FencedBlockExtension extends HtmlRendererAdapter {
       final var hash = Integer.toHexString( text.hashCode() );
       final var filename = format( "%s-%s.svg", APP_TITLE_LOWERCASE, hash );
 
+      // The URI helps convert backslashes to forward slashes.
       final var uri = Path.of( TEMP_DIR, filename ).toUri();
       final var svg = uri.getPath();
       final var link = context.resolveLink( LINK, svg, false );
