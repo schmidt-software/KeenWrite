@@ -18,6 +18,7 @@ import com.vladsch.flexmark.util.sequence.BasedSequence;
 import com.whitemagicsoftware.keenquotes.util.Tuple;
 import org.jetbrains.annotations.NotNull;
 
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.Set;
@@ -199,11 +200,16 @@ public final class FencedBlockExtension extends HtmlRendererAdapter {
       final var text = mRVariableProcessor.apply( content );
       final var hash = Integer.toHexString( text.hashCode() );
       final var filename = format( "%s-%s.svg", APP_TITLE_LOWERCASE, hash );
-      final var svg = Paths.get( TEMP_DIR, filename ).toString();
+
+      final var uri = Path.of( TEMP_DIR, filename ).toUri();
+      final var svg = uri.getPath();
       final var link = context.resolveLink( LINK, svg, false );
       final var dimensions = getAttributes( node.getInfo() );
       final var r = format( R_SVG_EXPORT, svg, dimensions, text );
       final var result = mRChunkEvaluator.apply( r );
+
+      System.out.println( svg );
+      System.out.println( filename );
 
       return new Tuple<>( svg, link );
     }
@@ -326,7 +332,7 @@ public final class FencedBlockExtension extends HtmlRendererAdapter {
   }
 
   private class Factory implements DelegatingNodeRendererFactory {
-    public Factory() {}
+    public Factory() { }
 
     @NotNull
     @Override
