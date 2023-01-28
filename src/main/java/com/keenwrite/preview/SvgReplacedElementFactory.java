@@ -10,13 +10,13 @@ import org.xhtmlrenderer.render.BlockBox;
 import org.xhtmlrenderer.swing.ImageReplacedElement;
 
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.net.URI;
 import java.nio.file.Path;
 
 import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.io.downloads.DownloadManager.open;
-import static com.keenwrite.preview.SvgRasterizer.BROKEN_IMAGE_PLACEHOLDER;
-import static com.keenwrite.preview.SvgRasterizer.rasterize;
+import static com.keenwrite.preview.SvgRasterizer.*;
 import static com.keenwrite.processors.markdown.extensions.tex.TexNode.HTML_TEX;
 import static com.keenwrite.util.ProtocolScheme.getProtocol;
 
@@ -67,7 +67,7 @@ public final class SvgReplacedElementFactory extends ReplacedElementAdapter {
           }
           else if( MediaType.fromFilename( source ).isSvg() ) {
             // Attempt to rasterize based on file name.
-            final var path = Path.of( source );
+            final var path = new File( source ).toPath();
 
             if( path.isAbsolute() ) {
               uri = path.toUri();
