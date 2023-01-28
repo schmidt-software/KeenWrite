@@ -1,13 +1,11 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.editors.definition;
 
+import com.keenwrite.util.Diacritics;
 import javafx.scene.control.TreeItem;
 
 import java.util.Stack;
 import java.util.function.BiFunction;
-
-import static java.text.Normalizer.Form.NFD;
-import static java.text.Normalizer.normalize;
 
 /**
  * Provides behaviour afforded to definition keys and corresponding value.
@@ -109,16 +107,6 @@ public class DefinitionTreeItem<T> extends TreeItem<T> {
   }
 
   /**
-   * Returns the value of the string without diacritic marks.
-   *
-   * @return A non-null, possibly empty string.
-   */
-  private String getDiacriticlessValue() {
-    return normalize( getValue().toString(), NFD )
-      .replaceAll( "\\p{M}", "" );
-  }
-
-  /**
    * Returns true if this node is a leaf and its value equals the given text.
    *
    * @param s The text to compare against the node value.
@@ -129,13 +117,24 @@ public class DefinitionTreeItem<T> extends TreeItem<T> {
   }
 
   /**
+   * Removes diacritic characters from the given definition item.
+   *
+   * @param item The {@link DefinitionTreeItem} to strip of diacritics.
+   * @param <T>  The type of item contained by {@link DefinitionTreeItem}s.
+   * @return The given item, without any accented characters.
+   */
+  private static <T> String removeAccents( final DefinitionTreeItem<T> item ) {
+    return Diacritics.remove( item.getValue().toString() );
+  }
+
+  /**
    * Returns true if this node is a leaf and its value contains the given text.
    *
    * @param s The text to compare against the node value.
    * @return true Node is a leaf and its value contains the given value.
    */
   private boolean valueContains( final String s ) {
-    return isLeaf() && getDiacriticlessValue().contains( s );
+    return isLeaf() && removeAccents( this ).contains( s );
   }
 
   /**
@@ -145,8 +144,9 @@ public class DefinitionTreeItem<T> extends TreeItem<T> {
    * @return true Node is a leaf and its value contains the given value.
    */
   private boolean valueContainsNoCase( final String s ) {
-    return isLeaf() &&
-      getDiacriticlessValue().toLowerCase().contains( s.toLowerCase() );
+    return isLeaf() && removeAccents( this )
+      .toLowerCase()
+      .contains( s.toLowerCase() );
   }
 
   /**
@@ -157,7 +157,7 @@ public class DefinitionTreeItem<T> extends TreeItem<T> {
    * @return true Node is a leaf and its value starts with the given value.
    */
   private boolean valueStartsWith( final String s ) {
-    return isLeaf() && getDiacriticlessValue().startsWith( s );
+    return isLeaf() && removeAccents( this ).startsWith( s );
   }
 
   /**
