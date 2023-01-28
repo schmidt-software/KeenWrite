@@ -208,9 +208,6 @@ public final class FencedBlockExtension extends HtmlRendererAdapter {
       final var r = format( R_SVG_EXPORT, svg, dimensions, text );
       final var result = mRChunkEvaluator.apply( r );
 
-      System.out.println( svg );
-      System.out.println( filename );
-
       return new Tuple<>( svg, link );
     }
 
