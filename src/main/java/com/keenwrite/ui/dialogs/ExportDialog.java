@@ -16,6 +16,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.stage.Window;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -23,8 +24,10 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Properties;
-import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static com.keenwrite.Messages.get;
@@ -36,6 +39,8 @@ import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.util.FileWalker.walk;
 import static java.lang.Math.max;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.text.Normalizer.*;
+import static java.text.Normalizer.Form.*;
 import static javafx.application.Platform.runLater;
 import static javafx.geometry.Pos.CENTER;
 import static javafx.scene.control.ButtonType.OK;
@@ -46,10 +51,47 @@ import static org.apache.commons.lang3.StringUtils.abbreviate;
  * creating a subset of chapter numbers.
  */
 public final class ExportDialog extends AbstractDialog<ExportSettings> {
+  private static final String UNCRITIC = "\\p{InCombiningDiacriticalMarks}+";
+
+  private record Theme( Path path, String name ) implements Comparable<Theme> {
+
+    /**
+     * Answers whether the given theme directory name matches the theme name
+     * that the user selected.
+     *
+     * @param themeDir The user-selected directory to compare with the
+     *                 corresponding path of this {@link Theme}.
+     * @return {@code true} if the given directory matches the ending portion
+     * of the {@link Path} associated with this {@link Theme} instance.
+     */
+    public boolean matches( final String themeDir ) {
+      final var normalized = normalize( themeDir, NFKD );
+      final var name = normalized.replaceAll( UNCRITIC, "" );
+      final var path = path().getFileName().toString();
+
+      return path.equalsIgnoreCase( name );
+    }
+
+    /**
+     * Returns the theme's display name.
+     *
+     * @return The name of the theme presented to users.
+     */
+    @Override
+    public String toString() {
+      return abbreviate( name(), THEME_NAME_LENGTH );
+    }
+
+    @Override
+    public int compareTo( @NotNull final ExportDialog.Theme o ) {
+      return name().compareTo( o.name() );
+    }
+  }
+
   private final File mThemes;
   private final ExportSettings mSettings;
   private GridPane mPane;
-  private ComboBox<String> mComboBox;
+  private ComboBox<Theme> mComboBox;
   private TextField mChapters;
   private final boolean mMissingThemes;
 
@@ -87,7 +129,9 @@ public final class ExportDialog extends AbstractDialog<ExportSettings> {
       return;
     }
 
-    initComboBox( mComboBox, mSettings, readThemes( themesDir ) );
+    final var previousTheme = mSettings.themeProperty().get();
+
+    initComboBox( mComboBox, previousTheme, themes );
 
     mPane.add( createLabel( "Dialog.typesetting.settings.theme" ), 0, 1 );
     mPane.add( mComboBox, 1, 1 );
@@ -152,7 +196,8 @@ public final class ExportDialog extends AbstractDialog<ExportSettings> {
         // The result will only be set if the OK button is pressed.
         if( result.isPresent() ) {
           final var theme = mComboBox.getSelectionModel().getSelectedItem();
-          mSettings.themeProperty().setValue( theme.toLowerCase() );
+          final var path = theme.path().getFileName().toString();
+          mSettings.themeProperty().setValue( path );
 
           return true;
         }
@@ -196,57 +241,57 @@ public final class ExportDialog extends AbstractDialog<ExportSettings> {
   }
 
   private void initComboBox(
-    final ComboBox<String> comboBox,
-    final ExportSettings settings,
-    final TreeMap<String, String> choices
+    final ComboBox<Theme> comboBox,
+    final String previousTheme,
+    final List<Theme> choices
   ) {
     assert comboBox != null;
-    assert settings != null;
+    assert previousTheme != null;
     assert choices != null;
 
-    final var selection = new String[]{""};
-    final var theme = settings.themeProperty().get();
+    final var items = comboBox.getItems();
+    items.clear();
+    items.addAll( choices );
 
     // Set the selected item to user's settings value.
-    for( final var key : choices.keySet() ) {
-      if( key.equalsIgnoreCase( theme ) ) {
-        selection[ 0 ] = key;
+    for( final var choice : choices ) {
+      if( choice.matches( previousTheme ) ) {
+        comboBox.getSelectionModel().select(
+          items.get( max( items.indexOf( choice ), 0 ) )
+        );
+
         break;
       }
     }
-
-    final var items = comboBox.getItems();
-    items.addAll( choices.keySet() );
-    comboBox.getSelectionModel().select(
-      items.get( max( items.indexOf( selection[ 0 ] ), 0 ) )
-    );
   }
 
-  private TreeMap<String, String> readThemes( final File themesDir ) {
+  private List<Theme> readThemes( final File themesDir ) {
     try {
       // List themes in alphabetical order (human-readable by directory name).
-      final var choices = new TreeMap<String, String>();
+      final var choices = new LinkedList<Theme>();
 
       // Populate the choices with themes detected on the system.
       walk( themesDir.toPath(), "**/theme.properties", path -> {
         try {
-          final var displayed = readThemeName( path );
-          final var themeName = path.getParent().toFile().getName();
-          choices.put( abbreviate( displayed, THEME_NAME_LENGTH ), themeName );
+          final var themeName = readThemeName( path );
+          final var themePath = path.getParent();
+          choices.add( new Theme( themePath, themeName ) );
         } catch( final Exception ex ) {
           clue( "Main.status.error.theme.name", path );
         }
       } );
+
+      Collections.sort( choices );
 
       return choices;
     } catch( final Exception ex ) {
       clue( ex );
     }
 
-    return new TreeMap<>();
+    return Collections.emptyList();
   }
 
-  private ComboBox<String> createComboBox() {
+  private ComboBox<Theme> createComboBox() {
     return new ComboBox<>();
   }
 
