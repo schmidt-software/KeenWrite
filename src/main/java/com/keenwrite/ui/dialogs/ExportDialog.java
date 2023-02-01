@@ -2,6 +2,7 @@
 package com.keenwrite.ui.dialogs;
 
 import com.keenwrite.events.ExportFailedEvent;
+import com.keenwrite.util.Diacritics;
 import com.keenwrite.util.FileWalker;
 import com.keenwrite.util.RangeValidator;
 import com.keenwrite.util.ResourceWalker;
@@ -38,8 +39,6 @@ import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.util.FileWalker.walk;
 import static java.lang.Math.max;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.text.Normalizer.Form.NFKD;
-import static java.text.Normalizer.normalize;
 import static javafx.application.Platform.runLater;
 import static javafx.geometry.Pos.CENTER;
 import static javafx.scene.control.ButtonType.OK;
@@ -50,8 +49,6 @@ import static org.apache.commons.lang3.StringUtils.abbreviate;
  * creating a subset of chapter numbers.
  */
 public final class ExportDialog extends AbstractDialog<ExportSettings> {
-  private static final String UNCRITIC = "\\p{InCombiningDiacriticalMarks}+";
-
   private record Theme( Path path, String name ) implements Comparable<Theme> {
     /**
      * Answers whether the given theme directory name matches the theme name
@@ -63,11 +60,9 @@ public final class ExportDialog extends AbstractDialog<ExportSettings> {
      * of the {@link Path} associated with this {@link Theme} instance.
      */
     public boolean matches( final String themeDir ) {
-      final var normalized = normalize( themeDir, NFKD );
-      final var name = normalized.replaceAll( UNCRITIC, "" );
       final var path = path().getFileName().toString();
 
-      return path.equalsIgnoreCase( name );
+      return path.equalsIgnoreCase( Diacritics.remove( themeDir ) );
     }
 
     /**

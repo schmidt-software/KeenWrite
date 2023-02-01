@@ -67,7 +67,8 @@ public final class SvgReplacedElementFactory extends ReplacedElementAdapter {
           }
           else if( MediaType.fromFilename( source ).isSvg() ) {
             // Attempt to rasterize based on file name.
-            final var path = new File( source ).toPath();
+            final var srcUri = new URI( source ).getPath();
+            final var path = Path.of( new File( srcUri ).getCanonicalPath() );
 
             if( path.isAbsolute() ) {
               uri = path.toUri();
