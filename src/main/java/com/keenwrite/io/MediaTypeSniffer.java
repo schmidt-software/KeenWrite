@@ -21,8 +21,20 @@ import static java.lang.System.arraycopy;
  * </a>
  */
 public class MediaTypeSniffer {
-  private static final int FORMAT_LENGTH = 11;
-  private static final int END_OF_DATA = -2;
+  /**
+   * The maximum buffer size of magic bytes to analyze.
+   */
+  private static final int BUFFER = 11;
+
+  /**
+   * The media type data can have any value at a corresponding offset.
+   */
+  private static final int ANY = -1;
+
+  /**
+   * Denotes there are fewer than {@link #BUFFER} bytes to compare.
+   */
+  private static final int EOS = -2;
 
   private static final Map<int[], MediaType> FORMAT = new LinkedHashMap<>();
 
@@ -30,25 +42,16 @@ public class MediaTypeSniffer {
     FORMAT.put( data, mediaType );
   }
 
+  /* The insertion order attempts to approximate the real-world likelihood of
+   * encountering particular file formats in an application.
+   */
   static {
     //@formatter:off
     put( ints( 0x3C, 0x73, 0x76, 0x67, 0x20 ), IMAGE_SVG_XML );
     put( ints( 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A ), IMAGE_PNG );
     put( ints( 0xFF, 0xD8, 0xFF, 0xE0 ), IMAGE_JPEG );
     put( ints( 0xFF, 0xD8, 0xFF, 0xEE ), IMAGE_JPEG );
-    put( ints( 0xFF, 0xD8, 0xFF, 0xE1, -1, -1, 0x45, 0x78, 0x69, 0x66, 0x00 ), IMAGE_JPEG );
-    put( ints( 0x49, 0x49, 0x2A, 0x00 ), IMAGE_TIFF );
-    put( ints( 0x4D, 0x4D, 0x00, 0x2A ), IMAGE_TIFF );
-    put( ints( 0x47, 0x49, 0x46, 0x38 ), IMAGE_GIF );
-    put( ints( 0x52, 0x49, 0x46, 0x46, -1, -1, -1, -1, 0x57, 0x45, 0x42, 0x50 ), IMAGE_WEBP );
-    put( ints( 0x25, 0x50, 0x44, 0x46, 0x2D, 0x31, 0x2E ), APP_PDF );
-    put( ints( 0x25, 0x21, 0x50, 0x53, 0x2D, 0x41, 0x64, 0x6F, 0x62, 0x65, 0x2D ), APP_EPS );
-    put( ints( 0x25, 0x21, 0x50, 0x53 ), APP_PS );
-    put( ints( 0x38, 0x42, 0x50, 0x53, 0x00, 0x01 ), IMAGE_PHOTOSHOP );
-    put( ints( 0x8A, 0x4D, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A ), VIDEO_MNG );
-    put( ints( 0x42, 0x4D ), IMAGE_BMP );
-    put( ints( 0xFF, 0xFB, 0x30 ), AUDIO_MP3 );
-    put( ints( 0x49, 0x44, 0x33 ), AUDIO_MP3 );
+    put( ints( 0xFF, 0xD8, 0xFF, 0xE1, ANY, ANY, 0x45, 0x78, 0x69, 0x66, 0x00 ), IMAGE_JPEG );
     put( ints( 0x3C, 0x21 ), TEXT_HTML );
     put( ints( 0x3C, 0x68, 0x74, 0x6D, 0x6C ), TEXT_HTML );
     put( ints( 0x3C, 0x68, 0x65, 0x61, 0x64 ), TEXT_HTML );
@@ -59,13 +62,25 @@ public class MediaTypeSniffer {
     put( ints( 0x3C, 0x3F, 0x78, 0x6D, 0x6C, 0x20 ), TEXT_XML );
     put( ints( 0xFE, 0xFF, 0x00, 0x3C, 0x00, 0x3f, 0x00, 0x78 ), TEXT_XML );
     put( ints( 0xFF, 0xFE, 0x3C, 0x00, 0x3F, 0x00, 0x78, 0x00 ), TEXT_XML );
+    put( ints( 0x47, 0x49, 0x46, 0x38 ), IMAGE_GIF );
+    put( ints( 0x42, 0x4D ), IMAGE_BMP );
+    put( ints( 0x49, 0x49, 0x2A, 0x00 ), IMAGE_TIFF );
+    put( ints( 0x4D, 0x4D, 0x00, 0x2A ), IMAGE_TIFF );
+    put( ints( 0x52, 0x49, 0x46, 0x46, ANY, ANY, ANY, ANY, 0x57, 0x45, 0x42, 0x50 ), IMAGE_WEBP );
+    put( ints( 0x25, 0x50, 0x44, 0x46, 0x2D, 0x31, 0x2E ), APP_PDF );
+    put( ints( 0x25, 0x21, 0x50, 0x53, 0x2D, 0x41, 0x64, 0x6F, 0x62, 0x65, 0x2D ), APP_EPS );
+    put( ints( 0x25, 0x21, 0x50, 0x53 ), APP_PS );
+    put( ints( 0x38, 0x42, 0x50, 0x53, 0x00, 0x01 ), IMAGE_PHOTOSHOP );
+    put( ints( 0xFF, 0xFB, 0x30 ), AUDIO_MP3 );
+    put( ints( 0x49, 0x44, 0x33 ), AUDIO_MP3 );
+    put( ints( 0x8A, 0x4D, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A ), VIDEO_MNG );
     put( ints( 0x23, 0x64, 0x65, 0x66 ), IMAGE_X_BITMAP );
     put( ints( 0x21, 0x20, 0x58, 0x50, 0x4D, 0x32 ), IMAGE_X_PIXMAP );
     put( ints( 0x2E, 0x73, 0x6E, 0x64 ), AUDIO_SIMPLE );
     put( ints( 0x64, 0x6E, 0x73, 0x2E ), AUDIO_SIMPLE );
     put( ints( 0x52, 0x49, 0x46, 0x46 ), AUDIO_WAV );
     put( ints( 0x50, 0x4B ), APP_ZIP );
-    put( ints( 0x41, 0x43, -1, -1, -1, -1, 0x00, 0x00, 0x00, 0x00, 0x00 ), APP_ACAD );
+    put( ints( 0x41, 0x43, ANY, ANY, ANY, ANY, 0x00, 0x00, 0x00, 0x00, 0x00 ), APP_ACAD );
     put( ints( 0xCA, 0xFE, 0xBA, 0xBE ), APP_JAVA );
     put( ints( 0xAC, 0xED ), APP_JAVA_OBJECT );
     //@formatter:on
@@ -85,7 +100,7 @@ public class MediaTypeSniffer {
       0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF
     };
 
-    for( int i = 0; i < data.length; i++ ) {
+    for( int i = 0; i < source.length; i++ ) {
       source[ i ] = data[ i ] & 0xFF;
     }
 
@@ -93,8 +108,8 @@ public class MediaTypeSniffer {
       int i = -1;
       boolean matches = true;
 
-      while( ++i < FORMAT_LENGTH && key[ i ] != END_OF_DATA && matches ) {
-        matches = key[ i ] == source[ i ] || key[ i ] == -1;
+      while( ++i < BUFFER && key[ i ] != EOS && matches ) {
+        matches = key[ i ] == source[ i ] || key[ i ] == ANY;
       }
 
       if( matches ) {
@@ -136,7 +151,7 @@ public class MediaTypeSniffer {
    */
   public static MediaType getMediaType( final BufferedInputStream bis )
     throws IOException {
-    bis.mark( FORMAT_LENGTH );
+    bis.mark( BUFFER );
     final var result = getMediaType( (InputStream) bis );
     bis.reset();
 
@@ -156,8 +171,8 @@ public class MediaTypeSniffer {
    */
   private static MediaType getMediaType( final InputStream is )
     throws IOException {
-    final var input = new byte[ FORMAT_LENGTH ];
-    final var count = is.read( input, 0, FORMAT_LENGTH );
+    final var input = new byte[ BUFFER ];
+    final var count = is.read( input, 0, BUFFER );
 
     if( count > 1 ) {
       final var available = new byte[ count ];
@@ -169,22 +184,25 @@ public class MediaTypeSniffer {
   }
 
   /**
-   * Creates integer array from the given data, padded with
-   * {@link #END_OF_DATA} values up to {@link #FORMAT_LENGTH}.
+   * Creates an integer array from the given data, padded with {@link #EOS}
+   * values up to {@link #BUFFER} in length.
    *
    * @param data The input byte values to pad.
    * @return The data with padding.
    */
   private static int[] ints( final int... data ) {
-    final var magic = new int[ FORMAT_LENGTH + 1 ];
+    assert data != null;
+    assert data.length <= BUFFER;
+
+    final var magic = new int[ BUFFER + 1 ];
     int i = -1;
 
     while( ++i < data.length ) {
       magic[ i ] = data[ i ];
     }
 
-    while( i < FORMAT_LENGTH ) {
-      magic[ i++ ] = END_OF_DATA;
+    while( i < BUFFER ) {
+      magic[ i++ ] = EOS;
     }
 
     return magic;
