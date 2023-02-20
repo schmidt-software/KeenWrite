@@ -3,6 +3,8 @@ package com.keenwrite.preview;
 
 import com.keenwrite.io.MediaType;
 import com.keenwrite.ui.adapters.ReplacedElementAdapter;
+import io.sf.carte.echosvg.transcoder.TranscoderException;
+import org.w3c.dom.Element;
 import org.xhtmlrenderer.extend.ReplacedElement;
 import org.xhtmlrenderer.extend.UserAgentCallback;
 import org.xhtmlrenderer.layout.LayoutContext;
@@ -11,8 +13,11 @@ import org.xhtmlrenderer.swing.ImageReplacedElement;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.Path;
+import java.text.ParseException;
 
 import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.io.downloads.DownloadManager.open;
@@ -30,7 +35,7 @@ public final class SvgReplacedElementFactory extends ReplacedElementAdapter {
   public static final String HTML_IMAGE_SRC = "src";
 
   private static final ImageReplacedElement BROKEN_IMAGE =
-    createImageReplacedElement( BROKEN_IMAGE_PLACEHOLDER );
+    createElement( BROKEN_IMAGE_PLACEHOLDER );
 
   @Override
   public ReplacedElement createReplacedElement(
@@ -41,66 +46,80 @@ public final class SvgReplacedElementFactory extends ReplacedElementAdapter {
     final int cssHeight ) {
     final var e = box.getElement();
 
-    ImageReplacedElement image = null;
-
     try {
-      BufferedImage raster = null;
+      final BufferedImage raster =
+        switch( e.getNodeName() ) {
+          case HTML_IMAGE -> createHtmlImage( box, e );
+          case HTML_TEX -> createTexImage( e );
+          default -> null;
+        };
 
-      switch( e.getNodeName() ) {
-        case HTML_IMAGE -> {
-          final var source = e.getAttribute( HTML_IMAGE_SRC );
-
-          URI uri = null;
-
-          if( getProtocol( source ).isHttp() ) {
-            try( final var response = open( source ) ) {
-              if( response.isSvg() ) {
-                // Rasterize SVG from URL resource.
-                raster = rasterize(
-                  response.getInputStream(),
-                  box.getContentWidth()
-                );
-              }
-
-              clue( "Main.status.image.request.fetch", source );
-            }
-          }
-          else if( MediaType.fromFilename( source ).isSvg() ) {
-            // Attempt to rasterize based on file name.
-            final var srcUri = new URI( source ).getPath();
-            final var path = Path.of( new File( srcUri ).getCanonicalPath() );
-
-            if( path.isAbsolute() ) {
-              uri = path.toUri();
-            }
-            else {
-              final var base = new URI( e.getBaseURI() ).getPath();
-              uri = Path.of( base, source ).toUri();
-            }
-          }
-
-          if( uri != null ) {
-            raster = rasterize( uri, box.getContentWidth() );
-          }
-        }
-        case HTML_TEX ->
-          // Convert the TeX element to a raster graphic.
-          raster = rasterize( MathRenderer.toString( e.getTextContent() ) );
-      }
-
-      if( raster != null ) {
-        image = createImageReplacedElement( raster );
-      }
+      return createElement( raster );
     } catch( final Exception ex ) {
-      image = BROKEN_IMAGE;
       clue( ex );
     }
 
-    return image == null ? BROKEN_IMAGE : image;
+    return BROKEN_IMAGE;
   }
 
-  private static ImageReplacedElement createImageReplacedElement(
-    final BufferedImage bi ) {
-    return new ImageReplacedElement( bi, bi.getWidth(), bi.getHeight() );
+  /**
+   * Convert an HTML element to a raster graphic.
+   */
+  private static BufferedImage createHtmlImage(
+    final BlockBox box, final Element e )
+    throws TranscoderException, URISyntaxException, IOException {
+    final var source = e.getAttribute( HTML_IMAGE_SRC );
+
+    URI uri = null;
+    BufferedImage raster = null;
+
+    if( getProtocol( source ).isHttp() ) {
+      try( final var response = open( source ) ) {
+        if( response.isSvg() ) {
+          // Rasterize SVG from URL resource.
+          raster = rasterize(
+            response.getInputStream(),
+            box.getContentWidth()
+          );
+        }
+
+        clue( "Main.status.image.request.fetch", source );
+      }
+    }
+    else if( MediaType.fromFilename( source ).isSvg() ) {
+      // Attempt to rasterize based on file name.
+      final var srcUri = new URI( source ).getPath();
+      final var path = Path.of( new File( srcUri ).getCanonicalPath() );
+
+      if( path.isAbsolute() ) {
+        uri = path.toUri();
+      }
+      else {
+        final var base = new URI( e.getBaseURI() ).getPath();
+        uri = Path.of( base, source ).toUri();
+      }
+    }
+
+    final int w = box.getContentWidth();
+
+    if( uri != null && w > 0 ) {
+      raster = rasterize( uri, w );
+    }
+
+    return raster;
+  }
+
+  /**
+   * Convert the TeX element to a raster graphic.
+   */
+  private BufferedImage createTexImage( final Element e )
+    throws TranscoderException, ParseException {
+    return rasterize( MathRenderer.toString( e.getTextContent() ) );
+  }
+
+  private static ImageReplacedElement createElement( final BufferedImage bi ) {
+    return bi == null
+      ? BROKEN_IMAGE
+      : new ImageReplacedElement( bi, bi.getWidth(), bi.getHeight() );
   }
 }

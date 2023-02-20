@@ -1,15 +1,14 @@
 /*
  * Copyright 2013, Morten Nobel-Joergensen
  *
- * License: The BSD 3-Clause License
- * http://opensource.org/licenses/BSD-3-Clause
+ * SPDX-License-Identifier: BSD-3-Clause
  */
 package com.keenwrite.preview.images;
 
 import java.awt.*;
 
 /**
- * This class let you create dimension constrains based on a actual image.
+ * This class let you create dimension constrains based on an actual image.
  */
 public class ConstrainedDimension {
   private ConstrainedDimension() {
@@ -35,7 +34,9 @@ public class ConstrainedDimension {
    */
   public static ConstrainedDimension createAbsolutionDimension(
     final int width, final int height ) {
-    assert width > 0 && height > 0 : "Dimensions must be positive integers";
+    assert width > 0 : "Width must be positive integer";
+    assert height > 0 : "Height must be positive integer";
+
     return new ConstrainedDimension() {
       public Dimension getDimension( Dimension dimension ) {
         return new Dimension( width, height );

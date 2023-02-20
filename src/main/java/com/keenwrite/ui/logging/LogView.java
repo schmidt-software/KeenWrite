@@ -2,18 +2,17 @@
 package com.keenwrite.ui.logging;
 
 import com.keenwrite.events.StatusEvent;
+import com.keenwrite.ui.actions.Keyboard;
 import com.keenwrite.ui.clipboard.Clipboard;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.ObservableList;
 import javafx.scene.control.*;
-import javafx.scene.input.KeyCodeCombination;
 import javafx.stage.Stage;
 import org.greenrobot.eventbus.Subscribe;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
-import java.util.TreeSet;
 
 import static com.keenwrite.Messages.get;
 import static com.keenwrite.constants.Constants.ACTION_PREFIX;
@@ -28,9 +27,6 @@ import static javafx.event.ActionEvent.ACTION;
 import static javafx.scene.control.Alert.AlertType.INFORMATION;
 import static javafx.scene.control.ButtonType.OK;
 import static javafx.scene.control.SelectionMode.MULTIPLE;
-import static javafx.scene.input.KeyCode.C;
-import static javafx.scene.input.KeyCode.INSERT;
-import static javafx.scene.input.KeyCombination.CONTROL_ANY;
 import static javafx.stage.Modality.NONE;
 
 /**
@@ -93,9 +89,6 @@ public final class LogView extends Alert {
   }
 
   private void initTableView() {
-    final var ctrlC = new KeyCodeCombination( C, CONTROL_ANY );
-    final var ctrlInsert = new KeyCodeCombination( INSERT, CONTROL_ANY );
-
     final var colDate = new TableColumn<LogEntry, String>( "Timestamp" );
     final var colMessage = new TableColumn<LogEntry, String>( "Message" );
     final var colTrace = new TableColumn<LogEntry, String>( "Trace" );
@@ -113,8 +106,8 @@ public final class LogView extends Alert {
     mTable.setPrefWidth( 1024 );
     mTable.getSelectionModel().setSelectionMode( MULTIPLE );
     mTable.setOnKeyPressed( event -> {
-      if( ctrlC.match( event ) || ctrlInsert.match( event ) ) {
-        copyToClipboard( mTable );
+      if( Keyboard.isCopy( event ) ) {
+        Clipboard.write( mTable );
       }
     } );
 
@@ -201,7 +194,7 @@ public final class LogView extends Alert {
       final var message = mMessage == null ? "" : mMessage.get();
       final var trace = mTrace == null ? "" : mTrace.get();
 
-      return "LogEntry{" +
+      return getClass().getSimpleName() + "{" +
         "mDate=" + (date == null ? "''" : date) +
         ", mMessage=" + (message == null ? "''" : message) +
         ", mTrace=" + (trace == null ? "''" : trace) +
@@ -211,42 +204,5 @@ public final class LogView extends Alert {
     private String toString( final LocalDateTime date ) {
       return date.format( ofPattern( "d MMM u HH:mm:ss" ) );
     }
-  }
-
-  /**
-   * Copies the contents of the selected rows into the clipboard; code is from
-   * <a href="https://stackoverflow.com/a/48126059/59087">StackOverflow</a>.
-   *
-   * @param table The {@link TableView} having selected rows to copy.
-   */
-  public void copyToClipboard( final TableView<?> table ) {
-    final var sb = new StringBuilder();
-    final var rows = new TreeSet<Integer>();
-    boolean firstRow = true;
-
-    for( final var position : table.getSelectionModel().getSelectedCells() ) {
-      rows.add( position.getRow() );
-    }
-
-    for( final var row : rows ) {
-      if( !firstRow ) {
-        sb.append( '\n' );
-      }
-
-      firstRow = false;
-      boolean firstCol = true;
-
-      for( final var column : table.getColumns() ) {
-        if( !firstCol ) {
-          sb.append( '\t' );
-        }
-
-        firstCol = false;
-        final var data = column.getCellData( row );
-        sb.append( data == null ? "" : data.toString() );
-      }
-    }
-
-    Clipboard.write( sb );
   }
 }

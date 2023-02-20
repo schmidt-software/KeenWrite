@@ -1,18 +1,13 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.processors.markdown;
 
-import com.keenwrite.AwaitFxExtension;
 import com.keenwrite.editors.common.Caret;
 import com.keenwrite.processors.Processor;
 import com.keenwrite.processors.ProcessorContext;
 import com.keenwrite.processors.markdown.extensions.ImageLinkExtension;
 import com.vladsch.flexmark.html.HtmlRenderer;
 import com.vladsch.flexmark.parser.Parser;
-import javafx.stage.Stage;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.testfx.framework.junit5.ApplicationExtension;
-import org.testfx.framework.junit5.Start;
 
 import java.io.File;
 import java.net.URI;
@@ -26,16 +21,13 @@ import java.util.Map;
 import static com.keenwrite.ExportFormat.XHTML_TEX;
 import static com.keenwrite.constants.Constants.DOCUMENT_DEFAULT;
 import static java.lang.String.format;
-import static javafx.application.Platform.runLater;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.testfx.util.WaitForAsyncUtils.waitForFxEvents;
 
 /**
  * Responsible for testing that linked images render into HTML according to
  * the {@link ImageLinkExtension} rules.
  */
-@ExtendWith( {ApplicationExtension.class, AwaitFxExtension.class} )
 @SuppressWarnings( "SameParameterValue" )
 public class ImageLinkExtensionTest {
   private static final Map<String, String> IMAGES = new HashMap<>();
@@ -68,11 +60,6 @@ public class ImageLinkExtensionTest {
     addUri( "//" + URI_WEB );
     addUri( "http://" + URI_WEB );
     addUri( "https://" + URI_WEB );
-  }
-
-  @Start
-  @SuppressWarnings( "unused" )
-  private void start( final Stage stage ) {
   }
 
   private static void addUri( final String actualExpected ) {
@@ -122,12 +109,9 @@ public class ImageLinkExtensionTest {
       final var key = entry.getKey();
       final var node = parser.parse( key );
       final var expectedHtml = entry.getValue();
-      final var actualHtml = new StringBuilder( 128 );
+      final var actualHtml = renderer.render( node );
 
-      runLater( () -> actualHtml.append( renderer.render( node ) ) );
-
-      waitForFxEvents();
-      assertEquals( expectedHtml, actualHtml.toString() );
+      assertEquals( expectedHtml, actualHtml );
     }
   }
 

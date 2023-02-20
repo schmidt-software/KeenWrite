@@ -76,14 +76,13 @@ public final class ChainedReplacedElementFactory
         break;
       }
 
-      final var replaced = mCache.computeIfAbsent(
-        source, k -> {
-          final var r = f.createReplacedElement( c, box, uac, width, height );
-          return r instanceof final ImageReplacedElement ire
-            ? createImageElement( box, ire )
-            : r;
-        }
-      );
+      final var replaced = mCache.computeIfAbsent( source, k -> {
+        final var r = f.createReplacedElement( c, box, uac, width, height );
+
+        return r instanceof final ImageReplacedElement ire
+          ? createImageElement( box, ire )
+          : r;
+      } );
 
       if( replaced != null ) {
         return replaced;

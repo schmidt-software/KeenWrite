@@ -197,10 +197,6 @@ cms <- function( n, ordinal = FALSE, scaled = TRUE ) {
   concat( unit_10, concat( "-", unit_1 ) )
 }
 
-cms.big <- function( n ) {
-}
-
-
 # -----------------------------------------------------------------------------
 # Returns a number as a comma-delimited string. This is a work-around
 # until Renjin fixes https://github.com/bedatadriven/renjin/issues/338

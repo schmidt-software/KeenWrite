@@ -65,9 +65,10 @@ public class ResampleOp extends AdvancedResizeOp {
   private final ResampleFilter mFilter;
 
   public ResampleOp(
-    final ResampleFilter filter, final int destWidth, final int destHeight ) {
-    this( filter,
-          createAbsolutionDimension( destWidth, destHeight ) );
+    final ResampleFilter filter,
+    final int dstWidth,
+    final int dstHeight ) {
+    this( filter, createAbsolutionDimension( dstWidth, dstHeight ) );
   }
 
   public ResampleOp(
@@ -77,7 +78,7 @@ public class ResampleOp extends AdvancedResizeOp {
   }
 
   public BufferedImage doFilter(
-    BufferedImage srcImg, BufferedImage dest, int dstWidth, int dstHeight ) {
+    BufferedImage srcImg, BufferedImage dst, int dstWidth, int dstHeight ) {
     this.dstWidth = dstWidth;
     this.dstHeight = dstHeight;
 
@@ -146,11 +147,11 @@ public class ResampleOp extends AdvancedResizeOp {
 
     final BufferedImage out;
 
-    if( dest != null &&
-      dstWidth == dest.getWidth() &&
-      dstHeight == dest.getHeight() ) {
-      out = dest;
-      int nrDestChannels = ImageUtils.nrChannels( dest );
+    if( dst != null &&
+      dstWidth == dst.getWidth() &&
+      dstHeight == dst.getHeight() ) {
+      out = dst;
+      int nrDestChannels = ImageUtils.nrChannels( dst );
       if( nrDestChannels != nrChannels ) {
         final var errorMgs = format(
           "Destination image must be compatible width source image. Source " +
@@ -286,9 +287,7 @@ public class ResampleOp extends AdvancedResizeOp {
         float tot = 0;
         for( int k = 0; k < max; k++ ) { tot += arrWeight[ subindex + k ]; }
         assert tot != 0 : "should never happen except bug in filter";
-        if( tot != 0f ) {
-          for( int k = 0; k < max; k++ ) { arrWeight[ subindex + k ] /= tot; }
-        }
+        for( int k = 0; k < max; k++ ) { arrWeight[ subindex + k ] /= tot; }
       }
     }
     return new SubSamplingData( arrN, arrPixel, arrWeight, numContributors );

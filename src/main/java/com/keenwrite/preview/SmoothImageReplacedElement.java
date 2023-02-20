@@ -56,6 +56,11 @@ public final class SmoothImageReplacedElement extends ImageReplacedElement {
       newH = (int) (oldH * ((double) newW / oldW));
     }
 
+    if( newW <= 0 && newH <= 0 ) {
+      newW = oldW;
+      newH = oldH;
+    }
+
     return new Dimension( newW, newH );
   }
 }

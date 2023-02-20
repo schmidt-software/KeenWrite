@@ -4,6 +4,8 @@ package com.keenwrite.ui.heuristics;
 import com.keenwrite.events.DocumentChangedEvent;
 import com.keenwrite.events.WordCountEvent;
 import com.keenwrite.preferences.Workspace;
+import com.keenwrite.ui.actions.Keyboard;
+import com.keenwrite.ui.clipboard.Clipboard;
 import com.whitemagicsoftware.wordcount.TokenizerException;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
@@ -23,6 +25,7 @@ import static com.keenwrite.ui.heuristics.DocumentStatistics.StatEntry;
 import static java.lang.String.format;
 import static javafx.application.Platform.runLater;
 import static javafx.collections.FXCollections.observableArrayList;
+import static javafx.scene.control.SelectionMode.MULTIPLE;
 
 /**
  * Responsible for displaying document statistics, such as word count and
@@ -49,18 +52,6 @@ public final class DocumentStatistics extends TableView<StatEntry> {
     initView();
     initListeners( workspace );
     register( this );
-
-    final var fontName = workspace.stringProperty( KEY_UI_FONT_EDITOR_NAME );
-
-    fontName.addListener(
-      ( c, o, n ) -> {
-        if( n != null ) {
-          setFontFamily( n );
-        }
-      }
-    );
-
-    setFontFamily( fontName.getValue() );
   }
 
   /**
@@ -81,12 +72,8 @@ public final class DocumentStatistics extends TableView<StatEntry> {
         mItems.clear();
         final var document = event.getDocument();
         final var wordCount = mWordCounter.count(
-          document, ( k, count ) -> {
-            // Generate statistics for words that occur thrice or more.
-            if( count > 2 ) {
-              mItems.add( new StatEntry( k, count ) );
-            }
-          }
+          document, ( k, count ) ->
+            mItems.add( new StatEntry( k, count ) )
         );
 
         WordCountEvent.fire( wordCount );
@@ -118,10 +105,39 @@ public final class DocumentStatistics extends TableView<StatEntry> {
   }
 
   private void initListeners( final Workspace workspace ) {
+    initLocaleListener( workspace );
+    initFontListener( workspace );
+    initKeyboardListener();
+  }
+
+  private void initLocaleListener( final Workspace workspace ) {
     final var property = workspace.localeProperty( KEY_LANGUAGE_LOCALE );
     property.addListener(
       ( c, o, n ) -> mWordCounter = WordCounter.create( property.toLocale() )
     );
+  }
+
+  private void initFontListener( final Workspace workspace ) {
+    final var fontName = workspace.stringProperty( KEY_UI_FONT_EDITOR_NAME );
+
+    fontName.addListener(
+      ( c, o, n ) -> {
+        if( n != null ) {
+          setFontFamily( n );
+        }
+      }
+    );
+
+    setFontFamily( fontName.getValue() );
+  }
+
+  private void initKeyboardListener() {
+    getSelectionModel().setSelectionMode( MULTIPLE );
+    setOnKeyPressed( event -> {
+      if( Keyboard.isCopy( event ) ) {
+        Clipboard.write( this );
+      }
+    } );
   }
 
   private <E, T> TableColumn<E, T> createColumn( final String key ) {
