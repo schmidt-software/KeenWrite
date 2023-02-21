@@ -198,14 +198,15 @@ public final class DownloadManager {
    */
   public static DownloadToken open( final URL url ) throws IOException {
     final var conn = connect( url );
+    final var contentType = conn.getContentType();
 
-    MediaType contentType;
+    MediaType remoteType;
 
     try {
-      contentType = MediaType.valueFrom( conn.getContentType() );
+      remoteType = MediaType.valueFrom( contentType );
     } catch( final Exception ex ) {
       // If the media type couldn't be detected, try using the stream.
-      contentType = MediaType.UNDEFINED;
+      remoteType = MediaType.UNDEFINED;
     }
 
     final var input = open( conn );
@@ -214,11 +215,15 @@ public final class DownloadManager {
     final var magicType = MediaTypeSniffer.getMediaType( input );
 
     // If the transport protocol's Content-Type doesn't align with the
-    // media type for the magic header, defer to the transport protocol.
-    final MediaType mediaType =
-      !contentType.equals( magicType ) && !magicType.isUndefined()
-        ? contentType
-        : magicType;
+    // media type for the magic header, defer to the transport protocol (so
+    // long as the content type was sent from the remote side).
+    final MediaType mediaType = remoteType.equals( magicType )
+      ? remoteType
+      : contentType != null && !contentType.isBlank()
+      ? remoteType
+      : magicType.isUndefined()
+      ? remoteType
+      : magicType;
 
     return new DownloadToken( conn, input, mediaType );
   }
