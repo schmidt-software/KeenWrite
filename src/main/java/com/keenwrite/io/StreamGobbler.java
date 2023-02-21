@@ -7,6 +7,7 @@ import java.io.InputStreamReader;
 import java.util.concurrent.Callable;
 import java.util.function.Consumer;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.concurrent.Executors.newFixedThreadPool;
 
 /**
@@ -50,7 +51,7 @@ public class StreamGobbler implements Callable<Boolean> {
    */
   @Override
   public Boolean call() throws IOException {
-    try( final var input = new InputStreamReader( mInput );
+    try( final var input = new InputStreamReader( mInput, UTF_8 );
          final var buffer = new BufferedReader( input ) ) {
       buffer.lines().forEach( mConsumer );
     }
