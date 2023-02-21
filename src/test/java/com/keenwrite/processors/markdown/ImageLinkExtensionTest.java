@@ -76,7 +76,7 @@ public class ImageLinkExtensionTest {
 
   private static String toHtml( final String url ) {
     return format(
-      "<p><img src=\"%s\" alt=\"Tooltip\" title=\"Title\" /></p>\n", url );
+      "<p><img src=\"%s\" alt=\"Tooltip\" title=\"Title\" /></p>%n", url );
   }
 
   /**
