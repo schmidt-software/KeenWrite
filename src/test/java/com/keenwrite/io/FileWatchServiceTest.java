@@ -6,11 +6,11 @@ import org.junit.jupiter.api.Timeout;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.concurrent.Semaphore;
 import java.util.function.Consumer;
 
 import static java.io.File.createTempFile;
-import static java.nio.file.Files.write;
 import static java.nio.file.StandardOpenOption.APPEND;
 import static java.nio.file.StandardOpenOption.CREATE;
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -43,7 +43,7 @@ class FileWatchServiceTest {
 
     thread.start();
     service.addListener( listener );
-    write( file.toPath(), text.getBytes(), CREATE, APPEND );
+    Files.writeString( file.toPath(), text, CREATE, APPEND );
     semaphor.acquire();
     service.stop();
     thread.join();
