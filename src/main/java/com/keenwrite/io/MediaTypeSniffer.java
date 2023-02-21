@@ -108,7 +108,9 @@ public class MediaTypeSniffer {
       source[ i ] = data[ i ] & 0xFF;
     }
 
-    for( final var key : FORMAT.keySet() ) {
+    for( final var entry : FORMAT.entrySet() ) {
+      final var key = entry.getKey();
+
       int i = -1;
       boolean matches = true;
 
@@ -117,7 +119,7 @@ public class MediaTypeSniffer {
       }
 
       if( matches ) {
-        return FORMAT.get( key );
+        return entry.getValue();
       }
     }
 
