@@ -64,22 +64,15 @@ public class XhtmlProcessorTest {
     return Stream.of(
       Arguments.of(
         HTML_TEX_DELIMITED,
-        "<p id=\"caret\">the \uD83D\uDC4D emoji</p>\n"
+        """
+          <html><head></head><body><p>the 👍 emoji</p>
+          </body></html>"""
       ),
       Arguments.of(
         XHTML_TEX,
         """
-          <html>
-            <head>
-              <title> </title>
-              <meta charset="utf8"/>
-              <meta content="2" name="count"/>
-            </head>
-            <body>
-              <p id="caret">the 👍 emoji</p>
-          </body>
-          </html>
-          """
+          <html><head></head><body><p>the 👍 emoji</p>
+          </body></html>"""
       )
     );
   }
