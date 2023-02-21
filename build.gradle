@@ -1,7 +1,5 @@
 //file:noinspection SpellCheckingInspection
 
-import static org.gradle.api.JavaVersion.VERSION_19
-
 buildscript {
   repositories {
     mavenCentral()
@@ -71,8 +69,8 @@ def moduleSecurity = [
 ]
 
 java {
-  sourceCompatibility = VERSION_19
-  targetCompatibility = VERSION_19
+  sourceCompatibility = 19
+  targetCompatibility = 19
 }
 
 javafx {
