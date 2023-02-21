@@ -70,6 +70,11 @@ def moduleSecurity = [
     '--add-exports=javafx.graphics/com.sun.javafx.scene.traversal=ALL-UNNAMED',
 ]
 
+java {
+  sourceCompatibility = VERSION_19
+  targetCompatibility = VERSION_19
+}
+
 javafx {
   version = '19'
   modules = ['javafx.base', 'javafx.controls', 'javafx.graphics', 'javafx.swing']
@@ -169,11 +174,6 @@ configStream.close()
 final String applicationName = config.get( 'application.title' ).toString().toLowerCase()
 final String applicationPackage = "com.${applicationName}"
 final String applicationClass = "${applicationPackage}.Launcher"
-
-java {
-  sourceCompatibility = VERSION_19
-  targetCompatibility = VERSION_19
-}
 
 compileJava {
   options.compilerArgs += [
