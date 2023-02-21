@@ -1,11 +1,17 @@
-import static org.gradle.api.JavaVersion.*
+//file:noinspection SpellCheckingInspection
+
+import static org.gradle.api.JavaVersion.VERSION_19
 
 buildscript {
   repositories {
     mavenCentral()
+    maven {
+      url "https://plugins.gradle.org/m2/"
+    }
   }
   dependencies {
     classpath 'org.owasp:dependency-check-gradle:7.4.3'
+    classpath "com.github.spotbugs.snom:spotbugs-gradle-plugin:5.0.13"
   }
 }
 
@@ -13,6 +19,7 @@ plugins {
   id 'application'
   id 'org.openjfx.javafxplugin' version '0.0.13'
   id 'com.palantir.git-version' version '0.15.0'
+  id "com.github.spotbugs" version "5.0.13"
 }
 
 apply plugin: 'org.owasp.dependencycheck'
@@ -164,8 +171,8 @@ final String applicationPackage = "com.${applicationName}"
 final String applicationClass = "${applicationPackage}.Launcher"
 
 java {
-  sourceCompatibility = VERSION_17
-  targetCompatibility = VERSION_17
+  sourceCompatibility = VERSION_19
+  targetCompatibility = VERSION_19
 }
 
 compileJava {

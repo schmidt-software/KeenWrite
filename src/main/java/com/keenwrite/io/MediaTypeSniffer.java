@@ -7,6 +7,7 @@ import java.util.Map;
 
 import static com.keenwrite.io.MediaType.*;
 import static java.lang.System.arraycopy;
+import static java.util.Arrays.fill;
 
 /**
  * Associates file signatures with IANA-defined {@link MediaType}s. See:
@@ -24,7 +25,7 @@ public class MediaTypeSniffer {
   /**
    * The maximum buffer size of magic bytes to analyze.
    */
-  private static final int BUFFER = 11;
+  private static final int BUFFER = 12;
 
   /**
    * The media type data can have any value at a corresponding offset.
@@ -95,12 +96,15 @@ public class MediaTypeSniffer {
    */
   public static MediaType getMediaType( final byte[] data ) {
     assert data != null;
+    assert data.length > 0;
 
     final var source = new int[]{
-      0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF
+      0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+      0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+      0xFF, 0XFF, EOS
     };
 
-    for( int i = 0; i < source.length; i++ ) {
+    for( int i = 0; i < Math.min( data.length, source.length ); i++ ) {
       source[ i ] = data[ i ] & 0xFF;
     }
 
@@ -140,9 +144,8 @@ public class MediaTypeSniffer {
   /**
    * Convenience method to return the probed media type for the given
    * {@link BufferedInputStream} instance. <strong>This resets the stream
-   * pointer</strong> making the call idempotent. Users of this class should
-   * prefer to call this method when operating on streams to avoid advancing
-   * the stream.
+   * pointer</strong> making the call idempotent. Prefer calling this
+   * method when operating on streams to avoid advancing the stream.
    *
    * @param bis Data source to ascertain the {@link MediaType}.
    * @return The IANA-defined {@link MediaType}, or
@@ -192,18 +195,11 @@ public class MediaTypeSniffer {
    */
   private static int[] ints( final int... data ) {
     assert data != null;
-    assert data.length <= BUFFER;
 
-    final var magic = new int[ BUFFER + 1 ];
-    int i = -1;
+    final var magic = new int[ data.length + 1 ];
 
-    while( ++i < data.length ) {
-      magic[ i ] = data[ i ];
-    }
-
-    while( i < BUFFER ) {
-      magic[ i++ ] = EOS;
-    }
+    fill( magic, EOS );
+    arraycopy( data, 0, magic, 0, data.length );
 
     return magic;
   }
