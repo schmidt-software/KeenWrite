@@ -325,6 +325,10 @@ public final class GuiCommands {
     file_export_pdf( true );
   }
 
+  public void file_export_html_dir() {
+    file_export( XHTML_TEX, true );
+  }
+
   public void file_export_repeat() {
     typeset( mTypesetService );
   }
