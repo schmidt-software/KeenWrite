@@ -1,4 +1,7 @@
-/* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
+/* Copyright 2022 White Magic Software, Ltd. -- All rights reserved.
+ *
+ * SPDX-License-Identifier: MIT
+ */
 package com.keenwrite.processors.markdown;
 
 import com.keenwrite.ExportFormat;

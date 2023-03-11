@@ -1,4 +1,7 @@
-/* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
+/* Copyright 2023 White Magic Software, Ltd. -- All rights reserved.
+ *
+ * SPDX-License-Identifier: MIT
+ */
 package com.keenwrite.processors;
 
 import com.keenwrite.ExportFormat;
@@ -6,6 +9,8 @@ import com.keenwrite.collections.InterpolatingMap;
 import com.keenwrite.constants.Constants;
 import com.keenwrite.editors.common.Caret;
 import com.keenwrite.io.FileType;
+import com.keenwrite.io.MediaType;
+import com.keenwrite.io.MediaTypeExtension;
 import com.keenwrite.sigils.PropertyKeyOperator;
 import com.keenwrite.sigils.SigilKeyOperator;
 import com.keenwrite.util.GenericBuilder;
@@ -264,6 +269,15 @@ public final class ProcessorContext {
 
   public Path getSourcePath() {
     return mMutator.mSourcePath;
+  }
+
+  /**
+   * Answers what type of input document is to be processed.
+   *
+   * @return The input document's {@link MediaType}.
+   */
+  public MediaType getSourceType() {
+    return MediaTypeExtension.fromPath( mMutator.mSourcePath );
   }
 
   /**

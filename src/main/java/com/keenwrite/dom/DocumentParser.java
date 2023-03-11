@@ -101,8 +101,8 @@ public class DocumentParser {
       input.setCharacterStream( reader );
 
       return sDocumentBuilder.parse( input );
-    } catch( final Exception ex ) {
-      clue( ex );
+    } catch( final Throwable t ) {
+      clue( t );
 
       return sDocumentBuilder.newDocument();
     }

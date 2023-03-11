@@ -94,6 +94,7 @@ public enum ExportFormat {
         ? HTML_TEX_SVG
         : HTML_TEX_DELIMITED;
       case APP_PDF -> APPLICATION_PDF;
+      case TEXT_XML -> XHTML_TEX;
       default -> throw new IllegalArgumentException( format(
         "Unrecognized format type and subtype: '%s' and '%s'", type, modifier
       ) );

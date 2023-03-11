@@ -1,4 +1,7 @@
-/* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
+/* Copyright 2020 White Magic Software, Ltd. -- All rights reserved.
+ *
+ * SPDX-License-Identifier: MIT
+ */
 package com.keenwrite.processors.r;
 
 import com.keenwrite.preferences.Workspace;
@@ -47,6 +50,20 @@ public final class RBootstrapController {
     if( !bootstrap.isBlank() ) {
       final var dir = getRWorkingDirectory();
       final var definitions = mDefinitions.get();
+
+      // A problem with the bootstrap script is likely caused by variables
+      // not being loaded. This implies that the R processor is being invoked
+      // too soon.
+      update(bootstrap, dir, definitions);
+    }
+  }
+
+  public static void update(
+    final String bootstrap,
+    final String workingDir,
+    final Map<String, String> definitions ) {
+
+    if( !bootstrap.isBlank() ) {
       final var map = new HashMap<String, String>( definitions.size() + 1 );
 
       definitions.forEach(
@@ -54,16 +71,13 @@ public final class RBootstrapController {
       );
       map.put(
         KEY_OPERATOR.apply( "application.r.working.directory" ),
-        escape( dir )
+        escape( workingDir )
       );
 
       try {
         Engine.eval( replace( bootstrap, map ) );
       } catch( final Exception ex ) {
         clue( ex );
-        // A problem with the bootstrap script is likely caused by variables
-        // not being loaded. This implies that the R processor is being invoked
-        // too soon.
       }
     }
   }

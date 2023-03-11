@@ -4,6 +4,7 @@ package com.keenwrite.io;
 import org.apache.commons.io.FilenameUtils;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.util.List;
 
 import static com.keenwrite.io.MediaType.*;
@@ -98,6 +99,10 @@ public enum MediaTypeExtension {
    */
   public static MediaType fromFile( final File file ) {
     return fromExtension( FilenameUtils.getExtension( file.getName() ) );
+  }
+
+  public static MediaType fromPath( final Path path ) {
+    return fromFile( path.toFile() );
   }
 
   private static String sanitize( final String extension ) {

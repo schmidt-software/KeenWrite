@@ -1,3 +1,7 @@
+/* Copyright 2023 White Magic Software, Ltd. -- All rights reserved.
+ *
+ * SPDX-License-Identifier: MIT
+ */
 package com.keenwrite.cmdline;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -54,7 +58,7 @@ public final class Arguments implements Callable<Integer> {
       "Replace straight quotes with curly quotes (${DEFAULT-VALUE})",
     defaultValue = "true"
   )
-  private Boolean mCurlQuotes;
+  private boolean mCurlQuotes;
 
   @CommandLine.Option(
     names = {"-d", "--debug"},
@@ -241,8 +245,8 @@ public final class Arguments implements Callable<Integer> {
       .with( Mutator::setConcatenate, mConcatenate )
       .with( Mutator::setSigilBegan, () -> mSigilBegan )
       .with( Mutator::setSigilEnded, () -> mSigilEnded )
-      .with( Mutator::setRWorkingDir, () -> mRWorkingDir )
       .with( Mutator::setRScript, () -> rScript )
+      .with( Mutator::setRWorkingDir, () -> mRWorkingDir )
       .with( Mutator::setCurlQuotes, () -> mCurlQuotes )
       .with( Mutator::setAutoRemove, () -> !mKeepFiles )
       .build();

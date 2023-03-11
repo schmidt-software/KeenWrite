@@ -1,6 +1,13 @@
+/* Copyright 2023 White Magic Software, Ltd. -- All rights reserved.
+ *
+ * SPDX-License-Identifier: MIT
+ */
 package com.keenwrite;
 
 import com.keenwrite.cmdline.Arguments;
+import com.keenwrite.processors.RBootstrapProcessor;
+import com.keenwrite.processors.Processor;
+import com.keenwrite.processors.ProcessorContext;
 import com.keenwrite.util.AlphanumComparator;
 
 import java.io.IOException;
@@ -13,6 +20,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.keenwrite.Launcher.terminate;
 import static com.keenwrite.events.StatusEvent.clue;
+import static com.keenwrite.io.MediaType.TEXT_R_MARKDOWN;
 import static com.keenwrite.processors.ProcessorFactory.createProcessors;
 import static com.keenwrite.util.FileWalker.walk;
 import static java.lang.System.lineSeparator;
@@ -81,8 +89,9 @@ public class AppCommands {
         final var inputPath = context.getSourcePath();
         final var outputPath = context.getTargetPath();
         final var chain = createProcessors( context );
+        final var processor = createBootstrapProcessor( chain, context );
         final var inputDoc = read( inputPath, concat );
-        final var outputDoc = chain.apply( inputDoc );
+        final var outputDoc = processor.apply( inputDoc );
 
         // Processors can export binary files. In such cases, processors will
         // return null to prevent further processing.
@@ -99,6 +108,14 @@ public class AppCommands {
 
     // Prevent the application from blocking while the processor executes.
     sExecutor.submit( callableTask );
+  }
+
+  private static Processor<String> createBootstrapProcessor(
+    final Processor<String> chain, final ProcessorContext context ) {
+
+    return context.getSourceType() == TEXT_R_MARKDOWN
+      ? new RBootstrapProcessor( chain, context )
+      : chain;
   }
 
   /**
