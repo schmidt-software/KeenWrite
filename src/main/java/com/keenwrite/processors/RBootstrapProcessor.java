@@ -35,7 +35,7 @@ public class RBootstrapProcessor extends ExecutorProcessor<String> {
     final var workingDir = mContext.getRWorkingDir().toString();
     final var definitions = mContext.getDefinitions();
 
-    RBootstrapController.update(bootstrap, workingDir, definitions);
+    RBootstrapController.update( bootstrap, workingDir, definitions );
 
     return mSuccessor.apply( text );
   }

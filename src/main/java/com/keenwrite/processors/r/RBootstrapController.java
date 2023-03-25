@@ -54,7 +54,7 @@ public final class RBootstrapController {
       // A problem with the bootstrap script is likely caused by variables
       // not being loaded. This implies that the R processor is being invoked
       // too soon.
-      update(bootstrap, dir, definitions);
+      update( bootstrap, dir, definitions );
     }
   }
 

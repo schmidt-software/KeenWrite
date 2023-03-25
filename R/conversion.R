@@ -423,6 +423,18 @@ round.up <- function( n, base = 5 ) {
 }
 
 # -----------------------------------------------------------------------------
+# Removes common accents from letters.
+#
+# @param s The string to remove diacritics from.
+# -----------------------------------------------------------------------------
+accentless <- function( s ) {
+  chartr(
+    "áéóūáéíóúÁÉÍÓÚýÝàèìòùÀÈÌÒÙâêîôûÂÊÎÔÛãõÃÕñÑäëïöüÄËÏÖÜÿçÇ",
+    "aeouaeiouAEIOUyYaeiouAEIOUaeiouAEIOUaoAOnNaeiouAEIOUycC",
+    s );
+}
+
+# -----------------------------------------------------------------------------
 # Computes linear distance between two points using Haversine formula.
 # Although Earth is an oblate spheroid, this will produce results close
 # enough for most purposes.
