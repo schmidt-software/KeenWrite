@@ -55,7 +55,7 @@ public final class Arguments implements Callable<Integer> {
   @CommandLine.Option(
     names = {"-c", "--chapters"},
     description =
-      "Range of chapters to export (e.g., 1-5,7-11,15-)",
+      "Export chapter ranges, no spaces (e.g., -3,5-9,15-)",
     paramLabel = "String"
   )
   private String mChapters;
