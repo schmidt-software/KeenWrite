@@ -4,6 +4,7 @@ package com.keenwrite.ui.actions;
 import com.keenwrite.ExportFormat;
 import com.keenwrite.MainPane;
 import com.keenwrite.MainScene;
+import com.keenwrite.commands.ConcatenateCommand;
 import com.keenwrite.editors.TextDefinition;
 import com.keenwrite.editors.TextEditor;
 import com.keenwrite.editors.markdown.HyperlinkModel;
@@ -24,8 +25,6 @@ import com.keenwrite.ui.dialogs.LinkDialog;
 import com.keenwrite.ui.explorer.FilePicker;
 import com.keenwrite.ui.explorer.FilePickerFactory;
 import com.keenwrite.ui.logging.LogView;
-import com.keenwrite.util.AlphanumComparator;
-import com.keenwrite.util.RangeValidator;
 import com.vladsch.flexmark.ast.Link;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
@@ -35,12 +34,9 @@ import javafx.stage.Window;
 import javafx.stage.WindowEvent;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.keenwrite.Bootstrap.*;
 import static com.keenwrite.ExportFormat.*;
@@ -53,9 +49,6 @@ import static com.keenwrite.preferences.AppKeys.*;
 import static com.keenwrite.processors.ProcessorFactory.createProcessors;
 import static com.keenwrite.ui.explorer.FilePickerFactory.SelectionType;
 import static com.keenwrite.ui.explorer.FilePickerFactory.SelectionType.*;
-import static com.keenwrite.util.FileWalker.walk;
-import static java.lang.System.lineSeparator;
-import static java.nio.file.Files.readString;
 import static java.nio.file.Files.writeString;
 import static javafx.application.Platform.runLater;
 import static javafx.event.Event.fireEvent;
@@ -71,13 +64,6 @@ import static org.apache.commons.io.FilenameUtils.getExtension;
  */
 public final class GuiCommands {
   private static final String STYLE_SEARCH = "search";
-
-  /**
-   * Sci-fi genres, which are can be longer than other genres, typically fall
-   * below 150,000 words at 6 chars per word. This reduces re-allocations of
-   * memory when concatenating files together when exporting novels.
-   */
-  private static final int DOCUMENT_LENGTH = 150_000 * 6;
 
   /**
    * When an action is executed, this is one of the recipients.
@@ -656,29 +642,9 @@ public final class GuiCommands {
     }
 
     try {
-      final var glob = "**/*." + extension;
-      final var files = new ArrayList<Path>();
-      final var text = new StringBuilder( DOCUMENT_LENGTH );
-      final var range = getString( KEY_TYPESET_CONTEXT_CHAPTERS );
-      final var validator = new RangeValidator( range );
-      final var chapter = new AtomicInteger();
-
-      walk( parent, glob, files::add );
-      files.sort( new AlphanumComparator<>() );
-      files.forEach( file -> {
-        try {
-          clue( "Main.status.export.concat", file );
-
-          if( validator.test( chapter.incrementAndGet() ) ) {
-            // Ensure multiple files are separated by an EOL.
-            text.append( readString( file ) ).append( lineSeparator() );
-          }
-        } catch( final IOException ex ) {
-          clue( "Main.status.export.concat.io", file );
-        }
-      } );
-
-      return text.toString();
+      final var command = new ConcatenateCommand(
+        parent, extension, getString( KEY_TYPESET_CONTEXT_CHAPTERS ) );
+      return command.call();
     } catch( final Throwable t ) {
       clue( t );
       return editor.getText();

@@ -5,14 +5,13 @@
 package com.keenwrite;
 
 import com.keenwrite.cmdline.Arguments;
-import com.keenwrite.processors.RBootstrapProcessor;
+import com.keenwrite.commands.ConcatenateCommand;
 import com.keenwrite.processors.Processor;
 import com.keenwrite.processors.ProcessorContext;
-import com.keenwrite.util.AlphanumComparator;
+import com.keenwrite.processors.RBootstrapProcessor;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
@@ -22,8 +21,6 @@ import static com.keenwrite.Launcher.terminate;
 import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.io.MediaType.TEXT_R_MARKDOWN;
 import static com.keenwrite.processors.ProcessorFactory.createProcessors;
-import static com.keenwrite.util.FileWalker.walk;
-import static java.lang.System.lineSeparator;
 import static java.nio.file.Files.readString;
 import static java.nio.file.Files.writeString;
 import static java.util.concurrent.Executors.newFixedThreadPool;
@@ -35,13 +32,6 @@ import static org.apache.commons.io.FilenameUtils.getExtension;
  */
 public class AppCommands {
   private static final ExecutorService sExecutor = newFixedThreadPool( 1 );
-
-  /**
-   * Sci-fi genres, which are can be longer than other genres, typically fall
-   * below 150,000 words at 6 chars per word. This reduces re-allocations of
-   * memory when concatenating files together when exporting novels.
-   */
-  private static final int DOCUMENT_LENGTH = 150_000 * 6;
 
   private AppCommands() {
   }
@@ -85,12 +75,10 @@ public class AppCommands {
     final Callable<Path> callableTask = () -> {
       try {
         final var context = args.createProcessorContext();
-        final var concat = context.getConcatenate();
-        final var inputPath = context.getSourcePath();
         final var outputPath = context.getTargetPath();
         final var chain = createProcessors( context );
         final var processor = createBootstrapProcessor( chain, context );
-        final var inputDoc = read( inputPath, concat );
+        final var inputDoc = read( context );
         final var outputDoc = processor.apply( inputDoc );
 
         // Processors can export binary files. In such cases, processors will
@@ -132,14 +120,15 @@ public class AppCommands {
    * New lines are automatically appended to separate each file.
    * </p>
    *
-   * @param inputPath The path to the source file to read.
-   * @param concat    {@code true} to concatenate all files with the same
-   *                  extension as the source path.
+   * @param context The {@link ProcessorContext} containing input path,
+   *                and other command-line parameters.
    * @return All files in the same directory as the file being edited
    * concatenated into a single string.
    */
-  private static String read( final Path inputPath, final boolean concat )
+  private static String read( final ProcessorContext context )
     throws IOException {
+    final var concat = context.getConcatenate();
+    final var inputPath = context.getSourcePath();
     final var parent = inputPath.getParent();
     final var filename = inputPath.getFileName().toString();
     final var extension = getExtension( filename );
@@ -150,19 +139,8 @@ public class AppCommands {
       return readString( inputPath );
     }
 
-    final var glob = "**/*." + extension;
-    final var files = new ArrayList<Path>();
-    walk( parent, glob, files::add );
-    files.sort( new AlphanumComparator<>() );
-
-    final var text = new StringBuilder( DOCUMENT_LENGTH );
-    final var eol = lineSeparator();
-
-    for( final var file : files ) {
-      text.append( readString( file ) );
-      text.append( eol );
-    }
-
-    return text.toString();
+    final var command = new ConcatenateCommand(
+      parent, extension, context.getChapters() );
+    return command.call();
   }
 }

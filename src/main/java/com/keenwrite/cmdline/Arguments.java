@@ -53,6 +53,14 @@ public final class Arguments implements Callable<Integer> {
   private boolean mKeepFiles;
 
   @CommandLine.Option(
+    names = {"-c", "--chapters"},
+    description =
+      "Range of chapters to export (e.g., 1-5,7-11,15-)",
+    paramLabel = "String"
+  )
+  private String mChapters;
+
+  @CommandLine.Option(
     names = {"--curl-quotes"},
     description =
       "Replace straight quotes with curly quotes (${DEFAULT-VALUE})",
@@ -242,7 +250,8 @@ public final class Arguments implements Callable<Integer> {
       .with( Mutator::setDefinitions, () -> definitions )
       .with( Mutator::setMetadata, () -> mMetadata )
       .with( Mutator::setLocale, () -> locale )
-      .with( Mutator::setConcatenate, mConcatenate )
+      .with( Mutator::setConcatenate, () -> mConcatenate )
+      .with( Mutator::setChapters, () -> mChapters )
       .with( Mutator::setSigilBegan, () -> mSigilBegan )
       .with( Mutator::setSigilEnded, () -> mSigilEnded )
       .with( Mutator::setRScript, () -> rScript )

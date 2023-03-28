@@ -86,7 +86,8 @@ public final class ProcessorContext {
     private Path mSourcePath;
     private Path mTargetPath;
     private ExportFormat mExportFormat;
-    private boolean mConcatenate;
+    private Supplier<Boolean> mConcatenate = () -> true;
+    private Supplier<String> mChapters = () -> "";
 
     private Supplier<Path> mThemesPath = USER_DIRECTORY::toPath;
     private Supplier<Locale> mLocale = () -> Locale.ENGLISH;
@@ -176,8 +177,12 @@ public final class ProcessorContext {
       mExportFormat = exportFormat;
     }
 
-    public void setConcatenate( final boolean concatenate ) {
+    public void setConcatenate( final Supplier<Boolean> concatenate ) {
       mConcatenate = concatenate;
+    }
+
+    public void setChapters( final Supplier<String> chapters ) {
+      mChapters = chapters;
     }
 
     public void setLocale( final Supplier<Locale> locale ) {
@@ -406,7 +411,11 @@ public final class ProcessorContext {
    * means to process a single file.
    */
   public boolean getConcatenate() {
-    return mMutator.mConcatenate;
+    return mMutator.mConcatenate.get();
+  }
+
+  public String getChapters() {
+    return mMutator.mChapters.get();
   }
 
   public SigilKeyOperator createKeyOperator() {
