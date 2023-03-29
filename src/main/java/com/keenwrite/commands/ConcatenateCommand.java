@@ -59,9 +59,9 @@ public class ConcatenateCommand implements Callable<String> {
     files.sort( new AlphanumComparator<>() );
     files.forEach( file -> {
       try {
-        clue( "Main.status.export.concat", file );
-
         if( validator.test( chapter.incrementAndGet() ) ) {
+          clue( "Main.status.export.concat", file );
+
           text.append( readString( file ) )
               .append( eol );
         }
