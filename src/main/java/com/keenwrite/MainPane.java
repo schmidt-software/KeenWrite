@@ -1081,7 +1081,17 @@ public final class MainPane extends SplitPane {
   }
 
   public ProcessorContext createProcessorContext() {
-    return createProcessorContext( null, NONE );
+    return createProcessorContextBuilder( NONE ).build();
+  }
+
+  private GenericBuilder<Mutator, ProcessorContext> createProcessorContextBuilder(
+    final ExportFormat format ) {
+    final var textEditor = getTextEditor();
+    final var sourcePath = textEditor.getPath();
+
+    return processorContextBuilder()
+      .with( Mutator::setSourcePath, sourcePath )
+      .with( Mutator::setExportFormat, format );
   }
 
   /**
@@ -1092,13 +1102,13 @@ public final class MainPane extends SplitPane {
    */
   public ProcessorContext createProcessorContext(
     final Path targetPath, final ExportFormat format ) {
-    final var textEditor = getTextEditor();
-    final var sourcePath = textEditor.getPath();
+    assert targetPath != null;
+    assert format != null;
+    
+    final var builder = createProcessorContextBuilder( format );
 
-    return processorContextBuilder()
-      .with( Mutator::setSourcePath, sourcePath )
+    return builder
       .with( Mutator::setTargetPath, targetPath )
-      .with( Mutator::setExportFormat, format )
       .build();
   }
 
