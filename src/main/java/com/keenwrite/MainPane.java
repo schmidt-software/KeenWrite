@@ -1104,10 +1104,8 @@ public final class MainPane extends SplitPane {
     final Path targetPath, final ExportFormat format ) {
     assert targetPath != null;
     assert format != null;
-    
-    final var builder = createProcessorContextBuilder( format );
 
-    return builder
+    return createProcessorContextBuilder( format )
       .with( Mutator::setTargetPath, targetPath )
       .build();
   }
