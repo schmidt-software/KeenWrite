@@ -392,9 +392,6 @@ public final class GuiCommands {
       nodes.add( searchBar );
       searchBar.requestFocus();
     }
-    else {
-      nodes.clear();
-    }
   }
 
   public void edit_find_next() {

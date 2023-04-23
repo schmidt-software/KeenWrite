@@ -152,7 +152,7 @@ pluralize_non_inflecting <- function( word ) {
 )
 
 .irregular_patterns <- c( 
-  "fish$", "ois$", "-sheep$", "deer$", "pox$", "[A-Z].*ese$", "itis$"
+  "fish$", "ois$", "sheep$", "deer$", "pox$", "[A-Z].*ese$", "itis$"
 )
 
 .prepositions <- c( 
@@ -267,21 +267,33 @@ pluralize_irregular <- function( word, method = c( "ac", "ca", "a", "c" ) ) {
 
 .irregular_nouns <- list( 
   "beef"      = c( "a" = "beefs",       "c" = "beeves" ),
+  "biscotto"  = c( "a" = "biscotti",    "c" = NA_character_ ),
   "brother"   = c( "a" = "brothers",    "c" = "brethren" ),
+  "cactus"    = c( "a" = NA_character_, "c" = "catci" ),
   "child"     = c( "a" = NA_character_, "c" = "children" ),
   "cherub"    = c( "a" = "cherubim",    "c" = NA_character_ ),
   "cow"       = c( "a" = "cows",        "c" = "kine" ),
+  "crisis"    = c( "a" = NA_character_, "c" = "crises" ),
+  "data"      = c( "a" = "data",        "c" = "data" ),
   "ephemeris" = c( "a" = NA_character_, "c" = "ephemerides" ),
   "genie"     = c( "a" = "genies",      "c" = "genii" ),
+  "graffito"  = c( "a" = "graffiti",    "c" = NA_character_ ),
   "matrix"    = c( "a" = NA_character_, "c" = "matrices" ),
   "money"     = c( "a" = "moneys",      "c" = "monies" ),
   "mongoose"  = c( "a" = "mongooses",   "c" = NA_character_ ),
+  "minimum"   = c( "a" = "minimums",    "c" = "minima" ),
   "mythos"    = c( "a" = NA_character_, "c" = "mythoi" ),
-  "octopus"   = c( "a" = "octopuses",   "c" = "octopodes" ),
+  "octopus"   = c( "a" = NA_character_, "c" = "octopodes" ),
   "ox"        = c( "a" = NA_character_, "c" = "oxen" ),
   "passerby"  = c( "a" = NA_character_, "c" = "passersby" ),
+  "panino"    = c( "a" = "panini",      "c" = NA_character_ ),
+  "pieróg"    = c( "a" = "pierogi",     "c" = NA_character_ ),
+  "pierog"    = c( "a" = "pierogi",     "c" = NA_character_ ),
+  "radius"    = c( "a" = NA_character_, "c" = "radii" ),
+  "referendum"= c( "a" = "referendums", "c" = "referenda" ),
   "soliloquy" = c( "a" = "soliloquies", "c" = NA_character_ ),
   "seraph"    = c( "a" = "seraphim",    "c" = NA_character_ ),
+  "stadium"   = c( "a" = "stadiums",    "c" = "stadia" ),
   "trilby"    = c( "a" = "trilbys",     "c" = NA_character_ ),
   "vertex"    = c( "a" = NA_character_, "c" = "vertices" ),
   "vortex"    = c( "a" = NA_character_, "c" = "vortices" )
