@@ -13,8 +13,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.nio.file.Path;
+import java.util.Optional;
 
-import static com.keenwrite.ExportFormat.NONE;
 import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.util.ProtocolScheme.getProtocol;
 import static com.vladsch.flexmark.html.HtmlRenderer.Builder;
@@ -85,43 +85,75 @@ public class ImageLinkExtension extends HtmlRendererAdapter {
      * @return The {@link ResolvedLink} instance used to render the link.
      */
     private ResolvedLink forImage( final ResolvedLink link, final Node node ) {
-      var uri = link.getUrl();
-      final var protocol = getProtocol( uri );
+      final var url = link.getUrl();
+      final var protocolScheme = getProtocol( url );
 
-      if( protocol.isRemote() ) {
-        return valid( link, uri );
-      }
+      return protocolScheme.isRemote()
+        ? valid( link, url )
+        : resolveImageFile( link, node, url );
+    }
 
+    private ResolvedLink resolveImageFile(
+      final ResolvedLink link,
+      final Node node,
+      final String url ) {
+      final var userPath = new File( url );
+
+      // If the user specified a fully qualified path name, use it verbatim.
+      return readable( userPath )
+        ? valid( link, url )
+        : resolveUnqualifiedImageFile( link, node, url );
+    }
+
+    private ResolvedLink resolveUnqualifiedImageFile(
+      final ResolvedLink link,
+      final Node node,
+      final String url ) {
       final var baseDir = getBaseDir();
+      final var fqfn = baseDir.resolve( Path.of( url ) );
 
-      // Determine the fully-qualified file name (fqfn).
-      final var fqfn = Path.of( baseDir.toString(), uri ).toFile();
+      // If the image can be found relative to the base directory, then
+      // use the link as is when resolving the path.
+      return readable( fqfn.toFile() )
+        ? valid( link, url )
+        : resolveExtensionlessImageFile( link, node, url );
+    }
 
-      if( fqfn.isFile() && fqfn.canRead() ||
-        mContext.getExportFormat() != NONE ) {
-        return valid( link, uri );
-      }
+    private ResolvedLink resolveExtensionlessImageFile(
+      final ResolvedLink link,
+      final Node node,
+      final String url
+    ) {
+      final var imagePath = new File( url );
+      final var file = resolveImageExtension( imagePath );
+
+      return file.isPresent() && readable( file.get() )
+        ? valid( link, file.get().toString() )
+        : resolveRelativeImageFile( link, node, url );
+    }
+
+    private ResolvedLink resolveRelativeImageFile(
+      final ResolvedLink link,
+      final Node node,
+      final String url ) {
+      final var baseDir = getBaseDir();
 
       try {
         // Compute the path to the image file. The base directory should
         // be an absolute path to the file being edited, without an extension.
         final var imagesDir = getImageDir();
-        final var relativeDir = imagesDir.toString().isEmpty()
-          ? imagesDir : baseDir.relativize( imagesDir );
-        final var imageFile = Path.of(
-          baseDir.toString(), relativeDir.toString(), uri );
+        final var baseImagesDir = baseDir.resolve( imagesDir );
+        final var imagePath = baseImagesDir.resolve( url );
+        final var file = resolveImageExtension( imagePath.toFile() );
 
-        for( final var ext : getImageOrder() ) {
-          var file = new File( imageFile.toString() + '.' + ext );
-
-          if( file.exists() && file.canRead() ) {
-            uri = file.toURI().toString();
-            return valid( link, uri );
-          }
+        if( file.isPresent() ) {
+          final var resolved = imagesDir.resolve( file.get().toPath() );
+          final var relative = baseDir.relativize( resolved );
+          return valid( link, relative.toString() );
         }
 
         clue( "Main.status.error.file.missing.near",
-              imageFile + ".*", node.getLineNumber()
+              imagePath + ".*", node.getLineNumber()
         );
       } catch( final Exception ex ) {
         clue( ex );
@@ -130,12 +162,24 @@ public class ImageLinkExtension extends HtmlRendererAdapter {
       return link;
     }
 
+    private Optional<File> resolveImageExtension( final File imagePath ) {
+      for( final var ext : getImageOrder() ) {
+        final var file = new File( imagePath.toString() + '.' + ext );
+
+        if( readable( file ) ) {
+          return Optional.of( file );
+        }
+      }
+
+      return Optional.empty();
+    }
+
     private ResolvedLink valid( final ResolvedLink link, final String url ) {
       return link.withStatus( VALID ).withUrl( url );
     }
 
     private Path getImageDir() {
-      return mContext.getImagesPath();
+      return mContext.getImagesDir();
     }
 
     private Iterable<String> getImageOrder() {
@@ -145,5 +189,9 @@ public class ImageLinkExtension extends HtmlRendererAdapter {
     private Path getBaseDir() {
       return mContext.getBaseDir();
     }
+  }
+
+  private static boolean readable( final File file ) {
+    return file.isFile() && file.canRead();
   }
 }

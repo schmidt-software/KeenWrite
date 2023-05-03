@@ -11,10 +11,9 @@ import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.net.URI;
-import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -30,43 +29,26 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
  */
 @SuppressWarnings( "SameParameterValue" )
 public class ImageLinkExtensionTest {
-  private static final Map<String, String> IMAGES = new HashMap<>();
+  private static final String UIR_DIR = "images";
+  private static final String URI_FILE = "kitten";
+  private static final String URI_PATH = UIR_DIR + '/' + URI_FILE;
+  private static final String PATH_KITTEN_JPG = URI_PATH + ".jpg";
+  private static final String PATH_KITTEN_PNG = URI_PATH + ".png";
 
-  private static final String URI_WEB = "placekitten.com/200/200";
-  private static final String URI_DIRNAME = "images";
-  private static final String URI_FILENAME = "kitten";
-
-  /**
-   * Path to use for testing image file name resolution. Note that resources use
-   * forward slashes, regardless of OS.
-   */
-  private static final String URI_PATH = URI_DIRNAME + '/' + URI_FILENAME;
-
-  /**
-   * Extension for the first existing image that matches the preferred image
-   * extension order.
-   */
-  private static final String URI_IMAGE_EXT = ".png";
-
-  /**
-   * Relative path to an image that exists.
-   */
-  private static final String URI_IMAGE = URI_PATH + URI_IMAGE_EXT;
+  private static final Map<String, String> IMAGES = new LinkedHashMap<>();
 
   static {
-    addUri( URI_PATH + ".png" );
-    addUri( URI_PATH + ".jpg" );
-    addUri( URI_PATH, getResource( URI_PATH + URI_IMAGE_EXT ) );
-    addUri( "//" + URI_WEB );
-    addUri( "http://" + URI_WEB );
-    addUri( "https://" + URI_WEB );
+    add( PATH_KITTEN_PNG, URI_FILE );
+    add( PATH_KITTEN_PNG, URI_PATH );
+    add( PATH_KITTEN_PNG, PATH_KITTEN_PNG );
+    add( PATH_KITTEN_JPG, PATH_KITTEN_JPG );
+    add( "//placekitten.com/200/200", "//placekitten.com/200/200" );
+    add( "ftp://placekitten.com/200/200", "ftp://placekitten.com/200/200" );
+    add( "http://placekitten.com/200/200", "http://placekitten.com/200/200" );
+    add( "https://placekitten.com/200/200", "https://placekitten.com/200/200" );
   }
 
-  private static void addUri( final String actualExpected ) {
-    addUri( actualExpected, actualExpected );
-  }
-
-  private static void addUri( final String actual, final String expected ) {
+  private static void add( final String expected, final String actual ) {
     IMAGES.put( toMd( actual ), toHtml( expected ) );
   }
 
@@ -85,8 +67,8 @@ public class ImageLinkExtensionTest {
    */
   @Test
   void test_ImageLookup_RelativePathWithExtension_ResolvedSuccessfully() {
-    final var resource = getResourcePath( URI_IMAGE );
-    final var imagePath = new File( URI_IMAGE ).toPath();
+    final var resource = getResourcePath( PATH_KITTEN_PNG );
+    final var imagePath = new File( PATH_KITTEN_PNG ).toPath();
     final var subpaths = resource.getNameCount() - imagePath.getNameCount();
     final var subpath = resource.subpath( 0, subpaths );
 
@@ -94,7 +76,8 @@ public class ImageLinkExtensionTest {
     final var documentPath = Path.of(
       resource.getRoot().resolve( subpath ).toString(),
       DOCUMENT_DEFAULT.getName() );
-    final var context = createProcessorContext( documentPath );
+    final var imagesDir = Path.of( "images" );
+    final var context = createProcessorContext( documentPath, imagesDir );
     final var extension = ImageLinkExtension.create( context );
     final var extensions = List.of( extension );
     final var pBuilder = Parser.builder();
@@ -121,25 +104,20 @@ public class ImageLinkExtensionTest {
    * @param inputPath Fully qualified path to the file name.
    * @return A context used for creating new {@link Processor} instances.
    */
-  private ProcessorContext createProcessorContext( final Path inputPath ) {
+  private ProcessorContext createProcessorContext(
+    final Path inputPath, final Path imagesDir ) {
     return ProcessorContext
       .builder()
       .with( ProcessorContext.Mutator::setSourcePath, inputPath )
       .with( ProcessorContext.Mutator::setExportFormat, XHTML_TEX )
       .with( ProcessorContext.Mutator::setCaret, () -> Caret.builder().build() )
+      .with( ProcessorContext.Mutator::setImagesDir, imagesDir::toFile )
       .build();
-  }
-
-  private static URL toUrl( final String path ) {
-    final var clazz = ImageLinkExtensionTest.class;
-    final var packagePath = clazz.getPackageName().replace( '.', '/' );
-    final var resourcePath = '/' + packagePath + '/' + path;
-    return clazz.getResource( resourcePath );
   }
 
   private static URI toUri( final String path ) {
     try {
-      return toUrl( path ).toURI();
+      return Path.of( path ).toUri();
     } catch( final Exception ex ) {
       throw new RuntimeException( ex );
     }
@@ -147,9 +125,5 @@ public class ImageLinkExtensionTest {
 
   private static Path getResourcePath( final String path ) {
     return Paths.get( toUri( path ) );
-  }
-
-  private static String getResource( final String path ) {
-    return toUri( path ).toString();
   }
 }

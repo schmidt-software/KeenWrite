@@ -42,10 +42,10 @@ public final class PdfProcessor extends ExecutorProcessor<String> {
         .with( Mutator::setAutoRemove, context.getAutoRemove() )
         .with( Mutator::setSourcePath, writeString( document, xhtml ) )
         .with( Mutator::setTargetPath, context.getTargetPath() )
-        .with( Mutator::setThemesPath, context.getThemesPath() )
-        .with( Mutator::setImagesPath, context.getImagesPath() )
+        .with( Mutator::setThemesPath, context.getThemesDir() )
+        .with( Mutator::setImagesPath, context.getImagesDir() )
         .with( Mutator::setCachesPath, context.getCachesPath() )
-        .with( Mutator::setFontsPath, context.getFontsPath() )
+        .with( Mutator::setFontsPath, context.getFontsDir() )
         .build();
 
       typesetter.typeset();

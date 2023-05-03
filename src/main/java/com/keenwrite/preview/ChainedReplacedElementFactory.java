@@ -1,8 +1,8 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.preview;
 
-import com.keenwrite.ui.adapters.ReplacedElementAdapter;
 import com.keenwrite.collections.BoundedCache;
+import com.keenwrite.ui.adapters.ReplacedElementAdapter;
 import org.w3c.dom.Element;
 import org.xhtmlrenderer.extend.ReplacedElement;
 import org.xhtmlrenderer.extend.ReplacedElementFactory;
@@ -15,8 +15,8 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
-import static com.keenwrite.preview.SvgReplacedElementFactory.HTML_IMAGE;
-import static com.keenwrite.preview.SvgReplacedElementFactory.HTML_IMAGE_SRC;
+import static com.keenwrite.preview.ImageReplacedElementFactory.HTML_IMAGE;
+import static com.keenwrite.preview.ImageReplacedElementFactory.HTML_IMAGE_SRC;
 import static com.keenwrite.processors.markdown.extensions.tex.TexNode.HTML_TEX;
 import static java.lang.Math.min;
 import static java.util.Arrays.asList;
@@ -104,10 +104,6 @@ public final class ChainedReplacedElementFactory
     for( final var factory : mFactories ) {
       factory.remove( element );
     }
-  }
-
-  public void addFactory( final ReplacedElementFactory factory ) {
-    mFactories.add( factory );
   }
 
   public void clearCache() {

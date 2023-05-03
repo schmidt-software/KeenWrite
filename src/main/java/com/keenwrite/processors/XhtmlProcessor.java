@@ -237,7 +237,7 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
   }
 
   private Path getImagesPath() {
-    return mContext.getImagesPath();
+    return mContext.getImagesDir();
   }
 
   private Path getCachesPath() {

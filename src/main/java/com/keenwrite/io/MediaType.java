@@ -290,6 +290,15 @@ public enum MediaType {
     return equals( IMAGE_SVG_XML );
   }
 
+  /**
+   * Answers whether this instance is an image, vector or raster.
+   *
+   * @return {@code true} if this instance represents any type of image.
+   */
+  public boolean isImage() {
+    return isType( IMAGE );
+  }
+
   public boolean isUndefined() {
     return equals( UNDEFINED );
   }

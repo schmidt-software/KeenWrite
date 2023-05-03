@@ -31,7 +31,7 @@ public class PluralizeTest {
     entry( "money", "moneys" ),
     entry( "mongoose", "mongooses" ),
     entry( "mythos", "mythoi" ),
-    entry( "octopus", "octopuses" ),
+    entry( "octopus", "octopodes" ),
     entry( "ox", "oxen" ),
     entry( "soliloquy", "soliloquies" ),
     entry( "trilby", "trilbys" ),

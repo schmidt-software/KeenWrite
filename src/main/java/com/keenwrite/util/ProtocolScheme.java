@@ -19,23 +19,29 @@ public enum ProtocolScheme {
   /**
    * Denotes a local file.
    */
-  FILE,
+  FILE( "file" ),
   /**
    * Denotes either HTTP or HTTPS.
    */
-  HTTP,
+  HTTP( "http" ),
   /**
    * Denotes the File Transfer Protocol.
    */
-  FTP,
+  FTP( "ftp" ),
   /**
    * Denotes Java archive file.
    */
-  JAR,
+  JAR( "jar" ),
   /**
-   * Could not determine schema (or is not supported by the application).
+   * Could not determine scheme (or is not supported by the application).
    */
-  UNKNOWN;
+  UNKNOWN( "unknown" );
+
+  private final String mPrefix;
+
+  ProtocolScheme( final String prefix ) {
+    mPrefix = prefix;
+  }
 
   /**
    * Returns the protocol for a given URI or file name.
@@ -131,6 +137,7 @@ public enum ProtocolScheme {
    * @param url The {@link URL} containing a protocol scheme.
    * @return {@link true} if the protocol must be fetched via HTTP or FTP.
    */
+  @SuppressWarnings( "unused" )
   public static boolean isRemote( final URL url ) {
     return valueFrom( url ).isRemote();
   }
@@ -160,7 +167,7 @@ public enum ProtocolScheme {
    * @return {@code true} the protocol is FTP.
    */
   public boolean isFtp() {
-    return this == HTTP;
+    return this == FTP;
   }
 
   /**
@@ -179,5 +186,19 @@ public enum ProtocolScheme {
    */
   public boolean isJar() {
     return this == JAR;
+  }
+
+  /**
+   * Prepends the protocol scheme to the given path, without a host name.
+   *
+   * @param path The path to decorate as a URI, including the scheme.
+   * @return The
+   */
+  public String decorate( final String path ) {
+    return getPrefix() + "://" + path;
+  }
+
+  private String getPrefix() {
+    return mPrefix;
   }
 }

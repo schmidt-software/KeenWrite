@@ -92,7 +92,7 @@ public final class FlyingSaucerPanel extends XHTMLPanel
     // image and exit. Instead, the SVG must execute first to rasterize the
     // content. Consequently, the chained factory must maintain insertion order.
     mFactory = new ChainedReplacedElementFactory(
-      new SvgReplacedElementFactory(),
+      new ImageReplacedElementFactory(),
       new SwingReplacedElementFactory()
     );
 

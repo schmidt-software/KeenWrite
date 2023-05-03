@@ -189,8 +189,9 @@ public final class ExportDialog extends AbstractDialog<ExportSettings> {
         // The result will only be set if the OK button is pressed.
         if( result.isPresent() ) {
           final var theme = mComboBox.getSelectionModel().getSelectedItem();
-          final var path = theme.path().getFileName().toString();
-          mSettings.themeProperty().setValue( path );
+          final var path = theme.path();
+          final var filename = path.getFileName().toString();
+          mSettings.themeProperty().setValue( filename );
 
           return true;
         }

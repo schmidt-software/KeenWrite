@@ -89,16 +89,16 @@ public final class ProcessorContext {
     private Supplier<Boolean> mConcatenate = () -> true;
     private Supplier<String> mChapters = () -> "";
 
-    private Supplier<Path> mThemesPath = USER_DIRECTORY::toPath;
+    private Supplier<Path> mThemesDir = USER_DIRECTORY::toPath;
     private Supplier<Locale> mLocale = () -> Locale.ENGLISH;
 
     private Supplier<Map<String, String>> mDefinitions = HashMap::new;
     private Supplier<Map<String, String>> mMetadata = HashMap::new;
     private Supplier<Caret> mCaret = () -> Caret.builder().build();
 
-    private Supplier<Path> mFontsPath = () -> getFontDirectory().toPath();
+    private Supplier<Path> mFontsDir = () -> getFontDirectory().toPath();
 
-    private Supplier<Path> mImagesPath = USER_DIRECTORY::toPath;
+    private Supplier<Path> mImagesDir = USER_DIRECTORY::toPath;
     private Supplier<String> mImageServer = () -> DIAGRAM_SERVER_NAME;
     private Supplier<String> mImageOrder = () -> PERSIST_IMAGES_DEFAULT;
 
@@ -128,12 +128,12 @@ public final class ProcessorContext {
       setTargetPath( targetPath.toPath() );
     }
 
-    public void setThemesPath( final Supplier<Path> themesPath ) {
-      assert themesPath != null;
-      mThemesPath = themesPath;
+    public void setThemesDir( final Supplier<Path> themesDir ) {
+      assert themesDir != null;
+      mThemesDir = themesDir;
     }
 
-    public void setCachesPath( final Supplier<File> cachesDir ) {
+    public void setCachesDir( final Supplier<File> cachesDir ) {
       assert cachesDir != null;
 
       mCachesPath = () -> {
@@ -143,10 +143,10 @@ public final class ProcessorContext {
       };
     }
 
-    public void setImagesPath( final Supplier<File> imagesDir ) {
+    public void setImagesDir( final Supplier<File> imagesDir ) {
       assert imagesDir != null;
 
-      mImagesPath = () -> {
+      mImagesDir = () -> {
         final var dir = imagesDir.get();
 
         return (dir == null ? USER_DIRECTORY : dir).toPath();
@@ -163,10 +163,10 @@ public final class ProcessorContext {
       mImageServer = imageServer;
     }
 
-    public void setFontsPath( final Supplier<File> fontsPath ) {
-      assert fontsPath != null;
-      mFontsPath = () -> {
-        final var dir = fontsPath.get();
+    public void setFontsDir( final Supplier<File> fontsDir ) {
+      assert fontsDir != null;
+      mFontsDir = () -> {
+        final var dir = fontsDir.get();
 
         return (dir == null ? USER_DIRECTORY : dir).toPath();
       };
@@ -357,12 +357,12 @@ public final class ProcessorContext {
     return lookup( getSourcePath() );
   }
 
-  public Path getThemesPath() {
-    return mMutator.mThemesPath.get();
+  public Path getThemesDir() {
+    return mMutator.mThemesDir.get();
   }
 
-  public Path getImagesPath() {
-    return mMutator.mImagesPath.get();
+  public Path getImagesDir() {
+    return mMutator.mImagesDir.get();
   }
 
   public Path getCachesPath() {
@@ -382,8 +382,8 @@ public final class ProcessorContext {
     return mMutator.mImageServer.get();
   }
 
-  public Path getFontsPath() {
-    return mMutator.mFontsPath.get();
+  public Path getFontsDir() {
+    return mMutator.mFontsDir.get();
   }
 
   public boolean getAutoRemove() {
