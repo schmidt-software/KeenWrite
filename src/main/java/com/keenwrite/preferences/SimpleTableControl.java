@@ -24,7 +24,7 @@ import java.util.function.Function;
 import static com.keenwrite.ui.fonts.IconFactory.createGraphic;
 import static java.util.Arrays.asList;
 import static javafx.scene.control.SelectionMode.MULTIPLE;
-import static javafx.scene.control.TableView.CONSTRAINED_RESIZE_POLICY;
+import static javafx.scene.control.TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN;
 
 public class SimpleTableControl<K, V, F extends TableField<Entry<K, V>>>
   extends SimpleControl<F, VBox> {
@@ -40,7 +40,7 @@ public class SimpleTableControl<K, V, F extends TableField<Entry<K, V>>>
     final var model = field.viewProperty();
     final var table = new TableView<>( model );
 
-    table.setColumnResizePolicy( CONSTRAINED_RESIZE_POLICY );
+    table.setColumnResizePolicy( CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN );
     table.setEditable( true );
     table.getColumns().addAll(
       asList(

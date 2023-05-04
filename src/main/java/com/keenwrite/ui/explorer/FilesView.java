@@ -32,7 +32,7 @@ import static java.time.ZoneId.systemDefault;
 import static java.time.format.DateTimeFormatter.ofPattern;
 import static java.util.Comparator.comparing;
 import static javafx.collections.FXCollections.observableArrayList;
-import static javafx.scene.control.TableView.CONSTRAINED_RESIZE_POLICY;
+import static javafx.scene.control.TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN;
 import static javafx.scene.input.KeyCode.ENTER;
 import static javafx.scene.layout.Priority.ALWAYS;
 import static org.apache.commons.io.FilenameUtils.getExtension;
@@ -132,7 +132,7 @@ public class FilesView extends BorderPane implements FilePicker {
     final var field = new TextField();
 
     mDirectory.addListener( ( c, o, n ) -> {
-      if( n != null ) {field.setText( n.getAbsolutePath() );}
+      if( n != null ) { field.setText( n.getAbsolutePath() ); }
     } );
 
     field.setOnKeyPressed( event -> {
@@ -155,7 +155,7 @@ public class FilesView extends BorderPane implements FilePicker {
   private TableView<FilesView.PathEntry> createFileTable() {
     final var style = "-fx-alignment: BASELINE_LEFT;";
     final var table = new TableView<FilesView.PathEntry>();
-    table.setColumnResizePolicy( CONSTRAINED_RESIZE_POLICY );
+    table.setColumnResizePolicy( CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN );
 
     table.setRowFactory( tv -> {
       final var row = new TableRow<PathEntry>();

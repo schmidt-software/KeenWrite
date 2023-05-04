@@ -98,7 +98,7 @@ public final class DocumentStatistics extends TableView<StatEntry> {
 
     setMaxWidth( Double.MAX_VALUE );
     setPrefWidth( 128 );
-    setColumnResizePolicy( CONSTRAINED_RESIZE_POLICY );
+    setColumnResizePolicy( CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN );
     getSortOrder().setAll( colCount, colWord );
 
     getStyleClass().add( "" );
