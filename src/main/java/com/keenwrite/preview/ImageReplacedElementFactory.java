@@ -81,12 +81,14 @@ public final class ImageReplacedElementFactory extends ReplacedElementAdapter {
 
     final var w = box.getContentWidth();
 
-    if( getProtocol( source ).isHttp() ) {
-      try( final var response = open( source ) ) {
-        if( response.isSvg() ) {
-          // Rasterize SVG from URL resource.
-          raster = rasterize( response.getInputStream(), w );
-        }
+    if( getProtocol( source ).isRemote() ) {
+      try( final var response = open( source );
+           final var stream = response.getInputStream() ) {
+
+        // Rasterize SVG from URL resource.
+        raster = response.isSvg()
+          ? rasterize( stream, w )
+          : ImageIO.read( stream );
 
         clue( "Main.status.image.request.fetch", source );
       }
@@ -99,13 +101,13 @@ public final class ImageReplacedElementFactory extends ReplacedElementAdapter {
       raster = rasterize( uri, w );
     }
 
-    // Not an SVG, attempt to read a rasterized image.
+    // Not an SVG, attempt to read a local rasterized image.
     if( raster == null && mediaType.isImage() ) {
       uri = resolve( source, uac, e );
       final var path = Path.of( uri.getPath() );
 
-      try( final var is = Files.newInputStream( path ) ) {
-        raster = ImageIO.read( is );
+      try( final var stream = Files.newInputStream( path ) ) {
+        raster = ImageIO.read( stream );
       }
     }
 

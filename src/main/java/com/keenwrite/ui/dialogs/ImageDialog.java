@@ -107,8 +107,8 @@ public class ImageDialog extends AbstractDialog<String> {
 
       //---- urlField ----
       urlField.setEscapeCharacters( "()" );
-      urlField.setText( "http://yourlink.com" );
-      urlField.setPromptText( "http://yourlink.com" );
+      urlField.setText( "https://yourlink.com" );
+      urlField.setPromptText( "https://yourlink.com" );
       pane.add( urlField, "cell 1 0" );
       pane.add( linkBrowseFileButton, "cell 2 0" );
 

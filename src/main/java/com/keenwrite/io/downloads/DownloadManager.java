@@ -7,13 +7,15 @@ import com.keenwrite.io.MediaTypeSniffer;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.time.Duration;
 import java.util.zip.GZIPInputStream;
 
 import static java.lang.Math.toIntExact;
 import static java.lang.String.format;
-import static java.lang.System.*;
+import static java.lang.System.getProperty;
+import static java.lang.System.setProperty;
 import static java.net.HttpURLConnection.HTTP_OK;
 import static java.net.HttpURLConnection.setFollowRedirects;
 
@@ -166,14 +168,16 @@ public final class DownloadManager {
   /**
    * Opens the input stream for the resource to download.
    *
-   * @param url The {@link URL} resource to download.
+   * @param uri The {@link URI} resource to download.
    * @return A token that can be used for downloading the content with
    * periodic updates or retrieving the stream for downloading the content.
-   * @throws IOException The stream could not be opened.
+   * @throws IOException        The stream could not be opened.
+   * @throws URISyntaxException Invalid URI.
    */
-  public static DownloadToken open( final String url ) throws IOException {
+  public static DownloadToken open( final String uri )
+    throws IOException, URISyntaxException {
     // Pass an undefined media type so that any type of file can be retrieved.
-    return open( new URL( url ) );
+    return open( new URI( uri ) );
   }
 
   public static DownloadToken open( final URI uri )
