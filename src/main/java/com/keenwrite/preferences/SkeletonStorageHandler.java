@@ -99,7 +99,6 @@ public final class SkeletonStorageHandler implements StorageHandler {
     return false;
   }
 
-  @Override
   public Preferences getPreferences() {
     return null;
   }

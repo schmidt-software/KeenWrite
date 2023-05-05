@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.URISyntaxException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -29,7 +30,8 @@ class DownloadManagerTest {
 
   @Test
   void test_Async_DownloadRequested_DownloadCompletes()
-    throws IOException, InterruptedException, ExecutionException {
+    throws IOException, InterruptedException,
+    ExecutionException, URISyntaxException {
     final var complete = new AtomicInteger();
     final var transferred = new AtomicLong();
 

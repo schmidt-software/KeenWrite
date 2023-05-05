@@ -6,9 +6,9 @@ This document describes how to build the application and platform binaries.
 
 Download and install the following software packages:
 
-* [JDK 19](https://bell-sw.com/pages/downloads) (Full JDK + JavaFX)
-* [Gradle 7.6-rc-1](https://services.gradle.org/distributions/gradle-7.6-rc-1-bin.zip)
-* [Git 2.38.1](https://git-scm.com/downloads)
+* [JDK 20](https://bell-sw.com/pages/downloads) (Full JDK + JavaFX)
+* [Gradle 8.1.1](https://gradle.org/releases)
+* [Git 2.40.1](https://git-scm.com/downloads)
 * [warp v0.4.0-alpha](https://github.com/Reisz/warp/releases/tag/v0.4.0)
 
 Note: The forked warp packer release fixes a bug in the main branch.

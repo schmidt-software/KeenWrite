@@ -8,16 +8,16 @@ buildscript {
     }
   }
   dependencies {
-    classpath 'org.owasp:dependency-check-gradle:7.4.3'
-    classpath "com.github.spotbugs.snom:spotbugs-gradle-plugin:5.0.13"
+    classpath 'org.owasp:dependency-check-gradle:8.2.1'
+    classpath "com.github.spotbugs.snom:spotbugs-gradle-plugin:5.0.14"
   }
 }
 
 plugins {
   id 'application'
-  id 'org.openjfx.javafxplugin' version '0.0.13'
-  id 'com.palantir.git-version' version '0.15.0'
-  //id "com.github.spotbugs" version "5.0.13"
+  id 'org.openjfx.javafxplugin' version '0.0.14'
+  id 'com.palantir.git-version' version '3.0.0'
+  //id "com.github.spotbugs" version "5.0.14"
 }
 
 apply plugin: 'org.owasp.dependencycheck'
@@ -69,8 +69,8 @@ def moduleSecurity = [
 ]
 
 java {
-  sourceCompatibility = 19
-  targetCompatibility = 19
+  sourceCompatibility = 20
+  targetCompatibility = 20
 }
 
 javafx {
@@ -81,10 +81,10 @@ javafx {
 
 dependencies {
   def v_junit = '5.9.1'
-  def v_flexmark = '0.64.0'
-  def v_jackson = '2.14.2'
-  def v_echosvg = '0.2.2'
-  def v_picocli = '4.7.0'
+  def v_flexmark = '0.64.4'
+  def v_jackson = '2.15.0'
+  def v_echosvg = '0.3'
+  def v_picocli = '4.7.3'
 
   // JavaFX
   implementation 'org.controlsfx:controlsfx:11.1.2'
@@ -92,7 +92,7 @@ dependencies {
   implementation 'org.fxmisc.flowless:flowless:0.7.0'
   implementation 'org.fxmisc.wellbehaved:wellbehavedfx:0.3.3'
   implementation 'com.miglayout:miglayout-javafx:11.0'
-  implementation 'com.dlsc.preferencesfx:preferencesfx-core:11.11.0'
+  implementation 'com.dlsc.preferencesfx:preferencesfx-core:11.15.0'
   implementation 'com.panemu:tiwulfx-dock:0.2'
 
   // Markdown
@@ -111,7 +111,7 @@ dependencies {
   implementation "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:${v_jackson}"
 
   // HTML parsing and rendering
-  implementation 'org.jsoup:jsoup:1.15.3'
+  implementation 'org.jsoup:jsoup:1.16.1'
   // TODO: https://github.com/flyingsaucerproject/flyingsaucer/pull/170
   //implementation 'org.xhtmlrenderer:flying-saucer-core:9.1.22'
 
@@ -139,10 +139,9 @@ dependencies {
   // Misc.
   implementation 'org.ahocorasick:ahocorasick:0.6.3'
   implementation 'org.apache.commons:commons-configuration2:2.9.0'
-  implementation 'com.googlecode.juniversalchardet:juniversalchardet:1.0.3'
+  implementation 'com.github.albfernandez:juniversalchardet:2.4.0'
   implementation 'javax.validation:validation-api:2.0.1.Final'
   implementation 'org.greenrobot:eventbus-java:3.3.1'
-  //implementation 'commons-beanutils:commons-beanutils:1.9.4'
 
   // Command-line parsing
   implementation "info.picocli:picocli:${v_picocli}"
