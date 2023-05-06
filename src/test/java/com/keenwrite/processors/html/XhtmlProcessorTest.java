@@ -71,7 +71,7 @@ public class XhtmlProcessorTest {
       Arguments.of(
         XHTML_TEX,
         """
-          <html><head></head><body><p>the 👍 emoji</p>
+          <html><head><title/><meta content="2" name="count"/></head><body><p>the 👍 emoji</p>
           </body></html>"""
       )
     );
