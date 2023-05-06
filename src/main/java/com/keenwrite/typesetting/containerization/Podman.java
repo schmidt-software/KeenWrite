@@ -5,9 +5,11 @@ import com.keenwrite.io.CommandNotFoundException;
 import com.keenwrite.io.SysFile;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import static com.keenwrite.Bootstrap.CONTAINER_VERSION;
 import static java.lang.String.format;
@@ -133,7 +135,9 @@ public final class Podman implements ContainerManager {
       processor.start( process.getInputStream() );
 
       return wait( process );
-    } catch( final Exception ex ) {
+    } catch( final NoSuchElementException |
+                   IOException |
+                   InterruptedException ex ) {
       throw new CommandNotFoundException( MANAGER.toString() );
     }
   }

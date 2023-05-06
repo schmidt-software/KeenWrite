@@ -191,11 +191,15 @@ public class CircularQueue<E>
 
       @Override
       public E next() {
-        final var element = mElements[ mIndex++ ];
-        mIndex %= mCapacity;
-        mFirst = false;
+        try {
+          final var element = mElements[ mIndex++ ];
+          mIndex %= mCapacity;
+          mFirst = false;
 
-        return (E) element;
+          return (E) element;
+        } catch( final IndexOutOfBoundsException ex ) {
+          throw new NoSuchElementException( "No such element at: " + mIndex );
+        }
       }
     };
   }

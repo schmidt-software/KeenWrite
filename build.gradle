@@ -17,7 +17,7 @@ plugins {
   id 'application'
   id 'org.openjfx.javafxplugin' version '0.0.14'
   id 'com.palantir.git-version' version '3.0.0'
-  //id "com.github.spotbugs" version "5.0.14"
+  id "com.github.spotbugs" version "5.0.14"
 }
 
 apply plugin: 'org.owasp.dependencycheck'
@@ -162,6 +162,20 @@ dependencies {
   testImplementation "org.junit.jupiter:junit-jupiter-api:${v_junit}"
   testImplementation "org.junit.jupiter:junit-jupiter-params:${v_junit}"
   testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+}
+
+sourceSets {
+  main {
+    java {
+      srcDirs 'src/main'
+    }
+  }
+
+  test {
+    java {
+      srcDirs 'src/test'
+    }
+  }
 }
 
 final resourceDir = sourceSets.main.resources.srcDirs[0]

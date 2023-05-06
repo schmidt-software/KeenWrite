@@ -48,6 +48,7 @@ class DownloadManagerTest {
 
     assertFalse( future.isDone() );
     assertTrue( complete.get() < 100 );
+    System.out.println( "tx.get: " + transferred.get() );
     assertTrue( transferred.get() > 100_000 );
 
     future.get();

@@ -11,6 +11,7 @@ import com.keenwrite.editors.markdown.HyperlinkModel;
 import com.keenwrite.editors.markdown.LinkVisitor;
 import com.keenwrite.events.CaretMovedEvent;
 import com.keenwrite.events.ExportFailedEvent;
+import com.keenwrite.io.SysFile;
 import com.keenwrite.preferences.Key;
 import com.keenwrite.preferences.PreferencesController;
 import com.keenwrite.preferences.Workspace;
@@ -630,7 +631,7 @@ public final class GuiCommands {
       return editor.getText();
     }
 
-    final var filename = pattern.getFileName().toString();
+    final var filename = SysFile.getFileName( pattern );
     final var extension = getExtension( filename );
 
     if( extension.isBlank() ) {

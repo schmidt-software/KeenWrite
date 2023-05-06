@@ -1,6 +1,7 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.preview;
 
+import java.nio.charset.StandardCharsets;
 import java.util.zip.Deflater;
 
 import static java.lang.String.format;
@@ -38,7 +39,9 @@ public class DiagramUrlGenerator {
    * @return The URL-encoded (and compressed) version of the text.
    */
   private static String encode( final String text ) {
-    return getUrlEncoder().encodeToString( compress( text.getBytes() ) );
+    return getUrlEncoder().encodeToString(
+      compress( text.getBytes( StandardCharsets.UTF_8 ) )
+    );
   }
 
   /**

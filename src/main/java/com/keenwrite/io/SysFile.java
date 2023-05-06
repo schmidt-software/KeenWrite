@@ -127,6 +127,24 @@ public final class SysFile extends java.io.File {
   }
 
   /**
+   * Provides {@code null}-safe machinery to get a file name.
+   *
+   * @param p The path to the file name to retrieve (may be {@code null}).
+   * @return The file name or the empty string if the path is not found.
+   */
+  public static String getFileName( final Path p ) {
+    return p == null ? "" : getPathFileName( p );
+  }
+
+  private static String getPathFileName( final Path p ) {
+    assert p != null;
+
+    final var f = p.getFileName();
+
+    return f == null ? "" : f.toString();
+  }
+
+  /**
    * Changes to the PATH environment variable aren't reflected for the
    * currently running task. The registry, however, contains the updated
    * value. Reading the registry is a hack.
@@ -142,6 +160,7 @@ public final class SysFile extends java.io.File {
     return getenv( "PATH" );
   }
 
+  @SuppressWarnings( "SpellCheckingInspection" )
   private String pathsWindows( final Function<String, String> map ) {
     try {
       final var hklm = query( SYS_KEY );
@@ -218,8 +237,8 @@ public final class SysFile extends java.io.File {
         value = value.replace( "\\", "\\\\" );
       }
 
-      final var subexpr = compile( quote( match ) );
-      expanded = subexpr.matcher( expanded ).replaceAll( value );
+      final var subexpression = compile( quote( match ) );
+      expanded = subexpression.matcher( expanded ).replaceAll( value );
     }
 
     return expanded;

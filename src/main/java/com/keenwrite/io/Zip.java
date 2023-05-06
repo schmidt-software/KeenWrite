@@ -31,7 +31,13 @@ public final class Zip {
    *                     zip archive.
    */
   public static void extract( final Path zipPath ) throws IOException {
-    final var path = zipPath.getParent().normalize();
+    final var parent = zipPath.getParent();
+
+    if( parent == null ) {
+      throw new IOException( "Path to zip file has no parent." );
+    }
+
+    final var path = parent.normalize();
 
     iterate( zipPath, ( zipFile, zipEntry ) -> {
       // Determine the directory name where the zip archive resides. Files will
@@ -124,11 +130,15 @@ public final class Zip {
     final ZipEntry zipEntry,
     final Path zipEntryPath ) throws IOException {
     // Only extract files, skip empty directories.
-    if( !zipEntry.isDirectory() ) {
-      createDirectories( zipEntryPath.getParent() );
+    if( !zipEntry.isDirectory() && zipEntryPath != null ) {
+      final var parent = zipEntryPath.getParent();
 
-      try( final var in = zipFile.getInputStream( zipEntry ) ) {
-        Files.copy( in, zipEntryPath, REPLACE_EXISTING );
+      if( parent != null ) {
+        createDirectories( parent );
+
+        try( final var in = zipFile.getInputStream( zipEntry ) ) {
+          Files.copy( in, zipEntryPath, REPLACE_EXISTING );
+        }
       }
     }
   }

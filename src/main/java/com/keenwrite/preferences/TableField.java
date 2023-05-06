@@ -6,6 +6,7 @@ import com.dlsc.formsfx.model.util.BindingMode;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleListProperty;
+import javafx.scene.control.TableView;
 
 import java.util.ArrayList;
 
@@ -48,15 +49,12 @@ public class TableField<P> extends Field<TableField<P>> {
     mSaveProperty = property;
   }
 
-  /**
-   * Returns the data model that seeds the user interface. At any point the
-   * user may cancel editing, which will revert to the previously persisted
-   * set.
-   *
-   * @return The source for values displayed in the UI.
-   */
-  public ListProperty<P> viewProperty() {
-    return mViewProperty;
+  public TableView<P> createTableView() {
+    return new TableView<>( mViewProperty );
+  }
+
+  public void add( final P entry ) {
+    mViewProperty.add( entry );
   }
 
   /**

@@ -6,6 +6,7 @@ package com.keenwrite;
 
 import com.keenwrite.cmdline.Arguments;
 import com.keenwrite.commands.ConcatenateCommand;
+import com.keenwrite.io.SysFile;
 import com.keenwrite.processors.Processor;
 import com.keenwrite.processors.ProcessorContext;
 import com.keenwrite.processors.RBootstrapProcessor;
@@ -130,7 +131,7 @@ public class AppCommands {
     final var concat = context.getConcatenate();
     final var inputPath = context.getSourcePath();
     final var parent = inputPath.getParent();
-    final var filename = inputPath.getFileName().toString();
+    final var filename = SysFile.getFileName( inputPath );
     final var extension = getExtension( filename );
 
     // Short-circuit because: only one file was requested; there is no parent

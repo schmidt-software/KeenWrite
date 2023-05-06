@@ -62,7 +62,7 @@ public class MediaTypeTest {
       try( var response = open( k ) ) {
         assertEquals( v, response.getMediaType() );
       } catch( final Exception e ) {
-        fail();
+        throw new RuntimeException( e );
       }
     } );
   }

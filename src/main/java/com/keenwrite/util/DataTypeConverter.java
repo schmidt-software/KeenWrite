@@ -43,6 +43,6 @@ public final class DataTypeConverter {
    */
   public static byte[] hash( final String s ) throws NoSuchAlgorithmException {
     final var digest = MessageDigest.getInstance( "SHA-1" );
-    return digest.digest( s.getBytes() );
+    return digest.digest( s.getBytes( UTF_8 ) );
   }
 }

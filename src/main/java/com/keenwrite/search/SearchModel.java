@@ -75,7 +75,7 @@ public final class SearchModel {
         .build();
     final var emits = trie.parseText( haystack );
 
-    mMatches = new CyclicIterator<>( new ArrayList<>( emits ) );
+    mMatches = new CyclicIterator<>( emits );
     mMatchCount.set( emits.size() );
     mNeedle = needle;
     advance();

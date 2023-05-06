@@ -31,14 +31,14 @@ public class SimpleTableControl<K, V, F extends TableField<Entry<K, V>>>
 
   private static long sCounter;
 
-  public SimpleTableControl() {}
+  public SimpleTableControl() { }
 
   @Override
   public void initializeParts() {
     super.initializeParts();
 
-    final var model = field.viewProperty();
-    final var table = new TableView<>( model );
+    final var field = getField();
+    final var table = field.createTableView();
 
     table.setColumnResizePolicy( CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN );
     table.setEditable( true );
@@ -57,7 +57,7 @@ public class SimpleTableControl<K, V, F extends TableField<Entry<K, V>>>
         event -> {
           sCounter++;
 
-          model.add( createEntry( "key" + sCounter, "value" + sCounter ) );
+          field.add( createEntry( "key" + sCounter, "value" + sCounter ) );
         }
       ),
 
@@ -190,5 +190,5 @@ public class SimpleTableControl<K, V, F extends TableField<Entry<K, V>>>
    * are kept to the widgets after initialization.
    */
   @Override
-  public void layoutParts() {}
+  public void layoutParts() { }
 }

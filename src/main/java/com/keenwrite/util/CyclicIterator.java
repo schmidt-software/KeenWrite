@@ -1,9 +1,7 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.util;
 
-import java.util.List;
-import java.util.ListIterator;
-import java.util.NoSuchElementException;
+import java.util.*;
 
 /**
  * Responsible for iterating over a list either forwards or backwards. When
@@ -33,8 +31,8 @@ public final class CyclicIterator<T> implements ListIterator<T> {
    *
    * @param list The list to cycle through indefinitely.
    */
-  public CyclicIterator( final List<T> list ) {
-    mList = list;
+  public CyclicIterator( final Collection<T> list ) {
+    mList = new ArrayList<>( list );
   }
 
   /**

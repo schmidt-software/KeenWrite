@@ -2,6 +2,7 @@
 package com.keenwrite.ui.dialogs;
 
 import com.keenwrite.events.ExportFailedEvent;
+import com.keenwrite.io.SysFile;
 import com.keenwrite.util.Diacritics;
 import com.keenwrite.util.FileWalker;
 import com.keenwrite.util.RangeValidator;
@@ -60,9 +61,9 @@ public final class ExportDialog extends AbstractDialog<ExportSettings> {
      * of the {@link Path} associated with this {@link Theme} instance.
      */
     public boolean matches( final String themeDir ) {
-      final var path = path().getFileName().toString();
+      final var f = SysFile.getFileName( path() );
 
-      return path.equalsIgnoreCase( Diacritics.remove( themeDir ) );
+      return f.equalsIgnoreCase( Diacritics.remove( themeDir ) );
     }
 
     /**
@@ -77,6 +78,8 @@ public final class ExportDialog extends AbstractDialog<ExportSettings> {
 
     @Override
     public int compareTo( final Theme o ) {
+      assert o != null;
+
       return name().compareTo( o.name() );
     }
   }
@@ -190,7 +193,8 @@ public final class ExportDialog extends AbstractDialog<ExportSettings> {
         if( result.isPresent() ) {
           final var theme = mComboBox.getSelectionModel().getSelectedItem();
           final var path = theme.path();
-          final var filename = path.getFileName().toString();
+          final var filename = SysFile.getFileName( path.getFileName() );
+
           mSettings.themeProperty().setValue( filename );
 
           return true;

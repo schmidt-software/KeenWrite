@@ -3,6 +3,7 @@ package com.keenwrite.typesetting;
 
 import com.keenwrite.io.CommandNotFoundException;
 import com.keenwrite.io.StreamGobbler;
+import com.keenwrite.io.SysFile;
 import com.keenwrite.typesetting.containerization.Podman;
 import org.apache.commons.io.FilenameUtils;
 
@@ -99,7 +100,7 @@ public final class GuestTypesetter extends Typesetter
   }
 
   static String removeExtension( final Path path ) {
-    return FilenameUtils.removeExtension( path.toString() );
+    return FilenameUtils.removeExtension( SysFile.getFileName( path ) );
   }
 
   /**

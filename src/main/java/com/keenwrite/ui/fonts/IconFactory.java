@@ -3,6 +3,7 @@ package com.keenwrite.ui.fonts;
 
 import com.keenwrite.io.MediaType;
 import com.keenwrite.io.MediaTypeExtension;
+import com.keenwrite.io.SysFile;
 import javafx.scene.Node;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -82,7 +83,7 @@ public class IconFactory {
    */
   public static ImageView createFileIcon( final Path path ) throws IOException {
     final var attrs = readAttributes( path, BasicFileAttributes.class );
-    final var filename = path.getFileName().toString();
+    final var filename = SysFile.getFileName( path );
     String extension;
 
     if( "..".equals( filename ) ) {
@@ -188,5 +189,5 @@ public class IconFactory {
    * Prevent instantiation. Use the {@link #createGraphic(String)} method to
    * create an icon for display.
    */
-  private IconFactory() {}
+  private IconFactory() { }
 }

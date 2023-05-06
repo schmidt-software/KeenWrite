@@ -135,8 +135,8 @@ public final class HostTypesetter extends Typesetter
       // If there was an error, the typesetter will leave behind log, pdf, and
       // error files.
       if( exit > 0 ) {
-        final var xmlName = getSourcePath().getFileName().toString();
-        final var srcName = getTargetPath().getFileName().toString();
+        final var xmlName = SysFile.getFileName( getSourcePath() );
+        final var srcName = SysFile.getFileName( getTargetPath() );
         final var logName = newExtension( xmlName, ".log" );
         final var errName = newExtension( xmlName, "-error.log" );
         final var pdfName = newExtension( xmlName, ".pdf" );

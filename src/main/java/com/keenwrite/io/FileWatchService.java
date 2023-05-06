@@ -125,23 +125,21 @@ public class FileWatchService implements Runnable {
    * @throws IllegalArgumentException The {@link File} has no parent directory.
    */
   public void unregister( final File file ) {
-    mWatched.remove( cancel( file ) );
+    cancel( file );
+    mWatched.remove( file );
   }
 
   /**
    * Cancels watching the given file for file system changes.
    *
    * @param file The {@link File} to watch for file events.
-   * @return The given file, always.
    */
-  private File cancel( final File file ) {
+  private void cancel( final File file ) {
     final var watchKey = mWatched.get( file );
 
     if( watchKey != null ) {
       watchKey.cancel();
     }
-
-    return file;
   }
 
   /**
@@ -215,7 +213,7 @@ public class FileWatchService implements Runnable {
       return getDefault().newWatchService();
     } catch( final Exception ex ) {
       // Create a fallback that allows the class to be instantiated and used
-      // without without preventing the application from launching.
+      // without preventing the application from launching.
       return new PollingWatchService();
     }
   }

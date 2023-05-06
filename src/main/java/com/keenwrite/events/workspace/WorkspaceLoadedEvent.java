@@ -27,7 +27,8 @@ public class WorkspaceLoadedEvent extends WorkspaceEvent {
    *
    * @return The {@link Workspace} that has loaded user preferences.
    */
-  public Workspace getWorkspace() {
+  @SuppressWarnings( "unused" )
+  private Workspace getWorkspace() {
     return mWorkspace;
   }
 }

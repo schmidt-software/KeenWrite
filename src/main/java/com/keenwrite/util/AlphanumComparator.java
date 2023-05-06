@@ -29,6 +29,7 @@
  */
 package com.keenwrite.util;
 
+import java.io.Serializable;
 import java.util.Comparator;
 
 import static java.lang.Character.isDigit;
@@ -42,7 +43,9 @@ import static java.lang.Character.isDigit;
  * Where "list" is the list to sort alphanumerically, not lexicographically.
  * </p>
  */
-public final class AlphanumComparator<T> implements Comparator<T> {
+public final class AlphanumComparator<T> implements
+  Comparator<T>, Serializable {
+
   /**
    * Returns a chunk of text that is continuous with respect to digits or
    * non-digits.

@@ -2,6 +2,7 @@
 package com.keenwrite.ui.explorer;
 
 import com.keenwrite.events.FileOpenEvent;
+import com.keenwrite.io.SysFile;
 import com.keenwrite.ui.controls.BrowseButton;
 import javafx.beans.property.*;
 import javafx.collections.ObservableList;
@@ -20,7 +21,6 @@ import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
-import java.util.Objects;
 import java.util.Optional;
 
 import static com.keenwrite.constants.Constants.UI_CONTROL_SPACING;
@@ -90,8 +90,7 @@ public class FilesView extends BorderPane implements FilePicker {
   }
 
   @Override
-  public void setInitialFilename( final File file ) {
-  }
+  public void setInitialFilename( final File file ) { }
 
   @Override
   public Optional<List<File>> choose() {
@@ -108,9 +107,13 @@ public class FilesView extends BorderPane implements FilePicker {
           mItems.add( pathEntry( Paths.get( ".." ) ) );
         }
 
-        for( final var f : Objects.requireNonNull( directory.list() ) ) {
-          if( !f.startsWith( "." ) ) {
-            mItems.add( pathEntry( Paths.get( directory.toString(), f ) ) );
+        final var list = directory.list();
+
+        if( list != null ) {
+          for( final var f : list ) {
+            if( !f.startsWith( "." ) ) {
+              mItems.add( pathEntry( Paths.get( directory.toString(), f ) ) );
+            }
           }
         }
       } catch( final Exception ex ) {
@@ -265,7 +268,7 @@ public class FilesView extends BorderPane implements FilePicker {
     private PathEntry( final Path path ) throws IOException {
       this(
         path,
-        path.getFileName().toString(),
+        SysFile.getFileName( path ),
         size( path ),
         ofEpochMilli( path.toFile().lastModified() )
       );
