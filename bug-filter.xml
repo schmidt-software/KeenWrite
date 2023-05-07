@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FindBugsFilter>
+  <Match>
+    <Or>
+      <Bug code="EI, EI2" />
+    </Or>
+  </Match>
+
+  <Match class="com.keenwrite.preview.HighQualityRenderingHints">
+    <Method name="initializeRenderingHints" />
+    <Bug code="WMI" />
+  </Match>
+
+  <Match class="com.keenwrite.processors.HtmlPreviewProcessor">
+    <Method name="&lt;init&gt;" />
+    <Bug code="ST" />
+  </Match>
+</FindBugsFilter>

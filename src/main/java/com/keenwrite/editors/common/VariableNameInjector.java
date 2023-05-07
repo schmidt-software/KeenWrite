@@ -142,9 +142,9 @@ public final class VariableNameInjector {
     assert definition != null;
     assert word != null;
 
-    DefinitionTreeItem<String> leaf = null;
+    DefinitionTreeItem<String> leaf;
 
-    leaf = leaf == null ? definition.findLeafExact( word ) : leaf;
+    leaf = definition.findLeafExact( word );
     leaf = leaf == null ? definition.findLeafStartsWith( word ) : leaf;
     leaf = leaf == null ? definition.findLeafContains( word ) : leaf;
     leaf = leaf == null ? definition.findLeafContainsNoCase( word ) : leaf;

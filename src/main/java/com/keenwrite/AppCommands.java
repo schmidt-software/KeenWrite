@@ -16,6 +16,7 @@ import java.nio.file.Path;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.keenwrite.Launcher.terminate;
@@ -67,8 +68,10 @@ public class AppCommands {
    * as the actively edited file.
    *
    * @param future Indicates whether the export succeeded or failed.
+   * @return The path to the exported file as a {@link Future}.
    */
-  private static void file_export(
+  @SuppressWarnings( "UnusedReturnValue" )
+  private static Future<Path> file_export(
     final Arguments args, final CompletableFuture<Path> future ) {
     assert args != null;
     assert future != null;
@@ -96,7 +99,7 @@ public class AppCommands {
     };
 
     // Prevent the application from blocking while the processor executes.
-    sExecutor.submit( callableTask );
+    return sExecutor.submit( callableTask );
   }
 
   private static Processor<String> createBootstrapProcessor(

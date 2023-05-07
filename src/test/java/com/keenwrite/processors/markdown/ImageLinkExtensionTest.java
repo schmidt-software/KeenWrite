@@ -72,10 +72,14 @@ public class ImageLinkExtensionTest {
     final var subpaths = resource.getNameCount() - imagePath.getNameCount();
     final var subpath = resource.subpath( 0, subpaths );
 
+    final var root = resource.getRoot();
+    assertNotNull( root );
+
+    final var resolved = root.resolve( subpath );
+    final var doc = resolved.toString();
+
     // The root component isn't considered part of the path, so add it back.
-    final var documentPath = Path.of(
-      resource.getRoot().resolve( subpath ).toString(),
-      DOCUMENT_DEFAULT.getName() );
+    final var documentPath = Path.of( doc, DOCUMENT_DEFAULT.getName() );
     final var imagesDir = Path.of( "images" );
     final var context = createProcessorContext( documentPath, imagesDir );
     final var extension = ImageLinkExtension.create( context );

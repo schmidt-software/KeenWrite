@@ -37,6 +37,10 @@ public class HighQualityRenderingHints {
   );
 
   static {
+    initializeRenderingHints();
+  }
+
+  private static void initializeRenderingHints() {
     final var toolkit = getDefaultToolkit();
     final var hints = toolkit.getDesktopProperty( "awt.font.desktophints" );
 

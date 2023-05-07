@@ -3,6 +3,7 @@ package com.keenwrite.collections;
 
 import com.keenwrite.sigils.SigilKeyOperator;
 
+import java.io.Serial;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -14,6 +15,9 @@ import java.util.concurrent.ConcurrentHashMap;
  * with corresponding definition value from the same map.
  */
 public class InterpolatingMap extends ConcurrentHashMap<String, String> {
+  @Serial
+  private static final long serialVersionUID = -8705400301476113530L;
+
   private static final int GROUP_DELIMITED = 1;
 
   /**

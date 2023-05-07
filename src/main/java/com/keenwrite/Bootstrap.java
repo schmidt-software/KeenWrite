@@ -45,9 +45,9 @@ public final class Bootstrap {
   static {
     // There's no way to know what container version is compatible. This
     // value will cause a failure when downloading the container,
-    String containerVersion = "1.0.0";
-    String appVersion = "0.0.0";
-    String appTitle = "KeenWrite";
+    var containerVersion = "1.0.0";
+    var appVersion = "0.0.0";
+    var appTitle = "KeenWrite";
 
     try( final var in = openResource( PATH_BOOTSTRAP ) ) {
       sP.load( in );
