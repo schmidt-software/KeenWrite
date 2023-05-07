@@ -456,6 +456,8 @@ public final class DefinitionEditor extends BorderPane
             renameDefinition();
           }
         }
+
+        default -> { }
       }
 
       for( final var handler : getKeyEventHandlers() ) {

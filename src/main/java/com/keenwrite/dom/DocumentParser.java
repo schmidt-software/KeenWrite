@@ -40,7 +40,7 @@ public class DocumentParser {
   private static final ByteArrayOutputStream sWriter =
     new ByteArrayOutputStream( 65536 );
   private static final OutputStreamWriter sOutput =
-    new OutputStreamWriter( sWriter );
+    new OutputStreamWriter( sWriter, UTF_8 );
 
   /**
    * Caches {@link XPathExpression}s to avoid re-compiling.

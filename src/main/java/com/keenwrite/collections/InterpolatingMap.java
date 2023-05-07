@@ -5,6 +5,7 @@ import com.keenwrite.sigils.SigilKeyOperator;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -20,7 +21,7 @@ public class InterpolatingMap extends ConcurrentHashMap<String, String> {
    */
   private static final int INITIAL_CAPACITY = 1 << 8;
 
-  private final SigilKeyOperator mOperator;
+  private transient final SigilKeyOperator mOperator;
 
   /**
    * @param operator Contains the opening and closing sigils that mark
@@ -83,5 +84,19 @@ public class InterpolatingMap extends ConcurrentHashMap<String, String> {
     }
 
     return value;
+  }
+
+  @Override
+  public boolean equals( final Object o ) {
+    if( this == o ) { return true; }
+    if( o == null || getClass() != o.getClass() ) { return false; }
+    if( !super.equals( o ) ) { return false; }
+    final InterpolatingMap that = (InterpolatingMap) o;
+    return Objects.equals( mOperator, that.mOperator );
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash( super.hashCode(), mOperator );
   }
 }

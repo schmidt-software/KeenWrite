@@ -20,7 +20,6 @@ import org.controlsfx.dialog.Wizard;
 import org.controlsfx.dialog.WizardPane;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.net.URI;
 import java.nio.file.Paths;
 import java.util.concurrent.Callable;
@@ -296,10 +295,7 @@ public abstract class InstallerPane extends WizardPane {
     final ProgressListener listener ) {
     final Task<Void> task = createTask( () -> {
       try( final var token = DownloadManager.open( uri ) ) {
-        final var output = new FileOutputStream( file );
-        final var downloader = token.download( output, listener );
-
-        downloader.run();
+        token.download( file, listener ).run();
       }
 
       return null;

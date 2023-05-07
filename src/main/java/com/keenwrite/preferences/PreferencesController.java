@@ -341,6 +341,7 @@ public final class PreferencesController {
       switch( key.getCode() ) {
         case ENTER -> ((Button) pane.lookupButton( OK )).fire();
         case ESCAPE -> ((Button) pane.lookupButton( CANCEL )).fire();
+        default -> { }
       }
     } );
   }

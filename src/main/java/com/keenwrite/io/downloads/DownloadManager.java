@@ -88,13 +88,13 @@ public final class DownloadManager {
      * being updated regarding the download progress. The given
      * {@link OutputStream} will be closed after downloading is complete.
      *
-     * @param output   Where to write the file contents.
+     * @param file   Where to write the file contents.
      * @param listener Receives download progress status updates.
      * @return A {@link Runnable} task that can be executed in the background
      * to download the resource for this {@link DownloadToken}.
      */
     public Runnable download(
-      final OutputStream output,
+      final File file,
       final ProgressListener listener ) {
       return () -> {
         final var buffer = new byte[ BUFFER_SIZE ];
@@ -104,7 +104,7 @@ public final class DownloadManager {
         long bytesTally = 0;
         int bytesRead;
 
-        try( output ) {
+        try( final var output = new FileOutputStream( file ) ) {
           while( (bytesRead = stream.read( buffer )) != -1 ) {
             if( Thread.currentThread().isInterrupted() ) {
               throw new InterruptedException();
@@ -190,7 +190,7 @@ public final class DownloadManager {
    * the given {@link MediaType} matches the requested type. Callers are
    * responsible for closing the {@link DownloadManager} to close the
    * underlying stream and the HTTP connection. Connections must be closed by
-   * callers if {@link DownloadToken#download(OutputStream, ProgressListener)}
+   * callers if {@link DownloadToken#download(File, ProgressListener)}
    * isn't called (i.e., {@link DownloadToken#getMediaType()} is called
    * after the transport layer's Content-Type is requested but not contents
    * are downloaded).

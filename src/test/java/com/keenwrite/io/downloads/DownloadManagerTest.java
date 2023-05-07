@@ -3,8 +3,8 @@ package com.keenwrite.io.downloads;
 
 import org.junit.jupiter.api.Test;
 
+import java.io.File;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.net.URISyntaxException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
@@ -13,7 +13,6 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import static com.keenwrite.io.downloads.DownloadManager.ProgressListener;
 import static com.keenwrite.io.downloads.DownloadManager.open;
-import static java.io.OutputStream.nullOutputStream;
 import static java.lang.System.setProperty;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -35,20 +34,21 @@ class DownloadManagerTest {
     final var complete = new AtomicInteger();
     final var transferred = new AtomicLong();
 
-    final OutputStream output = nullOutputStream();
     final ProgressListener listener = ( percentage, bytes ) -> {
       complete.set( percentage );
       transferred.set( bytes );
     };
 
+    final var file = File.createTempFile("kw-", "test");
+    file.deleteOnExit();
+
     final var token = open( URL );
     final var executor = Executors.newFixedThreadPool( 1 );
-    final var result = token.download( output, listener );
+    final var result = token.download( file, listener );
     final var future = executor.submit( result );
 
     assertFalse( future.isDone() );
     assertTrue( complete.get() < 100 );
-    System.out.println( "tx.get: " + transferred.get() );
     assertTrue( transferred.get() > 100_000 );
 
     future.get();

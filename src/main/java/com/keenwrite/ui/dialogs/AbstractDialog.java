@@ -34,7 +34,10 @@ public abstract class AbstractDialog<T> extends Dialog<T> {
     initDialogPane();
     initDialogButtons();
     initComponents();
-    initIcon( (Stage) owner );
+
+    if( owner instanceof Stage stage ) {
+      initIcon( stage );
+    }
   }
 
   /**

@@ -17,6 +17,8 @@ import java.util.*;
 import java.util.Map.Entry;
 import java.util.function.Consumer;
 
+import static com.keenwrite.events.StatusEvent.clue;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static javax.xml.xpath.XPathConstants.NODE;
 
 /**
@@ -84,7 +86,7 @@ public class XmlStore {
       if( node != null ) {
         return node.getTextContent();
       }
-    } catch( final XPathExpressionException ignored ) {}
+    } catch( final XPathExpressionException ignored ) { }
 
     throw new NoSuchElementException( key.toString() );
   }
@@ -158,7 +160,7 @@ public class XmlStore {
   public void save( final File config ) throws IOException {
     assert config != null;
 
-    try( final var writer = new FileWriter( config ) ) {
+    try( final var writer = new FileWriter( config, UTF_8 ) ) {
       writer.write( DocumentParser.toString( mDocument ) );
     }
   }
@@ -171,7 +173,9 @@ public class XmlStore {
       final var node = upsert( key, mDocument );
 
       node.setTextContent( value );
-    } catch( final XPathExpressionException ignored ) {}
+    } catch( final XPathExpressionException ex ) {
+      clue( ex );
+    }
   }
 
   public void setSet( final Key key, final SetProperty<?> set ) {
@@ -200,7 +204,7 @@ public class XmlStore {
 
         node.setTextContent( item.toString() );
       }
-    } catch( final XPathExpressionException ignored ) {}
+    } catch( final XPathExpressionException ignored ) { }
   }
 
   /**
@@ -218,7 +222,7 @@ public class XmlStore {
           final var node = upsert( child, mDocument );
 
           node.setTextContent( entry.getValue().toString() );
-        } catch( final XPathExpressionException ignored ) {}
+        } catch( final XPathExpressionException ignored ) { }
       }
     }
   }

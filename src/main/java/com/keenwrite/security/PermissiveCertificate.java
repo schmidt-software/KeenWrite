@@ -2,6 +2,8 @@
 package com.keenwrite.security;
 
 import javax.net.ssl.*;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
 
@@ -60,7 +62,7 @@ public final class PermissiveCertificate {
       setDefaultSSLSocketFactory( context.getSocketFactory() );
       setDefaultHostnameVerifier( new PermissiveHostNameVerifier() );
       return true;
-    } catch( final Exception ex ) {
+    } catch( NoSuchAlgorithmException | KeyManagementException e ) {
       return false;
     }
   }

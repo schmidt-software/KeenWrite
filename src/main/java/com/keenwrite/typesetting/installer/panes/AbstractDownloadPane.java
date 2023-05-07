@@ -14,6 +14,7 @@ import java.net.URI;
 import static com.keenwrite.Bootstrap.USER_DATA_DIR;
 import static com.keenwrite.Messages.get;
 import static com.keenwrite.Messages.getUri;
+import static com.keenwrite.events.StatusEvent.clue;
 
 /**
  * Responsible for asynchronous downloads.
@@ -117,6 +118,8 @@ public abstract class AbstractDownloadPane extends InstallerPane {
   }
 
   protected void deleteTarget() {
-    final var ignored = getTarget().delete();
+    if( !getTarget().delete() ) {
+      clue( "Main.status.error.file.delete", getTarget() );
+    }
   }
 }
