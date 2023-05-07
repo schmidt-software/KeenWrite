@@ -49,11 +49,10 @@ class DownloadManagerTest {
 
     assertFalse( future.isDone() );
     assertTrue( complete.get() < 100 );
-    assertTrue( transferred.get() > 100_000 );
-
-    future.get();
-
+    assertNull( future.get() );
+    assertTrue( future.isDone() );
     assertEquals( 100, complete.get() );
+    assertTrue( transferred.get() > 100_000 );
 
     token.close();
   }
