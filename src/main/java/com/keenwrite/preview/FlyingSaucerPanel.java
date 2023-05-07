@@ -76,6 +76,7 @@ public final class FlyingSaucerPanel extends XHTMLPanel
         switch( getProtocol( uri ) ) {
           case HTTP -> HyperlinkOpenEvent.fire( uri );
           case FILE -> FileOpenEvent.fire( uri );
+          default -> { }
         }
       } catch( final Exception ex ) {
         clue( ex );

@@ -132,6 +132,7 @@ public final class LogView extends Alert {
     pane.setOnKeyReleased( t -> {
       switch( t.getCode() ) {
         case ENTER, ESCAPE -> buttonOk.fire();
+        default -> { }
       }
     } );
   }

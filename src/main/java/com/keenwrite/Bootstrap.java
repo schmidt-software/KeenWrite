@@ -30,9 +30,9 @@ public final class Bootstrap {
    */
   private static final Properties sP = new Properties();
 
-  public static String APP_TITLE;
-  public static String APP_VERSION;
-  public static String CONTAINER_VERSION;
+  public static final String APP_TITLE;
+  public static final String APP_VERSION;
+  public static final String CONTAINER_VERSION;
 
   public static final String APP_TITLE_ABBR = "kwr";
   public static final String APP_TITLE_LOWERCASE;
@@ -43,34 +43,34 @@ public final class Bootstrap {
   public static final File USER_CACHE_DIR;
 
   static {
+    // There's no way to know what container version is compatible. This
+    // value will cause a failure when downloading the container,
+    String containerVersion = "1.0.0";
+    String appVersion = "0.0.0";
+    String appTitle = "KeenWrite";
+
     try( final var in = openResource( PATH_BOOTSTRAP ) ) {
       sP.load( in );
 
-      APP_TITLE = sP.getProperty( "application.title" );
-      CONTAINER_VERSION = sP.getProperty( "container.version" );
+      appTitle = sP.getProperty( "application.title" );
+      containerVersion = sP.getProperty( "container.version" );
     } catch( final Exception ex ) {
-      APP_TITLE = "KeenWrite";
-
-      // Bootstrap properties cannot be found, use a default value.
       final var fmt = "Unable to load %s resource, applying defaults.%n";
       clue( ex, fmt, PATH_BOOTSTRAP );
-
-      // There's no way to know what container version is compatible. This
-      // value will cause a failure when downloading the container,
-      CONTAINER_VERSION = "1.0.0";
     }
 
+    CONTAINER_VERSION = containerVersion;
+    APP_TITLE = appTitle;
     APP_TITLE_LOWERCASE = APP_TITLE.toLowerCase();
 
     try {
-      APP_VERSION = Launcher.getVersion();
+      appVersion = Launcher.getVersion();
     } catch( final Exception ex ) {
-      APP_VERSION = "0.0.0";
-
-      // Application version cannot be found, use a default value.
       final var fmt = "Unable to determine application version.";
       clue( ex, fmt );
     }
+
+    APP_VERSION = appVersion;
 
     // The plug-in that requests the version from the repository tag will
     // add a "dirty" number and indicator suffix. Removing it allows the
@@ -84,8 +84,8 @@ public final class Bootstrap {
     USER_DATA_DIR = UserDataDir.getAppPath( APP_TITLE_LOWERCASE );
     USER_CACHE_DIR = USER_DATA_DIR.resolve( "cache" ).toFile();
 
-    if( !USER_CACHE_DIR.exists() ) {
-      final var ignored = USER_CACHE_DIR.mkdirs();
+    if( !USER_CACHE_DIR.exists() && !USER_CACHE_DIR.mkdirs() ) {
+      clue( "Main.status.error.bootstrap.cache", USER_CACHE_DIR );
     }
   }
 

@@ -52,7 +52,7 @@ public class DocumentParser {
   private static Transformer sTransformer;
   private static final XPath sXpath = XPathFactory.newInstance().newXPath();
 
-  public static DOMImplementation sDomImplementation;
+  public static final DOMImplementation sDomImplementation;
 
   static {
     sDocumentFactory = DocumentBuilderFactory.newInstance();
@@ -63,9 +63,11 @@ public class DocumentParser {
     sDocumentFactory.setIgnoringComments( true );
     sDocumentFactory.setIgnoringElementContentWhitespace( true );
 
+    DOMImplementation domImplementation;
+
     try {
       sDocumentBuilder = sDocumentFactory.newDocumentBuilder();
-      sDomImplementation = sDocumentBuilder.getDOMImplementation();
+      domImplementation = sDocumentBuilder.getDOMImplementation();
       sTransformer = TransformerFactory.newInstance().newTransformer();
 
       // Ensure Unicode characters (emojis) are encoded correctly.
@@ -76,7 +78,10 @@ public class DocumentParser {
       sTransformer.setOutputProperty( INDENT_AMOUNT, "2" );
     } catch( final Exception ex ) {
       clue( ex );
+      domImplementation = sDocumentBuilder.getDOMImplementation();
     }
+
+    sDomImplementation = domImplementation;
   }
 
   public static Document newDocument() {
