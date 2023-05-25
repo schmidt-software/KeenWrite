@@ -86,9 +86,9 @@ javafx {
 }
 
 dependencies {
-  def v_junit = '5.9.1'
-  def v_flexmark = '0.64.4'
-  def v_jackson = '2.15.0'
+  def v_junit = '5.9.3'
+  def v_flexmark = '0.64.6'
+  def v_jackson = '2.15.1'
   def v_echosvg = '0.3'
   def v_picocli = '4.7.3'
 
@@ -98,7 +98,7 @@ dependencies {
   implementation 'org.fxmisc.flowless:flowless:0.7.0'
   implementation 'org.fxmisc.wellbehaved:wellbehavedfx:0.3.3'
   implementation 'com.miglayout:miglayout-javafx:11.0'
-  implementation 'com.dlsc.preferencesfx:preferencesfx-core:11.15.0'
+  implementation 'com.dlsc.preferencesfx:preferencesfx-core:11.16.0'
   implementation 'com.panemu:tiwulfx-dock:0.2'
 
   // Markdown
