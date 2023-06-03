@@ -457,7 +457,7 @@ pluralize_classical_variants_of_modern_inflections <- function(
     "maximum",
     "medium",
     "memorandum",
-    "millenium",
+    "millennium",
     "minimum",
     "momentum",
     "optimum",
