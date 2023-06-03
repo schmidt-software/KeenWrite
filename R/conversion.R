@@ -84,7 +84,7 @@ concat <- paste0
 # -----------------------------------------------------------------------------
 # Translates a number from digits to words using Chicago Manual of Style.
 # This will translate numbers greater than one by truncating to nearest
-# thousandth, millionth, billionth, etc. regardless of oridinal. If ordinal
+# thousandth, millionth, billionth, etc. regardless of ordinal. If ordinal
 # is TRUE, this will return the ordinal name. This will not produce ordinals
 # for numbers greater than 100.
 #

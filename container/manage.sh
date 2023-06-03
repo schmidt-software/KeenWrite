@@ -245,7 +245,7 @@ utile_load() {
 
     $log "Loaded ${CONTAINER_SHORTNAME} image"
   else
-    warning "Missing ${CONTAINER_COMPRESSED_PATH}; use build follwed by save"
+    warning "Missing ${CONTAINER_COMPRESSED_PATH}; use build followed by save"
   fi
 }
 
