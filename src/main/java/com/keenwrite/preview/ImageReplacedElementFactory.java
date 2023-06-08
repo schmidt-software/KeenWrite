@@ -59,7 +59,7 @@ public final class ImageReplacedElementFactory extends ReplacedElementAdapter {
 
       return createElement( raster );
     } catch( final Exception ex ) {
-      clue( ex );
+      clue( "Main.status.image.request.error.rasterize", ex );
     }
 
     return BROKEN_IMAGE;

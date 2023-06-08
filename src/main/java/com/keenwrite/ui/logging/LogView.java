@@ -102,8 +102,17 @@ public final class LogView extends Alert {
     columns.add( colMessage );
     columns.add( colTrace );
 
+    // Display the entire date by default.
+    colDate.setPrefWidth( 135 );
+
+    // Display most of the message by default.
+    colMessage.setPrefWidth( 425 );
+
+    // Display a large portion of the stack trace.
+    colTrace.setPrefWidth( 600 );
+
     mTable.setMaxWidth( Double.MAX_VALUE );
-    mTable.setPrefWidth( 1024 );
+    mTable.setPrefWidth( 1200 );
     mTable.getSelectionModel().setSelectionMode( MULTIPLE );
     mTable.setOnKeyPressed( event -> {
       if( Keyboard.isCopy( event ) ) {

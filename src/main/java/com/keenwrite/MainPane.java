@@ -1323,7 +1323,7 @@ public final class MainPane extends SplitPane {
    * @return The property container for the active definition editor.
    */
   public TextDefinition getTextDefinition() {
-    return mDefinitionEditor.get();
+    return mDefinitionEditor == null ? null : mDefinitionEditor.get();
   }
 
   /**
@@ -1333,7 +1333,8 @@ public final class MainPane extends SplitPane {
    * @return The key-value pairs, not interpolated.
    */
   private Map<String, String> getDefinitions() {
-    return getTextDefinition().getDefinitions();
+    final var definitions = getTextDefinition();
+    return definitions == null ? new HashMap<>() : definitions.getDefinitions();
   }
 
   public Window getWindow() {

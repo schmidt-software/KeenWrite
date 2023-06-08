@@ -308,6 +308,7 @@ public final class SvgRasterizer {
    * @param scale The scaling factor to apply when transcoding.
    * @return The vector graphic transcoded into a raster image format.
    */
+  @SuppressWarnings( "unused" )
   public static BufferedImage rasterizeImage(
     final String svg, final double scale )
     throws ParseException, TranscoderException {

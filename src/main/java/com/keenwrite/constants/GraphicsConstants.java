@@ -32,6 +32,7 @@ public class GraphicsConstants {
    * @param keys The file names to convert to images.
    * @return The images loaded from the file name references.
    */
+  @SuppressWarnings( "SameParameterValue" )
   private static List<Image> createImages( final String... keys ) {
     final List<Image> images = new ArrayList<>( keys.length );
 

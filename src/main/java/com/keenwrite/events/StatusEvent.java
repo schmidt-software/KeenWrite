@@ -101,11 +101,11 @@ public final class StatusEvent implements AppEvent {
    */
   private static boolean filter( final StackTraceElement e ) {
     final var clazz = e.getClassName();
-    return clazz.contains( PACKAGE_NAME ) ||
+    return !(clazz.contains( PACKAGE_NAME ) ||
       clazz.contains( "org.renjin." ) ||
       clazz.contains( "sun." ) ||
       clazz.contains( "flexmark." ) ||
-      clazz.contains( "java." );
+      clazz.contains( "java." ));
   }
 
   /**
