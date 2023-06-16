@@ -353,32 +353,9 @@ uc <- function( s ) {
 }
 
 # -----------------------------------------------------------------------------
-# Returns the number of days between the given dates.
+# Returns the number of time periods that have elapsed.
 # -----------------------------------------------------------------------------
-days <- function( d1, d2, format = "%Y-%m-%d" ) {
-  dates = c( d1, d2 )
-  dt = strptime( dates, format = format )
-  as.integer( difftime( dates[2], dates[1], units = "days" ) )
-}
-
-weeks <- function( began, ended ) {
-  began = when( anchor, began )
-  ended = when( anchor, ended )
-
-  if( as.integer( ended - began ) < 0 ) {
-    tempd = began
-    began = ended
-    ended = tempd
-  }
-
-  # Calculate number of elapsed weeks.
-  length( seq( from = began, to = ended, by = "weeks" ) ) - 1
-}
-
-# -----------------------------------------------------------------------------
-# Returns the number of years elapsed.
-# -----------------------------------------------------------------------------
-years <- function( began, ended ) {
+time.elapsed <- function( began, ended, by = "year" ) {
   began = when( anchor, began )
   ended = when( anchor, ended )
 
@@ -389,8 +366,40 @@ years <- function( began, ended ) {
     ended = tempd
   }
 
-  # Calculate number of elapsed years.
-  length( seq( from = began, to = ended, by = "year" ) ) - 1
+  # Calculate the elapsed time period.
+  length( seq( from = began, to = ended, by = by ) ) - 1
+}
+
+# -----------------------------------------------------------------------------
+# Returns the number of days between the given dates, taking into account
+# the passage of years.
+# -----------------------------------------------------------------------------
+days <- function( d1, d2, format = "%Y-%m-%d" ) {
+  dates = c( d1, d2 )
+  dt = strptime( dates, format = format )
+
+  as.integer( difftime( dates[2], dates[1], units = "days" ) )
+}
+
+# -----------------------------------------------------------------------------
+# Returns the number of elapsed weeks.
+# -----------------------------------------------------------------------------
+weeks <- function( began, ended ) {
+  time.elapsed( began, ended, "weeks" );
+}
+
+# -----------------------------------------------------------------------------
+# Returns the number of elapsed months.
+# -----------------------------------------------------------------------------
+months <- function( began, ended ) {
+  time.elapsed( began, ended, "months" );
+}
+
+# -----------------------------------------------------------------------------
+# Returns the number of elapsed years.
+# -----------------------------------------------------------------------------
+years <- function( began, ended ) {
+  time.elapsed( began, ended, "years" );
 }
 
 # -----------------------------------------------------------------------------
@@ -426,6 +435,8 @@ round.up <- function( n, base = 5 ) {
 # Removes common accents from letters.
 #
 # @param s The string to remove diacritics from.
+#
+# @return The given string without diacritics.
 # -----------------------------------------------------------------------------
 accentless <- function( s ) {
   chartr(
