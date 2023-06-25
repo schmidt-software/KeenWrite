@@ -312,8 +312,9 @@ public final class Workspace {
         final var unmarshalled = unmarshall( property, storeValue );
 
         property.setValue( unmarshalled );
-      } catch( final NoSuchElementException ignored ) {
+      } catch( final NoSuchElementException ex ) {
         // When no configuration (item), use the default value.
+        clue( ex );
       }
     } );
 
@@ -515,6 +516,7 @@ public final class Workspace {
    * @param key The {@link Key} associated with a preference value.
    * @return The value associated with the given {@link Key}.
    */
+  @SuppressWarnings( "unused" )
   public int getInteger( final Key key ) {
     assert key != null;
     return integerProperty( key ).get();

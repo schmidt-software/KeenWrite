@@ -197,8 +197,10 @@ public final class MarkdownEditor extends BorderPane implements TextEditor {
   public void moveTo( final int offset ) {
     assert 0 <= offset && offset <= mTextArea.getLength();
 
-    mTextArea.moveTo( offset );
-    mTextArea.requestFollowCaret();
+    if( offset <= mTextArea.getLength() ) {
+      mTextArea.moveTo( offset );
+      mTextArea.requestFollowCaret();
+    }
   }
 
   /**

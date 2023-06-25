@@ -88,9 +88,9 @@ javafx {
 dependencies {
   def v_junit = '5.9.3'
   def v_flexmark = '0.64.6'
-  def v_jackson = '2.15.1'
-  def v_echosvg = '0.3'
-  def v_picocli = '4.7.3'
+  def v_jackson = '2.15.2'
+  def v_echosvg = '0.3.1'
+  def v_picocli = '4.7.4'
 
   // JavaFX
   implementation 'org.controlsfx:controlsfx:11.1.2'
@@ -123,7 +123,7 @@ dependencies {
 
   // R
   implementation 'org.apache.commons:commons-compress:1.23.0'
-  implementation 'org.codehaus.plexus:plexus-utils:3.5.1'
+  implementation 'org.codehaus.plexus:plexus-utils:4.0.0'
   implementation 'org.renjin:renjin-script-engine:3.5-beta76'
   implementation 'org.renjin.cran:rjson:0.2.15-renjin-21'
 

@@ -34,7 +34,6 @@ import com.keenwrite.ui.spelling.TextEditorSpellChecker;
 import com.keenwrite.util.GenericBuilder;
 import com.panemu.tiwulfx.control.dock.DetachableTab;
 import com.panemu.tiwulfx.control.dock.DetachableTabPane;
-import javafx.application.Platform;
 import javafx.beans.property.*;
 import javafx.collections.ListChangeListener;
 import javafx.concurrent.Task;
@@ -84,6 +83,7 @@ import static java.util.concurrent.Executors.newFixedThreadPool;
 import static java.util.concurrent.Executors.newScheduledThreadPool;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static java.util.stream.Collectors.groupingBy;
+import static javafx.application.Platform.exit;
 import static javafx.application.Platform.runLater;
 import static javafx.scene.control.ButtonType.NO;
 import static javafx.scene.control.ButtonType.YES;
@@ -213,7 +213,7 @@ public final class MainPane extends SplitPane {
       mWorkspace.save();
 
       if( closeAll() ) {
-        Platform.exit();
+        exit();
         terminate( 0 );
       }
 
@@ -438,7 +438,7 @@ public final class MainPane extends SplitPane {
             node.requestFocus();
 
             if( node instanceof TextEditor editor ) {
-              editor.moveTo( offset.getValue() );
+              runLater( () -> editor.moveTo( offset.getValue() ) );
             }
 
             break;
@@ -471,6 +471,7 @@ public final class MainPane extends SplitPane {
    * Opens a new definition editor document using the default definition
    * file name.
    */
+  @SuppressWarnings( "unused" )
   public void newDefinitionEditor() {
     open( DEFINITION_DEFAULT );
   }
