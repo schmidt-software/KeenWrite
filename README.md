@@ -34,8 +34,8 @@ chmod +x keenwrite.bin
 On other platforms, such as MacOS, start the application as follows:
 
 1. Download the *Full version* of the Java Runtime Environment, [JRE 20](https://bell-sw.com/pages/downloads).
-  * Note that both Java 20+ and JavaFX are required. The *Full version* of
-    BellSoft's JRE satisifies these requirements.
+   * Note that both Java 20+ and JavaFX are required. The *Full version* of
+     BellSoft's JRE satisifies these requirements.
 1. Install the JRE (include JRE's `bin` directory in the `PATH` environment variable).
 1. Open a new terminal.
 1. Verify the installation: `java -version`
