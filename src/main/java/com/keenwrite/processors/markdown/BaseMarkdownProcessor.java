@@ -79,7 +79,7 @@ public class BaseMarkdownProcessor extends ExecutorProcessor<String> {
    */
   @Override
   public String apply( final String markdown ) {
-    return toXhtml( toHtml( parse( markdown ) ) );
+    return toXhtml( toHtml( toNode( markdown ) ) );
   }
 
   /**
@@ -100,7 +100,7 @@ public class BaseMarkdownProcessor extends ExecutorProcessor<String> {
    * @param node The AST {@link Node} to convert to an HTML string.
    * @return The given {@link Node} as an HTML string.
    */
-  public String toHtml( final Node node ) {
+  private String toHtml( final Node node ) {
     return getRenderer().render( node );
   }
 

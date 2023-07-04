@@ -20,7 +20,7 @@ public final class Engine {
    * Inline R expressions that have already been evaluated.
    */
   private static final Map<String, String> sCache =
-    new BoundedCache<>( 512 );
+    new BoundedCache<>( 768 );
 
   /**
    * Engine for evaluating R expressions.

@@ -147,14 +147,15 @@ public final class MainPane extends SplitPane {
    * trigger the processing chain.
    */
   private final ObjectProperty<TextEditor> mTextEditor =
-    createActiveTextEditor();
+    new SimpleObjectProperty<>();
 
   /**
    * Changing the active definition editor fires the value changed event. This
    * allows refreshes to happen when external definitions are modified and need
    * to trigger the processing chain.
    */
-  private final ObjectProperty<TextDefinition> mDefinitionEditor;
+  private final ObjectProperty<TextDefinition> mDefinitionEditor =
+    new SimpleObjectProperty<>();
 
   private final ObjectProperty<SpellChecker> mSpellChecker;
 
@@ -196,11 +197,36 @@ public final class MainPane extends SplitPane {
     mEditorSpeller = createTextEditorSpellChecker( mSpellChecker );
     mPreview = new HtmlPreview( workspace );
     mStatistics = new DocumentStatistics( workspace );
+
+    mTextEditor.addListener( ( c, o, n ) -> {
+      if( o != null ) {
+        removeProcessor( o );
+      }
+
+      if( n != null ) {
+        mPreview.setBaseUri( n.getPath() );
+        updateProcessors( n );
+        process( n );
+      }
+    } );
+
     mTextEditor.set( createMarkdownEditor( DOCUMENT_DEFAULT ) );
-    mDefinitionEditor = createActiveDefinitionEditor( mTextEditor );
-    mVariableNameInjector = new VariableNameInjector( mWorkspace );
+    mDefinitionEditor.set( createDefinitionEditor( workspace ) );
+    mVariableNameInjector = new VariableNameInjector( workspace );
     mRBootstrapController = new RBootstrapController(
-      mWorkspace, this::getDefinitions );
+      workspace, mDefinitionEditor.get()::getDefinitions
+    );
+
+    // If the user modifies the definitions, re-process the variables.
+    mDefinitionEditor.addListener( ( c, o, n ) -> {
+      final var textEditor = getTextEditor();
+
+      if( textEditor.isMediaType( TEXT_R_MARKDOWN ) ) {
+        mRBootstrapController.update();
+      }
+
+      process( textEditor );
+    } );
 
     open( collect( getRecentFiles() ) );
     viewPreview();
@@ -392,9 +418,15 @@ public final class MainPane extends SplitPane {
       return;
     }
 
+    final var mediaType = fromFilename( inputFile );
+
+    // Only allow opening text files.
+    if( !mediaType.isType( TEXT ) ) {
+      return;
+    }
+
     final var tab = createTab( inputFile );
     final var node = tab.getContent();
-    final var mediaType = MediaType.valueFrom( inputFile );
     final var tabPane = obtainTabPane( mediaType );
 
     tab.setTooltip( createTooltip( inputFile ) );
@@ -429,7 +461,7 @@ public final class MainPane extends SplitPane {
 
         if( tooltip != null ) {
           final var tabName = tooltip.getText();
-          final var fileName = file.getValue().toString();
+          final var fileName = file.get().toString();
 
           if( tabName.equalsIgnoreCase( fileName ) ) {
             final var node = tab.getContent();
@@ -508,7 +540,7 @@ public final class MainPane extends SplitPane {
     final var file = files.get( 0 );
 
     // If the file type has changed, refresh the processors.
-    final var mediaType = MediaType.valueFrom( file );
+    final var mediaType = fromFilename( file );
     final var typeChanged = !editor.isMediaType( mediaType );
 
     if( typeChanged ) {
@@ -607,6 +639,7 @@ public final class MainPane extends SplitPane {
 
     if( canClose( editor ) ) {
       close( editor );
+      removeProcessor( editor );
     }
   }
 
@@ -670,48 +703,41 @@ public final class MainPane extends SplitPane {
     );
   }
 
-  private ObjectProperty<TextEditor> createActiveTextEditor() {
-    final var editor = new SimpleObjectProperty<TextEditor>();
-
-    editor.addListener( ( c, o, n ) -> {
-      if( n != null ) {
-        mPreview.setBaseUri( n.getPath() );
-        process( n );
-      }
-    } );
-
-    return editor;
-  }
-
   /**
    * Adds the HTML preview tab to its own, singular tab pane.
    */
   public void viewPreview() {
-    viewTab( mPreview, TEXT_HTML, "Pane.preview.title" );
+    addTab( mPreview, TEXT_HTML, "Pane.preview.title" );
   }
 
   /**
    * Adds the document outline tab to its own, singular tab pane.
    */
   public void viewOutline() {
-    viewTab( mOutline, APP_DOCUMENT_OUTLINE, "Pane.outline.title" );
+    addTab( mOutline, APP_DOCUMENT_OUTLINE, "Pane.outline.title" );
   }
 
   public void viewStatistics() {
-    viewTab( mStatistics, APP_DOCUMENT_STATISTICS, "Pane.statistics.title" );
+    addTab( mStatistics, APP_DOCUMENT_STATISTICS, "Pane.statistics.title" );
   }
 
   public void viewFiles() {
     try {
       final var factory = new FilePickerFactory( getWorkspace() );
       final var fileManager = factory.createModeless();
-      viewTab( fileManager, APP_FILE_MANAGER, "Pane.files.title" );
+      addTab( fileManager, APP_FILE_MANAGER, "Pane.files.title" );
     } catch( final Exception ex ) {
       clue( ex );
     }
   }
 
-  private void viewTab(
+  public void viewRefresh() {
+    mPreview.refresh();
+    Engine.clear();
+    mRBootstrapController.update();
+  }
+
+  private void addTab(
     final Node node, final MediaType mediaType, final String key ) {
     final var tabPane = obtainTabPane( mediaType );
 
@@ -723,12 +749,6 @@ public final class MainPane extends SplitPane {
 
     tabPane.getTabs().add( createTab( get( key ), node ) );
     addTabPane( tabPane );
-  }
-
-  public void viewRefresh() {
-    mPreview.refresh();
-    Engine.clear();
-    mRBootstrapController.update();
   }
 
   /**
@@ -744,34 +764,49 @@ public final class MainPane extends SplitPane {
                     .findFirst();
   }
 
+  private TextDefinition createDefinitionEditor( final File file ) {
+    final var editor = new DefinitionEditor( file, createTreeTransformer() );
+
+    editor.addTreeChangeHandler( mTreeHandler );
+
+    return editor;
+  }
+
   /**
    * Creates a new {@link DefinitionEditor} wrapped in a listener that
    * is used to detect when the active {@link DefinitionEditor} has changed.
    * Upon changing, the variables are interpolated and the active text editor
    * is refreshed.
    *
-   * @param textEditor Text editor to update with the revised resolved map.
+   * @param workspace Has the most recently edited definitions file name.
    * @return A newly configured property that represents the active
-   * {@link DefinitionEditor}, never null.
+   * {@link DefinitionEditor}, never {@code null}.
    */
-  private ObjectProperty<TextDefinition> createActiveDefinitionEditor(
-    final ObjectProperty<TextEditor> textEditor ) {
-    final var defEditor = new SimpleObjectProperty<>(
-      createDefinitionEditor()
+  private TextDefinition createDefinitionEditor(
+    final Workspace workspace ) {
+    final var fileProperty = workspace.fileProperty( KEY_UI_RECENT_DEFINITION );
+    final var filename = fileProperty.get();
+    final SetProperty<String> recent = workspace.setsProperty(
+      KEY_UI_RECENT_OPEN_PATH
     );
 
-    defEditor.addListener( ( c, o, n ) -> {
-      final var editor = textEditor.get();
-
-      if( editor.isMediaType( TEXT_R_MARKDOWN ) ) {
-        // Initialize R before the editor is added.
-        mRBootstrapController.update();
+    // Open the most recently used YAML definition file.
+    for( final var recentFile : recent.get() ) {
+      if( recentFile.endsWith( filename.toString() ) ) {
+        return createDefinitionEditor( new File( recentFile ) );
       }
+    }
 
-      process( editor );
-    } );
+    return createDefaultDefinitionEditor();
+  }
 
-    return defEditor;
+  private TextDefinition createDefaultDefinitionEditor() {
+    final var transformer = createTreeTransformer();
+    return new DefinitionEditor( transformer );
+  }
+
+  private TreeTransformer createTreeTransformer() {
+    return new YamlTreeTransformer();
   }
 
   private Tab createTab( final String filename, final Node node ) {
@@ -780,10 +815,11 @@ public final class MainPane extends SplitPane {
 
   private Tab createTab( final File file ) {
     final var r = createTextResource( file );
-    final var tab = createTab( r.getFilename(), r.getNode() );
+    final var filename = r.getFilename();
+    final var tab = createTab( filename, r.getNode() );
 
     r.modifiedProperty().addListener(
-      ( c, o, n ) -> tab.setText( r.getFilename() + (n ? "*" : "") )
+      ( c, o, n ) -> tab.setText( filename + (n ? "*" : "") )
     );
 
     // This is called when either the tab is closed by the user clicking on
@@ -852,7 +888,7 @@ public final class MainPane extends SplitPane {
       .stream()
       .collect(
         groupingBy(
-          path -> bin.apply( MediaType.fromFilename( path ) ),
+          path -> bin.apply( fromFilename( path ) ),
           () -> new TreeMap<>( Enum::compareTo ),
           Collectors.toList()
         )
@@ -896,7 +932,7 @@ public final class MainPane extends SplitPane {
       }
     };
 
-    // TODO: Each time the editor successfully runs the processor the task is
+    // TODO: Each time the editor successfully runs the processor, the task is
     //   considered successful. Due to the rapid-fire nature of processing
     //   (e.g., keyboard navigation, fast typing), it isn't necessary to
     //   scroll each time.
@@ -1125,10 +1161,16 @@ public final class MainPane extends SplitPane {
   }
 
   private TextResource createTextResource( final File file ) {
-    // TODO: Create PlainTextEditor that's returned by default.
-    return MediaType.valueFrom( file ) == TEXT_YAML
-      ? createDefinitionEditor( file )
-      : createMarkdownEditor( file );
+    if( fromFilename( file ) == TEXT_YAML ) {
+      final var editor = createDefinitionEditor( file );
+      mDefinitionEditor.set( editor );
+      return editor;
+    }
+    else {
+      final var editor = createMarkdownEditor( file );
+      mTextEditor.set( editor );
+      return editor;
+    }
   }
 
   /**
@@ -1143,8 +1185,6 @@ public final class MainPane extends SplitPane {
   private MarkdownEditor createMarkdownEditor( final File inputFile ) {
     final var editor = new MarkdownEditor( inputFile, getWorkspace() );
 
-    updateProcessors( editor );
-
     // Listener for editor modifications or caret position changes.
     editor.addDirtyListener( ( c, o, n ) -> {
       if( n ) {
@@ -1152,7 +1192,7 @@ public final class MainPane extends SplitPane {
         clue();
 
         // Processing the text may update the status bar.
-        process( getTextEditor() );
+        process( editor );
 
         // Update the caret position in the status bar.
         CaretMovedEvent.fire( editor.getCaret() );
@@ -1181,9 +1221,6 @@ public final class MainPane extends SplitPane {
         getWorkspace().integerProperty( KEY_UI_RECENT_OFFSET ).setValue( n )
     );
 
-    // Set the active editor, which refreshes the preview panel.
-    mTextEditor.set( editor );
-
     // Check the entire document after the spellchecker is initialized (with
     // a valid lexicon) so that only the current paragraph need be scanned
     // while editing. (Technically, only the most recently modified word must
@@ -1195,7 +1232,7 @@ public final class MainPane extends SplitPane {
     );
 
     // Check the entire document after it has been loaded.
-    mEditorSpeller.checkDocument( mTextEditor.get() );
+    mEditorSpeller.checkDocument( editor );
 
     return editor;
   }
@@ -1271,22 +1308,6 @@ public final class MainPane extends SplitPane {
     mVariableNameInjector.autoinsert( getTextEditor(), getTextDefinition() );
   }
 
-  private TextDefinition createDefinitionEditor() {
-    return createDefinitionEditor( DEFINITION_DEFAULT );
-  }
-
-  private TextDefinition createDefinitionEditor( final File file ) {
-    final var editor = new DefinitionEditor( file, createTreeTransformer() );
-
-    editor.addTreeChangeHandler( mTreeHandler );
-
-    return editor;
-  }
-
-  private TreeTransformer createTreeTransformer() {
-    return new YamlTreeTransformer();
-  }
-
   private Tooltip createTooltip( final File file ) {
     final var path = file.toPath();
     final var tooltip = new Tooltip( path.toString() );
@@ -1324,7 +1345,7 @@ public final class MainPane extends SplitPane {
    * @return The property container for the active definition editor.
    */
   public TextDefinition getTextDefinition() {
-    return mDefinitionEditor == null ? null : mDefinitionEditor.get();
+    return mDefinitionEditor.get();
   }
 
   /**
@@ -1334,8 +1355,7 @@ public final class MainPane extends SplitPane {
    * @return The key-value pairs, not interpolated.
    */
   private Map<String, String> getDefinitions() {
-    final var definitions = getTextDefinition();
-    return definitions == null ? new HashMap<>() : definitions.getDefinitions();
+    return getTextDefinition().getDefinitions();
   }
 
   public Window getWindow() {

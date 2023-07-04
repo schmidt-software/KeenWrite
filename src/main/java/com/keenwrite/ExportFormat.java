@@ -60,7 +60,7 @@ public enum ExportFormat {
     throws IllegalArgumentException {
     assert path != null;
 
-    return valueFrom( MediaType.valueFrom( path ), modifier );
+    return valueFrom( MediaType.fromFilename( path ), modifier );
   }
 
   /**

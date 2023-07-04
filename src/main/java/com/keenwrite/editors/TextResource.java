@@ -79,7 +79,7 @@ public interface TextResource {
    * @return The {@link MediaType} for the editor's file.
    */
   default MediaType getMediaType() {
-    return MediaType.valueFrom( getFile() );
+    return MediaType.fromFilename( getFile() );
   }
 
   /**

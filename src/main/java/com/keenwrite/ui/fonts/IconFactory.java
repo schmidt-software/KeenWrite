@@ -96,7 +96,7 @@ public class IconFactory {
       extension = "folder-link";
     }
     else {
-      final var mediaType = MediaType.valueFrom( path );
+      final var mediaType = MediaType.fromFilename( path );
       final var mte = MediaTypeExtension.valueFrom( mediaType );
 
       // if the file extension is not known to the app, try loading an icon

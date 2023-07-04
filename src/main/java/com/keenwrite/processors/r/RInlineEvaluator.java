@@ -44,11 +44,12 @@ public final class RInlineEvaluator
 
       int index = 0;
       int began;
-      int ended;
+      int ended = 0;
 
-      while( (began = text.indexOf( PREFIX, index )) >= 0 ) {
+      while( (began = text.indexOf( PREFIX, index )) >= 0 && ended > -1 ) {
         buffer.append( text, index, began );
 
+        // If the R expression has no definite end, this returns -1.
         ended = text.indexOf( SUFFIX, began + 1 );
 
         if( ended > began ) {

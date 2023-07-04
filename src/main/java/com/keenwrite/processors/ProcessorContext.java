@@ -430,7 +430,7 @@ public final class ProcessorContext {
   private SigilKeyOperator createKeyOperator( final Path path ) {
     assert path != null;
 
-    return valueFrom( path ) == TEXT_PROPERTIES
+    return MediaType.fromFilename( path ) == TEXT_PROPERTIES
       ? createPropertyKeyOperator()
       : createDefinitionKeyOperator();
   }

@@ -25,18 +25,24 @@ public final class RBootstrapController {
   private static final RKeyOperator KEY_OPERATOR = new RKeyOperator();
 
   private final Workspace mWorkspace;
-  private final Supplier<Map<String, String>> mDefinitions;
+  private final Supplier<Map<String, String>> mSupplier;
 
   public RBootstrapController(
     final Workspace workspace,
     final Supplier<Map<String, String>> supplier ) {
+    assert workspace != null;
+    assert supplier != null;
+
     mWorkspace = workspace;
-    mDefinitions = supplier;
+    mSupplier = supplier;
 
     mWorkspace.stringProperty( KEY_R_SCRIPT )
               .addListener( ( c, o, n ) -> update() );
     mWorkspace.fileProperty( KEY_R_DIR )
               .addListener( ( c, o, n ) -> update() );
+
+    // Add the definitions immediately upon loading them.
+    update();
   }
 
   /**
@@ -49,11 +55,8 @@ public final class RBootstrapController {
 
     if( !bootstrap.isBlank() ) {
       final var dir = getRWorkingDirectory();
-      final var definitions = mDefinitions.get();
+      final var definitions = mSupplier.get();
 
-      // A problem with the bootstrap script is likely caused by variables
-      // not being loaded. This implies that the R processor is being invoked
-      // too soon.
       update( bootstrap, dir, definitions );
     }
   }

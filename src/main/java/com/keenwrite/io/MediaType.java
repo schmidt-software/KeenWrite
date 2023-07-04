@@ -172,7 +172,7 @@ public enum MediaType {
    * assigned, otherwise the {@link MediaType} associated with this
    * {@link File}'s file name extension.
    */
-  public static MediaType valueFrom( final File file ) {
+  public static MediaType fromFilename( final File file ) {
     assert file != null;
     return fromFilename( file.getName() );
   }
@@ -200,9 +200,9 @@ public enum MediaType {
    * assigned, otherwise the {@link MediaType} associated with this
    * {@link File}'s file name extension.
    */
-  public static MediaType valueFrom( final Path path ) {
+  public static MediaType fromFilename( final Path path ) {
     assert path != null;
-    return valueFrom( path.toFile() );
+    return fromFilename( path.toFile() );
   }
 
   /**

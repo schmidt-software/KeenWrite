@@ -432,6 +432,15 @@ round.up <- function( n, base = 5 ) {
 }
 
 # -----------------------------------------------------------------------------
+# Rounds the given value to the nearest integer.
+#
+# @param n The value round.
+# -----------------------------------------------------------------------------
+round.int <- function( n ) {
+  format( round( n ) )
+}
+
+# -----------------------------------------------------------------------------
 # Removes common accents from letters.
 #
 # @param s The string to remove diacritics from.
