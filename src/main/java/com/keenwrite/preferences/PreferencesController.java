@@ -185,35 +185,35 @@ public final class PreferencesController {
         )
       ),
       Category.of(
-        get( KEY_IMAGES ),
+        get( KEY_IMAGE ),
         Group.of(
-          get( KEY_IMAGES_DIR ),
-          Setting.of( label( KEY_IMAGES_DIR ) ),
-          Setting.of( title( KEY_IMAGES_DIR ),
-                      directoryProperty( KEY_IMAGES_DIR ),
+          get( KEY_IMAGE_DIR ),
+          Setting.of( label( KEY_IMAGE_DIR ) ),
+          Setting.of( title( KEY_IMAGE_DIR ),
+                      directoryProperty( KEY_IMAGE_DIR ),
                       true ),
-          Setting.of( label( KEY_CACHES_DIR ) ),
-          Setting.of( title( KEY_CACHES_DIR ),
-                      directoryProperty( KEY_CACHES_DIR ),
+          Setting.of( label( KEY_CACHE_DIR ) ),
+          Setting.of( title( KEY_CACHE_DIR ),
+                      directoryProperty( KEY_CACHE_DIR ),
                       true )
         ),
         Group.of(
-          get( KEY_IMAGES_ORDER ),
-          Setting.of( label( KEY_IMAGES_ORDER ) ),
-          Setting.of( title( KEY_IMAGES_ORDER ),
-                      stringProperty( KEY_IMAGES_ORDER ) )
+          get( KEY_IMAGE_ORDER ),
+          Setting.of( label( KEY_IMAGE_ORDER ) ),
+          Setting.of( title( KEY_IMAGE_ORDER ),
+                      stringProperty( KEY_IMAGE_ORDER ) )
         ),
         Group.of(
-          get( KEY_IMAGES_RESIZE ),
-          Setting.of( label( KEY_IMAGES_RESIZE ) ),
-          Setting.of( title( KEY_IMAGES_RESIZE ),
-                      booleanProperty( KEY_IMAGES_RESIZE ) )
+          get( KEY_IMAGE_RESIZE ),
+          Setting.of( label( KEY_IMAGE_RESIZE ) ),
+          Setting.of( title( KEY_IMAGE_RESIZE ),
+                      booleanProperty( KEY_IMAGE_RESIZE ) )
         ),
         Group.of(
-          get( KEY_IMAGES_SERVER ),
-          Setting.of( label( KEY_IMAGES_SERVER ) ),
-          Setting.of( title( KEY_IMAGES_SERVER ),
-                      stringProperty( KEY_IMAGES_SERVER ) )
+          get( KEY_IMAGE_SERVER ),
+          Setting.of( label( KEY_IMAGE_SERVER ) ),
+          Setting.of( title( KEY_IMAGE_SERVER ),
+                      stringProperty( KEY_IMAGE_SERVER ) )
         )
       ),
       Category.of(

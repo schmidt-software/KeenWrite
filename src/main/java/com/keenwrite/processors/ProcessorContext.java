@@ -29,7 +29,6 @@ import static com.keenwrite.Bootstrap.USER_DATA_DIR;
 import static com.keenwrite.constants.Constants.*;
 import static com.keenwrite.io.FileType.UNKNOWN;
 import static com.keenwrite.io.MediaType.TEXT_PROPERTIES;
-import static com.keenwrite.io.MediaType.valueFrom;
 import static com.keenwrite.predicates.PredicateFactory.createFileTypePredicate;
 
 /**
@@ -89,20 +88,20 @@ public final class ProcessorContext {
     private Supplier<Boolean> mConcatenate = () -> true;
     private Supplier<String> mChapters = () -> "";
 
-    private Supplier<Path> mThemesDir = USER_DIRECTORY::toPath;
+    private Supplier<Path> mThemeDir = USER_DIRECTORY::toPath;
     private Supplier<Locale> mLocale = () -> Locale.ENGLISH;
 
     private Supplier<Map<String, String>> mDefinitions = HashMap::new;
     private Supplier<Map<String, String>> mMetadata = HashMap::new;
     private Supplier<Caret> mCaret = () -> Caret.builder().build();
 
-    private Supplier<Path> mFontsDir = () -> getFontDirectory().toPath();
+    private Supplier<Path> mFontDir = () -> getFontDirectory().toPath();
 
-    private Supplier<Path> mImagesDir = USER_DIRECTORY::toPath;
+    private Supplier<Path> mImageDir = USER_DIRECTORY::toPath;
     private Supplier<String> mImageServer = () -> DIAGRAM_SERVER_NAME;
     private Supplier<String> mImageOrder = () -> PERSIST_IMAGES_DEFAULT;
 
-    private Supplier<Path> mCachesPath = USER_CACHE_DIR::toPath;
+    private Supplier<Path> mCacheDir = USER_CACHE_DIR::toPath;
 
     private Supplier<String> mSigilBegan = () -> DEF_DELIM_BEGAN_DEFAULT;
     private Supplier<String> mSigilEnded = () -> DEF_DELIM_ENDED_DEFAULT;
@@ -123,31 +122,26 @@ public final class ProcessorContext {
       mTargetPath = outputPath;
     }
 
-    public void setTargetPath( final File targetPath ) {
-      assert targetPath != null;
-      setTargetPath( targetPath.toPath() );
+    public void setThemeDir( final Supplier<Path> themeDir ) {
+      assert themeDir != null;
+      mThemeDir = themeDir;
     }
 
-    public void setThemesDir( final Supplier<Path> themesDir ) {
-      assert themesDir != null;
-      mThemesDir = themesDir;
-    }
+    public void setCacheDir( final Supplier<File> cacheDir ) {
+      assert cacheDir != null;
 
-    public void setCachesDir( final Supplier<File> cachesDir ) {
-      assert cachesDir != null;
-
-      mCachesPath = () -> {
-        final var dir = cachesDir.get();
+      mCacheDir = () -> {
+        final var dir = cacheDir.get();
 
         return (dir == null ? USER_DATA_DIR.toFile() : dir).toPath();
       };
     }
 
-    public void setImagesDir( final Supplier<File> imagesDir ) {
-      assert imagesDir != null;
+    public void setImageDir( final Supplier<File> imageDir ) {
+      assert imageDir != null;
 
-      mImagesDir = () -> {
-        final var dir = imagesDir.get();
+      mImageDir = () -> {
+        final var dir = imageDir.get();
 
         return (dir == null ? USER_DIRECTORY : dir).toPath();
       };
@@ -163,10 +157,10 @@ public final class ProcessorContext {
       mImageServer = imageServer;
     }
 
-    public void setFontsDir( final Supplier<File> fontsDir ) {
-      assert fontsDir != null;
-      mFontsDir = () -> {
-        final var dir = fontsDir.get();
+    public void setFontDir( final Supplier<File> fontDir ) {
+      assert fontDir != null;
+      mFontDir = () -> {
+        final var dir = fontDir.get();
 
         return (dir == null ? USER_DIRECTORY : dir).toPath();
       };
@@ -357,16 +351,16 @@ public final class ProcessorContext {
     return lookup( getSourcePath() );
   }
 
-  public Path getThemesDir() {
-    return mMutator.mThemesDir.get();
+  public Path getThemeDir() {
+    return mMutator.mThemeDir.get();
   }
 
-  public Path getImagesDir() {
-    return mMutator.mImagesDir.get();
+  public Path getImageDir() {
+    return mMutator.mImageDir.get();
   }
 
-  public Path getCachesPath() {
-    return mMutator.mCachesPath.get();
+  public Path getCacheDir() {
+    return mMutator.mCacheDir.get();
   }
 
   public Iterable<String> getImageOrder() {
@@ -382,8 +376,8 @@ public final class ProcessorContext {
     return mMutator.mImageServer.get();
   }
 
-  public Path getFontsDir() {
-    return mMutator.mFontsDir.get();
+  public Path getFontDir() {
+    return mMutator.mFontDir.get();
   }
 
   public boolean getAutoRemove() {

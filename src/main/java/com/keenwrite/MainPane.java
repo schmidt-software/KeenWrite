@@ -1090,16 +1090,16 @@ public final class MainPane extends SplitPane {
       .with( Mutator::setDefinitions, this::getDefinitions )
       .with( Mutator::setLocale, w::getLocale )
       .with( Mutator::setMetadata, w::getMetadata )
-      .with( Mutator::setThemesDir, w::getThemesPath )
-      .with( Mutator::setCachesDir,
-             () -> w.getFile( KEY_CACHES_DIR ) )
-      .with( Mutator::setImagesDir,
-             () -> w.getFile( KEY_IMAGES_DIR ) )
+      .with( Mutator::setThemeDir, w::getThemesPath )
+      .with( Mutator::setCacheDir,
+             () -> w.getFile( KEY_CACHE_DIR ) )
+      .with( Mutator::setImageDir,
+             () -> w.getFile( KEY_IMAGE_DIR ) )
       .with( Mutator::setImageOrder,
-             () -> w.getString( KEY_IMAGES_ORDER ) )
+             () -> w.getString( KEY_IMAGE_ORDER ) )
       .with( Mutator::setImageServer,
-             () -> w.getString( KEY_IMAGES_SERVER ) )
-      .with( Mutator::setFontsDir,
+             () -> w.getString( KEY_IMAGE_SERVER ) )
+      .with( Mutator::setFontDir,
              () -> w.getFile( KEY_TYPESET_CONTEXT_FONTS_DIR ) )
       .with( Mutator::setCaret,
              () -> getTextEditor().getCaret() )

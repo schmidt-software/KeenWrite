@@ -346,7 +346,7 @@ public final class HtmlPreview extends SwingNode implements ComponentListener {
 
   @Override
   public void componentResized( final ComponentEvent e ) {
-    if( mWorkspace.getBoolean( KEY_IMAGES_RESIZE ) ) {
+    if( mWorkspace.getBoolean( KEY_IMAGE_RESIZE ) ) {
       mPreview.clearCache();
     }
 

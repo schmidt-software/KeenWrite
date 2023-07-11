@@ -10,6 +10,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.Callable;
 
+import static com.keenwrite.Bootstrap.USER_CACHE_DIR;
+import static com.keenwrite.constants.Constants.USER_DIRECTORY;
+import static com.keenwrite.constants.Constants.getFontDirectory;
 import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.util.Time.toElapsedTime;
 import static java.lang.String.format;
@@ -34,10 +37,10 @@ public class Typesetter {
   public static final class Mutator {
     private Path mSourcePath;
     private Path mTargetPath;
-    private Path mThemesPath;
-    private Path mImagesPath;
-    private Path mCachesPath;
-    private Path mFontsPath;
+    private Path mThemeDir = USER_DIRECTORY.toPath();
+    private Path mImageDir = USER_DIRECTORY.toPath();
+    private Path mCacheDir = USER_CACHE_DIR.toPath();
+    private Path mFontDir = getFontDirectory().toPath();
     private boolean mAutoRemove;
 
     /**
@@ -55,32 +58,32 @@ public class Typesetter {
     }
 
     /**
-     * @param themePath Fully qualified path to the theme directory, which
-     *                  ends with the selected theme name.
+     * @param themeDir Fully qualified path to the theme directory, which
+     *                 ends with the selected theme name.
      */
-    public void setThemesPath( final Path themePath ) {
-      mThemesPath = themePath;
+    public void setThemeDir( final Path themeDir ) {
+      mThemeDir = themeDir;
     }
 
     /**
-     * @param imagePath Fully qualified path to the "images" directory.
+     * @param imageDir Fully qualified path to the "images" directory.
      */
-    public void setImagesPath( final Path imagePath ) {
-      mImagesPath = imagePath;
+    public void setImageDir( final Path imageDir ) {
+      mImageDir = imageDir;
     }
 
     /**
-     * @param cachePath Fully qualified path to the "caches" directory.
+     * @param cacheDir Fully qualified path to the "caches" directory.
      */
-    public void setCachesPath( final Path cachePath ) {
-      mCachesPath = cachePath;
+    public void setCacheDir( final Path cacheDir ) {
+      mCacheDir = cacheDir;
     }
 
     /**
-     * @param fontsPath Fully qualified path to the "fonts" directory.
+     * @param fontDir Fully qualified path to the "fonts" directory.
      */
-    public void setFontsPath( final Path fontsPath ) {
-      mFontsPath = fontsPath;
+    public void setFontDir( final Path fontDir ) {
+      mFontDir = fontDir;
     }
 
     /**
@@ -99,20 +102,20 @@ public class Typesetter {
       return mTargetPath;
     }
 
-    public Path getThemesPath() {
-      return mThemesPath;
+    public Path getThemeDir() {
+      return mThemeDir;
     }
 
-    public Path getImagesPath() {
-      return mImagesPath;
+    public Path getImageDir() {
+      return mImageDir;
     }
 
-    public Path getCachesPath() {
-      return mCachesPath;
+    public Path getCacheDir() {
+      return mCacheDir;
     }
 
-    public Path getFontsPath() {
-      return mFontsPath;
+    public Path getFontDir() {
+      return mFontDir;
     }
 
     public boolean isAutoRemove() {
@@ -166,13 +169,13 @@ public class Typesetter {
 
     final var sourcePath = getSourcePath().toString();
     final var targetPath = getTargetPath().getFileName();
-    final var themesPath = getThemesPath();
-    final var imagesPath = getImagesPath();
-    final var cachesPath = getCachesPath();
+    final var themesPath = getThemeDir();
+    final var imagesPath = getImageDir();
+    final var cachesPath = getCacheDir();
 
     args.add(
       format( "--arguments=themesdir=%s,imagesdir=%s,cachesdir=%s",
-              themesPath, imagesPath, cachesPath  )
+              themesPath, imagesPath, cachesPath )
     );
     args.add( format( "--path='%s'", themesPath ) );
     args.add( format( "--result='%s'", targetPath ) );
@@ -204,20 +207,20 @@ public class Typesetter {
     return mMutator.getTargetPath();
   }
 
-  protected Path getThemesPath() {
-    return mMutator.getThemesPath();
+  protected Path getThemeDir() {
+    return mMutator.getThemeDir();
   }
 
-  protected Path getImagesPath() {
-    return mMutator.getImagesPath();
+  protected Path getImageDir() {
+    return mMutator.getImageDir();
   }
 
-  protected Path getCachesPath() {
-    return mMutator.getCachesPath();
+  protected Path getCacheDir() {
+    return mMutator.getCacheDir();
   }
 
-  protected Path getFontsPath() {
-    return mMutator.getFontsPath();
+  protected Path getFontDir() {
+    return mMutator.getFontDir();
   }
 
   /**

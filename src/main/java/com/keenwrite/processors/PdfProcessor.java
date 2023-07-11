@@ -33,19 +33,47 @@ public final class PdfProcessor extends ExecutorProcessor<String> {
   public String apply( final String xhtml ) {
     try {
       clue( "Main.status.typeset.create" );
+
       final var context = mProcessorContext;
-      final var parent = context.getTargetPath().getParent();
-      final var document =
-        TEXT_XML.createTempFile( APP_TITLE_ABBR, parent );
+      final var targetPath = context.getTargetPath();
+      clue( "Main.status.typeset.setting", "target", targetPath );
+
+      final var parent = targetPath.toAbsolutePath().getParent();
+
+      final var document = TEXT_XML.createTempFile( APP_TITLE_ABBR, parent );
+      final var sourcePath = writeString( document, xhtml );
+      clue( "Main.status.typeset.setting", "source", sourcePath );
+
+      final var themeDir = context.getThemeDir();
+      clue( "Main.status.typeset.setting", "themes", themeDir );
+
+      final var imageDir = context.getImageDir();
+      clue( "Main.status.typeset.setting", "images", imageDir );
+
+      final var cacheDir = context.getCacheDir();
+      clue( "Main.status.typeset.setting", "caches", cacheDir );
+
+      final var fontDir = context.getFontDir();
+      clue( "Main.status.typeset.setting", "fonts", fontDir );
+
+      final var autoRemove = context.getAutoRemove();
+      clue( "Main.status.typeset.setting", "purge", autoRemove );
+
+      final var rWorkDir = context.getRWorkingDir();
+      clue( "Main.status.typeset.setting", "r-work", rWorkDir );
+
+      final var imageOrder = context.getImageOrder();
+      clue( "Main.status.typeset.setting", "order", imageOrder );
+
       final var typesetter = Typesetter
         .builder()
-        .with( Mutator::setAutoRemove, context.getAutoRemove() )
-        .with( Mutator::setSourcePath, writeString( document, xhtml ) )
-        .with( Mutator::setTargetPath, context.getTargetPath() )
-        .with( Mutator::setThemesPath, context.getThemesDir() )
-        .with( Mutator::setImagesPath, context.getImagesDir() )
-        .with( Mutator::setCachesPath, context.getCachesPath() )
-        .with( Mutator::setFontsPath, context.getFontsDir() )
+        .with( Mutator::setSourcePath, sourcePath )
+        .with( Mutator::setTargetPath, targetPath )
+        .with( Mutator::setThemeDir, themeDir )
+        .with( Mutator::setImageDir, imageDir )
+        .with( Mutator::setCacheDir, cacheDir )
+        .with( Mutator::setFontDir, fontDir )
+        .with( Mutator::setAutoRemove, autoRemove )
         .build();
 
       typesetter.typeset();

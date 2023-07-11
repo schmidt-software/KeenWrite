@@ -42,14 +42,14 @@ public final class GuestTypesetter extends Typesetter
   public Boolean call() throws Exception {
     final var sourcePath = getSourcePath();
     final var targetPath = getTargetPath();
-    final var themesPath = getThemesPath();
+    final var themesPath = getThemeDir();
 
     final var sourceDir = normalize( sourcePath.getParent() );
     final var targetDir = normalize( targetPath.getParent() );
     final var themesDir = normalize( themesPath.getParent() );
-    final var imagesDir = normalize( getImagesPath() );
-    final var cachesDir = normalize( getCachesPath() );
-    final var fontsDir = normalize( getFontsPath() );
+    final var imagesDir = normalize( getImageDir() );
+    final var cachesDir = normalize( getCacheDir() );
+    final var fontsDir = normalize( getFontDir() );
 
     final var sourceFile = sourcePath.getFileName();
     final var targetFile = targetPath.getFileName();

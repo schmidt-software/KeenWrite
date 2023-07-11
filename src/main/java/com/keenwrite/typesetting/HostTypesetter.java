@@ -14,9 +14,9 @@ import java.util.List;
 import java.util.concurrent.Callable;
 
 import static com.keenwrite.constants.Constants.DEFAULT_DIRECTORY;
+import static com.keenwrite.constants.Constants.TEMPORARY_DIRECTORY;
 import static com.keenwrite.events.StatusEvent.clue;
 import static java.lang.ProcessBuilder.Redirect.DISCARD;
-import static java.lang.System.getProperty;
 import static java.nio.file.Files.*;
 import static java.util.Arrays.asList;
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -201,8 +201,7 @@ public final class HostTypesetter extends Typesetter
      */
     @SuppressWarnings( "SpellCheckingInspection" )
     private java.io.File getCacheDir() {
-      final var temp = getProperty( "java.io.tmpdir" );
-      final var cache = Path.of( temp, "luatex-cache" );
+      final var cache = Path.of( TEMPORARY_DIRECTORY, "luatex-cache" );
       return cache.toFile();
     }
 

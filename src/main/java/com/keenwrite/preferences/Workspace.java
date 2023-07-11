@@ -70,11 +70,11 @@ public final class Workspace {
     entry( KEY_R_DELIM_BEGAN, asStringProperty( R_DELIM_BEGAN_DEFAULT ) ),
     entry( KEY_R_DELIM_ENDED, asStringProperty( R_DELIM_ENDED_DEFAULT ) ),
 
-    entry( KEY_CACHES_DIR, asFileProperty( USER_CACHE_DIR ) ),
-    entry( KEY_IMAGES_DIR, asFileProperty( USER_DIRECTORY ) ),
-    entry( KEY_IMAGES_ORDER, asStringProperty( PERSIST_IMAGES_DEFAULT ) ),
-    entry( KEY_IMAGES_RESIZE, asBooleanProperty( true ) ),
-    entry( KEY_IMAGES_SERVER, asStringProperty( DIAGRAM_SERVER_NAME ) ),
+    entry( KEY_CACHE_DIR, asFileProperty( USER_CACHE_DIR ) ),
+    entry( KEY_IMAGE_DIR, asFileProperty( USER_DIRECTORY ) ),
+    entry( KEY_IMAGE_ORDER, asStringProperty( PERSIST_IMAGES_DEFAULT ) ),
+    entry( KEY_IMAGE_RESIZE, asBooleanProperty( true ) ),
+    entry( KEY_IMAGE_SERVER, asStringProperty( DIAGRAM_SERVER_NAME ) ),
 
     entry( KEY_DEF_PATH, asFileProperty( DEFINITION_DEFAULT ) ),
     entry( KEY_DEF_DELIM_BEGAN, asStringProperty( DEF_DELIM_BEGAN_DEFAULT ) ),

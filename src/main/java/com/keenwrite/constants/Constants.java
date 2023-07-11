@@ -101,10 +101,16 @@ public final class Constants {
     get( "file.ext.image.order" );
 
   /**
-   * Default working directory to use for R startup script.
+   * Default working directory.
    */
   public static final File USER_DIRECTORY =
     new File( System.getProperty( "user.dir" ) );
+
+  /**
+   * Location to write temporary files.
+   */
+  public static final String TEMPORARY_DIRECTORY =
+    System.getProperty( "java.io.tmpdir" );
 
   public static final String NEWLINE = System.lineSeparator();
 

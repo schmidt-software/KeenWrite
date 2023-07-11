@@ -115,7 +115,7 @@ public class ImageLinkExtensionTest {
       .with( ProcessorContext.Mutator::setSourcePath, inputPath )
       .with( ProcessorContext.Mutator::setExportFormat, XHTML_TEX )
       .with( ProcessorContext.Mutator::setCaret, () -> Caret.builder().build() )
-      .with( ProcessorContext.Mutator::setImagesDir, imagesDir::toFile )
+      .with( ProcessorContext.Mutator::setImageDir, imagesDir::toFile )
       .build();
   }
 
