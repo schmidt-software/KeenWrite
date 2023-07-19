@@ -52,6 +52,7 @@ public abstract class AbstractDownloadPane extends InstallerPane {
     final var thread = properties.get( threadName );
 
     if( thread instanceof Task<?> downloader && downloader.isRunning() ) {
+      clue( "Wizard.container.install.download.running" );
       return;
     }
 
@@ -69,6 +70,8 @@ public abstract class AbstractDownloadPane extends InstallerPane {
       disableNext( !checksumOk );
     }
     else {
+      clue( "Wizard.container.install.download.started", mUri );
+
       final var task = downloadAsync( mUri, target, ( progress, bytes ) -> {
         final var suffix = progress < 0 ? ".bytes" : ".progress";
 
