@@ -34070,7 +34070,8 @@ searchlight	385558
 kaolinite	385529
 cumbrous	385509
 fudge	385501
-inclusiveness	385459
+inclusiveness	385460
+inclusivity	385459
 unpacking	385458
 patroness	385282
 romantics	385276
@@ -117461,6 +117462,7 @@ repapered	8650
 jellying	8650
 disjunctives	8650
 noninclusive	8649
+noninclusivity	8649
 hdd	8649
 vowelled	8648
 serging	8648

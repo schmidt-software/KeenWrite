@@ -7,11 +7,14 @@ import com.keenwrite.io.SysFile;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
 import static com.keenwrite.Bootstrap.CONTAINER_VERSION;
+import static com.keenwrite.events.StatusEvent.clue;
+import static java.lang.String.*;
 import static java.lang.String.format;
 import static java.lang.System.arraycopy;
 import static java.util.Arrays.copyOf;
@@ -34,15 +37,18 @@ public final class Podman implements ContainerManager {
     // This monstrosity runs the installer in the background without displaying
     // a secondary command window, while blocking until the installer completes
     // and an exit code can be determined. I hate Windows.
-    final var builder = processBuilder(
-      "cmd", "/c",
-      format(
-        "start /b /high /wait cmd /c %s /quiet /install & exit ^!errorlevel^!",
-        exe.getAbsolutePath()
-      )
+    final var cmd = format(
+      "start /b /high /wait cmd /c %s /quiet /install & exit ^!errorlevel^!",
+      exe.getAbsolutePath()
     );
 
+    clue( "Wizard.container.install.command", cmd );
+
+    final var builder = processBuilder( "cmd", "/c", cmd );
+
     try {
+      clue( "Wizard.container.install.await", cmd );
+
       // Wait for installation to finish (successfully or not).
       return wait( builder.start() );
     } catch( final Exception ignored ) {
@@ -131,6 +137,9 @@ public final class Podman implements ContainerManager {
       final var path = exe.orElseThrow();
       final var builder = processBuilder( path, args );
       final var process = builder.start();
+      final var joined = join( ",", args );
+
+      clue( "Wizard.container.process.enter", path, joined );
 
       processor.start( process.getInputStream() );
 
@@ -151,6 +160,9 @@ public final class Podman implements ContainerManager {
    */
   private static int wait( final Process process ) throws InterruptedException {
     final var exitCode = process.waitFor();
+
+    clue( "Wizard.container.process.exit", exitCode );
+
     process.destroy();
 
     return exitCode;

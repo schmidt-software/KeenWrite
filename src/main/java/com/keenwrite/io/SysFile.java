@@ -11,6 +11,7 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 
+import static com.keenwrite.constants.Constants.USER_DIRECTORY;
 import static com.keenwrite.util.DataTypeConverter.toHex;
 import static java.lang.System.getenv;
 import static java.nio.file.Files.isExecutable;
@@ -136,6 +137,23 @@ public final class SysFile extends java.io.File {
     return p == null ? "" : getPathFileName( p );
   }
 
+  /**
+   * If the path doesn't exist right before typesetting, switch the path
+   * to the user's home directory to increase the odds of the typesetter
+   * succeeding. This could help, for example, if the images directory was
+   * deleted or moved.
+   *
+   * @param path The path to verify existence.
+   * @return The given path, if it exists, otherwise the user's home directory.
+   */
+  public static Path normalize( final Path path ) {
+    assert path != null;
+
+    return path.toFile().exists()
+      ? path
+      : USER_DIRECTORY.toPath();
+  }
+
   private static String getPathFileName( final Path p ) {
     assert p != null;
 
@@ -199,7 +217,6 @@ public final class SysFile extends java.io.File {
     } finally {
       process.destroy();
     }
-
 
     return regValue.toString();
   }

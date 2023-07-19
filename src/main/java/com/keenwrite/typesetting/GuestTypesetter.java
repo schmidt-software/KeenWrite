@@ -11,8 +11,8 @@ import java.nio.file.Path;
 import java.util.LinkedList;
 import java.util.concurrent.Callable;
 
-import static com.keenwrite.constants.Constants.USER_DIRECTORY;
 import static com.keenwrite.io.StreamGobbler.gobble;
+import static com.keenwrite.io.SysFile.normalize;
 import static com.keenwrite.typesetting.containerization.Podman.MANAGER;
 import static java.lang.String.format;
 
@@ -80,23 +80,6 @@ public final class GuestTypesetter extends Typesetter
     manager.run( in -> StreamGobbler.gobble( in, listener ), command );
 
     return true;
-  }
-
-  /**
-   * If the path doesn't exist right before typesetting, switch the path
-   * to the user's home directory to increase the odds of the typesetter
-   * succeeding. This could help, for example, if the images directory was
-   * deleted or moved.
-   *
-   * @param path The path to verify existence.
-   * @return The given path, if it exists, otherwise the user's home directory.
-   */
-  private static Path normalize( final Path path ) {
-    assert path != null;
-
-    return path.toFile().exists()
-      ? path
-      : USER_DIRECTORY.toPath();
   }
 
   static String removeExtension( final Path path ) {
