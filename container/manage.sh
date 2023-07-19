@@ -136,8 +136,6 @@ utile_publish() {
 # $3 - The file system permissions (set to 1 for read-write).
 # ---------------------------------------------------------------------------
 get_mountpoint() {
-  $log "Mounting ${1} as ${2}"
-
   local result=""
   local binding="ro"
 
@@ -178,6 +176,11 @@ utile_connect() {
   declare -r mount_target=$(get_mountpoint_target)
   declare -r mount_images=$(get_mountpoint_images)
   declare -r mount_fonts=$(get_mountpoint_fonts)
+
+  $log "mount_source = '${mount_source}'"
+  $log "mount_target = '${mount_target}'"
+  $log "mount_images = '${mount_images}'"
+  $log "mount_fonts = '${mount_fonts}'"
 
   ${CONTAINER_EXE} run \
     --network="${CONTAINER_NETWORK}" \

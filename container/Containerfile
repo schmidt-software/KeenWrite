@@ -43,6 +43,7 @@ ADD "https://github.com/MorbZ/OpenSansEmoji/raw/master/OpenSansEmoji.ttf" "OpenS
 ADD "https://site.xavier.edu/polt/typewriters/Underwood_Quiet_Tab.ttf" "Underwood_Quiet_Tab.ttf"
 
 # Archives
+ADD "https://www.omnibus-type.com/wp-content/uploads/Archivo-Narrow.zip" "archivo-narrow.zip"
 ADD "https://fonts.google.com/download?family=Courier%20Prime" "courier-prime.zip"
 ADD "https://fonts.google.com/download?family=Inconsolata" "inconsolata.zip"
 ADD "https://fonts.google.com/download?family=Libre%20Baskerville" "libre-baskerville.zip"
@@ -51,7 +52,6 @@ ADD "https://fonts.google.com/download?family=Nunito" "nunito.zip"
 ADD "https://fonts.google.com/download?family=Roboto" "roboto.zip"
 ADD "https://fonts.google.com/download?family=Roboto%20Mono" "roboto-mono.zip"
 ADD "https://github.com/adobe-fonts/source-serif/releases/download/4.004R/source-serif-4.004.zip" "source-serif.zip"
-ADD "https://www.omnibus-type.com/wp-content/uploads/Archivo-Narrow.zip" "archivo-narrow.zip"
 
 # Typesetting software
 ADD "http://lmtx.pragma-ade.nl/install-lmtx/context-linuxmusl.zip" "context.zip"
@@ -74,14 +74,15 @@ RUN \
   echo "export OSFONTDIR=\"/usr/share/fonts//\"" >> $PROFILE && \
   echo "PS1='\\u@typesetter:\\w\\$ '" >> $PROFILE && \
   unzip -d $CONTEXT_HOME $DOWNLOAD_DIR/context.zip && \
+  unzip -j -o -d $FONTS_DIR $DOWNLOAD_DIR/archivo-narrow.zip "Archivo-Narrow/otf/*.otf" && \
   unzip -j -o -d $FONTS_DIR $DOWNLOAD_DIR/courier-prime.zip "*.ttf" && \
   unzip -j -o -d $FONTS_DIR $DOWNLOAD_DIR/libre-baskerville.zip "*.ttf" && \
   unzip -j -o -d $FONTS_DIR $DOWNLOAD_DIR/inconsolata.zip "**/Inconsolata/*.ttf" && \
+  unzip -j -o -d $FONTS_DIR $DOWNLOAD_DIR/niconne.zip "*.ttf" && \
   unzip -j -o -d $FONTS_DIR $DOWNLOAD_DIR/nunito.zip "static/*.ttf" && \
   unzip -j -o -d $FONTS_DIR $DOWNLOAD_DIR/roboto.zip "*.ttf" && \
   unzip -j -o -d $FONTS_DIR $DOWNLOAD_DIR/roboto-mono.zip "static/*.ttf" && \
   unzip -j -o -d $FONTS_DIR $DOWNLOAD_DIR/source-serif.zip "source-serif-4.004/OTF/SourceSerif4-*.otf" && \
-  unzip -j -o -d $FONTS_DIR $DOWNLOAD_DIR/archivo-narrow.zip "Archivo-Narrow/otf/*.otf" && \
   mv $DOWNLOAD_DIR/*tf $FONTS_DIR && \
   fc-cache -f -v && \
   mkdir -p tex && \
