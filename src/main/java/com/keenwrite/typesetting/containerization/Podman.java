@@ -7,15 +7,14 @@ import com.keenwrite.io.SysFile;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
 import static com.keenwrite.Bootstrap.CONTAINER_VERSION;
 import static com.keenwrite.events.StatusEvent.clue;
-import static java.lang.String.*;
 import static java.lang.String.format;
+import static java.lang.String.join;
 import static java.lang.System.arraycopy;
 import static java.util.Arrays.copyOf;
 
