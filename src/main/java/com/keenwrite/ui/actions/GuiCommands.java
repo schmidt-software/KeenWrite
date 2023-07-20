@@ -270,22 +270,6 @@ public final class GuiCommands {
    *            actively edited file.
    */
   private void file_export_pdf( final boolean dir ) {
-    final var workspace = getWorkspace();
-    final var themes = workspace.getFile(
-      KEY_TYPESET_CONTEXT_THEMES_PATH
-    );
-    final var theme = workspace.stringProperty(
-      KEY_TYPESET_CONTEXT_THEME_SELECTION
-    );
-    final var chapters = workspace.stringProperty(
-      KEY_TYPESET_CONTEXT_CHAPTERS
-    );
-    final var settings = ExportSettings
-      .builder()
-      .with( ExportSettings.Mutator::setTheme, theme )
-      .with( ExportSettings.Mutator::setChapters, chapters )
-      .build();
-
     // Don't re-validate the typesetter installation each time. If the
     // user mucks up the typesetter installation, it'll get caught the
     // next time the application is started. Don't use |= because it
@@ -293,6 +277,24 @@ public final class GuiCommands {
     mCanTypeset = mCanTypeset || Typesetter.canRun();
 
     if( mCanTypeset ) {
+      final var workspace = getWorkspace();
+      final var theme = workspace.stringProperty(
+        KEY_TYPESET_CONTEXT_THEME_SELECTION
+      );
+      final var chapters = workspace.stringProperty(
+        KEY_TYPESET_CONTEXT_CHAPTERS
+      );
+
+      final var settings = ExportSettings
+        .builder()
+        .with( ExportSettings.Mutator::setTheme, theme )
+        .with( ExportSettings.Mutator::setChapters, chapters )
+        .build();
+
+      final var themes = workspace.getFile(
+        KEY_TYPESET_CONTEXT_THEMES_PATH
+      );
+
       // If the typesetter is installed, allow the user to select a theme. If
       // the themes aren't installed, a status message will appear.
       if( ExportDialog.choose( getWindow(), themes, settings, dir ) ) {

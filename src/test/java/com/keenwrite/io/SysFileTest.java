@@ -3,49 +3,50 @@ package com.keenwrite.io;
 
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Function;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 class SysFileTest {
-  private static final String REG_PATH_PREFIX =
-    "%USERPROFILE%";
-  private static final String REG_PATH_SUFFIX =
-    "\\AppData\\Local\\Microsoft\\WindowsApps;";
-  private static final String REG_PATH = REG_PATH_PREFIX + REG_PATH_SUFFIX;
 
   @Test
   void test_Locate_ExistingExecutable_PathFound() {
-    final var command = "ls";
+    testFunction( SysFile::locate, "ls", "/usr/bin/ls" );
+  }
+
+  @Test
+  void test_Where_ExistingExecutable_PathFound() {
+    testFunction( sysFile -> {
+      try {
+        return sysFile.where();
+      } catch( final IOException e ) {
+        throw new RuntimeException( e );
+      }
+    }, "which", "/usr/bin/which" );
+  }
+
+  void testFunction( final Function<SysFile, Optional<Path>> consumer,
+                     final String command,
+                     final String expected ) {
     final var file = new SysFile( command );
+    final var path = consumer.apply( file );
+    final var failed = new AtomicBoolean( false );
+
     assertTrue( file.canRun() );
 
-    final var located = file.locate();
-    assertTrue( located.isPresent() );
+    path.ifPresentOrElse(
+      location -> {
+        final var actual = location.toAbsolutePath().toString();
 
-    final var path = located.get();
-    final var actual = path.toAbsolutePath().toString();
-    final var expected = "/usr/bin/" + command;
+        assertEquals( expected, actual );
+      },
+      () -> failed.set( true )
+    );
 
-    assertEquals( expected, actual );
-  }
-
-  @Test
-  void test_Parse_RegistryEntry_ValueObtained() {
-    final var file = new SysFile( "unused" );
-    final var expected = REG_PATH;
-    final var actual =
-      file.parseRegEntry( "    path    REG_EXPAND_SZ    " + expected );
-
-    assertEquals( expected, actual );
-  }
-
-  @Test
-  void test_Expand_RegistryEntry_VariablesExpanded() {
-    final var value = "UserProfile";
-    final var file = new SysFile( "unused" );
-    final var expected = value + REG_PATH_SUFFIX;
-    final var actual = file.expand( REG_PATH, s -> value );
-
-    assertEquals( expected, actual );
+    assertFalse( failed.get() );
   }
 }

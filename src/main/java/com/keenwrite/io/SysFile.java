@@ -1,21 +1,25 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.io;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.Optional;
 import java.util.function.Function;
-import java.util.regex.Pattern;
+import java.util.function.Predicate;
 
 import static com.keenwrite.constants.Constants.USER_DIRECTORY;
+import static com.keenwrite.events.StatusEvent.clue;
+import static com.keenwrite.io.WindowsRegistry.pathsWindows;
 import static com.keenwrite.util.DataTypeConverter.toHex;
 import static java.lang.System.getenv;
 import static java.nio.file.Files.isExecutable;
-import static java.util.regex.Pattern.compile;
 import static java.util.regex.Pattern.quote;
 import static org.apache.commons.lang3.SystemUtils.IS_OS_WINDOWS;
 
@@ -30,26 +34,13 @@ public final class SysFile extends java.io.File {
   private static final String[] EXTENSIONS = new String[]
     {"", ".exe", ".bat", ".cmd", ".msi", ".com"};
 
+  private static final String WHERE_COMMAND =
+    IS_OS_WINDOWS ? "where" : "which";
+
   /**
    * Number of bytes to read at a time when computing this file's checksum.
    */
   private static final int BUFFER_SIZE = 16384;
-
-  //@formatter:off
-  private static final String SYS_KEY =
-    "HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment";
-  private static final String USR_KEY =
-    "HKEY_CURRENT_USER\\Environment";
-  //@formatter:on
-
-  /**
-   * Regular expression pattern for matching %VARIABLE% names.
-   */
-  private static final String VAR_REGEX = "%.*?%";
-  private static final Pattern VAR_PATTERN = compile( VAR_REGEX );
-
-  private static final String REG_REGEX = "\\s*path\\s+REG_EXPAND_SZ\\s+(.*)";
-  private static final Pattern REG_PATTERN = compile( REG_REGEX );
 
   /**
    * Creates a new instance for a given file name.
@@ -73,8 +64,10 @@ public final class SysFile extends java.io.File {
   }
 
   /**
-   * Answers whether the path returned from {@link #locate()} is an executable
-   * that can be run using a {@link ProcessBuilder}.
+   * Answers whether an executable can be found that can be run using a
+   * {@link ProcessBuilder}.
+   *
+   * @return {@code true} if the executable is runnable.
    */
   public boolean canRun() {
     return locate().isPresent();
@@ -93,16 +86,47 @@ public final class SysFile extends java.io.File {
    * absolute path to the executable to run it. This will always return
    * the fully qualified path, otherwise an empty result.
    *
-   * @param map The mapping function of registry variable names to values.
-   * @return The fully qualified {@link Path} to the executable filename
-   * provided at construction time.
+   * @return Fully qualified path to the executable, if found.
    */
-  public Optional<Path> locate( final Function<String, String> map ) {
-    final var exe = getName();
-    final var paths = paths( map ).split( quote( pathSeparator ) );
+  public Optional<Path> locate() {
+    final var dirList = new ArrayList<String>();
+    final var paths = pathsSane();
+    int began = 0;
+    int ended;
 
-    for( final var path : paths ) {
-      final var p = Path.of( path ).resolve( exe );
+    while( (ended = paths.indexOf( pathSeparatorChar, began )) != -1 ) {
+      final var dir = paths.substring( began, ended );
+      began = ended + 1;
+
+      dirList.add( dir );
+    }
+
+    final var dirs = dirList.toArray( new String[]{} );
+    var path = locate( dirs, "Wizard.container.executable.path" );
+
+    if( path.isEmpty() ) {
+      clue();
+
+      try {
+        path = where();
+      } catch( final IOException ex ) {
+        clue( "Wizard.container.executable.which", ex );
+      }
+    }
+
+    return path.isPresent()
+      ? path
+      : locate( System::getenv,
+                IS_OS_WINDOWS
+                  ? "Wizard.container.executable.registry"
+                  : "Wizard.container.executable.path" );
+  }
+
+  private Optional<Path> locate( final String[] dirs, final String msg ) {
+    final var exe = getName();
+
+    for( final var dir : dirs ) {
+      final var p = Path.of( dir ).resolve( exe );
 
       for( final var extension : EXTENSIONS ) {
         final var filename = Path.of( p + extension );
@@ -113,53 +137,31 @@ public final class SysFile extends java.io.File {
       }
     }
 
+    clue( msg );
     return Optional.empty();
   }
 
-  /**
-   * Convenience method that locates a binary executable file in the path
-   * by using {@link System#getenv(String)} to retrieve environment variables
-   * that are expanded when parsing the PATH.
-   *
-   * @see #locate(Function)
-   */
-  public Optional<Path> locate() {
-    return locate( System::getenv );
+  private Optional<Path> locate(
+    final Function<String, String> map, final String msg ) {
+    final var paths = paths( map ).split( quote( pathSeparator ) );
+
+    return locate( paths, msg );
   }
 
   /**
-   * Provides {@code null}-safe machinery to get a file name.
+   * Runs {@code where} or {@code which} to determine the fully qualified path
+   * to an executable.
    *
-   * @param p The path to the file name to retrieve (may be {@code null}).
-   * @return The file name or the empty string if the path is not found.
+   * @return The path to the executable for this file, if found.
+   * @throws IOException Could not determine the location of the command.
    */
-  public static String getFileName( final Path p ) {
-    return p == null ? "" : getPathFileName( p );
-  }
+  public Optional<Path> where() throws IOException {
+    // The "where" command on Windows will automatically add the extension.
+    final var args = new String[]{WHERE_COMMAND, getName()};
+    final var output = run( text -> true, args );
+    final var result = output.lines().findFirst();
 
-  /**
-   * If the path doesn't exist right before typesetting, switch the path
-   * to the user's home directory to increase the odds of the typesetter
-   * succeeding. This could help, for example, if the images directory was
-   * deleted or moved.
-   *
-   * @param path The path to verify existence.
-   * @return The given path, if it exists, otherwise the user's home directory.
-   */
-  public static Path normalize( final Path path ) {
-    assert path != null;
-
-    return path.toFile().exists()
-      ? path
-      : USER_DIRECTORY.toPath();
-  }
-
-  private static String getPathFileName( final Path p ) {
-    assert p != null;
-
-    final var f = p.getFileName();
-
-    return f == null ? "" : f.toString();
+    return result.map( Path::of );
   }
 
   /**
@@ -170,95 +172,8 @@ public final class SysFile extends java.io.File {
    * @param map The mapping function of registry variable names to values.
    * @return The revised PATH variables as stored in the registry.
    */
-  private String paths( final Function<String, String> map ) {
+  private static String paths( final Function<String, String> map ) {
     return IS_OS_WINDOWS ? pathsWindows( map ) : pathsSane();
-  }
-
-  private String pathsSane() {
-    return getenv( "PATH" );
-  }
-
-  @SuppressWarnings( "SpellCheckingInspection" )
-  private String pathsWindows( final Function<String, String> map ) {
-    try {
-      final var hklm = query( SYS_KEY );
-      final var hkcu = query( USR_KEY );
-
-      return expand( hklm, map ) + pathSeparator + expand( hkcu, map );
-    } catch( final IOException ex ) {
-      // Return the PATH environment variable if the registry query fails.
-      return pathsSane();
-    }
-  }
-
-  /**
-   * Queries a registry key PATH value.
-   *
-   * @param key The registry key name to look up.
-   * @return The value for the registry key.
-   */
-  private String query( final String key ) throws IOException {
-    final var regVarName = "path";
-    final var args = new String[]{"reg", "query", key, "/v", regVarName};
-    final var process = Runtime.getRuntime().exec( args );
-    final var stream = process.getInputStream();
-    final var regValue = new StringBuffer( 1024 );
-
-    StreamGobbler.gobble( stream, text -> {
-      if( text.contains( regVarName ) ) {
-        regValue.append( parseRegEntry( text ) );
-      }
-    } );
-
-    try {
-      process.waitFor();
-    } catch( final InterruptedException ex ) {
-      throw new IOException( ex );
-    } finally {
-      process.destroy();
-    }
-
-    return regValue.toString();
-  }
-
-  String parseRegEntry( final String text ) {
-    assert text != null;
-
-    final var matcher = REG_PATTERN.matcher( text );
-    return matcher.find() ? matcher.group( 1 ) : text.trim();
-  }
-
-  /**
-   * PATH environment variables returned from the registry have unexpanded
-   * variables of the form %VARIABLE%. This method will expand those values,
-   * if possible, from the environment. This will only perform a single
-   * expansion, which should be adequate for most needs.
-   *
-   * @param s The %VARIABLE%-encoded value to expand.
-   * @return The given value with all encoded values expanded.
-   */
-  String expand( final String s, final Function<String, String> map ) {
-    // Assigned to the unexpanded string, initially.
-    String expanded = s;
-
-    final var matcher = VAR_PATTERN.matcher( expanded );
-
-    while( matcher.find() ) {
-      final var match = matcher.group( 0 );
-      String value = map.apply( match );
-
-      if( value == null ) {
-        value = "";
-      }
-      else {
-        value = value.replace( "\\", "\\\\" );
-      }
-
-      final var subexpression = compile( quote( match ) );
-      expanded = subexpression.matcher( expanded ).replaceAll( value );
-    }
-
-    return expanded;
   }
 
   /**
@@ -299,5 +214,76 @@ public final class SysFile extends java.io.File {
 
       return toHex( digest.digest() );
     }
+  }
+
+  /**
+   * Runs a command and collects standard output into a buffer.
+   *
+   * @param filter Provides an injected test to determine whether the line
+   *               read from the command's standard output is to be added to
+   *               the result buffer.
+   * @param args   The command and its arguments to run.
+   * @return The standard output from the command, filtered.
+   * @throws IOException Could not run the command.
+   */
+  @NotNull
+  public static String run( final Predicate<String> filter,
+                            final String[] args ) throws IOException {
+    final var process = Runtime.getRuntime().exec( args );
+    final var stream = process.getInputStream();
+    final var stdout = new StringBuffer( 2048 );
+
+    StreamGobbler.gobble( stream, text -> {
+      if( filter.test( text ) ) {
+        stdout.append( WindowsRegistry.parseRegEntry( text ) );
+      }
+    } );
+
+    try {
+      process.waitFor();
+    } catch( final InterruptedException ex ) {
+      throw new IOException( ex );
+    } finally {
+      process.destroy();
+    }
+
+    return stdout.toString();
+  }
+
+  /**
+   * Provides {@code null}-safe machinery to get a file name.
+   *
+   * @param p The path to the file name to retrieve (may be {@code null}).
+   * @return The file name or the empty string if the path is not found.
+   */
+  public static String getFileName( final Path p ) {
+    return p == null ? "" : getPathFileName( p );
+  }
+
+  /**
+   * If the path doesn't exist right before typesetting, switch the path
+   * to the user's home directory to increase the odds of the typesetter
+   * succeeding. This could help, for example, if the images directory was
+   * deleted or moved.
+   *
+   * @param path The path to verify existence.
+   * @return The given path, if it exists, otherwise the user's home directory.
+   */
+  public static Path normalize( final Path path ) {
+    assert path != null;
+
+    return path.toFile().exists() ? path : USER_DIRECTORY.toPath();
+  }
+
+  private static String pathsSane() {
+    return getenv( "PATH" );
+  }
+
+  private static String getPathFileName( final Path p ) {
+    assert p != null;
+
+    final var f = p.getFileName();
+
+    return f == null ? "" : f.toString();
   }
 }

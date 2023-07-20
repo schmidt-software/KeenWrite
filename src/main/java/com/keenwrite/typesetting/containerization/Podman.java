@@ -5,11 +5,10 @@ import com.keenwrite.io.CommandNotFoundException;
 import com.keenwrite.io.SysFile;
 
 import java.io.File;
-import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 import static com.keenwrite.Bootstrap.CONTAINER_VERSION;
 import static com.keenwrite.events.StatusEvent.clue;
@@ -17,12 +16,23 @@ import static java.lang.String.format;
 import static java.lang.String.join;
 import static java.lang.System.arraycopy;
 import static java.util.Arrays.copyOf;
+import static org.apache.commons.lang3.SystemUtils.IS_OS_WINDOWS;
 
 /**
  * Provides facilities for interacting with a container environment.
  */
 public final class Podman implements ContainerManager {
-  public static final SysFile MANAGER = new SysFile( "podman" );
+  private static final String BINARY = "podman";
+  private static final Path BINARY_PATH =
+    Path.of(
+      format( IS_OS_WINDOWS
+                ? "C:\\Program Files\\RedHat\\Podman\\%s.exe"
+                : "/usr/bin/%s",
+              BINARY
+      )
+    );
+  private static final SysFile MANAGER = new SysFile( BINARY );
+
   public static final String CONTAINER_SHORTNAME = "typesetter";
   public static final String CONTAINER_NAME =
     format( "%s:%s", CONTAINER_SHORTNAME, CONTAINER_VERSION );
@@ -30,6 +40,32 @@ public final class Podman implements ContainerManager {
   private final List<String> mMountPoints = new LinkedList<>();
 
   public Podman() { }
+
+  /**
+   * Answers whether the container is installed and runnable on the host.
+   *
+   * @return {@code true} if the container is available.
+   */
+  public static boolean canRun() {
+    try {
+      return getExecutable().toFile().isFile();
+    } catch( final Exception ex ) {
+      clue( "Wizard.container.executable.run.error", ex );
+
+      // If the binary couldn't be found, then indicate that it cannot run.
+      return false;
+    }
+  }
+
+  private static Path getExecutable() {
+    final var executable = Files.isExecutable( BINARY_PATH );
+
+    clue( "Wizard.container.executable.run.scan", BINARY_PATH, executable );
+
+    return executable
+      ? BINARY_PATH
+      : MANAGER.locate().orElseThrow();
+  }
 
   @Override
   public int install( final File exe ) {
@@ -132,20 +168,19 @@ public final class Podman implements ContainerManager {
     final StreamProcessor processor, final String... args )
     throws CommandNotFoundException {
     try {
-      final var exe = MANAGER.locate();
-      final var path = exe.orElseThrow();
-      final var builder = processBuilder( path, args );
-      final var process = builder.start();
+      final var path = getExecutable();
       final var joined = join( ",", args );
 
       clue( "Wizard.container.process.enter", path, joined );
 
+      final var builder = processBuilder( path, args );
+      final var process = builder.start();
+
       processor.start( process.getInputStream() );
 
       return wait( process );
-    } catch( final NoSuchElementException |
-                   IOException |
-                   InterruptedException ex ) {
+    } catch( final Exception ex ) {
+      clue( ex );
       throw new CommandNotFoundException( MANAGER.toString() );
     }
   }

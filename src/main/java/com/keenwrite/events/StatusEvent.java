@@ -1,8 +1,6 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.events;
 
-import com.keenwrite.AppCommands;
-
 import java.util.List;
 
 import static com.keenwrite.Messages.get;
@@ -17,12 +15,6 @@ import static java.util.Arrays.stream;
  * exceptions, state problems, parsing errors, and so forth.
  */
 public final class StatusEvent implements AppEvent {
-  /**
-   * Reference a class in the top-level package that doesn't depend on any
-   * JavaFX APIs.
-   */
-  private static final String PACKAGE_NAME = AppCommands.class.getPackageName();
-
   private static final String ENGLISHIFY =
     "(?<=[a-z])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])";
 
@@ -46,8 +38,13 @@ public final class StatusEvent implements AppEvent {
     this( message, null );
   }
 
+  /**
+   * Constructs a new event that contains information about an unexpected issue.
+   *
+   * @param problem The issue encountered by the software, never {@code null}.
+   */
   public StatusEvent( final Throwable problem ) {
-    this( "", problem );
+    this( problem.getMessage(), problem );
   }
 
   /**
@@ -55,8 +52,7 @@ public final class StatusEvent implements AppEvent {
    * @param problem May be {@code null} if no exception was thrown.
    */
   public StatusEvent( final String message, final Throwable problem ) {
-    assert message != null;
-    mMessage = message;
+    mMessage = message == null ? "" : message;
     mProblem = problem;
   }
 
@@ -74,7 +70,7 @@ public final class StatusEvent implements AppEvent {
     if( trace != null ) {
       stream( trace.getStackTrace() )
         .takeWhile( StatusEvent::filter )
-        .limit( 10 )
+        .limit( 15 )
         .toList()
         .forEach( e -> sb.append( e.toString() ).append( NEWLINE ) );
     }
@@ -101,11 +97,11 @@ public final class StatusEvent implements AppEvent {
    */
   private static boolean filter( final StackTraceElement e ) {
     final var clazz = e.getClassName();
-    return !(clazz.contains( PACKAGE_NAME ) ||
-      clazz.contains( "org.renjin." ) ||
+    return !(clazz.contains( "org.renjin." ) ||
       clazz.contains( "sun." ) ||
       clazz.contains( "flexmark." ) ||
-      clazz.contains( "java." ));
+      clazz.contains( "java." )
+    );
   }
 
   /**

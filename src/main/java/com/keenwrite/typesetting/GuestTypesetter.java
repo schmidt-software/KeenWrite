@@ -11,9 +11,9 @@ import java.nio.file.Path;
 import java.util.LinkedList;
 import java.util.concurrent.Callable;
 
+import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.io.StreamGobbler.gobble;
 import static com.keenwrite.io.SysFile.normalize;
-import static com.keenwrite.typesetting.containerization.Podman.MANAGER;
 import static java.lang.String.format;
 
 /**
@@ -91,7 +91,7 @@ public final class GuestTypesetter extends Typesetter
    * installed, properly configured, and ready to typeset documents.
    */
   static boolean isReady() {
-    if( MANAGER.canRun() ) {
+    if( Podman.canRun() ) {
       final var exitCode = new StringBuilder();
       final var manager = new Podman();
 
@@ -104,7 +104,9 @@ public final class GuestTypesetter extends Typesetter
 
         // If the typesetter ran with an exit code of 0, it is available.
         return exitCode.indexOf( "0" ) == 0;
-      } catch( final CommandNotFoundException ignored ) { }
+      } catch( final CommandNotFoundException ex ) {
+        clue( ex );
+      }
     }
 
     return false;
