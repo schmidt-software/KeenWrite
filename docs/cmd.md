@@ -11,6 +11,7 @@ The most common command-line arguments to use include:
 * `-h` -- displays all command-line arguments, then exits.
 * `-i` -- sets the input file name, must be a full path.
 * `-o` -- sets the output file name, can be a relative path.
+* `-s` -- sets a variable name and value at build time (dynamic data).
 
 ## Example usage
 

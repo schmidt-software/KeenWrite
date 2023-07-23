@@ -190,6 +190,14 @@ public final class Arguments implements Callable<Integer> {
   private Path mRScriptPath;
 
   @CommandLine.Option(
+    names = {"-s", "--set"},
+    description =
+      "Set (or override) a document variable value",
+    paramLabel = "key=value"
+  )
+  private Map<String, String> mOverrides;
+
+  @CommandLine.Option(
     names = {"--sigil-opening"},
     description =
       "Starting sigil for variable names (${DEFAULT-VALUE})",
@@ -249,6 +257,7 @@ public final class Arguments implements Callable<Integer> {
       .with( Mutator::setExportFormat, format )
       .with( Mutator::setDefinitions, () -> definitions )
       .with( Mutator::setMetadata, () -> mMetadata )
+      .with( Mutator::setOverrides, () -> mOverrides )
       .with( Mutator::setLocale, () -> locale )
       .with( Mutator::setConcatenate, () -> mConcatenate )
       .with( Mutator::setChapters, () -> mChapters )

@@ -198,9 +198,32 @@ public final class ProcessorContext {
       mDefinitions = supplier;
     }
 
+    /**
+     * Sets metadata to use in the document header. These are made available
+     * to the typesetting engine as {@code \documentvariable} values.
+     *
+     * @param metadata The key/value pairs to publish as document metadata.
+     */
     public void setMetadata( final Supplier<Map<String, String>> metadata ) {
       assert metadata != null;
       mMetadata = metadata.get() == null ? HashMap::new : metadata;
+    }
+
+    /**
+     * Sets document variables to use when building the document. These
+     * variables will override existing key/value pairs, or be added as
+     * new key/value pairs if not already defined. This allows users to
+     * inject variables into the document from the command-line, allowing
+     * for dynamic assignment of in-text values when building documents.
+     *
+     * @param overrides The key/value pairs to add (or override) as variables.
+     */
+    public void setOverrides( final Supplier<Map<String, String>> overrides ) {
+      assert overrides != null;
+      assert mDefinitions != null;
+      assert mDefinitions.get() != null;
+
+      mDefinitions.get().putAll( overrides.get() );
     }
 
     /**
