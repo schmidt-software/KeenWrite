@@ -1,8 +1,8 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.ui.heuristics;
 
-import com.whitemagicsoftware.wordcount.Tokenizer;
-import com.whitemagicsoftware.wordcount.TokenizerFactory;
+import com.whitemagicsoftware.keencount.Tokenizer;
+import com.whitemagicsoftware.keencount.TokenizerFactory;
 
 import java.util.Locale;
 import java.util.function.BiConsumer;

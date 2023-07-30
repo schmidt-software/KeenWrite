@@ -6,7 +6,7 @@ import com.keenwrite.events.WordCountEvent;
 import com.keenwrite.preferences.Workspace;
 import com.keenwrite.ui.actions.Keyboard;
 import com.keenwrite.ui.clipboard.Clipboard;
-import com.whitemagicsoftware.wordcount.TokenizerException;
+import com.whitemagicsoftware.keencount.TokenizerException;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
