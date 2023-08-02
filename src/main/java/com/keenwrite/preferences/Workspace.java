@@ -561,11 +561,18 @@ public final class Workspace {
   @SuppressWarnings( "unchecked" )
   public <K, V> Map<K, V> getMetadata() {
     final var metadata = listsProperty( KEY_DOC_META );
-    final var map = new HashMap<K, V>( metadata.size() );
+    final HashMap<K, V> map;
 
-    metadata.forEach(
-      entry -> map.put( (K) entry.getKey(), (V) entry.getValue() )
-    );
+    if( metadata != null ) {
+      map = new HashMap<>( metadata.size() );
+
+      metadata.forEach(
+        entry -> map.put( (K) entry.getKey(), (V) entry.getValue() )
+      );
+    }
+    else {
+      map = new HashMap<>();
+    }
 
     return map;
   }

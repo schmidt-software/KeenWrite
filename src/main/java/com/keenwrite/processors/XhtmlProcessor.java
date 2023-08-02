@@ -11,10 +11,7 @@ import org.w3c.dom.Document;
 
 import java.io.FileNotFoundException;
 import java.nio.file.Path;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 
 import static com.keenwrite.Bootstrap.APP_TITLE_ABBR;
 import static com.keenwrite.dom.DocumentParser.*;
@@ -132,8 +129,8 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
    */
   private Map<String, String> createMetaDataMap( final Document doc ) {
     final var result = new LinkedHashMap<String, String>();
-    final var metadata = getMetadata();
     final var map = mContext.getInterpolatedDefinitions();
+    final var metadata = getMetadata();
 
     metadata.forEach(
       ( key, value ) -> {
@@ -157,7 +154,8 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
    * @return The document metadata.
    */
   private Map<String, String> getMetadata() {
-    return mContext.getMetadata();
+    final var result = mContext.getMetadata();
+    return result == null ? new HashMap<>() : result;
   }
 
   /**

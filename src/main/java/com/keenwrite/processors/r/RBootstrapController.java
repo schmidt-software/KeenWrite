@@ -67,11 +67,18 @@ public final class RBootstrapController {
     final Map<String, String> definitions ) {
 
     if( !bootstrap.isBlank() ) {
-      final var map = new HashMap<String, String>( definitions.size() + 1 );
+      final Map<String, String> map;
 
-      definitions.forEach(
-        ( k, v ) -> map.put( KEY_OPERATOR.apply( k ), escape( v ) )
-      );
+      if( definitions == null ) {
+        map = new HashMap<>();
+      }
+      else {
+        map = new HashMap<>( definitions.size() + 1 );
+        definitions.forEach(
+          ( k, v ) -> map.put( KEY_OPERATOR.apply( k ), escape( v ) )
+        );
+      }
+
       map.put(
         KEY_OPERATOR.apply( "application.r.working.directory" ),
         escape( workingDir )

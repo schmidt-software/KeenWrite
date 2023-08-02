@@ -77,9 +77,10 @@ public final class TextEditorSpellChecker {
     // start of a new paragraph (i.e., a blank line). Spellcheck the "next"
     // paragraph, instead.
     if( text.isBlank() ) {
-      final var paragraphs = editor.getParagraphs().size();
+      final var paragraphs = editor.getParagraphs();
+      final var count = paragraphs == null ? 0 : paragraphs.size();
 
-      paraId = Math.min( paraId + 1, paragraphs - 1 );
+      paraId = Math.min( paraId + 1, count - 1 );
       paragraph = editor.getParagraph( paraId );
       text = paragraph.getText();
     }
