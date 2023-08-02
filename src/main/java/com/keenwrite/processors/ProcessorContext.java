@@ -160,6 +160,7 @@ public final class ProcessorContext {
 
     public void setFontDir( final Supplier<File> fontDir ) {
       assert fontDir != null;
+
       mFontDir = () -> {
         final var dir = fontDir.get();
 
@@ -224,7 +225,11 @@ public final class ProcessorContext {
       assert mDefinitions != null;
       assert mDefinitions.get() != null;
 
-      mDefinitions.get().putAll( overrides.get() );
+      final var map = overrides.get();
+
+      if( map != null ) {
+        mDefinitions.get().putAll( map );
+      }
     }
 
     /**

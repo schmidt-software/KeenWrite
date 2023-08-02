@@ -9,7 +9,6 @@ import javafx.scene.control.IndexRange;
 import org.ahocorasick.trie.Emit;
 import org.ahocorasick.trie.Trie;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.ahocorasick.trie.Trie.builder;
