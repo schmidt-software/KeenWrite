@@ -39,7 +39,8 @@ public class HeadlessApp {
   @Subscribe
   public void handle( final StatusEvent event ) {
     if( !mArgs.quiet() ) {
-      System.out.println( event );
+      System.out.println( event.toString() );
+      System.out.println( event.getProblem() );
     }
   }
 
@@ -48,6 +49,7 @@ public class HeadlessApp {
    *
    * @param args The parsed command-line arguments.
    */
+  @SuppressWarnings( "ConfusingMainMethod" )
   public static void main( final Arguments args ) {
     new HeadlessApp( args );
   }
