@@ -12,6 +12,7 @@ import java.util.Locale;
 
 import static com.keenwrite.Bootstrap.APP_TITLE_LOWERCASE;
 import static com.keenwrite.Bootstrap.USER_DATA_DIR;
+import static com.keenwrite.io.SysFile.toFile;
 import static com.keenwrite.preferences.LocaleScripts.withScript;
 import static java.io.File.separator;
 import static java.lang.String.format;
@@ -307,8 +308,10 @@ public final class Constants {
       fontUser = FONT_PATH;
     }
 
-    return (fontBase == null
+    final var base = fontBase == null
       ? USER_DATA_DIR.relativize( fontUser )
-      : Path.of( fontBase ).resolve( fontUser )).toFile();
+      : Path.of( fontBase ).resolve( fontUser );
+
+    return toFile( base );
   }
 }

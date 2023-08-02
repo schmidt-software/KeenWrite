@@ -29,6 +29,7 @@ import static com.keenwrite.Bootstrap.USER_DATA_DIR;
 import static com.keenwrite.constants.Constants.*;
 import static com.keenwrite.io.FileType.UNKNOWN;
 import static com.keenwrite.io.MediaType.TEXT_PROPERTIES;
+import static com.keenwrite.io.SysFile.toFile;
 import static com.keenwrite.predicates.PredicateFactory.createFileTypePredicate;
 
 /**
@@ -61,7 +62,7 @@ public final class ProcessorContext {
       final var patterns = sSettings.getStringSettingList( key );
       final var predicate = createFileTypePredicate( patterns );
 
-      if( predicate.test( path.toFile() ) ) {
+      if( predicate.test( toFile( path ) ) ) {
         // Remove the EXTENSIONS_PREFIX to get the file name extension mapped
         // to a standard name (as defined in the settings.properties file).
         final String suffix = key.replace( prefix + '.', "" );
@@ -133,7 +134,7 @@ public final class ProcessorContext {
       mCacheDir = () -> {
         final var dir = cacheDir.get();
 
-        return (dir == null ? USER_DATA_DIR.toFile() : dir).toPath();
+        return (dir == null ? toFile( USER_DATA_DIR ) : dir).toPath();
       };
     }
 

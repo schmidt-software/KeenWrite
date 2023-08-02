@@ -11,6 +11,7 @@ import java.util.function.BiConsumer;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import static com.keenwrite.io.SysFile.toFile;
 import static java.nio.file.Files.createDirectories;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
@@ -104,9 +105,9 @@ public final class Zip {
     final Path zipPath,
     final BiConsumer<ZipFile, ZipEntry> consumer )
     throws IOException {
-    assert zipPath.toFile().isFile();
+    assert toFile( zipPath ).isFile();
 
-    try( final var zipFile = new ZipFile( zipPath.toFile() ) ) {
+    try( final var zipFile = new ZipFile( toFile( zipPath ) ) ) {
       final var entries = zipFile.entries();
 
       while( entries.hasMoreElements() ) {

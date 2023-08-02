@@ -12,6 +12,7 @@ import java.io.IOException;
 
 import static com.keenwrite.Messages.get;
 import static com.keenwrite.events.StatusEvent.clue;
+import static com.keenwrite.io.SysFile.toFile;
 import static com.keenwrite.preferences.AppKeys.KEY_TYPESET_CONTEXT_THEMES_PATH;
 
 /**
@@ -55,7 +56,7 @@ public class TypesetterThemesDownloadPane extends AbstractDownloadPane {
     Zip.extract( target.toPath() );
 
     // Replace the default themes directory with the downloaded version.
-    final var root = Zip.root( target.toPath() ).toFile();
+    final var root = toFile( Zip.root( target.toPath() ) );
 
     // Make sure the typesetter will know where to find the themes.
     mWorkspace.fileProperty( KEY_TYPESET_CONTEXT_THEMES_PATH ).set( root );

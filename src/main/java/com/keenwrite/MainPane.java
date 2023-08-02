@@ -73,6 +73,7 @@ import static com.keenwrite.events.Bus.register;
 import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.io.MediaType.*;
 import static com.keenwrite.io.MediaType.TypeName.TEXT;
+import static com.keenwrite.io.SysFile.toFile;
 import static com.keenwrite.preferences.AppKeys.*;
 import static com.keenwrite.processors.IdentityProcessor.IDENTITY;
 import static com.keenwrite.processors.ProcessorContext.Mutator;
@@ -306,7 +307,7 @@ public final class MainPane extends SplitPane {
       }
       else {
         final var parentPath = parent.getAbsolutePath();
-        eventFile = Path.of( parentPath, eventUri.getPath() ).toFile();
+        eventFile = toFile( Path.of( parentPath, eventUri.getPath() ) );
       }
     }
 

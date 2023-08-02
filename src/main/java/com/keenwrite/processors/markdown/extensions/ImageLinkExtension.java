@@ -16,6 +16,7 @@ import java.nio.file.Path;
 import java.util.Optional;
 
 import static com.keenwrite.events.StatusEvent.clue;
+import static com.keenwrite.io.SysFile.toFile;
 import static com.keenwrite.util.ProtocolScheme.getProtocol;
 import static com.vladsch.flexmark.html.HtmlRenderer.Builder;
 import static com.vladsch.flexmark.html.renderer.LinkStatus.VALID;
@@ -114,7 +115,7 @@ public class ImageLinkExtension extends HtmlRendererAdapter {
 
       // If the image can be found relative to the base directory, then
       // use the link as is when resolving the path.
-      return readable( fqfn.toFile() )
+      return readable( toFile( fqfn ) )
         ? valid( link, url )
         : resolveExtensionlessImageFile( link, node, url );
     }
@@ -144,7 +145,7 @@ public class ImageLinkExtension extends HtmlRendererAdapter {
         final var imagesDir = getImageDir();
         final var baseImagesDir = baseDir.resolve( imagesDir );
         final var imagePath = baseImagesDir.resolve( url );
-        final var file = resolveImageExtension( imagePath.toFile() );
+        final var file = resolveImageExtension( toFile( imagePath ) );
 
         if( file.isPresent() ) {
           final var resolved = imagesDir.resolve( file.get().toPath() );

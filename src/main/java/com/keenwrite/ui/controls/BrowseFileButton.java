@@ -43,6 +43,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.keenwrite.io.SysFile.toFile;
 import static com.keenwrite.ui.fonts.IconFactory.createGraphic;
 import static org.controlsfx.glyphfont.FontAwesome.Glyph.FILE_ALT;
 
@@ -86,7 +87,7 @@ public class BrowseFileButton extends Button {
     fileChooser.getExtensionFilters().addAll( mExtensionFilters );
     fileChooser.getExtensionFilters()
                .add( new ExtensionFilter( Messages.get(
-                   "BrowseFileButton.chooser.allFilesFilter" ), "*.*" ) );
+                 "BrowseFileButton.chooser.allFilesFilter" ), "*.*" ) );
     fileChooser.setInitialDirectory( getInitialDirectory() );
     var result = fileChooser.showOpenDialog( getScene().getWindow() );
     if( result != null ) {
@@ -96,7 +97,7 @@ public class BrowseFileButton extends Button {
 
   private File getInitialDirectory() {
     //TODO build initial directory based on current value of 'url' property
-    return getBasePath().toFile();
+    return toFile( getBasePath() );
   }
 
   private void updateUrl( File file ) {

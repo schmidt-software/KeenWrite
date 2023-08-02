@@ -1,5 +1,6 @@
 package com.keenwrite.dom;
 
+import com.keenwrite.io.SysFile;
 import org.w3c.dom.*;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -22,6 +23,7 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 import static com.keenwrite.events.StatusEvent.clue;
+import static com.keenwrite.io.SysFile.toFile;
 import static java.nio.charset.StandardCharsets.UTF_16;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.nio.file.Files.write;
@@ -244,7 +246,7 @@ public class DocumentParser {
     sWriter.reset();
 
     final var target = new StreamResult( sOutput );
-    final var source = sDocumentBuilder.parse( path.toFile() );
+    final var source = sDocumentBuilder.parse( toFile( path ) );
 
     transform( source, target );
     write( path, sWriter.toByteArray() );

@@ -8,6 +8,7 @@ import java.nio.file.Path;
 
 import static com.keenwrite.io.MediaType.TypeName.*;
 import static com.keenwrite.io.MediaTypeExtension.fromExtension;
+import static com.keenwrite.io.SysFile.toFile;
 import static org.apache.commons.io.FilenameUtils.getExtension;
 
 /**
@@ -348,7 +349,7 @@ public enum MediaType {
       .valueFrom( this )
       .getExtension();
 
-    final var file = File.createTempFile( prefix, suffix, directory.toFile() );
+    final var file = File.createTempFile( prefix, suffix, toFile( directory ) );
 
     if( purge ) {
       file.deleteOnExit();

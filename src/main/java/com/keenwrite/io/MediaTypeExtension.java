@@ -8,6 +8,7 @@ import java.nio.file.Path;
 import java.util.List;
 
 import static com.keenwrite.io.MediaType.*;
+import static com.keenwrite.io.SysFile.toFile;
 import static java.util.List.of;
 
 /**
@@ -102,7 +103,7 @@ public enum MediaTypeExtension {
   }
 
   public static MediaType fromPath( final Path path ) {
-    return fromFile( path.toFile() );
+    return fromFile( toFile( path ) );
   }
 
   private static String sanitize( final String extension ) {

@@ -7,6 +7,7 @@ import com.keenwrite.io.MediaTypeExtension;
 import java.io.File;
 import java.nio.file.Path;
 
+import static com.keenwrite.io.SysFile.toFile;
 import static java.lang.String.format;
 import static org.apache.commons.io.FilenameUtils.removeExtension;
 
@@ -124,6 +125,6 @@ public enum ExportFormat {
    * @return The given path with its extension replaced.
    */
   public File toExportFilename( final Path path ) {
-    return toExportFilename( path.toFile() );
+    return toExportFilename( toFile( path ) );
   }
 }

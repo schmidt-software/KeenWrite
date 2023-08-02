@@ -3,14 +3,12 @@ package com.keenwrite.io;
 
 import org.junit.jupiter.api.Test;
 
-import java.io.FileNotFoundException;
-
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class UserDataDirTest {
   @Test
-  void test_Unix_GetAppDirectory_DirectoryExists()
-    throws FileNotFoundException {
+  void test_Unix_GetAppDirectory_DirectoryExists() {
     final var path = UserDataDir.getAppPath( "test" );
     final var file = path.toFile();
 

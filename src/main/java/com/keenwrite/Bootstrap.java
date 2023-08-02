@@ -11,6 +11,7 @@ import java.util.Calendar;
 import java.util.Properties;
 
 import static com.keenwrite.events.StatusEvent.clue;
+import static com.keenwrite.io.SysFile.toFile;
 
 /**
  * Responsible for loading the bootstrap.properties file, which is
@@ -82,7 +83,7 @@ public final class Bootstrap {
     System.setProperty( "http.agent", APP_TITLE + " " + APP_VERSION_CLEAN );
 
     USER_DATA_DIR = UserDataDir.getAppPath( APP_TITLE_LOWERCASE );
-    USER_CACHE_DIR = USER_DATA_DIR.resolve( "cache" ).toFile();
+    USER_CACHE_DIR = toFile( USER_DATA_DIR.resolve( "cache" ) );
 
     if( !USER_CACHE_DIR.exists() && !USER_CACHE_DIR.mkdirs() ) {
       clue( "Main.status.error.bootstrap.cache", USER_CACHE_DIR );

@@ -12,6 +12,7 @@ import java.util.List;
 
 import static com.keenwrite.Bootstrap.CONTAINER_VERSION;
 import static com.keenwrite.events.StatusEvent.clue;
+import static com.keenwrite.io.SysFile.toFile;
 import static java.lang.String.format;
 import static java.lang.String.join;
 import static java.lang.System.arraycopy;
@@ -48,7 +49,7 @@ public final class Podman implements ContainerManager {
    */
   public static boolean canRun() {
     try {
-      return getExecutable().toFile().isFile();
+      return toFile( getExecutable() ).isFile();
     } catch( final Exception ex ) {
       clue( "Wizard.container.executable.run.error", ex );
 
@@ -150,7 +151,7 @@ public final class Podman implements ContainerManager {
     assert hostDir != null;
     assert guestDir != null;
     assert !guestDir.isBlank();
-    assert hostDir.toFile().isDirectory();
+    assert toFile( hostDir ).isDirectory();
 
     mMountPoints.add(
       format( "-v%s:%s:%s", hostDir, guestDir, readonly ? "ro" : "Z" )
@@ -216,7 +217,7 @@ public final class Podman implements ContainerManager {
 
   private static ProcessBuilder processBuilder(
     final Path path, final String... s ) {
-    return processBuilder( path.toFile(), s );
+    return processBuilder( toFile( path ), s );
   }
 
   /**

@@ -12,6 +12,7 @@ import java.nio.file.Path;
 
 import static com.keenwrite.constants.Constants.DEFAULT_CHARSET;
 import static com.keenwrite.events.StatusEvent.clue;
+import static com.keenwrite.io.SysFile.toFile;
 import static java.nio.charset.Charset.forName;
 import static java.nio.file.Files.readAllBytes;
 import static java.nio.file.Files.write;
@@ -113,7 +114,7 @@ public interface TextResource {
    * @return The character encoding for the file at the given {@link Path}.
    */
   default Charset open( final Path path ) {
-    final var file = path.toFile();
+    final var file = toFile( path );
     Charset encoding = DEFAULT_CHARSET;
 
     try {

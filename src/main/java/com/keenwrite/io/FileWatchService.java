@@ -12,6 +12,7 @@ import java.nio.file.WatchService;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static com.keenwrite.io.SysFile.toFile;
 import static java.nio.file.FileSystems.getDefault;
 import static java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY;
 import static java.util.Collections.newSetFromMap;
@@ -71,7 +72,7 @@ public class FileWatchService implements Runnable {
       for( final var pollEvent : watchKey.pollEvents() ) {
         final var watchable = (Path) watchKey.watchable();
         final var context = (Path) pollEvent.context();
-        final var file = watchable.resolve( context ).toFile();
+        final var file = toFile( watchable.resolve( context ) );
 
         if( mWatched.containsKey( file ) ) {
           final var fileEvent = new FileEvent( file );

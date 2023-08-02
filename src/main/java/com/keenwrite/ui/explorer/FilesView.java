@@ -25,6 +25,7 @@ import java.util.Optional;
 
 import static com.keenwrite.constants.Constants.UI_CONTROL_SPACING;
 import static com.keenwrite.events.StatusEvent.clue;
+import static com.keenwrite.io.SysFile.toFile;
 import static com.keenwrite.ui.fonts.IconFactory.createFileIcon;
 import static java.nio.file.Files.size;
 import static java.time.Instant.ofEpochMilli;
@@ -169,13 +170,13 @@ public class FilesView extends BorderPane implements FilePicker {
           final var dir = mDirectory.get();
           final var filename = entry.nameProperty().get();
           final var path = Path.of( dir.toString(), filename );
-          final var file = path.toFile();
+          final var file = toFile( path );
 
           if( file.isFile() ) {
             FileOpenEvent.fire( path.toUri() );
           }
           else if( file.isDirectory() ) {
-            mDirectory.set( path.normalize().toFile() );
+            mDirectory.set( toFile( path.normalize() ) );
           }
         }
       } );
@@ -270,7 +271,7 @@ public class FilesView extends BorderPane implements FilePicker {
         path,
         SysFile.getFileName( path ),
         size( path ),
-        ofEpochMilli( path.toFile().lastModified() )
+        ofEpochMilli( toFile( path ).lastModified() )
       );
     }
 

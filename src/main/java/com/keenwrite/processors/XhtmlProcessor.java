@@ -19,6 +19,7 @@ import java.util.Map;
 import static com.keenwrite.Bootstrap.APP_TITLE_ABBR;
 import static com.keenwrite.dom.DocumentParser.*;
 import static com.keenwrite.events.StatusEvent.clue;
+import static com.keenwrite.io.SysFile.toFile;
 import static com.keenwrite.io.downloads.DownloadManager.open;
 import static com.keenwrite.util.ProtocolScheme.getProtocol;
 import static com.whitemagicsoftware.keenquotes.lex.FilterType.FILTER_XML;
@@ -185,7 +186,7 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
 
       // Preserve image files if auto-remove is turned off.
       if( autoRemove() ) {
-        imageFile.toFile().deleteOnExit();
+        toFile( imageFile ).deleteOnExit();
       }
 
       try( final var image = response.getInputStream() ) {
@@ -213,7 +214,7 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
         "%s%s%s", src, extension.isBlank() ? "" : ".", extension );
       imageFile = imagePath.resolve( filename );
 
-      if( imageFile.toFile().exists() ) {
+      if( toFile( imageFile ).exists() ) {
         found = true;
         break;
       }
@@ -223,7 +224,7 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
       imagePath = getDocumentDir();
       imageFile = imagePath.resolve( src );
 
-      if( !imageFile.toFile().exists() ) {
+      if( !toFile( imageFile ).exists() ) {
         final var filename = imageFile.toString();
         clue( "Main.status.image.xhtml.image.missing", filename );
 

@@ -16,6 +16,7 @@ import java.util.concurrent.Callable;
 import static com.keenwrite.constants.Constants.DEFAULT_DIRECTORY;
 import static com.keenwrite.constants.Constants.TEMPORARY_DIRECTORY;
 import static com.keenwrite.events.StatusEvent.clue;
+import static com.keenwrite.io.SysFile.toFile;
 import static java.lang.ProcessBuilder.Redirect.DISCARD;
 import static java.nio.file.Files.*;
 import static java.util.Arrays.asList;
@@ -107,7 +108,7 @@ public final class HostTypesetter extends Typesetter
     public Boolean call() throws IOException, InterruptedException {
       final var stdout = new CircularQueue<String>( 150 );
       final var builder = new ProcessBuilder( mArgs );
-      builder.directory( mDirectory.toFile() );
+      builder.directory( toFile( mDirectory ) );
       builder.environment().put( "TEXMFCACHE", getCacheDir().toString() );
 
       // Without redirecting (or draining) stderr, the command may not
@@ -202,7 +203,7 @@ public final class HostTypesetter extends Typesetter
     @SuppressWarnings( "SpellCheckingInspection" )
     private java.io.File getCacheDir() {
       final var cache = Path.of( TEMPORARY_DIRECTORY, "luatex-cache" );
-      return cache.toFile();
+      return toFile( cache );
     }
 
     /**

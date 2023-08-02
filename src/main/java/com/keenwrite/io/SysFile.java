@@ -266,13 +266,21 @@ public final class SysFile extends java.io.File {
    * succeeding. This could help, for example, if the images directory was
    * deleted or moved.
    *
-   * @param path The path to verify existence.
+   * @param path The path to verify existence, may be null.
    * @return The given path, if it exists, otherwise the user's home directory.
    */
   public static Path normalize( final Path path ) {
-    assert path != null;
+    return path == null
+      ? USER_DIRECTORY.toPath()
+      : path.toFile().exists()
+      ? path
+      : USER_DIRECTORY.toPath();
+  }
 
-    return path.toFile().exists() ? path : USER_DIRECTORY.toPath();
+  public static File toFile( final Path path ) {
+    return path == null
+      ? USER_DIRECTORY
+      : path.toFile();
   }
 
   private static String pathsSane() {

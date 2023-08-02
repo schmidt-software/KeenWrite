@@ -37,6 +37,7 @@ import static com.keenwrite.constants.Constants.UI_CONTROL_SPACING;
 import static com.keenwrite.constants.GraphicsConstants.ICON_DIALOG;
 import static com.keenwrite.constants.GraphicsConstants.ICON_DIALOG_NODE;
 import static com.keenwrite.events.StatusEvent.clue;
+import static com.keenwrite.io.SysFile.toFile;
 import static com.keenwrite.util.FileWalker.walk;
 import static java.lang.Math.max;
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -355,7 +356,7 @@ public final class ExportDialog extends AbstractDialog<ExportSettings> {
     final var properties = new Properties();
 
     try(
-      final var f = new FileInputStream( path.toFile() );
+      final var f = new FileInputStream( toFile( path ) );
       final var in = new InputStreamReader( f, UTF_8 )
     ) {
       properties.load( in );

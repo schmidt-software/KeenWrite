@@ -15,6 +15,7 @@ import static com.keenwrite.Bootstrap.USER_DATA_DIR;
 import static com.keenwrite.Messages.get;
 import static com.keenwrite.Messages.getUri;
 import static com.keenwrite.events.StatusEvent.clue;
+import static com.keenwrite.io.SysFile.toFile;
 
 /**
  * Responsible for asynchronous downloads.
@@ -31,7 +32,7 @@ public abstract class AbstractDownloadPane extends InstallerPane {
     mUri = getUri( getPrefix() + ".download.link.url" );
     mFilename = toFilename( mUri );
     final var directory = USER_DATA_DIR;
-    mTarget = directory.resolve( mFilename ).toFile();
+    mTarget = toFile( directory.resolve( mFilename ) );
     final var source = labelf( getPrefix() + ".paths", mFilename, directory );
     mStatus = labelf( getPrefix() + STATUS + ".progress", 0, 0 );
 

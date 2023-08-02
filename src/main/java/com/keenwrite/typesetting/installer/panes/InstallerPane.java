@@ -26,6 +26,7 @@ import java.util.concurrent.Callable;
 
 import static com.keenwrite.Messages.get;
 import static com.keenwrite.constants.GraphicsConstants.ICON_DIALOG;
+import static com.keenwrite.io.SysFile.toFile;
 import static java.lang.System.lineSeparator;
 import static javafx.animation.Interpolator.LINEAR;
 import static javafx.application.Platform.runLater;
@@ -306,6 +307,6 @@ public abstract class InstallerPane extends WizardPane {
   }
 
   static String toFilename( final URI uri ) {
-    return Paths.get( uri.getPath() ).toFile().getName();
+    return toFile( Paths.get( uri.getPath() ) ).getName();
   }
 }

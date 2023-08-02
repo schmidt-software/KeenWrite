@@ -3,6 +3,7 @@ package com.keenwrite.io;
 
 import java.nio.file.Path;
 
+import static com.keenwrite.io.SysFile.toFile;
 import static java.lang.System.getProperty;
 import static java.lang.System.getenv;
 import static org.apache.commons.lang3.SystemUtils.*;
@@ -130,7 +131,7 @@ public final class UserDataDir {
    * {@code false} if the directory doesn't exist and couldn't be created.
    */
   private static boolean ensureExists( final Path path ) {
-    final var file = path.toFile();
+    final var file = toFile( path );
     return file.exists() || file.mkdirs();
   }
 
