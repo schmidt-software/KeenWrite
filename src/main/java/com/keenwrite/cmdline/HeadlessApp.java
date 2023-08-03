@@ -5,6 +5,7 @@ import com.keenwrite.events.StatusEvent;
 import org.greenrobot.eventbus.Subscribe;
 
 import static com.keenwrite.events.Bus.register;
+import static java.lang.String.format;
 
 /**
  * Responsible for running the application in headless mode.
@@ -38,9 +39,16 @@ public class HeadlessApp {
    */
   @Subscribe
   public void handle( final StatusEvent event ) {
+    assert event != null;
+
     if( !mArgs.quiet() ) {
-      System.out.println( event.toString() );
-      System.out.println( event.getProblem() );
+      final var stacktrace = event.getProblem();
+      final var problem = stacktrace.isBlank()
+        ? ""
+        : format( "%n%s", stacktrace );
+      final var msg = format( "%s%s", event, problem );
+
+      System.out.println( msg );
     }
   }
 

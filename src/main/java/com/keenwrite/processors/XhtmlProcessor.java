@@ -9,6 +9,7 @@ import com.whitemagicsoftware.keenquotes.parser.Contractions;
 import com.whitemagicsoftware.keenquotes.parser.Curler;
 import org.w3c.dom.Document;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.nio.file.Path;
 import java.util.*;
@@ -168,7 +169,8 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
    * @throws Exception Could not download or save the file.
    */
   private Path downloadImage( final String src ) throws Exception {
-    final Path imageFile;
+    final Path imagePath;
+    final File imageFile;
     final var cachesPath = getCachesPath();
 
     clue( "Main.status.image.xhtml.image.download", src );
@@ -180,23 +182,29 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
       final var hash = DataTypeConverter.toHex( DataTypeConverter.hash( src ) );
       final var id = hash.toLowerCase();
 
-      imageFile = cachesPath.resolve( APP_TITLE_ABBR + id + '.' + ext );
+      imagePath = cachesPath.resolve( APP_TITLE_ABBR + id + '.' + ext );
+      imageFile = toFile( imagePath );
 
       // Preserve image files if auto-remove is turned off.
       if( autoRemove() ) {
-        toFile( imageFile ).deleteOnExit();
+        imageFile.deleteOnExit();
       }
 
       try( final var image = response.getInputStream() ) {
-        copy( image, imageFile, REPLACE_EXISTING );
+        copy( image, imagePath, REPLACE_EXISTING );
       }
 
       if( mediaType.isSvg() ) {
-        sanitize( imageFile );
+        sanitize( imagePath );
       }
     }
 
-    return imageFile;
+    final var key = imageFile.exists()
+      ? "Main.status.image.xhtml.image.saved"
+      : "Main.status.image.xhtml.image.failed";
+    clue( key, imageFile );
+
+    return imagePath;
   }
 
   private Path resolveImage( final String src ) throws Exception {

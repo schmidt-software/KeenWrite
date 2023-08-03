@@ -1,6 +1,5 @@
 package com.keenwrite.dom;
 
-import com.keenwrite.io.SysFile;
 import org.w3c.dom.*;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
