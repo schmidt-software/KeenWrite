@@ -27,7 +27,7 @@ public class WindowsRegistry {
   private static final String VAR_REGEX = "%.*?%";
   private static final Pattern VAR_PATTERN = compile( VAR_REGEX );
 
-  private static final String REG_REGEX = "\\s*path\\s+REG_EXPAND_SZ\\s+(.*)";
+  private static final String REG_REGEX = "\\s*path\\s+REG_.*SZ\\s+(.*)";
   private static final Pattern REG_PATTERN = compile( REG_REGEX );
 
   /**

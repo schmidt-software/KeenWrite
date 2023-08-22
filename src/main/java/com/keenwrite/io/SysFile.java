@@ -126,7 +126,14 @@ public final class SysFile extends java.io.File {
     final var exe = getName();
 
     for( final var dir : dirs ) {
-      final var p = Path.of( dir ).resolve( exe );
+      Path p;
+
+      try {
+        p = Path.of( dir ).resolve( exe );
+      } catch( final Exception ex ) {
+        clue( ex );
+        continue;
+      }
 
       for( final var extension : EXTENSIONS ) {
         final var filename = Path.of( p + extension );
