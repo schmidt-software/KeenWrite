@@ -1,5 +1,3 @@
-![Total Downloads](https://img.shields.io/github/downloads/DaveJarvis/keenwrite/total?color=blue&label=Total%20Downloads&style=flat) ![Release Downloads](https://img.shields.io/github/downloads/DaveJarvis/keenwrite/latest/total?color=purple&label=Release%20Downloads&style=flat) ![Released](https://img.shields.io/github/release-date/DaveJarvis/keenwrite?color=red&style=flat&label=Released) ![Version](https://img.shields.io/github/v/release/DaveJarvis/keenwrite?style=flat&label=Release)
-
 # ![Logo](docs/images/app-title.png)
 
 A free, open-source, cross-platform desktop Markdown editor that can produce beautifully typeset PDFs.
