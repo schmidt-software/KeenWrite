@@ -8,30 +8,30 @@
 
 source ../scripts/build-template
 
-readonly BUILD_DIR=build
-readonly PROPERTIES="${SCRIPT_DIR}/../src/main/resources/bootstrap.properties"
+# Reads the value of a property from a properties file.
+#
+# $1 - The key name to obtain.
+function property {
+  grep "^${1}" "${PROPERTIES}" | cut -d'=' -f2
+}
 
-# Read the properties file to get the container version.
-while IFS='=' read -r key value
-do
-  key=$(echo $key | tr '.' '_')
-  eval ${key}=\${value}
-done < "${PROPERTIES}"
+readonly BUILD_DIR=build
+readonly PROPERTIES="${SCRIPT_DIR}/../src/main/resources/com/keenwrite/messages.properties"
 
 readonly CONTAINER_EXE=podman
-readonly CONTAINER_SHORTNAME=typesetter
-readonly CONTAINER_VERSION=${container_version}
+readonly CONTAINER_SHORTNAME=$(property Wizard.typesetter.container.image.name)
+readonly CONTAINER_VERSION=$(property Wizard.typesetter.container.image.version)
 readonly CONTAINER_NETWORK=host
-readonly CONTAINER_FILE="${CONTAINER_SHORTNAME}"
+readonly CONTAINER_FILE="${CONTAINER_SHORTNAME}-${CONTAINER_VERSION}"
 readonly CONTAINER_ARCHIVE_FILE="${CONTAINER_FILE}.tar"
 readonly CONTAINER_ARCHIVE_PATH="${BUILD_DIR}/${CONTAINER_ARCHIVE_FILE}"
 readonly CONTAINER_COMPRESSED_FILE="${CONTAINER_ARCHIVE_FILE}.gz"
 readonly CONTAINER_COMPRESSED_PATH="${BUILD_DIR}/${CONTAINER_ARCHIVE_FILE}.gz"
+readonly CONTAINER_IMAGE_FILE="${BUILD_DIR}/${CONTAINER_FILE}"
 readonly CONTAINER_DIR_SOURCE="/root/source"
 readonly CONTAINER_DIR_TARGET="/root/target"
 readonly CONTAINER_DIR_IMAGES="/root/images"
 readonly CONTAINER_DIR_FONTS="/root/fonts"
-readonly CONTAINER_REPO=ghcr.io
 
 ARG_CONTAINER_NAME="${CONTAINER_SHORTNAME}:${CONTAINER_VERSION}"
 ARG_CONTAINER_COMMAND="context --version"
@@ -39,7 +39,6 @@ ARG_MOUNTPOINT_SOURCE=""
 ARG_MOUNTPOINT_TARGET="."
 ARG_MOUNTPOINT_IMAGES=""
 ARG_MOUNTPOINT_FONTS="${HOME}/.fonts"
-ARG_ACCESS_TOKEN=""
 
 DEPENDENCIES=(
   "podman,https://podman.io"
@@ -55,11 +54,9 @@ ARGUMENTS+=(
   "t,target,Set mount point for output file (after typesetting)"
   "i,images,Set mount point for image files (to typeset)"
   "f,fonts,Set mount point for font files (during typesetting)"
-  "k,token,Set personal access token (to publish)"
   "l,load,Load container (${CONTAINER_COMPRESSED_PATH})"
-  "p,publish,Publish the container (after logging in)"
+  "p,publish,Publish the container"
   "r,run,Run a command in the container (\"${ARG_CONTAINER_COMMAND}\")"
-  "v,version,Set container version to publish (${CONTAINER_VERSION})"
   "x,export,Save container (${CONTAINER_COMPRESSED_PATH})"
 )
 
@@ -97,9 +94,9 @@ utile_build() {
 
   # Show what commands are run while building, but not the commands' output.
   ${CONTAINER_EXE} build \
-    --network=${CONTAINER_NETWORK} \
+    --network="${CONTAINER_NETWORK}" \
     --squash \
-    -t ${ARG_CONTAINER_NAME} . | \
+    -t "${ARG_CONTAINER_NAME}" . | \
   grep ^STEP
 }
 
@@ -107,24 +104,19 @@ utile_build() {
 # Publishes the container to the repository.
 # ---------------------------------------------------------------------------
 utile_publish() {
-  local -r username=$(git config user.name | tr '[A-Z]' '[a-z]')
-  local -r repo="${CONTAINER_REPO}/${username}/${ARG_CONTAINER_NAME}"
+  local -r TOKEN_FILE="token.txt"
 
-  if [ ! -z ${ARG_ACCESS_TOKEN} ]; then
-    echo ${ARG_ACCESS_TOKEN} | \
-      ${CONTAINER_EXE} login ghcr.io -u $(git config user.name) --password-stdin
+  if [[ -f "${TOKEN_FILE}" ]]; then
+    local -r repository=$(cat ${TOKEN_FILE})
+    local -r remote_file="${CONTAINER_SHORTNAME}:${CONTAINER_VERSION}"
+    local -r remote_path="${repository}/${remote_file}"
 
-    $log "Tagging"
+    $log "Publishing to ${remote_path}"
 
-    ${CONTAINER_EXE} tag ${ARG_CONTAINER_NAME} ${repo}
-
-    $log "Pushing ${ARG_CONTAINER_NAME} to ${CONTAINER_REPO}"
-
-    ${CONTAINER_EXE} push ${repo}
-
-    $log "Published ${ARG_CONTAINER_NAME} to ${CONTAINER_REPO}"
+    # Path to the repository.
+    scp -q "${CONTAINER_IMAGE_FILE}" "${remote_path}"
   else
-    error "Provide a personal access token (-k TOKEN) to publish."
+    error "Create ${TOKEN_FILE} with publish credentials"
   fi
 }
 
@@ -231,7 +223,10 @@ utile_export() {
     $log "Compressing to ${CONTAINER_COMPRESSED_PATH}"
     gzip "${CONTAINER_ARCHIVE_PATH}"
 
-    $log "Saved ${CONTAINER_SHORTNAME} image"
+    $log "Renaming to ${CONTAINER_IMAGE_FILE}"
+    mv "${CONTAINER_COMPRESSED_PATH}" "${CONTAINER_IMAGE_FILE}"
+
+    $log "Saved ${CONTAINER_IMAGE_FILE} image"
   fi
 }
 
@@ -265,12 +260,6 @@ argument() {
     -d|--delete)
     do_delete=utile_delete
     ;;
-    -k|--token)
-    if [ ! -z "${2+x}" ]; then
-      ARG_ACCESS_TOKEN="$2"
-      consume=2
-    fi
-    ;;
     -l|--load)
     do_load=utile_load
     ;;
@@ -300,12 +289,6 @@ argument() {
     -s|--source)
     if [ ! -z "${2+x}" ]; then
       ARG_MOUNTPOINT_SOURCE="$2"
-      consume=2
-    fi
-    ;;
-    -v|--version)
-    if [ ! -z "${2+x}" ]; then
-      ARG_CONTAINER_NAME="${CONTAINER_SHORTNAME}:$2"
       consume=2
     fi
     ;;

@@ -85,8 +85,7 @@ public final class PreferencesController {
   }
 
   /**
-   * Creates the preferences dialog based using
-   * {@link SkeletonStorageHandler} and
+   * Creates the preferences dialog using {@link SkeletonStorageHandler} and
    * numerous {@link Category} objects.
    *
    * @return A component for editing preferences.

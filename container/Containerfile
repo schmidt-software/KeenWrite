@@ -86,13 +86,13 @@ RUN \
   mv $DOWNLOAD_DIR/*tf $FONTS_DIR && \
   fc-cache -f -v && \
   mkdir -p tex && \
-  rsync \
-    --recursive --links --times \
-    --info=progress2,remove,symsafe,flist,del \
-    --human-readable --del \
-    rsync://contextgarden.net/minimals/current/modules/ modules && \
-  rsync \
-    -rlt --exclude=/VERSION --del modules/*/ tex/texmf-modules && \
+  #rsync \
+    #--recursive --links --times \
+    #--info=progress2,remove,symsafe,flist,del \
+    #--human-readable --del \
+    #rsync://contextgarden.net/minimals/current/modules/ modules && \
+  #rsync \
+    #-rlt --exclude=/VERSION --del modules/*/ tex/texmf-modules && \
   sh install.sh && \
   rm -f $DOWNLOAD_DIR/*.zip && \
   rm -rf \

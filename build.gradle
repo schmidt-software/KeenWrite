@@ -89,15 +89,15 @@ dependencies {
   def v_junit = '5.9.3'
   def v_flexmark = '0.64.6'
   def v_jackson = '2.15.2'
-  def v_echosvg = '0.3.1'
-  def v_picocli = '4.7.4'
+  def v_echosvg = '0.3.3'
+  def v_picocli = '4.7.5'
 
   // JavaFX
   implementation 'org.controlsfx:controlsfx:11.1.2'
-  implementation 'org.fxmisc.richtext:richtextfx:0.11.0'
-  implementation 'org.fxmisc.flowless:flowless:0.7.0'
+  implementation 'org.fxmisc.richtext:richtextfx:0.11.1'
+  implementation 'org.fxmisc.flowless:flowless:0.7.1'
   implementation 'org.fxmisc.wellbehaved:wellbehavedfx:0.3.3'
-  implementation 'com.miglayout:miglayout-javafx:11.0'
+  implementation 'com.miglayout:miglayout-javafx:11.1'
   implementation 'com.dlsc.preferencesfx:preferencesfx-core:11.16.0'
   implementation 'com.panemu:tiwulfx-dock:0.2'
 
@@ -110,7 +110,7 @@ dependencies {
   implementation "com.vladsch.flexmark:flexmark-ext-typographic:${v_flexmark}"
 
   // YAML
-  implementation 'org.yaml:snakeyaml:2.0'
+  implementation 'org.yaml:snakeyaml:2.2'
   implementation "com.fasterxml.jackson.core:jackson-core:${v_jackson}"
   implementation "com.fasterxml.jackson.core:jackson-databind:${v_jackson}"
   implementation "com.fasterxml.jackson.core:jackson-annotations:${v_jackson}"
@@ -118,11 +118,10 @@ dependencies {
 
   // HTML parsing and rendering
   implementation 'org.jsoup:jsoup:1.16.1'
-  // TODO: https://github.com/flyingsaucerproject/flyingsaucer/pull/170
-  //implementation 'org.xhtmlrenderer:flying-saucer-core:9.1.22'
+  implementation 'org.xhtmlrenderer:flying-saucer-core:9.2.2'
 
   // R
-  implementation 'org.apache.commons:commons-compress:1.23.0'
+  implementation 'org.apache.commons:commons-compress:1.24.0'
   implementation 'org.codehaus.plexus:plexus-utils:4.0.0'
   implementation 'org.renjin:renjin-script-engine:3.5-beta76'
   implementation 'org.renjin.cran:rjson:0.2.15-renjin-21'
@@ -164,7 +163,7 @@ dependencies {
     }
   }
 
-  testImplementation 'org.testfx:testfx-junit5:4.0.16-alpha'
+  testImplementation 'org.testfx:testfx-junit5:4.0.17'
   testImplementation "org.junit.jupiter:junit-jupiter-api:${v_junit}"
   testImplementation "org.junit.jupiter:junit-jupiter-params:${v_junit}"
   testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'

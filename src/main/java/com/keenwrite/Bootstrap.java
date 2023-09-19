@@ -33,7 +33,6 @@ public final class Bootstrap {
 
   public static final String APP_TITLE;
   public static final String APP_VERSION;
-  public static final String CONTAINER_VERSION;
 
   public static final String APP_TITLE_ABBR = "kwr";
   public static final String APP_TITLE_LOWERCASE;
@@ -44,9 +43,6 @@ public final class Bootstrap {
   public static final File USER_CACHE_DIR;
 
   static {
-    // There's no way to know what container version is compatible. This
-    // value will cause a failure when downloading the container,
-    var containerVersion = "1.0.0";
     var appVersion = "0.0.0";
     var appTitle = "KeenWrite";
 
@@ -54,13 +50,11 @@ public final class Bootstrap {
       sP.load( in );
 
       appTitle = sP.getProperty( "application.title" );
-      containerVersion = sP.getProperty( "container.version" );
     } catch( final Exception ex ) {
       final var fmt = "Unable to load %s resource, applying defaults.%n";
       clue( ex, fmt, PATH_BOOTSTRAP );
     }
 
-    CONTAINER_VERSION = containerVersion;
     APP_TITLE = appTitle;
     APP_TITLE_LOWERCASE = APP_TITLE.toLowerCase();
 

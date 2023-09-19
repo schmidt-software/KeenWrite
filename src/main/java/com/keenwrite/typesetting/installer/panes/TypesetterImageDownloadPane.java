@@ -1,7 +1,7 @@
 /* Copyright 2022 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.typesetting.installer.panes;
 
-import static com.keenwrite.typesetting.containerization.Podman.CONTAINER_NAME;
+import com.keenwrite.typesetting.containerization.ContainerManager;
 
 /**
  * Responsible for installing the typesetter's image via the container manager.
@@ -14,7 +14,7 @@ public final class TypesetterImageDownloadPane extends ManagerOutputPane {
     super(
       PREFIX + ".correct",
       PREFIX + ".missing",
-      (container, processor) -> container.pull( processor, CONTAINER_NAME ),
+      ContainerManager::load,
       45
     );
   }

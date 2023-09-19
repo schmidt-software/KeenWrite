@@ -29,11 +29,10 @@ public interface ContainerManager {
   /**
    * Requests that the container manager load an image into the container.
    *
-   * @param name The full container name of the image to pull.
    * @param processor Processes the command output (in a separate thread).
    * @throws CommandNotFoundException The container executable was not found.
    */
-  void pull( StreamProcessor processor, String name )
+  void load( StreamProcessor processor )
     throws CommandNotFoundException;
 
   /**

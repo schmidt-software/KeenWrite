@@ -1,6 +1,7 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.typesetting.containerization;
 
+import com.keenwrite.Messages;
 import com.keenwrite.io.CommandNotFoundException;
 import com.keenwrite.io.SysFile;
 
@@ -10,7 +11,6 @@ import java.nio.file.Path;
 import java.util.LinkedList;
 import java.util.List;
 
-import static com.keenwrite.Bootstrap.CONTAINER_VERSION;
 import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.io.SysFile.toFile;
 import static java.lang.String.format;
@@ -33,10 +33,6 @@ public final class Podman implements ContainerManager {
       )
     );
   private static final SysFile MANAGER = new SysFile( BINARY );
-
-  public static final String CONTAINER_SHORTNAME = "typesetter";
-  public static final String CONTAINER_NAME =
-    format( "%s:%s", CONTAINER_SHORTNAME, CONTAINER_VERSION );
 
   private final List<String> mMountPoints = new LinkedList<>();
 
@@ -103,9 +99,11 @@ public final class Podman implements ContainerManager {
   }
 
   @Override
-  public void pull( final StreamProcessor processor, final String name )
+  public void load( final StreamProcessor processor )
     throws CommandNotFoundException {
-    podman( processor, "pull", "ghcr.io/davejarvis/" + name );
+    final var url = Messages.get( "Wizard.typesetter.container.image.url" );
+
+    podman( processor, "load", "-i", url );
   }
 
   /**
@@ -124,13 +122,15 @@ public final class Podman implements ContainerManager {
   public int run(
     final StreamProcessor processor,
     final String... args ) throws CommandNotFoundException {
+    final var tag = Messages.get( "Wizard.typesetter.container.image.tag" );
+
     final var options = new LinkedList<String>();
     options.add( "run" );
     options.add( "--rm" );
     options.add( "--network=host" );
     options.addAll( mMountPoints );
     options.add( "-t" );
-    options.add( CONTAINER_NAME );
+    options.add( tag );
     options.add( "/bin/sh" );
     options.add( "-lc" );
 
