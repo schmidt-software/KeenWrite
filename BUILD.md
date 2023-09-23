@@ -6,8 +6,8 @@ This document describes how to build the application and platform binaries.
 
 Download and install the following software packages:
 
-* [JDK 20](https://bell-sw.com/pages/downloads) (Full JDK + JavaFX)
-* [Gradle 8.1.1](https://gradle.org/releases)
+* [JDK 21](https://bell-sw.com/pages/downloads) (Full JDK + JavaFX)
+* [Gradle 8.3](https://gradle.org/releases)
 * [Git 2.40.1](https://git-scm.com/downloads)
 * [warp v0.4.0-alpha](https://github.com/Reisz/warp/releases/tag/v0.4.0)
 
@@ -17,7 +17,7 @@ Note: The forked warp packer release fixes a bug in the main branch.
 
 Clone the repository as follows:
 
-    git clone https://github.com/DaveJarvis/keenwrite.git
+    git clone https://gitlab.com/DaveJarvis/KeenWrite.git
 
 The repository is cloned.
 
@@ -100,7 +100,7 @@ Run `./installer -h` to see all command-line options.
 
 After installing `scripts/build-template`, build release binaries as follows:
 
-    git tag -a 2.0.0 -m "Release name"
+    git tag -a 4.0.0 -m "Release name"
     git push origin --tags
     ./release.sh
 
