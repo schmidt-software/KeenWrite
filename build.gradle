@@ -15,7 +15,7 @@ buildscript {
 
 plugins {
   id 'application'
-  id 'org.openjfx.javafxplugin' version '0.0.14'
+  id 'org.openjfx.javafxplugin' version '0.1.0'
   id 'com.palantir.git-version' version '3.0.0'
   id "com.github.spotbugs" version "5.0.14"
 }
@@ -75,12 +75,12 @@ def moduleSecurity = [
 ]
 
 java {
-  sourceCompatibility = 20
-  targetCompatibility = 20
+  sourceCompatibility = 21
+  targetCompatibility = 21
 }
 
 javafx {
-  version = '20'
+  version = '21'
   modules = ['javafx.base', 'javafx.controls', 'javafx.graphics', 'javafx.swing']
   configuration = 'compileOnly'
 }

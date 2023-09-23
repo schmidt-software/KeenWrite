@@ -25,8 +25,7 @@ import static com.keenwrite.preferences.AppKeys.KEY_UI_SKIN_SELECTION;
 import static com.keenwrite.preferences.SkinProperty.toFilename;
 import static com.keenwrite.ui.actions.ApplicationBars.*;
 import static javafx.application.Platform.runLater;
-import static javafx.scene.input.KeyCode.*;
-import static javafx.scene.input.KeyEvent.KEY_PRESSED;
+import static javafx.scene.input.KeyCode.SCROLL_LOCK;
 import static javafx.scene.input.KeyEvent.KEY_RELEASED;
 
 /**
@@ -190,21 +189,6 @@ public final class MainScene {
    */
   private Scene createScene( final Parent parent ) {
     final var scene = new Scene( parent );
-
-    // After the app loses focus, when the user switches back using Alt+Tab,
-    // the menu is sometimes engaged. See MainApp::initStage().
-    //
-    // JavaFX Bug: https://bugs.openjdk.java.net/browse/JDK-8090647
-    scene.addEventHandler( KEY_PRESSED, event -> {
-      // Only consume lone ALT key press events. If the modifier is used in
-      // combination with another key, don't consume the event. First check
-      // if ALT is down before getting the key code as a micro-optimization.
-      if( event.isAltDown() ) {
-        if( event.getCode() == ALT || event.getCode() == ALT_GRAPH ) {
-          event.consume();
-        }
-      }
-    } );
 
     // Update the synchronized scrolling status when user presses scroll lock.
     scene.addEventHandler( KEY_RELEASED, event -> {
