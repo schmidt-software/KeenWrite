@@ -1,0 +1,40 @@
+.left-sidebar-grid {
+  display:grid;
+  grid-template-areas:
+    'header'
+    'main-content'
+    'left-sidebar'
+    'footer';
+}
+
+.left-sidebar-grid > * {
+  padding:1rem;
+}
+
+.left-sidebar-grid > .header {
+  grid-area:header;
+  background:#f97171;
+}
+.left-sidebar-grid > .main-content {
+  grid-area:main-content;
+  background:#fff;
+}
+.left-sidebar-grid > .left-sidebar {
+  grid-area:left-sidebar;
+  background:#f5d55f;
+}
+.left-sidebar-grid > .footer {
+  grid-area:footer;
+  background:#72c2f1;
+}
+
+@media (min-width:768px) {
+  .left-sidebar-grid {
+    grid-template-columns:repeat(3, 1fr);
+    grid-template-areas:
+      'header header header'
+      'left-sidebar main-content main-content'
+      'footer footer footer';
+  }
+}
+
