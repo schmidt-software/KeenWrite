@@ -1,3 +1,7 @@
+/* Copyright 2023 White Magic Software, Ltd. -- All rights reserved.
+ *
+ * SPDX-License-Identifier: MIT
+ */
 package com.keenwrite.cmdline;
 
 import static picocli.CommandLine.Help.Ansi.Style.*;

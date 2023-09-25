@@ -69,7 +69,7 @@ public class InterpolatingMap extends ConcurrentHashMap<String, String> {
    * the values, recursively. If a key cannot be de-referenced, the value will
    * contain the key name, including the original sigils.
    *
-   * @param value    Value containing zero or more key references.
+   * @param value Value containing zero or more key references.
    * @return The given value with all embedded key references interpolated.
    */
   public String interpolate( String value ) {

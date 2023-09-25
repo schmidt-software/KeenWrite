@@ -1,6 +1,8 @@
 /* Copyright 2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.collections;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.*;
 
 import static java.lang.Math.min;
@@ -179,6 +181,7 @@ public class CircularQueue<E>
    * @return A new {@link Iterator} instance capable of visiting each element.
    */
   @Override
+  @NotNull
   public Iterator<E> iterator() {
     return new Iterator<>() {
       private int mIndex = mConsumer;

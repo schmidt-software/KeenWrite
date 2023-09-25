@@ -1,4 +1,7 @@
-/* Copyright 2022 White Magic Software, Ltd. -- All rights reserved. */
+/* Copyright 2023 White Magic Software, Ltd. -- All rights reserved.
+ *
+ * SPDX-License-Identifier: MIT
+ */
 package com.keenwrite.typesetting;
 
 import com.keenwrite.util.GenericBuilder;

@@ -1,3 +1,7 @@
+/* Copyright 2023 White Magic Software, Ltd. -- All rights reserved.
+ *
+ * SPDX-License-Identifier: MIT
+ */
 package com.keenwrite.dom;
 
 import org.w3c.dom.*;

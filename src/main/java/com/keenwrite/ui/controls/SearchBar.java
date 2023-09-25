@@ -165,13 +165,17 @@ public final class SearchBar extends HBox {
     return textField;
   }
 
+  private void addAll( final Node... nodes ) {
+    getChildren().addAll( nodes );
+  }
+
   /**
    * Creates a vertical bar, used to divide the search results from the
    * application status message.
    *
    * @return A vertical separator.
    */
-  private Node createSeparatorVertical() {
+  private static Node createSeparatorVertical() {
     return new Separator( VERTICAL );
   }
 
@@ -182,22 +186,19 @@ public final class SearchBar extends HBox {
    * @param width The spacer's width.
    * @return A new {@link Node} having about 10px of space.
    */
-  private Node createSpacer( final int width ) {
+  private static Node createSpacer( final int width ) {
     final var spacer = new Region();
     spacer.setPrefWidth( width );
     VBox.setVgrow( spacer, ALWAYS );
     return spacer;
   }
 
-  private Node getIcon( final String id ) {
+  private static Node getIcon( final String id ) {
     return createGraphic( getMessageValue( id, "icon" ) );
   }
 
-  private String getMessageValue( final String id, final String suffix ) {
+  private static String getMessageValue( final String id,
+                                         final String suffix ) {
     return get( format( MESSAGE_KEY, id, suffix ) );
-  }
-
-  private void addAll( final Node... nodes ) {
-    getChildren().addAll( nodes );
   }
 }
