@@ -1,40 +1,128 @@
-.left-sidebar-grid {
-  display:grid;
-  grid-template-areas:
-    'header'
-    'main-content'
-    'left-sidebar'
-    'footer';
+/* ************************************************************************ 
+ *
+ * Page
+ *
+ * ************************************************************************ */
+
+body {
+  /* Ensure the page doesn't extend full screen on large monitors. */
+	max-width: 1000px; 
+	margin: 0 auto;
+
+  background: #363636;
+  color: #eaeaea;
 }
 
-.left-sidebar-grid > * {
-  padding:1rem;
+/* ************************************************************************ 
+ *
+ * Header
+ *
+ * ************************************************************************ */
+
+header {
+  /* Avoid being flush with top of page. */
+  margin-top: 2em;
+
+  /* Put some distance between the title and the download buttons. */
+  margin-bottom: 2em;
+
+  text-align: center;
 }
 
-.left-sidebar-grid > .header {
-  grid-area:header;
-  background:#f97171;
-}
-.left-sidebar-grid > .main-content {
-  grid-area:main-content;
-  background:#fff;
-}
-.left-sidebar-grid > .left-sidebar {
-  grid-area:left-sidebar;
-  background:#f5d55f;
-}
-.left-sidebar-grid > .footer {
-  grid-area:footer;
-  background:#72c2f1;
+/* Display the application title. */
+header > img.icon {
+  width: 100%;
+  height: 72pt;
 }
 
-@media (min-width:768px) {
-  .left-sidebar-grid {
-    grid-template-columns:repeat(3, 1fr);
-    grid-template-areas:
-      'header header header'
-      'left-sidebar main-content main-content'
-      'footer footer footer';
-  }
+/* ************************************************************************ 
+ *
+ * Download buttons
+ *
+ * ************************************************************************ */
+
+/* Arrange the buttons in a responsive, 2 x 2 grid. */
+main {
+  display: grid;
+  grid-template-rows: 1fr 1fr;
+  grid-template-columns: max-content max-content;
+  justify-content: center;
+}
+
+/* Make the buttons look like buttons. */
+main > a {
+  display: inline-block;
+
+  /* Separate the buttons from one another. */
+  margin-top: 2em;
+  margin-left: 1em;
+  margin-right: 1em;
+
+  /* Fancy buttons. */
+  border-radius: 1em;
+  background: #ec706a;
+}
+
+.download-icon {
+  /* Replaces the black in the icon with another colour. */
+  filter: invert(6%)
+    sepia(58%)
+    saturate(857%) hue-rotate(158deg)
+    brightness(91%) contrast(91%);
+}
+
+/* ************************************************************************ 
+ *
+ * Navigation
+ *
+ * ************************************************************************ */
+
+section {
+  /* Don't crowd the navigation links against the download buttons. */
+  margin-top: 4em;
+}
+
+nav {
+  text-align: center;
+}
+
+nav ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+nav li {
+  /* Put the navigation items along a single line. */
+  display: inline;
+}
+
+nav li:not(:last-child)::after {
+  /* Separate the navigation items with a bar. */
+  content: " | ";
+}
+
+nav a, nav a:visited {
+  color: #8cc6de;
+}
+
+nav a:link:hover, nav a:visited:hover {
+  color: #ec706a;
+}
+
+/* ************************************************************************ 
+ *
+ * Footer
+ *
+ * ************************************************************************ */
+
+/* Align and center footer along bottom of page. */
+footer {
+  position: fixed;
+  bottom: 1em;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  text-align: center;
 }
 
