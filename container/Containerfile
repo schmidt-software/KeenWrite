@@ -107,7 +107,7 @@ RUN \
   mtxrun --generate && \
   find \
     /usr/share/inkscape \
-    -type f -not -iname "*.xml" -exec rm {} \; && \
+    -type f -not -iname \*.xml -exec rm {} \; && \
   find \
     $CONTEXT_HOME \
     -type f \
