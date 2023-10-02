@@ -29,11 +29,14 @@ execute() {
   gradle clean jar
   mv "build/libs/${application_title,,}.jar" .
 
-  $log "Build Windows installer binary"
-  ${BIN_INSTALLER} -o windows
-
   $log "Build Linux installer binary"
   ${BIN_INSTALLER} -o linux
+
+  $log "Build MacOS installer binary"
+  ${BIN_INSTALLER} -o macos
+
+  $log "Build Windows installer binary"
+  ${BIN_INSTALLER} -o windows
 }
 
 preprocess() {

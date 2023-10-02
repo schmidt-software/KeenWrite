@@ -22,7 +22,7 @@ plugins {
 
 spotbugs {
   excludeFilter.set(
-      file("${projectDir}/bug-filter.xml")
+      file( "${projectDir}/bug-filter.xml" )
   )
 }
 
@@ -53,6 +53,8 @@ String[] os = ['win', 'mac', 'linux']
 if (project.hasProperty( 'targetOs' )) {
   if ('windows' == targetOs) {
     os = ["win"]
+  } else if ('macos' == targetOs) {
+    os = ["mac"]
   } else {
     os = [targetOs]
   }

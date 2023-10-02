@@ -43,6 +43,7 @@ ARG_PATH_DIST_JAR="${SCRIPT_DIR}/build/libs/${FILE_APP_JAR}"
 DEPENDENCIES=(
   "gradle,https://gradle.org"
   "warp-packer,https://github.com/Reisz/warp/releases"
+  "linux-x64.warp-packer,https://github.com/dgiagio/warp/releases"
   "tar,https://www.gnu.org/software/tar"
   "wine,https://www.winehq.org"
   "unzip,http://infozip.sourceforge.net"
@@ -50,7 +51,7 @@ DEPENDENCIES=(
 
 ARGUMENTS+=(
   "a,arch,Target operating system architecture (amd64)"
-  "o,os,Target operating system (linux, windows, mac)"
+  "o,os,Target operating system (linux, windows, macos)"
   "u,update,Java update version number (${ARG_JAVA_UPDATE})"
   "v,version,Full Java version (${ARG_JAVA_VERSION})"
 )
@@ -93,6 +94,8 @@ utile_configure_target() {
     APP_EXTENSION="exe"
     do_create_launch_script=utile_create_launch_script_windows
     do_brand_windows=utile_brand_windows
+  elif [ "${ARG_JAVA_OS}" = "macos" ]; then
+    APP_EXTENSION="app"
   fi
 }
 
@@ -127,9 +130,18 @@ utile_extract_java() {
   $log "Extract Java"
   local -r java_vm="jre"
   local -r java_version="${ARG_JAVA_VERSION}+${ARG_JAVA_UPDATE}"
-  local -r url_java="https://download.bell-sw.com/java/${java_version}/bellsoft-${java_vm}${java_version}-${ARG_JAVA_OS}-${ARG_JAVA_ARCH}-full.${ARCHIVE_EXT}"
 
-  local -r file_java="${java_vm}-${java_version}-${ARG_JAVA_OS}-${ARG_JAVA_ARCH}.${ARCHIVE_EXT}"
+  java_os="${ARG_JAVA_OS}"
+  java_arch="${ARG_JAVA_ARCH}"
+  archive_ext=""
+
+  if [ "${ARG_JAVA_OS}" = "macos" ]; then
+    archive_ext=".jre"
+  fi
+
+  local -r url_java="https://download.bell-sw.com/java/${java_version}/bellsoft-${java_vm}${java_version}-${java_os}-${java_arch}-full.${ARCHIVE_EXT}"
+
+  local -r file_java="${java_vm}-${java_version}-${java_os}-${java_arch}.${ARCHIVE_EXT}"
   local -r path_java="/tmp/${file_java}"
 
   # File must have contents.
@@ -141,7 +153,7 @@ utile_extract_java() {
   $log "Unpack ${path_java}"
   $ARCHIVE_APP "${path_java}"
 
-  local -r dir_java="${java_vm}-${ARG_JAVA_VERSION}-full"
+  local -r dir_java="${java_vm}-${ARG_JAVA_VERSION}-full${archive_ext}"
 
   $log "Rename ${dir_java} to ${ARG_JAVA_DIR}"
   mv "${dir_java}" "${ARG_JAVA_DIR}"
@@ -226,10 +238,14 @@ utile_copy_archive() {
 # Create platform-specific launcher binary.
 # ---------------------------------------------------------------------------
 utile_create_launcher() {
+  packer=warp-packer
+  packer_opt_pack="pack"
+  packer_opt_input="input-dir"
+
   local -r FILE_APP_NAME="${APP_NAME}.${APP_EXTENSION}"
   $log "Create ${FILE_APP_NAME}"
 
-  # Warp-packer does not seem to overwrite the file.
+  # Warp-packer does not overwrite the file.
   rm -f "${FILE_APP_NAME}"
 
   # Download uses amd64, but warp-packer differs.
@@ -237,10 +253,17 @@ utile_create_launcher() {
     ARG_JAVA_ARCH="x64"
   fi
 
-  warp-packer \
-    pack \
+  # The warp-packer fork that fixes Windows doesn't support MacOS.
+  if [ "${ARG_JAVA_OS}" = "macos" ]; then
+    packer=linux-x64.warp-packer
+    packer_opt_pack=""
+    packer_opt_input="input_dir"
+  fi
+
+  ${packer} \
+    ${packer_opt_pack} \
     --arch "${ARG_JAVA_OS}-${ARG_JAVA_ARCH}" \
-    --input-dir "${ARG_DIR_DIST}" \
+    --${packer_opt_input} "${ARG_DIR_DIST}" \
     --exec "${FILE_DIST_EXEC}" \
     --output "${FILE_APP_NAME}" > /dev/null
 
