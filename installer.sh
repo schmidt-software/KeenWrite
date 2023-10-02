@@ -61,7 +61,7 @@ ARCHIVE_APP="tar xf"
 APP_EXTENSION="bin"
 
 # ---------------------------------------------------------------------------
-# Generates
+# Generates an application binary as a self-extracting installer.
 # ---------------------------------------------------------------------------
 execute() {
   $do_configure_target
