@@ -15,7 +15,7 @@ readonly PATH_TOKEN="tokens/${APP_NAME,,}.pat"
 # $1 - The relative path to the file to upload.
 # ---------------------------------------------------------------------------
 publish() {
-  local -r PATH_ARCHIVE="build/libs/${1}"
+  local -r PATH_ARCHIVE="${1}"
 
   if [ -f "${PATH_ARCHIVE}" ]; then
     glab release upload ${RELEASE} "${PATH_ARCHIVE}"
