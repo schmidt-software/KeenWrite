@@ -8,6 +8,7 @@
 readonly RELEASE=$(git describe --abbrev=0 --tags)
 readonly APP_NAME=$(cut -d= -f2 ./src/main/resources/bootstrap.properties)
 readonly PATH_TOKEN="tokens/${APP_NAME,,}.pat"
+readonly URL=$(cat tokens/publish.url)
 
 # ---------------------------------------------------------------------------
 # Publishes a self-extracting installer to the repository.
@@ -18,7 +19,7 @@ publish() {
   local -r PATH_ARCHIVE="${1}"
 
   if [ -f "${PATH_ARCHIVE}" ]; then
-    glab release upload ${RELEASE} "${PATH_ARCHIVE}"
+    scp "${PATH_ARCHIVE}" "${URL}"
   else
     echo "Missing ${PATH_ARCHIVE}, continuing."
   fi
