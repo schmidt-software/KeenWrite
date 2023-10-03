@@ -1,0 +1,150 @@
+/* ************************************************************************ 
+ *
+ * Page
+ *
+ * ************************************************************************ */
+:root {
+  --accent-colour: #ec706a;
+  --link-colour: #8cc6de;
+}
+
+body {
+  /* Ensure the page doesn't extend full screen on large monitors. */
+	max-width: 1000px; 
+	margin: 0 auto;
+
+  background: #363636;
+  color: #eaeaea;
+}
+
+/* Text alignment. */
+header, nav, footer {
+  text-align: center;
+}
+
+/* ************************************************************************ 
+ * Header
+ * ************************************************************************ */
+
+header {
+  /* Avoid being flush with top of page, put space between the title and
+   * the download buttons, ensure any text won't be flush with edges.
+   */
+  margin: 2em;
+  margin-top: 1em;
+}
+
+header p {
+  line-height: 1.5em;
+}
+
+/* Ensure the application title is large enough. */
+header > img.title {
+  width: 100%;
+  height: 72pt;
+}
+
+/* ************************************************************************ 
+ * Screenshots
+ * ************************************************************************ */
+
+main.screenshots {
+  text-align: center;
+}
+
+main.screenshots > p {
+  padding-top: 1em;
+}
+
+main > img.screenshot {
+  width: 80%;
+
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+
+  transition: all .2s ease-in-out;
+}
+
+main > img.screenshot:hover {
+  width: 100%;
+  transform: scale(1);
+}
+
+/* ************************************************************************ 
+ * Download buttons
+ * ************************************************************************ */
+
+main > div.downloads {
+  /* Arrange the buttons in a responsive, 2 x 2 grid. */
+  display: grid;
+  grid-template-rows: 1fr 1fr;
+  grid-template-columns: max-content max-content;
+  justify-content: center;
+}
+
+/* Make hyperlinks resemble buttons. */
+a.download {
+  display: inline-block;
+
+  /* Separate the buttons from one another. */
+  margin-top: 2em;
+  margin-left: 1em;
+  margin-right: 1em;
+
+  /* Fancy buttons. */
+  border-radius: 1em;
+  background: var( --accent-colour );
+}
+
+a.download:hover {
+  background: var( --link-colour );
+}
+
+img.download {
+  /* Replace icon black with another colour. */
+  filter: invert(6%)
+    sepia(58%) saturate(857%) hue-rotate(158deg) brightness(91%) contrast(91%);
+}
+
+/* ************************************************************************ 
+ * Navigation
+ * ************************************************************************ */
+
+nav {
+  /* Don't crowd navigation links against the download buttons. */
+  margin-top: 4em;
+}
+
+nav ul {
+  /* Remove the bullets */
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+nav li {
+  /* Put navigation items along a single line. */
+  display: inline;
+}
+
+nav li:not(:last-child)::after {
+  /* Separate navigation items with a bar. */
+  content: " | ";
+}
+
+nav a, nav a:visited {
+  color: var( --link-colour );
+}
+
+nav a:link:hover, nav a:visited:hover {
+  color: var( --accent-colour );
+}
+
+/* ************************************************************************ 
+ * Footer
+ * ************************************************************************ */
+footer {
+  margin-top: 2em;
+  margin-bottom: 1em;
+}

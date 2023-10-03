@@ -7,175 +7,55 @@
   <meta name="description" content="cross-platform, open-source desktop editor">
   <meta name="keywords" content="markdown, text, editor, software">
   <meta name="robots" content="index, follow">
-  <style>
-/* ************************************************************************ 
- *
- * Page
- *
- * ************************************************************************ */
-:root {
-  --accent-colour: #ec706a;
-  --link-colour: #8cc6de;
-}
-
-body {
-  /* Ensure the page doesn't extend full screen on large monitors. */
-	max-width: 1000px; 
-	margin: 0 auto;
-
-  background: #363636;
-  color: #eaeaea;
-}
-
-/* Text alignment. */
-header, nav, footer {
-  text-align: center;
-}
-
-/* ************************************************************************ 
- * Header
- * ************************************************************************ */
-
-header {
-  /* Avoid being flush with top of page, put space between the title and
-   * the download buttons, ensure any text won't be flush with edges.
-   */
-  margin: 2em;
-  margin-top: 1em;
-}
-
-header p {
-  line-height: 1.5em;
-}
-
-/* Ensure the application title is large enough. */
-header > img.title {
-  width: 100%;
-  height: 72pt;
-}
-
-/* ************************************************************************ 
- * Download buttons
- * ************************************************************************ */
-
-main {
-  /* Arrange the buttons in a responsive, 2 x 2 grid. */
-  display: grid;
-  grid-template-rows: 1fr 1fr;
-  grid-template-columns: max-content max-content;
-  justify-content: center;
-}
-
-/* Make hyperlinks resemble buttons. */
-a.download {
-  display: inline-block;
-
-  /* Separate the buttons from one another. */
-  margin-top: 2em;
-  margin-left: 1em;
-  margin-right: 1em;
-
-  /* Fancy buttons. */
-  border-radius: 1em;
-  background: var( --accent-colour );
-}
-
-a.download:hover {
-  background: var( --link-colour );
-}
-
-img.download {
-  /* Replace icon black with another colour. */
-  filter: invert(6%)
-    sepia(58%) saturate(857%) hue-rotate(158deg) brightness(91%) contrast(91%);
-}
-
-/* ************************************************************************ 
- * Navigation
- * ************************************************************************ */
-
-nav {
-  /* Don't crowd navigation links against the download buttons. */
-  margin-top: 4em;
-}
-
-nav ul {
-  /* Remove the bullets */
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-nav li {
-  /* Put navigation items along a single line. */
-  display: inline;
-}
-
-nav li:not(:last-child)::after {
-  /* Separate navigation items with a bar. */
-  content: " | ";
-}
-
-nav a, nav a:visited {
-  color: var( --link-colour );
-}
-
-nav a:link:hover, nav a:visited:hover {
-  color: var( --accent-colour );
-}
-
-/* ************************************************************************ 
- * Footer
- * ************************************************************************ */
-footer {
-  margin-top: 2em;
-  margin-bottom: 1em;
-}
-  </style>
+  <link rel="stylesheet" href="styles/base.css"> 
 </head>
 <body>
 <header>
   <img src="images/logo/title.svg" alt="KeenWrite" class="title">
   <p>
-  A free, cross-platform desktop text editor for producing beautifully typeset PDF files.
+    A free, cross-platform desktop text editor for producing beautifully
+    typeset PDF files.
   </p>
 </header>
 <main>
-  <a href="downloads/keenwrite.bin"
-     class="download"
-     title="Download for 64-bit Linux (x86)"
-     aria-label="Download for Linux"><img
-       src="images/icons/linux.svg"
-       alt="Download for Linux"
-       class="download"></a>
-  <a href="downloads/keenwrite.jar"
-     class="download"
-     title="Download for Java virtual machine"
-     aria-label="Download for Java"><img
-       src="images/icons/java.svg"
-       alt="Download for Java"
-       class="download"></a>
-  <a href="downloads/keenwrite.exe"
-     class="download"
-     title="Download for 64-bit Windows (x86)"
-     aria-label="Download for Windows"><img
-       src="images/icons/windows.svg"
-       alt="Download for Windows"
-       class="download"></a>
-  <a href="downloads/keenwrite.app"
-     class="download"
-     title="Download for 64-bit MacOS (x86)"
-     aria-label="Download for MacOS"><img
-       src="images/icons/apple.svg"
-       alt="Download for MacOS"
-       class="download"></a>
+  <div class="downloads">
+    <a href="downloads/keenwrite.bin"
+       class="download"
+       title="Download for 64-bit Linux (x86)"
+       aria-label="Download for Linux"><img
+         src="images/icons/linux.svg"
+         alt="Download for Linux"
+         class="download"></a>
+    <a href="downloads/keenwrite.jar"
+       class="download"
+       title="Download for Java virtual machine"
+       aria-label="Download for Java"><img
+         src="images/icons/java.svg"
+         alt="Download for Java"
+         class="download"></a>
+    <a href="downloads/keenwrite.exe"
+       class="download"
+       title="Download for 64-bit Windows (x86)"
+       aria-label="Download for Windows"><img
+         src="images/icons/windows.svg"
+         alt="Download for Windows"
+         class="download"></a>
+    <a href="downloads/keenwrite.app"
+       class="download"
+       title="Download for 64-bit MacOS (x86)"
+       aria-label="Download for MacOS"><img
+         src="images/icons/apple.svg"
+         alt="Download for MacOS"
+         class="download"></a>
+  </div>
 </main>
 <nav>
   <ul>
-    <li><a href="https://www.youtube.com/playlist?list=PLB-WIt1cZYLm1MMx2FBG9KWzPIoWZMKu_">Tutorials</a></li>
-    <li><a href="https://gitlab.com/DaveJarvis/KeenWrite">Sources</a></li>
-    <li><a href="https://gitlab.com/DaveJarvis/KeenWrite/issues">Issues</a></li>
-    <li><a href="https://gitlab.com/DaveJarvis/KeenWrite/-/blob/main/docs/README.md">Documentation</a></li>
+    <li><a href="screenshots.html">screenshots</a></li>
+    <li><a href="https://www.youtube.com/playlist?list=PLB-WIt1cZYLm1MMx2FBG9KWzPIoWZMKu_">tutorials</a></li>
+    <li><a href="https://gitlab.com/DaveJarvis/KeenWrite">sources</a></li>
+    <li><a href="https://gitlab.com/DaveJarvis/KeenWrite/issues">issues</a></li>
+    <li><a href="https://gitlab.com/DaveJarvis/KeenWrite/-/blob/main/docs/README.md">documentation</a></li>
   </ul>
 </nav>
 <footer>
