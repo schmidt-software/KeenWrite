@@ -10,8 +10,8 @@
 
 body {
   /* Ensure the page doesn't extend full screen on large monitors. */
-	max-width: 1000px; 
-	margin: 0 auto;
+  max-width: 1000px; 
+  margin: 0 auto;
 
   background: #363636;
   color: #eaeaea;
