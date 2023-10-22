@@ -271,6 +271,14 @@ div.terminal {
   border-color: #222;
 }
 
+/* SIMULTANEOUS ACTION ***/
+div.concurrent {
+  border-top: .125em solid #ccc;
+  border-left: .125em solid #ccc;
+  border-radius: .25em;
+  padding-left: .5em;
+}
+
 /* SPEECH BUBBLE ***/
 div.bubblerx, div.bubbletx {
   display: table;
