@@ -4,11 +4,7 @@ A free, open-source, cross-platform desktop Markdown editor that can produce bea
 
 ## Download
 
-Download one of the following editions:
-
-* [Windows](https://github.com/DaveJarvis/keenwrite/releases/latest/download/keenwrite.exe)
-* [Linux](https://github.com/DaveJarvis/keenwrite/releases/latest/download/keenwrite.bin)
-* [Java Archive](https://github.com/DaveJarvis/keenwrite/releases/latest/download/keenwrite.jar)
+Visit [KeenWrite.com](https://keenwrite.com/) for downloads.
 
 ## Run
 
@@ -27,19 +23,24 @@ chmod +x keenwrite.bin
 ./keenwrite.bin
 ```
 
-### Other
+### Java
 
-On other platforms, such as MacOS, start the application as follows:
+Using Java, first follow these one-time setup steps:
 
 1. Download the *Full version* of the Java Runtime Environment, [JRE 21](https://bell-sw.com/pages/downloads).
    * JavaFX, which is bundled with BellSoft's *Full version*, is required.
 1. Install the JRE (include JRE's `bin` directory in the `PATH` environment variable).
 1. Open a new terminal.
 1. Verify the installation: `java -version`
-1. Download [keenwrite.jar](https://github.com/DaveJarvis/keenwrite/releases/latest/download/keenwrite.jar).
-1. Download [keenwrite.sh](https://raw.githubusercontent.com/DaveJarvis/keenwrite/master/keenwrite.sh).
+1. Download [keenwrite.jar](https://keenwrite.com/downloads/keenwrite.jar).
+1. Download [keenwrite.sh](https://gitlab.com/DaveJarvis/KeenWrite/-/raw/main/keenwrite.sh?inline=false).
 1. Place the `.jar` and `.sh` in the same directory.
 1. Make `keenwrite.sh` executable: `chmod +x keenwrite.sh`
+
+Start the application as follows:
+
+1. Open a new terminal.
+1. Change to the `.jar` and `.sh` directory.
 1. Run: `./keenwrite.sh`
 
 The application is started.
@@ -58,7 +59,7 @@ The application offers:
 * Dark, custom, and responsive user interface skins
 * Integrated file manager
 * Interactive document outline
-* Internationalized font support (e.g., Chinese, Japanese, Korean, etc.)
+* Internationalized font support (e.g., Chinese, Japanese, Korean)
 * Support for Pandoc's fenced div extended attribute syntax
 * R integration
 * Customizable user interface having detachable tabs
