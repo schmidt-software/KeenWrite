@@ -4,11 +4,7 @@
 
 ## 下载
 
-下载以下版本之一:
-
-* [Windows](https://github.com/DaveJarvis/keenwrite/releases/latest/download/keenwrite.exe)
-* [Linux](https://github.com/DaveJarvis/keenwrite/releases/latest/download/keenwrite.bin)
-* [Java Archive](https://github.com/DaveJarvis/keenwrite/releases/latest/download/keenwrite.jar)
+[KeenWrite.com](https://keenwrite.com/)
 
 ## 跑
 
@@ -31,13 +27,36 @@ chmod +x keenwrite.bin
 ./keenwrite.bin
 ```
 
-### Other
+### MacOS
 
-Download and install a full version of [OpenJDK 20](https://bell-sw.com/pages/downloads) that includes JavaFX module support, then run:
+执行以下命令:
 
 ``` bash
-java -jar keenwrite.jar
+chmod +x keenwrite.app
+./keenwrite.app
 ```
+
+### Java
+
+使用Java，首先按照以下一次性设置步骤进行操作：
+
+1. 下载Java Runtime Environment（JRE）的*完整版本*，[JRE 21](https://bell-sw.com/pages/downloads)。
+   * 需要BellSoft的*完整版本*中捆绑的JavaFX。
+1. 安装JRE（将JRE的`bin`目录包含在`PATH`环境变量中）。
+1. 打开一个新的终端。
+1. 验证安装：`java -version`
+1. 下载[keenwrite.jar](https://keenwrite.com/downloads/keenwrite.jar)。
+1. 下载[keenwrite.sh](https://gitlab.com/DaveJarvis/KeenWrite/-/raw/main/keenwrite.sh?inline=false)。
+1. 将`.jar`和`.sh`文件放置在同一个目录中。
+1. 使`keenwrite.sh`可执行：`chmod +x keenwrite.sh`
+
+按以下方式启动应用程序：
+
+1. 打开一个新的终端。
+1. 切换到`.jar`和`.sh`目录。
+1. 运行：`./keenwrite.sh`
+
+应用程序已启动。
 
 ## 特征
 

@@ -23,6 +23,15 @@ chmod +x keenwrite.bin
 ./keenwrite.bin
 ```
 
+### MacOS
+
+Execute the following commands in a terminal:
+
+``` bash
+chmod +x keenwrite.app
+./keenwrite.app
+```
+
 ### Java
 
 Using Java, first follow these one-time setup steps:
