@@ -8,8 +8,8 @@ buildscript {
     }
   }
   dependencies {
-    classpath 'org.owasp:dependency-check-gradle:8.2.1'
-    classpath "com.github.spotbugs.snom:spotbugs-gradle-plugin:5.0.14"
+    classpath 'org.owasp:dependency-check-gradle:8.4.2'
+    classpath "com.github.spotbugs.snom:spotbugs-gradle-plugin:5.2.1"
   }
 }
 
@@ -17,7 +17,7 @@ plugins {
   id 'application'
   id 'org.openjfx.javafxplugin' version '0.1.0'
   id 'com.palantir.git-version' version '3.0.0'
-  id "com.github.spotbugs" version "5.1.3"
+  id "com.github.spotbugs" version "5.2.1"
 }
 
 spotbugs {
@@ -88,18 +88,18 @@ javafx {
 }
 
 dependencies {
-  def v_junit = '5.9.3'
+  def v_junit = '5.10.0'
   def v_flexmark = '0.64.8'
-  def v_jackson = '2.15.2'
+  def v_jackson = '2.15.3'
   def v_echosvg = '1.0'
   def v_picocli = '4.7.5'
 
   // JavaFX
   implementation 'org.controlsfx:controlsfx:11.1.2'
-  implementation 'org.fxmisc.richtext:richtextfx:0.11.1'
-  implementation 'org.fxmisc.flowless:flowless:0.7.1'
+  implementation 'org.fxmisc.richtext:richtextfx:0.11.2'
+  implementation 'org.fxmisc.flowless:flowless:0.7.2'
   implementation 'org.fxmisc.wellbehaved:wellbehavedfx:0.3.3'
-  implementation 'com.miglayout:miglayout-javafx:11.1'
+  implementation 'com.miglayout:miglayout-javafx:11.2'
   implementation 'com.dlsc.preferencesfx:preferencesfx-core:11.16.0'
   implementation 'com.panemu:tiwulfx-dock:0.2'
 
@@ -147,7 +147,7 @@ dependencies {
   implementation 'org.ahocorasick:ahocorasick:0.6.3'
   implementation 'org.apache.commons:commons-configuration2:2.9.0'
   implementation 'com.github.albfernandez:juniversalchardet:2.4.0'
-  implementation 'javax.validation:validation-api:2.0.1.Final'
+  implementation 'jakarta.validation:jakarta.validation-api:3.0.2'
   implementation 'org.greenrobot:eventbus-java:3.3.1'
 
   // Command-line parsing
@@ -168,6 +168,7 @@ dependencies {
   testImplementation 'org.testfx:testfx-junit5:4.0.17'
   testImplementation "org.junit.jupiter:junit-jupiter-api:${v_junit}"
   testImplementation "org.junit.jupiter:junit-jupiter-params:${v_junit}"
+  testImplementation 'org.assertj:assertj-core:3.24.2'
   testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
 }
 

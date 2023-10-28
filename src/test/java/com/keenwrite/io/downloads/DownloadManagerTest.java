@@ -26,9 +26,8 @@ class DownloadManagerTest {
     setProperty( "http.agent", DownloadManager.class.getCanonicalName() );
   }
 
-  private static final String SITE = "https://github.com/";
-  private static final String URL
-    = SITE + "DaveJarvis/keenwrite/releases/latest/download/keenwrite.exe";
+  private static final String URL =
+    "https://keenwrite.com/downloads/KeenWrite.exe";
 
   @Test
   void test_Async_DownloadRequested_DownloadCompletes()
@@ -42,7 +41,7 @@ class DownloadManagerTest {
       transferred.set( bytes );
     };
 
-    final var file = File.createTempFile("kw-", "test");
+    final var file = File.createTempFile( "kw-", "test" );
     file.deleteOnExit();
 
     final var token = open( URL );
