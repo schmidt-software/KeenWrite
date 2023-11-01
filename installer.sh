@@ -9,8 +9,14 @@
 
 source $HOME/bin/build-template
 
-readonly APP_NAME=$(find "${SCRIPT_DIR}/src" -type f -name "settings.properties" -exec cat {} \; | grep "application.title=" | cut -d'=' -f2)
-readonly FILE_APP_JAR="${APP_NAME}.jar"
+# Case sensitive application name.
+readonly APP_NAME=$(cat \
+  "${SCRIPT_DIR}/src/main/resources/bootstrap.properties" | \
+  cut -d'=' -f2
+)
+# Lowercase application name.
+readonly APP_NAME_LC=${APP_NAME,,}
+readonly FILE_APP_JAR="${APP_NAME_LC}.jar"
 
 readonly OPT_JAVA=$(cat << END_OF_ARGS
 --add-opens=javafx.controls/javafx.scene.control=ALL-UNNAMED \
@@ -30,13 +36,13 @@ END_OF_ARGS
 
 ARG_JAVA_OS="linux"
 ARG_JAVA_ARCH="amd64"
-ARG_JAVA_VERSION="21"
-ARG_JAVA_UPDATE="37"
+ARG_JAVA_VERSION="21.0.1"
+ARG_JAVA_UPDATE="12"
 ARG_JAVA_DIR="java"
 
 ARG_DIR_DIST="dist"
 
-FILE_DIST_EXEC="run.sh"
+FILE_LAUNCHER_SCRIPT="run.sh"
 
 ARG_PATH_DIST_JAR="${SCRIPT_DIR}/build/libs/${FILE_APP_JAR}"
 
@@ -44,6 +50,7 @@ DEPENDENCIES=(
   "gradle,https://gradle.org"
   "warp-packer,https://github.com/Reisz/warp/releases"
   "linux-x64.warp-packer,https://github.com/dgiagio/warp/releases"
+  "osslsigncode,https://www.winehq.org"
   "tar,https://www.gnu.org/software/tar"
   "wine,https://www.winehq.org"
   "unzip,http://infozip.sourceforge.net"
@@ -79,6 +86,7 @@ execute() {
   $do_create_launcher
 
   $do_brand_windows
+  $do_sign_windows
 
   return 1
 }
@@ -90,10 +98,11 @@ utile_configure_target() {
   if [ "${ARG_JAVA_OS}" = "windows" ]; then
     ARCHIVE_EXT="zip"
     ARCHIVE_APP="unzip -qq"
-    FILE_DIST_EXEC="run.bat"
+    FILE_LAUNCHER_SCRIPT="run.bat"
     APP_EXTENSION="exe"
     do_create_launch_script=utile_create_launch_script_windows
     do_brand_windows=utile_brand_windows
+    do_sign_windows=utile_sign_windows
   elif [ "${ARG_JAVA_OS}" = "macos" ]; then
     APP_EXTENSION="app"
   fi
@@ -165,7 +174,7 @@ utile_extract_java() {
 utile_create_launch_script_linux() {
   $log "Create Linux launch script"
 
-  cat > "${FILE_DIST_EXEC}" << __EOT
+  cat > "${FILE_LAUNCHER_SCRIPT}" << __EOT
 #!/usr/bin/env bash
 
 readonly SCRIPT_SRC="\$(dirname "\${BASH_SOURCE[\${#BASH_SOURCE[@]} - 1]}")"
@@ -173,7 +182,7 @@ readonly SCRIPT_SRC="\$(dirname "\${BASH_SOURCE[\${#BASH_SOURCE[@]} - 1]}")"
 "\${SCRIPT_SRC}/${ARG_JAVA_DIR}/bin/java" ${OPT_JAVA} -jar "\${SCRIPT_SRC}/${FILE_APP_JAR}" "\$@" 2>/dev/null
 __EOT
 
-  chmod +x "${FILE_DIST_EXEC}"
+  chmod +x "${FILE_LAUNCHER_SCRIPT}"
 }
 
 # ---------------------------------------------------------------------------
@@ -182,48 +191,67 @@ __EOT
 utile_create_launch_script_windows() {
   $log "Create Windows launch script"
 
-  cat > "${FILE_DIST_EXEC}" << __EOT
+  cat > "${FILE_LAUNCHER_SCRIPT}" << __EOT
 @echo off
 
 set SCRIPT_DIR=%~dp0
-"%SCRIPT_DIR%\\${ARG_JAVA_DIR}\\bin\\java" ${OPT_JAVA} -jar "%SCRIPT_DIR%\\${APP_NAME}.jar" %* 2>nul
+"%SCRIPT_DIR%\\${ARG_JAVA_DIR}\\bin\\java" ${OPT_JAVA} -jar "%SCRIPT_DIR%\\${FILE_APP_JAR}" %* 2>nul
 __EOT
 
   # Convert Unix end of line characters (\n) to Windows format (\r\n).
   # This avoids any potential line conversion issues with the repository.
-  sed -i 's/$/\r/' "${FILE_DIST_EXEC}"
+  sed -i 's/$/\r/' "${FILE_LAUNCHER_SCRIPT}"
 }
 
 # ---------------------------------------------------------------------------
-# Modify the binary to include icon and identifying information.
+# Modify the Windows binary to include icon and identifying information.
 # ---------------------------------------------------------------------------
 utile_brand_windows() {
-  # Read the properties file to get the application name (case sensitvely).
-  while IFS='=' read -r key value
-  do
-    key=$(echo $key | tr '.' '_')
-    eval ${key}=\${value}
-  done < "src/main/resources/bootstrap.properties"
+  local -r BINARY="${APP_NAME}.exe"
+  local -r BINARY_LC="${APP_NAME_LC}.exe"
+  local -r VERSION=$(git describe --tags)
+  local -r COMPANY="White Magic Software, Ltd."
+  local -r YEAR=$(date +%Y)
+  local -r DESCRIPTION="Markdown editor with live preview, variables, and math."
+  local -r SIZE=$(stat --format="%s" ${BINARY_LC})
 
-  readonly BINARY="${APP_NAME}.exe"
-  readonly VERSION=$(git describe --tags)
-  readonly COMPANY="White Magic Software, Ltd."
-  readonly YEAR=$(date +%Y)
-  readonly DESCRIPTION="Markdown editor with live preview, variables, and math."
-  readonly SIZE=$(stat --format="%s" ${BINARY})
-
-  wine ${SCRIPT_DIR}/scripts/rcedit-x64.exe "${BINARY}" \
+  $log "Brand ${BINARY_LC}"
+  wine "${SCRIPT_DIR}/scripts/rcedit-x64.exe" "${BINARY_LC}" \
     --set-icon "scripts/logo.ico" \
-    --set-version-string "OriginalFilename" "${application_title}.exe" \
+    --set-version-string "OriginalFilename" "${BINARY}" \
     --set-version-string "CompanyName" "${COMPANY}" \
-    --set-version-string "ProductName" "${application_title}" \
+    --set-version-string "ProductName" "${APP_NAME}" \
     --set-version-string "LegalCopyright" "Copyright ${YEAR} ${COMPANY}" \
     --set-version-string "FileDescription" "${DESCRIPTION}" \
     --set-version-string "Size" "${DESCRIPTION}" \
     --set-product-version "${VERSION}" \
     --set-file-version "${VERSION}"
 
-  mv -f "${BINARY}" "${application_title}.exe"
+  $log "Rename ${BINARY_LC} to ${BINARY}"
+  mv -f "${BINARY_LC}" "${BINARY}"
+}
+
+# ---------------------------------------------------------------------------
+# Modify the Windows binary to include signed certificate information.
+# ---------------------------------------------------------------------------
+utile_sign_windows() {
+  local -r FILE_CERTIFICATE="${SCRIPT_DIR}/tokens/code-sign-cert.pfx"
+  local -r FILE_BINARY="${APP_NAME}.exe"
+  local -r FILE_SIGNED_BINARY="signed-${FILE_BINARY}"
+
+  rm -f "${FILE_SIGNED_BINARY}"
+
+  $log "Sign ${FILE_BINARY}"
+  osslsigncode sign \
+    -pkcs12 "${FILE_CERTIFICATE}" \
+    -askpass \
+    -n "${APP_NAME}" \
+    -i "https://www.${APP_NAME_LC}.com" \
+    -in "${FILE_BINARY}" \
+    -out "${FILE_SIGNED_BINARY}"
+
+  $log "Rename ${FILE_SIGNED_BINARY} to ${FILE_BINARY}"
+  mv -f "${FILE_SIGNED_BINARY}" "${FILE_BINARY}"
 }
 
 # ---------------------------------------------------------------------------
@@ -242,7 +270,7 @@ utile_create_launcher() {
   packer_opt_pack="pack"
   packer_opt_input="input-dir"
 
-  local -r FILE_APP_NAME="${APP_NAME}.${APP_EXTENSION}"
+  local -r FILE_APP_NAME="${APP_NAME_LC}.${APP_EXTENSION}"
   $log "Create ${FILE_APP_NAME}"
 
   # Warp-packer does not overwrite the file.
@@ -264,7 +292,7 @@ utile_create_launcher() {
     ${packer_opt_pack} \
     --arch "${ARG_JAVA_OS}-${ARG_JAVA_ARCH}" \
     --${packer_opt_input} "${ARG_DIR_DIST}" \
-    --exec "${FILE_DIST_EXEC}" \
+    --exec "${FILE_LAUNCHER_SCRIPT}" \
     --output "${FILE_APP_NAME}" > /dev/null
 
   chmod +x "${FILE_APP_NAME}"
@@ -299,6 +327,7 @@ do_create_launch_script=utile_create_launch_script_linux
 do_copy_archive=utile_copy_archive
 do_create_launcher=utile_create_launcher
 do_brand_windows=:
+do_sign_windows=:
 
 main "$@"
 
