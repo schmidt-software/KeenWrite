@@ -7,8 +7,49 @@
 
 readonly RELEASE=$(git describe --abbrev=0 --tags)
 readonly APP_NAME=$(cut -d= -f2 ./src/main/resources/bootstrap.properties)
-readonly PATH_TOKEN="tokens/${APP_NAME,,}.pat"
-readonly URL=$(cat tokens/publish.url)
+readonly APP_NAME_LC=${APP_NAME,,}
+readonly PATH_TOKEN="tokens/${APP_NAME_LC}.pat"
+readonly URL=$(cat "tokens/publish.url")
+
+# ---------------------------------------------------------------------------
+# Adds download URLs to a release.
+#
+# $1 - The system (Linux, WIndows, MacOS, Java)
+# ---------------------------------------------------------------------------
+release() {
+  local -r OS="${1}"
+  local ARCH=" (64-bit, x86)"
+  local FILE_PREFIX="${APP_NAME_LC}"
+  local FILE_SUFFIX="bin"
+
+  case ${OS} in
+    MacOS)
+      FILE_SUFFIX="app"
+    ;;
+    Windows)
+      FILE_PREFIX="${APP_NAME}"
+      FILE_SUFFIX="exe"
+    ;;
+    Java)
+      ARCH=""
+      FILE_SUFFIX="jar"
+    ;;
+    *)
+      # Linux, others
+    ;;
+  esac
+
+  local -r BINARY="${FILE_PREFIX}.${FILE_SUFFIX}"
+
+  publish "${BINARY}"
+
+  glab release upload ${RELEASE} \
+    --assets-links="[{
+      \"name\":\"${APP_NAME} for ${OS}${ARCH}\",
+      \"url\":\"https://${APP_NAME_LC}.com/downloads/${BINARY}\",
+      \"link_type\":\"other\"
+    }]"
+}
 
 # ---------------------------------------------------------------------------
 # Publishes a self-extracting installer to the repository.
@@ -16,22 +57,22 @@ readonly URL=$(cat tokens/publish.url)
 # $1 - The relative path to the file to upload.
 # ---------------------------------------------------------------------------
 publish() {
-  local -r PATH_ARCHIVE="${1}"
+  local -r FILE_BINARY="${1}"
 
-  if [ -f "${PATH_ARCHIVE}" ]; then
-    scp "${PATH_ARCHIVE}" "${URL}"
+  if [ -f "${FILE_BINARY}" ]; then
+    scp "${FILE_BINARY}" "${URL}"
   else
-    echo "Missing ${PATH_ARCHIVE}, continuing."
+    echo "Missing ${FILE_BINARY}, continuing."
   fi
 }
 
 if [ -f "${PATH_TOKEN}" ]; then
   cat "${PATH_TOKEN}" | glab auth login --hostname gitlab.com --stdin
 
-  publish "${APP_NAME,,}.jar"
-  publish "${APP_NAME,,}.bin"
-  publish "${APP_NAME,,}.app"
-  publish "${APP_NAME}.exe"
+  release "Windows"
+  release "MacOS"
+  release "Linux"
+  release "Java"
 else
   echo "Create ${PATH_TOKEN} before publishing the release."
 fi
