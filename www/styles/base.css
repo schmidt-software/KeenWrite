@@ -70,6 +70,8 @@ main > img.screenshot:hover {
 }
 
 main > p.version {
+  margin: auto;
+  width: 100%;
   text-align: center;
 }
 
