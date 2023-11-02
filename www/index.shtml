@@ -49,9 +49,10 @@
          alt="Download for MacOS"
          class="download"></a>
   </div>
-  <p class="version">
-  <strong>Version <!--#include file="downloads/version.txt" --></strong><br>
   <!--#config timefmt="%d-%b-%Y" -->
+  <p class="version">
+  <strong>Version <!--#include file="downloads/version.txt" --></strong>
+  <br>
   <!--#flastmod virtual="downloads/version.txt" -->
   </p>
 </main>
