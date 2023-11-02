@@ -17,11 +17,6 @@
     A free, cross-platform desktop text editor for producing beautifully
     typeset PDF files.
   </p>
-  <p>
-  <strong>Version <!--#include file="downloads/version.txt" --></strong><br>
-  <!--#config timefmt="%d-%b-%Y" -->
-  <!--#flastmod virtual="downloads/version.txt" -->
-  </p>
 </header>
 <main>
   <div class="downloads">
@@ -54,6 +49,11 @@
          alt="Download for MacOS"
          class="download"></a>
   </div>
+  <p class="version">
+  <strong>Version <!--#include file="downloads/version.txt" --></strong><br>
+  <!--#config timefmt="%d-%b-%Y" -->
+  <!--#flastmod virtual="downloads/version.txt" -->
+  </p>
 </main>
 <nav>
   <ul>
