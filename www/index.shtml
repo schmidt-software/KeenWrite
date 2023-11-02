@@ -52,8 +52,7 @@
   <!--#config timefmt="%d-%b-%Y" -->
   <p class="version">
   <strong>Version <!--#include file="downloads/version.txt" --></strong>
-  <br>
-  <!--#flastmod virtual="downloads/version.txt" -->
+  <br><!--#flastmod virtual="downloads/version.txt" -->
   </p>
 </main>
 <nav>
