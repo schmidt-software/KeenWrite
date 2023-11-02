@@ -18,7 +18,9 @@
     typeset PDF files.
   </p>
   <p>
-  <strong>Version <!--#include file="downloads/version.txt" --></strong>
+  <strong>Version <!--#include file="downloads/version.txt" --></strong><br>
+  <!--#config timefmt="%d/%m/%Y" -->
+  <!--#flastmod virtual="downloads/version.txt" -->
   </p>
 </header>
 <main>
