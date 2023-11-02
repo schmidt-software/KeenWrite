@@ -8,6 +8,7 @@ import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.io.MediaType.TEXT_XML;
 import static com.keenwrite.io.SysFile.normalize;
 import static com.keenwrite.typesetting.Typesetter.Mutator;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.nio.file.Files.deleteIfExists;
 import static java.nio.file.Files.writeString;
 
@@ -42,7 +43,7 @@ public final class PdfProcessor extends ExecutorProcessor<String> {
       final var parent = normalize( targetPath.toAbsolutePath().getParent() );
 
       final var document = TEXT_XML.createTempFile( APP_TITLE_ABBR, parent );
-      final var sourcePath = writeString( document, xhtml );
+      final var sourcePath = writeString( document, xhtml, UTF_8 );
       clue( "Main.status.typeset.setting", "source", sourcePath );
 
       final var themeDir = normalize( context.getThemeDir() );

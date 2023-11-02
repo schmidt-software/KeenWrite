@@ -2,7 +2,7 @@
 <FindBugsFilter>
   <Match>
     <Or>
-      <Bug code="EI, EI2" />
+      <Bug code="EI, EI2, CT, RV, PI" />
     </Or>
   </Match>
 

@@ -14,7 +14,7 @@ import static javafx.scene.input.Clipboard.getSystemClipboard;
 /**
  * Responsible for pasting into the computer's clipboard.
  */
-public class Clipboard {
+public class SystemClipboard {
   /**
    * Copies the given text into the clipboard, overwriting all data.
    *

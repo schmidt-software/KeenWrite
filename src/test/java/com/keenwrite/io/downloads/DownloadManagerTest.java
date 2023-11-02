@@ -26,7 +26,7 @@ class DownloadManagerTest {
     setProperty( "http.agent", DownloadManager.class.getCanonicalName() );
   }
 
-  private static final String URL =
+  private static final String URL_BINARY =
     "https://keenwrite.com/downloads/KeenWrite.exe";
 
   @Test
@@ -44,7 +44,7 @@ class DownloadManagerTest {
     final var file = File.createTempFile( "kw-", "test" );
     file.deleteOnExit();
 
-    final var token = open( URL );
+    final var token = open( URL_BINARY );
     final var executor = Executors.newFixedThreadPool( 1 );
     final var result = token.download( file, listener );
     final var future = executor.submit( result );

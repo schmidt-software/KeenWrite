@@ -16,6 +16,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.util.FileWalker.walk;
 import static java.lang.System.lineSeparator;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.nio.file.Files.readString;
 
 /**
@@ -62,7 +63,7 @@ public class ConcatenateCommand implements Callable<String> {
         if( validator.test( chapter.incrementAndGet() ) ) {
           clue( "Main.status.export.concat", file );
 
-          text.append( readString( file ) )
+          text.append( readString( file, UTF_8 ) )
               .append( eol );
         }
       } catch( final IOException ex ) {

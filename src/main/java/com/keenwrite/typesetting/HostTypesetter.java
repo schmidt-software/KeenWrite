@@ -21,6 +21,7 @@ import static com.keenwrite.constants.Constants.TEMPORARY_DIRECTORY;
 import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.io.SysFile.toFile;
 import static java.lang.ProcessBuilder.Redirect.DISCARD;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.nio.file.Files.*;
 import static java.util.Arrays.asList;
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -183,7 +184,7 @@ public final class HostTypesetter extends Typesetter
      */
     private void log( final Path path ) throws IOException {
       if( exists( path ) ) {
-        log( readAllLines( path ) );
+        log( readAllLines( path, UTF_8 ) );
       }
     }
 

@@ -23,6 +23,7 @@ import static com.keenwrite.Launcher.terminate;
 import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.io.MediaType.TEXT_R_MARKDOWN;
 import static com.keenwrite.processors.ProcessorFactory.createProcessors;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.nio.file.Files.readString;
 import static java.nio.file.Files.writeString;
 import static java.util.concurrent.Executors.newFixedThreadPool;
@@ -87,8 +88,9 @@ public class AppCommands {
 
         // Processors can export binary files. In such cases, processors will
         // return null to prevent further processing.
-        final var result =
-          outputDoc == null ? null : writeString( outputPath, outputDoc );
+        final var result = outputDoc == null
+          ? null
+          : writeString( outputPath, outputDoc, UTF_8 );
 
         future.complete( outputPath );
         return result;
@@ -140,7 +142,7 @@ public class AppCommands {
     // Short-circuit because: only one file was requested; there is no parent
     // directory to scan for files; or there's no extension for globbing.
     if( !concat || parent == null || extension.isBlank() ) {
-      return readString( inputPath );
+      return readString( inputPath, UTF_8 );
     }
 
     final var command = new ConcatenateCommand(

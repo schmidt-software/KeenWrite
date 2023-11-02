@@ -50,6 +50,7 @@ import static com.keenwrite.preferences.AppKeys.*;
 import static com.keenwrite.processors.ProcessorFactory.createProcessors;
 import static com.keenwrite.ui.explorer.FilePickerFactory.SelectionType;
 import static com.keenwrite.ui.explorer.FilePickerFactory.SelectionType.*;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.nio.file.Files.writeString;
 import static javafx.application.Platform.runLater;
 import static javafx.event.Event.fireEvent;
@@ -229,7 +230,9 @@ public final class GuiCommands {
 
             // Processors can export binary files. In such cases, processors
             // return null to prevent further processing.
-            return export == null ? null : writeString( sourcePath, export );
+            return export == null
+              ? null
+              : writeString( sourcePath, export, UTF_8 );
           }
         };
 

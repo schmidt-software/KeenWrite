@@ -4,7 +4,7 @@
  */
 package com.keenwrite.typesetting.installer.panes;
 
-import com.keenwrite.ui.clipboard.Clipboard;
+import com.keenwrite.ui.clipboard.SystemClipboard;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.ButtonBar;
@@ -91,7 +91,7 @@ public final class UnixManagerInstallPane extends InstallerPane {
 
     // Change the label to indicate clipboard is updated.
     copyButton.setOnAction( event -> {
-      Clipboard.write( mCommands.getText() );
+      SystemClipboard.write( mCommands.getText() );
       copyButton.setText( get( PREFIX + ".copy.ended" ) );
     } );
 

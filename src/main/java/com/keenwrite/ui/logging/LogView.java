@@ -3,7 +3,7 @@ package com.keenwrite.ui.logging;
 
 import com.keenwrite.events.StatusEvent;
 import com.keenwrite.ui.actions.Keyboard;
-import com.keenwrite.ui.clipboard.Clipboard;
+import com.keenwrite.ui.clipboard.SystemClipboard;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.ObservableList;
@@ -116,7 +116,7 @@ public final class LogView extends Alert {
     mTable.getSelectionModel().setSelectionMode( MULTIPLE );
     mTable.setOnKeyPressed( event -> {
       if( Keyboard.isCopy( event ) ) {
-        Clipboard.write( mTable );
+        SystemClipboard.write( mTable );
       }
     } );
 

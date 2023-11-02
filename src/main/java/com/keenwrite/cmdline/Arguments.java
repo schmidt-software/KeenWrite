@@ -24,6 +24,7 @@ import java.util.concurrent.Callable;
 import java.util.function.Consumer;
 
 import static com.keenwrite.constants.Constants.DIAGRAM_SERVER_NAME;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
  * Responsible for mapping command-line arguments to keys that are used by
@@ -292,7 +293,7 @@ public final class Arguments implements Callable<Integer> {
   }
 
   private static String read( final Path path ) throws IOException {
-    return path == null ? "" : Files.readString( path );
+    return path == null ? "" : Files.readString( path, UTF_8 );
   }
 
   /**

@@ -5,7 +5,7 @@ import com.keenwrite.events.DocumentChangedEvent;
 import com.keenwrite.events.WordCountEvent;
 import com.keenwrite.preferences.Workspace;
 import com.keenwrite.ui.actions.Keyboard;
-import com.keenwrite.ui.clipboard.Clipboard;
+import com.keenwrite.ui.clipboard.SystemClipboard;
 import com.whitemagicsoftware.keencount.TokenizerException;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
@@ -135,7 +135,7 @@ public final class DocumentStatistics extends TableView<StatEntry> {
     getSelectionModel().setSelectionMode( MULTIPLE );
     setOnKeyPressed( event -> {
       if( Keyboard.isCopy( event ) ) {
-        Clipboard.write( this );
+        SystemClipboard.write( this );
       }
     } );
   }

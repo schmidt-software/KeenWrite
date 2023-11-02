@@ -10,8 +10,8 @@ import java.text.MessageFormat;
  */
 public class DefaultNotification implements Notification {
 
-  private final String title;
-  private final String content;
+  private final String mTitle;
+  private final String mContent;
 
   /**
    * Constructs default message text for a notification.
@@ -24,18 +24,18 @@ public class DefaultNotification implements Notification {
       final String title,
       final String message,
       final Object... args ) {
-    this.title = title;
-    this.content = MessageFormat.format( message, args );
+    mTitle = title;
+    mContent = MessageFormat.format( message, args );
   }
 
   @Override
   public String getTitle() {
-    return this.title;
+    return mTitle;
   }
 
   @Override
   public String getContent() {
-    return this.content;
+    return mContent;
   }
 
 }

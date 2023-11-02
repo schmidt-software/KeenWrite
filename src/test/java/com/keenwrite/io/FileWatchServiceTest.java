@@ -11,6 +11,7 @@ import java.util.concurrent.Semaphore;
 import java.util.function.Consumer;
 
 import static java.io.File.createTempFile;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.nio.file.StandardOpenOption.APPEND;
 import static java.nio.file.StandardOpenOption.CREATE;
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -43,7 +44,7 @@ class FileWatchServiceTest {
 
     thread.start();
     service.addListener( listener );
-    Files.writeString( file.toPath(), text, CREATE, APPEND );
+    Files.writeString( file.toPath(), text, UTF_8, CREATE, APPEND );
     semaphor.acquire();
     service.stop();
     thread.join();
