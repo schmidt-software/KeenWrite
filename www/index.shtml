@@ -17,11 +17,11 @@
     A free, cross-platform desktop text editor for producing beautifully
     typeset PDF files.
   </p>
-</header>
-<main>
   <p>
   <strong>Version <!--#include file="downloads/version.txt" --></strong>
   </p>
+</header>
+<main>
   <div class="downloads">
     <a href="downloads/keenwrite.bin"
        class="download"
