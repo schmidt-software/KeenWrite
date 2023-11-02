@@ -19,7 +19,7 @@
   </p>
   <p>
   <strong>Version <!--#include file="downloads/version.txt" --></strong><br>
-  <!--#config timefmt="%d/%m/%Y" -->
+  <!--#config timefmt="%d-%b-%Y" -->
   <!--#flastmod virtual="downloads/version.txt" -->
   </p>
 </header>
