@@ -18,7 +18,7 @@
     typeset PDF files.
   </p>
   <p>
-  <!--#include file="version.txt" -->
+  <!--#include file="downloads/version.txt" -->
   </p>
 </header>
 <main>

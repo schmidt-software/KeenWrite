@@ -10,6 +10,7 @@ readonly APP_NAME=$(cut -d= -f2 ./src/main/resources/bootstrap.properties)
 readonly APP_NAME_LC=${APP_NAME,,}
 readonly PATH_TOKEN="tokens/${APP_NAME_LC}.pat"
 readonly URL=$(cat "tokens/publish.url")
+readonly FILE_VERSION="version.txt"
 
 # ---------------------------------------------------------------------------
 # Adds download URLs to a release.
@@ -41,7 +42,7 @@ release() {
 
   local -r BINARY="${FILE_PREFIX}.${FILE_SUFFIX}"
 
-  publish "${BINARY}"
+  upload "${BINARY}"
 
   glab release upload ${RELEASE} \
     --assets-links="[{
@@ -52,15 +53,15 @@ release() {
 }
 
 # ---------------------------------------------------------------------------
-# Publishes a self-extracting installer to the repository.
+# Uploads a file to the remote host.
 #
 # $1 - The relative path to the file to upload.
 # ---------------------------------------------------------------------------
-publish() {
-  local -r FILE_BINARY="${1}"
+upload() {
+  local -r FILENAME="${1}"
 
-  if [ -f "${FILE_BINARY}" ]; then
-    scp "${FILE_BINARY}" "${URL}"
+  if [ -f "${FILENAME}" ]; then
+    scp "${FILENAME}" "${URL}"
   else
     echo "Missing ${FILE_BINARY}, continuing."
   fi
@@ -73,6 +74,9 @@ if [ -f "${PATH_TOKEN}" ]; then
   release "MacOS"
   release "Linux"
   release "Java"
+
+  echo "${RELEASE}" > "${FILE_VERSION}"
+  upload "${FILE_VERSION}"
 else
   echo "Create ${PATH_TOKEN} before publishing the release."
 fi
