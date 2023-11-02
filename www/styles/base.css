@@ -69,12 +69,6 @@ main > img.screenshot:hover {
   transform: scale(1);
 }
 
-main > p.version {
-  margin: auto;
-  width: 100%;
-  text-align: center;
-}
-
 /* ************************************************************************ 
  * Download buttons
  * ************************************************************************ */
@@ -109,6 +103,15 @@ img.download {
   /* Replace icon black with another colour. */
   filter: invert(6%)
     sepia(58%) saturate(857%) hue-rotate(158deg) brightness(91%) contrast(91%);
+}
+
+/* ************************************************************************ 
+ * Version information
+ * ************************************************************************ */
+main > p.version {
+  margin: 0 auto;
+  width: 100%;
+  text-align: center;
 }
 
 /* ************************************************************************ 
