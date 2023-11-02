@@ -17,6 +17,9 @@
     A free, cross-platform desktop text editor for producing beautifully
     typeset PDF files.
   </p>
+  <p>
+  <!--#include file="version.txt" -->
+  </p>
 </header>
 <main>
   <div class="downloads">
