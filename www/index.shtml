@@ -25,6 +25,8 @@
        aria-label="Download for Linux"><img
          src="images/icons/linux.svg"
          alt="Download for Linux"
+         width="157px"
+         height="75px"
          class="download"></a>
     <a href="downloads/keenwrite.jar"
        class="download"
@@ -32,6 +34,8 @@
        aria-label="Download for Java"><img
          src="images/icons/java.svg"
          alt="Download for Java"
+         width="157px"
+         height="75px"
          class="download"></a>
     <a href="downloads/KeenWrite.exe"
        class="download"
@@ -39,6 +43,8 @@
        aria-label="Download for Windows"><img
          src="images/icons/windows.svg"
          alt="Download for Windows"
+         width="157px"
+         height="75px"
          class="download"></a>
     <a href="downloads/keenwrite.app"
        class="download"
@@ -46,6 +52,8 @@
        aria-label="Download for MacOS"><img
          src="images/icons/apple.svg"
          alt="Download for MacOS"
+         width="157px"
+         height="75px"
          class="download"></a>
   </div>
   <!--#config timefmt="%d-%b-%Y" -->
