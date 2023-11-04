@@ -7,7 +7,7 @@
   <meta name="description" content="cross-platform, open-source desktop editor">
   <meta name="keywords" content="markdown, text, editor, software">
   <meta name="robots" content="index, follow">
-  <style type="text/css"><!--#include file="styles/base.css" --></style>
+  <style><!--#include file="styles/base.css" --></style>
 </head>
 <body>
 <header>
