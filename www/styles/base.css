@@ -111,6 +111,9 @@ img.download {
   /* Replace icon black with another colour. */
   filter: invert(6%)
     sepia(58%) saturate(857%) hue-rotate(158deg) brightness(91%) contrast(91%);
+
+  width: 157px;
+  height: 75px;
 }
 
 /* ************************************************************************ 
