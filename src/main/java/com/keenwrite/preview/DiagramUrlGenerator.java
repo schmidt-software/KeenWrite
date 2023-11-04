@@ -50,7 +50,7 @@ public class DiagramUrlGenerator {
    * @param source The data to compress.
    * @return A lossless, compressed sequence of bytes.
    */
-  private static byte[] compress( byte[] source ) {
+  private static byte[] compress( final byte[] source ) {
     final var deflater = new Deflater();
     deflater.setInput( source );
     deflater.finish();
