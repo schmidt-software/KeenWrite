@@ -1,6 +1,6 @@
-/* ************************************************************************ 
+/*
  * Page
- * ************************************************************************ */
+ */
 :root {
   --accent-colour: #ec706a;
   --link-colour: #8cc6de;
@@ -20,10 +20,9 @@ header, nav, footer {
   text-align: center;
 }
 
-/* ************************************************************************ 
+/*
  * Header
- * ************************************************************************ */
-
+ */
 header {
   /* Avoid being flush with top of page, put space between the title and
    * the download buttons, ensure any text won't be flush with edges.
@@ -42,10 +41,9 @@ header > img.title {
   height: 72pt;
 }
 
-/* ************************************************************************ 
+/*
  * Screenshots
- * ************************************************************************ */
-
+ */
 main.screenshots {
   text-align: center;
 }
@@ -69,18 +67,16 @@ main > img.screenshot:hover {
   transform: scale(1);
 }
 
-/* ************************************************************************ 
+/*
  * Version information
- * ************************************************************************ */
-
+ */
 main > p.version {
   text-align: center;
 }
 
-/* ************************************************************************ 
+/*
  * Download buttons
- * ************************************************************************ */
-
+ */
 main > div.downloads {
   /* Arrange the buttons in a responsive, 2 x 2 grid. */
   display: grid;
@@ -116,10 +112,9 @@ img.download {
   height: 75px;
 }
 
-/* ************************************************************************ 
+/*
  * Navigation
- * ************************************************************************ */
-
+ */
 nav {
   /* Don't crowd navigation links against the download buttons. */
   margin-top: 4em;
@@ -150,9 +145,9 @@ nav a:link:hover, nav a:visited:hover {
   color: var( --accent-colour );
 }
 
-/* ************************************************************************ 
+/*
  * Footer
- * ************************************************************************ */
+ */
 footer {
   margin-top: 2em;
   margin-bottom: 1em;
