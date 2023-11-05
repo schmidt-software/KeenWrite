@@ -7,6 +7,7 @@
   <meta name="description" content="cross-platform, open-source desktop editor">
   <meta name="keywords" content="markdown, text, editor, software">
   <meta name="robots" content="index, follow">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; connect-src 'self'; img-src 'self'; style-src 'self'; frame-ancestors 'self';">
   <style><!--#include file="styles/base.css" --></style>
 </head>
 <body>
