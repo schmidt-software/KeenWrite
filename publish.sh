@@ -77,6 +77,7 @@ if [ -f "${PATH_TOKEN}" ]; then
 
   echo "${RELEASE}" > "${FILE_VERSION}"
   upload "${FILE_VERSION}"
+  mv "${FILE_VERSION}" "www/downloads"
 else
   echo "Create ${PATH_TOKEN} before publishing the release."
 fi

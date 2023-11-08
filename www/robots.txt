@@ -1,3 +1,13 @@
 user-agent: * 
 disallow: 
 crawl-delay: 60
+
+user-agent: Googlebot
+disallow: /repository/*
+user-agent: Bingbot
+disallow: /repository/*
+user-agent: YandexBot
+disallow: /repository/*
+user-agent: MicrosoftBot
+disallow: /repository/*
+
