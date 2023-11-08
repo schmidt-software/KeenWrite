@@ -99,7 +99,7 @@
       lock_open( $filename );
 
       // Coerce value to largest natural numeric data type.
-      $count = file_get_contents( $filename ) + 0;
+      $count = @file_get_contents( $filename ) + 0;
 
       // Write the new counter value.
       file_put_contents( $filename, $count + 1 );
@@ -164,7 +164,7 @@
    * @return bool True if the download succeeded.
    */
   function download( $path ) {
-    $size = filesize( $path );
+    $size = @filesize( $path );
     $fileinfo = pathinfo( $path );
     $filename = normalize_filename( $fileinfo );
     $content_type = get_content_type( $fileinfo );
@@ -208,10 +208,11 @@
     header( 'Content-Disposition: attachment; filename="' . $filename . '"' );
     header( 'Content-Length: ' . ($seek_end - $seek_start + 1) );
 
-    $fp = fopen( $path, 'rb' );
+    $total_bytes = 0;
+    $fp = @fopen( $path, 'rb' );
 
     if( $fp !== false ) {
-      fseek( $fp, $seek_start );
+      @fseek( $fp, $seek_start );
 
       $aborted = false;
       $total_bytes = $seek_start;
