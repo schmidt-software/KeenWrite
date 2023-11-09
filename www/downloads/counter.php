@@ -1,7 +1,21 @@
 <?php
   // Log all errors to a temporary file.
-  ini_set( "log_errors", 1 );
-  ini_set( "error_log", "/tmp/php-errors.log" );
+  ini_set( 'log_errors', 1 );
+  ini_set( 'error_log', '/tmp/php-errors.log' );
+
+  // Prevent session hijacking.
+  ini_set( 'session.cookie_httponly', 1 );
+
+  // Prevent session fixation.
+  ini_set( 'session.use_only_cookies', 1 );
+
+  // Force setting secure cookies.
+  ini_set( 'session.cookie_secure', 1 );
+
+  // Allow setting session variables (cookies).
+  if( session_id() === PHP_SESSION_NONE ) {
+    session_start();
+  }
 
   // Keep running upon client disconnect (helps catch file transfer failures).
   // This setting requires checking whether the connection has been aborted at
@@ -10,11 +24,6 @@
 
   // Do not impose a time limit.
   set_time_limit( 0 );
-
-  // Allow setting session variables (cookies).
-  if( session_id() === PHP_SESSION_NONE ) {
-    session_start();
-  }
 
   /**
    * Answers whether the user's session has expired.
@@ -27,18 +36,17 @@
     // Session cookie, not used for user tracking, tracks last download date.
     $COOKIE_NAME = 'LAST_DOWNLOAD';
     $now = time();
-    $expired = !isset( $_SESSION[ $COOKIE_NAME ] );
+    $expired = !isset( $_COOKIE[ $COOKIE_NAME ] );
 
-    if( !$expired && ($now - $_SESSION[ $COOKIE_NAME ]) > $lifetime ) {
-      $_SESSION = array();
-
-      session_destroy();
+    if( !$expired && ($now - $_COOKIE[ $COOKIE_NAME ]) > $lifetime ) {
+      unset( $_COOKIE[ $COOKIE_NAME ] ); 
+      setcookie( $COOKIE_NAME, '', $now - 3600, '/' );
 
       $expired = true;
     }
 
     // Update last activity timestamp.
-    $_SESSION[ $COOKIE_NAME ] = $now;
+    setcookie( $COOKIE_NAME, $now, $now + $lifetime );
 
     return $expired;
   }
