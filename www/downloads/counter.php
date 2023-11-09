@@ -16,27 +16,21 @@
   set_time_limit( 0 );
 
   /**
-   * Answers whether the user's session has expired.
+   * Answers whether the user's download token has expired.
    *
    * @param int $lifetime Number of seconds the session lasts before expiring.
    *
    * @return bool True indicates the session has expired (or was not set).
    */
-  function session_expired( $lifetime ) {
-    // Session cookie, not used for user tracking, tracks last download date.
+  function download_token_expired( $lifetime ) {
     $COOKIE_NAME = 'LAST_DOWNLOAD';
     $now = time();
-    $expired = !isset( $_COOKIE[ $COOKIE_NAME ] );
+    $expired = false;
 
-    if( !$expired && ($now - $_COOKIE[ $COOKIE_NAME ]) > $lifetime ) {
-      unset( $_COOKIE[ $COOKIE_NAME ] ); 
-      setcookie( $COOKIE_NAME, '', $now - 3600, '/' );
-
+    if( !isset( $_COOKIE[ $COOKIE_NAME ] ) ) {
       $expired = true;
+      setcookie( $COOKIE_NAME, $now, $now + $lifetime, '/' );
     }
-
-    // Update last activity timestamp.
-    setcookie( $COOKIE_NAME, $now, $now + $lifetime );
 
     return $expired;
   }
@@ -125,7 +119,7 @@
    * @param string $filename The file containing a number to increment.
    */
   function hit_count( $filename ) {
-    if( session_expired( 7 * 24 * 60 * 60 ) ) {
+    if( download_token_expired( 7 * 24 * 60 * 60 ) ) {
       increment_count( $filename );
     }
   }
