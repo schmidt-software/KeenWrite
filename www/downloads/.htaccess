@@ -1,3 +1,4 @@
+<IfModule mod_rewrite.c>
 RewriteEngine On
 
 # Exclude existing files and directories from the rewrite rule.
@@ -5,6 +6,7 @@ RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 
 # Rewrite requests for file extensions to track.
-RewriteRule ^([^/]+\.(test))$ counter.php?file=$1 [L]
+RewriteRule ^([^/]+\.(test))$ counter.php?filename=$1 [L]
 #RewriteRule ^([^/]+\.(zip|app|bin|exe|jar))$ counter.php?file=$1 [L]
+</IfModule>
 
