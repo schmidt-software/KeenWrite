@@ -8,6 +8,9 @@
   // a regular interval to prevent bogging the server with abandoned requests.
   ignore_user_abort( true );
 
+  // Do not impose a time limit.
+  set_time_limit( 0 );
+
   // Allow setting session variables (cookies).
   if( session_id() === PHP_SESSION_NONE ) {
     session_start();
@@ -260,11 +263,10 @@
 
       $aborted = false;
       $bytes_sent = $seek_start;
-      $chunk_size = 1024 * 8;
+      $chunk_size = 1024 * 16;
 
       while( !feof( $fp ) && !$aborted ) {
-        set_time_limit( 0 );
-        print( fread( $fp, $chunk_size ) );
+        print( @fread( $fp, $chunk_size ) );
         $bytes_sent += $chunk_size;
 
         if( ob_get_level() > 0 ) {
