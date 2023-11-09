@@ -1,7 +1,11 @@
 RewriteEngine On
-RewriteCond %{REQUEST_URI} !^.*\.(test)$ [NC]
-RewriteRule ^(.+)$ download.php?filename=$1 [L,QSA]
 
-#RedirectMatch 302 \.(test)$ download.php?filename=$0
-#RedirectMatch 302 \.(zip|app|bin|exe|jar)$ ./download.php?filename=$0
+# Exclude existing files and directories from the rewrite rule.
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# Rewrite requests for valid file extensions.
+#RewriteRule ^(.+\.(zip|app|bin|exe|jar))$ /downloads/download.php?filename=$1 [L]
+
+RewriteRule ^(.+\.(zip|app|bin|exe|jar))$ download.php?filename=$1 [L]
 
