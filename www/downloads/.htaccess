@@ -7,5 +7,5 @@ RewriteCond %{REQUEST_FILENAME} !-d
 # Rewrite requests for valid file extensions.
 #RewriteRule ^(.+\.(zip|app|bin|exe|jar))$ /downloads/download.php?filename=$1 [L]
 
-RewriteRule ^(.+\.(zip|app|bin|exe|jar))$ download.php?filename=$1 [L]
+RewriteRule ^(.+\.(test))$ download.php?filename=$1 [L]
 
