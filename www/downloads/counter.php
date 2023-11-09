@@ -3,18 +3,8 @@
   ini_set( 'log_errors', 1 );
   ini_set( 'error_log', '/tmp/php-errors.log' );
 
-  // Prevent session hijacking.
-  ini_set( 'session.cookie_httponly', 1 );
-
-  // Prevent session fixation.
-  ini_set( 'session.use_only_cookies', 1 );
-
-  // Force setting secure cookies.
-  ini_set( 'session.cookie_secure', 1 );
-
-  // Allow setting session variables (cookies).
-  if( session_id() === PHP_SESSION_NONE ) {
-    session_start();
+  if( ob_get_level() > 0 ) {
+    ob_end_clean();
   }
 
   // Keep running upon client disconnect (helps catch file transfer failures).
@@ -245,10 +235,6 @@
     }
 
     $range_bytes = $seek_start . '-' . $seek_end . '/' . $size;
-
-    if( ob_get_level() > 0 ) {
-      ob_end_clean();
-    }
 
     header( 'Accept-Ranges: bytes' );
     header( 'Content-Range: bytes ' . $range_bytes );
