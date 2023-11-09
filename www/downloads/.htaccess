@@ -1,0 +1,3 @@
+RedirectMatch 302 \.(test)$ download.php?filename=$0
+#RedirectMatch 302 \.(zip|app|bin|exe|jar)$ ./download.php?filename=$0
+

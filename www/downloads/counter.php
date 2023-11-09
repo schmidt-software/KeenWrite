@@ -1,16 +1,17 @@
 <?php
-  // Log all errors to a file.
+  // Log all errors to a temporary file.
   ini_set( "log_errors", 1 );
   ini_set( "error_log", "/tmp/php-errors.log" );
 
   // Keep running upon client disconnect (helps catch file transfer failures).
+  // This setting requires checking whether the connection has been aborted at
+  // a regular interval to prevent bogging the server with abandoned requests.
   ignore_user_abort( true );
 
-  // Allow the download to complete.
-  set_time_limit( 0 );
-
   // Allow setting session variables (cookies).
-  session_start();
+  if( session_id() === PHP_SESSION_NONE ) {
+    session_start();
+  }
 
   /**
    * Answers whether the user's session has expired.
@@ -20,10 +21,12 @@
    * @return bool True indicates the session has expired (or was not set).
    */
   function session_expired( $lifetime ) {
+    // Session cookie, not used for user tracking, tracks last download date.
+    $COOKIE_NAME = 'LAST_DOWNLOAD';
     $now = time();
-    $expired = !isset( $_SESSION[ 'LAST_ACTIVITY' ] );
+    $expired = !isset( $_SESSION[ $COOKIE_NAME ] );
 
-    if( !$expired && ($now - $_SESSION[ 'LAST_ACTIVITY' ]) > $lifetime ) {
+    if( !$expired && ($now - $_SESSION[ $COOKIE_NAME ]) > $lifetime ) {
       $_SESSION = array();
 
       session_destroy();
@@ -32,7 +35,7 @@
     }
 
     // Update last activity timestamp.
-    $_SESSION[ 'LAST_ACTIVITY' ] = $now;
+    $_SESSION[ $COOKIE_NAME ] = $now;
 
     return $expired;
   }
@@ -43,9 +46,9 @@
 
   /**
    * Acquires a lock for a particular file. Callers would be prudent to
-   * call this function from within a try/finally handler and close the lock
-   * in the finally block. The amount of time between opening and closing
-   * the lock must be quick because parallel processes will be waiting on
+   * call this function from within a try/finally block and close the lock
+   * in the finally section. The amount of time between opening and closing
+   * the lock must be minimal because parallel processes will be waiting on
    * the lock's release.
    *
    * @param string $filename The name of file to lock.
@@ -53,24 +56,24 @@
    * @return bool True if the lock was obtained, false upon excessive attempts.
    */
   function lock_open( $filename ) {
-    $lockfile = create_lock_filename( $filename );
+    $lockdir = create_lock_filename( $filename );
 
     // Track the number of times a lock attempt is made.
     $iterations = 0;
 
     do {
-      // Create and test lock file existence atomically.
-      if( @mkdir( $lockfile, 0777 ) ) {
+      // Creates and tests lock file existence atomically.
+      if( @mkdir( $lockdir, 0777 ) ) {
         // Exit the loop.
         $iterations = 0;
       }
       else {
         $iterations++;
-        $lifetime = time() - filemtime( $lockfile );
+        $lifetime = time() - filemtime( $lockdir );
 
         if( $lifetime > 10 ) {
           // If the lock has gone stale, delete it.
-          @rmdir( $lockfile );
+          @rmdir( $lockdir );
         }
         else {
           // Wait a random duration to avoid concurrency conflicts.
@@ -84,6 +87,11 @@
     return $iterations == 0;
   }
 
+  /**
+   * Releases the lock on a particular file.
+   *
+   * @param string $filename The name of file that was locked.
+   */
   function lock_close( $filename ) {
     @rmdir( create_lock_filename( $filename ) );
   }
@@ -121,6 +129,13 @@
     }
   }
 
+  /**
+   * Isolate the file name being downloaded.
+   *
+   * @param array $fileinfo The result from calling pathinfo.
+   *
+   * @return string The normalized file name.
+   */
   function normalize_filename( $fileinfo ) {
     $basename = $fileinfo[ 'basename' ];
 
@@ -133,9 +148,27 @@
         : $basename;
     }
 
+    $basename = preg_replace( '/\s+/', '', $basename );
+    $basename = mb_ereg_replace( '([^\w\d\-_~,;\[\]\(\).])', '', $basename );
+    $basename = mb_ereg_replace( '([\.]{2,})', '', $basename );
+
     return $basename;
   }
 
+  /**
+   * Determine the content type based on the file name extension, rather
+   * than the file contents. This could be inaccurate, but we'll trust that
+   * the website administrator is posting files whose content reflects the
+   * file name extension.
+   * <p>
+   * If the file name extension is not known, the content type will force
+   * the download (to prevent the browser from trying to play the content
+   * directly).
+   *
+   * @param array $fileinfo The result from calling pathinfo.
+   *
+   * @return string The IANA-defined Media Type for the file name extension.
+   */
   function get_content_type( $fileinfo ) {
     $extension = strtolower( $fileinfo[ 'extension' ] );
 
@@ -157,22 +190,26 @@
   }
 
   /**
-   * Downloads a file transfer, allowing for resuming partial downloads.
+   * Downloads a file, allowing for resuming partial downloads.
    *
-   * @param string $path Fully qualified path of file to download.
+   * @param string $path Fully qualified path of a file to download.
    *
    * @return bool True if the download succeeded.
    */
   function download( $path ) {
+    // Don't cache the result of the file stats.
+    clearstatcache();
+
     $size = @filesize( $path );
+    $size = $size === false || empty( $size ) ? 0 : $size;
     $fileinfo = pathinfo( $path );
     $filename = normalize_filename( $fileinfo );
     $content_type = get_content_type( $fileinfo );
-    $range = '0-0';
+    $range = "0-$size";
 
-    // Check if http_range is sent by browser or download manager.
+    // Check if a range is sent by browser or download manager.
     if( isset( $_SERVER[ 'HTTP_RANGE' ] ) ) {
-      list( $units, $range_orig ) = explode( '=', $_SERVER['HTTP_RANGE'], 2 );
+      list( $units, $range_orig ) = explode( '=', $_SERVER[ 'HTTP_RANGE' ], 2 );
 
       if( $units == 'bytes' ) {
         // Multiple ranges could be specified, but only serve the first range.
@@ -185,7 +222,7 @@
 
     // Set start and end based on range, otherwise use defaults.
     $seek_end = empty( $seek_end )
-      ? $size - 1
+      ? max( $size - 1, 0 )
       : min( abs( $seek_end + 0 ), $size - 1 );
     $seek_start = empty( $seek_start || $seek_end < abs( $seek_start + 0 ) )
       ? 0
@@ -198,8 +235,8 @@
 
     $range_bytes = $seek_start . '-' . $seek_end . '/' . $size;
 
-    if( ob_get_level() == 0 ) {
-      ob_start();
+    if( ob_get_level() > 0 ) {
+      ob_end_clean();
     }
 
     header( 'Accept-Ranges: bytes' );
@@ -208,19 +245,27 @@
     header( 'Content-Disposition: attachment; filename="' . $filename . '"' );
     header( 'Content-Length: ' . ($seek_end - $seek_start + 1) );
 
-    $total_bytes = 0;
+    if( ob_get_level() == 0 ) {
+      ob_start();
+    }
+
+    // If the file doesn't exist, don't count it as a download.
+    $bytes_sent = -1;
+
+    // Open the file to be downloaded.
     $fp = @fopen( $path, 'rb' );
 
     if( $fp !== false ) {
       @fseek( $fp, $seek_start );
 
       $aborted = false;
-      $total_bytes = $seek_start;
+      $bytes_sent = $seek_start;
       $chunk_size = 1024 * 8;
 
       while( !feof( $fp ) && !$aborted ) {
         set_time_limit( 0 );
         print( fread( $fp, $chunk_size ) );
+        $bytes_sent += $chunk_size;
 
         if( ob_get_level() > 0 ) {
           ob_flush();
@@ -228,7 +273,6 @@
 
         flush();
 
-        $total_bytes += $chunk_size;
         $aborted = connection_aborted();
       }
 
@@ -239,11 +283,13 @@
       fclose( $fp );
     }
 
-    // Download succeeded if the total bytes sent exceeds the file size.
-    return $total_bytes >= $size;
+    // Download succeeded if the total bytes matches or exceeds the file size.
+    return $bytes_sent >= $size;
   }
 
-  if( download( 'f.txt' ) ) {
-    hit_count( 'f.txt' );
+  $filename = isset( $_GET[ 'filename' ] ) ? $_GET[ 'filename' ] : '';
+
+  if( !empty( $filename ) && download( $filename ) ) {
+    hit_count( "$filename-count.txt" );
   }
 ?>

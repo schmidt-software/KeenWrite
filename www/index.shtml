@@ -53,6 +53,8 @@
   <p class="version">
   <strong>Version <!--#include file="downloads/version.txt" --></strong>
   <br><!--#flastmod virtual="downloads/version.txt" -->
+  <br><!--#exec cmd="awk '{s+=$1} END {print s}' *-count.txt 2> /dev/null || echo 0" -->
+  downloads
   </p>
 </main>
 <nav>
