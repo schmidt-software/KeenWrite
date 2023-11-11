@@ -243,10 +243,10 @@
     header( 'Cache-Control: public' );
     header( 'Accept-Ranges: bytes' );
     header( "Content-Range: bytes $range_bytes" );
+    header( 'Content-Length: ' . ($seek_end - $seek_start + 1) );
     header( 'Content-Transfer-Encoding: binary' );
     header( 'Content-Description: File Transfer' );
     header( "Content-Disposition: attachment; filename='$filename'" );
-    header( 'Content-Length: ' . ($seek_end - $seek_start + 1) );
 
     // If the file doesn't exist, don't count it as a download.
     $bytes_sent = -1;
