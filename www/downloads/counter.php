@@ -165,7 +165,6 @@
       // Multiple ranges could be specified, but only serve the first range.
       $seek_start = isset( $matches[ 1 ] ) ? $matches[ 1 ] + 0 : 0;
       $seek_end = isset( $matches[ 2 ] ) ? $matches[ 2 ] + 0 : $size - 1;
-
       $range_bytes = $seek_start . '-' . $seek_end . '/' . $size;
       $content_length = $seek_end - $seek_start + 1;
 

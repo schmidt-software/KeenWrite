@@ -1,5 +1,4 @@
 SetEnv no-gzip dont-vary
-SetEnvIfNoCase Request_URI \.php$ no-gzip dont-vary
 
 <IfModule mod_rewrite.c>
 RewriteEngine On
