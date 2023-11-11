@@ -3,6 +3,10 @@
   ini_set( 'log_errors', 1 );
   ini_set( 'error_log', '/tmp/php-errors.log' );
 
+  // Turn off server-side compression.
+  @apache_setenv( 'no-gzip', 1 );
+  @ini_set( 'zlib.output_compression', 'Off' );
+
   // Do not impose a time limit for downloads.
   set_time_limit( 0 );
 
@@ -229,26 +233,25 @@
       ? 0
       : max( abs( $seek_start + 0 ), 0 );
 
+    header( 'Pragma: public' );
+    header( 'Expires: -1' );
+    header( 'Cache-Control: public, must-revalidate, post-check=0, pre-check=0' );
+    header( "Content-Disposition: attachment; filename=\"$filename\"" );
+    header( "Content-Type: $content_type" );
+
+    $content_length = $size;
+
     // Send partial content header if downloading a piece (IE workaround).
     if( $seek_start > 0 || $seek_end < ($size - 1) ) {
-      header( 'HTTP/1.1 206 Partial Content' );
-
       $range_bytes = $seek_start . '-' . $seek_end . '/' . $size;
-      header( 'Accept-Ranges: bytes' );
+      $content_length = $seek_end - $seek_start + 1;
+
+      header( 'HTTP/1.1 206 Partial Content' );
       header( "Content-Range: bytes $range_bytes" );
     }
 
-    $quoted = sprintf( '"%s"', addcslashes( basename( $filename ), '"\\' ) );
-
-    header( 'Content-Description: File Transfer' );
-    header( 'Content-Type: application/octet-stream' );
-    header( 'Content-Disposition: attachment; filename=' . $quoted );
-    header( 'Content-Transfer-Encoding: binary' );
-    header( 'Connection: Keep-Alive' );
-    header( 'Expires: 0' );
-    header( 'Cache-Control: must-revalidate, post-check=0, pre-check=0' );
-    header( 'Pragma: public' );
-    header( 'Content-Length: ' . ($seek_end - $seek_start + 1) );
+    header( "Content-Length: $content_length" );
+    header( 'Accept-Ranges: bytes' );
 
     // If the file doesn't exist, don't count it as a download.
     $bytes_sent = -1;
@@ -273,7 +276,7 @@
 
         flush();
 
-        $aborted = connection_aborted();
+        $aborted = connection_aborted() || connection_status() != 0;
       }
 
       if( ob_get_level() > 0 ) {
