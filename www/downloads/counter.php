@@ -241,7 +241,7 @@
 
     // Check if a range is sent by browser or download manager.
     if( isset( $_SERVER[ 'HTTP_RANGE' ] ) ) {
-      $range_format = '^bytes=\d*-\d*(,\d*-\d*)*$';
+      $range_format = '/^bytes=\d*-\d*(,\d*-\d*)*$/';
       $request_range = $_SERVER[ 'HTTP_RANGE' ];
 
       // Ensure the content request range is in a valid format.
