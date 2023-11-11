@@ -8,3 +8,5 @@ RewriteCond %{REQUEST_FILENAME} -f
 RewriteRule ^([^/]+\.(zip|app|bin|exe|jar))$ counter.php?filename=$1 [L]
 </IfModule>
 
+SetEnvIfNoCase REQUEST_URI counter\.php$ no-gzip dont-vary
+
