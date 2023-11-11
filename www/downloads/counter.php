@@ -108,42 +108,10 @@
     $size = @filesize( $filename );
     $size = $size === false || empty( $size ) ? 0 : $size;
     $content_type = mime_content_type( $filename );
-    $content_length = $size;
-    $seek_start = 0;
+    list( $seek_start, $content_length ) = parse_range( $size );
 
     // Added by PHP, removed by us.
     header_remove( 'x-powered-by' );
-
-    // Check if a range is sent by browser or download manager.
-    if( isset( $_SERVER[ 'HTTP_RANGE' ] ) ) {
-      $range_format = '/^bytes=\d*-\d*(,\d*-\d*)*$/';
-      $request_range = $_SERVER[ 'HTTP_RANGE' ];
-
-      // Ensure the content request range is in a valid format.
-      if( !preg_match( $range_format, $request_range, $matches ) ) {
-        header( 'HTTP/1.1 416 Requested Range Not Satisfiable' );
-        header( "Content-Range: bytes */$size" );
-
-        // Return early because the range is invalid.
-        return false;
-      }
-
-      // Multiple ranges could be specified, but only serve the first range.
-      $seek_start = $matches[ 1 ] + 0;
-
-      if( isset( $matches[ 2 ] ) ) {
-        $seek_end = $matches[ 2 ] + 0;
-      }
-      else {
-        $seek_end = $size - 1;
-      }
-
-      $range_bytes = $seek_start . '-' . $seek_end . '/' . $size;
-      $content_length = $seek_end - $seek_start + 1;
-
-      header( 'HTTP/1.1 206 Partial Content' );
-      header( "Content-Range: bytes $range_bytes" );
-    }
 
     // HTTP/1.1 clients must treat invalid date formats, especially 0, as past.
     header( 'Expires: 0' );
@@ -165,6 +133,49 @@
       ? false
       : transmit( $filename, $seek_start, $size );
   }
+
+  /**
+   * Parses the HTTP range request header, provided one was sent by the
+   * client. This provides download resume functionality.
+   *
+   * @param int $size The total file size (as stored on disk). 
+   *
+   * @return int The starting offset for resuming the download, or 0 to
+   * download the entire file (i.e., no offset could be parsed).
+   */
+  function parse_range( $size ) {
+    // By default, start transmitting at the beginning of the file.
+    $seek_start = 0;
+    $content_length = $size;
+
+    // Check if a range is sent by browser or download manager.
+    if( isset( $_SERVER[ 'HTTP_RANGE' ] ) ) {
+      $range_format = '/^bytes=\d*-\d*(,\d*-\d*)*$/';
+      $request_range = $_SERVER[ 'HTTP_RANGE' ];
+
+      // Ensure the content request range is in a valid format.
+      if( !preg_match( $range_format, $request_range, $matches ) ) {
+        header( 'HTTP/1.1 416 Requested Range Not Satisfiable' );
+        header( "Content-Range: bytes */$size" );
+
+        // Terminate because the range is invalid.
+        exit;
+      }
+
+      // Multiple ranges could be specified, but only serve the first range.
+      $seek_start = $matches[ 1 ] + 0;
+      $seek_end = isset( $matches[ 2 ] ) ? $matches[ 2 ] + 0 : $size - 1;
+
+      $range_bytes = $seek_start . '-' . $seek_end . '/' . $size;
+      $content_length = $seek_end - $seek_start + 1;
+
+      header( 'HTTP/1.1 206 Partial Content' );
+      header( "Content-Range: bytes $range_bytes" );
+    }
+
+    return array( $seek_start, $content_length );
+  }
+
   /**
    * Transmits a file from the server to the client.
    *
