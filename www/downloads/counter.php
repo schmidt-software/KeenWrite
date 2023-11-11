@@ -49,6 +49,7 @@
       $_SESSION[ $TOKEN_CREATE ] = $now;
     }
     else if( $now - $_SESSION[ $TOKEN_CREATE ] > $lifetime ) {
+      // Avoid session fixation attacks by regenerating tokens.
       session_regenerate_id( true );
       $_SESSION[ $TOKEN_CREATE ] = $now;
     }
@@ -232,31 +233,41 @@
     $size = @filesize( $filename );
     $size = $size === false || empty( $size ) ? 0 : $size;
     $content_type = mime_content_type( $filename );
-    $range = "0-$size";
-
-    // Check if a range is sent by browser or download manager.
-    if( isset( $_SERVER[ 'HTTP_RANGE' ] ) ) {
-      list( $units, $range_orig ) = explode( '=', $_SERVER[ 'HTTP_RANGE' ], 2 );
-
-      if( $units == 'bytes' ) {
-        // Multiple ranges could be specified, but only serve the first range.
-        list( $range, $extra_ranges ) = explode( ',', $range_orig, 2 );
-      }
-    }
-
-    // Determine what piece to download from the range.
-    list( $seek_start, $seek_end ) = explode( '-', $range, 2 );
-
-    // Set start and end based on range, otherwise use defaults.
-    $seek_end = empty( $seek_end )
-      ? max( $size - 1, 0 )
-      : min( abs( $seek_end + 0 ), $size - 1 );
-    $seek_start = empty( $seek_start || $seek_end < abs( $seek_start + 0 ) )
-      ? 0
-      : max( abs( $seek_start + 0 ), 0 );
+    $content_length = $size;
 
     // Added by PHP, removed by us.
     header_remove( 'x-powered-by' );
+
+    // Check if a range is sent by browser or download manager.
+    if( isset( $_SERVER[ 'HTTP_RANGE' ] ) ) {
+      $range_format = '^bytes=\d*-\d*(,\d*-\d*)*$';
+      $request_range = $_SERVER[ 'HTTP_RANGE' ];
+
+      // Ensure the content request range is in a valid format.
+      if( !preg_match( $range_format, $request_range, $matches ) ) {
+        header( 'HTTP/1.1 416 Requested Range Not Satisfiable' );
+        header( "Content-Range: bytes */$size" );
+
+        // Return early because the range is invalid.
+        return false;
+      }
+
+      // Multiple ranges could be specified, but only serve the first range.
+      $seek_start = $matches[ 1 ] + 0;
+
+      if( isset( $matches[ 2 ] ) ) {
+        $seek_end = $matches[ 2 ] + 0;
+      }
+      else {
+        $seek_end = $size - 1;
+      }
+
+      $range_bytes = $seek_start . '-' . $seek_end . '/' . $size;
+      $content_length = $seek_end - $seek_start + 1;
+
+      header( 'HTTP/1.1 206 Partial Content' );
+      header( "Content-Range: bytes $range_bytes" );
+    }
 
     // HTTP/1.1 clients must treat invalid date formats, especially 0, as past.
     header( 'Expires: 0' );
@@ -269,18 +280,6 @@
 
     // Force the browser to download, rather than displaying the file inline.
     header( "Content-Disposition: attachment; filename=\"$filename\"" );
-
-    $content_length = $size;
-
-    // Send partial content header if downloading a piece (IE workaround).
-    if( $seek_start > 0 || $seek_end < ($size - 1) ) {
-      $range_bytes = $seek_start . '-' . $seek_end . '/' . $size;
-      $content_length = $seek_end - $seek_start + 1;
-
-      header( 'HTTP/1.1 206 Partial Content' );
-      header( "Content-Range: bytes $range_bytes" );
-    }
-
     header( 'Accept-Ranges: bytes' );
     header( "Content-Length: $content_length" );
     header( "Content-Type: $content_type" );
