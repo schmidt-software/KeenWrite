@@ -238,16 +238,17 @@
       header( "Content-Range: bytes $range_bytes" );
     }
 
-    header("Content-Type: application/octet-stream");
-    //header( "Content-Type: $content_type" );
-    header( 'Pragma: public' );
+    $quoted = sprintf( '"%s"', addcslashes( basename( $filename ), '"\\' ) );
+
+    header( 'Content-Description: File Transfer' );
+    header( 'Content-Type: application/octet-stream' );
+    header( 'Content-Disposition: attachment; filename=' . $quoted );
+    header( 'Content-Transfer-Encoding: binary' );
+    header( 'Connection: Keep-Alive' );
     header( 'Expires: 0' );
     header( 'Cache-Control: must-revalidate, post-check=0, pre-check=0' );
-    header( 'Cache-Control: public' );
+    header( 'Pragma: public' );
     header( 'Content-Length: ' . ($seek_end - $seek_start + 1) );
-    header( 'Content-Transfer-Encoding: binary' );
-    header( 'Content-Description: File Transfer' );
-    header( "Content-Disposition: attachment; filename=\"$filename\"" );
 
     // If the file doesn't exist, don't count it as a download.
     $bytes_sent = -1;
