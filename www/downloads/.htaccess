@@ -1,4 +1,5 @@
 SetEnv no-gzip dont-vary
+SetEnvIfNoCase Request_URI \.php$ no-gzip dont-vary
 
 <IfModule mod_rewrite.c>
 RewriteEngine On
@@ -9,4 +10,3 @@ RewriteCond %{REQUEST_FILENAME} -f
 # Rewrite requests for file extensions to track.
 RewriteRule ^([^/]+\.(zip|app|bin|exe|jar))$ counter.php?filename=$1 [L]
 </IfModule>
-
