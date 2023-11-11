@@ -31,6 +31,36 @@
   }
 
   /**
+   * Retrieve the file name being downloaded from the HTTP GET request.
+   *
+   * @return string The sanitized file name (without path information).
+   */
+  function get_sanitized_filename() {
+    $filepath = isset( $_GET[ 'filename' ] ) ? $_GET[ 'filename' ] : '';
+    $fileinfo = pathinfo( $filepath );
+
+    // Remove path information (no /etc/passwd or ../../etc/passwd for you).
+    $basename = $fileinfo[ 'basename' ];
+
+    if( isset( $_SERVER[ 'HTTP_USER_AGENT' ] ) ) {
+      $periods = substr_count( $basename, '.' );
+
+      // Address IE bug regarding multiple periods in filename.
+      $basename = strstr( $_SERVER[ 'HTTP_USER_AGENT' ], 'MSIE' )
+        ? mb_ereg_replace( '/\./', '%2e', $basename, $periods - 1 )
+        : $basename;
+    }
+
+    // Trim all spaces, even internal ones.
+    $basename = mb_ereg_replace( '/\s+/', '', $basename );
+
+    // Sanitize.
+    $basename = mb_ereg_replace( '([^\w\d\-_~,;\[\]\(\).])', '', $basename );
+
+    return $basename;
+  }
+
+  /**
    * Answers whether the user's download token has expired.
    *
    * @param int $lifetime Number of seconds before expiring the token.
@@ -62,168 +92,6 @@
     }
 
     return $expired;
-  }
-
-  function create_lock_filename( $filename ) {
-    return $filename .'.lock';
-  }
-
-  /**
-   * Acquires a lock for a particular file. Callers would be prudent to
-   * call this function from within a try/finally block and close the lock
-   * in the finally section. The amount of time between opening and closing
-   * the lock must be minimal because parallel processes will be waiting on
-   * the lock's release.
-   *
-   * @param string $filename The name of file to lock.
-   *
-   * @return bool True if the lock was obtained, false upon excessive attempts.
-   */
-  function lock_open( $filename ) {
-    $lockdir = create_lock_filename( $filename );
-
-    // Track the number of times a lock attempt is made.
-    $iterations = 0;
-
-    do {
-      // Creates and tests lock file existence atomically.
-      if( @mkdir( $lockdir, 0777 ) ) {
-        // Exit the loop.
-        $iterations = 0;
-      }
-      else {
-        $iterations++;
-        $lifetime = time() - filemtime( $lockdir );
-
-        if( $lifetime > 10 ) {
-          // If the lock has gone stale, delete it.
-          @rmdir( $lockdir );
-        }
-        else {
-          // Wait a random duration to avoid concurrency conflicts.
-          usleep( rand( 1000, 10000 ) );
-        }
-      }
-    }
-    while( $iterations > 0 && $iterations < 10 );
-
-    // Indicate whether the maximum number of lock attempts were exceeded.
-    return $iterations == 0;
-  }
-
-  /**
-   * Releases the lock on a particular file.
-   *
-   * @param string $filename The name of file that was locked.
-   */
-  function lock_close( $filename ) {
-    @rmdir( create_lock_filename( $filename ) );
-  }
-
-  /**
-   * Increments the number in a file using an exclusive lock. If the file
-   * doesn't exist, it will be created and the initial value set to 0.
-   *
-   * @param string $filename The file containing a number to increment.
-   */
-  function increment_count( $filename ) {
-    try {
-      lock_open( $filename );
-
-      // Coerce value to largest natural numeric data type.
-      $count = @file_get_contents( $filename ) + 0;
-
-      // Write the new counter value.
-      file_put_contents( $filename, $count + 1 );
-    }
-    finally {
-      lock_close( $filename );
-    }
-  }
-
-  /**
-   * Retrieve the file name being downloaded from the HTTP GET request.
-   *
-   * @return string The sanitized file name (without path information).
-   */
-  function get_sanitized_filename() {
-    $filepath = isset( $_GET[ 'filename' ] ) ? $_GET[ 'filename' ] : '';
-    $fileinfo = pathinfo( $filepath );
-
-    // Remove path information (no /etc/passwd or ../../etc/passwd for you).
-    $basename = $fileinfo[ 'basename' ];
-
-    if( isset( $_SERVER[ 'HTTP_USER_AGENT' ] ) ) {
-      $periods = substr_count( $basename, '.' );
-
-      // Address IE bug regarding multiple periods in filename.
-      $basename = strstr( $_SERVER[ 'HTTP_USER_AGENT' ], 'MSIE' )
-        ? mb_ereg_replace( '/\./', '%2e', $basename, $periods - 1 )
-        : $basename;
-    }
-
-    // Trim all spaces, even internal ones.
-    $basename = mb_ereg_replace( '/\s+/', '', $basename );
-
-    // Sanitize.
-    $basename = mb_ereg_replace( '([^\w\d\-_~,;\[\]\(\).])', '', $basename );
-
-    return $basename;
-  }
-
-  /**
-   * Transmits a file from the server to the client.
-   *
-   * @param string $filename File to download, must be this script directory.
-   * @param integer $seek_start Offset into file to start downloading.
-   * @param integer $size Total size of the file.
-   *
-   * @return bool True if the file was transferred.
-   */
-  function transmit( $filename, $seek_start, $size ) {
-    // Buffering after sending HTTP headers to allow client download estimates.
-    if( ob_get_level() == 0 ) {
-      ob_start();
-    }
-
-    // If the file doesn't exist, don't count it as a download.
-    $bytes_sent = -1;
-
-    // Open the file to be downloaded.
-    $fp = @fopen( $filename, 'rb' );
-
-    if( $fp !== false ) {
-      @fseek( $fp, $seek_start );
-
-      $aborted = false;
-      $bytes_sent = $seek_start;
-      $chunk_size = 1024 * 16;
-
-      while( !feof( $fp ) && !$aborted ) {
-        print( @fread( $fp, $chunk_size ) );
-        $bytes_sent += $chunk_size;
-
-        // Send the file to download in small chunks.
-        if( ob_get_level() > 0 ) {
-          ob_flush();
-        }
-
-        flush();
-
-        // Chunking the file allows detecting when the connection has closed.
-        $aborted = connection_aborted() || connection_status() != 0;
-      }
-
-      // Indicate that transmission is complete.
-      if( ob_get_level() > 0 ) {
-        ob_end_flush();
-      }
-
-      fclose( $fp );
-    }
-
-    // Download succeeded if the total bytes matches or exceeds the file size.
-    return $bytes_sent >= $size;
   }
 
   /**
@@ -296,5 +164,143 @@
     return $_SERVER['REQUEST_METHOD'] === 'HEAD'
       ? false
       : transmit( $filename, $seek_start, $size );
+  }
+  /**
+   * Transmits a file from the server to the client.
+   *
+   * @param string $filename File to download, must be this script directory.
+   * @param integer $seek_start Offset into file to start downloading.
+   * @param integer $size Total size of the file.
+   *
+   * @return bool True if the file was transferred.
+   */
+  function transmit( $filename, $seek_start, $size ) {
+    // Buffering after sending HTTP headers to allow client download estimates.
+    if( ob_get_level() == 0 ) {
+      ob_start();
+    }
+
+    // If the file doesn't exist, don't count it as a download.
+    $bytes_sent = -1;
+
+    // Open the file to be downloaded.
+    $fp = @fopen( $filename, 'rb' );
+
+    if( $fp !== false ) {
+      @fseek( $fp, $seek_start );
+
+      $aborted = false;
+      $bytes_sent = $seek_start;
+      $chunk_size = 1024 * 16;
+
+      while( !feof( $fp ) && !$aborted ) {
+        print( @fread( $fp, $chunk_size ) );
+        $bytes_sent += $chunk_size;
+
+        // Send the file to download in small chunks.
+        if( ob_get_level() > 0 ) {
+          ob_flush();
+        }
+
+        flush();
+
+        // Chunking the file allows detecting when the connection has closed.
+        $aborted = connection_aborted() || connection_status() != 0;
+      }
+
+      // Indicate that transmission is complete.
+      if( ob_get_level() > 0 ) {
+        ob_end_flush();
+      }
+
+      fclose( $fp );
+    }
+
+    // Download succeeded if the total bytes matches or exceeds the file size.
+    return $bytes_sent >= $size;
+  }
+
+  /**
+   * Increments the number in a file using an exclusive lock. If the file
+   * doesn't exist, it will be created and the initial value set to 0.
+   *
+   * @param string $filename The file containing a number to increment.
+   */
+  function increment_count( $filename ) {
+    try {
+      lock_open( $filename );
+
+      // Coerce value to largest natural numeric data type.
+      $count = @file_get_contents( $filename ) + 0;
+
+      // Write the new counter value.
+      file_put_contents( $filename, $count + 1 );
+    }
+    finally {
+      lock_close( $filename );
+    }
+  }
+
+  /**
+   * Acquires a lock for a particular file. Callers would be prudent to
+   * call this function from within a try/finally block and close the lock
+   * in the finally section. The amount of time between opening and closing
+   * the lock must be minimal because parallel processes will be waiting on
+   * the lock's release.
+   *
+   * @param string $filename The name of file to lock.
+   *
+   * @return bool True if the lock was obtained, false upon excessive attempts.
+   */
+  function lock_open( $filename ) {
+    $lockdir = create_lock_filename( $filename );
+
+    // Track the number of times a lock attempt is made.
+    $iterations = 0;
+
+    do {
+      // Creates and tests lock file existence atomically.
+      if( @mkdir( $lockdir, 0777 ) ) {
+        // Exit the loop.
+        $iterations = 0;
+      }
+      else {
+        $iterations++;
+        $lifetime = time() - filemtime( $lockdir );
+
+        if( $lifetime > 10 ) {
+          // If the lock has gone stale, delete it.
+          @rmdir( $lockdir );
+        }
+        else {
+          // Wait a random duration to avoid concurrency conflicts.
+          usleep( rand( 1000, 10000 ) );
+        }
+      }
+    }
+    while( $iterations > 0 && $iterations < 10 );
+
+    // Indicate whether the maximum number of lock attempts were exceeded.
+    return $iterations == 0;
+  }
+
+  /**
+   * Releases the lock on a particular file.
+   *
+   * @param string $filename The name of file that was locked.
+   */
+  function lock_close( $filename ) {
+    @rmdir( create_lock_filename( $filename ) );
+  }
+
+  /**
+   * Creates a uniquely named lock directory name.
+   *
+   * @param string $filename The name of the file under contention.
+   *
+   * @return string A unique lock file reference for the given filename.
+   */
+  function create_lock_filename( $filename ) {
+    return $filename .'.lock';
   }
 ?>
