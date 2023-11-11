@@ -236,7 +236,6 @@
     header( 'Expires: -1' );
     header( 'Cache-Control: public, must-revalidate, post-check=0, pre-check=0' );
     header( "Content-Disposition: attachment; filename=\"$filename\"" );
-    header( "Content-Type: $content_type" );
 
     $content_length = $size;
 
@@ -249,8 +248,9 @@
       header( "Content-Range: bytes $range_bytes" );
     }
 
-    header( "Content-Length: $content_length" );
     header( 'Accept-Ranges: bytes' );
+    header( "Content-Length: $content_length" );
+    header( "Content-Type: $content_type" );
 
     // If the file doesn't exist, don't count it as a download.
     $bytes_sent = -1;
