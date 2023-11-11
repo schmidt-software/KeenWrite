@@ -4,7 +4,6 @@
   ini_set( 'error_log', '/tmp/php-errors.log' );
 
   // Turn off server-side compression.
-  @apache_setenv( 'no-gzip', 1 );
   @ini_set( 'zlib.output_compression', 'Off' );
 
   // Do not impose a time limit for downloads.
