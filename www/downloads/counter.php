@@ -134,14 +134,15 @@
   }
 
   /**
-   * Normalize the file name being downloaded.
+   * Retrieve the file name being downloaded from the HTTP GET request.
    *
-   * @param string $path The path to the file.
-   *
-   * @return string The normalized file name.
+   * @return string The sanitized file name (without path information).
    */
-  function normalize_filename( $path ) {
-    $fileinfo = pathinfo( $path );
+  function get_sanitized_filename() {
+    $filepath = isset( $_GET[ 'filename' ] ) ? $_GET[ 'filename' ] : '';
+    $fileinfo = pathinfo( $filepath );
+
+    // Remove path information (no /etc/passwd or ../../etc/passwd for you).
     $basename = $fileinfo[ 'basename' ];
 
     if( isset( $_SERVER[ 'HTTP_USER_AGENT' ] ) ) {
@@ -153,21 +154,26 @@
         : $basename;
     }
 
+    // Trim all spaces, even internal ones.
     $basename = mb_ereg_replace( '/\s+/', '', $basename );
+
+    // Sanitize.
     $basename = mb_ereg_replace( '([^\w\d\-_~,;\[\]\(\).])', '', $basename );
-    $basename = mb_ereg_replace( '([\.]{2,})', '', $basename );
 
     return $basename;
   }
 
   /**
-   * Downloads a file, allowing for resuming partial downloads.
+   * Transmits a file from the server to the client.
    *
-   * @param string $path Fully qualified path of a file to download.
+   * @param string $filename File to download, must be this script directory.
+   * @param integer $seek_start Offset into file to start downloading.
+   * @param integer $size Total size of the file.
    *
    * @return bool True if the file was transferred.
    */
-  function transmit( $path, $seek_start, $size ) {
+  function transmit( $filename, $seek_start, $size ) {
+    // Buffering after sending HTTP headers to allow client download estimates.
     if( ob_get_level() == 0 ) {
       ob_start();
     }
@@ -176,7 +182,7 @@
     $bytes_sent = -1;
 
     // Open the file to be downloaded.
-    $fp = @fopen( $path, 'rb' );
+    $fp = @fopen( $filename, 'rb' );
 
     if( $fp !== false ) {
       @fseek( $fp, $seek_start );
@@ -189,15 +195,18 @@
         print( @fread( $fp, $chunk_size ) );
         $bytes_sent += $chunk_size;
 
+        // Send the file to download in small chunks.
         if( ob_get_level() > 0 ) {
           ob_flush();
         }
 
         flush();
 
+        // Chunking the file allows detecting when the connection has closed.
         $aborted = connection_aborted() || connection_status() != 0;
       }
 
+      // Indicate that transmission is complete.
       if( ob_get_level() > 0 ) {
         ob_end_flush();
       }
@@ -212,17 +221,16 @@
   /**
    * Downloads a file, allowing for resuming partial downloads.
    *
-   * @param string $path Fully qualified path of a file to download.
+   * @param string $filename File to download, must be in script directory.
    *
    * @return bool True if the file was transferred.
    */
-  function download( $path ) {
-    // Don't cache the file stats result.
+  function download( $filename ) {
+    // Don't cache the file stats result (e.g., file size).
     clearstatcache();
 
-    $size = @filesize( $path );
+    $size = @filesize( $filename );
     $size = $size === false || empty( $size ) ? 0 : $size;
-    $filename = normalize_filename( $path );
     $content_type = mime_content_type( $filename );
     $range = "0-$size";
 
@@ -236,7 +244,7 @@
       }
     }
 
-    // Figure out download piece from range.
+    // Determine what piece to download from the range.
     list( $seek_start, $seek_end ) = explode( '-', $range, 2 );
 
     // Set start and end based on range, otherwise use defaults.
@@ -247,13 +255,20 @@
       ? 0
       : max( abs( $seek_start + 0 ), 0 );
 
+    // Added by PHP, removed by us.
     header_remove( 'x-powered-by' );
-    header( 'Pragma: public' );
-    header( 'Expires: -1' );
+
+    // HTTP/1.1 clients must treat invalid date formats, especially 0, as past.
+    header( 'Expires: 0' );
+
+    // Prevent local caching.
     header( 'Cache-Control: public, must-revalidate, post-check=0, pre-check=0' );
+
+    // No response message portion may be cached (e.g., by a proxy server).
     header( 'Cache-Control: private', false );
+
+    // Force the browser to download, rather than displaying the file inline.
     header( "Content-Disposition: attachment; filename=\"$filename\"" );
-    header( 'Content-Transfer-Encoding: binary' );
 
     $content_length = $size;
 
@@ -270,14 +285,13 @@
     header( "Content-Length: $content_length" );
     header( "Content-Type: $content_type" );
 
-    // Respond to HTTP HEAD requests.
+    // Honour HTTP HEAD requests.
     return $_SERVER['REQUEST_METHOD'] === 'HEAD'
       ? false
-      : transmit( $path, $seek_start, $size );
+      : transmit( $filename, $seek_start, $size );
   }
 
-  $filename = isset( $_GET[ 'filename' ] ) ? $_GET[ 'filename' ] : '';
-
+  $filename = get_sanitized_filename();
   $unique_hit = download_token_expired( 24 * 60 * 60 );
 
   if( !empty( $filename ) && download( $filename ) && $unique_hit ) {
