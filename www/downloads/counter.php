@@ -23,6 +23,13 @@
   // a regular interval to prevent bogging the server with abandoned requests.
   ignore_user_abort( true );
 
+  $filename = get_sanitized_filename();
+  $unique_hit = download_token_expired( 24 * 60 * 60 );
+
+  if( !empty( $filename ) && download( $filename ) && $unique_hit ) {
+    increment_count( "$filename-count.txt" );
+  }
+
   /**
    * Answers whether the user's download token has expired.
    *
@@ -289,12 +296,5 @@
     return $_SERVER['REQUEST_METHOD'] === 'HEAD'
       ? false
       : transmit( $filename, $seek_start, $size );
-  }
-
-  $filename = get_sanitized_filename();
-  $unique_hit = download_token_expired( 24 * 60 * 60 );
-
-  if( !empty( $filename ) && download( $filename ) && $unique_hit ) {
-    increment_count( "$filename-count.txt" );
   }
 ?>
