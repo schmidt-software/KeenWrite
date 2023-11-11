@@ -3,8 +3,16 @@
   ini_set( 'log_errors', 1 );
   ini_set( 'error_log', '/tmp/php-errors.log' );
 
-  if( ob_get_level() > 0 ) {
-    ob_end_clean();
+  // Do not impose a time limit for downloads.
+  set_time_limit( 0 );
+
+  // Flush any previous output buffers.
+  while( ob_get_level() > 0 ) {
+    ob_end_flush();
+  }
+
+  if( session_id() === "" ) {
+    session_start();
   }
 
   // Keep running upon client disconnect (helps catch file transfer failures).
@@ -12,24 +20,34 @@
   // a regular interval to prevent bogging the server with abandoned requests.
   ignore_user_abort( true );
 
-  // Do not impose a time limit.
-  set_time_limit( 0 );
-
   /**
    * Answers whether the user's download token has expired.
    *
-   * @param int $lifetime Number of seconds the session lasts before expiring.
+   * @param int $lifetime Number of seconds before expiring the token.
    *
-   * @return bool True indicates the session has expired (or was not set).
+   * @return bool True indicates the token has expired (or was not set).
    */
   function download_token_expired( $lifetime ) {
-    $COOKIE_NAME = 'LAST_DOWNLOAD';
+    $TOKEN_NAME = 'LAST_DOWNLOAD';
     $now = time();
-    $expired = false;
+    $expired = !isset( $_SESSION[ $TOKEN_NAME ] );
 
-    if( !isset( $_COOKIE[ $COOKIE_NAME ] ) ) {
-      $expired = true;
-      setcookie( $COOKIE_NAME, $now, $now + $lifetime, '/' );
+    if( !$expired && ($now - $_SESSION[ $TOKEN_NAME ] > $lifetime) ) {
+      $_SESSION = array();
+
+      session_destroy();
+    }
+
+    $_SESSION[ $TOKEN_NAME ] = $now;
+
+    $TOKEN_CREATE = 'CREATED';
+
+    if( !isset( $_SESSION[ $TOKEN_CREATE ] ) ) {
+      $_SESSION[ $TOKEN_CREATE ] = $now;
+    }
+    else if( $now - $_SESSION[ $TOKEN_CREATE ] > $lifetime ) {
+      session_regenerate_id( true );
+      $_SESSION[ $TOKEN_CREATE ] = $now;
     }
 
     return $expired;
@@ -113,18 +131,6 @@
   }
 
   /**
-   * Increments the number of times a file has been accessed, respecting
-   * session expiration and atomic read/write operations.
-   *
-   * @param string $filename The file containing a number to increment.
-   */
-  function hit_count( $filename ) {
-    if( download_token_expired( 7 * 24 * 60 * 60 ) ) {
-      increment_count( $filename );
-    }
-  }
-
-  /**
    * Isolate the file name being downloaded.
    *
    * @param array $fileinfo The result from calling pathinfo.
@@ -139,11 +145,11 @@
 
       // Address IE bug regarding multiple periods in filename.
       $basename = strstr( $_SERVER[ 'HTTP_USER_AGENT' ], 'MSIE' )
-        ? preg_replace( '/\./', '%2e', $basename, $periods - 1 )
+        ? mb_ereg_replace( '/\./', '%2e', $basename, $periods - 1 )
         : $basename;
     }
 
-    $basename = preg_replace( '/\s+/', '', $basename );
+    $basename = mb_ereg_replace( '/\s+/', '', $basename );
     $basename = mb_ereg_replace( '([^\w\d\-_~,;\[\]\(\).])', '', $basename );
     $basename = mb_ereg_replace( '([\.]{2,})', '', $basename );
 
@@ -192,7 +198,7 @@
    * @return bool True if the download succeeded.
    */
   function download( $path ) {
-    // Don't cache the result of the file stats.
+    // Don't cache the file stats result.
     clearstatcache();
 
     $size = @filesize( $path );
@@ -230,15 +236,17 @@
 
     $range_bytes = $seek_start . '-' . $seek_end . '/' . $size;
 
+    header( "Content-Type: $content_type" );
+    header( 'Pragma: public' );
+    header( 'Expires: 0' );
+    header( 'Cache-Control: must-revalidate, post-check=0, pre-check=0' );
+    header( 'Cache-Control: public' );
     header( 'Accept-Ranges: bytes' );
-    header( 'Content-Range: bytes ' . $range_bytes );
-    header( 'Content-Type: ' . $content_type );
-    header( 'Content-Disposition: attachment; filename="' . $filename . '"' );
+    header( "Content-Range: bytes $range_bytes" );
+    header( 'Content-Transfer-Encoding: binary' );
+    header( 'Content-Description: File Transfer' );
+    header( "Content-Disposition: attachment; filename='$filename'" );
     header( 'Content-Length: ' . ($seek_end - $seek_start + 1) );
-
-    if( ob_get_level() == 0 ) {
-      ob_start();
-    }
 
     // If the file doesn't exist, don't count it as a download.
     $bytes_sent = -1;
@@ -279,7 +287,9 @@
 
   $filename = isset( $_GET[ 'filename' ] ) ? $_GET[ 'filename' ] : '';
 
-  if( !empty( $filename ) && download( $filename ) ) {
-    hit_count( "$filename-count.txt" );
+  $unique_hit = download_token_expired( 24 * 60 * 60 );
+
+  if( !empty( $filename ) && download( $filename ) && $unique_hit ) {
+    increment_count( "$filename-count.txt" );
   }
 ?>
