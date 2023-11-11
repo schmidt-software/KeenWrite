@@ -232,9 +232,10 @@
     // Send partial content header if downloading a piece (IE workaround).
     if( $seek_start > 0 || $seek_end < ($size - 1) ) {
       header( 'HTTP/1.1 206 Partial Content' );
-    }
 
-    $range_bytes = $seek_start . '-' . $seek_end . '/' . $size;
+      $range_bytes = $seek_start . '-' . $seek_end . '/' . $size;
+      header( "Content-Range: bytes $range_bytes" );
+    }
 
     header( "Content-Type: $content_type" );
     header( 'Pragma: public' );
@@ -242,7 +243,6 @@
     header( 'Cache-Control: must-revalidate, post-check=0, pre-check=0' );
     header( 'Cache-Control: public' );
     header( 'Accept-Ranges: bytes' );
-    header( "Content-Range: bytes $range_bytes" );
     header( 'Content-Length: ' . ($seek_end - $seek_start + 1) );
     header( 'Content-Transfer-Encoding: binary' );
     header( 'Content-Description: File Transfer' );
