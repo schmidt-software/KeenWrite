@@ -234,6 +234,7 @@
     $size = $size === false || empty( $size ) ? 0 : $size;
     $content_type = mime_content_type( $filename );
     $content_length = $size;
+    $seek_start = 0;
 
     // Added by PHP, removed by us.
     header_remove( 'x-powered-by' );
