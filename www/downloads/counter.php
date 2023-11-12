@@ -57,7 +57,7 @@
         : $basename;
     }
 
-    // Trim all spaces, even internal ones.
+    // Trim all external and internal spaces.
     $basename = mb_ereg_replace( '/\s+/', '', $basename );
 
     // Sanitize.
@@ -186,18 +186,18 @@
    * Transmits a file from the server to the client.
    *
    * @param string $filename File to download, must be this script directory.
-   * @param integer $seek_start Offset into file to start downloading.
-   * @param integer $size Total size of the file.
+   * @param int $seek_start Offset into file to start downloading.
+   * @param int $size Total size of the file.
    *
    * @return bool True if the file was transferred.
    */
   function transmit( $filename, $seek_start, $size ) {
-    // Buffering after sending HTTP headers to allow client download estimates.
+    // Buffer after sending HTTP headers to allow client download estimates.
     if( ob_get_level() == 0 ) {
       ob_start();
     }
 
-    // If the file doesn't exist, don't count it as a download.
+    // Don't count missing files as download hits.
     $bytes_sent = -1;
 
     // Open the file to be downloaded.
@@ -211,7 +211,10 @@
       $chunk_size = 1024 * 16;
 
       while( !feof( $fp ) && !$aborted ) {
+        // Stream the file.
         print( @fread( $fp, $chunk_size ) );
+
+        // Track running total of bytes sent.
         $bytes_sent += $chunk_size;
 
         // Send the file to download in small chunks.
@@ -238,8 +241,8 @@
   }
 
   /**
-   * Increments the number in a file using an exclusive lock. If the file
-   * doesn't exist, it will be created and the initial value set to 0.
+   * Increments the number in a file using an exclusive lock. The file
+   * is set to an initial value set to 0 if it doesn't exist.
    *
    * @param string $filename The file containing a number to increment.
    */
@@ -315,7 +318,7 @@
    *
    * @param string $filename The name of the file under contention.
    *
-   * @return string A unique lock file reference for the given filename.
+   * @return string A unique lock file reference for the given file name.
    */
   function create_lock_filename( $filename ) {
     return $filename .'.lock';
