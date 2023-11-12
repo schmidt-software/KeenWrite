@@ -135,8 +135,12 @@
     header( "Content-Length: $content_length" );
     header( "Content-Type: $content_type" );
 
+    $method = isset( $_SERVER[ 'REQUEST_METHOD' ] )
+      ? $_SERVER[ 'REQUEST_METHOD ' ]
+      : 'GET';
+
     // Honour HTTP HEAD requests.
-    return $_SERVER[ 'REQUEST_METHOD' ] === 'HEAD'
+    return $method === 'HEAD'
       ? false
       : transmit( $filename, $seek_start, $size );
   }
