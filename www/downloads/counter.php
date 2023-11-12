@@ -24,9 +24,10 @@
   ignore_user_abort( true );
 
   $filename = get_sanitized_filename();
-  $unique_hit = download_token_expired( 24 * 60 * 60 );
+  $valid_filename = !empty( $filename );
+  $expiry = 24 * 60 * 60;
 
-  if( !empty( $filename ) && download( $filename ) && $unique_hit ) {
+  if( $valid_filename && download( $filename ) && token_expired( $expiry ) ) {
     increment_count( "$filename-count.txt" );
   }
 
@@ -67,7 +68,7 @@
    *
    * @return bool True indicates the token has expired (or was not set).
    */
-  function download_token_expired( $lifetime ) {
+  function token_expired( $lifetime ) {
     $TOKEN_NAME = 'LAST_DOWNLOAD';
     $now = time();
     $expired = !isset( $_SESSION[ $TOKEN_NAME ] );
