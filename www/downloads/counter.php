@@ -79,6 +79,7 @@
     $expired = !isset( $_SESSION[ $TOKEN_NAME ] );
 
     if( !$expired && ($now - $_SESSION[ $TOKEN_NAME ] > $lifetime) ) {
+      $expired = true;
       $_SESSION = array();
 
       session_destroy();
