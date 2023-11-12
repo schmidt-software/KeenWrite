@@ -1,4 +1,9 @@
 <?php
+  /* Copyright 2023 White Magic Software, Ltd. -- All rights reserved.
+   *
+   * SPDX-License-Identifier: MIT
+   */
+
   // Log all errors to a temporary file.
   ini_set( 'log_errors', 1 );
   ini_set( 'error_log', '/tmp/php-errors.log' );
@@ -123,7 +128,7 @@
     // No response message portion may be cached (e.g., by a proxy server).
     header( 'Cache-Control: private', false );
 
-    // Force the browser to download, rather than displaying the file inline.
+    // Force the browser to download, rather than display the file inline.
     header( "Content-Disposition: attachment; filename=\"$filename\"" );
     header( 'Accept-Ranges: bytes' );
     header( "Content-Length: $content_length" );
