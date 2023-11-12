@@ -8,9 +8,6 @@
   ini_set( 'log_errors', 1 );
   ini_set( 'error_log', '/tmp/php-errors.log' );
 
-  // Turn off server-side compression.
-  @ini_set( 'zlib.output_compression', 'Off' );
-
   // Do not impose a time limit for downloads.
   set_time_limit( 0 );
 
