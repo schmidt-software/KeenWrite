@@ -136,7 +136,7 @@
     header( "Content-Type: $content_type" );
 
     // Honour HTTP HEAD requests.
-    return $_SERVER['REQUEST_METHOD'] === 'HEAD'
+    return $_SERVER[ 'REQUEST_METHOD' ] === 'HEAD'
       ? false
       : transmit( $filename, $seek_start, $size );
   }
