@@ -4,10 +4,14 @@ crawl-delay: 60
 
 user-agent: Googlebot
 disallow: /repository/*
+disallow: /downloads/*
 user-agent: Bingbot
 disallow: /repository/*
+disallow: /downloads/*
 user-agent: YandexBot
 disallow: /repository/*
+disallow: /downloads/*
 user-agent: MicrosoftBot
 disallow: /repository/*
+disallow: /downloads/*
 
