@@ -148,8 +148,9 @@
    *
    * @param int $size The total file size (as stored on disk). 
    *
-   * @return int The starting offset for resuming the download, or 0 to
-   * download the entire file (i.e., no offset could be parsed).
+   * @return array The starting offset for resuming the download, or 0 to
+   * download the entire file (i.e., no offset could be parsed); also the
+   * number of bytes to be transferred.
    */
   function parse_range( $size ) {
     // By default, start transmitting at the beginning of the file.
