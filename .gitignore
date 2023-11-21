@@ -9,11 +9,11 @@ video
 .settings
 .classpath
 .idea
-count
-themes
-quotes
+count/
+themes/
+quotes/
 tex/
-spell
+spell/
 keenwrite.build_artifacts.txt
 todo
-tokens
+tokens/
