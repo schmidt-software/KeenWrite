@@ -24,6 +24,7 @@ import java.util.Set;
 import java.util.function.Function;
 
 import static com.keenwrite.Bootstrap.APP_TITLE_LOWERCASE;
+import static com.keenwrite.constants.Constants.TEMPORARY_DIRECTORY;
 import static com.keenwrite.processors.IdentityProcessor.IDENTITY;
 import static com.vladsch.flexmark.html.HtmlRenderer.Builder;
 import static com.vladsch.flexmark.html.renderer.CoreNodeRenderer.CODE_CONTENT;
@@ -35,8 +36,6 @@ import static java.lang.String.format;
  * elements.
  */
 public final class FencedBlockExtension extends HtmlRendererAdapter {
-  private static final String TEMP_DIR = System.getProperty( "java.io.tmpdir" );
-
   /**
    * Ensure that the device is always closed to prevent an out-of-resources
    * error, regardless of whether the R expression the user tries to evaluate
@@ -201,7 +200,7 @@ public final class FencedBlockExtension extends HtmlRendererAdapter {
       final var filename = format( "%s-%s.svg", APP_TITLE_LOWERCASE, hash );
 
       // The URI helps convert backslashes to forward slashes.
-      final var uri = Path.of( TEMP_DIR, filename ).toUri();
+      final var uri = Path.of( TEMPORARY_DIRECTORY, filename ).toUri();
       final var svg = uri.getPath();
       final var link = context.resolveLink( LINK, svg, false );
       final var dimensions = getAttributes( node.getInfo() );

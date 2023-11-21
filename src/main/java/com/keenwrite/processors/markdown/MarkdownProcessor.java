@@ -11,10 +11,10 @@ import com.keenwrite.processors.ProcessorContext;
 import com.keenwrite.processors.VariableProcessor;
 import com.keenwrite.processors.markdown.extensions.CaretExtension;
 import com.keenwrite.processors.markdown.extensions.DocumentOutlineExtension;
-import com.keenwrite.processors.markdown.extensions.ImageLinkExtension;
+import com.keenwrite.processors.markdown.extensions.images.ImageLinkExtension;
 import com.keenwrite.processors.markdown.extensions.fences.FencedBlockExtension;
 import com.keenwrite.processors.markdown.extensions.r.RInlineExtension;
-import com.keenwrite.processors.markdown.extensions.tex.TeXExtension;
+import com.keenwrite.processors.markdown.extensions.tex.TexExtension;
 import com.keenwrite.processors.r.RInlineEvaluator;
 import com.keenwrite.processors.r.RVariableProcessor;
 import com.vladsch.flexmark.util.misc.Extension;
@@ -82,7 +82,7 @@ public final class MarkdownProcessor extends BaseMarkdownProcessor {
     result.addAll( super.createExtensions( context ) );
 
     result.add( ImageLinkExtension.create( context ) );
-    result.add( TeXExtension.create( evaluator, context ) );
+    result.add( TexExtension.create( evaluator, context ) );
     result.add( FencedBlockExtension.create( processor, evaluator, context ) );
 
     if( context.isExportFormat( ExportFormat.NONE ) ) {

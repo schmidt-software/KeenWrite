@@ -1,8 +1,9 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
-package com.keenwrite.processors.markdown.extensions;
+package com.keenwrite.processors.markdown.extensions.images;
 
 import com.keenwrite.ExportFormat;
 import com.keenwrite.processors.ProcessorContext;
+import com.keenwrite.processors.markdown.extensions.HtmlRendererAdapter;
 import com.vladsch.flexmark.ast.Image;
 import com.vladsch.flexmark.html.IndependentLinkResolverFactory;
 import com.vladsch.flexmark.html.LinkResolver;

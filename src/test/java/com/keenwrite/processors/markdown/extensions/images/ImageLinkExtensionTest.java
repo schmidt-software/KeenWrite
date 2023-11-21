@@ -1,10 +1,9 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
-package com.keenwrite.processors.markdown;
+package com.keenwrite.processors.markdown.extensions.images;
 
 import com.keenwrite.editors.common.Caret;
 import com.keenwrite.processors.Processor;
 import com.keenwrite.processors.ProcessorContext;
-import com.keenwrite.processors.markdown.extensions.ImageLinkExtension;
 import com.vladsch.flexmark.html.HtmlRenderer;
 import com.vladsch.flexmark.parser.Parser;
 import org.junit.jupiter.api.Test;

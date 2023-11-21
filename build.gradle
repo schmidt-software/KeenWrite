@@ -88,14 +88,14 @@ javafx {
 }
 
 dependencies {
-  def v_junit = '5.10.0'
+  def v_junit = '5.10.1'
   def v_flexmark = '0.64.8'
   def v_jackson = '2.15.3'
   def v_echosvg = '1.0'
   def v_picocli = '4.7.5'
 
   // JavaFX
-  implementation 'org.controlsfx:controlsfx:11.1.2'
+  implementation 'org.controlsfx:controlsfx:11.2.0'
   implementation 'org.fxmisc.richtext:richtextfx:0.11.2'
   implementation 'org.fxmisc.flowless:flowless:0.7.2'
   implementation 'org.fxmisc.wellbehaved:wellbehavedfx:0.3.3'
@@ -123,7 +123,7 @@ dependencies {
   implementation 'org.xhtmlrenderer:flying-saucer-core:9.3.1'
 
   // R
-  implementation 'org.apache.commons:commons-compress:1.24.0'
+  implementation 'org.apache.commons:commons-compress:1.25.0'
   implementation 'org.codehaus.plexus:plexus-utils:4.0.0'
   implementation 'org.renjin:renjin-script-engine:3.5-beta76'
   implementation 'org.renjin.cran:rjson:0.2.15-renjin-21'
@@ -252,4 +252,16 @@ test {
 
   doFirst { jvmArgs = moduleSecurity }
   testLogging { exceptionFormat = 'full' }
+}
+
+tasks.withType( JavaCompile ).configureEach {
+  options.compilerArgs += "--enable-preview"
+}
+
+tasks.withType( JavaExec ).configureEach {
+  jvmArgs += "--enable-preview"
+}
+
+tasks.withType( Test ).configureEach {
+  jvmArgs += "--enable-preview"
 }

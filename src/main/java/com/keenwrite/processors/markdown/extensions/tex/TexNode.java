@@ -6,12 +6,12 @@ import com.vladsch.flexmark.parser.core.delimiter.Delimiter;
 
 public class TexNode extends DelimitedNodeImpl {
   /**
-   * TeX expression wrapped in a {@code <tex>} element.
+   * A TeX expression wrapped in a {@code <tex>} element.
    */
   public static final String HTML_TEX = "tex";
 
-  public static final String TOKEN_OPEN = "$";
-  public static final String TOKEN_CLOSE = "$";
+  static final String TOKEN_OPEN = "$";
+  static final String TOKEN_CLOSE = "$";
 
   private final String mOpener;
   private final String mCloser;
@@ -32,12 +32,16 @@ public class TexNode extends DelimitedNodeImpl {
   /**
    * @return Either '$' or '$$'.
    */
-  public String getOpeningDelimiter() { return mOpener; }
+  public String getOpeningDelimiter() {
+    return mOpener;
+  }
 
   /**
    * @return Either '$' or '$$'.
    */
-  public String getClosingDelimiter() { return mCloser; }
+  public String getClosingDelimiter() {
+    return mCloser;
+  }
 
   private String getDelimiter( final Delimiter delimiter ) {
     return delimiter.getInput().subSequence(
