@@ -1,3 +1,7 @@
+/* Copyright 2023 White Magic Software, Ltd. -- All rights reserved.
+ *
+ * SPDX-License-Identifier: MIT
+ */
 package com.keenwrite.processors.markdown.extensions.references;
 
 import com.vladsch.flexmark.parser.InlineParser;
@@ -6,14 +10,17 @@ import com.vladsch.flexmark.parser.delimiter.DelimiterProcessor;
 import com.vladsch.flexmark.parser.delimiter.DelimiterRun;
 import com.vladsch.flexmark.util.ast.Node;
 
-public class AnchorNameDelimiterProcessor implements DelimiterProcessor {
+/**
+ * Responsible for processing {@code {@type:id}} anchors.
+ */
+class AnchorNameDelimiterProcessor implements DelimiterProcessor {
 
   @Override
   public void process(
     final Delimiter opener,
     final Delimiter closer,
     final int delimitersUsed ) {
-    final var node = new AnchorNameNode( opener, closer );
+    final var node = new AnchorNameNode();
     opener.moveNodesBetweenDelimitersTo( node, closer );
   }
 

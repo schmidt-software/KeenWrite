@@ -5,13 +5,8 @@
 package com.keenwrite.processors.markdown.extensions.references;
 
 import com.vladsch.flexmark.ast.DelimitedNodeImpl;
-import com.vladsch.flexmark.parser.core.delimiter.Delimiter;
 import com.vladsch.flexmark.util.sequence.BasedSequence;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.regex.Pattern;
-
-import static java.util.regex.Pattern.compile;
 
 /**
  * Responsible for writing HTML anchor names in the form
@@ -21,25 +16,22 @@ import static java.util.regex.Pattern.compile;
  * @see AnchorXrefNode
  */
 class AnchorNameNode extends DelimitedNodeImpl implements CrossReferenceNode {
-  private static final String REGEX_ANCHOR = "#(\\w+):(\\w+)";
-  private static final Pattern PATTERN_ANCHOR = compile( REGEX_ANCHOR );
 
   private BasedSequence mOpeningMarker = BasedSequence.EMPTY;
   private BasedSequence mClosingMarker = BasedSequence.EMPTY;
 
-  private String mTypeName = "";
-  private String mIdName = "";
+  private BasedSequenceNameParser mParser;
 
-  public AnchorNameNode( final Delimiter opener, final Delimiter closer ) {}
+  public AnchorNameNode() {}
 
   @Override
   public String getTypeName() {
-    return mTypeName;
+    return mParser.getTypeName();
   }
 
   @Override
   public String getIdName() {
-    return mIdName;
+    return mParser.getIdName();
   }
 
   @Override
@@ -70,12 +62,7 @@ class AnchorNameNode extends DelimitedNodeImpl implements CrossReferenceNode {
 
   @Override
   public void setText( final BasedSequence text ) {
-    final var matcher = PATTERN_ANCHOR.matcher( text.toString() );
-
-    if( matcher.find() ) {
-      mTypeName = matcher.group( 1 );
-      mIdName = matcher.group( 2 );
-    }
+    mParser = BasedSequenceNameParser.parse( text );
   }
 
   @Override

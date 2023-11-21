@@ -16,19 +16,16 @@ interface CrossReferenceNode {
 
   String getRefAttrName();
 
-  default String toHtml() {
-    final String typeName = getTypeName();
-    final String idName = getIdName();
-
-    return toHtml( typeName, idName );
-  }
-
-  default String toHtml( final String type, final String id ) {
-    return STR.
-      "<a data-type=\"\{ type }\" \{ getRefAttrName() }=\"\{ id }\" />" ;
-  }
-
+  /**
+   * Writes the HTML representation for this cross-reference node.
+   *
+   * @param html The HTML tag is written to the {@link HtmlWriter}.
+   */
   default void write( final HtmlWriter html ) {
-    html.raw( toHtml() );
+    final var type = getTypeName();
+    final var id = getIdName();
+    final var attr = getRefAttrName();
+
+    html.raw( STR. "<a data-type=\"\{ type }\" \{ attr }=\"\{ id }\" />" );
   }
 }

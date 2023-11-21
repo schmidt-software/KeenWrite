@@ -20,7 +20,7 @@ public class CrossReferenceExtension extends HtmlRendererAdapter
 
   @Override
   public void extend( final Parser.Builder builder ) {
-    builder.customInlineParserFactory( AnchorXrefInlineParser::new );
+    builder.linkRefProcessorFactory( new AnchorXrefProcessorFactory() );
     builder.customDelimiterProcessor( new AnchorNameDelimiterProcessor() );
   }
 
