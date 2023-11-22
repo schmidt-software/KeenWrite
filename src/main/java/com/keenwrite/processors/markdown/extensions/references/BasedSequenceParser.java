@@ -8,9 +8,11 @@ import java.util.regex.Matcher;
 
 abstract class BasedSequenceParser {
   /**
-   * Shared syntax between subclasses.
+   * Shared syntax between subclasses: a letter followed by zero or more
+   * alphanumeric characters.
    */
-  static final String REGEX_INNER = "(\\p{Alnum}+):(\\p{Alnum}+)";
+  static final String REGEX_INNER =
+    "(\\p{Alpha}\\p{Alnum}+):(\\p{Alpha}\\p{Alnum}+)";
 
   private final String mTypeName;
   private final String mIdName;
@@ -28,6 +30,13 @@ abstract class BasedSequenceParser {
     }
   }
 
+  /**
+   * Creates a regular expression pattern matcher that can extract the
+   * reference elements from text.
+   *
+   * @param text The text containing an anchor or cross-reference to an anchor.
+   * @return The {@link Matcher} to use when extracting the text elements.
+   */
   abstract Matcher createMatcher( final String text );
 
   String getTypeName() {

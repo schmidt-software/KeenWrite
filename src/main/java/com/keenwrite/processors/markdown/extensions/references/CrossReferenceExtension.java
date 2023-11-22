@@ -18,6 +18,16 @@ import org.jetbrains.annotations.NotNull;
 public class CrossReferenceExtension extends HtmlRendererAdapter
   implements ParserExtension {
 
+  /**
+   * Returns a new instance of {@link CrossReferenceExtension}. This is here
+   * for consistency with the other extensions.
+   *
+   * @return A new {@link CrossReferenceExtension} instance.
+   */
+  public static CrossReferenceExtension create() {
+    return new CrossReferenceExtension();
+  }
+
   @Override
   public void extend( final Parser.Builder builder ) {
     builder.linkRefProcessorFactory( new AnchorXrefProcessorFactory() );

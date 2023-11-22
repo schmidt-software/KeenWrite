@@ -2,6 +2,7 @@
 package com.keenwrite.flexmark;
 
 import com.keenwrite.processors.markdown.extensions.fences.FencedDivExtension;
+import com.keenwrite.processors.markdown.extensions.references.CrossReferenceExtension;
 import com.vladsch.flexmark.ext.definition.DefinitionExtension;
 import com.vladsch.flexmark.ext.gfm.strikethrough.StrikethroughSubscriptExtension;
 import com.vladsch.flexmark.ext.superscript.SuperscriptExtension;
@@ -53,6 +54,7 @@ public class ParserTest {
     extensions.add( SuperscriptExtension.create() );
     extensions.add( TablesExtension.create() );
     extensions.add( FencedDivExtension.create() );
+    extensions.add( CrossReferenceExtension.create() );
 
     return extensions;
   }

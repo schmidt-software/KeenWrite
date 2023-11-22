@@ -29,7 +29,7 @@ public class TexNodeRenderer {
     Map.of(
       APPLICATION_PDF, new TexElementNodeRenderer( true ),
       HTML_TEX_SVG, new TexSvgNodeRenderer(),
-      HTML_TEX_DELIMITED, new TexDelimNodeRenderer(),
+      HTML_TEX_DELIMITED, new TexDelimitedNodeRenderer(),
       XHTML_TEX, new TexElementNodeRenderer( true ),
       NONE, RENDERER
     );
@@ -40,7 +40,9 @@ public class TexNodeRenderer {
     public Factory(
       final ExportFormat exportFormat,
       final Function<String, String> evaluator ) {
-      mNodeRenderer = EXPORT_RENDERERS.getOrDefault( exportFormat, RENDERER );
+      final var format = exportFormat == null ? NONE : exportFormat;
+
+      mNodeRenderer = EXPORT_RENDERERS.getOrDefault( format, RENDERER );
       mNodeRenderer.setEvaluator( evaluator );
     }
 
@@ -128,7 +130,7 @@ public class TexNodeRenderer {
   /**
    * Responsible for rendering a TeX node as text bracketed by $ tokens.
    */
-  private static class TexDelimNodeRenderer extends RendererFacade {
+  private static class TexDelimitedNodeRenderer extends RendererFacade {
     void render( final TexNode node,
                  final NodeRendererContext context,
                  final HtmlWriter html ) {

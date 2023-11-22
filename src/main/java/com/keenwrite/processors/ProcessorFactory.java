@@ -129,8 +129,8 @@ public final class ProcessorFactory {
 
   private static Processor<String> createPdfProcessor(
     final ProcessorContext context ) {
-    final var pdfp = new PdfProcessor( context );
-    return createXhtmlProcessor( pdfp, context );
+    final var pdfProcessor = new PdfProcessor( context );
+    return createXhtmlProcessor( pdfProcessor, context );
   }
 
   private static Processor<String> createPreformattedProcessor(
