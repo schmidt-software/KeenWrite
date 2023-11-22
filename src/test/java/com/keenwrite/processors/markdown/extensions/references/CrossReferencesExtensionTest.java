@@ -164,7 +164,7 @@ public class CrossReferencesExtensionTest {
           >
           > I've traded my halo for horns and a whip.
 
-          : Blues lyrics. {@lyrics:blues}
+          : Meschiya Lake - Lucky Devil {#lyrics:blues}
           """,
         """
           <blockquote>
@@ -172,7 +172,7 @@ public class CrossReferencesExtensionTest {
           <p>Well, I'm no angel, my wings have been clipped;</p>
           <p>I've traded my halo for horns and a whip.</p>
           </blockquote>
-          <p>: Blues lyrics. <a data-type="null" name="null" /></p>
+          <p>: Meschiya Lake - Lucky Devil <a data-type="lyrics" name="blues" /></p>
           """
       ),
       args(
