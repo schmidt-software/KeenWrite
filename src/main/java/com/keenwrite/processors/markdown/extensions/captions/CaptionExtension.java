@@ -60,7 +60,7 @@ public class CaptionExtension extends HtmlRendererAdapter
   private static class CaptionParser extends AbstractBlockParser {
     private final CaptionBlock mBlock;
 
-    public CaptionParser( final BasedSequence text ) {
+    private CaptionParser( final BasedSequence text ) {
       assert text != null;
       assert text.isNotEmpty();
       assert text.length() > 2;
@@ -70,7 +70,7 @@ public class CaptionExtension extends HtmlRendererAdapter
       mBlock = new CaptionBlock( caption.trim() );
     }
 
-    public static boolean canParse( final BasedSequence text ) {
+    private static boolean canParse( final BasedSequence text ) {
       return text.length() > 3 &&
              text.charAt( 0 ) == ':' &&
              text.charAt( 1 ) == ':' &&
@@ -128,7 +128,7 @@ public class CaptionExtension extends HtmlRendererAdapter
   }
 
   private static class CaptionParserFactory extends AbstractBlockParserFactory {
-    public CaptionParserFactory( final DataHolder options ) {
+    private CaptionParserFactory( final DataHolder options ) {
       super( options );
     }
 
