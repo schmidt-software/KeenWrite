@@ -5,6 +5,7 @@ import com.keenwrite.dom.DocumentConverter;
 import com.keenwrite.processors.ExecutorProcessor;
 import com.keenwrite.processors.Processor;
 import com.keenwrite.processors.ProcessorContext;
+import com.keenwrite.processors.markdown.extensions.captions.CaptionExtension;
 import com.keenwrite.processors.markdown.extensions.fences.FencedDivExtension;
 import com.keenwrite.processors.markdown.extensions.r.RInlineExtension;
 import com.keenwrite.processors.markdown.extensions.references.CrossReferenceExtension;
@@ -68,6 +69,7 @@ public class BaseMarkdownProcessor extends ExecutorProcessor<String> {
     extensions.add( TablesExtension.create() );
     extensions.add( FencedDivExtension.create() );
     extensions.add( CrossReferenceExtension.create() );
+    extensions.add( CaptionExtension.create() );
 
     return extensions;
   }

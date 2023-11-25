@@ -28,7 +28,7 @@ import static com.keenwrite.processors.ProcessorContext.builder;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SuppressWarnings( "SpellCheckingInspection" )
-public class CrossReferencesExtensionTest {
+public class CaptionsAndCrossReferencesExtensionTest {
   @ParameterizedTest
   @MethodSource( "testDocuments" )
   public void test_References_Documents_Html(
@@ -236,12 +236,12 @@ public class CrossReferencesExtensionTest {
       .build();
 
     extensions.add( TexExtension.create( s -> s, context ) );
-    extensions.add( CrossReferenceExtension.create() );
     extensions.add( DefinitionExtension.create() );
     extensions.add( StrikethroughSubscriptExtension.create() );
     extensions.add( SuperscriptExtension.create() );
     extensions.add( TablesExtension.create() );
     extensions.add( FencedDivExtension.create() );
+    extensions.add( CrossReferenceExtension.create() );
     extensions.add( CaptionExtension.create() );
 
     return extensions;
