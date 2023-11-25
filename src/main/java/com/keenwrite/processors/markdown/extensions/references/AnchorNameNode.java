@@ -15,7 +15,7 @@ import org.jetbrains.annotations.NotNull;
  *
  * @see AnchorXrefNode
  */
-class AnchorNameNode extends DelimitedNodeImpl implements CrossReferenceNode {
+public class AnchorNameNode extends DelimitedNodeImpl implements CrossReferenceNode {
 
   private BasedSequence mOpeningMarker = BasedSequence.EMPTY;
   private BasedSequence mClosingMarker = BasedSequence.EMPTY;

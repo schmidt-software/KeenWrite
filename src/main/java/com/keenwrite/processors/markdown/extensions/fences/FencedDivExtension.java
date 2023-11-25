@@ -18,6 +18,7 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 import static com.vladsch.flexmark.parser.Parser.ParserExtension;
+import static java.util.regex.Pattern.*;
 
 /**
  * Responsible for parsing div block syntax into HTML div tags. Fenced div
@@ -58,29 +59,31 @@ public class FencedDivExtension extends HtmlRendererAdapter
    * Matches any number of colons at start of line. This will match both the
    * opening and closing fences, with any number of colons.
    */
-  private static final Pattern FENCE = Pattern.compile( "^:::.*" );
+  private static final Pattern FENCE = compile( "^:::.*" );
 
   /**
    * After a fenced div is detected, this will match the opening fence.
    */
-  private static final Pattern FENCE_OPENING = Pattern.compile(
-    "^:::+\\s+([\\p{IsAlphabetic}\\p{IsDigit}-_]+|\\{.+})\\s*$" );
+  private static final Pattern FENCE_OPENING = compile(
+    "^:::+\\s+([\\p{Alnum}-_]+|\\{.+})\\s*$",
+    UNICODE_CHARACTER_CLASS );
 
   /**
    * Matches whether extended syntax is being used.
    */
-  private static final Pattern ATTR_CSS = Pattern.compile( "\\{(.+)}" );
+  private static final Pattern ATTR_CSS = compile( "\\{(.+)}" );
 
   /**
    * Matches either individual CSS definitions (id/class, {@code <d>}) or
    * key/value pairs ({@code <k>} and {@link <v>}). The key/value pair
    * will match optional quotes.
    */
-  private static final Pattern ATTR_PAIRS = Pattern.compile(
+  private static final Pattern ATTR_PAIRS = compile(
     "\\s*" +
-      "(?<d>[#.][\\p{IsAlphabetic}\\p{IsDigit}-_]+[^\\s=])|" +
-      "((?<k>[\\p{IsAlphabetic}\\p{IsDigit}-_]+)=" +
-      "\"*(?<v>(?<=\")[^\"]+(?=\")|([^\\s]+))\"*)" );
+    "(?<d>[#.][\\p{Alnum}-_]+[^\\s=])|" +
+    "((?<k>[\\p{Alnum}-_]+)=" +
+    "\"*(?<v>(?<=\")[^\"]+(?=\")|(\\S+))\"*)",
+    UNICODE_CHARACTER_CLASS );
 
   public static FencedDivExtension create() {
     return new FencedDivExtension();
@@ -120,13 +123,13 @@ public class FencedDivExtension extends HtmlRendererAdapter
     }
 
     @Override
-    public @Nullable Set<Class<?>> getAfterDependents() { return null; }
+    public @Nullable Set<Class<?>> getAfterDependents() {return null;}
 
     @Override
-    public @Nullable Set<Class<?>> getBeforeDependents() { return null; }
+    public @Nullable Set<Class<?>> getBeforeDependents() {return null;}
 
     @Override
-    public boolean affectsGlobalScope() { return false; }
+    public boolean affectsGlobalScope() {return false;}
   }
 
   /**

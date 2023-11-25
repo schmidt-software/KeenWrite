@@ -12,7 +12,7 @@ abstract class BasedSequenceParser {
    * alphanumeric characters.
    */
   static final String REGEX_INNER =
-    "(\\p{Alpha}\\p{Alnum}+):(\\p{Alpha}\\p{Alnum}+)";
+    "(\\p{Alpha}[\\p{Alnum}-_]+):(\\p{Alpha}[\\p{Alnum}-_]+)";
 
   private final String mTypeName;
   private final String mIdName;

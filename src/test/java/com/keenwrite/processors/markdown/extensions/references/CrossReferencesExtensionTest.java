@@ -4,7 +4,7 @@
  */
 package com.keenwrite.processors.markdown.extensions.references;
 
-import com.keenwrite.processors.ProcessorContext;
+import com.keenwrite.processors.markdown.extensions.captions.CaptionExtension;
 import com.keenwrite.processors.markdown.extensions.fences.FencedDivExtension;
 import com.keenwrite.processors.markdown.extensions.tex.TexExtension;
 import com.vladsch.flexmark.ext.definition.DefinitionExtension;
@@ -23,6 +23,8 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import static com.keenwrite.ExportFormat.XHTML_TEX;
+import static com.keenwrite.processors.ProcessorContext.Mutator;
+import static com.keenwrite.processors.ProcessorContext.builder;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SuppressWarnings( "SpellCheckingInspection" )
@@ -35,12 +37,8 @@ public class CrossReferencesExtensionTest {
     final var pBuilder = Parser.builder();
     final var hBuilder = HtmlRenderer.builder();
     final var extensions = createExtensions();
-
-    pBuilder.extensions( extensions );
-    hBuilder.extensions( extensions );
-
-    final var parser = pBuilder.build();
-    final var renderer = hBuilder.build();
+    final var parser = pBuilder.extensions( extensions ).build();
+    final var renderer = hBuilder.extensions( extensions ).build();
 
     final var document = parser.parse( input );
     final var actual = renderer.render( document );
@@ -54,12 +52,22 @@ public class CrossReferencesExtensionTest {
         """
           {#fig:cats} [@fig:cats]
           {#table:dogs} [@table:dogs]
-          {#life:dolphins} [@life:dolphins]
+          {#ocean:whale-01} [@ocean:whale-02]
           """,
         """
           <p><a data-type="fig" name="cats" /> <a data-type="fig" href="#cats" />
           <a data-type="table" name="dogs" /> <a data-type="table" href="#dogs" />
-          <a data-type="life" name="dolphins" /> <a data-type="life" href="#dolphins" /></p>
+          <a data-type="ocean" name="whale-01" /> <a data-type="ocean" href="#whale-02" /></p>
+          """
+      ),
+      args(
+        """
+          {#日本:w0mbatß}
+          [@日本:w0mbatß]
+          """,
+        """
+          <p><a data-type="日本" name="w0mbatß" />
+          <a data-type="日本" href="#w0mbatß" /></p>
           """
       ),
       args(
@@ -76,16 +84,6 @@ public class CrossReferencesExtensionTest {
           labore et dolore magna aliqua. Ut enim ad minim veniam,
           quis nostrud exercitation ullamco laboris nisi ut aliquip
           ex ea commodo consequat. <a data-type="fig" href="#cats" /></p>
-          """
-      ),
-      args(
-        """
-          {#日本:w0mbatß}
-          [@日本:w0mbatß]
-          """,
-        """
-          <p><a data-type="日本" name="w0mbatß" />
-          <a data-type="日本" href="#w0mbatß" /></p>
           """
       ),
       args(
@@ -108,16 +106,6 @@ public class CrossReferencesExtensionTest {
       ),
       args(
         """
-          ![alt text](tunnel)
-
-          : Caption {#fig:label}
-          """,
-        """
-          <p><img src="tunnel" alt="alt text" /><a data-type="fig" name="label" /></p>
-          """
-      ),
-      args(
-        """
           $E=mc^2$ {#eq:label}
           """,
         """
@@ -136,10 +124,11 @@ public class CrossReferencesExtensionTest {
         """
           $$E=mc^2$$
 
-          : Caption {#eqn:energy}
+          :: Caption {#eqn:energy}
           """,
         """
-          <p><tex>$$E=mc^2$$</tex> <a data-type="eqn" name="energy" /></p>
+          <p><tex>$$E=mc^2$$</tex></p>
+          <p><span class="caption">Caption <a data-type="eqn" name="energy" /></span></p>
           """
       ),
       args(
@@ -148,12 +137,48 @@ public class CrossReferencesExtensionTest {
           main :: IO ()
           ```
 
-          : Source code caption {#listing:haskell1}
+          :: Source code caption {#listing:haskell1}
           """,
         """
           <pre><code class="language-haskell">main :: IO ()
           </code></pre>
-          <p>: Source code caption <a data-type="listing" name="haskell1" /></p>
+          <p><span class="caption">Source code caption <a data-type="listing" name="haskell1" /></span></p>
+          """
+      ),
+      args(
+        """
+          ::: warning
+          Do not eat processed sugar.
+          :::
+
+          :: Caption {#warning:sugar}
+          """,
+        """
+          <div class="warning">
+          <p>Do not eat processed sugar.</p>
+          </div><p><span class="caption">Caption <a data-type="warning" name="sugar" /></span></p>
+          """
+      ),
+      args(
+        """
+          ![alt text](tunnel)
+
+          :: Caption {#fig:label}
+          """,
+        """
+          <p><img src="tunnel" alt="alt text" /></p>
+          <p><span class="caption">Caption <a data-type="fig" name="label" /></span></p>
+          """
+      ),
+      args(
+        """
+          ![kitteh](placekitten)
+
+          :: Caption **bold** {#fig:label} *italics*
+          """,
+        """
+          <p><img src="placekitten" alt="kitteh" /></p>
+          <p><span class="caption">Caption <strong>bold</strong> <a data-type="fig" name="label" /> <em>italics</em></span></p>
           """
       ),
       args(
@@ -164,7 +189,7 @@ public class CrossReferencesExtensionTest {
           >
           > I've traded my halo for horns and a whip.
 
-          : Meschiya Lake - Lucky Devil {#lyrics:blues}
+          :: Meschiya Lake - Lucky Devil {#lyrics:blues}
           """,
         """
           <blockquote>
@@ -172,7 +197,7 @@ public class CrossReferencesExtensionTest {
           <p>Well, I'm no angel, my wings have been clipped;</p>
           <p>I've traded my halo for horns and a whip.</p>
           </blockquote>
-          <p>: Meschiya Lake - Lucky Devil <a data-type="lyrics" name="blues" /></p>
+          <p><span class="caption">Meschiya Lake - Lucky Devil <a data-type="lyrics" name="blues" /></span></p>
           """
       ),
       args(
@@ -182,7 +207,7 @@ public class CrossReferencesExtensionTest {
           | 1 | 2 | 3 |
           | 4 | 5 | 6 |
 
-          : Caption {#tbl:label}
+          :: Caption {#tbl:label}
           """,
         """
           <table>
@@ -194,24 +219,7 @@ public class CrossReferencesExtensionTest {
           <tr><td>4</td><td>5</td><td>6</td></tr>
           </tbody>
           </table>
-          <dd>
-          Caption <a data-type="tbl" name="label" />
-          </dd>
-          """
-      ),
-      args(
-        """
-          This is a paragraph of text.
-
-          : Defintion list, not a caption. {@note:advancement}
-          """,
-        """
-          <dl>
-          <dt>This is a paragraph of text.</dt>
-          <dd>
-          <p>Caption title. <a data-type="null" name="null" /></p>
-          </dd>
-          </dl>
+          <p><span class="caption">Caption <a data-type="tbl" name="label" /></span></p>
           """
       )
     );
@@ -223,9 +231,8 @@ public class CrossReferencesExtensionTest {
 
   private List<ParserExtension> createExtensions() {
     final var extensions = new LinkedList<ParserExtension>();
-    final var context = ProcessorContext
-      .builder()
-      .with( ProcessorContext.Mutator::setExportFormat, XHTML_TEX )
+    final var context = builder()
+      .with( Mutator::setExportFormat, XHTML_TEX )
       .build();
 
     extensions.add( TexExtension.create( s -> s, context ) );
@@ -235,6 +242,7 @@ public class CrossReferencesExtensionTest {
     extensions.add( SuperscriptExtension.create() );
     extensions.add( TablesExtension.create() );
     extensions.add( FencedDivExtension.create() );
+    extensions.add( CaptionExtension.create() );
 
     return extensions;
   }

@@ -20,5 +20,5 @@ abstract class DivBlock extends Block {
    *
    * @param html Builds the HTML document to be written.
    */
-  abstract void export( HtmlWriter html );
+  abstract void write( HtmlWriter html );
 }

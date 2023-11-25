@@ -18,7 +18,7 @@ class OpeningDivBlock extends DivBlock {
     mAttributes.addAll( attributes );
   }
 
-  void export( final HtmlWriter html ) {
+  void write( final HtmlWriter html ) {
     mAttributes.forEach( html::attr );
     html.withAttr().tag( HTML_DIV );
   }

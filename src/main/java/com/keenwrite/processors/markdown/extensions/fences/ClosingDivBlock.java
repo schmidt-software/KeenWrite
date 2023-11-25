@@ -8,7 +8,7 @@ import com.vladsch.flexmark.html.HtmlWriter;
  */
 class ClosingDivBlock extends DivBlock {
   @Override
-  void export( final HtmlWriter html ) {
+  void write( final HtmlWriter html ) {
     html.closeTag( HTML_DIV );
   }
 }

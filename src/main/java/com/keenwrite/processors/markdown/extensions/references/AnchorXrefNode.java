@@ -15,7 +15,7 @@ import org.jetbrains.annotations.NotNull;
  *
  * @see AnchorNameNode
  */
-class AnchorXrefNode extends Node implements CrossReferenceNode {
+public class AnchorXrefNode extends Node implements CrossReferenceNode {
   private final String mTypeName;
   private final String mIdName;
 

@@ -121,6 +121,7 @@ public final class MarkdownEditor extends BorderPane implements TextEditor {
     initUndoManager();
   }
 
+  @SuppressWarnings( "unused" )
   private void initTextArea( final StyleClassedTextArea textArea ) {
     textArea.setShowCaret( ON );
     textArea.setWrapText( true );
@@ -148,6 +149,7 @@ public final class MarkdownEditor extends BorderPane implements TextEditor {
     } );
   }
 
+  @SuppressWarnings( "unused" )
   private void initStyle( final StyleClassedTextArea textArea ) {
     textArea.getStyleClass().add( "markdown" );
 
