@@ -127,8 +127,8 @@ public class CaptionsAndCrossReferencesExtensionTest {
           :: Caption {#eqn:energy}
           """,
         """
-          <p><tex>$$E=mc^2$$</tex></p>
           <p><span class="caption">Caption <a data-type="eqn" name="energy" /></span></p>
+          <p><tex>$$E=mc^2$$</tex></p>
           """
       ),
       args(
@@ -140,9 +140,9 @@ public class CaptionsAndCrossReferencesExtensionTest {
           :: Source code caption {#listing:haskell1}
           """,
         """
+          <p><span class="caption">Source code caption <a data-type="listing" name="haskell1" /></span></p>
           <pre><code class="language-haskell">main :: IO ()
           </code></pre>
-          <p><span class="caption">Source code caption <a data-type="listing" name="haskell1" /></span></p>
           """
       ),
       args(
@@ -154,9 +154,10 @@ public class CaptionsAndCrossReferencesExtensionTest {
           :: Caption {#warning:sugar}
           """,
         """
+          <p><span class="caption">Caption <a data-type="warning" name="sugar" /></span></p>
           <div class="warning">
           <p>Do not eat processed sugar.</p>
-          </div><p><span class="caption">Caption <a data-type="warning" name="sugar" /></span></p>
+          </div>
           """
       ),
       args(
@@ -166,8 +167,8 @@ public class CaptionsAndCrossReferencesExtensionTest {
           :: Caption {#fig:label}
           """,
         """
-          <p><img src="tunnel" alt="alt text" /></p>
           <p><span class="caption">Caption <a data-type="fig" name="label" /></span></p>
+          <p><img src="tunnel" alt="alt text" /></p>
           """
       ),
       args(
@@ -177,8 +178,8 @@ public class CaptionsAndCrossReferencesExtensionTest {
           :: Caption **bold** {#fig:label} *italics*
           """,
         """
-          <p><img src="placekitten" alt="kitteh" /></p>
           <p><span class="caption">Caption <strong>bold</strong> <a data-type="fig" name="label" /> <em>italics</em></span></p>
+          <p><img src="placekitten" alt="kitteh" /></p>
           """
       ),
       args(
@@ -192,12 +193,12 @@ public class CaptionsAndCrossReferencesExtensionTest {
           :: Meschiya Lake - Lucky Devil {#lyrics:blues}
           """,
         """
+          <p><span class="caption">Meschiya Lake - Lucky Devil <a data-type="lyrics" name="blues" /></span></p>
           <blockquote>
           <p>I'd like to be the lucky devil who gets to burn with you.</p>
           <p>Well, I'm no angel, my wings have been clipped;</p>
           <p>I've traded my halo for horns and a whip.</p>
           </blockquote>
-          <p><span class="caption">Meschiya Lake - Lucky Devil <a data-type="lyrics" name="blues" /></span></p>
           """
       ),
       args(
@@ -210,6 +211,7 @@ public class CaptionsAndCrossReferencesExtensionTest {
           :: Caption {#tbl:label}
           """,
         """
+          <p><span class="caption">Caption <a data-type="tbl" name="label" /></span></p>
           <table>
           <thead>
           <tr><th>a</th><th>b</th><th>c</th></tr>
@@ -219,7 +221,6 @@ public class CaptionsAndCrossReferencesExtensionTest {
           <tr><td>4</td><td>5</td><td>6</td></tr>
           </tbody>
           </table>
-          <p><span class="caption">Caption <a data-type="tbl" name="label" /></span></p>
           """
       )
     );

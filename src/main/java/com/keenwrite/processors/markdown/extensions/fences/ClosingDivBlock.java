@@ -4,9 +4,9 @@ package com.keenwrite.processors.markdown.extensions.fences;
 import com.vladsch.flexmark.html.HtmlWriter;
 
 /**
- * Responsible for helping to generate a closing div element.
+ * Responsible for helping to generate a closing {@code div} element.
  */
-final class ClosingDivBlock extends DivBlock {
+public final class ClosingDivBlock extends DivBlock {
   @Override
   void write( final HtmlWriter html ) {
     html.closeTag( HTML_DIV );

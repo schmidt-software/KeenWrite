@@ -29,6 +29,7 @@ public final class CaptionExtension extends MarkdownRendererExtension {
   @Override
   public void extend( final Builder builder ) {
     builder.customBlockParserFactory( new CaptionCustomBlockParserFactory() );
+    builder.postProcessorFactory( new CaptionPostProcessorFactory() );
   }
 
   @Override

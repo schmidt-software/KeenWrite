@@ -8,9 +8,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Responsible for helping to generate an opening div element.
+ * Responsible for helping to generate an opening {@code div} element.
  */
-final class OpeningDivBlock extends DivBlock {
+public final class OpeningDivBlock extends DivBlock {
   private final List<Attribute> mAttributes = new ArrayList<>();
 
   OpeningDivBlock( final List<Attribute> attributes ) {
