@@ -4,16 +4,11 @@
  */
 package com.keenwrite.processors.markdown.extensions.captions;
 
-import com.keenwrite.processors.markdown.extensions.HtmlRendererAdapter;
-import com.vladsch.flexmark.html.HtmlRenderer;
-import com.vladsch.flexmark.parser.InlineParser;
-import com.vladsch.flexmark.parser.Parser;
-import com.vladsch.flexmark.parser.Parser.ParserExtension;
+import com.keenwrite.processors.markdown.extensions.common.MarkdownExtension;
+import com.vladsch.flexmark.html.renderer.NodeRendererFactory;
+import com.vladsch.flexmark.parser.Parser.Builder;
 import com.vladsch.flexmark.parser.block.*;
-import com.vladsch.flexmark.util.ast.Block;
 import com.vladsch.flexmark.util.data.DataHolder;
-import com.vladsch.flexmark.util.data.MutableDataHolder;
-import com.vladsch.flexmark.util.sequence.BasedSequence;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -22,17 +17,14 @@ import java.util.Set;
 /**
  * Responsible for parsing and rendering {@link CaptionBlock} instances.
  */
-public class CaptionExtension extends HtmlRendererAdapter
-  implements ParserExtension {
-
+public final class CaptionExtension extends MarkdownExtension {
   /**
-   * @see #create()
+   * Use {@link #create()}.
    */
   private CaptionExtension() {}
 
   /**
-   * Returns an instance of extension that can be added to the
-   * {@link Parser.Builder} and {@link HtmlRenderer.Builder} extensions.
+   * Returns a new {@link CaptionExtension}.
    *
    * @return An extension capable of parsing caption syntax.
    */
@@ -41,61 +33,13 @@ public class CaptionExtension extends HtmlRendererAdapter
   }
 
   @Override
-  public void extend( final Parser.Builder builder ) {
+  public void extend( final Builder builder ) {
     builder.customBlockParserFactory( new CaptionBlockParserFactory() );
   }
 
   @Override
-  public void extend(
-    @NotNull final HtmlRenderer.Builder builder,
-    @NotNull final String rendererType ) {
-    if( "HTML".equalsIgnoreCase( rendererType ) ) {
-      builder.nodeRendererFactory( new CaptionNodeRenderer.Factory() );
-    }
-  }
-
-  @Override
-  public void parserOptions( final MutableDataHolder options ) {}
-
-  private static class CaptionParser extends AbstractBlockParser {
-    private final CaptionBlock mBlock;
-
-    private CaptionParser( final BasedSequence text ) {
-      assert text != null;
-      assert text.isNotEmpty();
-      assert text.length() > 2;
-
-      final var caption = text.subSequence( 2 );
-
-      mBlock = new CaptionBlock( caption.trim() );
-    }
-
-    private static boolean canParse( final BasedSequence text ) {
-      return text.length() > 3 &&
-             text.charAt( 0 ) == ':' &&
-             text.charAt( 1 ) == ':' &&
-             text.charAt( 2 ) != ':';
-    }
-
-    @Override
-    public Block getBlock() {
-      return mBlock;
-    }
-
-    @Override
-    public BlockContinue tryContinue( final ParserState state ) {
-      return BlockContinue.none();
-    }
-
-    @Override
-    public void parseInlines( final InlineParser inlineParser ) {
-      assert inlineParser != null;
-
-      mBlock.parse( inlineParser );
-    }
-
-    @Override
-    public void closeBlock( final ParserState state ) {}
+  protected NodeRendererFactory createNodeRendererFactory() {
+    return new CaptionNodeRenderer.Factory();
   }
 
   private static class CaptionBlockParserFactory

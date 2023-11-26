@@ -9,14 +9,9 @@ import com.vladsch.flexmark.util.sequence.BasedSequence;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static java.util.regex.Pattern.UNICODE_CHARACTER_CLASS;
-import static java.util.regex.Pattern.compile;
-
 class BasedSequenceNameParser extends BasedSequenceParser {
   private static final String REGEX = STR. "#\{ REGEX_INNER }" ;
-  private static final Pattern PATTERN = compile(
-    REGEX, UNICODE_CHARACTER_CLASS
-  );
+  private static final Pattern PATTERN = asPattern( REGEX );
 
   private BasedSequenceNameParser( final String text ) {
     super( text );

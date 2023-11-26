@@ -34,10 +34,10 @@ public class TexNodeRenderer {
       NONE, RENDERER
     );
 
-  public static class Factory implements NodeRendererFactory {
+  public static class TexNodeRendererFactory implements NodeRendererFactory {
     private final RendererFacade mNodeRenderer;
 
-    public Factory(
+    public TexNodeRendererFactory(
       final ExportFormat exportFormat,
       final Function<String, String> evaluator ) {
       final var format = exportFormat == null ? NONE : exportFormat;

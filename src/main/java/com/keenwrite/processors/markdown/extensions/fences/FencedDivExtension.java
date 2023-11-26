@@ -1,13 +1,12 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.processors.markdown.extensions.fences;
 
-import com.keenwrite.processors.markdown.extensions.HtmlRendererAdapter;
-import com.vladsch.flexmark.html.HtmlRenderer;
-import com.vladsch.flexmark.parser.Parser;
+import com.keenwrite.processors.markdown.extensions.common.MarkdownExtension;
+import com.vladsch.flexmark.html.renderer.NodeRendererFactory;
+import com.vladsch.flexmark.parser.Parser.Builder;
 import com.vladsch.flexmark.parser.block.*;
 import com.vladsch.flexmark.util.ast.Block;
 import com.vladsch.flexmark.util.data.DataHolder;
-import com.vladsch.flexmark.util.data.MutableDataHolder;
 import com.vladsch.flexmark.util.html.Attribute;
 import com.vladsch.flexmark.util.html.AttributeImpl;
 import org.jetbrains.annotations.NotNull;
@@ -17,8 +16,8 @@ import java.util.ArrayList;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import static com.vladsch.flexmark.parser.Parser.ParserExtension;
-import static java.util.regex.Pattern.*;
+import static java.util.regex.Pattern.UNICODE_CHARACTER_CLASS;
+import static java.util.regex.Pattern.compile;
 
 /**
  * Responsible for parsing div block syntax into HTML div tags. Fenced div
@@ -53,8 +52,7 @@ import static java.util.regex.Pattern.*;
  * &lt;div id="verse" class="p d" data-k="v" data-author="Emily Dickson"&gt;
  * </p>
  */
-public class FencedDivExtension extends HtmlRendererAdapter
-  implements ParserExtension {
+public class FencedDivExtension extends MarkdownExtension {
   /**
    * Matches any number of colons at start of line. This will match both the
    * opening and closing fences, with any number of colons.
@@ -90,26 +88,13 @@ public class FencedDivExtension extends HtmlRendererAdapter
   }
 
   @Override
-  public void parserOptions( final MutableDataHolder options ) {
-  }
-
-  @Override
-  public void extend( final Parser.Builder builder ) {
+  public void extend( final Builder builder ) {
     builder.customBlockParserFactory( new Factory() );
   }
 
-  /**
-   * Creates a renderer that can generate HTML div elements.
-   *
-   * @param builder      The document builder.
-   * @param rendererType Indicates the document type to be built.
-   */
   @Override
-  public void extend( @NotNull final HtmlRenderer.Builder builder,
-                      @NotNull final String rendererType ) {
-    if( "HTML".equalsIgnoreCase( rendererType ) ) {
-      builder.nodeRendererFactory( new FencedDivRenderer.Factory() );
-    }
+  protected NodeRendererFactory createNodeRendererFactory() {
+    return new FencedDivRenderer.Factory();
   }
 
   /**

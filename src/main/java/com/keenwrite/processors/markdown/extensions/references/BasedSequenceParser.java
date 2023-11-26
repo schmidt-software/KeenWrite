@@ -5,6 +5,9 @@
 package com.keenwrite.processors.markdown.extensions.references;
 
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import static java.util.regex.Pattern.UNICODE_CHARACTER_CLASS;
 
 abstract class BasedSequenceParser {
   /**
@@ -28,6 +31,10 @@ abstract class BasedSequenceParser {
       mTypeName = null;
       mIdName = null;
     }
+  }
+
+  static Pattern asPattern( final String regex ) {
+    return Pattern.compile( regex, UNICODE_CHARACTER_CLASS );
   }
 
   /**

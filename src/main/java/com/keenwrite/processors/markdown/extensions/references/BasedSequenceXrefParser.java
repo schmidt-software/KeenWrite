@@ -11,16 +11,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.keenwrite.processors.markdown.extensions.EmptyNode.EMPTY_NODE;
-import static java.util.regex.Pattern.UNICODE_CHARACTER_CLASS;
-import static java.util.regex.Pattern.compile;
 
 class BasedSequenceXrefParser extends BasedSequenceParser {
   private static final String REGEX = STR. "\\[@\{ REGEX_INNER }]" ;
-  private static final Pattern PATTERN = compile(
-    REGEX, UNICODE_CHARACTER_CLASS
-  );
+  private static final Pattern PATTERN = asPattern( REGEX );
 
-  BasedSequenceXrefParser( final String text ) {
+  private BasedSequenceXrefParser( final String text ) {
     super( text );
   }
 
