@@ -7,7 +7,6 @@ package com.keenwrite.processors.markdown.extensions.references;
 import com.vladsch.flexmark.util.ast.Node;
 import com.vladsch.flexmark.util.sequence.BasedSequence;
 
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.keenwrite.processors.markdown.extensions.EmptyNode.EMPTY_NODE;
@@ -20,13 +19,13 @@ class BasedSequenceXrefParser extends BasedSequenceParser {
     super( text );
   }
 
-  @Override
-  Matcher createMatcher( final String text ) {
-    return PATTERN.matcher( text );
-  }
-
   static BasedSequenceXrefParser parse( final BasedSequence chars ) {
     return new BasedSequenceXrefParser( chars.toString() );
+  }
+
+  @Override
+  Pattern getPattern() {
+    return PATTERN;
   }
 
   Node toNode() {

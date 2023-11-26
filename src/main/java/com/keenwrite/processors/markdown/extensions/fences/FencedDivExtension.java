@@ -1,6 +1,7 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.processors.markdown.extensions.fences;
 
+import com.keenwrite.processors.markdown.extensions.common.MarkdownCustomBlockParserFactory;
 import com.keenwrite.processors.markdown.extensions.common.MarkdownExtension;
 import com.vladsch.flexmark.html.renderer.NodeRendererFactory;
 import com.vladsch.flexmark.parser.Parser.Builder;
@@ -9,11 +10,8 @@ import com.vladsch.flexmark.util.ast.Block;
 import com.vladsch.flexmark.util.data.DataHolder;
 import com.vladsch.flexmark.util.html.Attribute;
 import com.vladsch.flexmark.util.html.AttributeImpl;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.Set;
 import java.util.regex.Pattern;
 
 import static java.util.regex.Pattern.UNICODE_CHARACTER_CLASS;
@@ -89,7 +87,7 @@ public class FencedDivExtension extends MarkdownExtension {
 
   @Override
   public void extend( final Builder builder ) {
-    builder.customBlockParserFactory( new Factory() );
+    builder.customBlockParserFactory( new DivBlockParserFactory() );
   }
 
   @Override
@@ -100,21 +98,12 @@ public class FencedDivExtension extends MarkdownExtension {
   /**
    * Responsible for creating an instance of {@link ParserFactory}.
    */
-  private static class Factory implements CustomBlockParserFactory {
+  private static class DivBlockParserFactory
+    extends MarkdownCustomBlockParserFactory {
     @Override
-    public @NotNull BlockParserFactory apply(
-      @NotNull final DataHolder options ) {
+    public BlockParserFactory createBlockParserFactory( final DataHolder options ) {
       return new ParserFactory( options );
     }
-
-    @Override
-    public @Nullable Set<Class<?>> getAfterDependents() {return null;}
-
-    @Override
-    public @Nullable Set<Class<?>> getBeforeDependents() {return null;}
-
-    @Override
-    public boolean affectsGlobalScope() {return false;}
   }
 
   /**

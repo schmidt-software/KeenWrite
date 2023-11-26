@@ -37,6 +37,8 @@ abstract class BasedSequenceParser {
     return Pattern.compile( regex, UNICODE_CHARACTER_CLASS );
   }
 
+  abstract Pattern getPattern();
+
   /**
    * Creates a regular expression pattern matcher that can extract the
    * reference elements from text.
@@ -44,7 +46,9 @@ abstract class BasedSequenceParser {
    * @param text The text containing an anchor or cross-reference to an anchor.
    * @return The {@link Matcher} to use when extracting the text elements.
    */
-  abstract Matcher createMatcher( final String text );
+  Matcher createMatcher( final String text ) {
+    return getPattern().matcher( text );
+  }
 
   String getTypeName() {
     return mTypeName;

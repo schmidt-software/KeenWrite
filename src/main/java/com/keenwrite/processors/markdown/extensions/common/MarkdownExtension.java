@@ -8,12 +8,12 @@ import com.keenwrite.processors.markdown.extensions.HtmlRendererAdapter;
 import com.vladsch.flexmark.html.HtmlRenderer.Builder;
 import com.vladsch.flexmark.html.renderer.NodeRenderer;
 import com.vladsch.flexmark.html.renderer.NodeRendererFactory;
-import com.vladsch.flexmark.parser.Parser;
+import com.vladsch.flexmark.parser.Parser.ParserExtension;
 import com.vladsch.flexmark.util.data.MutableDataHolder;
 import org.jetbrains.annotations.NotNull;
 
 public abstract class MarkdownExtension extends HtmlRendererAdapter
-  implements Parser.ParserExtension {
+  implements ParserExtension {
 
   /**
    * Implemented by subclasses to create the {@link NodeRendererFactory} capable

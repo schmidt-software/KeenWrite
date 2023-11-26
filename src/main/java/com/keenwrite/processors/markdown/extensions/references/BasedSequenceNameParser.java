@@ -6,7 +6,6 @@ package com.keenwrite.processors.markdown.extensions.references;
 
 import com.vladsch.flexmark.util.sequence.BasedSequence;
 
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 class BasedSequenceNameParser extends BasedSequenceParser {
@@ -17,12 +16,12 @@ class BasedSequenceNameParser extends BasedSequenceParser {
     super( text );
   }
 
-  @Override
-  Matcher createMatcher( final String text ) {
-    return PATTERN.matcher( text );
-  }
-
   static BasedSequenceNameParser parse( final BasedSequence chars ) {
     return new BasedSequenceNameParser( chars.toString() );
+  }
+
+  @Override
+  Pattern getPattern() {
+    return PATTERN;
   }
 }

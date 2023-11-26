@@ -5,9 +5,10 @@
 package com.keenwrite.processors.markdown.extensions.captions;
 
 import com.vladsch.flexmark.html.HtmlWriter;
-import com.vladsch.flexmark.html.renderer.*;
+import com.vladsch.flexmark.html.renderer.CoreNodeRenderer;
+import com.vladsch.flexmark.html.renderer.NodeRendererContext;
+import com.vladsch.flexmark.html.renderer.NodeRenderingHandler;
 import com.vladsch.flexmark.util.data.DataHolder;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.HashSet;
 import java.util.List;
@@ -17,8 +18,8 @@ import java.util.Set;
  * Responsible for rendering {@link CaptionBlock} instances as HTML (via
  * delegation).
  */
-public class CaptionNodeRenderer extends CoreNodeRenderer {
-  public CaptionNodeRenderer( final DataHolder options ) {
+class CaptionNodeRenderer extends CoreNodeRenderer {
+  CaptionNodeRenderer( final DataHolder options ) {
     super( options );
   }
 
@@ -40,13 +41,5 @@ public class CaptionNodeRenderer extends CoreNodeRenderer {
     }
 
     node.closing( html );
-  }
-
-  static class Factory implements NodeRendererFactory {
-    @NotNull
-    @Override
-    public NodeRenderer apply( @NotNull final DataHolder options ) {
-      return new CaptionNodeRenderer( options );
-    }
   }
 }

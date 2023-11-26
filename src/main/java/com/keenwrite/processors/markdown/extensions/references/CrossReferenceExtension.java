@@ -35,6 +35,6 @@ public final class CrossReferenceExtension extends MarkdownExtension {
 
   @Override
   protected NodeRendererFactory createNodeRendererFactory() {
-    return new CrossReferencesNodeRenderer.Factory();
+    return new CrossReferencesNodeRendererFactory();
   }
 }
