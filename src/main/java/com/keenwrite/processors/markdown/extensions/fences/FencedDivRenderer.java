@@ -4,10 +4,7 @@ package com.keenwrite.processors.markdown.extensions.fences;
 import com.vladsch.flexmark.html.HtmlWriter;
 import com.vladsch.flexmark.html.renderer.NodeRenderer;
 import com.vladsch.flexmark.html.renderer.NodeRendererContext;
-import com.vladsch.flexmark.html.renderer.NodeRendererFactory;
 import com.vladsch.flexmark.html.renderer.NodeRenderingHandler;
-import com.vladsch.flexmark.util.data.DataHolder;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Set;
@@ -34,13 +31,5 @@ class FencedDivRenderer implements NodeRenderer {
     final NodeRendererContext context,
     final HtmlWriter html ) {
     node.write( html );
-  }
-
-  static class Factory implements NodeRendererFactory {
-    @NotNull
-    @Override
-    public NodeRenderer apply( @NotNull final DataHolder options ) {
-      return new FencedDivRenderer();
-    }
   }
 }

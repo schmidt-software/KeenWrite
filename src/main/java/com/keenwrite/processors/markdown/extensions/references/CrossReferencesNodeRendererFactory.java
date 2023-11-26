@@ -4,15 +4,13 @@
  */
 package com.keenwrite.processors.markdown.extensions.references;
 
+import com.keenwrite.processors.markdown.extensions.common.MarkdownNodeRendererFactory;
 import com.vladsch.flexmark.html.renderer.NodeRenderer;
-import com.vladsch.flexmark.html.renderer.NodeRendererFactory;
 import com.vladsch.flexmark.util.data.DataHolder;
-import org.jetbrains.annotations.NotNull;
 
-class CrossReferencesNodeRendererFactory implements NodeRendererFactory {
-  @NotNull
+class CrossReferencesNodeRendererFactory extends MarkdownNodeRendererFactory {
   @Override
-  public NodeRenderer apply( @NotNull final DataHolder options ) {
+  protected NodeRenderer createNodeRenderer( final DataHolder options ) {
     return new CrossReferencesNodeRenderer();
   }
 }

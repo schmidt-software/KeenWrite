@@ -92,7 +92,7 @@ public class FencedDivExtension extends MarkdownExtension {
 
   @Override
   protected NodeRendererFactory createNodeRendererFactory() {
-    return new FencedDivRenderer.Factory();
+    return new FencedDivNodeRendererFactory();
   }
 
   /**
