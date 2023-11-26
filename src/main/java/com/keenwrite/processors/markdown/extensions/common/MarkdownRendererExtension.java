@@ -4,16 +4,13 @@
  */
 package com.keenwrite.processors.markdown.extensions.common;
 
-import com.keenwrite.processors.markdown.extensions.HtmlRendererAdapter;
 import com.vladsch.flexmark.html.HtmlRenderer.Builder;
 import com.vladsch.flexmark.html.renderer.NodeRenderer;
 import com.vladsch.flexmark.html.renderer.NodeRendererFactory;
-import com.vladsch.flexmark.parser.Parser.ParserExtension;
-import com.vladsch.flexmark.util.data.MutableDataHolder;
 import org.jetbrains.annotations.NotNull;
 
-public abstract class MarkdownExtension extends HtmlRendererAdapter
-  implements ParserExtension {
+public abstract class MarkdownRendererExtension extends HtmlRendererAdapter
+  implements MarkdownParserExtension {
 
   /**
    * Implemented by subclasses to create the {@link NodeRendererFactory} capable
@@ -38,7 +35,4 @@ public abstract class MarkdownExtension extends HtmlRendererAdapter
       builder.nodeRendererFactory( createNodeRendererFactory() );
     }
   }
-
-  @Override
-  public void parserOptions( final MutableDataHolder options ) {}
 }

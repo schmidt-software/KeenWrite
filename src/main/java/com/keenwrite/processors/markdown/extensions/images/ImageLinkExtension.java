@@ -3,7 +3,7 @@ package com.keenwrite.processors.markdown.extensions.images;
 
 import com.keenwrite.ExportFormat;
 import com.keenwrite.processors.ProcessorContext;
-import com.keenwrite.processors.markdown.extensions.HtmlRendererAdapter;
+import com.keenwrite.processors.markdown.extensions.common.HtmlRendererAdapter;
 import com.vladsch.flexmark.ast.Image;
 import com.vladsch.flexmark.html.IndependentLinkResolverFactory;
 import com.vladsch.flexmark.html.LinkResolver;
@@ -46,22 +46,23 @@ public class ImageLinkExtension extends HtmlRendererAdapter {
   }
 
   @Override
-  public void extend( @NotNull final Builder builder,
-                      @NotNull final String rendererType ) {
+  public void extend(
+    @NotNull final Builder builder,
+    @NotNull final String rendererType ) {
     builder.linkResolverFactory( new ResolverFactory() );
   }
 
   private final class ResolverFactory extends IndependentLinkResolverFactory {
+    @NotNull
     @Override
-    public @NotNull LinkResolver apply(
+    public LinkResolver apply(
       @NotNull final LinkResolverBasicContext context ) {
       return new ImageLinkResolver();
     }
   }
 
-  private class ImageLinkResolver implements LinkResolver {
-    public ImageLinkResolver() {
-    }
+  private final class ImageLinkResolver implements LinkResolver {
+    private ImageLinkResolver() {}
 
     @NotNull
     @Override

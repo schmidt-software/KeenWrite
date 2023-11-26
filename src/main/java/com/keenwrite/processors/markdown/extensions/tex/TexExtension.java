@@ -3,7 +3,7 @@ package com.keenwrite.processors.markdown.extensions.tex;
 
 import com.keenwrite.ExportFormat;
 import com.keenwrite.processors.ProcessorContext;
-import com.keenwrite.processors.markdown.extensions.common.MarkdownExtension;
+import com.keenwrite.processors.markdown.extensions.common.MarkdownRendererExtension;
 import com.keenwrite.processors.markdown.extensions.tex.TexNodeRenderer.TexNodeRendererFactory;
 import com.vladsch.flexmark.html.renderer.NodeRendererFactory;
 import com.vladsch.flexmark.parser.Parser;
@@ -19,7 +19,7 @@ import java.util.function.Function;
  * iterate---a <em>very</em> wasteful operation that impacts front-end
  * performance.
  */
-public class TexExtension extends MarkdownExtension {
+public class TexExtension extends MarkdownRendererExtension {
   /**
    * Responsible for pre-parsing the input.
    */

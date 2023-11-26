@@ -4,7 +4,7 @@
  */
 package com.keenwrite.processors.markdown.extensions.references;
 
-import com.keenwrite.processors.markdown.extensions.common.MarkdownExtension;
+import com.keenwrite.processors.markdown.extensions.common.MarkdownRendererExtension;
 import com.vladsch.flexmark.html.renderer.NodeRendererFactory;
 import com.vladsch.flexmark.parser.Parser.Builder;
 
@@ -12,7 +12,7 @@ import com.vladsch.flexmark.parser.Parser.Builder;
  * Responsible for processing {@code {@type:id}} anchors and their corresponding
  * {@code [@type:id]} cross-references.
  */
-public final class CrossReferenceExtension extends MarkdownExtension {
+public final class CrossReferenceExtension extends MarkdownRendererExtension {
   /**
    * Use {@link #create()}.
    */

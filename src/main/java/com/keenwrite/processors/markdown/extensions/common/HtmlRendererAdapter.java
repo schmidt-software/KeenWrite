@@ -1,5 +1,5 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
-package com.keenwrite.processors.markdown.extensions;
+package com.keenwrite.processors.markdown.extensions.common;
 
 import com.vladsch.flexmark.util.data.MutableDataHolder;
 import org.jetbrains.annotations.NotNull;

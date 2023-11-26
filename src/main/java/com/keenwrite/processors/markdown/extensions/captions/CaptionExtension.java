@@ -4,14 +4,14 @@
  */
 package com.keenwrite.processors.markdown.extensions.captions;
 
-import com.keenwrite.processors.markdown.extensions.common.MarkdownExtension;
+import com.keenwrite.processors.markdown.extensions.common.MarkdownRendererExtension;
 import com.vladsch.flexmark.html.renderer.NodeRendererFactory;
 import com.vladsch.flexmark.parser.Parser.Builder;
 
 /**
  * Responsible for parsing and rendering {@link CaptionBlock} instances.
  */
-public final class CaptionExtension extends MarkdownExtension {
+public final class CaptionExtension extends MarkdownRendererExtension {
   /**
    * Use {@link #create()}.
    */

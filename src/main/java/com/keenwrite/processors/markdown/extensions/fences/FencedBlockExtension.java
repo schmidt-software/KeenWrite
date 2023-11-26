@@ -6,7 +6,7 @@ import com.keenwrite.processors.Processor;
 import com.keenwrite.processors.ProcessorContext;
 import com.keenwrite.processors.VariableProcessor;
 import com.keenwrite.processors.markdown.MarkdownProcessor;
-import com.keenwrite.processors.markdown.extensions.HtmlRendererAdapter;
+import com.keenwrite.processors.markdown.extensions.common.HtmlRendererAdapter;
 import com.keenwrite.processors.r.RChunkEvaluator;
 import com.keenwrite.processors.r.RVariableProcessor;
 import com.vladsch.flexmark.ast.FencedCodeBlock;

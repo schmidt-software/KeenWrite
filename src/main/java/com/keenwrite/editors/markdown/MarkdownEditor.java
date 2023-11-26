@@ -11,7 +11,7 @@ import com.keenwrite.events.TextEditorFocusEvent;
 import com.keenwrite.io.MediaType;
 import com.keenwrite.preferences.LocaleProperty;
 import com.keenwrite.preferences.Workspace;
-import com.keenwrite.processors.markdown.extensions.CaretExtension;
+import com.keenwrite.processors.markdown.extensions.caret.CaretExtension;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
 import javafx.beans.value.ChangeListener;

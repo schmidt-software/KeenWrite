@@ -2,7 +2,7 @@
 package com.keenwrite.processors.markdown.extensions.fences;
 
 import com.keenwrite.processors.markdown.extensions.common.MarkdownCustomBlockParserFactory;
-import com.keenwrite.processors.markdown.extensions.common.MarkdownExtension;
+import com.keenwrite.processors.markdown.extensions.common.MarkdownRendererExtension;
 import com.vladsch.flexmark.html.renderer.NodeRendererFactory;
 import com.vladsch.flexmark.parser.Parser.Builder;
 import com.vladsch.flexmark.parser.block.*;
@@ -50,7 +50,7 @@ import static java.util.regex.Pattern.compile;
  * &lt;div id="verse" class="p d" data-k="v" data-author="Emily Dickson"&gt;
  * </p>
  */
-public class FencedDivExtension extends MarkdownExtension {
+public class FencedDivExtension extends MarkdownRendererExtension {
   /**
    * Matches any number of colons at start of line. This will match both the
    * opening and closing fences, with any number of colons.

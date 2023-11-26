@@ -4,6 +4,7 @@ package com.keenwrite.processors.markdown.extensions.r;
 import com.keenwrite.processors.Processor;
 import com.keenwrite.processors.ProcessorContext;
 import com.keenwrite.processors.markdown.BaseMarkdownProcessor;
+import com.keenwrite.processors.markdown.extensions.common.MarkdownParserExtension;
 import com.keenwrite.processors.r.RInlineEvaluator;
 import com.vladsch.flexmark.ast.Paragraph;
 import com.vladsch.flexmark.parser.InlineParserExtensionFactory;
@@ -11,7 +12,6 @@ import com.vladsch.flexmark.parser.delimiter.DelimiterProcessor;
 import com.vladsch.flexmark.parser.internal.InlineParserImpl;
 import com.vladsch.flexmark.parser.internal.LinkRefProcessorData;
 import com.vladsch.flexmark.util.data.DataHolder;
-import com.vladsch.flexmark.util.data.MutableDataHolder;
 
 import java.util.BitSet;
 import java.util.List;
@@ -19,7 +19,6 @@ import java.util.Map;
 
 import static com.keenwrite.processors.IdentityProcessor.IDENTITY;
 import static com.vladsch.flexmark.parser.Parser.Builder;
-import static com.vladsch.flexmark.parser.Parser.ParserExtension;
 
 /**
  * Responsible for processing inline R statements (denoted using the
@@ -29,7 +28,7 @@ import static com.vladsch.flexmark.parser.Parser.ParserExtension;
  * extension, rather than an implementation of {@link Processor}. For this
  * reason, some pre-conversion is necessary.
  */
-public final class RInlineExtension implements ParserExtension {
+public final class RInlineExtension implements MarkdownParserExtension {
   private final RInlineEvaluator mEvaluator;
   private final BaseMarkdownProcessor mMarkdownProcessor;
 
@@ -54,9 +53,6 @@ public final class RInlineExtension implements ParserExtension {
   public void extend( final Builder builder ) {
     builder.customInlineParserFactory( InlineParser::new );
   }
-
-  @Override
-  public void parserOptions( final MutableDataHolder options ) {}
 
   /**
    * Prevents rendering {@code `r} statements as inline HTML {@code <code>}

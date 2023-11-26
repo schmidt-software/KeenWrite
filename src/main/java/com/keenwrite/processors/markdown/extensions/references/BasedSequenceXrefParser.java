@@ -9,7 +9,7 @@ import com.vladsch.flexmark.util.sequence.BasedSequence;
 
 import java.util.regex.Pattern;
 
-import static com.keenwrite.processors.markdown.extensions.EmptyNode.EMPTY_NODE;
+import static com.keenwrite.processors.markdown.extensions.common.EmptyNode.EMPTY_NODE;
 
 class BasedSequenceXrefParser extends BasedSequenceParser {
   private static final String REGEX = STR. "\\[@\{ REGEX_INNER }]" ;

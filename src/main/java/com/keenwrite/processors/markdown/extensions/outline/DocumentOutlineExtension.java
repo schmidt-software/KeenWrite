@@ -1,33 +1,29 @@
-package com.keenwrite.processors.markdown.extensions;
+package com.keenwrite.processors.markdown.extensions.outline;
 
 import com.keenwrite.events.ParseHeadingEvent;
 import com.keenwrite.processors.Processor;
+import com.keenwrite.processors.markdown.extensions.common.MarkdownParserExtension;
 import com.vladsch.flexmark.ast.Heading;
 import com.vladsch.flexmark.parser.Parser.Builder;
-import com.vladsch.flexmark.parser.Parser.ParserExtension;
 import com.vladsch.flexmark.parser.block.NodePostProcessor;
 import com.vladsch.flexmark.parser.block.NodePostProcessorFactory;
 import com.vladsch.flexmark.util.ast.Document;
 import com.vladsch.flexmark.util.ast.Node;
 import com.vladsch.flexmark.util.ast.NodeTracker;
-import com.vladsch.flexmark.util.data.MutableDataHolder;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.regex.Pattern;
 
 import static com.keenwrite.events.ParseHeadingEvent.fireNewOutlineEvent;
 
-public final class DocumentOutlineExtension implements ParserExtension {
-  private static final Pattern sRegex = Pattern.compile( "^(#+)" );
+public final class DocumentOutlineExtension implements MarkdownParserExtension {
+  private static final Pattern REGEX = Pattern.compile( "^(#+)" );
 
   private final Processor<String> mProcessor;
 
   private DocumentOutlineExtension( final Processor<String> processor ) {
     mProcessor = processor;
   }
-
-  @Override
-  public void parserOptions( final MutableDataHolder options ) {}
 
   @Override
   public void extend( final Builder builder ) {
@@ -44,7 +40,7 @@ public final class DocumentOutlineExtension implements ParserExtension {
     public void process(
       @NotNull final NodeTracker state, @NotNull final Node node ) {
       final var heading = mProcessor.apply( node.getChars().toString() );
-      final var matcher = sRegex.matcher( heading );
+      final var matcher = REGEX.matcher( heading );
 
       if( matcher.find() ) {
         final var level = matcher.group().length();

@@ -1,5 +1,5 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
-package com.keenwrite.processors.markdown.extensions;
+package com.keenwrite.processors.markdown.extensions.common;
 
 import com.vladsch.flexmark.util.ast.Node;
 import com.vladsch.flexmark.util.sequence.BasedSequence;
@@ -14,13 +14,14 @@ import org.jetbrains.annotations.NotNull;
 public final class EmptyNode extends Node {
   public static final Node EMPTY_NODE = new EmptyNode();
 
-  private static final BasedSequence[] BASE_SEQ = new BasedSequence[ 0 ];
+  /**
+   * Use {@link #EMPTY_NODE}.
+   */
+  private EmptyNode() {}
 
-  private EmptyNode() {
-  }
-
+  @NotNull
   @Override
-  public @NotNull BasedSequence[] getSegments() {
-    return BASE_SEQ;
+  public BasedSequence[] getSegments() {
+    return BasedSequence.EMPTY_SEGMENTS;
   }
 }
