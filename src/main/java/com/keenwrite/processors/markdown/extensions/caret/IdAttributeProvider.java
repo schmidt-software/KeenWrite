@@ -22,7 +22,7 @@ import static com.keenwrite.processors.markdown.extensions.common.EmptyNode.EMPT
  * Responsible for creating the id attribute. This class is instantiated
  * once: for the HTML element containing the {@link Constants#CARET_ID}.
  */
-public class IdAttributeProvider implements AttributeProvider {
+final class IdAttributeProvider implements AttributeProvider {
   private final Supplier<Caret> mCaret;
   private boolean mAdded;
 

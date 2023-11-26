@@ -10,7 +10,7 @@ import java.util.List;
 /**
  * Responsible for helping to generate an opening div element.
  */
-class OpeningDivBlock extends DivBlock {
+final class OpeningDivBlock extends DivBlock {
   private final List<Attribute> mAttributes = new ArrayList<>();
 
   OpeningDivBlock( final List<Attribute> attributes ) {
@@ -18,6 +18,7 @@ class OpeningDivBlock extends DivBlock {
     mAttributes.addAll( attributes );
   }
 
+  @Override
   void write( final HtmlWriter html ) {
     mAttributes.forEach( html::attr );
     html.withAttr().tag( HTML_DIV );
