@@ -148,15 +148,17 @@ public class CaptionsAndCrossReferencesExtensionTest {
       args(
         """
           ::: warning
-          Do not eat processed sugar.
+          Do not eat processed **sugar**.
+
+          Seriously.
           :::
 
           :: Caption {#warning:sugar}
           """,
         """
-          <p><span class="caption">Caption <a data-type="warning" name="sugar" /></span></p>
-          <div class="warning">
-          <p>Do not eat processed sugar.</p>
+          <p><span class="caption">Caption <a data-type="warning" name="sugar" /></span></p><div class="warning">
+          <p>Do not eat processed <strong>sugar</strong>.</p>
+          <p>Seriously.</p>
           </div>
           """
       ),
@@ -221,6 +223,53 @@ public class CaptionsAndCrossReferencesExtensionTest {
           <tr><td>4</td><td>5</td><td>6</td></tr>
           </tbody>
           </table>
+          """
+      ),
+      args(
+        """
+          ``` diagram-plantuml
+          @startuml
+          Alice -> Bob: Request
+          Bob --> Alice: Response
+          @enduml
+          ```
+
+          :: Diagram {#dia:seq1}
+          """,
+        """
+          <p><span class="caption">Diagram <a data-type="dia" name="seq1" /></span></p>
+          <pre><code class="language-diagram-plantuml">@startuml
+          Alice -&gt; Bob: Request
+          Bob --&gt; Alice: Response
+          @enduml
+          </code></pre>
+          """
+      ),
+      args(
+        """
+          ::: lyrics
+          Weather hit, meltin' road.
+          Our mama's gone, six feet cold.
+          Gas on down to future town,
+          Make prophecy take hold.
+
+          Warnin' sign, cent'ry old:
+          When buyin' coal, air is sold.
+          Aim our toil, ten figure oil;
+          Trade life on Earth for gold.
+          :::
+          """,
+        """
+          <div class="lyrics">
+          <p>Weather hit, meltin' road.
+          Our mama's gone, six feet cold.
+          Gas on down to future town,
+          Make prophecy take hold.</p>
+          <p>Warnin' sign, cent'ry old:
+          When buyin' coal, air is sold.
+          Aim our toil, ten figure oil;
+          Trade life on Earth for gold.</p>
+          </div>
           """
       )
     );

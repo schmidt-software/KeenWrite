@@ -38,14 +38,23 @@ class CaptionPostProcessor extends NodePostProcessor {
     assert caption != null;
 
     var swap = previous;
+    boolean found = true;
 
     if( swap.isOrDescendantOfType( ClosingDivBlock.class ) ) {
-      swap = swap.getPrevious().getPrevious();
+      found = false;
+
+      while( !found && swap != null ) {
+        if( swap.isOrDescendantOfType( OpeningDivBlock.class ) ) {
+          found = true;
+        }
+        else {
+          swap = swap.getPrevious();
+        }
+      }
     }
 
-    if( swap != null ) {
-      swap.unlink();
-      caption.insertAfter( swap );
+    if( found ) {
+      swap.insertBefore( caption );
     }
   }
 }
