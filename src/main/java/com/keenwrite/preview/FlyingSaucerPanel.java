@@ -181,8 +181,8 @@ public final class FlyingSaucerPanel extends XHTMLPanel
 
     if( !box.getStyle().isInline() ) {
       final var margin = box.getMargin( getLayoutContext() );
-      y += margin.top();
-      x += margin.left();
+      y += (int) margin.top();
+      x += (int) margin.left();
     }
 
     return new Point( x, y );

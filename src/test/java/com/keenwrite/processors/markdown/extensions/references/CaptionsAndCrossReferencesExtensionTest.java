@@ -55,9 +55,9 @@ public class CaptionsAndCrossReferencesExtensionTest {
           {#ocean:whale-01} [@ocean:whale-02]
           """,
         """
-          <p><a data-type="fig" name="cats" /> <a data-type="fig" href="#cats" />
-          <a data-type="table" name="dogs" /> <a data-type="table" href="#dogs" />
-          <a data-type="ocean" name="whale-01" /> <a data-type="ocean" href="#whale-02" /></p>
+          <p><a class="name" data-type="fig" name="cats" /> <a class="href" data-type="fig" href="#cats" />
+          <a class="name" data-type="table" name="dogs" /> <a class="href" data-type="table" href="#dogs" />
+          <a class="name" data-type="ocean" name="whale-01" /> <a class="href" data-type="ocean" href="#whale-02" /></p>
           """
       ),
       args(
@@ -66,8 +66,8 @@ public class CaptionsAndCrossReferencesExtensionTest {
           [@日本:w0mbatß]
           """,
         """
-          <p><a data-type="日本" name="w0mbatß" />
-          <a data-type="日本" href="#w0mbatß" /></p>
+          <p><a class="name" data-type="日本" name="w0mbatß" />
+          <a class="href" data-type="日本" href="#w0mbatß" /></p>
           """
       ),
       args(
@@ -80,10 +80,10 @@ public class CaptionsAndCrossReferencesExtensionTest {
           """,
         """
           <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-          <a data-type="fig" name="cats" /> Sed do eiusmod tempor incididunt ut
+          <a class="name" data-type="fig" name="cats" /> Sed do eiusmod tempor incididunt ut
           labore et dolore magna aliqua. Ut enim ad minim veniam,
           quis nostrud exercitation ullamco laboris nisi ut aliquip
-          ex ea commodo consequat. <a data-type="fig" href="#cats" /></p>
+          ex ea commodo consequat. <a class="href" data-type="fig" href="#cats" /></p>
           """
       ),
       args(
@@ -97,10 +97,10 @@ public class CaptionsAndCrossReferencesExtensionTest {
           To what end?
           """,
         """
-          <p><a data-type="note" name="advancement" /> Advancement isn't
+          <p><a class="name" data-type="note" name="advancement" /> Advancement isn't
           measured by the ingenuity of inventions, but by humanity's ability
           to anticipate and forfend dire aftermaths <em>before</em> using them.</p>
-          <p><a data-type="note" href="#advancement" /></p>
+          <p><a class="href" data-type="note" href="#advancement" /></p>
           <p>To what end?</p>
           """
       ),
@@ -109,7 +109,7 @@ public class CaptionsAndCrossReferencesExtensionTest {
           $E=mc^2$ {#eq:label}
           """,
         """
-          <p><tex>$E=mc^2$</tex> <a data-type="eq" name="label" /></p>
+          <p><tex>$E=mc^2$</tex> <a class="name" data-type="eq" name="label" /></p>
           """
       ),
       args(
@@ -117,7 +117,7 @@ public class CaptionsAndCrossReferencesExtensionTest {
           $$E=mc^2$$ {#eq:label}
           """,
         """
-          <p><tex>$$E=mc^2$$</tex> <a data-type="eq" name="label" /></p>
+          <p><tex>$$E=mc^2$$</tex> <a class="name" data-type="eq" name="label" /></p>
           """
       ),
       args(
@@ -127,7 +127,7 @@ public class CaptionsAndCrossReferencesExtensionTest {
           :: Caption {#eqn:energy}
           """,
         """
-          <p><span class="caption">Caption <a data-type="eqn" name="energy" /></span></p>
+          <p><span class="caption">Caption </span><a class="name" data-type="eqn" name="energy" /></p>
           <p><tex>$$E=mc^2$$</tex></p>
           """
       ),
@@ -140,7 +140,7 @@ public class CaptionsAndCrossReferencesExtensionTest {
           :: Source code caption {#listing:haskell1}
           """,
         """
-          <p><span class="caption">Source code caption <a data-type="listing" name="haskell1" /></span></p>
+          <p><span class="caption">Source code caption </span><a class="name" data-type="listing" name="haskell1" /></p>
           <pre><code class="language-haskell">main :: IO ()
           </code></pre>
           """
@@ -156,7 +156,7 @@ public class CaptionsAndCrossReferencesExtensionTest {
           :: Caption {#warning:sugar}
           """,
         """
-          <p><span class="caption">Caption <a data-type="warning" name="sugar" /></span></p><div class="warning">
+          <p><span class="caption">Caption </span><a class="name" data-type="warning" name="sugar" /></p><div class="warning">
           <p>Do not eat processed <strong>sugar</strong>.</p>
           <p>Seriously.</p>
           </div>
@@ -169,7 +169,7 @@ public class CaptionsAndCrossReferencesExtensionTest {
           :: Caption {#fig:label}
           """,
         """
-          <p><span class="caption">Caption <a data-type="fig" name="label" /></span></p>
+          <p><span class="caption">Caption </span><a class="name" data-type="fig" name="label" /></p>
           <p><img src="tunnel" alt="alt text" /></p>
           """
       ),
@@ -180,7 +180,7 @@ public class CaptionsAndCrossReferencesExtensionTest {
           :: Caption **bold** {#fig:label} *italics*
           """,
         """
-          <p><span class="caption">Caption <strong>bold</strong> <a data-type="fig" name="label" /> <em>italics</em></span></p>
+          <p><span class="caption">Caption <strong>bold</strong>  <em>italics</em></span><a class="name" data-type="fig" name="label" /></p>
           <p><img src="placekitten" alt="kitteh" /></p>
           """
       ),
@@ -195,7 +195,7 @@ public class CaptionsAndCrossReferencesExtensionTest {
           :: Meschiya Lake - Lucky Devil {#lyrics:blues}
           """,
         """
-          <p><span class="caption">Meschiya Lake - Lucky Devil <a data-type="lyrics" name="blues" /></span></p>
+          <p><span class="caption">Meschiya Lake - Lucky Devil </span><a class="name" data-type="lyrics" name="blues" /></p>
           <blockquote>
           <p>I'd like to be the lucky devil who gets to burn with you.</p>
           <p>Well, I'm no angel, my wings have been clipped;</p>
@@ -213,7 +213,7 @@ public class CaptionsAndCrossReferencesExtensionTest {
           :: Caption {#tbl:label}
           """,
         """
-          <p><span class="caption">Caption <a data-type="tbl" name="label" /></span></p>
+          <p><span class="caption">Caption </span><a class="name" data-type="tbl" name="label" /></p>
           <table>
           <thead>
           <tr><th>a</th><th>b</th><th>c</th></tr>
@@ -237,7 +237,7 @@ public class CaptionsAndCrossReferencesExtensionTest {
           :: Diagram {#dia:seq1}
           """,
         """
-          <p><span class="caption">Diagram <a data-type="dia" name="seq1" /></span></p>
+          <p><span class="caption">Diagram </span><a class="name" data-type="dia" name="seq1" /></p>
           <pre><code class="language-diagram-plantuml">@startuml
           Alice -&gt; Bob: Request
           Bob --&gt; Alice: Response

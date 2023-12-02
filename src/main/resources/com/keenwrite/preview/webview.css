@@ -299,7 +299,7 @@ div.bubbletx {
   margin-left: auto;
 }
 
-div.bubblerx:after, div.bubbletx:after {
+div.bubblerx::after, div.bubbletx::after {
   content: "";
   position: absolute;
   width: 0;
@@ -316,7 +316,7 @@ div.bubblerx::after {
   border-left: none;
 }
 
-div.bubbletx:after {
+div.bubbletx::after {
   right: -1em;
   border-left: 1em solid #ccc;
 }
@@ -333,9 +333,9 @@ div.lyrics:first-line p {
   line-height: 0;
 }
 
+/* TYPEWRITER ***/
 div.typewritten {
   font-family: monospace;
   font-size: 16px;
   font-weight: bold;
 }
-

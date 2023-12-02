@@ -30,7 +30,7 @@ class CaptionBlock extends Block {
    * @param writer Where to write the opening tags.
    */
   void opening( final HtmlWriter writer ) {
-    writer.raw( "<p><span class=\"caption\">" );
+    writer.raw( "<span class=\"caption\">" );
   }
 
   /**
@@ -39,7 +39,7 @@ class CaptionBlock extends Block {
    * @param writer Where to write the closing tags.
    */
   void closing( final HtmlWriter writer ) {
-    writer.raw( "</span></p>" );
+    writer.raw( "</span>" );
   }
 
   void parse( final InlineParser inlineParser ) {

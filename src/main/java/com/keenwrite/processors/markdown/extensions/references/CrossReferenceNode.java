@@ -9,7 +9,7 @@ import com.vladsch.flexmark.html.HtmlWriter;
 /**
  * Responsible for generating anchor links, either named or cross-referenced.
  */
-interface CrossReferenceNode {
+public interface CrossReferenceNode {
   String getTypeName();
 
   String getIdName();
@@ -26,6 +26,10 @@ interface CrossReferenceNode {
     final var id = getIdName();
     final var attr = getRefAttrName();
 
-    html.raw( STR. "<a data-type=\"\{ type }\" \{ attr }=\"\{ id }\" />" );
+    final var clazz = STR. "class=\"\{ attr }\"" ;
+    final var dataType = STR. "data-type=\"\{ type }\"" ;
+    final var refId = STR. "\{ attr }=\"\{ id }\"" ;
+
+    html.raw( STR. "<a \{ clazz } \{ dataType } \{ refId } />" );
   }
 }

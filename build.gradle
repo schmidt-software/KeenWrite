@@ -136,7 +136,6 @@ dependencies {
   implementation "io.sf.carte:echosvg-ext:${v_echosvg}"
   implementation "io.sf.carte:echosvg-gvt:${v_echosvg}"
   implementation "io.sf.carte:echosvg-parser:${v_echosvg}"
-  implementation "io.sf.carte:echosvg-script:${v_echosvg}"
   implementation "io.sf.carte:echosvg-svg-dom:${v_echosvg}"
   implementation "io.sf.carte:echosvg-svggen:${v_echosvg}"
   implementation "io.sf.carte:echosvg-transcoder:${v_echosvg}"
@@ -145,7 +144,7 @@ dependencies {
 
   // Misc.
   implementation 'org.ahocorasick:ahocorasick:0.6.3'
-  implementation 'org.apache.commons:commons-configuration2:2.9.0'
+  implementation 'org.apache.commons:commons-lang3:3.14.0'
   implementation 'com.github.albfernandez:juniversalchardet:2.4.0'
   implementation 'jakarta.validation:jakarta.validation-api:3.0.2'
   implementation 'org.greenrobot:eventbus-java:3.3.1'
@@ -170,6 +169,10 @@ dependencies {
   testImplementation "org.junit.jupiter:junit-jupiter-params:${v_junit}"
   testImplementation 'org.assertj:assertj-core:3.24.2'
   testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+}
+
+configurations {
+  all*.exclude group: 'org.mozilla', module: 'rhino'
 }
 
 sourceSets {
@@ -250,7 +253,7 @@ distributions {
 test {
   useJUnitPlatform()
 
-  doFirst { jvmArgs = moduleSecurity }
+  doFirst { jvmArgs += moduleSecurity }
   testLogging { exceptionFormat = 'full' }
 }
 

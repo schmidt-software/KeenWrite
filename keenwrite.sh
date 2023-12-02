@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 
 java \
+  -Dprism.order=sw \
+  --enable-preview \
   --add-opens=javafx.controls/javafx.scene.control=ALL-UNNAMED \
   --add-opens=javafx.controls/javafx.scene.control.skin=ALL-UNNAMED \
   --add-opens=javafx.graphics/javafx.scene.text=ALL-UNNAMED \

@@ -118,7 +118,7 @@ public final class HtmlPreview extends SwingNode implements ComponentListener {
       mScrollLockButton.setText( getLockText( mScrollLocked ) );
       mScrollLockButton.setMargin( new Insets( 1, 0, 0, 0 ) );
       mScrollLockButton.addActionListener(
-        e -> fireScrollLockEvent( !mScrollLocked )
+        _ -> fireScrollLockEvent( !mScrollLocked )
       );
 
       verticalPanel.add( verticalBar, CENTER );

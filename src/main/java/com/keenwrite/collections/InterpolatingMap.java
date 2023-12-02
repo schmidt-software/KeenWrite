@@ -1,6 +1,7 @@
 /* Copyright 2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.collections;
 
+import com.keenwrite.sigils.PropertyKeyOperator;
 import com.keenwrite.sigils.SigilKeyOperator;
 
 import java.io.Serial;
@@ -26,6 +27,13 @@ public class InterpolatingMap extends ConcurrentHashMap<String, String> {
   private static final int INITIAL_CAPACITY = 1 << 8;
 
   private transient final SigilKeyOperator mOperator;
+
+  /**
+   * Creates a new interpolating map using the {@link PropertyKeyOperator}.
+   */
+  public InterpolatingMap() {
+    this( new PropertyKeyOperator() );
+  }
 
   /**
    * @param operator Contains the opening and closing sigils that mark
@@ -92,9 +100,18 @@ public class InterpolatingMap extends ConcurrentHashMap<String, String> {
 
   @Override
   public boolean equals( final Object o ) {
-    if( this == o ) { return true; }
-    if( o == null || getClass() != o.getClass() ) { return false; }
-    if( !super.equals( o ) ) { return false; }
+    if( this == o ) {
+      return true;
+    }
+
+    if( o == null || getClass() != o.getClass() ) {
+      return false;
+    }
+
+    if( !super.equals( o ) ) {
+      return false;
+    }
+
     final InterpolatingMap that = (InterpolatingMap) o;
     return Objects.equals( mOperator, that.mOperator );
   }

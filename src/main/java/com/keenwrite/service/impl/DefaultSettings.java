@@ -1,10 +1,8 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.service.impl;
 
+import com.keenwrite.config.PropertiesConfiguration;
 import com.keenwrite.service.Settings;
-import org.apache.commons.configuration2.PropertiesConfiguration;
-import org.apache.commons.configuration2.convert.DefaultListDelimiterHandler;
-import org.apache.commons.configuration2.convert.ListDelimiterHandler;
 
 import java.io.InputStreamReader;
 import java.net.URL;
@@ -19,12 +17,9 @@ import static com.keenwrite.constants.Constants.PATH_PROPERTIES_SETTINGS;
  */
 public final class DefaultSettings implements Settings {
 
-  private static final char VALUE_SEPARATOR = ',';
-
   private final PropertiesConfiguration mProperties = loadProperties();
 
-  public DefaultSettings() {
-  }
+  public DefaultSettings() {}
 
   /**
    * Returns the value of a string property.
@@ -54,13 +49,13 @@ public final class DefaultSettings implements Settings {
    * Convert the generic list of property objects into strings.
    *
    * @param property The property value to coerce.
-   * @param defaults The defaults values to use should the property be unset.
+   * @param defaults The values to use should the property be unset.
    * @return The list of properties coerced from objects to strings.
    */
   @Override
   public List<String> getStringSettingList(
-      final String property, final List<String> defaults ) {
-    return getSettings().getList( String.class, property, defaults );
+    final String property, final List<String> defaults ) {
+    return getSettings().getList( property, defaults );
   }
 
   /**
@@ -88,11 +83,11 @@ public final class DefaultSettings implements Settings {
   private PropertiesConfiguration loadProperties() {
     final var url = getPropertySource();
     final var configuration = new PropertiesConfiguration();
+    final var encoding = getDefaultEncoding();
 
     if( url != null ) {
       try( final var reader = new InputStreamReader(
-          url.openStream(), getDefaultEncoding() ) ) {
-        configuration.setListDelimiterHandler( createListDelimiterHandler() );
+        url.openStream(), encoding ) ) {
         configuration.read( reader );
       } catch( final Exception ex ) {
         throw new RuntimeException( ex );
@@ -104,10 +99,6 @@ public final class DefaultSettings implements Settings {
 
   private Charset getDefaultEncoding() {
     return Charset.defaultCharset();
-  }
-
-  private ListDelimiterHandler createListDelimiterHandler() {
-    return new DefaultListDelimiterHandler( VALUE_SEPARATOR );
   }
 
   private URL getPropertySource() {

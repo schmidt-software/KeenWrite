@@ -19,6 +19,8 @@ readonly APP_NAME_LC=${APP_NAME,,}
 readonly FILE_APP_JAR="${APP_NAME_LC}.jar"
 
 readonly OPT_JAVA=$(cat << END_OF_ARGS
+-Dprism.order=sw \
+--enable-preview \
 --add-opens=javafx.controls/javafx.scene.control=ALL-UNNAMED \
 --add-opens=javafx.controls/javafx.scene.control.skin=ALL-UNNAMED \
 --add-opens=javafx.graphics/javafx.scene.text=ALL-UNNAMED \
