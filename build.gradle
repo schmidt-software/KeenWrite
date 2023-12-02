@@ -119,7 +119,7 @@ dependencies {
   implementation "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:${v_jackson}"
 
   // HTML parsing and rendering
-  implementation 'org.jsoup:jsoup:1.16.1'
+  implementation 'org.jsoup:jsoup:1.17.1'
   implementation 'org.xhtmlrenderer:flying-saucer-core:9.3.1'
 
   // R
@@ -171,6 +171,12 @@ dependencies {
   testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
 }
 
+/**
+ * Mozilla's JavaScript engine, Rhino, is used by the SVG rasterizer.
+ * The application does not support animated SVG files (the HTML
+ * renderer won't honour them), so we can eliminate the dependency from
+ * the binaries.
+ */
 configurations {
   all*.exclude group: 'org.mozilla', module: 'rhino'
 }
