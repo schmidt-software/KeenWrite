@@ -77,6 +77,11 @@ a:hover {
   text-decoration: underline;
 }
 
+/* CROSS-REFERENCES ***/
+a.href::before {
+  content: "(" attr(data-type) " reference) ";
+}
+
 /* ITEMIZED LISTS ***/
 ol, ul {
   margin: 0 0 0 2em;
