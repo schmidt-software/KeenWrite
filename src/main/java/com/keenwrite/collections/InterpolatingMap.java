@@ -86,7 +86,7 @@ public class InterpolatingMap extends ConcurrentHashMap<String, String> {
     assert value != null;
 
     final var matcher = mOperator.match( value );
-    final var sb = new StringBuilder( value.length() >> 1 );
+    final var sb = new StringBuilder( value.length() << 1 );
 
     while( matcher.find() ) {
       final var keyName = matcher.group( GROUP_DELIMITED );
