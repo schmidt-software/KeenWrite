@@ -7,8 +7,8 @@ This document describes how to build the application and platform binaries.
 Download and install the following software packages:
 
 * [JDK 21](https://bell-sw.com/pages/downloads) (Full JDK + JavaFX)
-* [Gradle 8.3](https://gradle.org/releases)
-* [Git 2.40.1](https://git-scm.com/downloads)
+* [Gradle 8.5](https://gradle.org/releases)
+* [Git 2.43](https://git-scm.com/downloads)
 * [warp v0.4.0-alpha](https://github.com/Reisz/warp/releases/tag/v0.4.0)
 
 Note: The forked warp packer release fixes a bug in the main branch.
@@ -83,18 +83,18 @@ Setup is complete.
 
 ## Binaries
 
-Run the `installer` script to build platform-specific binaries, such as:
+Run the `installer.sh` script to build platform-specific binaries, such as:
 
-    ./installer -V -o linux
+    ./installer.sh -V -o linux
 
-The `installer` script:
+The `installer.sh` script:
 
 * downloads a JDK;
 * generates a run script;
 * bundles the JDK, run script, and JAR file; and
 * creates a standalone binary, so no installation required.
 
-Run `./installer -h` to see all command-line options.
+Run `./installer.sh -h` to see all command-line options.
 
 # Releases
 
