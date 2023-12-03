@@ -10,6 +10,8 @@ import com.vladsch.flexmark.parser.delimiter.DelimiterProcessor;
 import com.vladsch.flexmark.parser.delimiter.DelimiterRun;
 import com.vladsch.flexmark.util.ast.Node;
 
+import static com.keenwrite.constants.Constants.DEF_DELIM_BEGAN_DEFAULT;
+
 /**
  * Responsible for processing {@code {@type:id}} anchors.
  */
@@ -43,7 +45,11 @@ class AnchorNameDelimiterProcessor implements DelimiterProcessor {
   public int getDelimiterUse(
     final DelimiterRun opener,
     final DelimiterRun closer ) {
-    return 1;
+    final var text = opener.getNode();
+
+    // Ensure that the default delimiters are respected (not clobbered by
+    // transforming them into anchor links).
+    return text.getChars().toString().equals( DEF_DELIM_BEGAN_DEFAULT ) ? 0 : 1;
   }
 
   @Override

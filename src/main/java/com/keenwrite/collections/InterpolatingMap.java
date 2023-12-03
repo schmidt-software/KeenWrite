@@ -10,6 +10,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static java.util.regex.Matcher.quoteReplacement;
+
 /**
  * Responsible for interpolating key-value pairs in a map. That is, this will
  * iterate over all key-value pairs and replace keys wrapped in sigils
@@ -80,10 +82,11 @@ public class InterpolatingMap extends ConcurrentHashMap<String, String> {
    * @param value Value containing zero or more key references.
    * @return The given value with all embedded key references interpolated.
    */
-  public String interpolate( String value ) {
+  public String interpolate( final String value ) {
     assert value != null;
 
     final var matcher = mOperator.match( value );
+    final var sb = new StringBuilder( value.length() >> 1 );
 
     while( matcher.find() ) {
       final var keyName = matcher.group( GROUP_DELIMITED );
@@ -91,11 +94,12 @@ public class InterpolatingMap extends ConcurrentHashMap<String, String> {
 
       if( mapValue != null ) {
         final var keyValue = interpolate( mapValue );
-        value = value.replace( mOperator.apply( keyName ), keyValue );
+        matcher.appendReplacement( sb, quoteReplacement( keyValue ) );
       }
     }
 
-    return value;
+    matcher.appendTail( sb );
+    return sb.toString();
   }
 
   @Override
