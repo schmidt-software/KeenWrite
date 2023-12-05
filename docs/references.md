@@ -4,8 +4,8 @@ Users may define captions and cross-references to tables, figures,
 and equations. Unfortunately, at time of writing, the CommonMark
 specification is frozen. This means cross-references must be implemented
 as an extension to the Markdown specification, leaving the door open for
-differing Markdown rendering libraries and applications to diverge on
-with respect to syntax.
+differing Markdown rendering libraries and applications to diverge with
+respect to syntax.
 
 # Syntax
 
