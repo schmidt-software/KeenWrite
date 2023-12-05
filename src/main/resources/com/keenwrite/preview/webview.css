@@ -78,8 +78,8 @@ a:hover {
 }
 
 /* CROSS-REFERENCES ***/
-a.href::before {
-  content: "(" attr(data-type) " reference) ";
+a.href::after {
+  content: " (" attr(data-type) " reference)";
 }
 
 /* ITEMIZED LISTS ***/
