@@ -26,7 +26,7 @@ remainder of this section provides examples.
 An image caption:
 
 ```
-![kitten](https://placekitten.com/600/350)
+![image title](https://placekitten.com/600/350)
 
 :: Figure caption text
 ```
