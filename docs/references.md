@@ -12,7 +12,7 @@ respect to syntax.
 This section describes how to use captions and cross-references within
 Markdown documents. The CommonMark standard details different ways to
 add captions to tables and figures. While those are supported, a more
-consistent syntax is available.
+consistent syntax has been implemented.
 
 ## Captions
 
