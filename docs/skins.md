@@ -61,7 +61,7 @@ previous section showed how to set up a rudimentary skin. Instead, start
 with a template that already has a number of classes defined so that you
 can tweak them to your taste. Accomplish this as follows:
 
-1. Visit the [skin](https://github.com/DaveJarvis/keenwrite/tree/master/src/main/resources/com/keenwrite/skins) repository directory
+1. Visit the [skin](https://gitlab.com/DaveJarvis/KeenWrite/-/tree/main/src/main/resources/com/keenwrite/skins) repository directory
 1. Click one of the files (e.g., `haunted_grey.css`).
 1. Click **Raw**.
 1. Copy the entire text.
@@ -71,7 +71,7 @@ can tweak them to your taste. Accomplish this as follows:
 1. Save the file.
 
 To see how the CSS styles are applied to the text editor, open
-[markdown.css](https://github.com/DaveJarvis/keenwrite/blob/master/src/main/resources/com/keenwrite/editor/markdown.css), which is also in the repository.
+[markdown.css](https://gitlab.com/DaveJarvis/KeenWrite/-/blob/main/src/main/resources/com/keenwrite/editor/markdown.css), which is also in the repository.
 
 # Modena
 
@@ -82,7 +82,7 @@ look and feel. For a full listing of available styles see the OpenJDK's
 
 # JavaFX CSS
 
-The [Java CSS Reference Guide](https://openjfx.io/javadoc/11/javafx.graphics/javafx/scene/doc-files/cssref.html) is exhaustive. In addition to showing many
+The [Java CSS Reference Guide](https://openjfx.io/javadoc/21/javafx.graphics/javafx/scene/doc-files/cssref.html) is exhaustive. In addition to showing many
 differences between JavaFX CSS and W3C CSS, the guide introduces numerous
 helpful functions for manipulating colours and gradients using existing
 colour definitions.
@@ -96,5 +96,5 @@ regular JavaFX `-fx`.
 # Submit
 
 If you have a look that you'd like to contribute to the project, do pass
-it along. Either open a new issue in the [issue tracker](https://github.com/DaveJarvis/keenwrite/issues) that contains the CSS file or submit a pull request.
+it along. Either open a new issue in the [issue tracker](https://gitlab.com/DaveJarvis/KeenWrite/-/issues) that contains the CSS file or submit a pull request.
 

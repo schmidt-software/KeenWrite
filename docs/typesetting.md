@@ -2,7 +2,7 @@
 
 The application uses the [ConTeXt](https://contextgarden.net) typesetting
 system, the [podman](https://podman.io/) container manager, various
-[themes](https://github.com/DaveJarvis/keenwrite-themes/), and numerous
+[themes](https://gitlab.com/DaveJarvis/keenwrite-themes), and numerous
 fonts to produce high-quality PDF files. The container manager significantly
 reduces the number of manual steps in the installation process.
 
@@ -15,13 +15,6 @@ Run the installation wizard as follows:
 1. Start the application.
 1. Click **File → Export As → PDF**.
 
-A wizard appears.
-
-## Windows
-
-
-## Linux
-
-
-## macOS
+Follow the steps in the wizard to install the requisite software and
+typesetting themes.
 

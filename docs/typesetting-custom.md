@@ -34,7 +34,7 @@ Proceed with a Windows installation of the typesetting software as follows:
 1. Extract the `.zip` file into `C:\Users\%USERNAME%\AppData\Local\context` (the "root" directory)
 1. Run **install.bat** to download and install the software.
     * If prompted, click **Run anyway** (or click **More info** first).
-1. Right-click <a href="https://github.com/DaveJarvis/keenwrite/raw/master/scripts/localpath.bat">localpath.bat</a>.
+1. Right-click [localpath.bat](https://gitlab.com/DaveJarvis/KeenWrite/-/raw/main/scripts/localpath.bat).
 1. Select **Save Link As** (or similar).
 1. Save the file to the typesetting software's "root" directory.
 1. Rename `localpath.bat.txt` to `localpath.bat`, if necessary.
@@ -79,7 +79,7 @@ A theme pack is a set of themes that define how documents appear when typeset. B
 
 Install and configure the default theme pack as follows:
 
-1. Download the <a href="https://gitreleases.dev/gh/DaveJarvis/keenwrite-themes/latest/theme-pack.zip">theme-pack.zip</a> archive.
+1. Download the <a href="https://gitlab.com/DaveJarvis/keenwrite-themes/-/releases/permalink/latest/downloads/theme-pack.zip">theme-pack.zip</a> archive.
 1. Extract archive into a known location.
 1. Start the text editor, if not already running.
 1. Click **Edit → Preferences**.
@@ -159,10 +159,10 @@ Programming computers to typeset internationalized text automatically at the lev
 
 Here are a few documents that introduce the typesetting system:
 
-* *What is ConTeXt?* ([English](https://www.pragma-ade.com/general/manuals/what-is-context.pdf))
-* *A not so short introduction to ConTeXt* ([English](https://github.com/contextgarden/not-so-short-introduction-to-context/raw/main/en/introCTX_eng.pdf) or [Spanish](https://raw.githubusercontent.com/contextgarden/not-so-short-introduction-to-context/main/es/introCTX_esp.pdf))
-* *Dealing with XML in ConTeXt MKIV* ([English](https://pragma-ade.com/general/manuals/xml-mkiv.pdf))
-* *Typographic Programming* ([English](https://www.pragma-ade.com/general/manuals/style.pdf))
+* [What is ConTeXt?](https://www.pragma-ade.com/general/manuals/what-is-context.pdf)
+* [A not so short introduction to ConTeXt](https://github.com/contextgarden/not-so-short-introduction-to-context)
+* [Dealing with XML in ConTeXt MKIV](https://pragma-ade.com/general/manuals/xml-mkiv.pdf)
+* [Typographic Programming](https://www.pragma-ade.com/general/manuals/style.pdf)
 
 The [documentation library](https://wiki.contextgarden.net/Documentation) includes the following gems:
 

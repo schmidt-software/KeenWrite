@@ -10,6 +10,7 @@ The following documents have additional details about using the editor:
 * [skins.md](skins.md) -- User interface customization
 * [svg.md](svg.md) -- Resolve issues with some SVG files
 * [metadata.md](metadata.md) -- Document metadata
+* [references.md](references.md) -- Captions and cross-references
 * [typesetting.md](typesetting.md) -- Document typesetting
 * [variables.md](variables.md) -- Variable definitions and interpolation
 
