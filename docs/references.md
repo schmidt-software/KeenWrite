@@ -76,7 +76,7 @@ Consider the following example:
 ```
 In [@fig:kitten], a cute kitten is shown.
 
-![kitten](https://placekitten.com/600/350)
+![image title](https://placekitten.com/600/350)
 
 :: World's cutest kitten {#fig:kitten}
 
