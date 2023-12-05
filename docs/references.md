@@ -18,7 +18,7 @@ consistent syntax has been implemented.
 
 Tables, figures, and equations are captioned using the same syntax. In
 general, a line that starts with a double colon after a blank line will
-result in a caption added to the item immediately proceding it. The
+result in a caption added to the item immediately preceding it. The
 remainder of this section provides examples.
 
 ### Images
