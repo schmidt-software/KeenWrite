@@ -50,7 +50,7 @@ A table caption:
 An equation caption:
 
 ```
-$$E | mc^2$$
+$$E = mc^2$$
 
 :: Equation caption
 ```
@@ -68,8 +68,8 @@ The general syntax for anchor names and references is:
 * `[@type-name:label]` (reference)
 
 The `type-name` can be any alphanumeric value, starting with a letter.
-Type names user-defined categories for the item type. Labels are user-defined
-identifiers that must be unique per item.
+Type names are user-defined categories for the item type. Labels are
+user-defined identifiers that must be unique per item.
 
 Consider the following example:
 
