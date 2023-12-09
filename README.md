@@ -78,7 +78,7 @@ The application offers:
 
 Typesetting to PDF files requires the following:
 
-* [Theme Pack](https://github.com/DaveJarvis/keenwrite-themes/releases/latest/download/theme-pack.zip)
+* [Theme Pack](https://gitlab.com/DaveJarvis/keenwrite-themes/-/releases/permalink/latest/downloads/theme-pack.zip)
 * [ConTeXt](https://wiki.contextgarden.net/Installation)
 
 ## Usage
