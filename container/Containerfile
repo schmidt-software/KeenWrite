@@ -96,11 +96,12 @@ RUN \
   fc-cache -f -v && \
   mkdir -p tex && \
   sh install.sh && \
-  rm -f $DOWNLOAD_DIR/*.zip && \
   rm -rf \
     "modules" \
     "/var/cache" \
     "/usr/share/icons" \
+    "/opt/context/tex/texmf-context/source" \
+    $DOWNLOAD_DIR/*.zip \
     $CONTEXT_HOME/tex/texmf-modules/doc \
     $CONTEXT_HOME/tex/texmf-context/doc && \
   mkdir -p $CONTEXT_HOME/tex/texmf-fonts/tex/context/user && \
