@@ -34,22 +34,22 @@ WORKDIR $DOWNLOAD_DIR
 # https://fonts.google.com/download?family=Roboto%20Mono
 
 # Fonts are repacked with minimal file set, flat directory, and license.
-ADD "https://fonts.keenwrite.com/download/andada-pro.zip"
-ADD "https://fonts.keenwrite.com/download/archivo-narrow.zip"
-ADD "https://fonts.keenwrite.com/download/carlito.zip"
-ADD "https://fonts.keenwrite.com/download/courier-prime.zip"
-ADD "https://fonts.keenwrite.com/download/inconsolata.zip"
-ADD "https://fonts.keenwrite.com/download/libre-baskerville.zip"
-ADD "https://fonts.keenwrite.com/download/niconne.zip"
-ADD "https://fonts.keenwrite.com/download/nunito.zip"
-ADD "https://fonts.keenwrite.com/download/open-sans-emoji.zip"
-ADD "https://fonts.keenwrite.com/download/pt-mono.zip"
-ADD "https://fonts.keenwrite.com/download/pt-sans.zip"
-ADD "https://fonts.keenwrite.com/download/pt-serif.zip"
-ADD "https://fonts.keenwrite.com/download/roboto.zip"
-ADD "https://fonts.keenwrite.com/download/roboto-mono.zip"
-ADD "https://fonts.keenwrite.com/download/source-serif-4.zip"
-ADD "https://fonts.keenwrite.com/download/underwood.zip"
+ADD "https://fonts.keenwrite.com/download/andada-pro.zip" ./
+ADD "https://fonts.keenwrite.com/download/archivo-narrow.zip" ./
+ADD "https://fonts.keenwrite.com/download/carlito.zip" ./
+ADD "https://fonts.keenwrite.com/download/courier-prime.zip" ./
+ADD "https://fonts.keenwrite.com/download/inconsolata.zip" ./
+ADD "https://fonts.keenwrite.com/download/libre-baskerville.zip" ./
+ADD "https://fonts.keenwrite.com/download/niconne.zip" ./
+ADD "https://fonts.keenwrite.com/download/nunito.zip" ./
+ADD "https://fonts.keenwrite.com/download/open-sans-emoji.zip" ./
+ADD "https://fonts.keenwrite.com/download/pt-mono.zip" ./
+ADD "https://fonts.keenwrite.com/download/pt-sans.zip" ./
+ADD "https://fonts.keenwrite.com/download/pt-serif.zip" ./
+ADD "https://fonts.keenwrite.com/download/roboto.zip" ./
+ADD "https://fonts.keenwrite.com/download/roboto-mono.zip" ./
+ADD "https://fonts.keenwrite.com/download/source-serif-4.zip" ./
+ADD "https://fonts.keenwrite.com/download/underwood.zip" ./
 
 # Typesetting software
 ADD "http://lmtx.pragma-ade.nl/install-lmtx/context-linuxmusl.zip" "context.zip"
