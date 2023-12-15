@@ -40,10 +40,7 @@ The containerization software version is changed.
 Publish the changes to the container image as follows:
 
 ``` bash
-./manage.sh --delete
-./manage.sh --build
-./manage.sh --export
-./manage.sh --publish
+./manage.sh --delete --build --export --publish
 ```
 
 The container image is published.
