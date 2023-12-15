@@ -90,7 +90,7 @@ utile_delete() {
 # Builds the container file in the current working directory.
 # ---------------------------------------------------------------------------
 utile_build() {
-  $log "Building"
+  $log "Building container version ${CONTAINER_VERSION}"
 
   # Show what commands are run while building, but not the commands' output.
   ${CONTAINER_EXE} build \

@@ -30,7 +30,7 @@ Upgrade the containerization software (e.g., podman or docker) as follows:
 1. Edit `src/main/resources/com/keenwrite/messages.properties`.
 1. Set `Wizard.typesetter.container.version` to the latest version.
 1. Set `Wizard.typesetter.container.checksum` to the Windows version checksum.
-1. Set `Wizard.typesetter.container.image.version` to the latest image version.
+1. Set `Wizard.typesetter.container.image.version` to the new image version.
 1. Save the file.
 
 The containerization software version is changed.
@@ -40,6 +40,7 @@ The containerization software version is changed.
 Publish the changes to the container image as follows:
 
 ``` bash
+./manage.sh --delete
 ./manage.sh --build
 ./manage.sh --export
 ./manage.sh --publish

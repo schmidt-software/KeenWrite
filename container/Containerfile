@@ -65,8 +65,13 @@ RUN \
   apk --update --no-cache \
     add ca-certificates curl fontconfig inkscape rsync && \
   mkdir -p \
-    "$FONTS_DIR" "$INSTALL_DIR" \
-    "$TARGET_DIR" "$SOURCE_DIR" "$THEMES_DIR" "$IMAGES_DIR" "$CACHES_DIR" && \
+    "$FONTS_DIR" \
+    "$INSTALL_DIR" \
+    "$TARGET_DIR" \
+    "$SOURCE_DIR" \
+    "$THEMES_DIR" \
+    "$IMAGES_DIR" \
+    "$CACHES_DIR" && \
   echo "export CONTEXT_HOME=\"$CONTEXT_HOME\"" >> $PROFILE && \
   echo "export PATH=\"\$PATH:\$CONTEXT_HOME/tex/texmf-linuxmusl/bin\"" >> $PROFILE && \
   echo "export OSFONTDIR=\"/usr/share/fonts//\"" >> $PROFILE && \
@@ -88,16 +93,8 @@ RUN \
   unzip -j -o -d $FONTS_DIR $DOWNLOAD_DIR/roboto-mono.zip "*.ttf" && \
   unzip -j -o -d $FONTS_DIR $DOWNLOAD_DIR/source-serif-4.zip "*.otf" && \
   unzip -j -o -d $FONTS_DIR $DOWNLOAD_DIR/underwood.zip "*.ttf" && \
-  mv $DOWNLOAD_DIR/*tf $FONTS_DIR && \
   fc-cache -f -v && \
   mkdir -p tex && \
-  #rsync \
-    #--recursive --links --times \
-    #--info=progress2,remove,symsafe,flist,del \
-    #--human-readable --del \
-    #rsync://contextgarden.net/minimals/current/modules/ modules && \
-  #rsync \
-    #-rlt --exclude=/VERSION --del modules/*/ tex/texmf-modules && \
   sh install.sh && \
   rm -f $DOWNLOAD_DIR/*.zip && \
   rm -rf \
