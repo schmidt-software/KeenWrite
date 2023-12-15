@@ -33,7 +33,7 @@ WORKDIR $DOWNLOAD_DIR
 # Many fonts may be downloaded using Google's download URL. Example:
 # https://fonts.google.com/download?family=Roboto%20Mono
 
-# Font archives are repacked with minimal file set and license.
+# Fonts are repacked with minimal file set, flat directory, and license.
 ADD "https://fonts.keenwrite.com/download/andada-pro.zip"
 ADD "https://fonts.keenwrite.com/download/archivo-narrow.zip"
 ADD "https://fonts.keenwrite.com/download/carlito.zip"
@@ -79,13 +79,13 @@ RUN \
   unzip -j -o -d $FONTS_DIR $DOWNLOAD_DIR/libre-baskerville.zip "*.ttf" && \
   unzip -j -o -d $FONTS_DIR $DOWNLOAD_DIR/inconsolata.zip "*.ttf" && \
   unzip -j -o -d $FONTS_DIR $DOWNLOAD_DIR/niconne.zip "*.ttf" && \
-  unzip -j -o -d $FONTS_DIR $DOWNLOAD_DIR/nunito.zip "static/*.ttf" && \
+  unzip -j -o -d $FONTS_DIR $DOWNLOAD_DIR/nunito.zip "*.ttf" && \
   unzip -j -o -d $FONTS_DIR $DOWNLOAD_DIR/open-sans-emoji.zip "*.ttf" && \
   unzip -j -o -d $FONTS_DIR $DOWNLOAD_DIR/pt-mono.zip "*.ttf" && \
   unzip -j -o -d $FONTS_DIR $DOWNLOAD_DIR/pt-sans.zip "*.ttf" && \
   unzip -j -o -d $FONTS_DIR $DOWNLOAD_DIR/pt-serif.zip "*.ttf" && \
   unzip -j -o -d $FONTS_DIR $DOWNLOAD_DIR/roboto.zip "*.ttf" && \
-  unzip -j -o -d $FONTS_DIR $DOWNLOAD_DIR/roboto-mono.zip "static/*.ttf" && \
+  unzip -j -o -d $FONTS_DIR $DOWNLOAD_DIR/roboto-mono.zip "*.ttf" && \
   unzip -j -o -d $FONTS_DIR $DOWNLOAD_DIR/source-serif-4.zip "*.otf" && \
   unzip -j -o -d $FONTS_DIR $DOWNLOAD_DIR/underwood.zip "*.ttf" && \
   mv $DOWNLOAD_DIR/*tf $FONTS_DIR && \
