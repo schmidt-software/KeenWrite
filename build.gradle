@@ -22,7 +22,7 @@ plugins {
 
 spotbugs {
   excludeFilter.set(
-      file( "${projectDir}/bug-filter.xml" )
+    file( "${projectDir}/bug-filter.xml" )
   )
 }
 
@@ -61,19 +61,19 @@ if (project.hasProperty( 'targetOs' )) {
 }
 
 def moduleSecurity = [
-    '--add-opens=javafx.graphics/javafx.scene=ALL-UNNAMED',
-    '--add-opens=javafx.controls/javafx.scene.control=ALL-UNNAMED',
-    '--add-opens=javafx.controls/javafx.scene.control.skin=ALL-UNNAMED',
-    '--add-opens=javafx.graphics/javafx.scene.text=ALL-UNNAMED',
-    '--add-opens=javafx.graphics/com.sun.javafx.css=ALL-UNNAMED',
-    '--add-opens=javafx.graphics/com.sun.javafx.text=ALL-UNNAMED',
-    '--add-exports=javafx.base/com.sun.javafx.event=ALL-UNNAMED',
-    '--add-exports=javafx.graphics/com.sun.javafx.application=ALL-UNNAMED',
-    '--add-exports=javafx.graphics/com.sun.javafx.geom=ALL-UNNAMED',
-    '--add-exports=javafx.graphics/com.sun.javafx.text=ALL-UNNAMED',
-    '--add-exports=javafx.graphics/com.sun.javafx.scene=ALL-UNNAMED',
-    '--add-exports=javafx.graphics/com.sun.javafx.scene.text=ALL-UNNAMED',
-    '--add-exports=javafx.graphics/com.sun.javafx.scene.traversal=ALL-UNNAMED',
+  '--add-opens=javafx.graphics/javafx.scene=ALL-UNNAMED',
+  '--add-opens=javafx.controls/javafx.scene.control=ALL-UNNAMED',
+  '--add-opens=javafx.controls/javafx.scene.control.skin=ALL-UNNAMED',
+  '--add-opens=javafx.graphics/javafx.scene.text=ALL-UNNAMED',
+  '--add-opens=javafx.graphics/com.sun.javafx.css=ALL-UNNAMED',
+  '--add-opens=javafx.graphics/com.sun.javafx.text=ALL-UNNAMED',
+  '--add-exports=javafx.base/com.sun.javafx.event=ALL-UNNAMED',
+  '--add-exports=javafx.graphics/com.sun.javafx.application=ALL-UNNAMED',
+  '--add-exports=javafx.graphics/com.sun.javafx.geom=ALL-UNNAMED',
+  '--add-exports=javafx.graphics/com.sun.javafx.text=ALL-UNNAMED',
+  '--add-exports=javafx.graphics/com.sun.javafx.scene=ALL-UNNAMED',
+  '--add-exports=javafx.graphics/com.sun.javafx.scene.text=ALL-UNNAMED',
+  '--add-exports=javafx.graphics/com.sun.javafx.scene.traversal=ALL-UNNAMED',
 ]
 
 java {
@@ -208,9 +208,9 @@ final String applicationClass = "${applicationPackage}.Launcher"
 
 compileJava {
   options.compilerArgs += [
-      "-Xlint:unchecked",
-      "-Xlint:deprecation",
-      "-Aproject=${applicationPackage}/${applicationName}"
+    "-Xlint:unchecked",
+    "-Xlint:deprecation",
+    "-Aproject=${applicationPackage}/${applicationName}"
   ]
 }
 
@@ -235,7 +235,7 @@ jar {
 
   from {
     (configurations.runtimeClasspath.findAll { !it.path.endsWith( ".pom" ) })
-        .collect { it.isDirectory() ? it : zipTree( it ) }
+      .collect { it.isDirectory() ? it : zipTree( it ) }
   }
 
   archiveFileName = "${applicationName}.jar"

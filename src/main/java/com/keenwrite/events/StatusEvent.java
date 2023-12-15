@@ -66,14 +66,13 @@ public final class StatusEvent implements AppEvent {
    * @return Optional stack trace to pinpoint the problem area in the code.
    */
   public String getProblem() {
-    // 256 is arbitrary; stack traces shouldn't be much larger.
-    final var sb = new StringBuilder( 256 );
+    // Arbitrary limit.
+    final var sb = new StringBuilder( 1024 );
     final var trace = mProblem;
 
     if( trace != null ) {
       stream( trace.getStackTrace() )
-        .takeWhile( StatusEvent::filter )
-        .limit( 15 )
+        .limit( 150 )
         .toList()
         .forEach( e -> sb.append( e.toString() ).append( NEWLINE ) );
     }
@@ -90,21 +89,6 @@ public final class StatusEvent implements AppEvent {
                    message,
                    message.isBlank() ? "" : " ",
                    mProblem == null ? "" : toEnglish( mProblem ) );
-  }
-
-  /**
-   * Returns {@code true} to allow the {@link StackTraceElement} to pass
-   * through the filter.
-   *
-   * @param e The element to check against the filter.
-   */
-  private static boolean filter( final StackTraceElement e ) {
-    final var clazz = e.getClassName();
-    return !(clazz.contains( "org.renjin." ) ||
-      clazz.contains( "sun." ) ||
-      clazz.contains( "flexmark." ) ||
-      clazz.contains( "java." )
-    );
   }
 
   /**
