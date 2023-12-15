@@ -1,8 +1,8 @@
 # Overview
 
 This document describes how to maintain the containerized typesetting system.
-Broadly, the container is built locally then deployed to a web server capable
-of serving static web pages.
+The container is built locally then deployed to a web server capable of
+serving static web pages.
 
 ## Installation wizard
 
@@ -12,7 +12,20 @@ image from a URL. That URL is defined in the `messages.properties` file.
 
 # Upgrade
 
-Upgrade the containerization software as follows:
+Upgrade the containerization software (e.g., podman or docker) as follows:
+
+1. Download the latest container version.
+
+    wget -q $(\
+      wget \
+      -q -O- \
+      https://api.github.com/repos/containers/podman/releases/latest | \
+      jq \
+      -r '.assets[] | select(.name | contains("exe")) | .browser_download_url')
+
+1. Compute the SHA:
+
+    sha256sum *exe | cut -f1 -d' '
 
 1. Edit `src/main/resources/com/keenwrite/messages.properties`.
 1. Set `Wizard.typesetter.container.version` to the latest version.
@@ -20,7 +33,7 @@ Upgrade the containerization software as follows:
 1. Set `Wizard.typesetter.container.image.version` to the latest image version.
 1. Save the file.
 
-The containerization software versions are changed.
+The containerization software version is changed.
 
 # Publish
 
