@@ -67,9 +67,9 @@ The general syntax for anchor names and references is:
 * `{#type-name:label}` (anchor name)
 * `[@type-name:label]` (reference)
 
-The `type-name` can be any alphanumeric value, starting with a letter.
-Type names are user-defined categories for the item type. Labels are
-user-defined identifiers that must be unique per item.
+The `type-name` can be any alphanumeric value, starting with a letter or
+non-numeric ideogram. Type names are user-defined categories for the item
+type. Labels are user-defined identifiers that must be unique per item.
 
 Consider the following example:
 

@@ -1,6 +1,7 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite;
 
+import com.keenwrite.constants.Constants;
 import com.keenwrite.editors.TextDefinition;
 import com.keenwrite.editors.TextEditor;
 import com.keenwrite.editors.TextResource;
@@ -166,7 +167,7 @@ public final class MainPane extends SplitPane {
    * Called when the definition data is changed.
    */
   private final EventHandler<TreeModificationEvent<Event>> mTreeHandler =
-    event -> {
+    _ -> {
       process( getTextEditor() );
       save( getTextDefinition() );
     };
@@ -184,7 +185,7 @@ public final class MainPane extends SplitPane {
 
   private final DocumentStatistics mStatistics;
 
-  @SuppressWarnings( {"FieldCanBeLocal", "unused"} )
+  @SuppressWarnings( { "FieldCanBeLocal", "unused" } )
   private final TypesetterInstaller mInstallWizard;
 
   /**
@@ -353,7 +354,7 @@ public final class MainPane extends SplitPane {
       ( c, o, n ) -> {
         final var taskRef = mSaveTask.get();
 
-        // Prevent multiple autosaves from running.
+        // Prevent multiple auto-saves from running.
         if( taskRef != null ) {
           taskRef.cancel( false );
         }
@@ -494,10 +495,22 @@ public final class MainPane extends SplitPane {
   }
 
   /**
-   * Opens a new text editor document using the default document file name.
+   * Opens a new text editor document using a document file name that doesn't
+   * clash with an existing document.
    */
   public void newTextEditor() {
-    open( DOCUMENT_DEFAULT );
+    final String key = "file.default.document.";
+    final String prefix = Constants.get( STR."\{key}prefix" );
+    final String suffix = Constants.get( STR."\{key}suffix" );
+
+    File file = new File( STR."\{prefix}.\{suffix}" );
+    int i = 0;
+
+    while( file.exists() && i++ < 100 ) {
+      file = new File( STR."\{prefix}-\{i}.\{suffix}" );
+    }
+
+    open( file );
   }
 
   /**

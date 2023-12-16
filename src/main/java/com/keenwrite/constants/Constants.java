@@ -258,7 +258,7 @@ public final class Constants {
     return (int) (points * (1 + 1 / 3f));
   }
 
-  static String get( final String key ) {
+  public static String get( final String key ) {
     return sSettings.getSetting( key, "" );
   }
 
@@ -269,7 +269,7 @@ public final class Constants {
    * @return A new {@link File} instance that references the settings file name.
    */
   private static File getFile( final String suffix ) {
-    return new File( get( "file.default." + suffix ) );
+    return new File( get( STR."file.default.\{suffix}" ) );
   }
 
   /**

@@ -47,10 +47,10 @@ public final class Action implements MenuAction {
      * instance of {@link Action}.
      */
     public Builder setId( final String id ) {
-      final var prefix = ACTION_PREFIX + id + ".";
-      final var text = prefix + "text";
-      final var icon = prefix + "icon";
-      final var accelerator = prefix + "accelerator";
+      final var prefix = STR."\{ACTION_PREFIX}\{id}.";
+      final var text = STR."\{prefix}text";
+      final var icon = STR."\{prefix}icon";
+      final var accelerator = STR."\{prefix}accelerator";
       final var builder = setText( text ).setIcon( icon );
 
       return Messages.containsKey( accelerator )
@@ -171,7 +171,7 @@ public final class Action implements MenuAction {
     tooltip = tooltip.replace( "_", "" );
 
     if( mAccelerator != null ) {
-      tooltip += " (" + mAccelerator.getDisplayText() + ')';
+      tooltip += STR." (\{mAccelerator.getDisplayText()}\{')'}";
     }
 
     button.setTooltip( new Tooltip( tooltip ) );
