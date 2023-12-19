@@ -21,6 +21,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.ParseException;
 
 import static com.keenwrite.events.StatusEvent.clue;
@@ -62,7 +63,7 @@ public final class ImageReplacedElementFactory extends ReplacedElementAdapter {
 
       return createElement( raster );
     } catch( final Exception ex ) {
-      clue( "Main.status.image.request.error.rasterize", ex );
+      clue( "Main.status.image.request.error.create", ex );
     }
 
     return BROKEN_IMAGE;
@@ -107,32 +108,53 @@ public final class ImageReplacedElementFactory extends ReplacedElementAdapter {
     // Not an SVG, attempt to read a local rasterized image.
     if( raster == null && mediaType.isImage() ) {
       uri = resolve( source, uac, e );
-      final var path = Path.of( uri.getPath() );
+
+      final var path = Paths.get( uri );
 
       try( final var stream = Files.newInputStream( path ) ) {
         raster = ImageIO.read( stream );
       }
     }
 
+    // Image path resolved; image rendered successfully.
+    clue();
+
     return raster;
   }
 
+  /**
+   * Attempt to rasterize based on file name.
+   *
+   * @param source The source URI from the document.
+   * @param uac    A callback for retrieving the image resource.
+   * @param e      The HTML element containing a reference to a file.
+   * @return The resolved URI to the file.
+   * @throws URISyntaxException Could not resolve URI.
+   */
   private static URI resolve(
     final String source,
     final UserAgentCallback uac,
     final Element e )
     throws URISyntaxException {
-    // Attempt to rasterize based on file name.
-    final var baseUri = new URI( uac.getBaseURL() );
-    final var path = baseUri.resolve( source ).normalize();
+    final var nSource = source.replaceAll( "\\\\", "/" );
 
-    if( path.isAbsolute() ) {
-      return path;
+    try {
+      final var baseUri = new URI( uac.getBaseURL() );
+      final var resolved = baseUri.resolve( nSource );
+      final var path = resolved.normalize();
+      clue( "Main.status.image.request.resolve", path );
+
+      return path.isAbsolute() ? path : resolve( nSource, e );
+    } catch( final Exception ex ) {
+      clue( "Main.status.image.request.error.resolve", nSource );
+      throw new URISyntaxException( nSource, ex.getMessage() );
     }
-    else {
-      final var base = new URI( e.getBaseURI() ).getPath();
-      return Path.of( base, source ).toUri();
-    }
+  }
+
+  private static URI resolve( final String source, final Element e )
+    throws URISyntaxException {
+    final var base = new URI( e.getBaseURI() ).getPath();
+    return Path.of( base, source ).toUri();
   }
 
   /**
