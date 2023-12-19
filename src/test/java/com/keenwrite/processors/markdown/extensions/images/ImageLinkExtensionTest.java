@@ -31,14 +31,14 @@ public class ImageLinkExtensionTest {
   private static final String UIR_DIR = "images";
   private static final String URI_FILE = "kitten";
   private static final String URI_PATH = UIR_DIR + '/' + URI_FILE;
-  private static final String PATH_KITTEN_JPG = URI_PATH + ".jpg";
-  private static final String PATH_KITTEN_PNG = URI_PATH + ".png";
+  private static final String PATH_KITTEN_PNG = STR."\{URI_PATH}.png";
+  private static final String PATH_KITTEN_JPG = STR."\{URI_PATH}.jpg";
 
   private static final Map<String, String> IMAGES = new LinkedHashMap<>();
 
   static {
-    add( PATH_KITTEN_PNG, URI_FILE );
     add( PATH_KITTEN_PNG, URI_PATH );
+    add( PATH_KITTEN_PNG, URI_FILE );
     add( PATH_KITTEN_PNG, PATH_KITTEN_PNG );
     add( PATH_KITTEN_JPG, PATH_KITTEN_JPG );
     add( "//placekitten.com/200/200", "//placekitten.com/200/200" );
