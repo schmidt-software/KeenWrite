@@ -88,10 +88,10 @@ public class ImageLinkExtensionTest {
     final var hBuilder = HtmlRenderer.builder();
     final var parser = pBuilder.extensions( extensions ).build();
     final var renderer = hBuilder.extensions( extensions ).build();
-    final var file = root.resolve( subpath.resolve( imagePath ) ).toFile();
-    file.deleteOnExit();
+    final var imageFile = resolved.resolve( imagePath ).toFile();
+    imageFile.deleteOnExit();
 
-    assertTrue( file.createNewFile() );
+    assertTrue( imageFile.createNewFile() );
     assertNotNull( parser );
     assertNotNull( renderer );
 
@@ -104,7 +104,7 @@ public class ImageLinkExtensionTest {
       assertEquals( expectedHtml, actualHtml );
     }
 
-    assertTrue( file.delete() );
+    assertTrue( imageFile.delete() );
   }
 
   /**
