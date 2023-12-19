@@ -17,7 +17,7 @@ plugins {
   id 'application'
   id 'org.openjfx.javafxplugin' version '0.1.0'
   id 'com.palantir.git-version' version '3.0.0'
-  id "com.github.spotbugs" version "5.2.4"
+  id 'com.github.spotbugs' version '5.2.4'
 }
 
 spotbugs {
@@ -35,7 +35,7 @@ repositories {
   maven { url 'https://nexus.bedatadriven.com/content/groups/public' }
 
   maven {
-    url "https://css4j.github.io/maven"
+    url 'https://css4j.github.io/maven'
     mavenContent {
       releasesOnly()
     }
@@ -52,9 +52,9 @@ String[] os = ['win', 'mac', 'linux']
 
 if (project.hasProperty( 'targetOs' )) {
   if ('windows' == targetOs) {
-    os = ["win"]
+    os = ['win']
   } else if ('macos' == targetOs) {
-    os = ["mac"]
+    os = ['mac']
   } else {
     os = [targetOs]
   }
@@ -164,9 +164,9 @@ dependencies {
     }
   }
 
-  testImplementation 'org.testfx:testfx-junit5:4.0.17'
   testImplementation "org.junit.jupiter:junit-jupiter-api:${v_junit}"
   testImplementation "org.junit.jupiter:junit-jupiter-params:${v_junit}"
+  testImplementation 'org.testfx:testfx-junit5:4.0.17'
   testImplementation 'org.assertj:assertj-core:3.24.2'
   testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
 }
@@ -208,8 +208,8 @@ final String applicationClass = "${applicationPackage}.Launcher"
 
 compileJava {
   options.compilerArgs += [
-    "-Xlint:unchecked",
-    "-Xlint:deprecation",
+    '-Xlint:unchecked',
+    '-Xlint:deprecation',
     "-Aproject=${applicationPackage}/${applicationName}"
   ]
 }
@@ -234,7 +234,7 @@ jar {
   }
 
   from {
-    (configurations.runtimeClasspath.findAll { !it.path.endsWith( ".pom" ) })
+    (configurations.runtimeClasspath.findAll { !it.path.endsWith( '.pom' ) })
       .collect { it.isDirectory() ? it : zipTree( it ) }
   }
 
@@ -264,13 +264,14 @@ test {
 }
 
 tasks.withType( JavaCompile ).configureEach {
-  options.compilerArgs += "--enable-preview"
+  options.encoding = 'UTF-8'
+  options.compilerArgs += '--enable-preview'
 }
 
 tasks.withType( JavaExec ).configureEach {
-  jvmArgs += "--enable-preview"
+  jvmArgs += '--enable-preview'
 }
 
 tasks.withType( Test ).configureEach {
-  jvmArgs += "--enable-preview"
+  jvmArgs += '--enable-preview'
 }
