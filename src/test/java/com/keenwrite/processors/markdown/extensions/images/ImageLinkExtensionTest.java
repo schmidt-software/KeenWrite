@@ -9,6 +9,7 @@ import com.vladsch.flexmark.parser.Parser;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -19,8 +20,7 @@ import java.util.Map;
 import static com.keenwrite.ExportFormat.XHTML_TEX;
 import static com.keenwrite.constants.Constants.DOCUMENT_DEFAULT;
 import static java.lang.String.format;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Responsible for testing that linked images render into HTML according to
@@ -65,7 +65,8 @@ public class ImageLinkExtensionTest {
    * as the value URIs present in the same map.
    */
   @Test
-  void test_ImageLookup_RelativePathWithExtension_ResolvedSuccessfully() {
+  void test_ImageLookup_RelativePathWithExtension_ResolvedSuccessfully()
+    throws IOException {
     final var resource = getResourcePath( PATH_KITTEN_PNG );
     final var imagePath = new File( PATH_KITTEN_PNG ).toPath();
     final var subpaths = resource.getNameCount() - imagePath.getNameCount();
@@ -87,7 +88,10 @@ public class ImageLinkExtensionTest {
     final var hBuilder = HtmlRenderer.builder();
     final var parser = pBuilder.extensions( extensions ).build();
     final var renderer = hBuilder.extensions( extensions ).build();
+    final var file = root.resolve( subpath.resolve( imagePath ) ).toFile();
+    file.deleteOnExit();
 
+    assertTrue( file.createNewFile() );
     assertNotNull( parser );
     assertNotNull( renderer );
 
@@ -99,6 +103,8 @@ public class ImageLinkExtensionTest {
 
       assertEquals( expectedHtml, actualHtml );
     }
+
+    assertTrue( file.delete() );
   }
 
   /**
