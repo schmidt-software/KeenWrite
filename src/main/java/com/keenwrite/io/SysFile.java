@@ -18,10 +18,10 @@ import static com.keenwrite.constants.Constants.USER_DIRECTORY;
 import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.io.WindowsRegistry.pathsWindows;
 import static com.keenwrite.util.DataTypeConverter.toHex;
+import static com.keenwrite.util.SystemUtils.IS_OS_WINDOWS;
 import static java.lang.System.getenv;
 import static java.nio.file.Files.isExecutable;
 import static java.util.regex.Pattern.quote;
-import static org.apache.commons.lang3.SystemUtils.IS_OS_WINDOWS;
 
 /**
  * Responsible for file-related functionality.

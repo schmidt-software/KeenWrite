@@ -42,15 +42,16 @@ import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.io.MediaType.TEXT_MARKDOWN;
 import static com.keenwrite.io.MediaType.TEXT_R_MARKDOWN;
 import static com.keenwrite.preferences.AppKeys.*;
+import static com.keenwrite.util.Strings.trimEnd;
+import static com.keenwrite.util.Strings.trimStart;
 import static java.lang.Character.isWhitespace;
 import static java.lang.String.format;
 import static java.util.Collections.singletonList;
 import static javafx.application.Platform.runLater;
 import static javafx.scene.control.ScrollPane.ScrollBarPolicy.ALWAYS;
 import static javafx.scene.input.KeyCode.*;
-import static javafx.scene.input.KeyCombination.*;
-import static org.apache.commons.lang3.StringUtils.stripEnd;
-import static org.apache.commons.lang3.StringUtils.stripStart;
+import static javafx.scene.input.KeyCombination.CONTROL_DOWN;
+import static javafx.scene.input.KeyCombination.SHIFT_DOWN;
 import static org.fxmisc.richtext.Caret.CaretVisibility.ON;
 import static org.fxmisc.richtext.model.StyleSpans.singleton;
 import static org.fxmisc.wellbehaved.event.EventPattern.keyPressed;
@@ -60,6 +61,11 @@ import static org.fxmisc.wellbehaved.event.InputMap.consume;
  * Responsible for editing Markdown documents.
  */
 public final class MarkdownEditor extends BorderPane implements TextEditor {
+  /**
+   * Represents a failed index search.
+   */
+  private static final int INDEX_NOT_FOUND = -1;
+
   /**
    * Regular expression that matches the type of markup block. This is used
    * when Enter is pressed to continue the block environment.
@@ -608,11 +614,11 @@ public final class MarkdownEditor extends BorderPane implements TextEditor {
     String text = mTextArea.getText( range );
 
     int length = range.getLength();
-    text = stripStart( text, null );
+    text = trimStart( text );
     final int beganIndex = range.getStart() + length - text.length();
 
     length = text.length();
-    text = stripEnd( text, null );
+    text = trimEnd( text );
     final int endedIndex = range.getEnd() - (length - text.length());
 
     mTextArea.replaceText( beganIndex, endedIndex, began + text + ended );
@@ -783,7 +789,7 @@ public final class MarkdownEditor extends BorderPane implements TextEditor {
   @Override
   public boolean supports( final MediaType mediaType ) {
     return isMediaType( mediaType ) ||
-      mediaType == TEXT_MARKDOWN ||
-      mediaType == TEXT_R_MARKDOWN;
+           mediaType == TEXT_MARKDOWN ||
+           mediaType == TEXT_R_MARKDOWN;
   }
 }

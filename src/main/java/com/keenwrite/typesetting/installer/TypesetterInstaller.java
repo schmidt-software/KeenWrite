@@ -15,7 +15,7 @@ import java.util.LinkedList;
 
 import static com.keenwrite.Messages.get;
 import static com.keenwrite.events.Bus.register;
-import static org.apache.commons.lang3.SystemUtils.*;
+import static com.keenwrite.util.SystemUtils.*;
 
 /**
  * Responsible for installing the typesetting system and all its requirements.

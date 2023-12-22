@@ -1,12 +1,17 @@
+/* Copyright 2023 White Magic Software, Ltd. -- All rights reserved.
+ *
+ * SPDX-License-Identifier: MIT
+ */
 package com.keenwrite.typesetting.installer.panes;
 
 import com.keenwrite.io.CommandNotFoundException;
 import com.keenwrite.typesetting.containerization.ContainerManager;
 import com.keenwrite.typesetting.containerization.StreamProcessor;
+import com.keenwrite.util.FailableBiConsumer;
+import javafx.collections.ObservableMap;
 import javafx.concurrent.Task;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.BorderPane;
-import org.apache.commons.lang3.function.FailableBiConsumer;
 import org.controlsfx.dialog.Wizard;
 
 import static com.keenwrite.Messages.get;
@@ -19,7 +24,8 @@ import static com.keenwrite.io.StreamGobbler.gobble;
  * Common functionality between them is codified in this class.
  */
 public abstract class ManagerOutputPane extends InstallerPane {
-  private final String PROP_EXECUTOR = getClass().getCanonicalName();
+  private final static String PROP_EXECUTOR =
+    ManagerOutputPane.class.getCanonicalName();
 
   private final String mCorrectKey;
   private final String mMissingKey;
@@ -60,28 +66,35 @@ public abstract class ManagerOutputPane extends InstallerPane {
         return;
       }
 
-      final Task<Void> task = createTask( () -> {
-        mFc.accept(
-          mContainer,
-          input -> gobble( input, line -> append( mTextArea, line ) )
-        );
-        properties.remove( thread );
-        return null;
-      } );
-
-      task.setOnSucceeded( event -> {
-        append( mTextArea, get( mCorrectKey ) );
-        properties.remove( thread );
-        disableNext( false );
-      } );
-      task.setOnFailed( event -> append( mTextArea, get( mMissingKey ) ) );
-      task.setOnCancelled( event -> append( mTextArea, get( mMissingKey ) ) );
-
+      final Task<Void> task = createTask( properties, thread );
       final var executor = createThread( task );
+
       properties.put( PROP_EXECUTOR, executor );
       executor.start();
     } catch( final Exception e ) {
       throw new RuntimeException( e );
     }
+  }
+
+  private Task<Void> createTask(
+    final ObservableMap<Object, Object> properties,
+    final Object thread ) {
+    final Task<Void> task = createTask( () -> {
+      mFc.accept(
+        mContainer,
+        input -> gobble( input, line -> append( mTextArea, line ) )
+      );
+      properties.remove( thread );
+      return null;
+    } );
+
+    task.setOnSucceeded( _ -> {
+      append( mTextArea, get( mCorrectKey ) );
+      properties.remove( thread );
+      disableNext( false );
+    } );
+    task.setOnFailed( _ -> append( mTextArea, get( mMissingKey ) ) );
+    task.setOnCancelled( _ -> append( mTextArea, get( mMissingKey ) ) );
+    return task;
   }
 }

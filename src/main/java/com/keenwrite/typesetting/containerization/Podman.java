@@ -1,4 +1,7 @@
-/* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
+/* Copyright 2023 White Magic Software, Ltd. -- All rights reserved.
+ *
+ * SPDX-License-Identifier: MIT
+ */
 package com.keenwrite.typesetting.containerization;
 
 import com.keenwrite.Messages;
@@ -13,11 +16,11 @@ import java.util.List;
 
 import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.io.SysFile.toFile;
+import static com.keenwrite.util.SystemUtils.IS_OS_WINDOWS;
 import static java.lang.String.format;
 import static java.lang.String.join;
 import static java.lang.System.arraycopy;
 import static java.util.Arrays.copyOf;
-import static org.apache.commons.lang3.SystemUtils.IS_OS_WINDOWS;
 
 /**
  * Provides facilities for interacting with a container environment.

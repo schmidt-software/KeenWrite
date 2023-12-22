@@ -17,10 +17,10 @@ import static com.keenwrite.Bootstrap.APP_TITLE_LOWERCASE;
 import static com.keenwrite.Bootstrap.USER_DATA_DIR;
 import static com.keenwrite.io.SysFile.toFile;
 import static com.keenwrite.preferences.LocaleScripts.withScript;
+import static com.keenwrite.util.SystemUtils.*;
 import static java.io.File.separator;
 import static java.lang.String.format;
 import static java.lang.System.getProperty;
-import static org.apache.commons.lang3.SystemUtils.*;
 
 /**
  * Defines application-wide default values.

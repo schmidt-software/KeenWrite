@@ -7,9 +7,9 @@ package com.keenwrite.io;
 import java.nio.file.Path;
 
 import static com.keenwrite.io.SysFile.toFile;
+import static com.keenwrite.util.SystemUtils.*;
 import static java.lang.System.getProperty;
 import static java.lang.System.getenv;
-import static org.apache.commons.lang3.SystemUtils.*;
 
 /**
  * Responsible for determining the directory to write application data, across

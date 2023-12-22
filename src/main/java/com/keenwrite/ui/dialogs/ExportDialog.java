@@ -42,12 +42,12 @@ import static com.keenwrite.constants.GraphicsConstants.ICON_DIALOG_NODE;
 import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.io.SysFile.toFile;
 import static com.keenwrite.util.FileWalker.walk;
+import static com.keenwrite.util.Strings.abbreviate;
 import static java.lang.Math.max;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static javafx.application.Platform.runLater;
 import static javafx.geometry.Pos.CENTER;
 import static javafx.scene.control.ButtonType.OK;
-import static org.apache.commons.lang3.StringUtils.abbreviate;
 
 /**
  * Provides controls for exporting to PDF, such as selecting a theme and

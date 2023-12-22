@@ -13,12 +13,11 @@ import javafx.scene.control.TextArea;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import org.jetbrains.annotations.NotNull;
 
 import static com.keenwrite.Messages.get;
 import static com.keenwrite.Messages.getInt;
+import static com.keenwrite.util.SystemUtils.IS_OS_MAC;
 import static java.lang.String.format;
-import static org.apache.commons.lang3.SystemUtils.IS_OS_MAC;
 
 public final class UnixManagerInstallPane extends InstallerPane {
   private static final String PREFIX =
@@ -87,12 +86,12 @@ public final class UnixManagerInstallPane extends InstallerPane {
   public Node createButtonBar() {
     final var node = super.createButtonBar();
     final var layout = new BorderPane();
-    final var copyButton = button( PREFIX + ".copy.began" );
+    final var copyButton = button( STR."\{PREFIX}.copy.began" );
 
     // Change the label to indicate clipboard is updated.
-    copyButton.setOnAction( event -> {
+    copyButton.setOnAction( _ -> {
       SystemClipboard.write( mCommands.getText() );
-      copyButton.setText( get( PREFIX + ".copy.ended" ) );
+      copyButton.setText( get( STR."\{PREFIX}.copy.ended" ) );
     } );
 
     if( node instanceof ButtonBar buttonBar ) {
@@ -108,14 +107,13 @@ public final class UnixManagerInstallPane extends InstallerPane {
 
   @Override
   protected String getHeaderKey() {
-    return PREFIX + ".header";
+    return STR."\{PREFIX}.header";
   }
 
   private record UnixOsCommand( String name, String command )
     implements Comparable<UnixOsCommand> {
     @Override
-    public int compareTo(
-      final @NotNull UnixOsCommand other ) {
+    public int compareTo( final UnixOsCommand other ) {
       return toString().compareToIgnoreCase( other.toString() );
     }
 
@@ -135,13 +133,13 @@ public final class UnixManagerInstallPane extends InstallerPane {
     new ComboBox<UnixOsCommand>();
     final var comboBox = new ComboBox<UnixOsCommand>();
     final var items = comboBox.getItems();
-    final var prefix = PREFIX + ".command";
-    final var distros = getInt( prefix + ".distros", 14 );
+    final var prefix = STR."\{PREFIX}.command";
+    final var distros = getInt( STR."\{prefix}.distros", 14 );
 
     for( int i = 1; i <= distros; i++ ) {
       final var suffix = format( ".%02d", i );
-      final var name = get( prefix + ".os.name" + suffix );
-      final var command = get( prefix + ".os.text" + suffix );
+      final var name = get( STR."\{prefix}.os.name\{suffix}" );
+      final var command = get( STR."\{prefix}.os.text\{suffix}" );
 
       items.add( new UnixOsCommand( name, command ) );
     }
