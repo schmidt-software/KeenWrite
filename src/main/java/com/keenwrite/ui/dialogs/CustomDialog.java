@@ -6,6 +6,7 @@ package com.keenwrite.ui.dialogs;
 
 import com.keenwrite.Messages;
 import com.keenwrite.service.events.impl.ButtonOrderPane;
+import com.keenwrite.util.Strings;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.geometry.Insets;
@@ -21,6 +22,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import static com.keenwrite.Messages.get;
+import static com.keenwrite.util.Strings.*;
 import static javafx.scene.control.ButtonType.CANCEL;
 import static javafx.scene.control.ButtonType.OK;
 import static javafx.scene.layout.Priority.ALWAYS;
@@ -140,12 +142,5 @@ public abstract class CustomDialog<T> extends Dialog<T> {
     mContentPane.getColumnConstraints().addAll( cc1, cc2 );
 
     getDialogPane().setContent( mContentPane );
-  }
-
-  private static boolean validate( final String s ) {
-    assert s != null;
-    assert !s.isBlank();
-
-    return true;
   }
 }

@@ -99,7 +99,6 @@ dependencies {
   implementation 'org.fxmisc.richtext:richtextfx:0.11.2'
   implementation 'org.fxmisc.flowless:flowless:0.7.2'
   implementation 'org.fxmisc.wellbehaved:wellbehavedfx:0.3.3'
-  implementation 'com.miglayout:miglayout-javafx:11.3'
   implementation 'com.dlsc.preferencesfx:preferencesfx-core:11.16.0'
   implementation 'com.panemu:tiwulfx-dock:0.2'
 

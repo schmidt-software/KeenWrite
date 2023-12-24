@@ -318,14 +318,14 @@ public final class ExportDialog extends AbstractDialog<ExportSettings> {
     final var textField = new TextField();
 
     textField.textProperty().addListener(
-      ( c, o, n ) -> textField.setText( RangeValidator.normalize( n ) )
+      ( _, _, n ) -> textField.setText( RangeValidator.normalize( n ) )
     );
 
     return textField;
   }
 
   private Label createLabel( final String key ) {
-    final var label = new Label( get( key ) + ":" );
+    final var label = new Label( STR."\{get( key )}:" );
     final var font = label.getFont();
     final var upscale = new Font( font.getName(), 14 );
 

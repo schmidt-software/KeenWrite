@@ -1,3 +1,7 @@
+/* Copyright 2023 White Magic Software, Ltd. -- All rights reserved.
+ *
+ * SPDX-License-Identifier: MIT
+ */
 package com.keenwrite.ui.dialogs;
 
 import javafx.stage.Window;
@@ -7,7 +11,7 @@ import java.io.File;
 public class OpenUrlDialog extends CustomDialog<File> {
   private static final String PREFIX = "Dialog.open_url.";
 
-  private String mUrl;
+  private String mUrl = "";
 
   /**
    * Ensures that all dialogs can be closed.
@@ -24,7 +28,7 @@ public class OpenUrlDialog extends CustomDialog<File> {
     addInputField(
       "url",
       STR."\{PREFIX}label.url", STR."\{PREFIX}prompt.url",
-      "",
+      mUrl,
       ( _, _, n ) -> mUrl = n
     );
   }

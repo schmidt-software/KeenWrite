@@ -460,4 +460,15 @@ public class Strings {
 
     return str.substring( start, end );
   }
+
+  public static boolean validate( final String s ) {
+    assert s != null;
+    assert !s.isBlank();
+
+    return true;
+  }
+
+  public static String sanitize( final String s ) {
+    return s == null ? "" : s;
+  }
 }

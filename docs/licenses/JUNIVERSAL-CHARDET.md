@@ -18,6 +18,7 @@ Portions created by the Initial Developer are Copyright (C) 2001
 the Initial Developer. All Rights Reserved.
 
 Contributor(s):
+        Alberto Fernández <infjaf@gmail.com>
         Shy Shalom <shooshX@gmail.com>
         Kohei TAKETA <k-tak@void.in> (Java port)
 
@@ -32,4 +33,3 @@ decision by deleting the provisions above and replace them with the notice
 and other provisions required by the GPL or the LGPL. If you do not delete
 the provisions above, a recipient may use your version of this file under
 the terms of any one of the MPL, the GPL or the LGPL.
-

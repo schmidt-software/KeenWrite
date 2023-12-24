@@ -11,6 +11,7 @@ import javafx.stage.Window;
 
 import static com.keenwrite.constants.GraphicsConstants.ICON_DIALOG;
 import static com.keenwrite.Messages.get;
+import static com.keenwrite.util.Strings.validate;
 import static javafx.scene.control.ButtonType.CANCEL;
 import static javafx.scene.control.ButtonType.OK;
 
@@ -28,6 +29,9 @@ public abstract class AbstractDialog<T> extends Dialog<T> {
    * @param title The messages title to display in the title bar.
    */
   public AbstractDialog( final Window owner, final String title ) {
+    assert owner != null;
+    assert validate( title );
+
     setTitle( get( title ) );
     setResizable( true );
 

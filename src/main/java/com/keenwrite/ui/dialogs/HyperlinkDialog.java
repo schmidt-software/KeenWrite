@@ -4,19 +4,19 @@
  */
 package com.keenwrite.ui.dialogs;
 
-import com.keenwrite.editors.markdown.HyperlinkModel;
+import com.keenwrite.ui.models.HyperlinkModel;
 import javafx.stage.Window;
 
 /**
  * Dialog to enter a Markdown link.
  */
-public class LinkDialog extends CustomDialog<String> {
+public class HyperlinkDialog extends CustomDialog<String> {
   private static final String PREFIX = "Dialog.link.";
 
   /**
    * Contains information about the hyperlink at the caret position in the
    * document, if a hyperlink is present at that location. This allows users
-   * to edit existing hyperlinks using this {@link LinkDialog}.
+   * to edit existing hyperlinks using this {@link HyperlinkDialog}.
    */
   private final HyperlinkModel mModel;
 
@@ -24,7 +24,7 @@ public class LinkDialog extends CustomDialog<String> {
    * @param owner {@link Window} responsible for the dialog resource.
    * @param model Existing hyperlink data, or blank for a new link.
    */
-  public LinkDialog( final Window owner, final HyperlinkModel model ) {
+  public HyperlinkDialog( final Window owner, final HyperlinkModel model ) {
     super( owner, STR."\{PREFIX}title" );
 
     mModel = model;

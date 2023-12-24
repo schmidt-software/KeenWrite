@@ -172,7 +172,6 @@ public final class Launcher implements Consumer<Arguments> {
   private static void showAppInfo() {
     out( "%n%s version %s", APP_TITLE, APP_VERSION );
     out( "Copyright 2016-%s White Magic Software, Ltd.", APP_YEAR );
-    out( "Portions copyright 2015-2020 Karl Tauber.%n" );
   }
 
   /**

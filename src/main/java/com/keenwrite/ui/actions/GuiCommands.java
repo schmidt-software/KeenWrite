@@ -10,7 +10,6 @@ import com.keenwrite.MainScene;
 import com.keenwrite.commands.ConcatenateCommand;
 import com.keenwrite.editors.TextDefinition;
 import com.keenwrite.editors.TextEditor;
-import com.keenwrite.editors.markdown.HyperlinkModel;
 import com.keenwrite.editors.markdown.LinkVisitor;
 import com.keenwrite.events.CaretMovedEvent;
 import com.keenwrite.events.ExportFailedEvent;
@@ -26,6 +25,8 @@ import com.keenwrite.ui.dialogs.*;
 import com.keenwrite.ui.explorer.FilePicker;
 import com.keenwrite.ui.explorer.FilePickerFactory;
 import com.keenwrite.ui.logging.LogView;
+import com.keenwrite.ui.models.HyperlinkModel;
+import com.keenwrite.ui.models.ImageModel;
 import com.vladsch.flexmark.ast.Link;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
@@ -100,7 +101,7 @@ public final class GuiCommands {
     mMainPane = pane;
     mLogView = new LogView();
     mSearchModel = new SearchModel();
-    mSearchModel.matchOffsetProperty().addListener( ( c, o, n ) -> {
+    mSearchModel.matchOffsetProperty().addListener( ( _, o, n ) -> {
       final var editor = getActiveTextEditor();
 
       // Clear highlighted areas before highlighting a new region.
@@ -116,7 +117,7 @@ public final class GuiCommands {
 
     // When the active text editor changes ...
     mMainPane.textEditorProperty().addListener(
-      ( c, o, n ) -> {
+      ( _, _, n ) -> {
         // ... update the haystack.
         mSearchModel.search( getActiveTextEditor().getText() );
 
@@ -218,7 +219,7 @@ public final class GuiCommands {
     final var main = getMainPane();
     final var exported = getWorkspace().fileProperty( KEY_UI_RECENT_EXPORT );
 
-    final var sourceFile = files.get( 0 );
+    final var sourceFile = files.getFirst();
     final var sourcePath = sourceFile.toPath();
     final var document = dir ? append( editor ) : editor.getText();
     final var context = main.createProcessorContext( sourcePath, format );
@@ -241,7 +242,7 @@ public final class GuiCommands {
         };
 
         task.setOnSucceeded(
-          e -> {
+          _ -> {
             // Remember the exported file name for next time.
             exported.setValue( sourceFile );
 
@@ -254,7 +255,7 @@ public final class GuiCommands {
           }
         );
 
-        task.setOnFailed( e -> {
+        task.setOnFailed( _ -> {
           final var ex = task.getException();
           clue( ex );
 
@@ -383,21 +384,21 @@ public final class GuiCommands {
       searchBar.matchIndexProperty().bind( mSearchModel.matchIndexProperty() );
       searchBar.matchCountProperty().bind( mSearchModel.matchCountProperty() );
 
-      searchBar.setOnCancelAction( event -> {
+      searchBar.setOnCancelAction( _ -> {
         final var editor = getActiveTextEditor();
         nodes.remove( searchBar );
         editor.unstylize( STYLE_SEARCH );
         editor.getNode().requestFocus();
       } );
 
-      searchBar.addInputListener( ( c, o, n ) -> {
+      searchBar.addInputListener( ( _, _, n ) -> {
         if( n != null && !n.isEmpty() ) {
           mSearchModel.search( n, getActiveTextEditor().getText() );
         }
       } );
 
-      searchBar.setOnNextAction( event -> edit_find_next() );
-      searchBar.setOnPrevAction( event -> edit_find_prev() );
+      searchBar.setOnNextAction( _ -> edit_find_next() );
+      searchBar.setOnPrevAction( _ -> edit_find_prev() );
 
       nodes.add( searchBar );
       searchBar.requestFocus();
@@ -470,20 +471,18 @@ public final class GuiCommands {
   }
 
   private Dialog<String> createLinkDialog() {
-    return new LinkDialog( getWindow(), createHyperlinkModel() );
+    return new HyperlinkDialog( getWindow(), createHyperlinkModel() );
   }
 
   private Dialog<String> createImageDialog() {
-    final var path = getActiveTextEditor().getPath();
-    final var parentDir = path.getParent();
-    return new ImageDialog( getWindow(), parentDir );
+    return new ImageDialog( getWindow(), createImageModel() );
   }
 
   /**
    * Returns one of: selected text, word under cursor, or parsed hyperlink from
-   * the Markdown AST. When a user opts to insert a hyperlink, this will populate
-   * the insert hyperlink dialog with data from the document, thereby allowing a
-   * user to edit an existing link.
+   * the Markdown AST. When a user opts to insert a hyperlink, this will
+   * populate the insert hyperlink dialog with data from the document, thereby
+   * allowing a user to edit an existing link.
    *
    * @return An instance containing the link URL and display text.
    */
@@ -514,6 +513,10 @@ public final class GuiCommands {
     return link == null
       ? new HyperlinkModel( selection )
       : new HyperlinkModel( link );
+  }
+
+  private ImageModel createImageModel() {
+    return new ImageModel( "" );
   }
 
   public void insert_heading_1() {
@@ -597,9 +600,9 @@ public final class GuiCommands {
   public void help_about() {
     final var alert = new Alert( INFORMATION );
     final var prefix = "Dialog.about.";
-    alert.setTitle( get( prefix + "title", APP_TITLE ) );
-    alert.setHeaderText( get( prefix + "header", APP_TITLE ) );
-    alert.setContentText( get( prefix + "content", APP_YEAR, APP_VERSION ) );
+    alert.setTitle( get( STR."\{prefix}title", APP_TITLE ) );
+    alert.setHeaderText( get( STR."\{prefix}header", APP_TITLE ) );
+    alert.setContentText( get( STR."\{prefix}content", APP_YEAR, APP_VERSION ) );
     alert.setGraphic( ICON_DIALOG_NODE );
     alert.initOwner( getWindow() );
     alert.showAndWait();

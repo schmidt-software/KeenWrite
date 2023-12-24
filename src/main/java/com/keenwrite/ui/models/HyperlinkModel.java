@@ -2,17 +2,14 @@
  *
  * SPDX-License-Identifier: MIT
  */
-package com.keenwrite.editors.markdown;
+package com.keenwrite.ui.models;
 
 import com.vladsch.flexmark.ast.Link;
 
 /**
  * Represents the model for a hyperlink: text, url, and title.
  */
-public final class HyperlinkModel {
-  private String mText;
-  private String mUrl;
-  private String mTitle;
+public final class HyperlinkModel extends ObjectModel {
 
   /**
    * Constructs a new hyperlink model in Markdown format by default with no
@@ -21,7 +18,19 @@ public final class HyperlinkModel {
    * @param text The hyperlink text displayed (e.g., displayed to the user).
    */
   public HyperlinkModel( final String text ) {
-    this( text, null, null );
+    super( text );
+  }
+
+  /**
+   * Constructs a new hyperlink model in Markdown format by default.
+   *
+   * @param text  The hyperlink text displayed (e.g., displayed to the user).
+   * @param url   The destination URL (e.g., when clicked).
+   * @param title The hyperlink title (e.g., shown as a tooltip).
+   */
+  public HyperlinkModel(
+    final String text, final String url, final String title ) {
+    super( text, url, title );
   }
 
   /**
@@ -35,66 +44,6 @@ public final class HyperlinkModel {
       link.getUrl().toString(),
       link.getTitle().toString()
     );
-  }
-
-  /**
-   * Constructs a new hyperlink model in Markdown format by default.
-   *
-   * @param text  The hyperlink text displayed (e.g., displayed to the user).
-   * @param url   The destination URL (e.g., when clicked).
-   * @param title The hyperlink title (e.g., shown as a tooltip).
-   */
-  public HyperlinkModel(
-    final String text, final String url, final String title ) {
-    setText( text );
-    setUrl( url );
-    setTitle( title );
-  }
-
-  public void setText( final String text ) {
-    mText = sanitize( text );
-  }
-
-  public void setUrl( final String url ) {
-    mUrl = sanitize( url );
-  }
-
-  public void setTitle( final String title ) {
-    mTitle = sanitize( title );
-  }
-
-  /**
-   * Answers whether text has been set for the hyperlink.
-   *
-   * @return true This is a text link.
-   */
-  public boolean hasText() {
-    return !getText().isEmpty();
-  }
-
-  /**
-   * Answers whether a title (tooltip) has been set for the hyperlink.
-   *
-   * @return true There is a title.
-   */
-  public boolean hasTitle() {
-    return !getTitle().isEmpty();
-  }
-
-  public String getText() {
-    return mText;
-  }
-
-  public String getUrl() {
-    return mUrl;
-  }
-
-  public String getTitle() {
-    return mTitle;
-  }
-
-  private String sanitize( final String s ) {
-    return s == null ? "" : s;
   }
 
   /**
