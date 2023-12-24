@@ -10,20 +10,18 @@ import com.vladsch.flexmark.ast.Link;
  * Represents the model for a hyperlink: text, url, and title.
  */
 public final class HyperlinkModel {
-
-  private String text;
-  private String url;
-  private String title;
+  private String mText;
+  private String mUrl;
+  private String mTitle;
 
   /**
    * Constructs a new hyperlink model in Markdown format by default with no
    * title (i.e., tooltip).
    *
    * @param text The hyperlink text displayed (e.g., displayed to the user).
-   * @param url  The destination URL (e.g., when clicked).
    */
-  public HyperlinkModel( final String text, final String url ) {
-    this( text, url, null );
+  public HyperlinkModel( final String text ) {
+    this( text, null, null );
   }
 
   /**
@@ -53,35 +51,16 @@ public final class HyperlinkModel {
     setTitle( title );
   }
 
-  /**
-   * Returns the string in Markdown format by default.
-   *
-   * @return A Markdown version of the hyperlink.
-   */
-  @Override
-  public String toString() {
-    String format = "%s%s%s";
-
-    if( hasText() ) {
-      format = "[%s]" + (hasTitle() ? "(%s \"%s\")" : "(%s%s)");
-    }
-
-    // Becomes ""+URL+"" if no text is set.
-    // Becomes [TITLE]+(URL)+"" if no title is set.
-    // Becomes [TITLE]+(URL+ \"TITLE\") if title is set.
-    return String.format( format, getText(), getUrl(), getTitle() );
-  }
-
   public void setText( final String text ) {
-    this.text = sanitize( text );
+    mText = sanitize( text );
   }
 
   public void setUrl( final String url ) {
-    this.url = sanitize( url );
+    mUrl = sanitize( url );
   }
 
   public void setTitle( final String title ) {
-    this.title = sanitize( title );
+    mTitle = sanitize( title );
   }
 
   /**
@@ -103,18 +82,35 @@ public final class HyperlinkModel {
   }
 
   public String getText() {
-    return this.text;
+    return mText;
   }
 
   public String getUrl() {
-    return this.url;
+    return mUrl;
   }
 
   public String getTitle() {
-    return this.title;
+    return mTitle;
   }
 
   private String sanitize( final String s ) {
     return s == null ? "" : s;
+  }
+
+  /**
+   * Returns the string in Markdown format by default.
+   *
+   * @return A Markdown version of the hyperlink.
+   */
+  @Override
+  public String toString() {
+    final String format = hasText()
+      ? STR."[%s]\{hasTitle() ? "(%s \"%s\")" : "(%s%s)"}"
+      : "%s%s%s";
+
+    // Becomes ""+URL+"" if no text is set.
+    // Becomes [TITLE]+(URL)+"" if no title is set.
+    // Becomes [TITLE]+(URL+ \"TITLE\") if title is set.
+    return String.format( format, getText(), getUrl(), getTitle() );
   }
 }

@@ -1,4 +1,7 @@
-/* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
+/* Copyright 2023 White Magic Software, Ltd. -- All rights reserved.
+ *
+ * SPDX-License-Identifier: MIT
+ */
 package com.keenwrite.ui.actions;
 
 import com.keenwrite.ui.controls.EventedStatusBar;
@@ -60,6 +63,7 @@ public final class ApplicationBars {
       get( "Main.menu.file" ),
       addAction( "file.new", _ -> actions.file_new() ),
       addAction( "file.open", _ -> actions.file_open() ),
+      addAction( "file.open_url", _ -> actions.file_open_url() ),
       SEPARATOR,
       addAction( "file.close", _ -> actions.file_close() ),
       addAction( "file.close_all", _ -> actions.file_close_all() ),

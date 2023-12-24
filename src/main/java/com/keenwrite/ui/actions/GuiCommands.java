@@ -1,4 +1,7 @@
-/* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
+/* Copyright 2023 White Magic Software, Ltd. -- All rights reserved.
+ *
+ * SPDX-License-Identifier: MIT
+ */
 package com.keenwrite.ui.actions;
 
 import com.keenwrite.ExportFormat;
@@ -19,10 +22,7 @@ import com.keenwrite.processors.markdown.MarkdownProcessor;
 import com.keenwrite.search.SearchModel;
 import com.keenwrite.typesetting.Typesetter;
 import com.keenwrite.ui.controls.SearchBar;
-import com.keenwrite.ui.dialogs.ExportDialog;
-import com.keenwrite.ui.dialogs.ExportSettings;
-import com.keenwrite.ui.dialogs.ImageDialog;
-import com.keenwrite.ui.dialogs.LinkDialog;
+import com.keenwrite.ui.dialogs.*;
 import com.keenwrite.ui.explorer.FilePicker;
 import com.keenwrite.ui.explorer.FilePickerFactory;
 import com.keenwrite.ui.logging.LogView;
@@ -139,6 +139,10 @@ public final class GuiCommands {
 
   public void file_open() {
     pickFiles( FILE_OPEN_MULTIPLE ).ifPresent( l -> getMainPane().open( l ) );
+  }
+
+  public void file_open_url() {
+    pickFile().ifPresent( l -> getMainPane().open( List.of( l ) ) );
   }
 
   public void file_close() {
@@ -477,7 +481,9 @@ public final class GuiCommands {
 
   /**
    * Returns one of: selected text, word under cursor, or parsed hyperlink from
-   * the Markdown AST.
+   * the Markdown AST. When a user opts to insert a hyperlink, this will populate
+   * the insert hyperlink dialog with data from the document, thereby allowing a
+   * user to edit an existing link.
    *
    * @return An instance containing the link URL and display text.
    */
@@ -506,7 +512,7 @@ public final class GuiCommands {
     final Link link, final String selection ) {
 
     return link == null
-      ? new HyperlinkModel( selection, "https://localhost" )
+      ? new HyperlinkModel( selection )
       : new HyperlinkModel( link );
   }
 
@@ -566,7 +572,7 @@ public final class GuiCommands {
     getMainPane().viewOutline();
   }
 
-  public void view_files() { getMainPane().viewFiles(); }
+  public void view_files() {getMainPane().viewFiles();}
 
   public void view_statistics() {
     getMainPane().viewStatistics();
@@ -652,6 +658,10 @@ public final class GuiCommands {
       clue( t );
       return editor.getText();
     }
+  }
+
+  private Optional<File> pickFile() {
+    return new OpenUrlDialog( getWindow() ).showAndWait();
   }
 
   private Optional<List<File>> pickFiles( final SelectionType type ) {

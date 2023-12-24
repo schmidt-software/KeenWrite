@@ -152,7 +152,7 @@ dependencies {
   implementation "info.picocli:picocli:${v_picocli}"
   annotationProcessor "info.picocli:picocli-codegen:${v_picocli}"
 
-  // KeenQuotes, KeenType, KeenSpell, word split.
+  // KeenQuotes, KeenType, KeenSpell, KeenCount.
   implementation fileTree( include: ['**/*.jar'], dir: 'libs' )
 
   def fx = ['controls', 'graphics', 'fxml', 'swing']

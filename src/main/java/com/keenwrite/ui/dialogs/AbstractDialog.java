@@ -1,4 +1,7 @@
-/* Copyright 2017-2021 White Magic Software, Ltd. -- All rights reserved. */
+/* Copyright 2023 White Magic Software, Ltd. -- All rights reserved.
+ *
+ * SPDX-License-Identifier: MIT
+ */
 package com.keenwrite.ui.dialogs;
 
 import com.keenwrite.service.events.impl.ButtonOrderPane;
@@ -24,7 +27,6 @@ public abstract class AbstractDialog<T> extends Dialog<T> {
    * @param owner The parent window of this dialog.
    * @param title The messages title to display in the title bar.
    */
-  @SuppressWarnings( "OverridableMethodCallInConstructor" )
   public AbstractDialog( final Window owner, final String title ) {
     setTitle( get( title ) );
     setResizable( true );
@@ -65,7 +67,7 @@ public abstract class AbstractDialog<T> extends Dialog<T> {
    */
   protected final void initCloseAction() {
     final var window = getDialogPane().getScene().getWindow();
-    window.setOnCloseRequest( event -> window.hide() );
+    window.setOnCloseRequest( _ -> window.hide() );
   }
 
   private void initIcon( final Stage owner ) {
