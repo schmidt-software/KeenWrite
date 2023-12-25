@@ -8,9 +8,9 @@ import com.keenwrite.ui.models.HyperlinkModel;
 import javafx.stage.Window;
 
 /**
- * Dialog to enter a Markdown link.
+ * Dialog to insert or edit a Markdown link.
  */
-public class HyperlinkDialog extends CustomDialog<String> {
+public final class HyperlinkDialog extends CustomDialog<String> {
   private static final String PREFIX = "Dialog.link.";
 
   /**

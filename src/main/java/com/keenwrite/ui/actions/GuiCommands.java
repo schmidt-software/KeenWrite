@@ -602,7 +602,9 @@ public final class GuiCommands {
     final var prefix = "Dialog.about.";
     alert.setTitle( get( STR."\{prefix}title", APP_TITLE ) );
     alert.setHeaderText( get( STR."\{prefix}header", APP_TITLE ) );
-    alert.setContentText( get( STR."\{prefix}content", APP_YEAR, APP_VERSION ) );
+    alert.setContentText( get( STR."\{prefix}content",
+                               APP_YEAR,
+                               APP_VERSION ) );
     alert.setGraphic( ICON_DIALOG_NODE );
     alert.initOwner( getWindow() );
     alert.showAndWait();
@@ -664,7 +666,12 @@ public final class GuiCommands {
   }
 
   private Optional<File> pickFile() {
-    return new OpenUrlDialog( getWindow() ).showAndWait();
+    final var editor = getActiveTextEditor();
+    final var file = editor == null ? USER_DIRECTORY : editor.getFile();
+    final var path = SysFile.toFile( file.toPath() );
+    final var parent = Path.of( path.getParent() );
+
+    return new OpenUrlDialog( getWindow(), parent ).showAndWait();
   }
 
   private Optional<List<File>> pickFiles( final SelectionType type ) {

@@ -9,6 +9,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import static com.keenwrite.io.MediaType.*;
+import static java.lang.Math.min;
 import static java.lang.System.arraycopy;
 import static java.util.Arrays.fill;
 
@@ -107,7 +108,9 @@ public class MediaTypeSniffer {
       0xFF, 0XFF, EOS
     };
 
-    for( int i = 0; i < Math.min( data.length, source.length ); i++ ) {
+    final int length = min( data.length, source.length );
+
+    for( int i = 0; i < length; i++ ) {
       source[ i ] = data[ i ] & 0xFF;
     }
 

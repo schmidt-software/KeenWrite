@@ -19,6 +19,8 @@ import static com.keenwrite.Messages.get;
 import static com.keenwrite.Messages.getUri;
 import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.io.SysFile.toFile;
+import static com.keenwrite.io.downloads.DownloadManager.downloadAsync;
+import static com.keenwrite.io.downloads.DownloadManager.toFilename;
 
 /**
  * Responsible for asynchronous downloads.
@@ -32,12 +34,12 @@ public abstract class AbstractDownloadPane extends InstallerPane {
   private final URI mUri;
 
   public AbstractDownloadPane() {
-    mUri = getUri( getPrefix() + ".download.link.url" );
+    mUri = getUri( STR."\{getPrefix()}.download.link.url" );
     mFilename = toFilename( mUri );
     final var directory = USER_DATA_DIR;
     mTarget = toFile( directory.resolve( mFilename ) );
-    final var source = labelf( getPrefix() + ".paths", mFilename, directory );
-    mStatus = labelf( getPrefix() + STATUS + ".progress", 0, 0 );
+    final var source = labelf( STR."\{getPrefix()}.paths", mFilename, directory );
+    mStatus = labelf( STR."\{getPrefix()}\{STATUS}.progress", 0, 0 );
 
     final var border = new BorderPane();
     border.setTop( source );
@@ -70,7 +72,7 @@ public abstract class AbstractDownloadPane extends InstallerPane {
       final var checksumOk = sysFile.isChecksum( checksum );
       final var suffix = checksumOk ? ".ok" : ".no";
 
-      updateStatus( STATUS + ".checksum" + suffix, mFilename );
+      updateStatus( STR."\{STATUS}.checksum\{suffix}", mFilename );
       disableNext( !checksumOk );
     }
     else {
@@ -84,9 +86,9 @@ public abstract class AbstractDownloadPane extends InstallerPane {
 
       properties.put( threadName, task );
 
-      task.setOnSucceeded( e -> onDownloadSucceeded( threadName, properties ) );
-      task.setOnFailed( e -> onDownloadFailed( threadName, properties ) );
-      task.setOnCancelled( e -> onDownloadFailed( threadName, properties ) );
+      task.setOnSucceeded( _ -> onDownloadSucceeded( threadName, properties ) );
+      task.setOnFailed( _ -> onDownloadFailed( threadName, properties ) );
+      task.setOnCancelled( _ -> onDownloadFailed( threadName, properties ) );
     }
   }
 
@@ -96,7 +98,7 @@ public abstract class AbstractDownloadPane extends InstallerPane {
 
   @Override
   protected String getHeaderKey() {
-    return getPrefix() + ".header";
+    return STR."\{getPrefix()}.header";
   }
 
   protected File getTarget() {
@@ -109,14 +111,14 @@ public abstract class AbstractDownloadPane extends InstallerPane {
 
   protected void onDownloadSucceeded(
     final String threadName, final ObservableMap<Object, Object> properties ) {
-    updateStatus( STATUS + ".success" );
+    updateStatus( STR."\{STATUS}.success" );
     properties.remove( threadName );
     disableNext( false );
   }
 
   protected void onDownloadFailed(
     final String threadName, final ObservableMap<Object, Object> properties ) {
-    updateStatus( STATUS + ".failure" );
+    updateStatus( STR."\{STATUS}.failure" );
     properties.remove( threadName );
   }
 

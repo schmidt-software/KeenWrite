@@ -6,13 +6,17 @@ package com.keenwrite.io.downloads;
 
 import com.keenwrite.io.MediaType;
 import com.keenwrite.io.MediaTypeSniffer;
+import com.keenwrite.io.SysFile;
+import javafx.concurrent.Task;
 
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Paths;
 import java.time.Duration;
+import java.util.concurrent.Callable;
 import java.util.zip.GZIPInputStream;
 
 import static java.lang.Math.toIntExact;
@@ -42,6 +46,11 @@ public final class DownloadManager {
    * HTTP request timeout.
    */
   private static final Duration TIMEOUT = Duration.ofSeconds( 30 );
+
+  /**
+   * Use any of the static methods for opening by URI, URL, or string.
+   */
+  private DownloadManager() {}
 
   @FunctionalInterface
   public interface ProgressListener {
@@ -88,10 +97,10 @@ public final class DownloadManager {
 
     /**
      * Provides the ability to download remote files asynchronously while
-     * being updated regarding the download progress. The given
-     * {@link OutputStream} will be closed after downloading is complete.
+     * being updated regarding the download progress. The given {@link File}
+     * will have the contents of the URL to download upon completion.
      *
-     * @param file   Where to write the file contents.
+     * @param file     Where to write the file contents.
      * @param listener Receives download progress status updates.
      * @return A {@link Runnable} task that can be executed in the background
      * to download the resource for this {@link DownloadToken}.
@@ -306,5 +315,51 @@ public final class DownloadManager {
         ? new GZIPInputStream( is )
         : is
     );
+  }
+
+  public static <T> Task<T> createTask( final Callable<T> callable ) {
+    return new Task<>() {
+      @Override
+      protected T call() throws Exception {
+        return callable.call();
+      }
+    };
+  }
+
+  public static <T> Thread createThread( final Task<T> task ) {
+    final var thread = new Thread( task );
+    thread.setDaemon( true );
+    return thread;
+  }
+
+  /**
+   * Downloads a resource to a local file in a separate {@link Thread}.
+   *
+   * @param uri      The resource to download.
+   * @param file     The destination mTarget for the resource.
+   * @param listener Receives updates as the download proceeds.
+   */
+  public static Task<Void> downloadAsync(
+    final URI uri,
+    final File file,
+    final ProgressListener listener ) {
+    final Task<Void> task = createTask( () -> {
+      try( final var token = DownloadManager.open( uri ) ) {
+        token.download( file, listener ).run();
+      }
+
+      return null;
+    } );
+
+    createThread( task ).start();
+    return task;
+  }
+
+  public static String toFilename( final URI uri ) {
+    return toFile( uri ).getName();
+  }
+
+  public static File toFile( final URI uri ) {
+    return SysFile.toFile( Paths.get( uri.getPath() ) );
   }
 }

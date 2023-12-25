@@ -6,7 +6,6 @@ package com.keenwrite.ui.dialogs;
 
 import com.keenwrite.Messages;
 import com.keenwrite.service.events.impl.ButtonOrderPane;
-import com.keenwrite.util.Strings;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.geometry.Insets;
@@ -22,15 +21,15 @@ import java.util.LinkedList;
 import java.util.List;
 
 import static com.keenwrite.Messages.get;
-import static com.keenwrite.util.Strings.*;
+import static com.keenwrite.util.Strings.validate;
 import static javafx.scene.control.ButtonType.CANCEL;
 import static javafx.scene.control.ButtonType.OK;
 import static javafx.scene.layout.Priority.ALWAYS;
 import static javafx.scene.layout.Priority.NEVER;
 
 /**
- * TODO: Replace {@link AbstractDialog} with this class, then remove
- * {@link AbstractDialog}.
+ * TODO: This class could be combined with {@link AbstractDialog}, either
+ *   directly or through inheritance.
  *
  * @param <T> The type of data returned from the dialog upon acceptance.
  */
@@ -47,6 +46,10 @@ public abstract class CustomDialog<T> extends Dialog<T> {
     setResizable( true );
   }
 
+  /**
+   * Allows for late binding so that input fields can be populated after
+   * the constructor is called.
+   */
   protected void initialize() {
     initDialogPane();
     initDialogButtons();

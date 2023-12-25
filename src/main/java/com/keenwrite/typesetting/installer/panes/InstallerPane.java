@@ -5,13 +5,10 @@
 package com.keenwrite.typesetting.installer.panes;
 
 import com.keenwrite.events.HyperlinkOpenEvent;
-import com.keenwrite.io.downloads.DownloadManager;
-import com.keenwrite.io.downloads.DownloadManager.ProgressListener;
 import com.keenwrite.typesetting.containerization.ContainerManager;
 import com.keenwrite.typesetting.containerization.Podman;
 import javafx.animation.Animation;
 import javafx.animation.RotateTransition;
-import javafx.concurrent.Task;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.*;
@@ -22,14 +19,10 @@ import javafx.scene.layout.Pane;
 import org.controlsfx.dialog.Wizard;
 import org.controlsfx.dialog.WizardPane;
 
-import java.io.File;
-import java.net.URI;
-import java.nio.file.Paths;
-import java.util.concurrent.Callable;
-
 import static com.keenwrite.Messages.get;
 import static com.keenwrite.constants.GraphicsConstants.ICON_DIALOG;
-import static com.keenwrite.io.SysFile.toFile;
+import static com.keenwrite.io.downloads.DownloadManager.createTask;
+import static com.keenwrite.io.downloads.DownloadManager.createThread;
 import static java.lang.System.lineSeparator;
 import static javafx.animation.Interpolator.LINEAR;
 import static javafx.application.Platform.runLater;
@@ -126,7 +119,7 @@ public abstract class InstallerPane extends WizardPane {
       final var buttonData = buttonType.getButtonData();
 
       if( buttonData.equals( NEXT_FORWARD ) &&
-        lookupButton( buttonType ) instanceof Button button ) {
+          lookupButton( buttonType ) instanceof Button button ) {
         return button;
       }
     }
@@ -222,11 +215,11 @@ public abstract class InstallerPane extends WizardPane {
   }
 
   static Hyperlink hyperlink( final String prefix ) {
-    final var label = get( prefix + ".lbl" );
-    final var url = get( prefix + ".url" );
+    final var label = get( STR."\{prefix}.lbl" );
+    final var url = get( STR."\{prefix}.url" );
     final var link = new Hyperlink( label );
 
-    link.setOnAction( e -> browse( url ) );
+    link.setOnAction( _ -> browse( url ) );
     link.setTooltip( new Tooltip( url ) );
 
     return link;
@@ -250,21 +243,6 @@ public abstract class InstallerPane extends WizardPane {
     thread.start();
   }
 
-  static <T> Task<T> createTask( final Callable<T> callable ) {
-    return new Task<>() {
-      @Override
-      protected T call() throws Exception {
-        return callable.call();
-      }
-    };
-  }
-
-  static <T> Thread createThread( final Task<T> task ) {
-    final var thread = new Thread( task );
-    thread.setDaemon( true );
-    return thread;
-  }
-
   /**
    * Creates a container that can have its standard output read as an input
    * stream that's piped directly to a {@link TextArea}.
@@ -284,32 +262,5 @@ public abstract class InstallerPane extends WizardPane {
       node.appendText( text );
       node.appendText( lineSeparator() );
     } );
-  }
-
-  /**
-   * Downloads a resource to a local file in a separate {@link Thread}.
-   *
-   * @param uri      The resource to download.
-   * @param file     The destination mTarget for the resource.
-   * @param listener Receives updates as the download proceeds.
-   */
-  static Task<Void> downloadAsync(
-    final URI uri,
-    final File file,
-    final ProgressListener listener ) {
-    final Task<Void> task = createTask( () -> {
-      try( final var token = DownloadManager.open( uri ) ) {
-        token.download( file, listener ).run();
-      }
-
-      return null;
-    } );
-
-    createThread( task ).start();
-    return task;
-  }
-
-  static String toFilename( final URI uri ) {
-    return toFile( Paths.get( uri.getPath() ) ).getName();
   }
 }

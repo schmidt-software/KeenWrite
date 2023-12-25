@@ -13,6 +13,8 @@ import org.controlsfx.dialog.Wizard;
 import java.io.File;
 
 import static com.keenwrite.Messages.get;
+import static com.keenwrite.io.downloads.DownloadManager.createTask;
+import static com.keenwrite.io.downloads.DownloadManager.createThread;
 
 /**
  * Responsible for installing the container manager on Windows.
@@ -38,15 +40,15 @@ public final class WindowsManagerInstallPane extends InstallerPane {
     mCommands = textArea( 2, 55 );
 
     final var titledPane = titledPane( "Output", mCommands );
-    append( mCommands, get( PREFIX + ".status.running" ) );
+    append( mCommands, get( STR."\{PREFIX}.status.running" ) );
 
     final var stepsPane = new VBox();
     final var steps = stepsPane.getChildren();
-    steps.add( label( PREFIX + ".step.0" ) );
+    steps.add( label( STR."\{PREFIX}.step.0" ) );
     steps.add( spacer() );
-    steps.add( label( PREFIX + ".step.1" ) );
-    steps.add( label( PREFIX + ".step.2" ) );
-    steps.add( label( PREFIX + ".step.3" ) );
+    steps.add( label( STR."\{PREFIX}.step.1" ) );
+    steps.add( label( STR."\{PREFIX}.step.2" ) );
+    steps.add( label( STR."\{PREFIX}.step.3" ) );
     steps.add( spacer() );
     steps.add( titledPane );
 
@@ -69,7 +71,7 @@ public final class WindowsManagerInstallPane extends InstallerPane {
     }
 
     final var binary = properties.get( WIN_BIN );
-    final var key = PREFIX + ".status";
+    final var key = STR."\{PREFIX}.status";
 
     if( binary instanceof File exe ) {
       final var task = createTask( () -> {
@@ -79,8 +81,8 @@ public final class WindowsManagerInstallPane extends InstallerPane {
         properties.remove( thread );
 
         final var msg = exit == 0
-          ? get( key + ".success" )
-          : get( key + ".failure", exit );
+          ? get( STR."\{key}.success" )
+          : get( STR."\{key}.failure", exit );
 
         append( mCommands, msg );
         disableNext( exit != 0 );
@@ -93,12 +95,12 @@ public final class WindowsManagerInstallPane extends InstallerPane {
       installer.start();
     }
     else {
-      append( mCommands, get( PREFIX + ".unknown", binary ) );
+      append( mCommands, get( STR."\{PREFIX}.unknown", binary ) );
     }
   }
 
   @Override
   public String getHeaderKey() {
-    return PREFIX + ".header";
+    return STR."\{PREFIX}.header";
   }
 }

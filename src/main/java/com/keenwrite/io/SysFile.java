@@ -32,7 +32,7 @@ public final class SysFile extends java.io.File {
    * so don't add more entries than necessary.
    */
   private static final String[] EXTENSIONS = new String[]
-    {"", ".exe", ".bat", ".cmd", ".msi", ".com"};
+    { "", ".exe", ".bat", ".cmd", ".msi", ".com" };
 
   private static final String WHERE_COMMAND =
     IS_OS_WINDOWS ? "where" : "which";
@@ -164,8 +164,8 @@ public final class SysFile extends java.io.File {
    */
   public Optional<Path> where() throws IOException {
     // The "where" command on Windows will automatically add the extension.
-    final var args = new String[]{WHERE_COMMAND, getName()};
-    final var output = run( text -> true, args );
+    final var args = new String[]{ WHERE_COMMAND, getName() };
+    final var output = run( _ -> true, args );
     final var result = output.lines().findFirst();
 
     return result.map( Path::of );
@@ -234,8 +234,9 @@ public final class SysFile extends java.io.File {
    * @throws IOException Could not run the command.
    */
   @NotNull
-  public static String run( final Predicate<String> filter,
-                            final String[] args ) throws IOException {
+  public static String run(
+    final Predicate<String> filter,
+    final String[] args ) throws IOException {
     final var process = Runtime.getRuntime().exec( args );
     final var stream = process.getInputStream();
     final var stdout = new StringBuffer( 2048 );

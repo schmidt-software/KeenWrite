@@ -5,6 +5,7 @@
 package com.keenwrite.typesetting.installer.panes;
 
 import com.keenwrite.io.CommandNotFoundException;
+import com.keenwrite.io.downloads.DownloadManager;
 import com.keenwrite.typesetting.containerization.ContainerManager;
 import com.keenwrite.typesetting.containerization.StreamProcessor;
 import com.keenwrite.util.FailableBiConsumer;
@@ -16,6 +17,7 @@ import org.controlsfx.dialog.Wizard;
 
 import static com.keenwrite.Messages.get;
 import static com.keenwrite.io.StreamGobbler.gobble;
+import static com.keenwrite.io.downloads.DownloadManager.createThread;
 
 /**
  * Responsible for showing the output from running commands against a container
@@ -66,7 +68,7 @@ public abstract class ManagerOutputPane extends InstallerPane {
         return;
       }
 
-      final Task<Void> task = createTask( properties, thread );
+      final var task = createTask( properties, thread );
       final var executor = createThread( task );
 
       properties.put( PROP_EXECUTOR, executor );
@@ -79,7 +81,7 @@ public abstract class ManagerOutputPane extends InstallerPane {
   private Task<Void> createTask(
     final ObservableMap<Object, Object> properties,
     final Object thread ) {
-    final Task<Void> task = createTask( () -> {
+    final Task<Void> task = DownloadManager.createTask( () -> {
       mFc.accept(
         mContainer,
         input -> gobble( input, line -> append( mTextArea, line ) )
