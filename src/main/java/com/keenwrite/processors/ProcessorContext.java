@@ -31,6 +31,8 @@ import static com.keenwrite.io.FileType.UNKNOWN;
 import static com.keenwrite.io.MediaType.TEXT_PROPERTIES;
 import static com.keenwrite.io.SysFile.toFile;
 import static com.keenwrite.predicates.PredicateFactory.createFileTypePredicate;
+import static com.keenwrite.processors.IdentityProcessor.IDENTITY;
+import static com.keenwrite.processors.text.TextReplacementFactory.replace;
 
 /**
  * Provides a context for configuring a chain of {@link Processor} instances.
@@ -96,13 +98,13 @@ public final class ProcessorContext {
     private Supplier<Map<String, String>> mMetadata = HashMap::new;
     private Supplier<Caret> mCaret = () -> Caret.builder().build();
 
-    private Supplier<Path> mFontDir = () -> getFontDirectory().toPath();
-
     private Supplier<Path> mImageDir = USER_DIRECTORY::toPath;
     private Supplier<String> mImageServer = () -> DIAGRAM_SERVER_NAME;
     private Supplier<String> mImageOrder = () -> PERSIST_IMAGES_DEFAULT;
-
     private Supplier<Path> mCacheDir = USER_CACHE_DIR::toPath;
+    private Supplier<Path> mFontDir = () -> getFontDirectory().toPath();
+
+    private Supplier<String> mEnableMode = () -> "";
 
     private Supplier<String> mSigilBegan = () -> DEF_DELIM_BEGAN_DEFAULT;
     private Supplier<String> mSigilEnded = () -> DEF_DELIM_ENDED_DEFAULT;
@@ -166,6 +168,11 @@ public final class ProcessorContext {
 
         return (dir == null ? USER_DIRECTORY : dir).toPath();
       };
+    }
+
+    public void setEnableMode( final Supplier<String> enableMode ) {
+      assert enableMode != null;
+      mEnableMode = enableMode;
     }
 
     public void setExportFormat( final ExportFormat exportFormat ) {
@@ -255,7 +262,6 @@ public final class ProcessorContext {
 
     public void setRWorkingDir( final Supplier<Path> rWorkingDir ) {
       assert rWorkingDir != null;
-
       mRWorkingDir = rWorkingDir;
     }
 
@@ -407,6 +413,14 @@ public final class ProcessorContext {
 
   public Path getFontDir() {
     return mMutator.mFontDir.get();
+  }
+
+  public String getEnableMode() {
+    final var processor = new VariableProcessor( IDENTITY, this );
+    final var haystack = mMutator.mEnableMode.get();
+    final var needles = processor.getDefinitions();
+
+    return replace( haystack, needles );
   }
 
   public boolean getAutoRemove() {

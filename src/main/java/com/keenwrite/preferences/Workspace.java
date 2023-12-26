@@ -137,7 +137,8 @@ public final class Workspace {
     entry( KEY_TYPESET_CONTEXT_THEMES_PATH, asFileProperty( USER_DIRECTORY ) ),
     entry( KEY_TYPESET_CONTEXT_THEME_SELECTION, asStringProperty( "boschet" ) ),
     entry( KEY_TYPESET_CONTEXT_CHAPTERS, asStringProperty( "" ) ),
-    entry( KEY_TYPESET_TYPOGRAPHY_QUOTES, asBooleanProperty( true ) )
+    entry( KEY_TYPESET_TYPOGRAPHY_QUOTES, asBooleanProperty( true ) ),
+    entry( KEY_TYPESET_MODES_ENABLED, asStringProperty( "" ) )
     //@formatter:on
   );
 
@@ -201,7 +202,7 @@ public final class Workspace {
     return v == null
       ? ""
       : MARSHALL
-      .getOrDefault( property.getClass(), __ -> property.getValue() )
+      .getOrDefault( property.getClass(), _ -> property.getValue() )
       .apply( v.toString() )
       .toString();
   }
@@ -211,7 +212,7 @@ public final class Workspace {
     final var v = configValue.toString();
 
     return UNMARSHALL
-      .getOrDefault( property.getClass(), value -> property.getValue() )
+      .getOrDefault( property.getClass(), _ -> property.getValue() )
       .apply( v );
   }
 
@@ -623,7 +624,7 @@ public final class Workspace {
     assert enabled != null;
 
     property.addListener(
-      ( c, o, n ) -> runLater( () -> {
+      ( _, _, n ) -> runLater( () -> {
         if( enabled.getAsBoolean() ) {
           valuesProperty( key ).setValue( n );
         }

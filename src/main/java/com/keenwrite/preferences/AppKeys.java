@@ -95,6 +95,8 @@ public final class AppKeys {
   public static final Key KEY_TYPESET_CONTEXT_CHAPTERS = key( KEY_TYPESET_CONTEXT, "chapters" );
   public static final Key KEY_TYPESET_TYPOGRAPHY = key( KEY_TYPESET, "typography" );
   public static final Key KEY_TYPESET_TYPOGRAPHY_QUOTES = key( KEY_TYPESET_TYPOGRAPHY, "quotes" );
+  public static final Key KEY_TYPESET_MODES = key( KEY_TYPESET, "modes" );
+  public static final Key KEY_TYPESET_MODES_ENABLED = key( KEY_TYPESET_MODES, "enabled" );
   //@formatter:on
 
   /**

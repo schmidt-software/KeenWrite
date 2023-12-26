@@ -38,7 +38,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 @SuppressWarnings( "unused" )
 public final class Arguments implements Callable<Integer> {
   @CommandLine.Option(
-    names = {"--all"},
+    names = { "--all" },
     description =
       "Concatenate files before processing (${DEFAULT-VALUE})",
     defaultValue = "false"
@@ -46,7 +46,7 @@ public final class Arguments implements Callable<Integer> {
   private boolean mConcatenate;
 
   @CommandLine.Option(
-    names = {"--keep-files"},
+    names = { "--keep-files" },
     description =
       "Retain temporary build files (${DEFAULT-VALUE})",
     defaultValue = "false"
@@ -54,7 +54,7 @@ public final class Arguments implements Callable<Integer> {
   private boolean mKeepFiles;
 
   @CommandLine.Option(
-    names = {"-c", "--chapters"},
+    names = { "-c", "--chapters" },
     description =
       "Export chapter ranges, no spaces (e.g., -3,5-9,15-)",
     paramLabel = "String"
@@ -62,7 +62,7 @@ public final class Arguments implements Callable<Integer> {
   private String mChapters;
 
   @CommandLine.Option(
-    names = {"--curl-quotes"},
+    names = { "--curl-quotes" },
     description =
       "Replace straight quotes with curly quotes (${DEFAULT-VALUE})",
     defaultValue = "true"
@@ -70,7 +70,7 @@ public final class Arguments implements Callable<Integer> {
   private boolean mCurlQuotes;
 
   @CommandLine.Option(
-    names = {"-d", "--debug"},
+    names = { "-d", "--debug" },
     description =
       "Enable logging to the console (${DEFAULT-VALUE})",
     paramLabel = "Boolean",
@@ -79,7 +79,7 @@ public final class Arguments implements Callable<Integer> {
   private boolean mDebug;
 
   @CommandLine.Option(
-    names = {"-i", "--input"},
+    names = { "-i", "--input" },
     description =
       "Source document file path",
     paramLabel = "PATH",
@@ -89,7 +89,7 @@ public final class Arguments implements Callable<Integer> {
   private Path mSourcePath;
 
   @CommandLine.Option(
-    names = {"--font-dir"},
+    names = { "--font-dir" },
     description =
       "Directory to specify additional fonts",
     paramLabel = "String"
@@ -97,7 +97,15 @@ public final class Arguments implements Callable<Integer> {
   private File mFontDir;
 
   @CommandLine.Option(
-    names = {"--format-subtype"},
+    names = { "--mode" },
+    description =
+      "Enable one or more modes when typesetting",
+    paramLabel = "String"
+  )
+  private String mEnableMode;
+
+  @CommandLine.Option(
+    names = { "--format-subtype" },
     description =
       "Export TeX subtype for HTML formats: svg, delimited",
     paramLabel = "String",
@@ -106,7 +114,7 @@ public final class Arguments implements Callable<Integer> {
   private String mFormatSubtype;
 
   @CommandLine.Option(
-    names = {"--cache-dir"},
+    names = { "--cache-dir" },
     description =
       "Directory to store remote resources",
     paramLabel = "DIR"
@@ -114,7 +122,7 @@ public final class Arguments implements Callable<Integer> {
   private File mCachesDir;
 
   @CommandLine.Option(
-    names = {"--image-dir"},
+    names = { "--image-dir" },
     description =
       "Directory containing images",
     paramLabel = "DIR"
@@ -122,7 +130,7 @@ public final class Arguments implements Callable<Integer> {
   private File mImagesDir;
 
   @CommandLine.Option(
-    names = {"--image-order"},
+    names = { "--image-order" },
     description =
       "Comma-separated image order (${DEFAULT-VALUE})",
     paramLabel = "String",
@@ -131,7 +139,7 @@ public final class Arguments implements Callable<Integer> {
   private String mImageOrder;
 
   @CommandLine.Option(
-    names = {"--image-server"},
+    names = { "--image-server" },
     description =
       "SVG diagram rendering service (${DEFAULT-VALUE})",
     paramLabel = "String",
@@ -140,7 +148,7 @@ public final class Arguments implements Callable<Integer> {
   private String mImageServer;
 
   @CommandLine.Option(
-    names = {"--locale"},
+    names = { "--locale" },
     description =
       "Set localization (${DEFAULT-VALUE})",
     paramLabel = "String",
@@ -149,7 +157,7 @@ public final class Arguments implements Callable<Integer> {
   private String mLocale;
 
   @CommandLine.Option(
-    names = {"-m", "--metadata"},
+    names = { "-m", "--metadata" },
     description =
       "Map metadata keys to values, variable names allowed",
     paramLabel = "key=value"
@@ -157,7 +165,7 @@ public final class Arguments implements Callable<Integer> {
   private Map<String, String> mMetadata;
 
   @CommandLine.Option(
-    names = {"-o", "--output"},
+    names = { "-o", "--output" },
     description =
       "Destination document file path",
     paramLabel = "PATH",
@@ -167,7 +175,7 @@ public final class Arguments implements Callable<Integer> {
   private Path mTargetPath;
 
   @CommandLine.Option(
-    names = {"-q", "--quiet"},
+    names = { "-q", "--quiet" },
     description =
       "Suppress all status messages (${DEFAULT-VALUE})",
     defaultValue = "false"
@@ -175,7 +183,7 @@ public final class Arguments implements Callable<Integer> {
   private boolean mQuiet;
 
   @CommandLine.Option(
-    names = {"--r-dir"},
+    names = { "--r-dir" },
     description =
       "R working directory",
     paramLabel = "DIR"
@@ -183,7 +191,7 @@ public final class Arguments implements Callable<Integer> {
   private Path mRWorkingDir;
 
   @CommandLine.Option(
-    names = {"--r-script"},
+    names = { "--r-script" },
     description =
       "R bootstrap script file path",
     paramLabel = "PATH"
@@ -191,7 +199,7 @@ public final class Arguments implements Callable<Integer> {
   private Path mRScriptPath;
 
   @CommandLine.Option(
-    names = {"-s", "--set"},
+    names = { "-s", "--set" },
     description =
       "Set (or override) a document variable value",
     paramLabel = "key=value"
@@ -199,7 +207,7 @@ public final class Arguments implements Callable<Integer> {
   private Map<String, String> mOverrides;
 
   @CommandLine.Option(
-    names = {"--sigil-opening"},
+    names = { "--sigil-opening" },
     description =
       "Starting sigil for variable names (${DEFAULT-VALUE})",
     paramLabel = "String",
@@ -208,7 +216,7 @@ public final class Arguments implements Callable<Integer> {
   private String mSigilBegan;
 
   @CommandLine.Option(
-    names = {"--sigil-closing"},
+    names = { "--sigil-closing" },
     description =
       "Ending sigil for variable names (${DEFAULT-VALUE})",
     paramLabel = "String",
@@ -217,7 +225,7 @@ public final class Arguments implements Callable<Integer> {
   private String mSigilEnded;
 
   @CommandLine.Option(
-    names = {"--theme-dir"},
+    names = { "--theme-dir" },
     description =
       "Theme directory",
     paramLabel = "DIR"
@@ -225,7 +233,7 @@ public final class Arguments implements Callable<Integer> {
   private Path mThemesDir;
 
   @CommandLine.Option(
-    names = {"-v", "--variables"},
+    names = { "-v", "--variables" },
     description =
       "Variables file path",
     paramLabel = "PATH"
@@ -255,6 +263,7 @@ public final class Arguments implements Callable<Integer> {
       .with( Mutator::setImageServer, () -> mImageServer )
       .with( Mutator::setImageOrder, () -> mImageOrder )
       .with( Mutator::setFontDir, () -> mFontDir )
+      .with( Mutator::setEnableMode, () -> mEnableMode )
       .with( Mutator::setExportFormat, format )
       .with( Mutator::setDefinitions, () -> definitions )
       .with( Mutator::setMetadata, () -> mMetadata )
@@ -337,7 +346,7 @@ public final class Arguments implements Callable<Integer> {
     assert map != null;
 
     final var jsonNode = node.getValue();
-    final var keyName = parent + "." + node.getKey();
+    final var keyName = STR."\{parent}.\{node.getKey()}";
 
     if( jsonNode.isValueNode() ) {
       // Trim the leading period, which is always present.

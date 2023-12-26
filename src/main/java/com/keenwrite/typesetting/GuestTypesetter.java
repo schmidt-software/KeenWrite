@@ -32,7 +32,7 @@ public final class GuestTypesetter extends Typesetter
   private static final boolean READWRITE = false;
 
   private static final String TYPESETTER_VERSION =
-    TYPESETTER_EXE + " --version > /dev/null";
+    STR."\{TYPESETTER_EXE} --version > /dev/null";
 
   public GuestTypesetter( final Mutator mutator ) {
     super( mutator );
@@ -99,7 +99,7 @@ public final class GuestTypesetter extends Typesetter
         // Running blocks until the command completes.
         manager.run(
           input -> gobble( input, s -> exitCode.append( s.trim() ) ),
-          TYPESETTER_VERSION + "; echo $?"
+          STR."\{TYPESETTER_VERSION}; echo $?"
         );
 
         // If the typesetter ran with an exit code of 0, it is available.

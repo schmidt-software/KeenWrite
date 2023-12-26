@@ -200,7 +200,7 @@ public final class MainPane extends SplitPane {
     mPreview = new HtmlPreview( workspace );
     mStatistics = new DocumentStatistics( workspace );
 
-    mTextEditor.addListener( ( c, o, n ) -> {
+    mTextEditor.addListener( ( _, o, n ) -> {
       if( o != null ) {
         removeProcessor( o );
       }
@@ -220,7 +220,7 @@ public final class MainPane extends SplitPane {
     );
 
     // If the user modifies the definitions, re-process the variables.
-    mDefinitionEditor.addListener( ( c, o, n ) -> {
+    mDefinitionEditor.addListener( ( _, _, _ ) -> {
       final var textEditor = getTextEditor();
 
       if( textEditor.isMediaType( TEXT_R_MARKDOWN ) ) {
@@ -351,7 +351,7 @@ public final class MainPane extends SplitPane {
     final var rate = workspace.integerProperty( KEY_EDITOR_AUTOSAVE );
 
     rate.addListener(
-      ( c, o, n ) -> {
+      ( _, _, _ ) -> {
         final var taskRef = mSaveTask.get();
 
         // Prevent multiple auto-saves from running.
@@ -551,7 +551,7 @@ public final class MainPane extends SplitPane {
     assert !files.isEmpty();
     final var editor = getTextEditor();
     final var tab = getTab( editor );
-    final var file = files.get( 0 );
+    final var file = files.getFirst();
 
     // If the file type has changed, refresh the processors.
     final var mediaType = fromFilename( file );
@@ -833,17 +833,17 @@ public final class MainPane extends SplitPane {
     final var tab = createTab( filename, r.getNode() );
 
     r.modifiedProperty().addListener(
-      ( c, o, n ) -> tab.setText( filename + (n ? "*" : "") )
+      ( _, _, n ) -> tab.setText( filename + (n ? "*" : "") )
     );
 
     // This is called when either the tab is closed by the user clicking on
     // the tab's close icon or when closing (all) from the file menu.
     tab.setOnClosed(
-      __ -> getRecentFiles().remove( file.getAbsolutePath() )
+      _ -> getRecentFiles().remove( file.getAbsolutePath() )
     );
 
     // When closing a tab, give focus to the newly revealed tab.
-    tab.selectedProperty().addListener( ( c, o, n ) -> {
+    tab.selectedProperty().addListener( ( _, _, n ) -> {
       if( n != null && n ) {
         final var pane = tab.getTabPane();
 
@@ -853,9 +853,9 @@ public final class MainPane extends SplitPane {
       }
     } );
 
-    tab.tabPaneProperty().addListener( ( cPane, oPane, nPane ) -> {
+    tab.tabPaneProperty().addListener( ( _, _, nPane ) -> {
       if( nPane != null ) {
-        nPane.focusedProperty().addListener( ( c, o, n ) -> {
+        nPane.focusedProperty().addListener( ( _, _, n ) -> {
           if( n != null && n ) {
             final var selected = nPane.getSelectionModel().getSelectedItem();
             final var node = selected.getContent();
@@ -914,7 +914,7 @@ public final class MainPane extends SplitPane {
     final var result = new LinkedList<File>();
 
     // Ensure that the same types are listed together (keep insertion order).
-    bins.forEach( ( mediaType, files ) -> result.addAll(
+    bins.forEach( ( _, files ) -> result.addAll(
       files.stream().map( File::new ).toList() )
     );
 
@@ -956,7 +956,7 @@ public final class MainPane extends SplitPane {
     //      250 milliseconds, then invoke the scrolling.
     //   3. Insert the current time into the circular queue.
     task.setOnSucceeded(
-      e -> invokeLater( () -> mPreview.scrollTo( CARET_ID ) )
+      _ -> invokeLater( () -> mPreview.scrollTo( CARET_ID ) )
     );
 
     // Prevents multiple process requests from executing simultaneously (due
@@ -1113,8 +1113,6 @@ public final class MainPane extends SplitPane {
              () -> w.getString( KEY_IMAGE_ORDER ) )
       .with( Mutator::setImageServer,
              () -> w.getString( KEY_IMAGE_SERVER ) )
-      .with( Mutator::setFontDir,
-             () -> w.getFile( KEY_TYPESET_CONTEXT_FONTS_DIR ) )
       .with( Mutator::setCaret,
              () -> getTextEditor().getCaret() )
       .with( Mutator::setSigilBegan,
@@ -1125,6 +1123,10 @@ public final class MainPane extends SplitPane {
              () -> w.getString( KEY_R_SCRIPT ) )
       .with( Mutator::setRWorkingDir,
              () -> w.getFile( KEY_R_DIR ).toPath() )
+      .with( Mutator::setFontDir,
+             () -> w.getFile( KEY_TYPESET_CONTEXT_FONTS_DIR ) )
+      .with( Mutator::setEnableMode,
+             () -> w.getString( KEY_TYPESET_MODES_ENABLED ) )
       .with( Mutator::setCurlQuotes,
              () -> w.getBoolean( KEY_TYPESET_TYPOGRAPHY_QUOTES ) )
       .with( Mutator::setAutoRemove,
@@ -1200,7 +1202,7 @@ public final class MainPane extends SplitPane {
     final var editor = new MarkdownEditor( inputFile, getWorkspace() );
 
     // Listener for editor modifications or caret position changes.
-    editor.addDirtyListener( ( c, o, n ) -> {
+    editor.addDirtyListener( ( _, _, n ) -> {
       if( n ) {
         // Reset the status bar after changing the text.
         clue();
@@ -1218,7 +1220,7 @@ public final class MainPane extends SplitPane {
     );
 
     editor.addEventListener(
-      keyPressed( ENTER, ALT_DOWN ), event -> mEditorSpeller.autofix( editor )
+      keyPressed( ENTER, ALT_DOWN ), _ -> mEditorSpeller.autofix( editor )
     );
 
     final var textArea = editor.getTextArea();
@@ -1231,7 +1233,7 @@ public final class MainPane extends SplitPane {
 
     // Store the caret position to restore it after restarting the application.
     textArea.caretPositionProperty().addListener(
-      ( c, o, n ) ->
+      ( _, _, n ) ->
         getWorkspace().integerProperty( KEY_UI_RECENT_OFFSET ).setValue( n )
     );
 
@@ -1240,7 +1242,7 @@ public final class MainPane extends SplitPane {
     // while editing. (Technically, only the most recently modified word must
     // be scanned.)
     mSpellChecker.addListener(
-      ( c, o, n ) -> runLater(
+      ( _, _, _ ) -> runLater(
         () -> iterateEditors( mEditorSpeller::checkDocument )
       )
     );
@@ -1260,7 +1262,7 @@ public final class MainPane extends SplitPane {
     final var path = editor.getFile().toPath();
 
     mProcessors.computeIfAbsent(
-      editor, p -> createProcessors(
+      editor, _ -> createProcessors(
         createProcessorContext( path ),
         createHtmlPreviewProcessor()
       )
@@ -1307,9 +1309,9 @@ public final class MainPane extends SplitPane {
   /**
    * Delegates to {@link #autoinsert()}.
    *
-   * @param keyEvent Ignored.
+   * @param ignored Ignored.
    */
-  private void autoinsert( final KeyEvent keyEvent ) {
+  private void autoinsert( final KeyEvent ignored ) {
     autoinsert();
   }
 

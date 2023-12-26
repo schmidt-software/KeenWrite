@@ -27,6 +27,7 @@ import static java.time.Duration.ofMillis;
  * on the computer ({@link HostTypesetter} or installed within a container
  * ({@link GuestTypesetter}).
  */
+@SuppressWarnings( "SpellCheckingInspection" )
 public class Typesetter {
   /**
    * Name of the executable program that can typeset documents.
@@ -44,6 +45,7 @@ public class Typesetter {
     private Path mImageDir = USER_DIRECTORY.toPath();
     private Path mCacheDir = USER_CACHE_DIR.toPath();
     private Path mFontDir = getFontDirectory().toPath();
+    private String mEnableMode = "";
     private boolean mAutoRemove;
 
     /**
@@ -89,6 +91,10 @@ public class Typesetter {
       mFontDir = fontDir;
     }
 
+    public void setEnableMode( final String enableMode ) {
+      mEnableMode = enableMode;
+    }
+
     /**
      * @param remove {@code true} to remove all temporary files after the
      *               typesetter produces a PDF file.
@@ -119,6 +125,10 @@ public class Typesetter {
 
     public Path getFontDir() {
       return mFontDir;
+    }
+
+    public String getEnableMode() {
+      return mEnableMode;
     }
 
     public boolean isAutoRemove() {
@@ -152,19 +162,19 @@ public class Typesetter {
     }
 
     final var outputPath = getTargetPath();
-    final var prefix = "Main.status.typeset";
+    final var prefix = "Main.status.typeset.";
 
-    clue( prefix + ".began", outputPath );
+    clue( STR."\{prefix}began", outputPath );
 
     final var time = currentTimeMillis();
     final var success = typesetter.call();
-    final var suffix = success ? ".success" : ".failure";
+    final var suffix = success ? "success" : "failure";
 
-    clue( prefix + ".ended" + suffix, outputPath, since( time ) );
+    clue( STR."\{prefix}ended.\{suffix}", outputPath, since( time ) );
   }
 
   /**
-   * Generates the command-line arguments used to invoke the typesetter.
+   * Generates command-line arguments used to invoke the typesetter.
    */
   @SuppressWarnings( "SpellCheckingInspection" )
   List<String> options() {
@@ -184,10 +194,12 @@ public class Typesetter {
     args.add( format( "--result='%s'", targetPath ) );
     args.add( sourcePath );
 
+    final var enableMode = getEnableMode();
+    args.add( format( "--mode=%s", enableMode ) );
+
     return args;
   }
 
-  @SuppressWarnings( "SpellCheckingInspection" )
   List<String> commonOptions() {
     final var args = new LinkedList<String>();
 
@@ -224,6 +236,10 @@ public class Typesetter {
 
   protected Path getFontDir() {
     return mMutator.getFontDir();
+  }
+
+  protected String getEnableMode() {
+    return mMutator.getEnableMode();
   }
 
   /**

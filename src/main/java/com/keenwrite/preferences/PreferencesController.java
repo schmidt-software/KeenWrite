@@ -61,7 +61,7 @@ public final class PreferencesController {
     final StringProperty fontName, final DoubleProperty fontSize ) {
     final var control = new SimpleFontControl( "Change" );
 
-    control.fontSizeProperty().addListener( ( c, o, n ) -> {
+    control.fontSizeProperty().addListener( ( _, _, n ) -> {
       if( n != null ) {
         fontSize.set( n.doubleValue() );
       }
@@ -145,6 +145,12 @@ public final class PreferencesController {
           Setting.of( label( KEY_TYPESET_TYPOGRAPHY_QUOTES ) ),
           Setting.of( title( KEY_TYPESET_TYPOGRAPHY_QUOTES ),
                       booleanProperty( KEY_TYPESET_TYPOGRAPHY_QUOTES ) )
+        ),
+        Group.of(
+          get( KEY_TYPESET_MODES ),
+          Setting.of( label( KEY_TYPESET_MODES_ENABLED ) ),
+          Setting.of( title( KEY_TYPESET_MODES_ENABLED ),
+                      stringProperty( KEY_TYPESET_MODES_ENABLED ) )
         )
       ),
       Category.of(
@@ -332,7 +338,7 @@ public final class PreferencesController {
   private void initKeyEventHandler( final PreferencesFx preferences ) {
     final var view = preferences.getView();
     final var nodes = view.getChildrenUnmodifiable();
-    final var master = (MasterDetailPane) nodes.get( 0 );
+    final var master = (MasterDetailPane) nodes.getFirst();
     final var detail = (NavigationView) master.getDetailNode();
     final var pane = (DialogPane) view.getParent();
 
@@ -340,7 +346,7 @@ public final class PreferencesController {
       switch( key.getCode() ) {
         case ENTER -> ((Button) pane.lookupButton( OK )).fire();
         case ESCAPE -> ((Button) pane.lookupButton( CANCEL )).fire();
-        default -> { }
+        default -> {}
       }
     } );
   }
@@ -352,7 +358,7 @@ public final class PreferencesController {
    */
   private void initSaveEventHandler( final PreferencesFx preferences ) {
     preferences.addEventHandler(
-      EVENT_PREFERENCES_SAVED, event -> mWorkspace.save()
+      EVENT_PREFERENCES_SAVED, _ -> mWorkspace.save()
     );
   }
 
@@ -367,11 +373,11 @@ public final class PreferencesController {
   }
 
   private Node label( final Key key, final String... values ) {
-    return new Label( get( key.toString() + ".desc", (Object[]) values ) );
+    return new Label( get( STR."\{key.toString()}.desc", (Object[]) values ) );
   }
 
   private String title( final Key key ) {
-    return get( key.toString() + ".title" );
+    return get( STR."\{key.toString()}.title" );
   }
 
   /**

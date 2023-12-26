@@ -121,9 +121,9 @@ public final class DefinitionEditor extends BorderPane
 
     final var buttonBar = new HBox();
     buttonBar.getChildren().addAll(
-      createButton( "create", e -> createDefinition() ),
-      createButton( "rename", e -> renameDefinition() ),
-      createButton( "delete", e -> deleteDefinitions() )
+      createButton( "create", _ -> createDefinition() ),
+      createButton( "rename", _ -> renameDefinition() ),
+      createButton( "delete", _ -> deleteDefinitions() )
     );
     buttonBar.setAlignment( CENTER );
     buttonBar.setSpacing( UI_CONTROL_SPACING );
@@ -137,7 +137,7 @@ public final class DefinitionEditor extends BorderPane
     // After the file is opened, watch for changes, not before. Otherwise,
     // upon saving, users will be prompted to save a file that hasn't had
     // any modifications (from their perspective).
-    addTreeChangeHandler( event -> {
+    addTreeChangeHandler( _ -> {
       mModified.set( true );
       updateDefinitions( getDefinitions(), getTreeView().getRoot() );
     } );
@@ -230,13 +230,13 @@ public final class DefinitionEditor extends BorderPane
 
   private Button createButton(
     final String msgKey, final EventHandler<ActionEvent> eventHandler ) {
-    final var keyPrefix = Constants.ACTION_PREFIX + "definition." + msgKey;
-    final var button = new Button( get( keyPrefix + ".text" ) );
-    final var graphic = createGraphic( get( keyPrefix + ".icon" ) );
+    final var keyPrefix = STR."\{Constants.ACTION_PREFIX}definition.\{msgKey}";
+    final var button = new Button( get( STR."\{keyPrefix}.text" ) );
+    final var graphic = createGraphic( get( STR."\{keyPrefix}.icon" ) );
 
     button.setOnAction( eventHandler );
     button.setGraphic( graphic );
-    button.setTooltip( new Tooltip( get( keyPrefix + ".tooltip" ) ) );
+    button.setTooltip( new Tooltip( get( STR."\{keyPrefix}.tooltip" ) ) );
 
     return button;
   }
@@ -314,7 +314,9 @@ public final class DefinitionEditor extends BorderPane
     }
 
     return ((childBranches > 0 && childLeafs == 0) ||
-      (childBranches == 0 && childLeafs <= 1)) ? null : item;
+            (childBranches == 0 && childLeafs <= 1))
+      ? null
+      : item;
   }
 
   @Override
@@ -426,14 +428,14 @@ public final class DefinitionEditor extends BorderPane
     final var menu = new ContextMenu();
     final var items = menu.getItems();
 
-    addMenuItem( items, ACTION_PREFIX + "definition.create.text" )
-      .setOnAction( e -> createDefinition() );
-    addMenuItem( items, ACTION_PREFIX + "definition.rename.text" )
-      .setOnAction( e -> renameDefinition() );
-    addMenuItem( items, ACTION_PREFIX + "definition.delete.text" )
-      .setOnAction( e -> deleteSelectedItem() );
-    addMenuItem( items, ACTION_PREFIX + "definition.insert.text" )
-      .setOnAction( e -> insertSelectedItem() );
+    addMenuItem( items, STR."\{ACTION_PREFIX}definition.create.text" )
+      .setOnAction( _ -> createDefinition() );
+    addMenuItem( items, STR."\{ACTION_PREFIX}definition.rename.text" )
+      .setOnAction( _ -> renameDefinition() );
+    addMenuItem( items, STR."\{ACTION_PREFIX}definition.delete.text" )
+      .setOnAction( _ -> deleteSelectedItem() );
+    addMenuItem( items, STR."\{ACTION_PREFIX}definition.insert.text" )
+      .setOnAction( _ -> insertSelectedItem() );
 
     return menu;
   }
@@ -460,7 +462,7 @@ public final class DefinitionEditor extends BorderPane
           }
         }
 
-        default -> { }
+        default -> {}
       }
 
       for( final var handler : getKeyEventHandlers() ) {
@@ -581,7 +583,9 @@ public final class DefinitionEditor extends BorderPane
   private ObservableList<TreeItem<String>> getSiblings(
     final TreeItem<String> item ) {
     final var root = getTreeView().getRoot();
-    final var parent = (item == null || item == root) ? root : item.getParent();
+    final var parent = (item == null || item == root)
+      ? root
+      : item.getParent();
 
     return parent.getChildren();
   }
