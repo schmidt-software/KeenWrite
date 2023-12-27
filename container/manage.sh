@@ -111,7 +111,7 @@ utile_publish() {
     local -r remote_file="${CONTAINER_SHORTNAME}:${CONTAINER_VERSION}"
     local -r remote_path="${repository}/${remote_file}"
 
-    $log "Publishing to ${remote_path}"
+    $log "Publishing ${CONTAINER_IMAGE_FILE} to ${remote_path}"
 
     # Path to the repository.
     scp -q "${CONTAINER_IMAGE_FILE}" "${remote_path}"

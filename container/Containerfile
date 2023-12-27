@@ -62,6 +62,9 @@ ADD "http://lmtx.pragma-ade.nl/install-lmtx/context-linuxmusl.zip" "context.zip"
 WORKDIR $CONTEXT_HOME
 
 RUN \
+  apk add -t py3-cssselect && \
+  apk add -t py3-lxml && \
+  apk add -t py3-numpy && \
   apk --update --no-cache \
     add ca-certificates curl fontconfig inkscape rsync && \
   mkdir -p \
