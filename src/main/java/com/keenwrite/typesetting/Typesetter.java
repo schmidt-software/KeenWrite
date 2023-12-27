@@ -195,7 +195,10 @@ public class Typesetter {
     args.add( sourcePath );
 
     final var enableMode = getEnableMode();
-    args.add( format( "--mode=%s", enableMode ) );
+
+    if( !enableMode.isBlank() ) {
+      args.add( format( "--mode=%s", enableMode ) );
+    }
 
     return args;
   }

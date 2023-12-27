@@ -83,11 +83,14 @@ public final class PdfProcessor extends ExecutorProcessor<String> {
         .with( Mutator::setAutoRemove, autoRemove )
         .build();
 
-      typesetter.typeset();
-
-      // Smote the temporary file after typesetting the document.
-      if( typesetter.autoRemove() ) {
-        deleteIfExists( document );
+      try {
+        typesetter.typeset();
+      }
+      finally {
+        // Smote the temporary file after typesetting the document.
+        if( typesetter.autoRemove() ) {
+          deleteIfExists( document );
+        }
       }
     } catch( final Exception ex ) {
       // Typesetter runtime exceptions will pass up the call stack.

@@ -417,10 +417,12 @@ public final class ProcessorContext {
 
   public String getEnableMode() {
     final var processor = new VariableProcessor( IDENTITY, this );
-    final var haystack = mMutator.mEnableMode.get();
     final var needles = processor.getDefinitions();
+    final var haystack = mMutator.mEnableMode.get();
+    final var result = replace( haystack, needles );
 
-    return replace( haystack, needles );
+    // If no replacement was made, then the mode variable isn't set.
+    return result.equals( haystack ) ? "" : result;
   }
 
   public boolean getAutoRemove() {
