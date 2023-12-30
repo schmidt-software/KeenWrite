@@ -1,6 +1,8 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.processors.text;
 
+import com.keenwrite.util.Strings;
+
 import java.util.Map;
 
 /**
@@ -30,13 +32,13 @@ public final class TextReplacementFactory {
    * be already dereferenced and ready to be substituted verbatim; any
    * recursively defined values must have been interpolated previously.
    *
-   * @param haystack The text containing zero or more variables to replace.
-   * @param needles  The map of variables to their dereferenced values.
+   * @param text    The text containing zero or more variables to replace.
+   * @param needles The map of variables to their dereferenced values.
    * @return The text with all variables replaced.
    */
   public static String replace(
-    final String haystack, final Map<String, String> needles ) {
-    assert haystack != null;
+    final String text, final Map<String, String> needles ) {
+    final String haystack = Strings.sanitize( text );
     assert needles != null;
 
     return getTextReplacer( haystack.length() ).replace( haystack, needles );
