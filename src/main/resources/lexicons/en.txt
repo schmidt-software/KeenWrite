@@ -30471,6 +30471,7 @@ abashed	501323
 exploiters	501306
 signally	501295
 kneels	501268
+kneeled	501260
 mightier	501257
 premiers	501246
 feigning	501182
