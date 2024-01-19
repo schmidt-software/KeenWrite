@@ -1,10 +1,11 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
 package com.keenwrite.processors;
 
+import com.keenwrite.sigils.SigilKeyOperator;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
-import java.util.function.UnaryOperator;
 
 import static com.keenwrite.processors.text.TextReplacementFactory.replace;
 
@@ -17,7 +18,7 @@ public class VariableProcessor
   extends ExecutorProcessor<String> implements Function<String, String> {
 
   private final ProcessorContext mContext;
-  private final UnaryOperator<String> mSigilOperator;
+  private final SigilKeyOperator mSigilOperator;
 
   /**
    * Constructs a processor capable of interpolating string definitions.
@@ -41,7 +42,7 @@ public class VariableProcessor
    * @param context Provides the name of the file being edited.
    * @return An operator for transforming key names.
    */
-  protected UnaryOperator<String> createKeyOperator(
+  protected SigilKeyOperator createKeyOperator(
     final ProcessorContext context ) {
     return context.createKeyOperator();
   }
@@ -76,6 +77,16 @@ public class VariableProcessor
    */
   protected String processValue( final String value ) {
     return value;
+  }
+
+  /**
+   * Answers whether the given key is wrapped in sigil tokens.
+   *
+   * @param key The key to analyze.
+   * @return {@code true} if the key is wrapped in sigils.
+   */
+  public boolean hasSigils( final String key ) {
+    return mSigilOperator.match( key ).find();
   }
 
   /**

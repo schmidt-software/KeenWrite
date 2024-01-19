@@ -3,13 +3,11 @@ package com.keenwrite.sigils;
 
 import com.keenwrite.collections.BoundedCache;
 
-import java.util.function.UnaryOperator;
-
 /**
  * Converts dot-separated variable names into names compatible with R. That is,
  * {@code variable.name.qualified} becomes {@code v$variable$name$qualified}.
  */
-public final class RKeyOperator implements UnaryOperator<String> {
+public final class RKeyOperator extends SigilKeyOperator {
   private static final char KEY_SEPARATOR_DEF = '.';
   private static final char KEY_SEPARATOR_R = '$';
 
@@ -25,7 +23,10 @@ public final class RKeyOperator implements UnaryOperator<String> {
    * Constructs a new instance capable of converting dot-separated variable
    * names into R's dollar-symbol-separated names.
    */
-  public RKeyOperator() { }
+  public RKeyOperator() {
+    // The keys are not delimited.
+    super( "", "" );
+  }
 
   /**
    * Transforms a definition key name into the expected format for an R
@@ -43,7 +44,6 @@ public final class RKeyOperator implements UnaryOperator<String> {
   @Override
   public String apply( final String key ) {
     assert key != null;
-    assert key.length() > 0;
     assert !key.isBlank();
 
     return mVariables.computeIfAbsent( key, this::convert );

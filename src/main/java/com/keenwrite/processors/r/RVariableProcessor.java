@@ -5,6 +5,7 @@ import com.keenwrite.processors.Processor;
 import com.keenwrite.processors.ProcessorContext;
 import com.keenwrite.processors.VariableProcessor;
 import com.keenwrite.sigils.RKeyOperator;
+import com.keenwrite.sigils.SigilKeyOperator;
 
 import java.util.function.UnaryOperator;
 
@@ -20,7 +21,7 @@ public class RVariableProcessor extends VariableProcessor {
   }
 
   @Override
-  protected UnaryOperator<String> createKeyOperator(
+  protected SigilKeyOperator createKeyOperator(
     final ProcessorContext context ) {
     return new RKeyOperator();
   }

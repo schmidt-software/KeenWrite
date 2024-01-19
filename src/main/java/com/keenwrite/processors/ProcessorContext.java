@@ -416,11 +416,15 @@ public final class ProcessorContext {
   }
 
   public String getModesEnabled() {
+    // Force the processor to select particular sigils.
     final var processor = new VariableProcessor( IDENTITY, this );
     final var needles = processor.getDefinitions();
     final var haystack = mMutator.mModesEnabled.get();
+
     return needles.containsKey( haystack )
       ? replace( haystack, needles )
+      : processor.hasSigils( haystack )
+      ? ""
       : haystack;
   }
 
