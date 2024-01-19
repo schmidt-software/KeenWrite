@@ -45,7 +45,7 @@ public class Typesetter {
     private Path mImageDir = USER_DIRECTORY.toPath();
     private Path mCacheDir = USER_CACHE_DIR.toPath();
     private Path mFontDir = getFontDirectory().toPath();
-    private String mEnableMode = "";
+    private String mModesEnabled = "";
     private boolean mAutoRemove;
 
     /**
@@ -91,8 +91,8 @@ public class Typesetter {
       mFontDir = fontDir;
     }
 
-    public void setEnableMode( final String enableMode ) {
-      mEnableMode = enableMode;
+    public void setModesEnabled( final String modesEnabled ) {
+      mModesEnabled = modesEnabled;
     }
 
     /**
@@ -127,8 +127,8 @@ public class Typesetter {
       return mFontDir;
     }
 
-    public String getEnableMode() {
-      return mEnableMode;
+    public String getModesEnabled() {
+      return mModesEnabled;
     }
 
     public boolean isAutoRemove() {
@@ -194,10 +194,10 @@ public class Typesetter {
     args.add( format( "--result='%s'", targetPath ) );
     args.add( sourcePath );
 
-    final var enableMode = getEnableMode();
+    final var modesEnabled = getModesEnabled();
 
-    if( !enableMode.isBlank() ) {
-      args.add( format( "--mode=%s", enableMode ) );
+    if( !modesEnabled.isBlank() ) {
+      args.add( format( "--mode=%s", modesEnabled ) );
     }
 
     return args;
@@ -241,8 +241,8 @@ public class Typesetter {
     return mMutator.getFontDir();
   }
 
-  protected String getEnableMode() {
-    return mMutator.getEnableMode();
+  protected String getModesEnabled() {
+    return mMutator.getModesEnabled();
   }
 
   /**

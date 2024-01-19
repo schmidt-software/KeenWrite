@@ -22,7 +22,6 @@ import static com.keenwrite.constants.GraphicsConstants.LOGOS;
 import static com.keenwrite.events.Bus.register;
 import static com.keenwrite.preferences.AppKeys.*;
 import static com.keenwrite.util.FontLoader.initFonts;
-import static javafx.scene.input.KeyCode.ESCAPE;
 import static javafx.scene.input.KeyCode.F11;
 import static javafx.scene.input.KeyEvent.KEY_PRESSED;
 import static javafx.scene.input.KeyEvent.KEY_RELEASED;
@@ -36,7 +35,6 @@ import static javafx.stage.WindowEvent.WINDOW_SHOWN;
 public final class MainApp extends Application {
 
   private Workspace mWorkspace;
-  private MainScene mMainScene;
 
   /**
    * TODO: Delete this after JavaFX/GTK 3 no longer barfs useless warnings.
@@ -114,7 +112,7 @@ public final class MainApp extends Application {
     // ensures that when the locale preference changes, a new spellchecker
     // instance will be loaded and applied.
     final var property = mWorkspace.localeProperty( KEY_LANGUAGE_LOCALE );
-    property.addListener( ( c, o, n ) -> readLexicon() );
+    property.addListener( ( _, _, _ ) -> readLexicon() );
 
     initFonts();
     initState( stage );
@@ -125,7 +123,7 @@ public final class MainApp extends Application {
     MathRenderer.bindSize( mWorkspace.doubleProperty( KEY_UI_FONT_MATH_SIZE ) );
 
     // Load the lexicon and check all the documents after all files are open.
-    stage.addEventFilter( WINDOW_SHOWN, event -> readLexicon() );
+    stage.addEventFilter( WINDOW_SHOWN, _ -> readLexicon() );
     stage.show();
 
     stderrRedirect( System.out );
@@ -158,17 +156,6 @@ public final class MainApp extends Application {
         stage.setFullScreen( !stage.isFullScreen() );
       }
     } );
-
-    // After the app loses focus, when the user switches back using Alt+Tab,
-    // the menu is engaged on Windows. Simulate an ESC keypress to the menu
-    // to disable the menu, giving focus back to the application proper.
-    //
-    // JavaFX Bug: https://bugs.openjdk.java.net/browse/JDK-8090647
-    stage.focusedProperty().addListener( ( c, lost, found ) -> {
-      if( found ) {
-        mMainScene.getMenuBar().fireEvent( keyDown( ESCAPE ) );
-      }
-    } );
   }
 
   private void initIcons( final Stage stage ) {
@@ -176,8 +163,8 @@ public final class MainApp extends Application {
   }
 
   private void initScene( final Stage stage ) {
-    mMainScene = new MainScene( mWorkspace );
-    stage.setScene( mMainScene.getScene() );
+    final var mainScene = new MainScene( mWorkspace );
+    stage.setScene( mainScene.getScene() );
   }
 
   /**

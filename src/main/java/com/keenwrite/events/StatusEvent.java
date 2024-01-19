@@ -187,7 +187,7 @@ public final class StatusEvent implements AppEvent {
     fire( problem );
   }
 
-  private static void fire( final String message ) {
+  public static void fire( final String message ) {
     new StatusEvent( message ).publish();
   }
 

@@ -1125,7 +1125,7 @@ public final class MainPane extends SplitPane {
              () -> w.getFile( KEY_R_DIR ).toPath() )
       .with( Mutator::setFontDir,
              () -> w.getFile( KEY_TYPESET_CONTEXT_FONTS_DIR ) )
-      .with( Mutator::setEnableMode,
+      .with( Mutator::setModesEnabled,
              () -> w.getString( KEY_TYPESET_MODES_ENABLED ) )
       .with( Mutator::setCurlQuotes,
              () -> w.getBoolean( KEY_TYPESET_TYPOGRAPHY_QUOTES ) )

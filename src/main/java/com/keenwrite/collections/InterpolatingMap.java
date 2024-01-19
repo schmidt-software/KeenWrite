@@ -93,6 +93,11 @@ public class InterpolatingMap extends ConcurrentHashMap<String, String> {
       final var mapValue = get( keyName );
 
       if( mapValue != null ) {
+        if( mapValue.contains( mOperator.apply( keyName ) ) ) {
+          throw new IllegalStateException(
+            STR."Mapped value '\{mapValue}' may not contain its key name '\{keyName}'" );
+        }
+
         final var keyValue = interpolate( mapValue );
         matcher.appendReplacement( sb, quoteReplacement( keyValue ) );
       }

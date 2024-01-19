@@ -102,7 +102,7 @@ public final class Arguments implements Callable<Integer> {
       "Enable one or more modes when typesetting",
     paramLabel = "String"
   )
-  private String mEnableMode;
+  private String mTypesetMode;
 
   @CommandLine.Option(
     names = { "--format-subtype" },
@@ -263,7 +263,7 @@ public final class Arguments implements Callable<Integer> {
       .with( Mutator::setImageServer, () -> mImageServer )
       .with( Mutator::setImageOrder, () -> mImageOrder )
       .with( Mutator::setFontDir, () -> mFontDir )
-      .with( Mutator::setEnableMode, () -> mEnableMode )
+      .with( Mutator::setModesEnabled, () -> mTypesetMode )
       .with( Mutator::setExportFormat, format )
       .with( Mutator::setDefinitions, () -> definitions )
       .with( Mutator::setMetadata, () -> mMetadata )

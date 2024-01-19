@@ -104,7 +104,7 @@ public final class ProcessorContext {
     private Supplier<Path> mCacheDir = USER_CACHE_DIR::toPath;
     private Supplier<Path> mFontDir = () -> getFontDirectory().toPath();
 
-    private Supplier<String> mEnableMode = () -> "";
+    private Supplier<String> mModesEnabled = () -> "";
 
     private Supplier<String> mSigilBegan = () -> DEF_DELIM_BEGAN_DEFAULT;
     private Supplier<String> mSigilEnded = () -> DEF_DELIM_ENDED_DEFAULT;
@@ -170,9 +170,9 @@ public final class ProcessorContext {
       };
     }
 
-    public void setEnableMode( final Supplier<String> enableMode ) {
-      assert enableMode != null;
-      mEnableMode = enableMode;
+    public void setModesEnabled( final Supplier<String> modesEnabled ) {
+      assert modesEnabled != null;
+      mModesEnabled = modesEnabled;
     }
 
     public void setExportFormat( final ExportFormat exportFormat ) {
@@ -415,14 +415,13 @@ public final class ProcessorContext {
     return mMutator.mFontDir.get();
   }
 
-  public String getEnableMode() {
+  public String getModesEnabled() {
     final var processor = new VariableProcessor( IDENTITY, this );
     final var needles = processor.getDefinitions();
-    final var haystack = mMutator.mEnableMode.get();
-    final var result = replace( haystack, needles );
-
-    // If no replacement was made, then the mode variable isn't set.
-    return result.equals( haystack ) ? "" : result;
+    final var haystack = mMutator.mModesEnabled.get();
+    return needles.containsKey( haystack )
+      ? replace( haystack, needles )
+      : haystack;
   }
 
   public boolean getAutoRemove() {

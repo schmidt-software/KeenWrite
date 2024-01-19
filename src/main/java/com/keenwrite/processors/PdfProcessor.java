@@ -65,8 +65,8 @@ public final class PdfProcessor extends ExecutorProcessor<String> {
       final var rWorkDir = normalize( context.getRWorkingDir() );
       clue( "Main.status.typeset.setting", "r-work", rWorkDir );
 
-      final var enableMode = sanitize( context.getEnableMode() );
-      clue( "Main.status.typeset.setting", "mode", enableMode );
+      final var modesEnabled = sanitize( context.getModesEnabled() );
+      clue( "Main.status.typeset.setting", "mode", modesEnabled );
 
       final var autoRemove = context.getAutoRemove();
       clue( "Main.status.typeset.setting", "purge", autoRemove );
@@ -79,7 +79,7 @@ public final class PdfProcessor extends ExecutorProcessor<String> {
         .with( Mutator::setImageDir, imageDir )
         .with( Mutator::setCacheDir, cacheDir )
         .with( Mutator::setFontDir, fontDir )
-        .with( Mutator::setEnableMode, enableMode )
+        .with( Mutator::setModesEnabled, modesEnabled )
         .with( Mutator::setAutoRemove, autoRemove )
         .build();
 
