@@ -33,6 +33,7 @@ import static com.keenwrite.io.SysFile.toFile;
 import static com.keenwrite.predicates.PredicateFactory.createFileTypePredicate;
 import static com.keenwrite.processors.IdentityProcessor.IDENTITY;
 import static com.keenwrite.processors.text.TextReplacementFactory.replace;
+import static com.keenwrite.util.Strings.sanitize;
 
 /**
  * Provides a context for configuring a chain of {@link Processor} instances.
@@ -419,7 +420,7 @@ public final class ProcessorContext {
     // Force the processor to select particular sigils.
     final var processor = new VariableProcessor( IDENTITY, this );
     final var needles = processor.getDefinitions();
-    final var haystack = mMutator.mModesEnabled.get();
+    final var haystack = sanitize( mMutator.mModesEnabled.get() );
 
     return needles.containsKey( haystack )
       ? replace( haystack, needles )
