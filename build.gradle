@@ -17,7 +17,7 @@ plugins {
   id 'application'
   id 'org.openjfx.javafxplugin' version '0.1.0'
   id 'com.palantir.git-version' version '3.0.0'
-  id 'com.github.spotbugs' version '5.2.4'
+  id 'com.github.spotbugs' version '6.0.6'
 }
 
 spotbugs {
@@ -90,7 +90,7 @@ javafx {
 dependencies {
   def v_junit = '5.10.1'
   def v_flexmark = '0.64.8'
-  def v_jackson = '2.16.0'
+  def v_jackson = '2.16.1'
   def v_echosvg = '1.0.1'
   def v_picocli = '4.7.5'
 
@@ -99,7 +99,7 @@ dependencies {
   implementation 'org.fxmisc.richtext:richtextfx:0.11.2'
   implementation 'org.fxmisc.flowless:flowless:0.7.2'
   implementation 'org.fxmisc.wellbehaved:wellbehavedfx:0.3.3'
-  implementation 'com.dlsc.preferencesfx:preferencesfx-core:11.16.0'
+  implementation 'com.dlsc.preferencesfx:preferencesfx-core:11.17.0'
   implementation 'com.panemu:tiwulfx-dock:0.2'
 
   // Markdown
@@ -165,7 +165,7 @@ dependencies {
   testImplementation "org.junit.jupiter:junit-jupiter-api:${v_junit}"
   testImplementation "org.junit.jupiter:junit-jupiter-params:${v_junit}"
   testImplementation 'org.testfx:testfx-junit5:4.0.17'
-  testImplementation 'org.assertj:assertj-core:3.24.2'
+  testImplementation 'org.assertj:assertj-core:3.25.1'
   testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
 }
 
