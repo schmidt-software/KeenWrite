@@ -196234,7 +196234,7 @@ burleigh	646
 bogosity	646
 allegoricalness	646
 acidulates	646
-cyclomatc	645
+cyclomatic	645
 zetas	645
 viridians	645
 unshaping	645
