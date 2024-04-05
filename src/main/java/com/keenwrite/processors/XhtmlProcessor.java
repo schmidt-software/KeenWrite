@@ -26,6 +26,7 @@ import static com.keenwrite.util.ProtocolScheme.getProtocol;
 import static com.whitemagicsoftware.keenquotes.lex.FilterType.FILTER_XML;
 import static java.lang.String.format;
 import static java.lang.String.valueOf;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.nio.file.Files.copy;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
@@ -117,6 +118,8 @@ public final class XhtmlProcessor extends ExecutorProcessor<String> {
     visit( doc, "/html/head", node -> {
       // Insert <title>text</title> inside <head>.
       node.appendChild( createElement( doc, "title", title ) );
+      // Insert <meta charset="utf-8"> inside <head>.
+      node.appendChild( createEncoding( doc, UTF_8.toString() ) );
 
       // Insert each <meta name=x content=y /> inside <head>.
       metadata.entrySet().forEach(

@@ -70,6 +70,8 @@ upload() {
 if [ -f "${PATH_TOKEN}" ]; then
   cat "${PATH_TOKEN}" | glab auth login --hostname gitlab.com --stdin
 
+  glab release create ${RELEASE}
+
   release "Windows"
   release "MacOS"
   release "Linux"

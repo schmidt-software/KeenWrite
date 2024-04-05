@@ -193,6 +193,19 @@ public class DocumentParser {
     return node;
   }
 
+  public static Node createEncoding(
+    final Document document, final String encoding
+  ) {
+    assert document != null;
+    assert encoding != null;
+
+    final var node = document.createElement( "meta" );
+
+    node.setAttribute( "charset", encoding );
+
+    return node;
+  }
+
   public static Node createElement(
     final Document doc, final String nodeName, final String nodeValue ) {
     assert doc != null;
@@ -293,5 +306,5 @@ public class DocumentParser {
    * Use the {@code static} constants and methods, not an instance, at least
    * until an iterable sub-interface is written.
    */
-  private DocumentParser() { }
+  private DocumentParser() {}
 }
