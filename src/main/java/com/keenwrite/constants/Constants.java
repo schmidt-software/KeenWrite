@@ -16,6 +16,7 @@ import java.util.Locale;
 import static com.keenwrite.Bootstrap.APP_TITLE_LOWERCASE;
 import static com.keenwrite.Bootstrap.USER_DATA_DIR;
 import static com.keenwrite.io.SysFile.toFile;
+import static com.keenwrite.io.UserDataDir.getUserHome;
 import static com.keenwrite.preferences.LocaleScripts.withScript;
 import static com.keenwrite.util.SystemUtils.*;
 import static java.io.File.separator;
@@ -289,7 +290,7 @@ public final class Constants {
    */
   public static File getFontDirectory() {
     final var FONT_PATH = Path.of( "fonts" );
-    final var USER_HOME = System.getProperty( "user.home" );
+    final var USER_HOME = getUserHome();
 
     final String fontBase;
     final Path fontUser;

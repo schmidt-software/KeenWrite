@@ -445,6 +445,9 @@ public final class MainPane extends SplitPane {
 
     if( inputFile.isFile() ) {
       getRecentFiles().add( inputFile.getAbsolutePath() );
+
+      final var dir = inputFile.getParentFile();
+      mWorkspace.fileProperty( KEY_UI_RECENT_DIR ).setValue( dir );
     }
   }
 

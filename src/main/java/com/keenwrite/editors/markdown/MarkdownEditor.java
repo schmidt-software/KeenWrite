@@ -62,11 +62,6 @@ import static org.fxmisc.wellbehaved.event.InputMap.consume;
  */
 public final class MarkdownEditor extends BorderPane implements TextEditor {
   /**
-   * Represents a failed index search.
-   */
-  private static final int INDEX_NOT_FOUND = -1;
-
-  /**
    * Regular expression that matches the type of markup block. This is used
    * when Enter is pressed to continue the block environment.
    */

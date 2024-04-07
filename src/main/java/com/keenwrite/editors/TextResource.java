@@ -205,9 +205,6 @@ public interface TextResource {
    */
   void clearModifiedProperty();
 
-  private String asString( final byte[] text, final Charset encoding ) {
-    return new String( text, encoding );
-  }
 
   /**
    * Converts the given string to an array of bytes using the encoding that was
@@ -225,11 +222,15 @@ public interface TextResource {
     detector.handleData( bytes, 0, bytes.length );
     detector.dataEnd();
 
-    final var charset = detector.getDetectedCharset();
+    final var detectedCharset = detector.getDetectedCharset();
 
-    return charset == null
-      ? DEFAULT_CHARSET
-      : forName( charset.toUpperCase( ENGLISH ) );
+    // TODO: Revert when the issue has been fixed.
+    // https://github.com/albfernandez/juniversalchardet/issues/35
+    return switch( detectedCharset ) {
+      case null -> DEFAULT_CHARSET;
+      case "US-ASCII", "TIS620" -> DEFAULT_CHARSET;
+      default -> forName( detectedCharset.toUpperCase( ENGLISH ) );
+    };
   }
 
   /**
@@ -242,5 +243,9 @@ public interface TextResource {
    */
   default boolean supports( final MediaType mediaType ) {
     return isMediaType( mediaType );
+  }
+
+  private static String asString( final byte[] text, final Charset encoding ) {
+    return new String( text, encoding );
   }
 }

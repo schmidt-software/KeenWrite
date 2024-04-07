@@ -46,6 +46,10 @@ public final class UserDataDir {
 
   private UserDataDir() { }
 
+  public static String getUserHome() {
+    return PROP_USER_HOME;
+  }
+
   /**
    * Makes a valiant attempt at determining where to create application-specific
    * files, regardless of operating system.

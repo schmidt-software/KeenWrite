@@ -15,6 +15,7 @@ import java.util.Locale;
 import java.util.Optional;
 
 import static com.keenwrite.io.SysFile.toFile;
+import static com.keenwrite.io.UserDataDir.getUserHome;
 import static com.keenwrite.preferences.AppKeys.KEY_UI_RECENT_DIR;
 import static com.keenwrite.ui.explorer.FilePickerFactory.SelectionType.*;
 import static java.lang.String.format;
@@ -95,7 +96,7 @@ public class FilePickerFactory {
       final var file = toFile( path );
 
       mChooser.setInitialDirectory(
-        file.exists() ? file : new File( System.getProperty( "user.home" ) )
+        file.exists() ? file : new File( getUserHome() )
       );
     }
 
