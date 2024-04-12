@@ -17,7 +17,7 @@ Note: The forked warp packer release fixes a bug in the main branch.
 
 Clone the repository as follows:
 
-    git clone https://gitlab.com/DaveJarvis/KeenWrite.git
+    git clone https://gitlab.com/DaveJarvis/KeenWrite.git keenwrite
 
 The repository is cloned.
 
