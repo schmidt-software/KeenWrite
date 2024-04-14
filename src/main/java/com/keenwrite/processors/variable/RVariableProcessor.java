@@ -1,13 +1,13 @@
-/* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
-package com.keenwrite.processors.r;
+/* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved.
+ *
+ * SPDX-License-Identifier: MIT
+ */
+package com.keenwrite.processors.variable;
 
 import com.keenwrite.processors.Processor;
 import com.keenwrite.processors.ProcessorContext;
-import com.keenwrite.processors.VariableProcessor;
 import com.keenwrite.sigils.RKeyOperator;
 import com.keenwrite.sigils.SigilKeyOperator;
-
-import java.util.function.UnaryOperator;
 
 /**
  * Converts the keys of the resolved map from default form to R form, then

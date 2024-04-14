@@ -8,7 +8,7 @@ import com.keenwrite.ExportFormat;
 import com.keenwrite.io.MediaType;
 import com.keenwrite.processors.Processor;
 import com.keenwrite.processors.ProcessorContext;
-import com.keenwrite.processors.VariableProcessor;
+import com.keenwrite.processors.variable.VariableProcessor;
 import com.keenwrite.processors.markdown.extensions.caret.CaretExtension;
 import com.keenwrite.processors.markdown.extensions.fences.FencedBlockExtension;
 import com.keenwrite.processors.markdown.extensions.images.ImageLinkExtension;
@@ -16,7 +16,7 @@ import com.keenwrite.processors.markdown.extensions.outline.DocumentOutlineExten
 import com.keenwrite.processors.markdown.extensions.r.RInlineExtension;
 import com.keenwrite.processors.markdown.extensions.tex.TexExtension;
 import com.keenwrite.processors.r.RInlineEvaluator;
-import com.keenwrite.processors.r.RVariableProcessor;
+import com.keenwrite.processors.variable.RVariableProcessor;
 import com.vladsch.flexmark.util.misc.Extension;
 
 import java.util.ArrayList;
@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.function.Function;
 
 import static com.keenwrite.io.MediaType.TEXT_R_MARKDOWN;
-import static com.keenwrite.processors.IdentityProcessor.IDENTITY;
+import static com.keenwrite.processors.html.IdentityProcessor.IDENTITY;
 
 /**
  * Responsible for parsing a Markdown document and rendering it as HTML.

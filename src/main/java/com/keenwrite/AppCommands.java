@@ -9,7 +9,7 @@ import com.keenwrite.commands.ConcatenateCommand;
 import com.keenwrite.io.SysFile;
 import com.keenwrite.processors.Processor;
 import com.keenwrite.processors.ProcessorContext;
-import com.keenwrite.processors.RBootstrapProcessor;
+import com.keenwrite.processors.r.RBootstrapProcessor;
 
 import java.io.IOException;
 import java.nio.file.Path;

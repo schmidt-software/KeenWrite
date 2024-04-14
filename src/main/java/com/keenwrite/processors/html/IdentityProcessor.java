@@ -1,5 +1,7 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
-package com.keenwrite.processors;
+package com.keenwrite.processors.html;
+
+import com.keenwrite.processors.ExecutorProcessor;
 
 /**
  * Responsible for transforming a string into itself. This is used at the

@@ -1,11 +1,20 @@
-/* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
+/* Copyright 2020-2024 White Magic Software, Ltd. -- All rights reserved.
+ *
+ * SPDX-License-Identifier: MIT
+ */
 package com.keenwrite.processors;
 
+import com.keenwrite.processors.html.PreformattedProcessor;
+import com.keenwrite.processors.html.XhtmlProcessor;
 import com.keenwrite.processors.markdown.MarkdownProcessor;
+import com.keenwrite.processors.pdf.PdfProcessor;
+import com.keenwrite.processors.text.TextProcessor;
+import com.keenwrite.processors.variable.VariableProcessor;
 
+import static com.keenwrite.ExportFormat.TEXT_TEX;
 import static com.keenwrite.io.FileType.RMARKDOWN;
 import static com.keenwrite.io.FileType.SOURCE;
-import static com.keenwrite.processors.IdentityProcessor.IDENTITY;
+import static com.keenwrite.processors.html.IdentityProcessor.IDENTITY;
 
 /**
  * Responsible for creating processors capable of parsing, transforming,
@@ -57,6 +66,7 @@ public final class ProcessorFactory {
     final var successor = switch( outputType ) {
       case NONE -> preview;
       case XHTML_TEX -> createXhtmlProcessor( context );
+      case TEXT_TEX -> createTextProcessor( context );
       case APPLICATION_PDF -> createPdfProcessor( context );
       default -> createIdentityProcessor( context );
     };
@@ -64,9 +74,13 @@ public final class ProcessorFactory {
     final var inputType = context.getSourceFileType();
     final Processor<String> processor;
 
-    // When there's no preview, convert to HTML.
     if( preview == null ) {
-      processor = createMarkdownProcessor( successor, context );
+      if( outputType == TEXT_TEX ) {
+        processor = successor;
+      }
+      else {
+        processor = createMarkdownProcessor( successor, context );
+      }
     }
     else {
       processor = inputType == SOURCE || inputType == RMARKDOWN
@@ -120,6 +134,11 @@ public final class ProcessorFactory {
   private static Processor<String> createXhtmlProcessor(
     final ProcessorContext context ) {
     return createXhtmlProcessor( IDENTITY, context );
+  }
+
+  private static Processor<String> createTextProcessor(
+    final ProcessorContext context ) {
+    return new TextProcessor( IDENTITY, context );
   }
 
   private static Processor<String> createXhtmlProcessor(

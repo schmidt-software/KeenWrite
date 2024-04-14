@@ -1,7 +1,8 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
-package com.keenwrite.processors;
+package com.keenwrite.processors.html;
 
 import com.keenwrite.preview.HtmlPreview;
+import com.keenwrite.processors.ExecutorProcessor;
 
 /**
  * Responsible for notifying the {@link HtmlPreview} when the succession

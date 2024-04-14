@@ -2,10 +2,13 @@
  *
  * SPDX-License-Identifier: MIT
  */
-package com.keenwrite.processors;
+package com.keenwrite.processors.html;
 
 import com.keenwrite.dom.DocumentParser;
 import com.keenwrite.io.MediaTypeExtension;
+import com.keenwrite.processors.ExecutorProcessor;
+import com.keenwrite.processors.Processor;
+import com.keenwrite.processors.ProcessorContext;
 import com.keenwrite.ui.heuristics.WordCounter;
 import com.keenwrite.util.DataTypeConverter;
 import com.whitemagicsoftware.keenquotes.parser.Contractions;
@@ -33,7 +36,7 @@ import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 /**
  * Responsible for making an XHTML document complete by wrapping it with html
  * and body elements. This doesn't have to be super-efficient because it's
- * not run in real-time.
+ * not run in real time.
  */
 public final class XhtmlProcessor extends ExecutorProcessor<String> {
   private static final Curler sTypographer =

@@ -17,7 +17,7 @@ import java.util.BitSet;
 import java.util.List;
 import java.util.Map;
 
-import static com.keenwrite.processors.IdentityProcessor.IDENTITY;
+import static com.keenwrite.processors.html.IdentityProcessor.IDENTITY;
 import static com.vladsch.flexmark.parser.Parser.Builder;
 
 /**

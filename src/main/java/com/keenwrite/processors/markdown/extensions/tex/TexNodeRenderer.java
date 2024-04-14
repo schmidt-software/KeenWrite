@@ -31,6 +31,7 @@ public class TexNodeRenderer {
       HTML_TEX_SVG, new TexSvgNodeRenderer(),
       HTML_TEX_DELIMITED, new TexDelimitedNodeRenderer(),
       XHTML_TEX, new TexElementNodeRenderer( true ),
+      TEXT_TEX, new TexElementNodeRenderer( true ),
       NONE, RENDERER
     );
 

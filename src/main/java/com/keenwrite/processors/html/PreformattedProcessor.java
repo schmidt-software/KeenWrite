@@ -1,5 +1,11 @@
-/* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
-package com.keenwrite.processors;
+/* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved.
+ *
+ * SPDX-License-Identifier: MIT
+ */
+package com.keenwrite.processors.html;
+
+import com.keenwrite.processors.ExecutorProcessor;
+import com.keenwrite.processors.Processor;
 
 /**
  * This is the default processor used when an unknown file name extension is
@@ -26,6 +32,6 @@ public final class PreformattedProcessor extends ExecutorProcessor<String> {
    */
   @Override
   public String apply( final String t ) {
-    return "<pre>" + t + "</pre>";
+    return STR."<pre>\{t}</pre>";
   }
 }

@@ -14,7 +14,7 @@ import java.util.function.Supplier;
 import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.preferences.AppKeys.KEY_R_DIR;
 import static com.keenwrite.preferences.AppKeys.KEY_R_SCRIPT;
-import static com.keenwrite.processors.r.RVariableProcessor.escape;
+import static com.keenwrite.processors.variable.RVariableProcessor.escape;
 import static com.keenwrite.processors.text.TextReplacementFactory.replace;
 
 /**

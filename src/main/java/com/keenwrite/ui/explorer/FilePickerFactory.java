@@ -93,10 +93,10 @@ public class FilePickerFactory {
 
     @Override
     public void setInitialDirectory( final Path path ) {
-      final var file = toFile( path );
+      final var directory = toFile( path );
 
       mChooser.setInitialDirectory(
-        file.exists() ? file : new File( getUserHome() )
+        directory.exists() ? directory : new File( getUserHome() )
       );
     }
 

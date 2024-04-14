@@ -1,4 +1,7 @@
-/* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
+/* Copyright 2020-2024 White Magic Software, Ltd. -- All rights reserved.
+ *
+ * SPDX-License-Identifier: MIT
+ */
 package com.keenwrite;
 
 import com.keenwrite.io.MediaType;
@@ -31,7 +34,12 @@ public enum ExportFormat {
   /**
    * For XHTML exports, encode TeX using {@code $} delimiters.
    */
-  XHTML_TEX( ".xml" ),
+  XHTML_TEX( ".xhtml" ),
+
+  /**
+   * For TEXT exports, encode TeX using {@code $} delimiters.
+   */
+  TEXT_TEX( ".txt" ),
 
   /**
    * Exports as PDF file format.

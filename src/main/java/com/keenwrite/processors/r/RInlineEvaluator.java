@@ -2,6 +2,7 @@
 package com.keenwrite.processors.r;
 
 import com.keenwrite.processors.Processor;
+import com.keenwrite.processors.variable.RVariableProcessor;
 
 import java.util.function.Function;
 import java.util.function.Predicate;

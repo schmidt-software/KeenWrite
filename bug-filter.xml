@@ -11,7 +11,7 @@
     <Bug code="WMI" />
   </Match>
 
-  <Match class="com.keenwrite.processors.HtmlPreviewProcessor">
+  <Match class="com.keenwrite.processors.html.HtmlPreviewProcessor">
     <Method name="&lt;init&gt;" />
     <Bug code="ST" />
   </Match>

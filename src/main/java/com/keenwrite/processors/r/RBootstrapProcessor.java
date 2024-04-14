@@ -2,9 +2,11 @@
  *
  * SPDX-License-Identifier: MIT
  */
-package com.keenwrite.processors;
+package com.keenwrite.processors.r;
 
-import com.keenwrite.processors.r.RBootstrapController;
+import com.keenwrite.processors.ExecutorProcessor;
+import com.keenwrite.processors.Processor;
+import com.keenwrite.processors.ProcessorContext;
 
 public class RBootstrapProcessor extends ExecutorProcessor<String> {
   private final Processor<String> mSuccessor;

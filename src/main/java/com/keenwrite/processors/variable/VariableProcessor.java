@@ -1,6 +1,9 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
-package com.keenwrite.processors;
+package com.keenwrite.processors.variable;
 
+import com.keenwrite.processors.ExecutorProcessor;
+import com.keenwrite.processors.Processor;
+import com.keenwrite.processors.ProcessorContext;
 import com.keenwrite.sigils.SigilKeyOperator;
 
 import java.util.HashMap;
@@ -52,7 +55,7 @@ public class VariableProcessor
    *
    * @return A map of variable names to values, with keys wrapped in sigils.
    */
-  protected Map<String, String> getDefinitions() {
+  public Map<String, String> getDefinitions() {
     return entoken( mContext.getInterpolatedDefinitions() );
   }
 

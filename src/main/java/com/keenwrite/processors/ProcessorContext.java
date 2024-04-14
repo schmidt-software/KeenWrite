@@ -11,6 +11,7 @@ import com.keenwrite.editors.common.Caret;
 import com.keenwrite.io.FileType;
 import com.keenwrite.io.MediaType;
 import com.keenwrite.io.MediaTypeExtension;
+import com.keenwrite.processors.variable.VariableProcessor;
 import com.keenwrite.sigils.PropertyKeyOperator;
 import com.keenwrite.sigils.SigilKeyOperator;
 import com.keenwrite.util.GenericBuilder;
@@ -31,7 +32,7 @@ import static com.keenwrite.io.FileType.UNKNOWN;
 import static com.keenwrite.io.MediaType.TEXT_PROPERTIES;
 import static com.keenwrite.io.SysFile.toFile;
 import static com.keenwrite.predicates.PredicateFactory.createFileTypePredicate;
-import static com.keenwrite.processors.IdentityProcessor.IDENTITY;
+import static com.keenwrite.processors.html.IdentityProcessor.IDENTITY;
 import static com.keenwrite.processors.text.TextReplacementFactory.replace;
 import static com.keenwrite.util.Strings.sanitize;
 

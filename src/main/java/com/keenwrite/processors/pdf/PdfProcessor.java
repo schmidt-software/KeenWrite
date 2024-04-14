@@ -1,6 +1,8 @@
 /* Copyright 2020-2021 White Magic Software, Ltd. -- All rights reserved. */
-package com.keenwrite.processors;
+package com.keenwrite.processors.pdf;
 
+import com.keenwrite.processors.ExecutorProcessor;
+import com.keenwrite.processors.ProcessorContext;
 import com.keenwrite.typesetting.Typesetter;
 
 import static com.keenwrite.Bootstrap.APP_TITLE_ABBR;

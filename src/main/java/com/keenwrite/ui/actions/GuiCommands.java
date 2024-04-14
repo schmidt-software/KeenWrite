@@ -43,7 +43,6 @@ import java.util.Optional;
 import static com.keenwrite.Bootstrap.*;
 import static com.keenwrite.ExportFormat.*;
 import static com.keenwrite.Messages.get;
-import static com.keenwrite.constants.Constants.PDF_DEFAULT;
 import static com.keenwrite.constants.Constants.USER_DIRECTORY;
 import static com.keenwrite.constants.GraphicsConstants.ICON_DIALOG_NODE;
 import static com.keenwrite.events.StatusEvent.clue;
@@ -195,14 +194,10 @@ public final class GuiCommands {
       ? editorParent
       : userHomeParent;
 
-    final var filename = format.toExportFilename( editor.getPath() );
-    final var selected = PDF_DEFAULT
-      .getName()
-      .equals( exported.get().getName() );
+    final var filename = format.toExportFilename( exported.get() );
+
     final var selection = pickFile(
-      selected
-        ? filename
-        : exported.get(),
+      filename,
       exportPath,
       FILE_EXPORT
     );
@@ -336,6 +331,14 @@ public final class GuiCommands {
 
   public void file_export_html_tex() {
     file_export( HTML_TEX_DELIMITED );
+  }
+
+  public void file_export_text_tex() {
+    file_export( TEXT_TEX, false );
+  }
+
+  public void file_export_text_tex_dir() {
+    file_export( TEXT_TEX, true );
   }
 
   public void file_export_xhtml_tex() {
