@@ -52,7 +52,7 @@ public class MediaTypeTest {
     final var map = Map.of(
        "https://kroki.io/robots.txt", TEXT_PLAIN,
        "https://place-hold.it/300x500", IMAGE_GIF,
-       "https://placekitten.com/g/200/300", IMAGE_JPEG,
+       "https://loremflickr.com/200/300", IMAGE_JPEG,
        "https://upload.wikimedia.org/wikipedia/commons/9/9f/Vimlogo.svg", IMAGE_SVG_XML,
        "https://kroki.io//graphviz/svg/eNpLyUwvSizIUHBXqPZIzcnJ17ULzy_KSanlAgB1EAjQ", IMAGE_SVG_XML
     );
@@ -60,6 +60,7 @@ public class MediaTypeTest {
 
     map.forEach( ( k, v ) -> {
       try( var response = open( k ) ) {
+        System.out.printf( "%s => %s%n", k, v );
         assertEquals( v, response.getMediaType() );
       } catch( final Exception e ) {
         throw new RuntimeException( e );

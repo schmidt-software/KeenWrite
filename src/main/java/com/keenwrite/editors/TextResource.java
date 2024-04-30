@@ -5,9 +5,9 @@
 package com.keenwrite.editors;
 
 import com.keenwrite.io.MediaType;
+import com.keenwrite.util.EncodingDetector;
 import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.scene.Node;
-import org.mozilla.universalchardet.UniversalDetector;
 
 import java.io.File;
 import java.nio.charset.Charset;
@@ -16,11 +16,9 @@ import java.nio.file.Path;
 import static com.keenwrite.constants.Constants.DEFAULT_CHARSET;
 import static com.keenwrite.events.StatusEvent.clue;
 import static com.keenwrite.io.SysFile.toFile;
-import static java.nio.charset.Charset.forName;
 import static java.nio.file.Files.readAllBytes;
 import static java.nio.file.Files.write;
 import static java.util.Arrays.asList;
-import static java.util.Locale.ENGLISH;
 
 /**
  * A text resource can be persisted and retrieved from its persisted location.
@@ -218,19 +216,7 @@ public interface TextResource {
   }
 
   private Charset detectEncoding( final byte[] bytes ) {
-    final var detector = new UniversalDetector( null );
-    detector.handleData( bytes, 0, bytes.length );
-    detector.dataEnd();
-
-    final var detectedCharset = detector.getDetectedCharset();
-
-    // TODO: Revert when the issue has been fixed.
-    // https://github.com/albfernandez/juniversalchardet/issues/35
-    return switch( detectedCharset ) {
-      case null -> DEFAULT_CHARSET;
-      case "US-ASCII", "TIS620" -> DEFAULT_CHARSET;
-      default -> forName( detectedCharset.toUpperCase( ENGLISH ) );
-    };
+    return new EncodingDetector().detect( bytes );
   }
 
   /**

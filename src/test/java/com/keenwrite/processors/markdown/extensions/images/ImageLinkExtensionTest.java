@@ -34,6 +34,9 @@ public class ImageLinkExtensionTest {
   private static final String PATH_KITTEN_PNG = STR."\{URI_PATH}.png";
   private static final String PATH_KITTEN_JPG = STR."\{URI_PATH}.jpg";
 
+  /** Web server that doles out images. */
+  private static final String PLACEHOLDER = "loremflickr.com";
+
   private static final Map<String, String> IMAGES = new LinkedHashMap<>();
 
   static {
@@ -41,10 +44,10 @@ public class ImageLinkExtensionTest {
     add( PATH_KITTEN_PNG, URI_FILE );
     add( PATH_KITTEN_PNG, PATH_KITTEN_PNG );
     add( PATH_KITTEN_JPG, PATH_KITTEN_JPG );
-    add( "//placekitten.com/200/200", "//placekitten.com/200/200" );
-    add( "ftp://placekitten.com/200/200", "ftp://placekitten.com/200/200" );
-    add( "http://placekitten.com/200/200", "http://placekitten.com/200/200" );
-    add( "https://placekitten.com/200/200", "https://placekitten.com/200/200" );
+    add( STR."//\{PLACEHOLDER}/200/200", STR."//\{PLACEHOLDER}/200/200" );
+    add( STR."ftp://\{PLACEHOLDER}/200/200",  STR."ftp://\{PLACEHOLDER}/200/200" );
+    add( STR."http://\{PLACEHOLDER}/200/200", STR."http://\{PLACEHOLDER}/200/200" );
+    add( STR."https://\{PLACEHOLDER}/200/200", STR."https://\{PLACEHOLDER}/200/200" );
   }
 
   private static void add( final String expected, final String actual ) {

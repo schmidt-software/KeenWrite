@@ -1,29 +1,19 @@
 package com.keenwrite.encoding;
 
+import com.keenwrite.util.EncodingDetector;
 import org.junit.jupiter.api.Test;
-import org.mozilla.universalchardet.UniversalDetector;
 
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class EncodingTest {
   @Test
   public void test_Encoding_UTF8_UTF8() {
     final var bytes = testBytes();
-
-    final var detector = new UniversalDetector( null );
-    detector.handleData( bytes, 0, bytes.length );
-    detector.dataEnd();
-
+    final var detector = new EncodingDetector();
     final var expectedCharset = StandardCharsets.UTF_8;
-    final var detectedCharset = detector.getDetectedCharset();
-
-    assertNotNull( detectedCharset );
-
-    final var actualCharset = Charset.forName( detectedCharset );
+    final var actualCharset = detector.detect( bytes );
 
     assertEquals( expectedCharset, actualCharset );
   }

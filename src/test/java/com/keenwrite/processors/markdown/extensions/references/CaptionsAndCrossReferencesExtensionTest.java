@@ -175,13 +175,13 @@ public class CaptionsAndCrossReferencesExtensionTest {
       ),
       args(
         """
-          ![kitteh](placekitten)
+          ![kitteh](kitten)
 
           :: Caption **bold** {#fig:label} *italics*
           """,
         """
           <p><span class="caption">Caption <strong>bold</strong>  <em>italics</em></span><a class="name" data-type="fig" name="label" /></p>
-          <p><img src="placekitten" alt="kitteh" /></p>
+          <p><img src="kitten" alt="kitteh" /></p>
           """
       ),
       args(
