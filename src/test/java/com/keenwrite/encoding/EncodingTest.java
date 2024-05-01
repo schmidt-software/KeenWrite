@@ -3,16 +3,19 @@ package com.keenwrite.encoding;
 import com.keenwrite.util.EncodingDetector;
 import org.junit.jupiter.api.Test;
 
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
+import static java.nio.charset.StandardCharsets.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class EncodingTest {
   @Test
+  @SuppressWarnings( "UnnecessaryLocalVariable" )
   public void test_Encoding_UTF8_UTF8() {
     final var bytes = testBytes();
     final var detector = new EncodingDetector();
-    final var expectedCharset = StandardCharsets.UTF_8;
+    final var expectedCharset = UTF_8;
     final var actualCharset = detector.detect( bytes );
 
     assertEquals( expectedCharset, actualCharset );
@@ -31,6 +34,6 @@ public class EncodingTest {
         would be, in her words, *infinitamente más relajante*---infinitely
         more relaxing.
         """
-        .getBytes();
+        .getBytes( UTF_8 );
   }
 }
