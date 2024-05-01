@@ -13,7 +13,6 @@ import static org.junit.jupiter.api.Assertions.*;
  * correct IANA-defined {@link MediaType} for known file types.
  */
 class MediaTypeSnifferTest {
-
   @Test
   void test_Read_KnownFileTypes_MediaTypeReturned()
     throws Exception {
@@ -21,7 +20,7 @@ class MediaTypeSnifferTest {
     final var pkgName = clazz.getPackageName();
     final var dir = pkgName.replace( '.', '/' );
 
-    final var urls = clazz.getClassLoader().getResources( dir + "/images" );
+    final var urls = clazz.getClassLoader().getResources( STR."\{dir}/images" );
     assertTrue( urls.hasMoreElements() );
 
     while( urls.hasMoreElements() ) {
@@ -34,6 +33,8 @@ class MediaTypeSnifferTest {
         final var media = MediaTypeSniffer.getMediaType( image );
         final var actualExtension = valueFrom( media ).getExtension();
         final var expectedExtension = getExtension( image.toString() );
+        System.out.println( STR."\{image} -> \{media}" );
+
         assertEquals( expectedExtension, actualExtension );
       }
     }
