@@ -15,7 +15,7 @@ class SysFileTest {
 
   @Test
   void test_Locate_ExistingExecutable_PathFound() {
-    testFunction( SysFile::locate, "ls", "/usr/bin/ls" );
+    testFunction( SysFile::locate, "env", "/usr/bin/env" );
   }
 
   @Test
